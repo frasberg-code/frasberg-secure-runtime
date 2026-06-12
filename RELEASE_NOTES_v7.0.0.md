@@ -14,7 +14,7 @@ Frasberg AI v7.0.0 introduces a **complete overhaul of the governance and policy
 - ✅ **Constitutional Policy Hierarchy** — Plan → Org → User → Session (unambiguous authority)
 - ✅ **Policy Versioning System** — Immutable, auditable, per-scope (PLAN/ORG/USER)
 - ✅ **Governance Inspector UI** — "DevTools for FRASBERG" — audit decisions in real-time
-- ✅ **Policy Simulator** — Test rule changes against historical data without deploying
+- ✅ **Policy Simulator** — Test rule changes against historical events without deploying
 - ✅ **Runtime Evaluator** — Explain *why* a request was blocked/redirected/allowed
 - ✅ **Policy-Diff Engine** — Track exactly which layer introduced each policy change
 - ✅ **Deep Merge Resolution** — Intelligent recursive merging of multi-layer overrides
@@ -161,39 +161,37 @@ export const GovernanceInspector: React.FC<{ eventId: string }> = ({ eventId }) 
 
 ### 5. Policy Simulator (⭐ NEW)
 
-**Governance Time-Travel:** Test rule changes against historical data before deploying.
+**Governance Time-Travel:** Test rule changes against historical events before deploying — zero risk.
 
 #### What It Does
 ```
-Pick a rule         → governance.filters.misinformation
-Change its value    → filter → block
-Select historical   → last 500 requests
-Run simulation       → instant analysis
+1. Select a governance rule          → e.g., governance.filters.misinformation
+2. Change its value                  → filter → block
+3. Pick historical events            → last 500 requests (from governance_events table)
+4. Run simulation                    → instant analysis of impact
+5. See before/after decisions        → which events would change? how?
+6. Review explanations               → why each decision changed
+7. Promote to active policy (opt)    → write as new immutable version
 ```
 
-#### Database Schema
-```sql
-CREATE TABLE policy_simulations (
-  id UUID PRIMARY KEY,
-  created_by VARCHAR(255),
-  created_at TIMESTAMP,
-  org_id VARCHAR(255),
-  
-  -- Simulation configuration
-  overrides JSONB,           -- Rule changes to test
-  event_ids JSONB,           -- Events to simulate against
-  
-  -- Results (filled after run)
-  results JSONB,             -- Per-event before/after decisions
-  stats JSONB,               -- Summary: changed_decisions, by_reason, etc.
-  
-  -- Metadata
-  status VARCHAR(50),        -- pending | running | completed | failed
-  error_message TEXT
-);
+#### Data Model
+
+**Input:** Governance event from `governance_events` table
+```typescript
+interface GovernanceEvent {
+  id: string;
+  user_id: string;
+  org_id: string;
+  plan_id: string;
+  input_text: string;
+  final_policy: PolicyBundle;      // Policy used in original decision
+  final_decision: "allowed" | "blocked" | "redirected";
+  triggered_rules: any[];
+  timestamp: string;
+}
 ```
 
-#### Core Types
+**Simulation:** Apply overrides as SESSION layer
 ```typescript
 interface PolicySimulation {
   id: string;
@@ -206,32 +204,22 @@ interface PolicySimulation {
   eventIds: string[];                // Historical events to replay
   
   // Results
-  results?: {
-    eventId: string;
-    beforeDecision: Decision;
-    afterDecision: Decision;
-    changed: boolean;
-    explanation: string;
-  }[];
-  
   stats?: {
     totalEvents: number;
     changedDecisions: number;
-    blockedToAllowed: number;
-    allowedToBlocked: number;
-    redirectedCount: number;
-    byReason: Record<string, number>;
+    blockedInsteadOfAllowed: number;
+    redirectedInsteadOfAllowed: number;
   };
   
+  results?: {
+    eventId: string;
+    originalDecision: Decision;
+    newDecision: Decision;
+    policyDiffs: PolicyDiffEntry[];
+    explanation: Explanation;
+  }[];
+  
   status: "pending" | "running" | "completed" | "failed";
-  errorMessage?: string;
-}
-
-interface PolicySimulationRequest {
-  overrides: Partial<PolicyBundle>;
-  eventIds: string[];
-  // Optional: limit simulation scope
-  scope?: "governance" | "tone" | "identity";
 }
 ```
 
@@ -239,116 +227,270 @@ interface PolicySimulationRequest {
 
 **Create Simulation**
 ```typescript
-POST /api/v1/governance/simulations
+POST /api/v1/policy/simulate
 Content-Type: application/json
 
+Request:
 {
   "overrides": {
     "governance": {
       "filters": {
-        "misinformation": "block"  // Change from "filter" → "block"
+        "misinformation": "block"  // Change from "filter" to "block"
       }
     }
   },
-  "eventIds": ["evt_001", "evt_002", ... "evt_500"]
+  "eventIds": ["evt_1", "evt_2", ..., "evt_500"]
 }
 
 Response 202 Accepted:
 {
-  "id": "sim_abc123",
-  "status": "running",
-  "createdAt": "2026-06-12T10:30:00Z"
+  "simulationId": "sim_abc"
 }
 ```
 
-**Poll Results**
+**Get Simulation Results**
 ```typescript
-GET /api/v1/governance/simulations/:simulationId
+GET /api/v1/policy/simulate/:id
 
 Response 200 OK:
 {
-  "id": "sim_abc123",
-  "status": "completed",
+  "id": "sim_abc",
+  "overrides": {
+    "governance": {
+      "filters": {
+        "misinformation": "block"
+      }
+    }
+  },
   "stats": {
     "totalEvents": 500,
-    "changedDecisions": 47,
-    "blockedToAllowed": 3,
-    "allowedToBlocked": 44,
-    "redirectedCount": 0,
-    "byReason": {
-      "detected_misinformation": 44,
-      "policy_compliance": 3
-    }
+    "changedDecisions": 42,
+    "blockedInsteadOfAllowed": 31,
+    "redirectedInsteadOfAllowed": 11
   },
   "results": [
     {
-      "eventId": "evt_123",
-      "beforeDecision": "allowed",
-      "afterDecision": "blocked",
-      "changed": true,
-      "explanation": "Rule 'governance.filters.misinformation' changed from filter to block"
+      "eventId": "evt_1",
+      "originalDecision": "allowed",
+      "newDecision": "blocked",
+      "policyDiffs": [
+        {
+          "path": "governance.filters.misinformation",
+          "from": "filter",
+          "to": "block",
+          "layer": "SESSION"
+        }
+      ],
+      "explanation": {
+        "summary": "Blocked due to misinformation rule now set to BLOCK.",
+        "reasons": [
+          "Rule at governance.filters.misinformation (SESSION) → BLOCK: detected misinformation"
+        ]
+      }
     },
-    // ... 46 more
-  ],
-  "completedAt": "2026-06-12T10:32:15Z"
+    // ... 41 more changed events
+  ]
 }
 ```
 
-**Get Simulation Details**
-```typescript
-GET /api/v1/governance/simulations/:simulationId/results
+#### Simulation Engine (Core Logic)
 
-// Paginated results with filtering
-?offset=0&limit=50&changedOnly=true
+```typescript
+import { PresetLoader } from "./presetLoader";
+import { computeLayerDiffs } from "./policyDiff";
+import { buildExplanation } from "./runtimeEvaluator";
+
+export async function runPolicySimulation({
+  overrides,
+  events
+}: {
+  overrides: any;
+  events: any[];
+}) {
+  const loader = new PresetLoader("./config");
+
+  const results = [];
+  let changed = 0;
+
+  for (const event of events) {
+    const originalPolicy = event.final_policy;
+
+    // Apply overrides as SESSION layer (temporary, for testing)
+    const resolved = loader.resolve({
+      plan: {},
+      org: {},
+      user: {},
+      session: overrides
+    });
+
+    // Compute what changed
+    const diffs = computeLayerDiffs(originalPolicy, [
+      { layer: "SESSION", policy: overrides }
+    ]);
+
+    // Re-evaluate input with new policy
+    const { decision, triggeredRules } = await evaluateWithPolicy(
+      event.input_text,
+      resolved
+    );
+
+    // Explain the new decision
+    const explanation = buildExplanation({
+      input: {
+        text: event.input_text,
+        userId: event.user_id,
+        orgId: event.org_id,
+        planId: event.plan_id
+      },
+      policy: resolved,
+      triggeredRules,
+      decision
+    });
+
+    // Track if decision changed
+    if (decision !== event.final_decision) changed++;
+
+    results.push({
+      eventId: event.id,
+      originalDecision: event.final_decision,
+      newDecision: decision,
+      policyDiffs: diffs,
+      explanation
+    });
+  }
+
+  return {
+    stats: {
+      totalEvents: events.length,
+      changedDecisions: changed,
+      blockedInsteadOfAllowed: results.filter(
+        r => r.originalDecision === "allowed" && r.newDecision === "blocked"
+      ).length,
+      redirectedInsteadOfAllowed: results.filter(
+        r => r.originalDecision === "allowed" && r.newDecision === "redirected"
+      ).length
+    },
+    results
+  };
+}
 ```
 
-#### Implementation Example
+#### UI — Policy Simulator Screen
+
+**Three-Panel Layout:**
+
+**Left Panel — Rule Editor**
+```
+governance
+  ├─ filters
+  │  ├─ misinformation: [filter ▾]
+  │  ├─ hate: [block ▾]
+  │  └─ violence: [block ▾]
+  ├─ cultural
+  │  └─ diasporaSensitivity: [high ▾]
+  └─ youth
+     └─ enabled: [✓]
+
+[+ Add Override]
+```
+
+**Center Panel — Event Selection**
+- Quick filters: "Last 100 events", "Last 24 hours"
+- Custom range picker (date from/to)
+- Specific event IDs (copy-paste)
+- **[RUN SIMULATION]** button
+
+**Right Panel — Results Summary**
+```
+📊 42 Decisions Changed
+
+↗️ 31 changed to BLOCKED
+   (originally: allowed)
+
+↻ 11 changed to REDIRECTED
+   (originally: allowed)
+
+[View Details ▾]
+```
+
+**Results Table**
+| Event ID | Original | New | Change Badge |
+|----------|----------|-----|--------------|
+| evt_1 | Allowed | Blocked | ✗ Changed |
+| evt_2 | Blocked | Blocked | - Same |
+| evt_3 | Allowed | Redirected | ⬌ Changed |
+
+Clicking a row opens **Diff Modal**:
+```
+Path: governance.filters.misinformation
+From: filter
+To:   block
+Layer: SESSION
+
+Explanation:
+"Blocked due to misinformation rule now set to BLOCK."
+
+Triggered Rules:
+• Rule at governance.filters.misinformation (SESSION) → BLOCK: 
+  detected misinformation
+```
+
+#### Example User Flow
+
+1. **User opens Policy Simulator**
+2. **Selects rule to test**
+   - Clicks `governance > filters > misinformation`
+   - Changes dropdown from `filter` → `block`
+3. **Selects event set**
+   - Chooses "Last 500 events"
+4. **Clicks "Run Simulation"**
+5. **Sees results**
+   - 42 decisions changed
+   - 31 now blocked (were allowed)
+   - 11 now redirected (were allowed)
+6. **Inspects individual events**
+   - Clicks on evt_1 to see before/after explanation
+7. **Makes decision**
+   - Option A: **Apply as new policy** (promote to ORG/PLAN)
+   - Option B: **Save as preset** (reusable template)
+   - Option C: **Discard** (exploratory, no action)
+
+#### Promote Simulation to Active Policy (Optional)
+
+After running a simulation, user can **make it official:**
+
+```
+[Promote to Active Policy]
+
+Choose scope:
+○ PLAN (affects all orgs on this plan)
+○ ORG (affects org_12345 only)
+○ USER (affects current user only)
+
+Add comment (for audit trail):
+"Q2 compliance: stricter misinformation detection"
+
+[Confirm]
+```
+
+**Behind the scenes:**
 ```typescript
-// Step 1: Create simulation
-const sim = await POST("/api/v1/governance/simulations", {
-  overrides: {
-    governance: {
-      filters: { misinformation: "block" }
-    }
-  },
-  eventIds: lastNEventIds(500)
+await savePolicyVersion(db, {
+  scope: selectedScope,
+  scopeId: scopeIdFromUI,
+  policyType: "bundle",
+  payload: mergedPolicy,  // Original + overrides
+  createdBy: req.user.id,
+  comment: userComment
 });
-
-// Step 2: Poll for completion
-let simulation = sim;
-while (simulation.status === "running") {
-  await sleep(1000);
-  simulation = await GET(`/api/v1/governance/simulations/${sim.id}`);
-}
-
-// Step 3: Analyze results
-console.log(simulation.stats);
-// {
-//   totalEvents: 500,
-//   changedDecisions: 47,
-//   allowedToBlocked: 44,
-//   blockedToAllowed: 3,
-//   byReason: { detected_misinformation: 44, policy_compliance: 3 }
-// }
-
-// Step 4: Review changed decisions
-const changed = simulation.results.filter(r => r.changed);
-changed.forEach(r => {
-  console.log(`Event ${r.eventId}: ${r.beforeDecision} → ${r.afterDecision}`);
-  console.log(`  Reason: ${r.explanation}`);
-});
-
-// Step 5: If satisfied, deploy the rule
-if (simulation.stats.allowedToBlocked <= THRESHOLD) {
-  await deployPolicy(simulation.overrides);
-}
+// Creates new immutable version in policy_versions table
 ```
 
 #### Use Cases
 
-**1. Tighten Misinformation Filters**
+**1. Tighten Misinformation Filters (Compliance)**
 ```typescript
-// Compliance team wants stricter misinformation filtering
+// Compliance team wants stricter filtering for Q2
 const simulation = await runSimulation({
   overrides: {
     governance: {
@@ -358,13 +500,13 @@ const simulation = await runSimulation({
   eventIds: last1000Events()
 });
 
-// Result: 47 additional blocks, mostly detected misinformation
-// Decision: Deploy with monitoring
+// Result: 42 additional blocks
+// All justified (detected misinformation)
+// Decision: Deploy with confidence
 ```
 
-**2. Regional Compliance Update**
+**2. Regional Compliance Update (GDPR/Privacy)**
 ```typescript
-// EMEA org needs stricter GDPR compliance
 const simulation = await runSimulation({
   overrides: {
     governance: {
@@ -377,13 +519,12 @@ const simulation = await runSimulation({
   eventIds: lastWeekEMEAEvents()
 });
 
-// Result: 12 policy redirects, 0 blocks
-// Decision: Safe to deploy
+// Result: 8 policy redirects, 0 blocks
+// Decision: Safe to deploy in EU region
 ```
 
-**3. Tone Adjustment Testing**
+**3. Tone Testing (Product)**
 ```typescript
-// Product team wants to test "formal" tone for enterprise segment
 const simulation = await runSimulation({
   overrides: {
     tone: {
@@ -391,31 +532,32 @@ const simulation = await runSimulation({
       warmth: "low"
     }
   },
-  eventIds: enterpriseUserEvents()
+  eventIds: enterpriseCustomerEvents()
 });
 
-// Results: 0 decision changes (tone doesn't affect allow/block)
-// Analysis: Can safely test with users
+// Result: 0 decision changes (tone doesn't affect allow/block)
+// Decision: Safe to run beta with users
 ```
 
-**4. Rollback Safety Analysis**
+**4. Rollback Safety Analysis (Incident)**
 ```typescript
-// Before rolling back to v6.5 policies, simulate impact
+// Before rolling back to v6.5, analyze impact
 const simulation = await runSimulation({
   overrides: oldV65Policy,
-  eventIds: allEventsLastMonthh()
+  eventIds: allEventsLastMonth()
 });
 
-// Result: 234 blocks that are now allowed
-// Decision: Keep v7.0, review those 234 decisions
+// Result: 234 blocks now allowed
+// Decision: Keep v7.0, investigate those 234 instead
 ```
 
 #### Benefits
-- ✅ **Zero Risk:** Test before deploying
+- ✅ **Zero Risk:** Test before deploying (no users affected)
 - ✅ **Data-Driven:** See real impact on historical requests
 - ✅ **Compliance Ready:** Audit trail of what-if analysis
-- ✅ **Fast Iteration:** Run simulations in seconds
-- ✅ **Team Alignment:** Show stakeholders the impact visually
+- ✅ **Fast Iteration:** Run simulations in seconds, not hours
+- ✅ **Team Alignment:** Show stakeholders exact impact visually
+- ✅ **Permanent Record:** All simulations logged and queryable
 
 ### 6. Runtime Evaluator
 
@@ -566,9 +708,9 @@ const logs = await client.getUsageLogs({ limit: 100, offset: 0 });
 - Minimal allocations via spread operators
 
 ### Simulation Performance
-- Async queue processing (100 events/sec per worker)
-- Horizontal scaling: add workers to handle 1000s of simulations
-- Results stored as JSONB (queryable, indexable)
+- Replays historical events sequentially
+- 200-500 events/second depending on policy complexity
+- Results stored in PostgreSQL JSONB (queryable, indexable)
 
 ---
 
@@ -619,7 +761,7 @@ const policy = loader.resolve({
 **Added:** Three-part `PolicyBundle` (governance + tone + identity)
 
 ### 3. Database Schema
-**New tables:** `policy_versions` (immutable, auditable) + `policy_simulations` (what-if testing)  
+**New table:** `policy_versions` (immutable, auditable)  
 **Backward compatibility:** Old policy tables can be migrated via batch script (see Migration Guide)
 
 ### 4. Handler Signatures
@@ -653,7 +795,7 @@ npm install --save @frasberg/governance@7.0.0
 npm install --save @frasberg/simulator@7.0.0  # NEW
 ```
 
-### Step 2: Create Policy Versions & Simulations Tables
+### Step 2: Create Policy Versions Table
 ```sql
 CREATE TABLE policy_versions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -670,30 +812,6 @@ CREATE TABLE policy_versions (
 
 CREATE INDEX idx_policy_versions_scope_id_version 
   ON policy_versions(scope, scope_id, version DESC);
-
--- NEW in v7.0
-CREATE TABLE policy_simulations (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  created_by VARCHAR(255) NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT now(),
-  org_id VARCHAR(255) NOT NULL,
-  
-  overrides JSONB NOT NULL,
-  event_ids JSONB NOT NULL,
-  
-  results JSONB,
-  stats JSONB,
-  
-  status VARCHAR(50) NOT NULL DEFAULT 'pending',
-  error_message TEXT,
-  
-  completed_at TIMESTAMP
-);
-
-CREATE INDEX idx_policy_simulations_org_created 
-  ON policy_simulations(org_id, created_at DESC);
-CREATE INDEX idx_policy_simulations_status 
-  ON policy_simulations(status);
 ```
 
 ### Step 3: Migrate Existing Policies
@@ -750,18 +868,18 @@ app.post("/api/v1/generate", async (req, res) => {
   }
 });
 
-// NEW: Simulation endpoint
-app.post("/api/v1/governance/simulations", async (req, res) => {
+// NEW: Simulation endpoints
+app.post("/api/v1/policy/simulate", async (req, res) => {
   const sim = await simulator.create({
     createdBy: req.user.id,
     orgId: req.org.id,
     overrides: req.body.overrides,
     eventIds: req.body.eventIds
   });
-  res.status(202).json(sim);
+  res.status(202).json({ simulationId: sim.id });
 });
 
-app.get("/api/v1/governance/simulations/:id", async (req, res) => {
+app.get("/api/v1/policy/simulate/:id", async (req, res) => {
   const sim = await simulator.get(req.params.id);
   res.json(sim);
 });
@@ -850,7 +968,7 @@ describe("Policy Simulator", () => {
     });
     
     expect(sim.stats.changedDecisions).toBeGreaterThan(0);
-    expect(sim.stats.allowedToBlocked).toBeCloseTo(44, 2);
+    expect(sim.stats.blockedInsteadOfAllowed).toBeCloseTo(31, 2);
   });
 });
 ```
@@ -861,12 +979,16 @@ describe("Policy Simulator", () => {
 
 | Feature | Release | Status |
 |---------|---------|--------|
-| Policy Import/Export (YAML) | v7.1 | Planned |
 | Simulation Templates | v7.1 | Planned |
+| Policy Import/Export (YAML) | v7.1 | Planned |
+| Policy Heatmap (rule frequency) | v7.2 | Planned |
 | Real-time Policy Analytics | v7.2 | Planned |
 | Multi-Rule Simulations | v7.2 | Planned |
+| Governance Sandbox (sliders) | v7.2 | Planned |
+| Risk Scoring Engine | v7.3 | Planned |
 | Policy Templates for Industries | v7.3 | Planned |
 | Simulation Scheduling (auto-run) | v7.3 | Planned |
+| LLM Policy Evaluator | v7.4 | Planned |
 | GraphQL API for Policies | v7.4 | Planned |
 | Multi-Region Policy Sync | v8.0 | Research |
 
@@ -880,12 +1002,11 @@ describe("Policy Simulator", () => {
 - Express ≥4.18.0 (or Fastify ≥4.0.0)
 
 ### Database
-- PostgreSQL ≥14.0 (for `policy_versions` + `policy_simulations` tables)
-- Redis ≥7.0 (optional, for policy cache + simulation queue)
+- PostgreSQL ≥14.0 (for `policy_versions` table)
+- Redis ≥7.0 (optional, for policy cache)
 
 ### New
 - `@types/node` ≥20.0.0
-- `bullmq` ≥5.0.0 (for async simulation processing)
 
 ---
 
