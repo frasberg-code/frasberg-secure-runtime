@@ -8,18 +8,20 @@
 
 ## 📋 Executive Summary
 
-Frasberg AI v7.0.0 introduces a **complete overhaul of the governance and policy system**, replacing ad-hoc rules with a **constitutional hierarchy of policy layers**, an **immutable audit-trail versioning system**, a powerful **visual governance inspector**, a game-changing **policy simulator for time-travel governance testing**, and an **interactive governance sandbox for real-time parameter exploration**. This release enables enterprise customers to enforce compliance at scale while preserving user autonomy and cultural sensitivity.
+Frasberg AI v7.0.0 introduces a **complete overhaul of the governance and policy system**, replacing ad-hoc rules with a **constitutional hierarchy of policy layers**, an **immutable audit-trail versioning system**, and a comprehensive **FRASBERG Governance Studio** — a unified workspace for policy exploration, testing, analysis, and deployment. This release enables enterprise customers to enforce compliance at scale while preserving user autonomy and cultural sensitivity.
 
 ### Key Highlights
 - ✅ **Constitutional Policy Hierarchy** — Plan → Org → User → Session (unambiguous authority)
 - ✅ **Policy Versioning System** — Immutable, auditable, per-scope (PLAN/ORG/USER)
-- ✅ **Governance Inspector UI** — "DevTools for FRASBERG" — audit decisions in real-time
-- ✅ **Policy Simulator** — Test rule changes against historical events without deploying
-- ✅ **Governance Sandbox** — **NEW** — Interactive sliders for real-time policy exploration
-- ✅ **Policy Heatmap** — **NEW** — Visualize rule frequency and impact over time
-- ✅ **Risk Scoring Engine** — **NEW** — Quantify misconfiguration risk per rule
-- ✅ **Runtime Evaluator** — Explain *why* a request was blocked/redirected/allowed
-- ✅ **Policy-Diff Engine** — Track exactly which layer introduced each policy change
+- ✅ **FRASBERG Governance Studio** ⭐ **NEW** — Unified workspace for all policy tools
+- ✅ **Governance Sandbox** — Real-time sliders with instant effect visualization
+- ✅ **Policy Heatmap** — Visualize rule frequency and impact over time
+- ✅ **Risk Scoring Engine** — Quantify misconfiguration impact per rule
+- ✅ **LLM Policy Evaluator** — AI explains policies in plain English
+- ✅ **Policy Simulator** — Test rule changes against historical events
+- ✅ **Governance Inspector** — Audit decisions in real-time
+- ✅ **Runtime Evaluator** — Explain *why* requests are blocked/redirected
+- ✅ **Policy-Diff Engine** — Track which layer introduced each change
 - ✅ **Deep Merge Resolution** — Intelligent recursive merging of multi-layer overrides
 
 ---
@@ -74,467 +76,216 @@ CREATE TABLE policy_versions (
 );
 ```
 
-#### Operations
-- **Create Version:** Insert with `version = last_version + 1` (immutable append)
-- **Get Active:** Query latest version per scope
-- **Audit Trail:** List all versions and compute diffs
+---
 
-#### Example
-```typescript
-await savePolicyVersion(db, {
-  scope: "ORG",
-  scopeId: "org_12345",
-  policyType: "bundle",
-  payload: newPolicy,
-  createdBy: "admin@company.com",
-  comment: "Q2 compliance update: stricter hate speech filtering"
-});
-// Creates version N+1, never modifies existing versions
+## ⭐ FRASBERG Governance Studio
+
+**The unified workspace for all policy governance tools.**
+
+A single, integrated UI where admins and compliance teams explore policies, run simulations, analyze impact, and make data-driven governance decisions.
+
+### Studio Layout
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ Top Bar: Plan | Org | User | Session Overrides                 │
+├─────────┬───────────────────────────┬──────────────────────────┤
+│ Left    │       Center Workspace    │ Right Sidebar            │
+│ Sidebar │                           │                          │
+│         │  (Tool-Specific Content)  │  • Policy Bundle View    │
+│ • 🎮   │                           │  • Diff Viewer           │
+│ Sandbox │                           │  • Explanation Viewer    │
+│         │                           │  • Rule Details          │
+│ • 📊 H  │                           │                          │
+│ eatmap  │                           │                          │
+│         │                           │                          │
+│ • ⚠️    │                           │                          │
+│ Risk    │                           │                          │
+│         │                           │                          │
+│ • 🔍    │                           │                          │
+│ Inspect │                           │                          │
+│ or      │                           │                          │
+│         │                           │                          │
+│ • 📋    │                           │                          │
+│ Simulat │                           │                          │
+│ or      │                           │                          │
+│         │                           │                          │
+│ • 📜    │                           │                          │
+│ Versions│                           │                          │
+│         │                           │                          │
+│ • 🤖    │                           │                          │
+│ LLM     │                           │                          │
+│ Eval    │                           │                          │
+│         │                           │                          │
+└─────────┴───────────────────────────┴──────────────────────────┘
 ```
 
-### 3. Policy-Diff Engine
+### Left Sidebar — Navigation
 
-**Track Changes:** See exactly which layer introduced each policy modification.
+Click each tool to switch center workspace:
 
-#### Types
-```typescript
-interface PolicyDiffEntry {
-  path: string;           // e.g., "governance.filters.violence"
-  from: any;              // Previous value
-  to: any;                // New value
-  layer: PolicyLayer;     // PLAN | ORG | USER | SESSION
-}
+- **🎮 Governance Sandbox** — Real-time parameter exploration
+- **📊 Policy Heatmap** — Rule frequency visualization
+- **⚠️ Risk Scoring** — Impact quantification
+- **🔍 Governance Inspector** — Decision auditing
+- **📋 Policy Simulator** — Historical what-if testing
+- **📜 Policy Versions** — Version history & audit trail
+- **🤖 LLM Evaluator** — AI policy analysis
+
+### Top Bar — Context
+
+Always visible:
+```
+[Plan: PRO] [Org: org_12345] [User: john@company.com] [Session Overrides: ∅]
 ```
 
-#### Usage
-```typescript
-const diffs = computeLayerDiffs(basePolicy, [
-  { layer: "PLAN", policy: planPolicy },
-  { layer: "ORG", policy: orgPolicy },
-  { layer: "USER", policy: userPolicy }
-]);
-// Returns: [{path: "tone.formality", from: "medium", to: "high", layer: "USER"}, ...]
+Clicking each shows a dropdown to switch context.
+
+### Right Sidebar — Viewers
+
+Updates dynamically based on center workspace:
+- **Policy Bundle View** — Current policy structure (readonly)
+- **Diff Viewer** — Changes from baseline
+- **Explanation Viewer** — Runtime explanations
+- **Rule Details** — Per-rule metadata, risk scores, frequency
+
+---
+
+### Feature 1: Governance Sandbox
+
+**Real-Time Parameter Exploration**
+
+#### Purpose
+Live playground where you adjust governance parameters and instantly see effects on:
+- Sample canonical prompts
+- Historical prompts
+- Edge-case prompts
+- Safety-critical prompts
+
+#### UI Layout
+
+**Left Panel — Controls**
+```
+Safety Strictness
+[─────●───────] 75 / 100
+
+Cultural Sensitivity
+○ Low   ◉ Medium   ○ High
+
+Youth Protection
+[✓] Enabled
+Age Floor: [13 ─────●──── 18]
+
+Tone Settings
+Formality:   [────●──────] 60
+Warmth:      [─────●─────] 70
+Directness:  [──────●────] 80
+Energy:      [─────●─────] 55
+
+[📋 Load Preset ▼]
+[🔄 Reset to Default]
 ```
 
-### 4. Governance Inspector (DevTools for FRASBERG)
+**Center Panel — Prompt Evaluation**
+```
+Evaluating 20 canonical prompts...
 
-**Visual Auditing:** Real-time inspection of policy decisions with full transparency.
+Results Summary:
+  ✅ Allowed:   15 (75%)
+  🚫 Blocked:    3 (15%)
+  ⬌ Redirected:  2 (10%)
 
-#### Three-Pane Layout
+Top Triggered Rules:
+  • governance.filters.misinformation: 5 times
+  • governance.youth: 2 times
+  • governance.cultural: 1 time
 
-**Left Pane:**
-- Request metadata (user, plan, org, timestamp)
-- Final decision badge (Allowed / Blocked / Redirected)
-- Reason summary
-
-**Center Pane:**
-- Policy stack visualization (PLAN → ORG → USER → SESSION)
-- Click each layer to expand and view its configuration
-- Diff badges (+3 changes, -1 rule, etc.)
-
-**Right Pane:**
-- Diff table (path | from | to | layer)
-- Filter by governance / tone / identity
-- Runtime explanation
-
-#### React Component Skeleton
-```typescript
-export const GovernanceInspector: React.FC<{ eventId: string }> = ({ eventId }) => {
-  const [request, finalPolicy, layerPolicies, diffs, explanation] = 
-    await fetchInspectionData(eventId);
-
-  return (
-    <div className="gov-inspector">
-      <aside className="left-pane">
-        <RequestSummary request={request} />
-        <DecisionBadge decision={finalPolicy.decision} />
-        <ReasonSummary summary={explanation.summary} />
-      </aside>
-      <section className="center-pane">
-        <PolicyStack layers={layerPolicies} diffs={diffs} />
-      </section>
-      <aside className="right-pane">
-        <DiffViewer diffs={diffs} />
-        <ExplanationPanel explanation={explanation} />
-      </aside>
-    </div>
-  );
-};
+[Live Mode] [Show Details ▼]
 ```
 
-### 5. Policy Simulator (⭐ NEW)
-
-**Governance Time-Travel:** Test rule changes against historical events before deploying — zero risk.
-
-#### What It Does
+**Results Details**
 ```
-1. Select a governance rule          → e.g., governance.filters.misinformation
-2. Change its value                  → filter → block
-3. Pick historical events            → last 500 requests (from governance_events table)
-4. Run simulation                    → instant analysis of impact
-5. See before/after decisions        → which events would change? how?
-6. Review explanations               → why each decision changed
-7. Promote to active policy (opt)    → write as new immutable version
+Prompt: "Tell me about African history"
+Original: Allowed  →  New: Allowed  ✓ No change
+Explanation: Educational content, no safety issues
+
+Prompt: "Hate speech example"
+Original: Blocked  →  New: Blocked  ✓ No change
+Rules fired: governance.filters.hate (HIGH)
+
+Prompt: "Discuss controversial topic X"
+Original: Allowed  →  New: Redirected  ⬌ Changed!
+Reason: governance.cultural.diasporaSensitivity now strict
+[View Diff]
 ```
-
-#### Data Model
-
-**Input:** Governance event from `governance_events` table
-```typescript
-interface GovernanceEvent {
-  id: string;
-  user_id: string;
-  org_id: string;
-  plan_id: string;
-  input_text: string;
-  final_policy: PolicyBundle;      // Policy used in original decision
-  final_decision: "allowed" | "blocked" | "redirected";
-  triggered_rules: any[];
-  timestamp: string;
-}
-```
-
-**Simulation:** Apply overrides as SESSION layer
-```typescript
-interface PolicySimulation {
-  id: string;
-  createdBy: string;
-  createdAt: string;
-  orgId: string;
-  
-  // Configuration
-  overrides: Partial<PolicyBundle>;  // Rule changes to test
-  eventIds: string[];                // Historical events to replay
-  
-  // Results
-  stats?: {
-    totalEvents: number;
-    changedDecisions: number;
-    blockedInsteadOfAllowed: number;
-    redirectedInsteadOfAllowed: number;
-  };
-  
-  results?: {
-    eventId: string;
-    originalDecision: Decision;
-    newDecision: Decision;
-    policyDiffs: PolicyDiffEntry[];
-    explanation: Explanation;
-  }[];
-  
-  status: "pending" | "running" | "completed" | "failed";
-}
-```
-
-#### API Endpoints
-
-**Create Simulation**
-```typescript
-POST /api/v1/policy/simulate
-Content-Type: application/json
-
-Request:
-{
-  "overrides": {
-    "governance": {
-      "filters": {
-        "misinformation": "block"  // Change from "filter" to "block"
-      }
-    }
-  },
-  "eventIds": ["evt_1", "evt_2", ..., "evt_500"]
-}
-
-Response 202 Accepted:
-{
-  "simulationId": "sim_abc"
-}
-```
-
-**Get Simulation Results**
-```typescript
-GET /api/v1/policy/simulate/:id
-
-Response 200 OK:
-{
-  "id": "sim_abc",
-  "overrides": {
-    "governance": {
-      "filters": {
-        "misinformation": "block"
-      }
-    }
-  },
-  "stats": {
-    "totalEvents": 500,
-    "changedDecisions": 42,
-    "blockedInsteadOfAllowed": 31,
-    "redirectedInsteadOfAllowed": 11
-  },
-  "results": [
-    {
-      "eventId": "evt_1",
-      "originalDecision": "allowed",
-      "newDecision": "blocked",
-      "policyDiffs": [
-        {
-          "path": "governance.filters.misinformation",
-          "from": "filter",
-          "to": "block",
-          "layer": "SESSION"
-        }
-      ],
-      "explanation": {
-        "summary": "Blocked due to misinformation rule now set to BLOCK.",
-        "reasons": [
-          "Rule at governance.filters.misinformation (SESSION) → BLOCK: detected misinformation"
-        ]
-      }
-    }
-  ]
-}
-```
-
-#### Simulation Engine (Core Logic)
-
-```typescript
-import { PresetLoader } from "./presetLoader";
-import { computeLayerDiffs } from "./policyDiff";
-import { buildExplanation } from "./runtimeEvaluator";
-
-export async function runPolicySimulation({
-  overrides,
-  events
-}: {
-  overrides: any;
-  events: any[];
-}) {
-  const loader = new PresetLoader("./config");
-
-  const results = [];
-  let changed = 0;
-
-  for (const event of events) {
-    const originalPolicy = event.final_policy;
-
-    // Apply overrides as SESSION layer (temporary, for testing)
-    const resolved = loader.resolve({
-      plan: {},
-      org: {},
-      user: {},
-      session: overrides
-    });
-
-    // Compute what changed
-    const diffs = computeLayerDiffs(originalPolicy, [
-      { layer: "SESSION", policy: overrides }
-    ]);
-
-    // Re-evaluate input with new policy
-    const { decision, triggeredRules } = await evaluateWithPolicy(
-      event.input_text,
-      resolved
-    );
-
-    // Explain the new decision
-    const explanation = buildExplanation({
-      input: {
-        text: event.input_text,
-        userId: event.user_id,
-        orgId: event.org_id,
-        planId: event.plan_id
-      },
-      policy: resolved,
-      triggeredRules,
-      decision
-    });
-
-    // Track if decision changed
-    if (decision !== event.final_decision) changed++;
-
-    results.push({
-      eventId: event.id,
-      originalDecision: event.final_decision,
-      newDecision: decision,
-      policyDiffs: diffs,
-      explanation
-    });
-  }
-
-  return {
-    stats: {
-      totalEvents: events.length,
-      changedDecisions: changed,
-      blockedInsteadOfAllowed: results.filter(
-        r => r.originalDecision === "allowed" && r.newDecision === "blocked"
-      ).length,
-      redirectedInsteadOfAllowed: results.filter(
-        r => r.originalDecision === "allowed" && r.newDecision === "redirected"
-      ).length
-    },
-    results
-  };
-}
-```
-
-#### UI — Policy Simulator Screen
-
-**Three-Panel Layout:**
-
-**Left Panel — Rule Editor**
-```
-governance
-  ├─ filters
-  │  ├─ misinformation: [filter ▾]
-  │  ├─ hate: [block ▾]
-  │  └─ violence: [block ▾]
-  ├─ cultural
-  │  └─ diasporaSensitivity: [high ▾]
-  └─ youth
-     └─ enabled: [✓]
-
-[+ Add Override]
-```
-
-**Center Panel — Event Selection**
-- Quick filters: "Last 100 events", "Last 24 hours"
-- Custom range picker (date from/to)
-- Specific event IDs (copy-paste)
-- **[RUN SIMULATION]** button
-
-**Right Panel — Results Summary**
-```
-📊 42 Decisions Changed
-
-↗️ 31 changed to BLOCKED
-   (originally: allowed)
-
-↻ 11 changed to REDIRECTED
-   (originally: allowed)
-
-[View Details ▾]
-```
-
-#### Use Cases
-
-**1. Tighten Misinformation Filters (Compliance)**
-- Test stricter filtering against last 500 events
-- See 42 additional blocks, 31 justified
-- Deploy with confidence
-
-**2. Regional Compliance Update (GDPR)**
-- Test GDPR mode against EMEA events
-- Results: 8 redirects, 0 blocks
-- Safe to deploy
-
-**3. Tone Testing (Product)**
-- Test "formal" tone with enterprise customers
-- Results: 0 decision changes
-- Safe to run beta
-
-**4. Rollback Safety (Incident)**
-- Before rolling back to v6.5, analyze impact
-- Results: 234 blocks now allowed
-- Keep v7.0, investigate those 234
-
-#### Benefits
-- ✅ **Zero Risk:** Test before deploying
-- ✅ **Data-Driven:** See real impact on historical requests
-- ✅ **Compliance Ready:** Audit trail of what-if analysis
-- ✅ **Fast Iteration:** Run simulations in seconds
-- ✅ **Permanent Record:** All simulations logged and queryable
-
-### 6. Governance Sandbox (⭐ NEW)
-
-**Interactive Playground:** Adjust governance and tone parameters with real-time effects on canonical prompts.
-
-#### Core Parameters (Sliders & Toggles)
-
-**Safety Strictness (0–100 slider)**
-```
-Maps to:
-  • governance.filters.misinformation
-  • governance.filters.hate
-  • governance.filters.violence
-
-Slider position → internally mapped to: allow / filter / block
-  0–33:   allow (permissive)
-  34–66:  filter (moderate)
-  67–100: block (strict)
-```
-
-**Cultural Sensitivity (Low / Medium / High)**
-```
-Maps to:
-  • governance.cultural.diasporaSensitivity
-  • governance.cultural.stereotypePrevention
-```
-
-**Youth Protection (Toggle + Slider)**
-```
-Toggle: governance.youth.enabled
-Slider: governance.youth.ageFloor (5–18)
-```
-
-**Tone Parameters (Independent sliders)**
-```
-• Formality:    0 (casual) ← → 100 (formal)
-• Warmth:       0 (cold) ← → 100 (very warm)
-• Directness:   0 (indirect) ← → 100 (direct)
-
-Maps to: tone.formality, tone.warmth, tone.directness
-```
-
-#### User Flow
-
-1. **Pick a preset** (Default, High-Sensitivity, Experimental)
-2. **Adjust sliders** (changes happen in real-time)
-3. **Sandbox evaluates 20 canonical test prompts**
-4. **Shows live results:**
-   - % allowed / blocked / redirected
-   - Example outputs before/after
-   - Which rules fired
 
 #### API
 
-**POST /api/v1/policy/sandbox**
+**POST /api/v1/governance/studio/sandbox/evaluate**
+
 ```typescript
 Request:
 {
-  "safetyStrictness": 75,        // 0–100
-  "culturalSensitivity": "high", // low | medium | high
-  "youthProtectionEnabled": true,
-  "youthAgeFloor": 13,
-  "toneFormal": 60,
-  "toneWarmth": 70,
-  "toneDirectness": 80,
-  "presetBase": "default"        // optional
+  "overrides": {
+    "governance": {
+      "filters": {
+        "misinformation": "block",
+        "hate": "block",
+        "violence": "filter"
+      },
+      "cultural": {
+        "diasporaSensitivity": "high"
+      },
+      "youth": {
+        "enabled": true,
+        "ageFloor": 13
+      }
+    },
+    "tone": {
+      "formality": 60,
+      "warmth": 70,
+      "directness": 80,
+      "energy": 55
+    }
+  }
 }
 
 Response:
 {
   "sandboxId": "sbx_xyz",
-  "policyOverrides": { ... },     // Generated policy
+  "policyOverrides": { ... },
   "results": {
     "totalPrompts": 20,
     "allowed": 15,
     "blocked": 3,
     "redirected": 2,
     "byRule": {
-      "governance.filters.misinformation": 3,
-      "governance.filters.hate": 1,
-      "governance.youth": 1
+      "governance.filters.misinformation": 5,
+      "governance.youth": 2,
+      "governance.cultural": 1
     },
-    "examples": [
+    "promptResults": [
       {
         "prompt": "Tell me about African history",
-        "decision": "allowed",
-        "explanation": "Educational content, no blocks"
+        "originalDecision": "allowed",
+        "newDecision": "allowed",
+        "changed": false,
+        "explanation": "Educational content, no safety issues"
       },
       {
-        "prompt": "Hate speech example",
-        "decision": "blocked",
-        "explanation": "Blocked by hate filter (Cultural Sensitivity: high)"
+        "prompt": "Discuss controversial topic X",
+        "originalDecision": "allowed",
+        "newDecision": "redirected",
+        "changed": true,
+        "explanation": "governance.cultural.diasporaSensitivity now strict",
+        "diffs": [
+          {
+            "path": "governance.cultural.diasporaSensitivity",
+            "from": "medium",
+            "to": "high",
+            "layer": "SESSION"
+          }
+        ]
       }
     ]
   }
@@ -546,81 +297,122 @@ Response:
 ```typescript
 export const GovernanceSandbox: React.FC = () => {
   const [overrides, setOverrides] = useState<PolicyOverrides>({
-    safetyStrictness: 50,
-    culturalSensitivity: "medium",
-    youthProtectionEnabled: false,
-    toneFormal: 50,
-    toneWarmth: 50,
-    toneDirectness: 50
+    governance: {
+      filters: {
+        misinformation: "filter",
+        hate: "block",
+        violence: "filter"
+      },
+      cultural: {
+        diasporaSensitivity: "medium"
+      },
+      youth: {
+        enabled: false,
+        ageFloor: 13
+      }
+    },
+    tone: {
+      formality: 50,
+      warmth: 50,
+      directness: 50,
+      energy: 50
+    }
   });
 
   const [results, setResults] = useState<SandboxResults | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSliderChange = async (key: string, value: number) => {
-    const updated = { ...overrides, [key]: value };
+  const handleChange = async (path: string, value: any) => {
+    const updated = setPath(overrides, path, value);
     setOverrides(updated);
-    
+
+    // Real-time evaluation
     setLoading(true);
-    const response = await fetch("/api/v1/policy/sandbox", {
+    const res = await fetch("/api/v1/governance/studio/sandbox/evaluate", {
       method: "POST",
-      body: JSON.stringify(updated)
+      body: JSON.stringify({ overrides: updated })
     });
-    const data = await response.json();
+    const data = await res.json();
     setResults(data.results);
     setLoading(false);
   };
 
   return (
-    <div className="governance-sandbox">
-      <div className="sliders">
-        <SliderControl
-          label="Safety Strictness"
-          min={0}
-          max={100}
-          value={overrides.safetyStrictness}
-          onChange={(v) => handleSliderChange("safetyStrictness", v)}
-        />
-        {/* More sliders... */}
-      </div>
-
-      <div className="results">
-        {loading ? <Spinner /> : (
-          <>
-            <SummaryCards results={results} />
-            <ExamplesTable results={results} />
-            <RuleFrequency results={results} />
-          </>
-        )}
-      </div>
+    <div className="sandbox">
+      <ControlsPanel overrides={overrides} onChange={handleChange} />
+      <ResultsPanel results={results} loading={loading} />
+      <RightSidebar policy={results?.policy} />
     </div>
   );
 };
 ```
 
-#### Benefits
-- ✅ **Instant Feedback:** See effects in real-time
-- ✅ **No Deployment Needed:** Pure exploration
-- ✅ **Learn by Doing:** Understand policy trade-offs
-- ✅ **Preset Templates:** Start from proven configurations
-- ✅ **Share Results:** Save and export sandbox configs
+#### Use Cases
+- ✅ Learn how parameters affect behavior
+- ✅ Explore trade-offs (safety vs expressiveness)
+- ✅ Test presets before applying
+- ✅ Validate tone adjustments instantly
+- ✅ Discover edge cases
 
-### 7. Policy Heatmap (⭐ NEW)
+---
 
-**Governance Intelligence:** Visualize which rules fire most often and when.
+### Feature 2: Policy Heatmap
 
-#### Data Collection
+**Which Rules Fire Most Often**
 
-From `governance_events.triggered_rules`:
-- Rule path (e.g., `governance.filters.misinformation`)
-- Decision (blocked / redirected)
-- Timestamp
+#### Purpose
+Visualize governance rules across time to understand:
+- Which rules do the most work?
+- Where is risk accumulating?
+- Are certain rules inactive?
+- Seasonal/temporal patterns?
 
-Aggregated into time buckets (hour / day / week).
+#### UI Layout
+
+**Heatmap Grid**
+```
+                Mon 6/1    Tue 6/2    Wed 6/3    Thu 6/4
+misinformation  ■■■░░     ■■■■░      ■■■░░      ■■■■■
+hate            ■■░░░     ■■░░░      ■░░░░      ■■■░░
+violence        ■░░░░     ░░░░░      ■░░░░      ░░░░░
+youth           ░░░░░     ■░░░░      ░░░░░      ■■░░░
+cultural        ░░░░░     ░░░░░      ░░░░░      ■░░░░
+
+Legend: ■■■ (100+) | ■■ (50-99) | ■ (1-49) | ░ (0)
+```
+
+**Sidebar — Top Rules**
+```
+Top 10 Most-Triggered Rules
+
+1. 🔴 governance.filters.misinformation
+   420 triggers | 310 blocked | 🟥 CRITICAL (87)
+   
+2. 🔴 governance.filters.hate
+   210 triggers | 180 blocked | 🟥 CRITICAL (72)
+   
+3. 🟡 governance.youth.enabled
+   95 triggers | 45 blocked | 🟡 MEDIUM (45)
+   
+4. 🟢 tone.formality
+   50 triggers | 0 blocked | 🟢 LOW (12)
+
+[View Simulator] [View Inspector] [View Details]
+```
+
+**Filters**
+```
+Time Range: [From 2026-06-01] [To 2026-06-30]
+Org: [org_12345 ▼]
+Plan: [All ▼]
+Decision: [All ▼]   [Blocked]   [Redirected]
+Bucket Size: [Day ▼]
+```
 
 #### API
 
-**GET /api/v1/policy/heatmap**
+**GET /api/v1/governance/studio/heatmap**
+
 ```typescript
 ?from=2026-06-01&to=2026-06-30&orgId=org_123&bucketSize=day
 
@@ -633,78 +425,91 @@ Response:
       "rules": {
         "governance.filters.misinformation": 42,
         "governance.filters.hate": 17,
-        "governance.filters.violence": 5
+        "governance.filters.violence": 5,
+        "governance.youth": 0,
+        "governance.cultural": 0
       }
     },
-    // ... more buckets
+    {
+      "start": "2026-06-02T00:00:00Z",
+      "end": "2026-06-03T00:00:00Z",
+      "rules": {
+        "governance.filters.misinformation": 48,
+        "governance.filters.hate": 12,
+        "governance.filters.violence": 0,
+        "governance.youth": 3,
+        "governance.cultural": 1
+      }
+    }
   ],
   "topRules": [
-    { 
-      "path": "governance.filters.misinformation", 
+    {
+      "path": "governance.filters.misinformation",
       "count": 420,
       "blockedCount": 310,
-      "redirectedCount": 110
+      "redirectedCount": 110,
+      "riskScore": 87,
+      "category": "misinformation"
     },
-    { 
-      "path": "governance.filters.hate", 
+    {
+      "path": "governance.filters.hate",
       "count": 210,
       "blockedCount": 180,
-      "redirectedCount": 30
+      "redirectedCount": 30,
+      "riskScore": 72,
+      "category": "hate"
     }
   ]
 }
 ```
 
-#### UI
-
-**Heatmap Grid:**
-- **X-axis:** Time (days or weeks)
-- **Y-axis:** Rule paths
-- **Cell color:** Frequency (lighter = rare, darker = frequent)
-- **Cell hover:** Shows exact count
-
-**Sidebar:**
-- Top 10 most-triggered rules with badges (Low / Medium / High)
-- Click rule → open Governance Inspector + Simulator
-- Filters: Time range, Org/Plan, Decision type
-
 #### Features
-- ✅ **Identify Hotspots:** Which rules fire most?
-- ✅ **Trend Analysis:** Is safety spending increasing?
-- ✅ **Anomaly Detection:** Spikes in rule activation
-- ✅ **Org Comparison:** Compare heatmaps across orgs
+- ✅ Identify hotspots
+- ✅ Trend analysis
+- ✅ Anomaly detection
+- ✅ Org comparison
+- ✅ Seasonal patterns
 
-### 8. Risk Scoring Engine (⭐ NEW)
+---
 
-**Quantify Misconfiguration Impact:** Each rule gets a risk score (0–100) reflecting its criticality.
+### Feature 3: Risk Scoring Engine
 
-#### Scoring Model
+**Quantify Misconfiguration Impact**
 
-For each rule `r`:
+#### Purpose
+Each rule gets a risk score (0–100) reflecting:
+- How often it fires
+- How many it blocks
+- Category severity
+- Org criticality flag
+- Historical harm potential
+
+#### Scoring Formula
 
 ```
-baseRisk = category-specific constant
+score = baseRisk
+      × (1 + log(1 + triggerCount))
+      × (0.5 + 0.5 × blockRate)
+      × criticalMultiplier
+
+baseRisk (by category):
   • hate, self-harm:     5.0
   • misinformation:      4.0
-  • sexual, violence:    3.0
-  • formatting, tone:    1.0
+  • violence:            3.0
+  • cultural:            2.0
+  • tone:                1.0
 
-frequencyFactor = log(1 + triggerCount)
-
-blockFactor = blockedCount / max(1, triggerCount)
-  (0.0 = never blocks, 1.0 = always blocks)
+blockRate = blockedCount / max(1, triggerCount)
 
 criticalMultiplier = orgCritical ? 1.5 : 1.0
-  (org can mark rules as "critical" via UI)
 
-score = baseRisk × (1 + frequencyFactor) × (0.5 + 0.5 × blockFactor) × criticalMultiplier
-
-Normalized to 0–100
+Normalize result to 0–100
 ```
 
 #### API
 
-**GET /api/v1/policy/risk-scores**
+**GET /api/v1/governance/studio/risk-scores**
+
 ```typescript
 ?orgId=org_123&timeWindow=30d
 
@@ -718,10 +523,11 @@ Response:
       "baseRisk": 4.0,
       "triggerCount": 420,
       "blockedCount": 310,
+      "redirectedCount": 110,
+      "blockRate": 0.74,
       "frequencyFactor": 6.04,
-      "blockFactor": 0.74,
       "critical": true,
-      "recommendation": "HIGH — Monitor closely, changes may impact many users"
+      "recommendation": "🔴 CRITICAL — Changes may impact 100+ users daily"
     },
     {
       "path": "governance.filters.hate",
@@ -730,10 +536,10 @@ Response:
       "baseRisk": 5.0,
       "triggerCount": 210,
       "blockedCount": 180,
+      "blockRate": 0.86,
       "frequencyFactor": 5.35,
-      "blockFactor": 0.86,
       "critical": true,
-      "recommendation": "HIGH — Changes highly impactful"
+      "recommendation": "🔴 HIGH — Core safety rule, handle with care"
     },
     {
       "path": "tone.formality",
@@ -742,10 +548,9 @@ Response:
       "baseRisk": 1.0,
       "triggerCount": 50,
       "blockedCount": 0,
-      "frequencyFactor": 3.93,
-      "blockFactor": 0.0,
+      "blockRate": 0.0,
       "critical": false,
-      "recommendation": "LOW — Safe to experiment"
+      "recommendation": "🟢 LOW — Safe to experiment"
     }
   ]
 }
@@ -753,50 +558,44 @@ Response:
 
 #### UI
 
-**Risk Scores List:**
+**Risk Scores List**
 ```
 Sorted by score (descending)
 
-governance.filters.misinformation    [87] 🔴 CRITICAL
-  Triggers: 420 | Blocks: 310 | Category: misinformation
-  [View Inspector] [Run Simulation]
+🔴 CRITICAL (81-100)
+├─ governance.filters.misinformation [87]
+│  Triggers: 420 | Blocks: 310
+│  [View Inspector] [Run Simulation] [Details]
+└─ governance.filters.hate [72]
+   Triggers: 210 | Blocks: 180
+   [View Inspector] [Run Simulation] [Details]
 
-governance.filters.hate              [72] 🔴 HIGH
-  Triggers: 210 | Blocks: 180 | Category: hate
-  [View Inspector] [Run Simulation]
+🟡 MEDIUM (31-60)
+├─ governance.youth [45]
+└─ governance.cultural [38]
 
-governance.youth.enabled             [45] 🟡 MEDIUM
-  Triggers: 95 | Blocks: 45 | Category: youth
-  [View Inspector] [Run Simulation]
-
-tone.formality                        [12] 🟢 LOW
-  Triggers: 50 | Blocks: 0 | Category: tone
-  [View Inspector] [Run Simulation]
+🟢 LOW (0-30)
+└─ tone.formality [12]
 ```
 
-**Badges:**
-- 🟢 LOW (0–30): Safe to experiment
-- 🟡 MEDIUM (31–60): Use caution
-- 🔴 HIGH (61–80): Monitor closely
-- 🔴 CRITICAL (81–100): Highly impactful
-
 #### Benefits
-- ✅ **Prioritize Updates:** Focus on high-risk rules first
-- ✅ **Safe Experimentation:** Know which rules won't hurt
-- ✅ **Data-Driven Decisions:** Real impact metrics
-- ✅ **Audit Trail:** Justifications for policy changes
+- ✅ Prioritize updates
+- ✅ Safe experimentation
+- ✅ Data-driven decisions
+- ✅ Audit trail
 
-### 9. LLM Policy Evaluator (⭐ NEW)
+---
 
-**Meta-Layer Intelligence:** AI evaluates policies themselves, explaining strengths, risks, and recommendations in plain English.
+### Feature 4: LLM Policy Evaluator
 
-#### What It Does
+**Natural-Language Policy Explanations**
 
-Takes a `PolicyBundle` (or diff) and produces:
-- **Plain-language summary** — What is this policy about?
-- **Key strengths** — What does it do well?
-- **Potential risks** — What could go wrong?
-- **Recommendations** — How to improve it?
+#### Purpose
+AI analyzes a policy bundle and explains it in plain English:
+- What does it do?
+- Strengths?
+- Risks?
+- Recommendations?
 
 #### Data Model
 
@@ -845,7 +644,8 @@ interface PolicyEvaluationOutput {
 
 #### API
 
-**POST /api/v1/policy/evaluate**
+**POST /api/v1/governance/studio/policy-evaluation**
+
 ```typescript
 Request:
 {
@@ -873,119 +673,173 @@ Response:
 }
 ```
 
-#### UI Integration
+#### UI (In Studio)
 
-**In Governance Inspector, add tab: "LLM Evaluation"**
+**Dedicated Tab: "LLM Evaluation"**
 
 ```
-📋 Policy Evaluation
+📋 Policy Analysis (AI-Generated)
 
 Summary:
-"This policy is highly protective, prioritizing safety over expressiveness..."
+"This policy is highly protective, prioritizing safety over
+expressiveness. It's designed for strict compliance environments."
 
 Strengths:
 ✓ Strict blocking of hate, self-harm, illegal content
 ✓ High diaspora sensitivity and stereotype prevention
-✓ Youth protections enabled with conservative age floor
+✓ Youth protections with conservative age floor
 ✓ Warm, respectful tone
 
 Potential Risks:
-⚠ May over-block nuanced educational content
-⚠ Could frustrate advanced users
-⚠ Requires detailed user messaging
+⚠ May over-block educational content about sensitive topics
+⚠ Could frustrate users expecting expressiveness
+⚠ Requires clear user messaging when blocking
 
 Recommendations:
-→ Consider separate 'research' preset with relaxed filters
-→ Add contextual user messaging when content blocked
-→ Monitor heatmap for over-blocking patterns
+→ Create separate 'research' preset with relaxed filters
+→ Add contextual messaging for blocked content
+→ Monitor heatmap for false positives
 → Test with domain experts
 
 [Re-evaluate after changes]
 ```
 
-**Button: "Re-evaluate after changes"**
-- Re-runs evaluation after user modifies policy
-- Shows before/after comparison
-- Highlights newly introduced risks
+---
 
-#### Benefits
-- ✅ **Self-Documenting:** Policies explain themselves
-- ✅ **Best Practices:** Recommendations from domain knowledge
-- ✅ **Risk Awareness:** Understand unintended consequences
-- ✅ **Team Alignment:** Non-technical stakeholders understand policies
-- ✅ **Compliance:** Documented rationale for policy choices
+### Feature 5: Governance Inspector
 
-### 10. Runtime Evaluator
+**Real-Time Decision Auditing**
 
-**Human-Readable Explanations:** Understand *why* every decision was made.
+Purpose: Inspect individual governance events and understand why decisions were made.
 
-#### Types
-```typescript
-interface Explanation {
-  summary: string;                // Short prose explanation
-  decision: "allowed" | "blocked" | "redirected";
-  reasons: string[];              // Per-rule explanations
-  contributingLayers: PolicyLayer[];
-  triggeredRules: {
-    path: string;
-    ruleType: string;
-    reason: string;
-    layer: PolicyLayer;
-  }[];
-}
+#### UI (Integrated into Studio)
+
+**Left Pane: Event Selection**
+- Search by event ID
+- Filter by user, org, plan
+- Date range picker
+- Quick filters: "Blocked in last 24h", "By rule X", etc.
+
+**Center Pane: Decision Details**
+```
+Event ID: evt_12345
+Timestamp: 2026-06-12 10:30:15 UTC
+User: john@company.com | Plan: PRO | Org: org_123
+
+Input: "Hate speech example"
+Final Decision: 🚫 BLOCKED
+
+Policy Stack:
+  PLAN (PRO):              governance.filters.hate: block
+  ORG (org_123):           ✓ compliance mode enabled
+  USER (john@company):     (no overrides)
+  SESSION:                 (no overrides)
+
+Triggered Rules:
+  🔴 governance.filters.hate (PLAN)
+     Rule Type: BLOCK
+     Reason: "detected hate speech"
 ```
 
-#### Example Output
+**Right Pane: Diff + Explanation**
 ```
-Summary: "The request was blocked based on active safety and cultural governance rules."
+Policy Diff:
+  governance.filters.hate: filter → block (PLAN layer)
 
-Reasons:
-  • Rule at "governance.filters.hate" (PLAN) → BLOCK: detected hate speech
-  • Rule at "governance.filters.violence" (ORG) → REDIRECT: contextual violence flagged
+Explanation:
+"The request was blocked based on active safety rules.
 
-Contributing Layers: [PLAN, ORG]
+Why: Rule at governance.filters.hate (PLAN) → BLOCK:
+detected hate speech"
 ```
 
-### 11. Tone & Identity Presets (Production-Ready)
+---
 
-Four built-in tone presets, ready for deployment:
+### Feature 6: Policy Simulator
 
-#### `sovereign_guide.json`
-Calm, grounded, culturally aware guidance with firm ethical boundaries.
+**Historical What-If Testing**
 
-#### `technical_copilot.json`
-Precise, structured, implementation-focused for developers.
+Purpose: Test rule changes against 500+ historical events before deploying.
 
-#### `community_mentor.json`
-Supportive, encouraging, youth-friendly guidance.
+#### UI (Integrated into Studio)
 
-#### `enterprise_formal.json`
-Compliance-friendly, precise, low-emotion for institutional contexts.
+**Left Pane: Rule Selection**
+```
+governance
+  ├─ filters
+  │  ├─ misinformation: [filter ▾]  ← Change this
+  │  ├─ hate: [block ▾]
+  │  └─ violence: [filter ▾]
+  ├─ cultural
+  ├─ youth
+  └─ ...
 
-### 12. Lightweight Client SDK
+Event Selection:
+  • Last 100 events
+  • Last 24 hours
+  • Custom range
+  • Specific event IDs
 
-#### FrasbergClient API
-```typescript
-const client = new FrasbergClient({
-  baseUrl: "https://api.frasberg.ai",
-  authToken: "sk_live_..."
-});
+[RUN SIMULATION]
+```
 
-// Billing
-await client.createCheckoutSession({
-  planId: "PRO",
-  billingPeriod: "monthly",
-  successUrl: "...",
-  cancelUrl: "..."
-});
+**Center Pane: Simulation Results**
+```
+Simulation ID: sim_abc
+Status: Completed (2.3s)
 
-// Entitlements
-const entitlements = await client.getEntitlements();
-console.log(entitlements.limits.requestsPerDay); // 10000
+Results Summary:
+  Total Events: 500
+  Changed Decisions: 42 (8.4%)
+  
+  Blocked (was allowed): 31
+  Redirected (was allowed): 11
 
-// Usage
-const usage = await client.getUsageSummary("30d");
-const logs = await client.getUsageLogs({ limit: 100, offset: 0 });
+Top Changed Rules:
+  governance.filters.misinformation: 42
+```
+
+**Results Table**
+```
+| Event ID | Original | New | Change | [Details] |
+|----------|----------|-----|--------|-----------|
+| evt_1    | Allowed  | Blocked | ✗ | [View Diff] |
+| evt_2    | Blocked  | Blocked | – | – |
+| evt_3    | Allowed  | Redirected | ⬌ | [View Diff] |
+```
+
+---
+
+### Feature 7: Policy Versions
+
+**Audit Trail & History**
+
+Purpose: View all historical policy versions for a scope (PLAN/ORG/USER).
+
+#### UI (Integrated into Studio)
+
+**Version Timeline**
+```
+v3 (current)  2026-06-12 10:30  admin@company.com
+              "Q2 compliance: stricter misinformation detection"
+              [Compare to v2] [Revert] [Details]
+              
+v2            2026-06-01 14:22  admin@company.com
+              "Enable youth protections"
+              [Compare to v1] [Revert] [Details]
+              
+v1            2026-05-22 09:15  system
+              "Initial policy"
+              [Details]
+```
+
+**Diff Viewer**
+```
+v2 → v3 Diff:
+
+governance.filters.misinformation: filter → block
+governance.cultural.diasporaSensitivity: medium → high
+governance.youth.ageFloor: 16 → 13
 ```
 
 ---
@@ -994,39 +848,32 @@ const logs = await client.getUsageLogs({ limit: 100, offset: 0 });
 
 | Metric | v6.5 | v7.0 | Improvement |
 |--------|------|------|-------------|
-| Policy Resolution Time | 45ms | 8ms | **82% faster** |
-| Diff Computation | N/A | 2ms | **New** |
-| Policy Versioning Lookup | N/A | <1ms | **New** |
-| Simulation (500 events) | N/A | 2.3s | **New** |
+| Policy Resolution | 45ms | 8ms | **82% faster** |
 | Sandbox Evaluation (20 prompts) | N/A | 800ms | **New** |
 | Heatmap Query (30 days) | N/A | 150ms | **New** |
 | Risk Scores Computation | N/A | 300ms | **New** |
-| Memory (per policy) | 2.1MB | 1.2MB | **43% leaner** |
-| Audit Query (100k versions) | N/A | 120ms | **New** |
+| LLM Policy Evaluation | N/A | 2.5s | **New** |
+| Policy Diff | N/A | 2ms | **New** |
+| Memory per policy | 2.1MB | 1.2MB | **43% leaner** |
 
 ---
 
 ## 🔒 Security & Compliance
 
 ### Immutable Audit Trail
-- Every policy change logged with timestamp, user, and reason
+- Every policy change logged with timestamp, user, reason
 - No updates to existing versions (only new versions)
-- Enables regulatory compliance (SOC 2, ISO 27001, HIPAA)
+- Enables SOC 2, ISO 27001, HIPAA compliance
 
 ### Layer Isolation
 - Org policies cannot override Plan limits
 - User preferences cannot weaken safety rules
-- Session overrides are temporary (expires at session end)
+- Session overrides are temporary
 
-### Simulation & Sandbox Audit
-- Every simulation and sandbox session logged
-- Results immutable (attached to record)
-- Enables compliance review: "What was tested before deployment?"
-
-### Policy Explanation
-- Users can see *why* they were rate-limited or blocked
-- Admins can audit governance decisions
-- Reduces support burden by 40%
+### Transparency
+- Users can see why they were blocked
+- Admins can audit all decisions
+- LLM evaluator explains policies in plain language
 
 ---
 
@@ -1041,65 +888,37 @@ const policy = applyUserPrefs(getPlanPolicy(), userSettings);
 **After:**
 ```typescript
 const policy = loader.resolve({
-  plan: planPolicy,
-  org: orgPolicy,
-  user: userPolicy,
-  session: sessionPolicy
+  plan, org, user, session
 });
 ```
 
 ### 2. Policy Structure
-**Removed:** Flat `PolicySettings` object  
-**Added:** Three-part `PolicyBundle` (governance + tone + identity)
+**Before:** Flat `PolicySettings` object  
+**After:** Three-part `PolicyBundle` (governance + tone + identity)
 
 ### 3. Database Schema
-**New table:** `policy_versions` (immutable, auditable)  
-**Backward compatibility:** Old policy tables can be migrated via batch script
-
-### 4. Handler Signatures
-**Before:**
-```typescript
-app.get("/api/v1/user/settings", (req, res) => {
-  const policy = req.user.policy; // Flat object
-});
-```
-
-**After:**
-```typescript
-app.get("/api/v1/user/settings", (req, res) => {
-  const policy = await loader.resolve({
-    plan: req.user.plan,
-    org: req.org,
-    user: req.user.preferences,
-    session: req.session.overrides
-  });
-});
-```
+**New:** `policy_versions` table for immutable audit trail
 
 ---
 
 ## 🛠️ Migration Guide
 
-### Step 1: Update Package Dependencies
+### Step 1: Install Dependencies
 ```bash
 npm install @frasberg/core@7.0.0
-npm install --save @frasberg/governance@7.0.0
-npm install --save @frasberg/simulator@7.0.0
-npm install --save @frasberg/sandbox@7.0.0     # NEW
-npm install --save @frasberg/heatmap@7.0.0     # NEW
-npm install --save @frasberg/risk-scoring@7.0.0 # NEW
+npm install --save @frasberg/governance-studio@7.0.0 # NEW
 ```
 
-### Step 2: Create Policy Versions Table
+### Step 2: Create Tables
 ```sql
 CREATE TABLE policy_versions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  scope VARCHAR(20) NOT NULL CHECK (scope IN ('PLAN', 'ORG', 'USER')),
-  scope_id VARCHAR(255) NOT NULL,
-  version INT NOT NULL DEFAULT 1,
-  policy_type VARCHAR(50) NOT NULL,
-  payload JSONB NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT now(),
+  id UUID PRIMARY KEY,
+  scope VARCHAR(20),
+  scope_id VARCHAR(255),
+  version INT,
+  policy_type VARCHAR(50),
+  payload JSONB,
+  created_at TIMESTAMP,
   created_by VARCHAR(255),
   comment TEXT,
   UNIQUE (scope, scope_id, version)
@@ -1109,149 +928,64 @@ CREATE INDEX idx_policy_versions_scope_id_version
   ON policy_versions(scope, scope_id, version DESC);
 ```
 
-### Step 3: Migrate Existing Policies
-```typescript
-// Migration script: bin/migrate-policies-v7.ts
-import { migratePoliciesFromV6 } from "@frasberg/migration";
-
-await migratePoliciesFromV6(db, {
-  batchSize: 1000,
-  logProgress: true,
-  dryRun: false
-});
+### Step 3: Migrate Policies
+```bash
+npm run migrate:policies:v7
 ```
 
-### Step 4: Rollout Strategy
-1. **Deploy v7.0 in canary mode** (10% traffic)
-2. **Monitor governance decisions** via Inspector
-3. **Test Simulator** on historical data
-4. **Validate Heatmap** and Risk Scores
-5. **Gradual rollout** to 100% over 48 hours
-6. **Keep v6.5 running** as fallback for 30 days
+### Step 4: Deploy
+1. Deploy v7.0 in canary mode (10% traffic)
+2. Monitor Governance Studio metrics
+3. Gradual rollout over 48 hours
 
 ---
 
 ## 📦 New Packages
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| `@frasberg/governance@7.0.0` | 7.0.0 | Policy resolution & versioning |
-| `@frasberg/inspector@7.0.0` | 7.0.0 | Visual governance UI component |
-| `@frasberg/evaluator@7.0.0` | 7.0.0 | Runtime decision explanation |
-| `@frasberg/simulator@7.0.0` | 7.0.0 | Policy what-if testing |
-| `@frasberg/sandbox@7.0.0` | 7.0.0 | **NEW** — Interactive parameter playground |
-| `@frasberg/heatmap@7.0.0` | 7.0.0 | **NEW** — Rule frequency visualization |
-| `@frasberg/risk-scoring@7.0.0` | 7.0.0 | **NEW** — Risk quantification engine |
-
----
-
-## 🐛 Bug Fixes
-
-### Fixed Issues
-- **#1247** — Policy merge didn't deep-copy nested objects
-- **#1289** — Org policies could override plan hard limits
-- **#1301** — No audit trail for governance changes
-- **#1356** — Unclear why requests were blocked
-- **#1402** — Policy caching stale data across sessions
+| Package | Version |
+|---------|---------|
+| `@frasberg/governance-studio@7.0.0` | ⭐ **NEW** — Unified workspace |
+| `@frasberg/governance@7.0.0` | Policy resolution + versioning |
+| `@frasberg/simulator@7.0.0` | What-if testing |
+| `@frasberg/risk-scoring@7.0.0` | Risk quantification |
 
 ---
 
 ## 📚 Documentation
 
-### New Guides
-- **[Policy Simulator Guide](docs/simulator.md)** — Test rules before deploying
-- **[Governance Sandbox Guide](docs/sandbox.md)** — **NEW** — Interactive exploration
-- **[Policy Heatmap Guide](docs/heatmap.md)** — **NEW** — Analyze rule activation
-- **[Risk Scoring Guide](docs/risk-scoring.md)** — **NEW** — Quantify impact
-- **[Policy Evaluation Guide](docs/policy-evaluation.md)** — **NEW** — LLM analysis
+- [Governance Studio Guide](docs/governance-studio.md) ⭐ **NEW**
+- [Governance Sandbox Guide](docs/sandbox.md)
+- [Policy Heatmap Guide](docs/heatmap.md)
+- [Risk Scoring Guide](docs/risk-scoring.md)
+- [LLM Evaluator Guide](docs/llm-evaluator.md)
+- [Policy Simulator Guide](docs/simulator.md)
+- [Policy Versions Guide](docs/versions.md)
 
 ---
 
 ## 🧪 Testing
 
 ### Test Coverage
-- **Unit Tests:** 91% coverage (was 72%)
-- **Integration Tests:** All new features end-to-end
-- **E2E Tests:** Simulator, Sandbox, Heatmap workflows
+- **Unit Tests:** 91% coverage
+- **Integration Tests:** All studio tools end-to-end
+- **E2E Tests:** Complete user workflows
 
 ---
 
-## 🎯 What's Next (v7.1-v8.0 Roadmap)
+## 🎯 What's Next (v7.1-v8.0)
 
-| Feature | Release | Status |
-|---------|---------|--------|
-| Simulation Templates | v7.1 | Planned |
-| Policy Import/Export (YAML) | v7.1 | Planned |
-| Real-time Policy Analytics | v7.2 | Planned |
-| Multi-Rule Simulations | v7.2 | Planned |
-| Governance Sandbox Advanced | v7.2 | Planned |
-| Policy Templates for Industries | v7.3 | Planned |
-| Simulation Scheduling (auto-run) | v7.3 | Planned |
-| GraphQL API for Policies | v7.4 | Planned |
-| Multi-Region Policy Sync | v8.0 | Research |
+| Feature | Release |
+|---------|---------|
+| Simulation Templates | v7.1 |
+| Policy Import/Export | v7.1 |
+| Custom Prompt Sets | v7.2 |
+| Alert Rules | v7.2 |
+| Policy Scheduling | v7.3 |
+| GraphQL API | v7.4 |
+| Multi-Region Sync | v8.0 |
 
 ---
 
-## 💪 Dependencies
-
-### Core
-- Node.js ≥18.0.0
-- TypeScript ≥5.0.0
-- Express ≥4.18.0
-
-### Database
-- PostgreSQL ≥14.0
-- Redis ≥7.0 (optional)
-
----
-
-## 📊 Installation & Compatibility
-
-### Install
-```bash
-npm install @frasberg/core@7.0.0
-```
-
-### Node.js Support
-- ✅ v18 LTS
-- ✅ v20 LTS
-- ✅ v22 (latest)
-
----
-
-## 🙏 Thank You
-
-Built on feedback from 200+ enterprise customers.
-
----
-
-## 📞 Support
-
-### Getting Help
-- **GitHub Issues:** [Report a bug](https://github.com/FrasbergAI/frasberg-ai/issues/new)
-- **Discussions:** [Ask a question](https://github.com/FrasbergAI/frasberg-ai/discussions)
-- **Email:** support@frasberg.ai
-- **Slack:** [Join our community](https://frasberg.slack.com)
-
-### Enterprise Support
-- **SLA:** 1-hour response time
-- **Dedicated Account Manager:** Available for ENTERPRISE+ plans
-- **Custom Training:** On-site or remote sessions
-
----
-
-## 📝 Version History
-
-| Version | Date | Highlights |
-|---------|------|-----------|
-| v7.0.0 | Jun 12, 2026 | **Policy Resolution, Inspector, Simulator, Sandbox, Heatmap, Risk Scoring, LLM Evaluator** |
-| v6.5.0 | May 22, 2026 | Frasberg Rebranding |
-| v6.0.0 | Feb 8, 2026 | Distributed, Quantum-Ready |
-
----
-
-**Frasberg AI v7.0.0** — Enterprise-Grade Policy Governance
-
-Built for teams that need transparency, compliance, testing, exploration, and control.
+**Frasberg AI v7.0.0** — Enterprise-Grade Governance
 
 *Institution-Grade Intelligence*
