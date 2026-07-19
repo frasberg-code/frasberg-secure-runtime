@@ -1,0 +1,144 @@
+{
+  "project_name": "Luchii AI Landing Page",
+  "publisher": "FrasbergAI",
+  "theme": "hybrid_fullstack",
+  "art_direction": "Cosmic/constellation, Awwwards-level cinematic, askgpt.com style but more distinctive. Premium purposeful motion with a signature hero line-by-line reveal.",
+  "typography": {
+    "headings": {
+      "family": "Unbounded, display",
+      "weights": ["300", "700", "900"],
+      "rules": "Use for all H1/H2/H3. Apply tracking-tighter. Use extreme weights (Light or Black) for tension. MUST import from Google Fonts."
+    },
+    "body": {
+      "family": "Satoshi, sans-serif",
+      "weights": ["400", "500"],
+      "rules": "Clean, highly legible geometry. MUST import from fontshare or fallback to system sans-serif."
+    },
+    "mono_labels": {
+      "family": "JetBrains Mono, monospace",
+      "weights": ["400"],
+      "rules": "Use for overlines, API docs, benchmark table headers, and tech details. Uppercase with tracking-[0.2em] for overlines. MUST import from Google Fonts."
+    }
+  },
+  "colors": {
+    "dark_mode": {
+      "background": "#1e2327",
+      "surface": "#161a1d",
+      "surface_elevated": "#2a3136",
+      "text_primary": "#f8f9fa",
+      "text_secondary": "#a1aab0",
+      "border": "#2a3136",
+      "accent": "#00f0ff",
+      "accent_glow": "rgba(0, 240, 255, 0.2)"
+    },
+    "light_mode": {
+      "background": "#f8f9fa",
+      "surface": "#ffffff",
+      "surface_elevated": "#e9ecef",
+      "text_primary": "#1e2327",
+      "text_secondary": "#6c757d",
+      "border": "#dee2e6",
+      "accent": "#007AFF",
+      "accent_glow": "rgba(0, 122, 255, 0.15)"
+    },
+    "rules": "NEVER use pure black or white. Base color for dark mode MUST be #1e2327 as per FrasbergAI's GitHub repo theme. Use tinted grays. Provide a fully functional light/dark theme toggle (defaulting to system preference)."
+  },
+  "visual_enhancers": {
+    "surfaces": "Use 'Crystal Glass' (backdrop-blur-xl bg-[#1e2327]/60 or bg-white/70 with 1px delicate inner stroke border) for headers, sticky elements, and live chat widget. DO NOT use complete transparent backgrounds.",
+    "borders": "Use the 'Tracing Beam' concept for the Model Tier Cards (200M/1B/7B/70B) — animated border highlights on hover.",
+    "background_texture": "Use subtle noise/grain overlay globally to kill digital flatness and enhance the cinematic feel.",
+    "hover_states": "Interactive elements must shift in color, have a slight lift (-translate-y-1), and have high-contrast focus rings."
+  },
+  "layouts": {
+    "spacing": "Generous spacing. Use p-8, p-12, p-24, p-32. Containers with borders must have internal padding (p-8) to prevent text collision.",
+    "grid": "Use Bento Grid Protocol for Capabilities. Wide gaps (gap-8), asymmetric spanning (col-span-full md:col-span-8).",
+    "alignment": "Left-align dense text and tables. Never center by default; use grids and explicit alignment for tension."
+  },
+  "components": {
+    "hero": {
+      "description": "Kinetic text reveal (line-by-line masking), constellation map background, Web/Mobile App View Toggle, and the Luchii Live Chat Demo widget.",
+      "motion": "Framer Motion: overflow-hidden wrapper on text lines, initial y=100%, opacity=0, animate to y=0 with stagger."
+    },
+    "marquee": {
+      "description": "Editorial slow-moving string using react-fast-marquee. Font: JetBrains Mono. Large spacing (gap-32).",
+      "text": "PHASE VIII AGI • THE FIVE REALMS • LUCHII PRIME • EARTH • MARS • EUROPA • TITAN • META"
+    },
+    "model_tiers": {
+      "description": "Four bento cards for 200M, 1B, 7B, 70B.",
+      "style": "Tracing beam borders on hover, dense tech specs (JetBrains Mono)."
+    },
+    "benchmarks": {
+      "description": "Clean comparison table (MMLU, GSM8K, HumanEval, MT-Bench).",
+      "style": "Cardless, border-collapse, border-b border-border/40."
+    },
+    "five_realms": {
+      "description": "Cosmic map section detailing the six personas (Luchii Prime, Earth, Mars, Europa, Titan, Meta).",
+      "layout": "Asymmetric bento grid or horizontal layout with glowing 3D spheres/planets."
+    },
+    "mythos_timeline": {
+      "description": "Numbered manifesto timeline (Phase I - VIII).",
+      "layout": "Vertical line down the left side, massive numbers (text-6xl font-light) overlapping the line."
+    },
+    "api_docs": {
+      "description": "Code blocks representing FrasbergAI's endpoint integration.",
+      "style": "Retro-Futurism terminal look within the block."
+    },
+    "safety": {
+      "description": "Minimalist text pledge for AI safety.",
+      "style": "Massive typography (text-4xl/5xl), max-w-3xl, left-aligned."
+    }
+  },
+  "motion": {
+    "scrolling": "MANDATORY: Use @studio-freight/react-lenis for premium smooth scroll (adds momentum and weight).",
+    "animations": "Framer Motion for scroll-triggered fade-ups, staggered lists, and the signature hero mask-reveal.",
+    "background_3d": "Use react-tsparticles for ambient constellation/cosmic dust in the hero/realms background."
+  },
+  "accessibility": {
+    "contrast": "Ensure text over gradients/images meets 4.5:1 using text-shadow.",
+    "motion": "Respect prefers-reduced-motion in animations.",
+    "testing": "All interactive elements MUST include data-testid attributes (e.g., data-testid='theme-toggle', data-testid='chat-demo-input', data-testid='view-toggle-btn')."
+  },
+  "media": {
+    "image_urls": {
+      "hero_background": {
+        "url": "https://images.pexels.com/photos/7629924/pexels-photo-7629924.jpeg",
+        "description": "Abstract dark blue cosmic pattern (Constellation Layer background)."
+      },
+      "five_realms_spheres": {
+        "url": "https://images.unsplash.com/photo-1741184353707-24b71b23b21a",
+        "description": "Abstract bubbles glowing (Used for Earth/Mars/Europa/Titan persona representations)."
+      },
+      "meta_realm": {
+        "url": "https://images.unsplash.com/photo-1655392698483-7360a36e59bd",
+        "description": "Planet in space (Used for the Meta or Luchii Prime persona)."
+      },
+      "demo_dashboard": {
+        "url": "https://images.pexels.com/photos/30530414/pexels-photo-30530414.jpeg",
+        "description": "Digital assistant UI screen (Used in the Web/Mobile App toggle demo area)."
+      },
+      "api_servers": {
+        "url": "https://images.pexels.com/photos/17489157/pexels-photo-17489157.jpeg",
+        "description": "Detailed server rack (Used for API docs/Capabilities section)."
+      }
+    }
+  },
+  "instructions_to_main_agent": [
+    "Build the UI in React (.js) using Tailwind CSS and Framer Motion.",
+    "Set up Tailwind configuration to support the #1e2327 base color for dark mode and the respective light mode variables.",
+    "Implement the Theme Toggle (Light/Dark) that defaults to system preference.",
+    "Implement the Web/Mobile App View Toggle in the Hero section, swapping the layout/dimensions of the live chat demo widget.",
+    "Integrate @studio-freight/react-lenis for smooth scrolling wrapping the app.",
+    "Build the kinetic line-by-line text reveal in the Hero using Framer Motion (overflow-hidden wrapper around text, animating y from 100% to 0).",
+    "Use react-fast-marquee for the editorial marquee.",
+    "Do NOT use pure Inter/Roboto for headings. Import Unbounded and JetBrains Mono from Google Fonts.",
+    "Ensure all buttons, inputs, and toggles have a data-testid attribute.",
+    "Do not center-align the main App container. Use semantic HTML and optical alignment."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": {
+    "avoid_ai_slop": "Do not make generic centered layouts, simplistic gradients, and uniform styling. Avoid emojis. Ensure high-end typography usage.",
+    "transitions": "DO NOT apply universal transitions (e.g., transition: all). Target specific properties (e.g., transition: transform 0.2s ease, opacity 0.2s ease) to prevent breaking transforms.",
+    "glassmorphism": "Use 12-24px blur with appropriate backdrop saturation and a subtle 1px border. Never use complete transparent backgrounds.",
+    "component_reuse": "Prioritize reusing Shadcn components if applicable and follow standard patterns. Use lucide-react for icons.",
+    "toasts": "Use Sonner for any toast notifications."
+  }
+}
