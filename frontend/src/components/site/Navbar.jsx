@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Moon, Sun, Menu, X } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 
@@ -50,6 +51,13 @@ export default function Navbar() {
               {l.label}
             </a>
           ))}
+          <Link
+            to="/dashboard"
+            className="text-sm text-lux-text2 transition-colors duration-200 hover:text-lux-text"
+            data-testid="nav-developers"
+          >
+            Developers
+          </Link>
         </div>
 
         <div className="flex items-center gap-2">
@@ -61,13 +69,13 @@ export default function Navbar() {
           >
             {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
           </button>
-          <a
-            href="#api"
+          <Link
+            to="/dashboard"
             className="hidden rounded-full bg-lux-text px-5 py-2.5 text-sm font-500 text-lux-bg transition-transform duration-200 hover:-translate-y-0.5 sm:inline-block"
             data-testid="nav-cta"
           >
             Get API Key
-          </a>
+          </Link>
           <button
             onClick={() => setOpen((o) => !o)}
             className="grid h-10 w-10 place-items-center rounded-full border border-lux-border text-lux-text md:hidden"

@@ -1,12 +1,15 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, Header, HTTPException
 from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import json
+import time
+import secrets
 import asyncio
 import logging
+from collections import defaultdict
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
@@ -23,6 +26,31 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 EMERGENT_LLM_KEY = os.environ['EMERGENT_LLM_KEY']
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+MAX_MSG_LEN = 4000
+RATE_LIMIT = 60          # requests
+RATE_WINDOW = 60         # seconds
+BLOCKED_TERMS = ["harm", "illegal", "dangerous", "exploit", "weapon"]
+_rate_store = defaultdict(list)
+
+
+def _rate_check(key: str):
+    now = time.time()
+    hits = [t for t in _rate_store[key] if now - t < RATE_WINDOW]
+    if len(hits) >= RATE_LIMIT:
+        raise HTTPException(status_code=429, detail="Rate limit exceeded (60 req/min)")
+    hits.append(now)
+    _rate_store[key] = hits
+
+
+def _mask_key(k: str) -> str:
+    return k[:12] + "•" * 8 + k[-4:] if len(k) > 20 else k
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -60,6 +88,10 @@ class ChatRequest(BaseModel):
     message: str
     session_id: Optional[str] = None
     model: Optional[str] = "luchii-70b"
+
+
+class KeyCreate(BaseModel):
+    name: str = "Default key"
 
 
 def _fallback_reply(message: str, model: str) -> str:
@@ -119,33 +151,24 @@ async def _recent_transcript(session_id: str, limit: int = 8) -> str:
     return "\n\nConversation so far:\n" + "\n".join(lines)
 
 
-@api_router.post("/chat")
-async def chat(req: ChatRequest):
-    session_id = req.session_id or str(uuid.uuid4())
-    now = datetime.now(timezone.utc).isoformat()
-
-    await db.chat_messages.insert_one({
-        "id": str(uuid.uuid4()),
-        "session_id": session_id,
-        "role": "user",
-        "content": req.message,
-        "model": req.model,
-        "ts": now,
-    })
-
-    history = await _recent_transcript(session_id)
-    system_message = LUCHII_SYSTEM + history
-
-    llm = LlmChat(
-        api_key=EMERGENT_LLM_KEY,
-        session_id=session_id,
-        system_message=system_message,
-    ).with_model("anthropic", "claude-sonnet-4-6")
+def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[str] = None):
+    history_task = message  # placeholder to keep signature clear
 
     async def event_generator():
+        now = datetime.now(timezone.utc).isoformat()
+        await db.chat_messages.insert_one({
+            "id": str(uuid.uuid4()), "session_id": session_id,
+            "role": "user", "content": message, "model": model, "ts": now,
+        })
+        history = await _recent_transcript(session_id)
+        llm = LlmChat(
+            api_key=EMERGENT_LLM_KEY, session_id=session_id,
+            system_message=LUCHII_SYSTEM + history,
+        ).with_model("anthropic", "claude-sonnet-4-6")
+
         full = ""
         try:
-            async for event in llm.stream_message(UserMessage(text=req.message)):
+            async for event in llm.stream_message(UserMessage(text=message)):
                 if isinstance(event, TextDelta):
                     full += event.content
                     yield f"data: {json.dumps({'delta': event.content})}\n\n"
@@ -155,28 +178,109 @@ async def chat(req: ChatRequest):
             logger.exception("chat stream error — using fallback")
 
         if not full:
-            # Live model unavailable (e.g. key budget). Stream a persona fallback.
-            full = _fallback_reply(req.message, req.model or "luchii-70b")
+            full = _fallback_reply(message, model or "luchii-70b")
             for word in full.split(" "):
                 yield f"data: {json.dumps({'delta': word + ' '})}\n\n"
                 await asyncio.sleep(0.03)
 
-        if full:
-            await db.chat_messages.insert_one({
-                "id": str(uuid.uuid4()),
-                "session_id": session_id,
-                "role": "assistant",
-                "content": full,
-                "model": req.model,
-                "ts": datetime.now(timezone.utc).isoformat(),
-            })
+        await db.chat_messages.insert_one({
+            "id": str(uuid.uuid4()), "session_id": session_id,
+            "role": "assistant", "content": full, "model": model,
+            "ts": datetime.now(timezone.utc).isoformat(),
+        })
+        if key_id:
+            await db.api_keys.update_one(
+                {"id": key_id},
+                {"$inc": {"request_count": 1, "token_count": len(full.split())},
+                 "$set": {"last_used": datetime.now(timezone.utc).isoformat()}},
+            )
         yield f"data: {json.dumps({'done': True, 'session_id': session_id})}\n\n"
 
     return StreamingResponse(
-        event_generator(),
-        media_type="text/event-stream",
+        event_generator(), media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
+
+
+@api_router.post("/chat")
+async def chat(req: ChatRequest):
+    if not req.message or not req.message.strip():
+        raise HTTPException(status_code=400, detail="Message is required")
+    if len(req.message) > MAX_MSG_LEN:
+        raise HTTPException(status_code=413, detail=f"Message exceeds {MAX_MSG_LEN} chars")
+    session_id = req.session_id or str(uuid.uuid4())
+    return _luchii_stream(req.message, session_id, req.model or "luchii-70b")
+
+
+# ---------------- Public Developer Gateway ----------------
+@api_router.post("/v1/chat")
+async def gateway_chat(req: ChatRequest, authorization: Optional[str] = Header(None)):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing or invalid API key")
+    key = authorization.split(" ", 1)[1].strip()
+    key_doc = await db.api_keys.find_one({"key": key}, {"_id": 0})
+    if not key_doc:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+    if not req.message or not req.message.strip():
+        raise HTTPException(status_code=400, detail="Message is required")
+    if len(req.message) > MAX_MSG_LEN:
+        raise HTTPException(status_code=413, detail=f"Message exceeds {MAX_MSG_LEN} chars")
+    _rate_check(key)
+    lowered = req.message.lower()
+    if any(b in lowered for b in BLOCKED_TERMS):
+        async def refuse():
+            msg = "I can't help with that request."
+            yield f"data: {json.dumps({'delta': msg})}\n\n"
+            yield f"data: {json.dumps({'done': True, 'session_id': req.session_id or ''})}\n\n"
+        return StreamingResponse(refuse(), media_type="text/event-stream",
+                                 headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+    session_id = req.session_id or str(uuid.uuid4())
+    return _luchii_stream(req.message, session_id, req.model or "luchii-70b", key_id=key_doc["id"])
+
+
+@api_router.post("/keys")
+async def create_key(body: KeyCreate):
+    doc = {
+        "id": str(uuid.uuid4()),
+        "name": body.name or "Default key",
+        "key": "luchii-sk-" + secrets.token_hex(20),
+        "created": datetime.now(timezone.utc).isoformat(),
+        "request_count": 0,
+        "token_count": 0,
+        "last_used": None,
+    }
+    await db.api_keys.insert_one({**doc})
+    return doc  # full key returned once on creation
+
+
+@api_router.get("/keys")
+async def list_keys():
+    docs = await db.api_keys.find({}, {"_id": 0}).sort("created", -1).to_list(200)
+    for d in docs:
+        d["key"] = _mask_key(d["key"])
+    return docs
+
+
+@api_router.delete("/keys/{key_id}")
+async def delete_key(key_id: str):
+    res = await db.api_keys.delete_one({"id": key_id})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Key not found")
+    return {"deleted": key_id}
+
+
+@api_router.get("/usage")
+async def usage():
+    docs = await db.api_keys.find({}, {"_id": 0}).to_list(500)
+    total_req = sum(d.get("request_count", 0) for d in docs)
+    total_tok = sum(d.get("token_count", 0) for d in docs)
+    return {
+        "keys": len(docs),
+        "total_requests": total_req,
+        "total_tokens": total_tok,
+        "rate_limit": RATE_LIMIT,
+        "rate_window": RATE_WINDOW,
+    }
 
 
 app.include_router(api_router)
@@ -188,12 +292,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 
 @app.on_event("shutdown")
