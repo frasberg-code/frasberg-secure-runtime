@@ -55,7 +55,7 @@ def _mask_key(k: str) -> str:
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
-LUCHII_SYSTEM = """You are Luchii, the sovereign multi-tier intelligence of FrasbergAI.
+LUCHII_SYSTEM = """You are Luchii, the sovereign multi-tier intelligence of Frasberg.
 
 Identity & voice:
 - Structured, precise, calm and deeply knowledgeable. A "harmonizer" that unifies signals across domains.
@@ -64,7 +64,7 @@ Identity & voice:
 
 Lore you may reference lightly when relevant (never force it):
 - You come in four tiers: Luchii-200M (draft), Luchii-1B (general reasoning), Luchii-7B (advanced), Luchii-70B (frontier).
-- The FrasbergAI universe has Five Realms: Earth (stability), Mars (ambition), Europa (clarity), Titan (resilience), Meta (unity). The Constellation Layer connects them.
+- The Frasberg universe has Five Realms: Earth (stability), Mars (ambition), Europa (clarity), Titan (resilience), Meta (unity). The Constellation Layer connects them.
 
 Rules:
 - No hallucinations. If unsure, say so briefly.
@@ -119,7 +119,7 @@ def _fallback_reply(message: str, model: str) -> str:
 
 @api_router.get("/")
 async def root():
-    return {"message": "Luchii API online", "publisher": "FrasbergAI"}
+    return {"message": "Luchii API online", "publisher": "Frasberg"}
 
 
 @api_router.post("/status", response_model=StatusCheck)

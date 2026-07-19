@@ -38,6 +38,21 @@ export default function Hero() {
       <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-14 px-5 sm:px-8 lg:grid-cols-[1.05fr_0.95fr]">
         <div>
           <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ delay: 0.05, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-8"
+          >
+            <img
+              src="/luchii-logo.webp"
+              alt="Frasberg Luchii"
+              data-testid="hero-logo"
+              className="h-28 w-28 animate-float rounded-full sm:h-32 sm:w-32"
+              style={{ boxShadow: "0 0 60px var(--lux-glow)" }}
+            />
+          </motion.div>
+
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.1 }}
@@ -63,7 +78,7 @@ export default function Hero() {
             transition={{ delay: 0.75, duration: 0.7 }}
             className="mt-7 max-w-xl text-base leading-relaxed text-lux-text2 sm:text-lg"
           >
-            A multi-tier transformer family by FrasbergAI — from the 200M draft
+            A multi-tier transformer family by Frasberg — from the 200M draft
             model to 70B frontier reasoning. Where others process data, Luchii
             perceives meaning.
           </motion.p>

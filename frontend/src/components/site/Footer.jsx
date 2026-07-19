@@ -5,14 +5,12 @@ export default function Footer() {
         <div className="flex flex-col justify-between gap-10 md:flex-row">
           <div className="max-w-sm">
             <div className="flex items-center gap-2.5">
-              <span className="grid h-8 w-8 place-items-center rounded-full border border-lux-accent/60 text-lux-accent">
-                <span className="h-2 w-2 rounded-full bg-lux-accent" />
-              </span>
+              <img src="/luchii-logo.webp" alt="Frasberg Luchii" className="h-9 w-9 rounded-full ring-1 ring-lux-accent/40" />
               <span className="font-display text-lg font-700 tracking-tight text-lux-text">Luchii</span>
             </div>
             <p className="mt-4 text-sm text-lux-text2">
               Luchii v12 is not the next version. It is the next era. Built by
-              FrasbergAI.
+              Frasberg.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-10 font-mono text-sm sm:grid-cols-3">
@@ -42,7 +40,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-lux-border pt-8 font-mono text-xs text-lux-text2 sm:flex-row sm:items-center">
-          <span>© 2026 FrasbergAI · FrasbergAI Public License</span>
+          <span>© 2026 Frasberg · Frasberg Public License</span>
           <span>Constellation Layer · Continuum L12</span>
         </div>
       </div>

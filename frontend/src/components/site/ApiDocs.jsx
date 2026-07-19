@@ -39,7 +39,7 @@ export default function ApiDocs() {
           <ul className="mt-8 space-y-3 font-mono text-sm text-lux-text2">
             <li className="flex items-center gap-3"><span className="h-1 w-1 rounded-full bg-lux-accent" /> POST /v1/chat · /embeddings · /moderation</li>
             <li className="flex items-center gap-3"><span className="h-1 w-1 rounded-full bg-lux-accent" /> Models: 200m · 1b · 7b · 70b</li>
-            <li className="flex items-center gap-3"><span className="h-1 w-1 rounded-full bg-lux-accent" /> FrasbergAI Public License (FPL)</li>
+            <li className="flex items-center gap-3"><span className="h-1 w-1 rounded-full bg-lux-accent" /> Frasberg Public License (FPL)</li>
           </ul>
           <a
             href="mailto:support@frasberg.ai"
