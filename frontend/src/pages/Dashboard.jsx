@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import ChatDemo from "../components/site/ChatDemo";
+import CodeTabs from "../components/site/CodeTabs";
 import { MODELS } from "../data/content";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -184,6 +185,20 @@ export default function Dashboard() {
                 </div>
               ))
             )}
+          </div>
+        </section>
+
+        {/* Quickstart */}
+        <section className="mt-14">
+          <h2 className="flex items-center gap-2 font-display text-2xl font-600 tracking-tight">
+            <Terminal size={20} className="text-lux-accent" /> Quickstart
+          </h2>
+          <p className="mt-2 text-sm text-lux-text2">
+            Copy, paste, and run against the live gateway. Snippets auto-fill your
+            newest key.
+          </p>
+          <div className="mt-6">
+            <CodeTabs apiKey={newKey?.key} />
           </div>
         </section>
 

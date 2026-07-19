@@ -33,6 +33,8 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
   public gateway POST /api/v1/chat (Bearer-auth, per-key rate limit 60/min, safety filter,
   usage counters), message length cap (4000), Mongo indexes, case-insensitive Bearer.
 - Frontend: /dashboard route — key generate/copy/revoke, usage stats, model list, live playground.
+- Quickstart: copy-ready cURL / Python / JavaScript tabs on /dashboard, auto-filled with the newest
+  key + live gateway URL (paste-and-run verified against /api/v1/chat).
 - Nav: "Developers" link + "Get API Key" CTA route to the dashboard.
 - Tested: backend 24/24 (iteration_2), frontend dashboard verified visually.
 
