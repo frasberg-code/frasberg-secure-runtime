@@ -27,7 +27,14 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - Sections: Models (200M/1B/7B/70B), Benchmarks table, Capabilities bento, Five Realms/personas,
   Mythos timeline (Phase I–VIII), Safety, API docs w/ copy, editorial marquee, footer.
 - Theme toggle (system default + persistence), responsive nav.
-- Tested: backend 100%, frontend 100% (iteration_1).
+
+## Implemented — Developer Gateway + Dashboard (2026-07-19)
+- Backend: API key management (POST/GET/DELETE /api/keys, masked listing), /api/usage stats,
+  public gateway POST /api/v1/chat (Bearer-auth, per-key rate limit 60/min, safety filter,
+  usage counters), message length cap (4000), Mongo indexes, case-insensitive Bearer.
+- Frontend: /dashboard route — key generate/copy/revoke, usage stats, model list, live playground.
+- Nav: "Developers" link + "Get API Key" CTA route to the dashboard.
+- Tested: backend 24/24 (iteration_2), frontend dashboard verified visually.
 
 ## Known Notes
 - EMERGENT_LLM_KEY has ZERO budget → live Claude calls fail; persona fallback streams instead.

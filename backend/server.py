@@ -215,7 +215,7 @@ async def chat(req: ChatRequest):
 # ---------------- Public Developer Gateway ----------------
 @api_router.post("/v1/chat")
 async def gateway_chat(req: ChatRequest, authorization: Optional[str] = Header(None)):
-    if not authorization or not authorization.startswith("Bearer "):
+    if not authorization or not authorization.lower().startswith("bearer "):
         raise HTTPException(status_code=401, detail="Missing or invalid API key")
     key = authorization.split(" ", 1)[1].strip()
     key_doc = await db.api_keys.find_one({"key": key}, {"_id": 0})
@@ -292,6 +292,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+async def create_indexes():
+    await db.api_keys.create_index("key", unique=True)
+    await db.api_keys.create_index("id")
+    await db.chat_messages.create_index([("session_id", 1), ("ts", 1)])
 
 
 @app.on_event("shutdown")
