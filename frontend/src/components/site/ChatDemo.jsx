@@ -44,7 +44,12 @@ export default function ChatDemo({ compact = false }) {
         for (const part of parts) {
           const line = part.trim();
           if (!line.startsWith("data:")) continue;
-          const data = JSON.parse(line.slice(5).trim());
+          let data;
+          try {
+            data = JSON.parse(line.slice(5).trim());
+          } catch {
+            continue;
+          }
           if (data.delta) {
             setMessages((m) => {
               const next = [...m];

@@ -7,8 +7,17 @@ import { API_SNIPPET } from "../../data/content";
 export default function ApiDocs() {
   const [copied, setCopied] = useState(false);
 
-  const copy = () => {
-    navigator.clipboard.writeText(API_SNIPPET);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(API_SNIPPET);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = API_SNIPPET;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); } catch {}
+      ta.remove();
+    }
     setCopied(true);
     toast.success("Snippet copied");
     setTimeout(() => setCopied(false), 1600);
