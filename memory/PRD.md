@@ -51,3 +51,16 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 
 ## Next Tasks
 - Await user API key to switch chat from fallback/Claude-demo to real Luchii endpoint.
+
+## Implemented — Court, Brand, Payments (2026-07-25)
+- Live LLM enabled (credits recharged): chat + AI Court return real model output.
+- AI Court (/court): POST /api/court, Judge persona, structured VERDICT/REASONING/GUARDIAN CHECK/CONFIDENCE.
+- Press/Launch section on home; /brand page (logo downloads, color swatches, type specimens).
+- Real favicons (ico + PNG set) and 1200x630 og-image.png from logo; OG/Twitter meta wired.
+- PayPal (LIVE) credit packs on /dashboard: GET /api/paypal/config, POST /api/paypal/orders,
+  POST /api/paypal/orders/{id}/capture (httpx REST, PAYPAL_MODE live/sandbox). Verified: live order
+  creation + SDK buttons render. Purchases credit the selected API key (api_keys.credits).
+- Secrets stored server-side only in backend/.env: LUCHII_UPSTREAM_API_KEY, LUCHII_MODEL_TOKEN,
+  PAYPAL_CLIENT_ID/SECRET. api.frasberg.ai currently unreachable so upstream proxy left disabled
+  (LUCHII_UPSTREAM_URL empty); enable by setting that URL when the endpoint is live.
+- SECURITY: user pasted secrets in chat — recommend rotating all tokens/keys.

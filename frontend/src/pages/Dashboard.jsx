@@ -7,6 +7,7 @@ import {
 import { useTheme } from "../context/ThemeContext";
 import ChatDemo from "../components/site/ChatDemo";
 import CodeTabs from "../components/site/CodeTabs";
+import Pricing from "../components/site/Pricing";
 import { MODELS } from "../data/content";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -202,6 +203,9 @@ export default function Dashboard() {
             <CodeTabs apiKey={newKey?.key} />
           </div>
         </section>
+
+        {/* Pricing / Credits */}
+        <Pricing keys={keys} onPurchased={refresh} />
 
         {/* Models + Playground */}
         <div className="mt-14 grid grid-cols-1 gap-10 lg:grid-cols-2">

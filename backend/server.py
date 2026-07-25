@@ -326,6 +326,126 @@ async def usage():
     }
 
 
+# ---------------- PayPal — API credit packs ----------------
+import httpx
+
+PAYPAL_MODE = os.environ.get("PAYPAL_MODE", "live")
+PAYPAL_CLIENT_ID = os.environ.get("PAYPAL_CLIENT_ID", "")
+PAYPAL_SECRET = os.environ.get("PAYPAL_SECRET", "")
+PAYPAL_BASE = "https://api-m.paypal.com" if PAYPAL_MODE == "live" else "https://api-m.sandbox.paypal.com"
+
+PLANS = {
+    "starter": {"id": "starter", "name": "Starter", "price": "10.00", "credits": 10000, "blurb": "10,000 tokens · hobby projects"},
+    "pro": {"id": "pro", "name": "Pro", "price": "25.00", "credits": 30000, "blurb": "30,000 tokens · production apps"},
+    "scale": {"id": "scale", "name": "Scale", "price": "100.00", "credits": 150000, "blurb": "150,000 tokens · best value"},
+}
+
+
+class OrderCreate(BaseModel):
+    plan_id: str
+    key_id: Optional[str] = None
+
+
+class OrderCapture(BaseModel):
+    key_id: Optional[str] = None
+    plan_id: Optional[str] = None
+
+
+async def _paypal_token() -> str:
+    async with httpx.AsyncClient(timeout=20) as c:
+        r = await c.post(
+            f"{PAYPAL_BASE}/v1/oauth2/token",
+            auth=(PAYPAL_CLIENT_ID, PAYPAL_SECRET),
+            data={"grant_type": "client_credentials"},
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+        r.raise_for_status()
+        return r.json()["access_token"]
+
+
+@api_router.get("/paypal/config")
+async def paypal_config():
+    return {
+        "client_id": PAYPAL_CLIENT_ID,
+        "mode": PAYPAL_MODE,
+        "configured": bool(PAYPAL_CLIENT_ID and PAYPAL_SECRET),
+        "plans": list(PLANS.values()),
+    }
+
+
+@api_router.post("/paypal/orders")
+async def paypal_create_order(body: OrderCreate):
+    plan = PLANS.get(body.plan_id)
+    if not plan:
+        raise HTTPException(status_code=400, detail="Unknown plan")
+    try:
+        token = await _paypal_token()
+        async with httpx.AsyncClient(timeout=20) as c:
+            r = await c.post(
+                f"{PAYPAL_BASE}/v2/checkout/orders",
+                headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+                json={
+                    "intent": "CAPTURE",
+                    "purchase_units": [{
+                        "reference_id": f"{plan['id']}::{body.key_id or 'none'}",
+                        "description": f"Luchii {plan['name']} — {plan['credits']} credits",
+                        "amount": {"currency_code": "USD", "value": plan["price"]},
+                    }],
+                },
+            )
+        if r.status_code >= 400:
+            logger.error("paypal create order failed: %s", r.text)
+            raise HTTPException(status_code=502, detail="PayPal order creation failed")
+        return {"id": r.json()["id"]}
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("paypal create order error")
+        raise HTTPException(status_code=502, detail="PayPal is unavailable")
+
+
+@api_router.post("/paypal/orders/{order_id}/capture")
+async def paypal_capture_order(order_id: str, body: OrderCapture):
+    try:
+        token = await _paypal_token()
+        async with httpx.AsyncClient(timeout=25) as c:
+            r = await c.post(
+                f"{PAYPAL_BASE}/v2/checkout/orders/{order_id}/capture",
+                headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+            )
+        if r.status_code >= 400:
+            logger.error("paypal capture failed: %s", r.text)
+            raise HTTPException(status_code=502, detail="PayPal capture failed")
+        data = r.json()
+        status = data.get("status")
+        ref = ""
+        try:
+            ref = data["purchase_units"][0]["reference_id"]
+        except Exception:
+            pass
+        plan_id = (ref.split("::")[0] if "::" in ref else body.plan_id) or ""
+        key_id = (ref.split("::")[1] if "::" in ref else body.key_id) or None
+        if key_id == "none":
+            key_id = None
+        plan = PLANS.get(plan_id)
+        credited = 0
+        if status == "COMPLETED" and plan:
+            credited = plan["credits"]
+            await db.purchases.insert_one({
+                "id": str(uuid.uuid4()), "order_id": order_id, "plan": plan_id,
+                "credits": credited, "key_id": key_id, "status": status,
+                "ts": datetime.now(timezone.utc).isoformat(),
+            })
+            if key_id:
+                await db.api_keys.update_one({"id": key_id}, {"$inc": {"credits": credited}})
+        return {"status": status, "credits_added": credited}
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("paypal capture error")
+        raise HTTPException(status_code=502, detail="PayPal is unavailable")
+
+
 app.include_router(api_router)
 
 app.add_middleware(
