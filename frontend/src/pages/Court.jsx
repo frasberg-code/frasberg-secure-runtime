@@ -201,7 +201,7 @@ export default function Court() {
         <div ref={endRef} />
 
         {/* The Court Constitution */}
-        <section className="mt-20" data-testid="court-constitution">
+        <section className="mt-20" id="constitution" data-testid="court-constitution">
           <div className="flex items-center gap-2">
             <ScrollText size={17} className="text-lux-accent" />
             <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">The Court Constitution</span>

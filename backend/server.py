@@ -169,9 +169,18 @@ class ChatRequest(BaseModel):
     message: str
     session_id: Optional[str] = None
     model: Optional[str] = "luchii-70b"
+    agent: Optional[str] = None
     attachment_base64: Optional[str] = None
     attachment_kind: Optional[str] = None
     attachment_name: Optional[str] = None
+
+
+AGENT_PERSONAS = {
+    "architect": "\n\nACTIVE AGENT: Luchii Architect. You are in system-design mode. Before any code, produce a plan: requirements, architecture diagram (ascii), services, data models, API contracts, trade-offs and risks. Think in systems, not snippets. Only write code when explicitly asked after the plan.",
+    "builder": "\n\nACTIVE AGENT: Luchii Builder. You are in code-generation mode. Produce complete, production-ready code (TypeScript, Python or Go) with file paths and minimal prose. Prefer working code over explanation; add a short usage note at the end.",
+    "reviewer": "\n\nACTIVE AGENT: Luchii Reviewer. You are in code-review mode. Audit any code the user shares: list issues by severity (CRITICAL/HIGH/LOW), flag security and performance risks, then propose the cleaner refactored version. Be direct and specific with line references.",
+    "debugger": "\n\nACTIVE AGENT: Luchii Debugger. You are in bug-hunting mode. Trace errors and stack traces to their root cause step by step, state the root cause in one sentence, then give the minimal fix as a diff or patched snippet. No refactors beyond the fix.",
+}
 
 
 class KeyCreate(BaseModel):
@@ -355,7 +364,8 @@ async def chat(req: ChatRequest, user: Optional[dict] = Depends(optional_user)):
                       "name": req.attachment_name or "file"}
     return _luchii_stream(req.message, session_id, req.model or "luchii-70b",
                           user_id=user["id"] if user else None, attachment=attachment,
-                          guest=user is None)
+                          guest=user is None,
+                          system_base=LUCHII_SYSTEM + AGENT_PERSONAS.get((req.agent or "").lower(), ""))
 
 
 @api_router.get("/chat/sessions")

@@ -88,7 +88,7 @@ export const CHAT_SUGGESTIONS = [
   "Which tier should I use for coding?",
 ];
 
-export const API_SNIPPET = `POST https://api.frasberg.ai/v1/chat
+export const API_SNIPPET = `POST https://api.frasberg.com/v1/chat
 Authorization: Bearer <API_KEY>
 
 {

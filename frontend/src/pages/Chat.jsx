@@ -14,6 +14,7 @@ export default function Chat() {
   const { user, logout } = useAuth();
   const [params] = useSearchParams();
   const initialModel = params.get("model") || "luchii-70b";
+  const agent = params.get("agent") || null;
   const [sessions, setSessions] = useState([]);
   const [selected, setSelected] = useState(null); // null = latest, "new" = fresh
   const [showList, setShowList] = useState(false);
@@ -127,12 +128,13 @@ export default function Chat() {
 
             <div className={`${showList ? "hidden lg:block" : "block"} min-w-0 flex-1`}>
               <ChatDemo
-                key={selected || "latest"}
+                key={(selected || "latest") + (agent || "")}
                 initialModel={initialModel}
                 tall
                 loadHistory
                 sessionOverride={selected}
                 onNewMessage={loadSessions}
+                agent={agent}
               />
             </div>
           </>

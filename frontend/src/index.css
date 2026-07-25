@@ -77,6 +77,13 @@
 html {
   scrollbar-width: thin;
   scrollbar-color: var(--lux-surface-2) transparent;
+  font-size: 17px;
+}
+
+@media (max-width: 640px) {
+  html {
+    font-size: 18px;
+  }
 }
 
 body {

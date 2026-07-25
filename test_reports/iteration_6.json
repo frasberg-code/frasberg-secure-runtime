@@ -1,0 +1,38 @@
+{
+  "summary": "Iteration 6 — full-stack verification of Luchii by Frasberg round: (1) global font-size bump, (2) agent personas on POST /api/chat, (3) /luchii-code coding agents grid + launch links, (4) footer Docs column exact labels/order, (5) API snippet frasberg.ai -> frasberg.com, (6) AI World Court full system on mobile (submit -> streamed ruling, Constitution I-VII, Public Docket with filings & download). All targeted flows pass. Backend regression 31/31 + 4/4 new agent persona tests.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "verified_features": [
+    "FONT SIZE: html font-size = 17px on desktop (1920x800) and 18px on mobile (390x844), verified on both / and /chat via getComputedStyle.",
+    "AGENT PERSONAS (backend): POST /api/chat with agent='architect' returns planning-oriented reply (requirements/data models/API/architecture keywords), agent='debugger' returns root-cause/traceback/fix-oriented reply; replies materially differ. Guest chat with no agent still streams normally.",
+    "LUCHII CODE: /luchii-code shows [data-testid=coding-agents-grid] with 4 agent cards (architect, builder, reviewer, debugger). Launch links href = /chat?model=<tier>&agent=<slug> for all 4. Clicking launch-architect opens /chat?model=luchii-70b&agent=architect and ChatDemo header renders 'Luchii architect' label (confirmed via DOM query).",
+    "FOOTER: Docs column contains EXACTLY [API, AI Models, Luchii Chat, Luchii Code, Luchii Coding Agents, Benchmarks, Safety, The AI World Court, 'AI Court Constitution and laws.', Brand Kit] in this exact order. Anchors verified: 'Luchii Coding Agents' -> /luchii-code#agents, 'AI Court Constitution and laws.' -> /court#constitution.",
+    "API SNIPPET: Homepage code block shows 'POST https://api.frasberg.com/v1/chat'; no occurrences of api.frasberg.ai anywhere on the page.",
+    "AI WORLD COURT (mobile 390x844): [data-testid=court-input] + [data-testid=court-submit] both present; submitting 'Should we ship Friday with two open bugs?' yielded a streamed [data-testid=court-ruling] (VERDICT + REASONING, ~157 chars) within ~10s. [data-testid=court-constitution] present with all 7 Articles (I-Sovereignty, II-Safety, III-Governance, IV-Isolation, V-Auditability, VI-Transparency, VII-Alignment). [data-testid=court-docket] present with 2 filings (FRB-09088849, FRB-C96EF974) each with filing-toggle-*; clicking the toggle opens the ruling and reveals a [data-testid=filing-download-<id>] button.",
+    "REGRESSION: guest chat streams (test_chat_guest_allowed), normal chat without agent still streams (test_agent_none_streams), admin /chat sessions sidebar and voice toggle still visible on desktop (verified iteration 5)."
+  ],
+  "backend_test_results": {
+    "test_agent_personas.py": "4/4 passed in 83s (test_agent_none_streams, test_agent_architect_plans, test_agent_debugger_traces, test_agent_architect_vs_debugger_differ)",
+    "test_auth_and_chat.py": "31/31 passed in ~40s (auth, chat, image, voice, keys/usage, court, gateway, paypal, static)"
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_agent_personas.py",
+    "/app/backend/tests/test_auth_and_chat.py",
+    "/app/test_reports/pytest/agent_personas.xml",
+    "/app/test_reports/pytest/auth_and_chat.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "ChatDemo.jsx has grown to ~450+ lines and now also owns agent-header rendering + auto-speak + attachments + scroll button — consider extracting agent-header and input-bar into subcomponents.",
+    "AGENT_PERSONAS dict on server.py could benefit from a Pydantic Literal type on ChatRequest.agent so invalid values are rejected/normalized rather than silently no-oped (currently unknown agent value falls back to base persona — acceptable but silent).",
+    "Footer Docs column contains a raw '#benchmarks' and '#safety' hash anchor which will not scroll if the section isn't present on the current route (e.g., clicked from /chat or /court). Consider making them '/#benchmarks' / '/#safety'.",
+    "Chat header agent label capitalization is lowercase ('Luchii architect'). Product likely wants title case ('Luchii Architect') for consistency with the LuchiiCode agent card names."
+  ],
+  "updated_files": ["/app/backend/tests/test_agent_personas.py (new)"],
+  "success_rate": {"backend": "100% (35/35)", "frontend": "100% (all requested checks)"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026! (verified working)",
+  "seed_data_creation": "None (used existing docket filings; test users created via /api/auth/register with TEST prefix are ephemeral)",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "New backend test file at /app/backend/tests/test_agent_personas.py covers agent persona routing (architect/debugger/none) via SSE stream inspection. Full regression: pytest /app/backend/tests/ -v. Chat header label capitalization is currently lowercase 'Luchii architect' — flagged as minor code-review note, not a bug. Court docket uses filing-toggle-<id> pattern (not filing-open-<id>); download button appears only after toggle expands the filing."
+}

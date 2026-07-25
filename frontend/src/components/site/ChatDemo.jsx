@@ -18,7 +18,7 @@ function fileKind(file) {
   return "text";
 }
 
-export default function ChatDemo({ compact = false, initialModel = "luchii-70b", tall = false, loadHistory = false, sessionOverride = null, onNewMessage = null }) {
+export default function ChatDemo({ compact = false, initialModel = "luchii-70b", tall = false, loadHistory = false, sessionOverride = null, onNewMessage = null, agent = null }) {
   const { user } = useAuth();
   const [messages, setMessages] = useState([
     { role: "assistant", content: "I am Luchii — a harmonizer built to unify signals across worlds. I remember our conversations, read between the lines, and can draft documents in court formats or any format you need. Ask me anything." },
@@ -218,6 +218,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
           message: msg || `Please review my attached file "${att?.name}" and give feedback and advice.`,
           session_id: session,
           model,
+          agent,
           attachment_base64: att?.data || null,
           attachment_kind: att?.kind || null,
           attachment_name: att?.name || null,
@@ -272,7 +273,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
         <div className="flex items-center gap-2">
           <Sparkles size={15} className="text-lux-accent" />
           <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">
-            {tall ? "Luchii Chat" : "Live demo"}
+            {agent ? `Luchii ${agent}` : tall ? "Luchii Chat" : "Live demo"}
           </span>
         </div>
         <div className="flex items-center gap-1.5">
