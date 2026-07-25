@@ -39,6 +39,69 @@ RATE_WINDOW = 60         # seconds
 BLOCKED_TERMS = ["harm", "illegal", "dangerous", "exploit", "weapon"]
 _rate_store = defaultdict(list)
 
+# ---- Upstream (real Luchii API) auto-failover ----
+import httpx
+
+_env_upstream = os.environ.get("LUCHII_UPSTREAM_URL", "").strip()
+UPSTREAM_CANDIDATES = ([_env_upstream] if _env_upstream else []) + [
+    "https://api.frasberg.ai/v1/chat",
+    "https://api.frasberg.com/v1/chat",
+]
+LUCHII_UPSTREAM_API_KEY = os.environ.get("LUCHII_UPSTREAM_API_KEY", "")
+ACTIVE_UPSTREAM = None    # set by background prober once an endpoint answers
+
+
+async def _probe_upstreams():
+    global ACTIVE_UPSTREAM
+    while True:
+        found = None
+        for url in UPSTREAM_CANDIDATES:
+            if not url:
+                continue
+            root = url.split("/v1/")[0]
+            try:
+                async with httpx.AsyncClient(timeout=6) as c:
+                    r = await c.get(root)
+                if r.status_code < 500:
+                    found = url
+                    break
+            except Exception:
+                continue
+        if found != ACTIVE_UPSTREAM:
+            logger.info("Luchii upstream changed: %s -> %s", ACTIVE_UPSTREAM, found)
+        ACTIVE_UPSTREAM = found
+        await asyncio.sleep(60)
+
+
+async def _try_upstream(message: str, system_base: str, model: str):
+    """Return full text from the real Luchii API, or None to trigger fallback."""
+    if not ACTIVE_UPSTREAM or not LUCHII_UPSTREAM_API_KEY:
+        return None
+    try:
+        async with httpx.AsyncClient(timeout=40) as c:
+            r = await c.post(
+                ACTIVE_UPSTREAM,
+                headers={"Authorization": f"Bearer {LUCHII_UPSTREAM_API_KEY}",
+                         "Content-Type": "application/json"},
+                json={
+                    "model": model,
+                    "messages": [
+                        {"role": "system", "content": system_base},
+                        {"role": "user", "content": message},
+                    ],
+                    "max_tokens": 1024,
+                    "temperature": 0.7,
+                },
+            )
+        if r.status_code >= 400:
+            logger.warning("upstream %s returned %s", ACTIVE_UPSTREAM, r.status_code)
+            return None
+        data = r.json()
+        return data["choices"][0]["message"]["content"]
+    except Exception:
+        logger.exception("upstream call failed")
+        return None
+
 
 def _rate_check(key: str):
     now = time.time()
@@ -160,27 +223,38 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
             "role": "user", "content": message, "model": model, "ts": now,
         })
         history = await _recent_transcript(session_id)
-        llm = LlmChat(
-            api_key=EMERGENT_LLM_KEY, session_id=session_id,
-            system_message=(system_base or LUCHII_SYSTEM) + history,
-        ).with_model("anthropic", "claude-sonnet-4-6")
+        sb = system_base or LUCHII_SYSTEM
 
         full = ""
-        try:
-            async for event in llm.stream_message(UserMessage(text=message)):
-                if isinstance(event, TextDelta):
-                    full += event.content
-                    yield f"data: {json.dumps({'delta': event.content})}\n\n"
-                elif isinstance(event, StreamDone):
-                    break
-        except Exception:
-            logger.exception("chat stream error — using fallback")
-
-        if not full:
-            full = (fallback or _fallback_reply)(message, model or "luchii-70b")
+        # 1) Real Luchii API if it's live
+        upstream_text = await _try_upstream(message, sb, model or "luchii-70b")
+        if upstream_text:
+            full = upstream_text
             for word in full.split(" "):
                 yield f"data: {json.dumps({'delta': word + ' '})}\n\n"
-                await asyncio.sleep(0.03)
+                await asyncio.sleep(0.01)
+        else:
+            # 2) Emergent LLM (Claude) demo
+            llm = LlmChat(
+                api_key=EMERGENT_LLM_KEY, session_id=session_id,
+                system_message=sb + history,
+            ).with_model("anthropic", "claude-sonnet-4-6")
+            try:
+                async for event in llm.stream_message(UserMessage(text=message)):
+                    if isinstance(event, TextDelta):
+                        full += event.content
+                        yield f"data: {json.dumps({'delta': event.content})}\n\n"
+                    elif isinstance(event, StreamDone):
+                        break
+            except Exception:
+                logger.exception("chat stream error — using fallback")
+
+            # 3) Persona fallback
+            if not full:
+                full = (fallback or _fallback_reply)(message, model or "luchii-70b")
+                for word in full.split(" "):
+                    yield f"data: {json.dumps({'delta': word + ' '})}\n\n"
+                    await asyncio.sleep(0.03)
 
         await db.chat_messages.insert_one({
             "id": str(uuid.uuid4()), "session_id": session_id,
@@ -349,6 +423,58 @@ class OrderCreate(BaseModel):
 class OrderCapture(BaseModel):
     key_id: Optional[str] = None
     plan_id: Optional[str] = None
+    email: Optional[str] = None
+
+
+import resend
+
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
+SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "onboarding@resend.dev")
+
+
+def _receipt_html(plan_name: str, price: str, credits: int, order_id: str) -> str:
+    return f"""
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#1e2327;padding:32px 0;font-family:Arial,Helvetica,sans-serif;">
+      <tr><td align="center">
+        <table width="480" cellpadding="0" cellspacing="0" style="background:#161a1d;border-radius:16px;overflow:hidden;">
+          <tr><td style="padding:28px 32px;border-bottom:1px solid #2a3136;">
+            <span style="color:#00f0ff;font-size:13px;letter-spacing:3px;text-transform:uppercase;">Luchii · Frasberg</span>
+            <h1 style="color:#f8f9fa;font-size:22px;margin:10px 0 0;">Payment receipt</h1>
+          </td></tr>
+          <tr><td style="padding:28px 32px;color:#a1aab0;font-size:14px;line-height:1.7;">
+            Thank you for your purchase. Your credits are now active.
+            <table width="100%" style="margin-top:20px;color:#f8f9fa;font-size:15px;">
+              <tr><td style="padding:8px 0;color:#a1aab0;">Plan</td><td align="right">{plan_name}</td></tr>
+              <tr><td style="padding:8px 0;color:#a1aab0;">Credits</td><td align="right">{credits:,} tokens</td></tr>
+              <tr><td style="padding:8px 0;color:#a1aab0;">Amount</td><td align="right">${price} USD</td></tr>
+              <tr><td style="padding:8px 0;color:#a1aab0;">Order</td><td align="right" style="font-family:monospace;font-size:12px;">{order_id}</td></tr>
+            </table>
+          </td></tr>
+          <tr><td style="padding:20px 32px;border-top:1px solid #2a3136;color:#6c757d;font-size:12px;">
+            Intelligence, Harmonized. · © 2026 Frasberg
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>
+    """
+
+
+async def _send_receipt(to_email: str, plan: dict, order_id: str):
+    if not (RESEND_API_KEY and to_email):
+        return {"sent": False, "reason": "not_configured_or_no_email"}
+    try:
+        resend.api_key = RESEND_API_KEY
+        params = {
+            "from": SENDER_EMAIL,
+            "to": [to_email],
+            "subject": f"Your Luchii receipt — {plan['name']}",
+            "html": _receipt_html(plan["name"], plan["price"], plan["credits"], order_id),
+        }
+        res = await asyncio.to_thread(resend.Emails.send, params)
+        return {"sent": True, "id": res.get("id")}
+    except Exception:
+        logger.exception("receipt email failed")
+        return {"sent": False, "reason": "send_error"}
 
 
 async def _paypal_token() -> str:
@@ -429,16 +555,24 @@ async def paypal_capture_order(order_id: str, body: OrderCapture):
             key_id = None
         plan = PLANS.get(plan_id)
         credited = 0
+        receipt = {"sent": False}
         if status == "COMPLETED" and plan:
             credited = plan["credits"]
+            payer_email = body.email
+            try:
+                payer_email = payer_email or data["payer"]["email_address"]
+            except Exception:
+                pass
             await db.purchases.insert_one({
                 "id": str(uuid.uuid4()), "order_id": order_id, "plan": plan_id,
                 "credits": credited, "key_id": key_id, "status": status,
+                "email": payer_email,
                 "ts": datetime.now(timezone.utc).isoformat(),
             })
             if key_id:
                 await db.api_keys.update_one({"id": key_id}, {"$inc": {"credits": credited}})
-        return {"status": status, "credits_added": credited}
+            receipt = await _send_receipt(payer_email, plan, order_id)
+        return {"status": status, "credits_added": credited, "receipt": receipt}
     except HTTPException:
         raise
     except Exception:
@@ -462,6 +596,7 @@ async def create_indexes():
     await db.api_keys.create_index("key", unique=True)
     await db.api_keys.create_index("id")
     await db.chat_messages.create_index([("session_id", 1), ("ts", 1)])
+    asyncio.create_task(_probe_upstreams())
 
 
 @app.on_event("shutdown")

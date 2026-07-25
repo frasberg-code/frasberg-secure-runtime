@@ -145,3 +145,22 @@ export const COURT_CASES = [
   "Remote-first or return to office for a 30-person team?",
   "Should I open-source my model weights?",
 ];
+
+export const ECOSYSTEM = {
+  pillars: [
+    { title: "Massive scale", desc: "Trained across trillions of tokens and served with continuous batching, FP8 KV cache and speculative decoding — 20–40× over naïve inference." },
+    { title: "Broad public training data", desc: "Grounded in a wide public corpus plus code, technical writing and safety-aligned dialogue — for reasoning that generalizes." },
+    { title: "A growing integration ecosystem", desc: "OpenAI-compatible API, official SDKs and drop-in connectors so Luchii fits wherever you already build." },
+  ],
+  stats: [
+    { value: "3T+", label: "training tokens" },
+    { value: "32K", label: "context window" },
+    { value: "4", label: "model tiers" },
+    { value: "600", label: "req/min · enterprise" },
+  ],
+  integrations: [
+    "Python", "JavaScript", "Go", "cURL", "REST", "Webhooks",
+    "LangChain", "Zapier", "Slack", "Discord", "GitHub", "VS Code",
+    "Jupyter", "Postman", "Next.js", "FastAPI",
+  ],
+};
