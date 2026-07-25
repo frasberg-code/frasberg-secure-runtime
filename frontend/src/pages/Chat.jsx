@@ -68,7 +68,7 @@ export default function Chat() {
         </div>
       </header>
 
-      <div className="relative mx-auto flex w-full max-w-6xl flex-1 gap-6 px-5 py-8 sm:px-8">
+      <div className="relative mx-auto flex w-full max-w-6xl flex-1 gap-6 px-3 py-4 sm:px-8 sm:py-8">
         {user === undefined ? (
           <div className="grid flex-1 place-items-center">
             <Loader2 size={26} className="animate-spin text-lux-accent" />

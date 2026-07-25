@@ -1,0 +1,38 @@
+{
+  "summary": "Frontend-only regression validating ChatDemo mobile redesign (Emergent-style input), scroll-to-bottom button, tall chat frame on /chat, and support email update (frasberg.ai -> frasberg.com). All targeted flows pass on mobile (390x844) and desktop (1920x1080).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verified_features": [
+    "Mobile /chat guest: chat-guest-banner rendered; frame height ~694px on 844px viewport (~82% of viewport, near-full as intended).",
+    "Mobile input: new Emergent-style layout — input field on top (44px height), icon row below with chat-attach-btn (44x44), chat-mic-btn, and large circular chat-send (44x44 ArrowUp) at right.",
+    "Mobile send flow: streamed reply received for 'Tell me a long story...' and '10 fun facts' prompts; messages render inside scrollable [data-testid=chat-messages] container.",
+    "Scroll-to-bottom: scrolling messages container to top makes chat-scroll-bottom-btn appear (floating circle above input); clicking scrolls back to bottom (diff=0) and button disappears — confirmed working.",
+    "Mobile landing '/' chat widget: chat-input, chat-send, chat-attach-btn, chat-mic-btn all present without layout break.",
+    "Desktop /chat admin (admin@frasberg.com): sessions sidebar (chat-sessions-sidebar), voice toggle (chat-voice-toggle), input bar, send button all visible; sending 'Hi in 5 words' produced streaming assistant reply (message count grew to 5).",
+    "Login flow: /auth email+password login sets access_token and refresh_token httpOnly cookies and redirects to /chat.",
+    "Footer support email: 'support@frasberg.com' present on landing footer; 'support@frasberg.ai' absent."
+  ],
+  "test_report_links": [
+    "/app/test_reports/mobile_chat_initial.png",
+    "/app/test_reports/mobile_scroll_btn_up.png",
+    "/app/test_reports/mobile_landing_footer.png",
+    "/app/test_reports/desktop_admin_chat.png"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "ChatDemo.jsx is ~451 lines — still manageable but approaching the 700-line threshold; consider extracting the input bar + scroll-to-bottom into a subcomponent for future maintainability.",
+    "onScrollArea uses `> 160` threshold — reasonable, but consider showing scroll button also during streaming when user has manually scrolled up (current behaviour appears correct after stream ends).",
+    "Auto-scroll during streaming: verify that manual scroll-up during an active stream is preserved (not force-scrolled back to bottom) — worth adding an explicit UX check in a future iteration."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026! (verified working)",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "ChatDemo mobile UI redesign verified. Login route is /auth (not /login) with data-testids auth-email-input, auth-password-input; requires clicking 'Already have an account? Sign in' toggle first. Backend baseline 31/31 from iteration_4 still applies."
+}

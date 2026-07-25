@@ -42,7 +42,7 @@ export default function ApiDocs() {
             <li className="flex items-center gap-3"><span className="h-1 w-1 rounded-full bg-lux-accent" /> Frasberg Public License (FPL)</li>
           </ul>
           <a
-            href="mailto:support@frasberg.ai"
+            href="mailto:support@frasberg.com"
             data-testid="api-contact"
             className="mt-9 inline-flex rounded-full bg-lux-accent px-6 py-3 text-sm font-600 text-lux-bg transition-transform duration-200 hover:-translate-y-0.5"
           >

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Send, Sparkles, Loader2, Paperclip, Mic, Square, Volume2, VolumeX, X, ImageIcon } from "lucide-react";
+import { Send, Sparkles, Loader2, Paperclip, Mic, Square, Volume2, VolumeX, X, ImageIcon, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
 import { CHAT_SUGGESTIONS, MODELS } from "../../data/content";
@@ -31,6 +31,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
   const [recording, setRecording] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
   const [speakingIdx, setSpeakingIdx] = useState(null);
+  const [showScroll, setShowScroll] = useState(false);
   const scrollRef = useRef(null);
   const fileRef = useRef(null);
   const recorderRef = useRef(null);
@@ -48,6 +49,16 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
+
+  const onScrollArea = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setShowScroll(el.scrollHeight - el.scrollTop - el.clientHeight > 160);
+  }, []);
+
+  const scrollToBottom = useCallback(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, []);
 
   useEffect(() => {
     if (!loadHistory || !user) return;
@@ -254,7 +265,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
 
   return (
     <div
-      className={`glass relative flex flex-col overflow-hidden rounded-3xl shadow-2xl ${tall ? "h-[calc(100vh-180px)] min-h-[520px]" : "h-full"}`}
+      className={`glass relative flex flex-col overflow-hidden rounded-3xl shadow-2xl ${tall ? "h-[calc(100dvh-150px)] min-h-[480px] sm:h-[calc(100vh-180px)] sm:min-h-[520px]" : "h-full"}`}
       data-testid="chat-demo"
     >
       <div className="flex items-center justify-between border-b border-lux-border px-4 py-3">
@@ -307,6 +318,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
 
       <div
         ref={scrollRef}
+        onScroll={onScrollArea}
         className={`flex-1 space-y-3 overflow-y-auto px-4 py-4 ${tall ? "" : compact ? "max-h-[320px]" : "max-h-[380px]"}`}
         data-testid="chat-messages"
       >
@@ -375,46 +387,63 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
 
       <form
         onSubmit={(e) => { e.preventDefault(); send(); }}
-        className="flex items-center gap-1.5 border-t border-lux-border p-3"
+        className="relative border-t border-lux-border p-3 sm:p-4"
       >
-        <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,.pdf,.txt,.md" className="hidden" onChange={onPickFile} data-testid="chat-file-input" />
-        <button
-          type="button"
-          onClick={() => fileRef.current?.click()}
-          disabled={locked || busy}
-          aria-label="Attach file"
-          data-testid="chat-attach-btn"
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-lux-border text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent disabled:opacity-40"
-        >
-          <Paperclip size={15} />
-        </button>
-        <button
-          type="button"
-          onClick={toggleMic}
-          disabled={locked || busy || transcribing}
-          aria-label={recording ? "Stop recording" : "Record voice"}
-          data-testid="chat-mic-btn"
-          className={`grid h-9 w-9 shrink-0 place-items-center rounded-full border transition-colors disabled:opacity-40 ${
-            recording ? "border-red-500 text-red-500" : "border-lux-border text-lux-text2 hover:border-lux-accent hover:text-lux-accent"
-          }`}
-        >
-          {transcribing ? <Loader2 size={15} className="animate-spin" /> : recording ? <Square size={13} /> : <Mic size={15} />}
-        </button>
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder={model === "luchii-image" ? "Describe the image to create…" : "Message Luchii…"}
-          data-testid="chat-input"
-          className="flex-1 bg-transparent px-2 text-sm text-lux-text outline-none placeholder:text-lux-text2"
-        />
-        <button
-          type="submit"
-          disabled={busy}
-          data-testid="chat-send"
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-lux-text text-lux-bg transition-transform duration-200 hover:-translate-y-0.5 disabled:opacity-40"
-        >
-          {busy ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-        </button>
+        {showScroll && (
+          <button
+            type="button"
+            onClick={scrollToBottom}
+            aria-label="Scroll to latest"
+            data-testid="chat-scroll-bottom-btn"
+            className="glass absolute -top-14 right-4 z-20 grid h-10 w-10 place-items-center rounded-full border border-lux-border text-lux-text shadow-lg transition-transform hover:-translate-y-0.5"
+          >
+            <ArrowDown size={17} />
+          </button>
+        )}
+        <div className="rounded-2xl border border-lux-border bg-lux-surface px-3 pb-2 pt-1 transition-colors focus-within:border-lux-accent">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={model === "luchii-image" ? "Describe the image to create…" : "Message Luchii…"}
+            data-testid="chat-input"
+            className="w-full bg-transparent px-1.5 py-2.5 text-base text-lux-text outline-none placeholder:text-lux-text2 sm:text-sm"
+          />
+          <div className="flex items-center gap-2">
+            <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,.pdf,.txt,.md" className="hidden" onChange={onPickFile} data-testid="chat-file-input" />
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={locked || busy}
+              aria-label="Attach file"
+              data-testid="chat-attach-btn"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-lux-border text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent disabled:opacity-40"
+            >
+              <Paperclip size={17} />
+            </button>
+            <button
+              type="button"
+              onClick={toggleMic}
+              disabled={locked || busy || transcribing}
+              aria-label={recording ? "Stop recording" : "Record voice"}
+              data-testid="chat-mic-btn"
+              className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border transition-colors disabled:opacity-40 ${
+                recording ? "border-red-500 text-red-500" : "border-lux-border text-lux-text2 hover:border-lux-accent hover:text-lux-accent"
+              }`}
+            >
+              {transcribing ? <Loader2 size={17} className="animate-spin" /> : recording ? <Square size={15} /> : <Mic size={17} />}
+            </button>
+            <span className="flex-1" />
+            <button
+              type="submit"
+              disabled={busy}
+              aria-label="Send message"
+              data-testid="chat-send"
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-lux-text text-lux-bg transition-transform duration-200 hover:-translate-y-0.5 disabled:opacity-40"
+            >
+              {busy ? <Loader2 size={18} className="animate-spin" /> : <ArrowUp size={19} />}
+            </button>
+          </div>
+        </div>
       </form>
     </div>
   );
