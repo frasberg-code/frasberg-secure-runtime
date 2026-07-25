@@ -113,3 +113,23 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - sitemap.xml + robots.txt (frasberg.com URLs).
 - Tested: iteration_3.json — backend 25/25, all frontend flows pass. Regression suite at
   /app/backend/tests/test_auth_and_chat.py.
+
+## Implemented — Guest Chat, Auto-Speak, Quotas, Pro Upgrade, Sessions (2026-07-25 pt2)
+- Chat sessions sidebar on /chat: GET /api/chat/sessions (grouped, titled), history?session_id=,
+  New chat button. Profile page /profile: name update, password change (PATCH /api/auth/profile,
+  POST /api/auth/change-password).
+- GUEST CHAT: /api/chat auth now optional; guest msgs stored guest:true + expires_at TTL 24h
+  (auto-deleted). Guests: banner (chat-guest-banner) + sidebar signup card; attachments/mic/
+  image/video still require account (401 / toast).
+- AUTO-SPEAK: voice toggle (chat-voice-toggle, localStorage, default ON) — Luchii speaks each
+  reply via /api/voice/speak (OpenAI tts-1 'coral' — ElevenLabs female voice PENDING user key,
+  spec saved: Bella/Rachel eleven_multilingual_v2 stability .65 sim .80).
+- IMAGE QUOTA: 20/day free, 200/day pro/admin; 429 with upgrade message; response returns
+  images_used_today + daily_limit.
+- PAYPAL UPGRADE: 'luchii-pro' $15 in upgrade_plans; order create requires auth (user id in
+  reference); capture sets users.plan='pro'. Profile upgrade card w/ PayPal buttons.
+- PENDING (awaiting user keys): fal.ai video generation (FAL_KEY), ElevenLabs voice
+  (ELEVENLABS_API_KEY).
+- Tested: iteration_4.json — backend 31/31 pytest; frontend flows pass after re-adding voice
+  toggle + guest banner (parallel-edit collision lesson: don't batch multiple search_replace on
+  the same file region).

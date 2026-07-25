@@ -264,20 +264,46 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
             {tall ? "Luchii Chat" : "Live demo"}
           </span>
         </div>
-        <select
-          value={model}
-          onChange={(e) => setModel(e.target.value)}
-          data-testid="chat-model-select"
-          className="rounded-full border border-lux-border bg-lux-surface px-3 py-1 font-mono text-[11px] text-lux-text outline-none focus:border-lux-accent"
-        >
-          {MODELS.map((m) => (
-            <option key={m.id} value={m.id}>{m.name}</option>
-          ))}
-          {CREATOR_MODELS.map((m) => (
-            <option key={m.id} value={m.id}>{!user ? `${m.name} (sign in)` : m.name}</option>
-          ))}
-        </select>
+        <div className="flex items-center gap-1.5">
+          {user && (
+            <button
+              type="button"
+              onClick={toggleVoice}
+              aria-label={voiceOn ? "Turn voice off" : "Turn voice on"}
+              data-testid="chat-voice-toggle"
+              className={`grid h-7 w-7 place-items-center rounded-full border transition-colors ${
+                voiceOn ? "border-lux-accent text-lux-accent" : "border-lux-border text-lux-text2 hover:border-lux-accent"
+              }`}
+              title={voiceOn ? "Luchii speaks replies aloud — click to mute" : "Voice off — click so Luchii speaks"}
+            >
+              {voiceOn ? <Volume2 size={13} /> : <VolumeX size={13} />}
+            </button>
+          )}
+          <select
+            value={model}
+            onChange={(e) => setModel(e.target.value)}
+            data-testid="chat-model-select"
+            className="rounded-full border border-lux-border bg-lux-surface px-3 py-1 font-mono text-[11px] text-lux-text outline-none focus:border-lux-accent"
+          >
+            {MODELS.map((m) => (
+              <option key={m.id} value={m.id}>{m.name}</option>
+            ))}
+            {CREATOR_MODELS.map((m) => (
+              <option key={m.id} value={m.id}>{!user ? `${m.name} (sign in)` : m.name}</option>
+            ))}
+          </select>
+        </div>
       </div>
+
+      {locked && (
+        <div className="border-b border-lux-border bg-lux-surface/60 px-4 py-2 text-center" data-testid="chat-guest-banner">
+          <p className="text-[11px] text-lux-text2">
+            Guest mode — conversations are deleted after you leave.{" "}
+            <Link to="/auth" className="text-lux-accent underline" data-testid="chat-guest-signup-link">Sign up free</Link>
+            {" "}to save chats and unlock image creation, voice & attachments.
+          </p>
+        </div>
+      )}
 
       <div
         ref={scrollRef}
