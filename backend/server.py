@@ -151,9 +151,8 @@ async def _recent_transcript(session_id: str, limit: int = 8) -> str:
     return "\n\nConversation so far:\n" + "\n".join(lines)
 
 
-def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[str] = None):
-    history_task = message  # placeholder to keep signature clear
-
+def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[str] = None,
+                   system_base: Optional[str] = None, fallback=None):
     async def event_generator():
         now = datetime.now(timezone.utc).isoformat()
         await db.chat_messages.insert_one({
@@ -163,7 +162,7 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
         history = await _recent_transcript(session_id)
         llm = LlmChat(
             api_key=EMERGENT_LLM_KEY, session_id=session_id,
-            system_message=LUCHII_SYSTEM + history,
+            system_message=(system_base or LUCHII_SYSTEM) + history,
         ).with_model("anthropic", "claude-sonnet-4-6")
 
         full = ""
@@ -178,7 +177,7 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
             logger.exception("chat stream error — using fallback")
 
         if not full:
-            full = _fallback_reply(message, model or "luchii-70b")
+            full = (fallback or _fallback_reply)(message, model or "luchii-70b")
             for word in full.split(" "):
                 yield f"data: {json.dumps({'delta': word + ' '})}\n\n"
                 await asyncio.sleep(0.03)
@@ -210,6 +209,50 @@ async def chat(req: ChatRequest):
         raise HTTPException(status_code=413, detail=f"Message exceeds {MAX_MSG_LEN} chars")
     session_id = req.session_id or str(uuid.uuid4())
     return _luchii_stream(req.message, session_id, req.model or "luchii-70b")
+
+
+# ---------------- The Luchii AI Court ----------------
+JUDGE_SYSTEM = """You are The Judge — the presiding intelligence of the Luchii AI Court,
+part of the Frasberg Guardian Mesh. Cases are brought before you: questions, disputes,
+trade-offs, or decisions the petitioner wants adjudicated.
+
+Deliver your ruling in this exact structured format, using these headers verbatim:
+
+VERDICT: <one decisive sentence>
+REASONING:
+- <2 to 4 concise bullet points of your reasoning>
+GUARDIAN CHECK: <one line noting any safety/governance consideration, or "Clear — no violations">
+CONFIDENCE: <Low | Moderate | High>
+
+Rules:
+- Be balanced, fair, and grounded. Weigh both sides before ruling.
+- Draw on the Guardian Mesh values: balance, harmony, integrity.
+- If the case requests something harmful, illegal, or unsafe, the VERDICT must refuse it.
+- Keep the whole ruling under ~180 words. No preamble, start directly with "VERDICT:".
+"""
+
+
+def _court_fallback(case: str, model: str) -> str:
+    return ("VERDICT: The petition is granted in part — proceed, but with balance.\n"
+            "REASONING:\n"
+            "- Both sides carry legitimate weight; neither should overwhelm the other.\n"
+            "- The stated aim is sound, but the method needs guardrails to stay in harmony.\n"
+            "- Integrity is preserved so long as the decision remains reversible.\n"
+            "GUARDIAN CHECK: Clear — no violations detected.\n"
+            "CONFIDENCE: Moderate")
+
+
+@api_router.post("/court")
+async def court(req: ChatRequest):
+    if not req.message or not req.message.strip():
+        raise HTTPException(status_code=400, detail="A case is required")
+    if len(req.message) > MAX_MSG_LEN:
+        raise HTTPException(status_code=413, detail=f"Case exceeds {MAX_MSG_LEN} chars")
+    session_id = req.session_id or str(uuid.uuid4())
+    return _luchii_stream(
+        req.message, session_id, req.model or "luchii-70b",
+        system_base=JUDGE_SYSTEM, fallback=_court_fallback,
+    )
 
 
 # ---------------- Public Developer Gateway ----------------

@@ -7,6 +7,7 @@ import Capabilities from "../components/site/Capabilities";
 import Realms from "../components/site/Realms";
 import MythosTimeline from "../components/site/MythosTimeline";
 import Safety from "../components/site/Safety";
+import Press from "../components/site/Press";
 import ApiDocs from "../components/site/ApiDocs";
 import Footer from "../components/site/Footer";
 
@@ -22,6 +23,7 @@ export default function Landing() {
       <Realms />
       <MythosTimeline />
       <Safety />
+      <Press />
       <ApiDocs />
       <Footer />
     </main>

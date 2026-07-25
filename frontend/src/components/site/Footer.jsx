@@ -26,9 +26,11 @@ export default function Footer() {
             <div>
               <p className="mb-3 text-xs uppercase tracking-[0.2em] text-lux-text2">Docs</p>
               <ul className="space-y-2 text-lux-text2">
-                <li><a href="#api" className="hover:text-lux-text">API</a></li>
+                <li><a href="/dashboard" className="hover:text-lux-text">API</a></li>
                 <li><a href="#benchmarks" className="hover:text-lux-text">Benchmarks</a></li>
                 <li><a href="#safety" className="hover:text-lux-text">Safety</a></li>
+                <li><a href="/court" className="hover:text-lux-text">AI Court</a></li>
+                <li><a href="/brand" className="hover:text-lux-text">Brand Kit</a></li>
               </ul>
             </div>
             <div>

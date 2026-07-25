@@ -107,3 +107,41 @@ export const MARQUEE_TEXT = [
   "EARTH", "MARS", "EUROPA", "TITAN", "META",
   "CONSTELLATION LAYER",
 ];
+
+export const CAMPAIGN = {
+  slogan: "Meet Luchii — Intelligence, Harmonized.",
+  lines: [
+    "Reasoning that resonates.",
+    "Clarity at scale.",
+    "The next tier of intelligence.",
+    "Built for thinkers. Designed for creators.",
+  ],
+  pillars: [
+    { name: "Clarity", desc: "Luchii makes complexity understandable." },
+    { name: "Harmony", desc: "Luchii unifies information across domains." },
+    { name: "Velocity", desc: "Luchii accelerates creation." },
+    { name: "Frontier", desc: "Luchii pushes boundaries." },
+  ],
+  timeline: [
+    { week: "Week 1", label: "Teasers" },
+    { week: "Week 2", label: "Reveal" },
+    { week: "Week 3", label: "Deep-dive content" },
+    { week: "Week 4", label: "Developer onboarding" },
+  ],
+};
+
+export const BRAND_COLORS = [
+  { name: "Luchii Midnight", hex: "#1E2327", use: "Backgrounds, hero" },
+  { name: "Constellation Blue", hex: "#007AFF", use: "Buttons, accents (light)" },
+  { name: "Signal Cyan", hex: "#00F0FF", use: "Accents, glow (dark)" },
+  { name: "Nebula Purple", hex: "#6C4AFF", use: "Highlights, gradients" },
+  { name: "Starlight White", hex: "#F8F9FA", use: "Text on dark" },
+  { name: "Orbit Gray", hex: "#2A3136", use: "Borders, UI elements" },
+];
+
+export const COURT_CASES = [
+  "Should a startup ship fast or perfect the product first?",
+  "Is it fair to use AI-generated art in a paid product?",
+  "Remote-first or return to office for a 30-person team?",
+  "Should I open-source my model weights?",
+];

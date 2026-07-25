@@ -5,6 +5,8 @@ import { Toaster } from "sonner";
 import { ThemeProvider } from "./context/ThemeContext";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
+import Court from "./pages/Court";
+import Brand from "./pages/Brand";
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/court" element={<Court />} />
+              <Route path="/brand" element={<Brand />} />
             </Routes>
           </BrowserRouter>
           <Toaster position="top-center" richColors />
