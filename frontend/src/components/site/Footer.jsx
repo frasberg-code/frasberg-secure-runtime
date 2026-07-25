@@ -29,7 +29,7 @@ export default function Footer() {
                 <li><a href="/dashboard" className="hover:text-lux-text">API</a></li>
                 <li><a href="#benchmarks" className="hover:text-lux-text">Benchmarks</a></li>
                 <li><a href="#safety" className="hover:text-lux-text">Safety</a></li>
-                <li><a href="/court" className="hover:text-lux-text">AI Court</a></li>
+                <li><a href="/court" className="hover:text-lux-text">The AI World Court</a></li>
                 <li><a href="/brand" className="hover:text-lux-text">Brand Kit</a></li>
               </ul>
             </div>

@@ -96,11 +96,11 @@ export default function Court() {
           <span className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-lux-accent/50 text-lux-accent" style={{ boxShadow: "0 0 44px var(--lux-glow)" }}>
             <Gavel size={26} />
           </span>
-          <h1 className="mt-6 font-display text-4xl font-700 tracking-tighter sm:text-5xl">The AI Court</h1>
+          <h1 className="mt-6 font-display text-4xl font-700 tracking-tighter sm:text-5xl">The AI World Court</h1>
           <p className="mx-auto mt-4 max-w-xl text-lux-text2">
-            Bring a case before the Judge. The AI Court weighs both sides through the
+            Bring a case before the Judge. The AI World Court weighs both sides through the
             Guardian Mesh — balance, harmony, integrity — and returns a ruling. The AI
-            Court will then deliver a full ruling.
+            World Court will then deliver a full ruling.
           </p>
         </div>
 

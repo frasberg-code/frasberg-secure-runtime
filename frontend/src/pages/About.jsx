@@ -1,59 +1,153 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Moon, Sun, ArrowLeft, Compass, Target, Users, Leaf, Shield, Globe2 } from "lucide-react";
+import { Moon, Sun, ArrowLeft } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import Starfield from "../components/site/Starfield";
 import Footer from "../components/site/Footer";
 import Reveal, { Overline } from "../components/site/Reveal";
 
-const PILLARS = [
+const INTRO = [
+  "Frasberg, Inc. is an American multinational technology company dedicated to advancing the future of artificial intelligence, intelligent computing, and digital transformation. Founded with the vision of making advanced technology accessible, practical, and beneficial for everyone, Frasberg develops innovative AI platforms, intelligent software, cloud technologies, and enterprise solutions that help organizations, governments, developers, creators, researchers, and individuals solve complex problems and unlock new opportunities.",
+  "At Frasberg, we believe that artificial intelligence is more than a technological breakthrough—it is a transformative force that is redefining how people communicate, create, learn, work, and innovate. Our mission is to build intelligent systems that augment human capabilities, improve productivity, accelerate scientific discovery, and enable businesses of every size to thrive in an increasingly digital world.",
+  "Our portfolio is centered around Frasberg, our flagship artificial intelligence ecosystem, and Luchii AI Models, our family of advanced multimodal foundation models designed to power the next generation of intelligent applications. Together, these technologies provide the foundation for conversational AI, enterprise automation, software development, data intelligence, creative content generation, research assistance, intelligent agents, decision support systems, and industry-specific AI solutions.",
+];
+
+const LUCHII_APPS = [
+  "Conversational AI assistants",
+  "Enterprise knowledge management",
+  "Software engineering assistance",
+  "Research and scientific analysis",
+  "Content generation",
+  "Business intelligence",
+  "Customer support automation",
+  "Financial analysis",
+  "Educational technologies",
+  "Healthcare information systems",
+  "Legal document analysis",
+  "Marketing and communications",
+  "Translation and multilingual understanding",
+  "Image and document interpretation",
+  "Intelligent workflow automation",
+];
+
+const SECTIONS = [
   {
-    icon: Compass,
-    title: "Vision",
-    body: "A world where intelligence is harmonized — where every person, team and institution can reach for reasoning that resonates. Frasberg exists to make advanced intelligence feel less like a tool and more like a trusted counterpart.",
+    title: "Our Vision",
+    paragraphs: [
+      "Our vision is to become one of the world's leading innovators in artificial intelligence by creating technologies that empower humanity, accelerate innovation, and contribute to sustainable economic growth. We envision a future where AI works alongside people—not as a replacement for human creativity and expertise, but as a powerful partner that enhances productivity, expands knowledge, and enables individuals and organizations to accomplish more than ever before.",
+      "Frasberg is committed to shaping a future in which intelligent technology is trusted, secure, transparent, inclusive, and designed to benefit society. We strive to build AI systems that are useful, reliable, and aligned with the needs of businesses, institutions, and communities across the globe.",
+    ],
   },
   {
-    icon: Target,
-    title: "Mission",
-    body: "To design, train and steward the Luchii model family — a multi-tier continuum from 200M to 70B — and deliver it through an API that any builder can adopt in minutes, backed by the Guardian Mesh for balance, harmony and integrity.",
+    title: "Our Mission",
+    paragraphs: [
+      "Our mission is to develop world-class artificial intelligence technologies that solve real-world challenges through innovation, research, and responsible engineering. We aim to provide organizations with scalable AI platforms that improve operational efficiency, accelerate digital transformation, strengthen decision-making, and foster continuous innovation.",
+      "By combining advanced machine learning, cloud computing, data science, software engineering, and human-centered design, Frasberg creates intelligent technologies that help customers adapt to rapidly changing markets while delivering measurable value.",
+    ],
   },
   {
-    icon: Users,
-    title: "Culture",
-    body: "We are craftspeople of the Constellation Layer. Small teams, deep ownership, long horizons. We debate in the open, decide with evidence, and ship with pride. Every voice at Frasberg carries weight — the best argument wins, not the loudest.",
+    title: "Frasberg",
+    paragraphs: [
+      "Frasberg is the company's flagship artificial intelligence platform designed to deliver intelligent, scalable, and secure AI capabilities for businesses, developers, educational institutions, governments, and individuals.",
+      "The platform integrates state-of-the-art technologies across natural language processing, computer vision, speech understanding, reasoning, intelligent search, workflow automation, predictive analytics, and generative AI. It enables organizations to deploy AI-powered applications that automate repetitive tasks, streamline operations, improve customer experiences, and generate valuable insights from complex information.",
+      "Frasberg is designed with flexibility in mind, supporting cloud-native deployments, enterprise integrations, APIs, developer tools, and customizable AI solutions that adapt to diverse business needs.",
+    ],
   },
   {
-    icon: Leaf,
+    title: "Luchii AI Models",
+    paragraphs: [
+      "Luchii AI Models represent Frasberg's family of proprietary multimodal foundation models developed to understand and generate language, analyze images, process documents, reason across complex information, assist with coding, and support advanced decision-making.",
+      "These models are engineered to deliver high performance across a broad range of applications, including:",
+    ],
+    list: LUCHII_APPS,
+    after: [
+      "Luchii AI Models are continuously refined through ongoing research, engineering improvements, and responsible AI practices to enhance quality, reliability, scalability, and safety.",
+    ],
+  },
+  {
+    title: "Innovation Through Research",
+    paragraphs: [
+      "Innovation is the driving force behind everything we do. Frasberg invests in research across machine learning, large language models, multimodal intelligence, reinforcement learning, reasoning systems, agentic AI, robotics, edge computing, distributed systems, cloud infrastructure, cybersecurity, and responsible AI.",
+      "Our research teams work to advance the state of artificial intelligence while translating scientific breakthroughs into practical technologies that deliver measurable business value. We encourage interdisciplinary collaboration between researchers, engineers, designers, and industry experts to solve complex challenges with creativity and technical excellence.",
+    ],
+  },
+  {
+    title: "Enterprise Solutions",
+    paragraphs: [
+      "Organizations today require intelligent technologies that integrate seamlessly into existing business operations. Frasberg develops enterprise-grade AI platforms that enable organizations to modernize workflows, improve productivity, reduce operational costs, and accelerate innovation.",
+      "Our enterprise capabilities include intelligent document processing, predictive analytics, AI-powered search, customer service automation, digital assistants, workflow orchestration, knowledge management, software development tools, and decision-support systems. These solutions are designed to scale from startups to global enterprises while maintaining high standards for security, performance, and reliability.",
+    ],
+  },
+  {
+    title: "Cloud and Infrastructure",
+    paragraphs: [
+      "Modern AI requires scalable computing infrastructure. Frasberg develops cloud-based platforms that enable organizations to build, deploy, and manage AI applications efficiently. Our cloud technologies support secure collaboration, data processing, model deployment, API management, analytics, and enterprise integration while emphasizing reliability, scalability, and operational efficiency.",
+    ],
+  },
+  {
+    title: "Software Engineering",
+    paragraphs: [
+      "Frasberg builds modern software platforms using contemporary engineering practices that emphasize quality, performance, maintainability, and security. Our engineering teams create enterprise applications, cloud-native systems, AI-powered developer tools, APIs, mobile applications, and web platforms that enable organizations to innovate faster while reducing operational complexity.",
+    ],
+  },
+  {
+    title: "Artificial Intelligence for Every Industry",
+    paragraphs: [
+      "Artificial intelligence has the potential to transform virtually every sector of the global economy. Frasberg develops solutions tailored to industries including healthcare, education, finance, manufacturing, retail, logistics, telecommunications, energy, agriculture, transportation, media, government, and professional services.",
+      "Our technologies help organizations improve operational efficiency, enhance customer engagement, optimize resource allocation, strengthen decision-making, and unlock new business opportunities through intelligent automation and advanced analytics.",
+    ],
+  },
+  {
+    title: "Responsible AI",
+    paragraphs: [
+      "Frasberg believes that responsible innovation is essential to the long-term success of artificial intelligence. We are committed to developing AI technologies with consideration for safety, fairness, transparency, privacy, accountability, and security.",
+      "Responsible AI influences every stage of our development process—from research and model design to deployment and continuous improvement. We work to reduce harmful biases, improve model reliability, protect sensitive information, and provide organizations with tools that support responsible implementation and governance.",
+    ],
+  },
+  {
+    title: "Security and Privacy",
+    paragraphs: [
+      "Trust is fundamental to digital innovation. Frasberg designs technologies with security and privacy in mind, incorporating modern engineering practices intended to help protect data, support regulatory compliance, and strengthen operational resilience. We recognize that organizations rely on secure technology to manage critical information, and we strive to build platforms that support those needs.",
+    ],
+  },
+  {
+    title: "Developers and Innovation Ecosystem",
+    paragraphs: [
+      "Developers are central to technological progress. Frasberg provides APIs, software development tools, documentation, SDKs, and integration capabilities that help developers build intelligent applications efficiently. We aim to foster an ecosystem where startups, enterprises, researchers, and independent developers can innovate using our AI technologies.",
+    ],
+  },
+  {
+    title: "Education and Learning",
+    paragraphs: [
+      "Education is one of the most powerful applications of artificial intelligence. Frasberg supports intelligent tutoring, adaptive learning, multilingual education, personalized instruction, research assistance, and collaborative knowledge systems that help learners and educators achieve better outcomes.",
+    ],
+  },
+  {
     title: "Sustainability",
-    body: "Intelligence should not cost the Earth. Our tiered architecture routes each request to the smallest capable model, cutting energy per token dramatically. We invest in efficient training, renewable compute partnerships and transparent reporting.",
+    paragraphs: [
+      "Frasberg recognizes the importance of sustainable innovation. We seek opportunities to improve operational efficiency, optimize computing resources where practical, and develop technologies that help organizations use digital infrastructure more effectively. We believe responsible technological progress includes thoughtful stewardship of resources and long-term value creation.",
+    ],
   },
   {
-    icon: Shield,
-    title: "Integrity & Safety",
-    body: "The Guardian Mesh is not a feature — it is a covenant. Every ruling, every response, every API call passes through layered checks for balance, harmony and integrity. We publish our safety posture and hold ourselves to it publicly.",
+    title: "Global Perspective",
+    paragraphs: [
+      "As a multinational technology company, Frasberg embraces collaboration across cultures, industries, and disciplines. We believe that diverse perspectives strengthen innovation and contribute to building technologies that serve people around the world. Our ambition is to create solutions that are globally relevant while remaining adaptable to regional needs and local innovation.",
+    ],
   },
   {
-    icon: Globe2,
-    title: "Global Stewardship",
-    body: "Frasberg, Inc. serves builders across every continent. We believe access to capable intelligence is a lever for human progress, and we price, license and localize the Luchii family so no serious builder is left outside the constellation.",
+    title: "Our Culture",
+    paragraphs: [
+      "Our culture is built on curiosity, integrity, collaboration, continuous learning, and excellence. We encourage our teams to challenge assumptions, pursue ambitious ideas, and develop technologies that make a meaningful difference. We believe innovation flourishes in an environment where diverse viewpoints are respected and where people are empowered to contribute their best work.",
+    ],
   },
-];
-
-const TIMELINE = [
-  { year: "2003", text: "Frasberg, Inc. is founded — decades before the model era, as a studio obsessed with systems that think." },
-  { year: "2019", text: "The Constellation research program begins: multi-tier intelligence as a continuum, not a monolith." },
-  { year: "2024", text: "The Guardian Mesh is formalized — balance, harmony, integrity as enforceable properties." },
-  { year: "2025", text: "Luchii 200M · 1B · 7B · 70B reach internal parity targets across reasoning benchmarks." },
-  { year: "2026", text: "Luchii v12 launches publicly with the Developer Gateway, the AI World Court, and Continuum L12." },
-];
-
-const VALUES = [
-  "Reasoning that resonates",
-  "The smallest capable model wins",
-  "Safety is a covenant, not a checkbox",
-  "Long horizons, deep ownership",
-  "Access is a lever for progress",
-  "Ship with pride",
+  {
+    title: "Looking Ahead",
+    paragraphs: [
+      "Artificial intelligence is entering a new era defined by reasoning, multimodal understanding, autonomous systems, and human-AI collaboration. Frasberg is committed to helping shape that future by investing in research, engineering, and responsible innovation.",
+      "We will continue expanding the capabilities of Frasberg and Luchii AI Models while developing new technologies that empower organizations to solve increasingly complex challenges. Our long-term focus is to build intelligent platforms that support scientific discovery, economic growth, education, healthcare, creativity, and sustainable development.",
+      "As we move forward, our commitment remains clear: to develop trusted, innovative, and impactful technologies that help people and organizations achieve more. Through continuous innovation, global collaboration, and a dedication to excellence, Frasberg aims to contribute meaningfully to the future of artificial intelligence and the broader technology ecosystem.",
+    ],
+  },
 ];
 
 export default function About() {
@@ -77,83 +171,62 @@ export default function About() {
         </div>
       </header>
 
-      <section className="relative mx-auto max-w-6xl px-5 pb-10 pt-20 sm:px-8">
+      <section className="relative mx-auto max-w-4xl px-5 pb-6 pt-20 sm:px-8">
         <motion.div
           initial={{ opacity: 0, y: 26 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         >
           <Overline>About the company</Overline>
-          <h1 className="mt-5 max-w-3xl font-display text-4xl font-700 tracking-tighter sm:text-5xl lg:text-6xl">
+          <h1 className="mt-5 font-display text-4xl font-700 tracking-tighter sm:text-5xl lg:text-6xl">
             Frasberg, Inc.
-            <span className="block accent-grad">Intelligence, Harmonized.</span>
           </h1>
-          <p className="mt-6 max-w-2xl text-base leading-relaxed text-lux-text2 sm:text-lg">
-            Frasberg is the company behind Luchii — a multi-tier intelligence model
-            family spanning 200M, 1B, 7B and 70B parameters. We build reasoning
-            systems governed by the Guardian Mesh and delivered through a single,
-            drop-in Developer Gateway.
-          </p>
+          <div className="mt-8 space-y-5">
+            {INTRO.map((p, i) => (
+              <p key={i} className="text-base leading-relaxed text-lux-text2 sm:text-lg">{p}</p>
+            ))}
+          </div>
         </motion.div>
       </section>
 
-      <section className="relative mx-auto max-w-6xl px-5 py-14 sm:px-8">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {PILLARS.map((p, i) => (
-            <Reveal key={p.title} delay={i * 0.06}>
-              <div className="h-full rounded-2xl border border-lux-border bg-lux-surface p-8" data-testid={`about-pillar-${p.title.toLowerCase().split(" ")[0]}`}>
-                <span className="grid h-11 w-11 place-items-center rounded-full border border-lux-accent/40 text-lux-accent" style={{ boxShadow: "0 0 26px var(--lux-glow)" }}>
-                  <p.icon size={19} />
-                </span>
-                <h2 className="mt-5 font-display text-xl font-600 tracking-tight text-lux-text">{p.title}</h2>
-                <p className="mt-3 text-sm leading-relaxed text-lux-text2">{p.body}</p>
+      <section className="relative mx-auto max-w-4xl px-5 py-10 sm:px-8">
+        <div className="space-y-16">
+          {SECTIONS.map((s, i) => (
+            <Reveal key={s.title} delay={Math.min(i * 0.02, 0.1)}>
+              <div data-testid={`about-section-${s.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>
+                <div className="flex items-baseline gap-4">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-accent">{String(i + 1).padStart(2, "0")}</span>
+                  <h2 className="font-display text-2xl font-700 tracking-tight sm:text-3xl">{s.title}</h2>
+                </div>
+                <div className="mt-5 space-y-4 border-l border-lux-border pl-6">
+                  {s.paragraphs.map((p, j) => (
+                    <p key={j} className="text-sm leading-relaxed text-lux-text2 sm:text-base">{p}</p>
+                  ))}
+                  {s.list && (
+                    <div className="flex flex-wrap gap-2.5 pt-2">
+                      {s.list.map((item) => (
+                        <span key={item} className="rounded-full border border-lux-border bg-lux-surface px-4 py-2 font-mono text-xs text-lux-text2 transition-colors duration-200 hover:border-lux-accent hover:text-lux-text">
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {s.after && s.after.map((p, j) => (
+                    <p key={`a${j}`} className="pt-2 text-sm leading-relaxed text-lux-text2 sm:text-base">{p}</p>
+                  ))}
+                </div>
               </div>
             </Reveal>
           ))}
         </div>
-      </section>
 
-      <section className="relative border-y border-lux-border bg-lux-surface/40">
-        <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
-          <Reveal>
-            <Overline>Our story</Overline>
-            <h2 className="mt-4 font-display text-3xl font-700 tracking-tighter sm:text-4xl">Two decades toward the Constellation</h2>
-          </Reveal>
-          <div className="mt-12 space-y-0">
-            {TIMELINE.map((t, i) => (
-              <Reveal key={t.year} delay={i * 0.05}>
-                <div className="flex gap-6 border-l border-lux-border pb-10 pl-6 last:pb-0 sm:gap-10" data-testid={`about-timeline-${t.year}`}>
-                  <span className="-ml-[31px] mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-lux-accent" style={{ boxShadow: "0 0 14px var(--lux-glow)" }} />
-                  <span className="w-16 shrink-0 font-mono text-sm text-lux-accent">{t.year}</span>
-                  <p className="text-sm leading-relaxed text-lux-text2 sm:text-base">{t.text}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="relative mx-auto max-w-6xl px-5 py-20 sm:px-8">
-        <Reveal>
-          <Overline>What we hold true</Overline>
-          <h2 className="mt-4 font-display text-3xl font-700 tracking-tighter sm:text-4xl">Values of the house</h2>
-        </Reveal>
-        <div className="mt-10 flex flex-wrap gap-3" data-testid="about-values">
-          {VALUES.map((v) => (
-            <span key={v} className="rounded-full border border-lux-border bg-lux-surface px-5 py-2.5 font-mono text-xs text-lux-text2 transition-colors duration-200 hover:border-lux-accent hover:text-lux-text">
-              {v}
-            </span>
-          ))}
-        </div>
-
-        <Reveal delay={0.1}>
-          <div className="mt-16 rounded-2xl border border-lux-border bg-lux-surface p-10 text-center">
-            <h3 className="font-display text-2xl font-700 tracking-tight sm:text-3xl">Build with the constellation</h3>
-            <p className="mx-auto mt-3 max-w-md text-sm text-lux-text2">
-              Generate an API key and put the Luchii family to work in minutes.
+        <Reveal delay={0.05}>
+          <div className="mt-20 rounded-2xl border border-lux-border bg-lux-surface p-10 text-center">
+            <p className="mx-auto max-w-2xl font-display text-xl font-600 tracking-tight sm:text-2xl">
+              Frasberg, Inc. is building intelligent technology for a smarter, more connected, and more innovative world.
             </p>
             <Link to="/dashboard" data-testid="about-cta"
-              className="mt-7 inline-block rounded-full bg-lux-text px-7 py-3 text-sm font-500 text-lux-bg transition-transform duration-200 hover:-translate-y-0.5">
+              className="mt-8 inline-block rounded-full bg-lux-text px-7 py-3 text-sm font-500 text-lux-bg transition-transform duration-200 hover:-translate-y-0.5">
               Get API Key
             </Link>
           </div>

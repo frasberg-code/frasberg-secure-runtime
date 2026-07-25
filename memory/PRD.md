@@ -78,3 +78,7 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - Ecosystem: text chips replaced with react-fast-marquee logo marquee (simple-icons CDN, 18 brands,
   grayscale → color on hover, edge fades, pauseOnHover).
 - Verified via screenshots on /about and landing ecosystem section (light theme).
+- (2026-06 update) About page now contains user's VERBATIM Frasberg, Inc. text (intro + 17 sections
+  incl. Vision, Mission, Frasberg platform, Luchii AI Models app chips, Responsible AI, Culture,
+  Looking Ahead + closing statement). All "AI Court" labels relabeled to "The AI World Court"
+  (Court.jsx h1/intro, Navbar desktop+mobile, Footer).
