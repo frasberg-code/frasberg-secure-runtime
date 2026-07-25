@@ -29,7 +29,7 @@ export default function ApiDocs() {
         <Reveal>
           <Overline>Developer API</Overline>
           <h2 className="mt-4 font-display text-4xl font-700 tracking-tighter text-lux-text sm:text-5xl">
-            OpenAI-compatible. Drop-in ready.
+            One API. Drop-in ready.
           </h2>
           <p className="mt-5 max-w-md text-lux-text2">
             One endpoint, four models. Bearer auth, familiar chat schema, and

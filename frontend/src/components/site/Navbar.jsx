@@ -63,6 +63,13 @@ export default function Navbar() {
           >
             Developers
           </Link>
+          <Link
+            to="/about"
+            className="text-sm text-lux-text2 transition-colors duration-200 hover:text-lux-text"
+            data-testid="nav-about"
+          >
+            About
+          </Link>
         </div>
 
         <div className="flex items-center gap-2">
@@ -108,6 +115,7 @@ export default function Navbar() {
             <Link to="/court" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">AI Court</Link>
             <Link to="/dashboard" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Developers</Link>
             <Link to="/brand" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Brand</Link>
+            <Link to="/about" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">About</Link>
           </div>
         </div>
       )}

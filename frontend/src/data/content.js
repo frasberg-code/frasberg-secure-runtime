@@ -150,7 +150,7 @@ export const ECOSYSTEM = {
   pillars: [
     { title: "Massive scale", desc: "Trained across trillions of tokens and served with continuous batching, FP8 KV cache and speculative decoding — 20–40× over naïve inference." },
     { title: "Broad public training data", desc: "Grounded in a wide public corpus plus code, technical writing and safety-aligned dialogue — for reasoning that generalizes." },
-    { title: "A growing integration ecosystem", desc: "OpenAI-compatible API, official SDKs and drop-in connectors so Luchii fits wherever you already build." },
+    { title: "A growing integration ecosystem", desc: "A drop-in REST API, official SDKs and connectors so Luchii fits wherever you already build." },
   ],
   stats: [
     { value: "3T+", label: "training tokens" },

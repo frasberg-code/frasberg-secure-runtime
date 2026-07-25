@@ -64,3 +64,17 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
   PAYPAL_CLIENT_ID/SECRET. api.frasberg.ai currently unreachable so upstream proxy left disabled
   (LUCHII_UPSTREAM_URL empty); enable by setting that URL when the endpoint is live.
 - SECURITY: user pasted secrets in chat — recommend rotating all tokens/keys.
+
+## Implemented — White-labeling, About page, Logo Marquee (2026-06 fork)
+- Removed all Emergent scripts (badge + PostHog analytics) from public/index.html; deleted unused
+  constants/testIds with emergent refs. Zero "OpenAI"/"Emergent" mentions remain in frontend src.
+- Footer copyright → "Copyright © 2003-2026 FRASBERG, INC."; footer "Company" column links /about.
+- Court relabels: header "The AI World Court"; intro "The AI Court weighs both sides… returns a
+  ruling. The AI Court will then deliver a full ruling."
+- New /about page (pages/About.jsx): Vision/Mission/Culture/Sustainability/Integrity/Global
+  Stewardship pillars, 2003→2026 timeline, values chips, CTA. Routed in App.js; "About" in navbar
+  (desktop + mobile). NOTE: copy written in brand voice — user's verbatim Msg-208 text was not
+  preserved in handoff; swap in exact copy if user provides it again.
+- Ecosystem: text chips replaced with react-fast-marquee logo marquee (simple-icons CDN, 18 brands,
+  grayscale → color on hover, edge fades, pauseOnHover).
+- Verified via screenshots on /about and landing ecosystem section (light theme).

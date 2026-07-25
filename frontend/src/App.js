@@ -7,6 +7,7 @@ import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import Court from "./pages/Court";
 import Brand from "./pages/Brand";
+import About from "./pages/About";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/court" element={<Court />} />
               <Route path="/brand" element={<Brand />} />
+              <Route path="/about" element={<About />} />
             </Routes>
           </BrowserRouter>
           <Toaster position="top-center" richColors />

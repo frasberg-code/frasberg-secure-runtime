@@ -1,5 +1,27 @@
+import Marquee from "react-fast-marquee";
 import Reveal, { Overline } from "./Reveal";
 import { ECOSYSTEM } from "../../data/content";
+
+const LOGOS = [
+  { name: "Python", slug: "python" },
+  { name: "JavaScript", slug: "javascript" },
+  { name: "Go", slug: "go" },
+  { name: "React", slug: "react" },
+  { name: "Node.js", slug: "nodedotjs" },
+  { name: "Next.js", slug: "nextdotjs" },
+  { name: "FastAPI", slug: "fastapi" },
+  { name: "LangChain", slug: "langchain" },
+  { name: "Hugging Face", slug: "huggingface" },
+  { name: "GitHub", slug: "github" },
+  { name: "Slack", slug: "slack" },
+  { name: "Discord", slug: "discord" },
+  { name: "Zapier", slug: "zapier" },
+  { name: "Jupyter", slug: "jupyter" },
+  { name: "Postman", slug: "postman" },
+  { name: "Docker", slug: "docker" },
+  { name: "Kubernetes", slug: "kubernetes" },
+  { name: "Vercel", slug: "vercel" },
+];
 
 export default function Ecosystem() {
   return (
@@ -36,15 +58,27 @@ export default function Ecosystem() {
         </Reveal>
 
         <Reveal delay={0.15}>
-          <div className="mt-10 flex flex-wrap gap-3" data-testid="integration-grid">
-            {ECOSYSTEM.integrations.map((name) => (
-              <span
-                key={name}
-                className="rounded-full border border-lux-border bg-lux-surface px-4 py-2 font-mono text-xs text-lux-text2 transition-colors duration-200 hover:border-lux-accent hover:text-lux-text"
-              >
-                {name}
-              </span>
-            ))}
+          <div className="relative mt-12" data-testid="integration-logo-marquee">
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-lux-bg to-transparent" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-lux-bg to-transparent" />
+            <Marquee speed={36} gradient={false} pauseOnHover autoFill>
+              {LOGOS.map((l) => (
+                <div
+                  key={l.slug}
+                  className="group mx-5 flex items-center gap-3 opacity-60 transition-opacity duration-300 hover:opacity-100"
+                  data-testid={`integration-logo-${l.slug}`}
+                >
+                  <img
+                    src={`https://cdn.simpleicons.org/${l.slug}/8B949E`}
+                    alt={l.name}
+                    loading="lazy"
+                    className="h-7 w-7 grayscale transition-all duration-300 group-hover:grayscale-0"
+                    style={{ filter: "grayscale(1)" }}
+                  />
+                  <span className="font-mono text-xs text-lux-text2 transition-colors duration-300 group-hover:text-lux-text">{l.name}</span>
+                </div>
+              ))}
+            </Marquee>
           </div>
         </Reveal>
       </div>

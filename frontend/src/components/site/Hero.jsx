@@ -114,7 +114,7 @@ export default function Hero() {
           >
             <span>4 tiers</span><span className="h-3 w-px bg-lux-border" />
             <span>32K context</span><span className="h-3 w-px bg-lux-border" />
-            <span>OpenAI-compatible API</span>
+            <span>Drop-in REST API</span>
           </motion.div>
         </div>
 

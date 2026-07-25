@@ -34,15 +34,16 @@ export default function Footer() {
               </ul>
             </div>
             <div>
-              <p className="mb-3 text-xs uppercase tracking-[0.2em] text-lux-text2">Contact</p>
+              <p className="mb-3 text-xs uppercase tracking-[0.2em] text-lux-text2">Company</p>
               <ul className="space-y-2 text-lux-text2">
+                <li><a href="/about" className="hover:text-lux-text" data-testid="footer-about-link">About Frasberg</a></li>
                 <li><a href="mailto:support@frasberg.ai" className="hover:text-lux-text">support@frasberg.ai</a></li>
               </ul>
             </div>
           </div>
         </div>
         <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-lux-border pt-8 font-mono text-xs text-lux-text2 sm:flex-row sm:items-center">
-          <span>© 2026 Frasberg · Frasberg Public License</span>
+          <span>Copyright © 2003-2026 FRASBERG, INC.</span>
           <span>Constellation Layer · Continuum L12</span>
         </div>
       </div>

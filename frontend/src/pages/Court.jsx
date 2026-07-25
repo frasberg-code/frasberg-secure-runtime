@@ -82,7 +82,7 @@ export default function Court() {
           <Link to="/" className="flex items-center gap-2.5" data-testid="court-home-link">
             <ArrowLeft size={16} className="text-lux-text2" />
             <img src="/luchii-logo.webp" alt="Frasberg Luchii" className="h-8 w-8 rounded-full ring-1 ring-lux-accent/40" />
-            <span className="font-display text-lg font-700 tracking-tight">Luchii Court</span>
+            <span className="font-display text-lg font-700 tracking-tight">The AI World Court</span>
           </Link>
           <button onClick={toggle} aria-label="Toggle theme" data-testid="court-theme-toggle"
             className="grid h-10 w-10 place-items-center rounded-full border border-lux-border transition-colors hover:border-lux-accent hover:text-lux-accent">
@@ -98,8 +98,9 @@ export default function Court() {
           </span>
           <h1 className="mt-6 font-display text-4xl font-700 tracking-tighter sm:text-5xl">The AI Court</h1>
           <p className="mx-auto mt-4 max-w-xl text-lux-text2">
-            Bring a case before the Judge. Luchii weighs both sides through the
-            Guardian Mesh — balance, harmony, integrity — and returns a ruling.
+            Bring a case before the Judge. The AI Court weighs both sides through the
+            Guardian Mesh — balance, harmony, integrity — and returns a ruling. The AI
+            Court will then deliver a full ruling.
           </p>
         </div>
 
