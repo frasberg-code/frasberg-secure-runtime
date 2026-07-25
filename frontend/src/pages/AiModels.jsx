@@ -119,6 +119,13 @@ export default function AiModels() {
               <span className="font-mono text-xs text-lux-accent">{selected.id}</span>
             </div>
             <p className="mt-3 text-sm leading-relaxed text-lux-text2">{selected.blurb}</p>
+            <Link
+              to={`/chat?model=${selected.id}`}
+              data-testid="model-try-chat-btn"
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-lux-accent px-6 py-2.5 text-sm font-600 text-lux-bg transition-transform duration-200 hover:-translate-y-0.5"
+            >
+              Try {selected.name} in Chat →
+            </Link>
             <div className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-lux-border bg-lux-border">
               <div className="bg-lux-bg p-5 text-center">
                 <p className="font-display text-2xl font-700 accent-grad">{selected.params}</p>

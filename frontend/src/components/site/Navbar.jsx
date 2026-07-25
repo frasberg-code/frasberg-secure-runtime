@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Moon, Sun, Menu, X } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
+import { useAuth } from "../../context/AuthContext";
 
 const LINKS = [
   { label: "Models", href: "#models" },
@@ -13,6 +14,7 @@ const LINKS = [
 
 export default function Navbar() {
   const { theme, toggle } = useTheme();
+  const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -70,6 +72,23 @@ export default function Navbar() {
           >
             About
           </Link>
+          {user ? (
+            <button
+              onClick={logout}
+              data-testid="nav-logout"
+              className="text-sm text-lux-text2 transition-colors duration-200 hover:text-lux-text"
+            >
+              Sign out
+            </button>
+          ) : (
+            <Link
+              to="/auth?mode=login"
+              className="text-sm text-lux-text2 transition-colors duration-200 hover:text-lux-text"
+              data-testid="nav-signin"
+            >
+              Sign In
+            </Link>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -118,6 +137,11 @@ export default function Navbar() {
             <Link to="/about" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">About</Link>
             <Link to="/ai-models" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">AI Models</Link>
             <Link to="/luchii-code" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Luchii</Link>
+            {user ? (
+              <button onClick={() => { logout(); setOpen(false); }} className="py-2 text-left text-sm text-lux-text2 hover:text-lux-text">Sign out</button>
+            ) : (
+              <Link to="/auth?mode=login" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Sign In</Link>
+            )}
           </div>
         </div>
       )}

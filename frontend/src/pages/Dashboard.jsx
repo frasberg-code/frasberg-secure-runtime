@@ -5,6 +5,7 @@ import {
   Key, Plus, Copy, Trash2, Activity, Cpu, Terminal, ArrowLeft, Moon, Sun, Check,
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
 import ChatDemo from "../components/site/ChatDemo";
 import CodeTabs from "../components/site/CodeTabs";
 import Pricing from "../components/site/Pricing";
@@ -26,6 +27,7 @@ function Stat({ label, value, icon: Icon }) {
 
 export default function Dashboard() {
   const { theme, toggle } = useTheme();
+  const { user } = useAuth();
   const [keys, setKeys] = useState([]);
   const [usage, setUsage] = useState({ total_requests: 0, total_tokens: 0, keys: 0, rate_limit: 60 });
   const [newKey, setNewKey] = useState(null);
@@ -35,25 +37,27 @@ export default function Dashboard() {
   const refresh = useCallback(async () => {
     try {
       const [k, u] = await Promise.all([
-        fetch(`${API}/keys`).then((r) => r.json()),
-        fetch(`${API}/usage`).then((r) => r.json()),
+        fetch(`${API}/keys`, { credentials: "include" }).then((r) => (r.ok ? r.json() : [])),
+        fetch(`${API}/usage`, { credentials: "include" }).then((r) => (r.ok ? r.json() : null)),
       ]);
       setKeys(Array.isArray(k) ? k : []);
-      setUsage(u);
+      if (u) setUsage(u);
     } catch {
       toast.error("Failed to load dashboard");
     }
   }, []);
 
-  useEffect(() => { refresh(); }, [refresh]);
+  useEffect(() => { if (user) refresh(); }, [refresh, user]);
 
   const generate = async () => {
     try {
       const res = await fetch(`${API}/keys`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ name: name || "Default key" }),
       });
+      if (res.status === 401) { toast.error("Please sign in to generate keys"); return; }
       const data = await res.json();
       setNewKey(data);
       setName("");
@@ -110,6 +114,24 @@ export default function Dashboard() {
           at {usage.rate_limit} requests/min.
         </p>
 
+        {!user && (
+          <div className="mt-10 rounded-3xl border border-lux-border bg-lux-surface p-10 text-center" data-testid="dashboard-signin-prompt">
+            <h2 className="font-display text-2xl font-700 tracking-tight">Sign in to request API keys</h2>
+            <p className="mx-auto mt-3 max-w-md text-sm text-lux-text2">
+              A free Frasberg account is required to generate API or LLM keys, track usage and purchase credits.
+            </p>
+            <Link
+              to={`/auth?next=${encodeURIComponent("/dashboard")}`}
+              data-testid="dashboard-signin-cta"
+              className="mt-6 inline-block rounded-full bg-lux-text px-7 py-3 text-sm font-600 text-lux-bg transition-transform duration-200 hover:-translate-y-0.5"
+            >
+              Sign in / Create account
+            </Link>
+          </div>
+        )}
+
+        {user && (
+        <>
         <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-3" data-testid="usage-stats">
           <Stat label="Requests" value={usage.total_requests} icon={Activity} />
           <Stat label="Tokens" value={usage.total_tokens} icon={Terminal} />
@@ -235,6 +257,8 @@ export default function Dashboard() {
             </div>
           </section>
         </div>
+        </>
+        )}
       </div>
     </main>
   );

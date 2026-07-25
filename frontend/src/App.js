@@ -3,6 +3,7 @@ import { ReactLenis } from "lenis/react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "./context/ThemeContext";
+import { AuthProvider } from "./context/AuthContext";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import Court from "./pages/Court";
@@ -10,10 +11,13 @@ import Brand from "./pages/Brand";
 import About from "./pages/About";
 import AiModels from "./pages/AiModels";
 import LuchiiCode from "./pages/LuchiiCode";
+import Auth from "./pages/Auth";
+import Chat from "./pages/Chat";
 
 function App() {
   return (
     <ThemeProvider>
+      <AuthProvider>
       <ReactLenis root options={{ lerp: 0.09, smoothWheel: true }}>
         <div className="App grain">
           <BrowserRouter>
@@ -26,11 +30,14 @@ function App() {
               <Route path="/court" element={<Court />} />
               <Route path="/brand" element={<Brand />} />
               <Route path="/about" element={<About />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/chat" element={<Chat />} />
             </Routes>
           </BrowserRouter>
           <Toaster position="top-center" richColors />
         </div>
       </ReactLenis>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

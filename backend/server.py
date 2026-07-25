@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, Header, HTTPException
+from fastapi import FastAPI, APIRouter, Header, HTTPException, Depends, Request, UploadFile, File
 from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -16,7 +16,14 @@ from typing import List, Optional
 import uuid
 from datetime import datetime, timezone
 
-from emergentintegrations.llm.chat import LlmChat, UserMessage, TextDelta, StreamDone
+from emergentintegrations.llm.chat import LlmChat, UserMessage, TextDelta, StreamDone, ImageContent
+from emergentintegrations.llm.openai.image_generation import OpenAIImageGeneration
+from emergentintegrations.llm.openai import OpenAISpeechToText, OpenAITextToSpeech
+import base64
+import tempfile
+import io
+from pypdf import PdfReader
+import auth as auth_module
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -24,6 +31,7 @@ load_dotenv(ROOT_DIR / '.env')
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
+auth_module.setup(db)
 
 EMERGENT_LLM_KEY = os.environ['EMERGENT_LLM_KEY']
 
@@ -132,7 +140,17 @@ Lore you may reference lightly when relevant (never force it):
 Rules:
 - No hallucinations. If unsure, say so briefly.
 - Never provide harmful, illegal, or unsafe instructions; refuse politely and concisely.
-- This is a public landing-page demo, so keep replies engaging and reasonably short (usually under 180 words).
+- Keep replies engaging and reasonably focused.
+
+Human abilities:
+- You converse naturally, like a thoughtful human — warm, perceptive, never robotic.
+- You remember the conversation so far and reference it naturally ("as you mentioned earlier…").
+- You read between the lines: infer what the user truly needs, even when unstated, and address it.
+- You can create and draft complete documents in any format the user asks — including formal
+  court/legal formats (motions, affidavits, briefs with caption blocks, numbered paragraphs,
+  signature lines), letters, contracts, reports, essays and more. When asked for a document,
+  produce the full formatted draft, not a summary.
+- When a user shares a file or image, review it carefully and give concrete feedback and advice.
 """
 
 
@@ -151,6 +169,9 @@ class ChatRequest(BaseModel):
     message: str
     session_id: Optional[str] = None
     model: Optional[str] = "luchii-70b"
+    attachment_base64: Optional[str] = None
+    attachment_kind: Optional[str] = None
+    attachment_name: Optional[str] = None
 
 
 class KeyCreate(BaseModel):
@@ -214,20 +235,47 @@ async def _recent_transcript(session_id: str, limit: int = 8) -> str:
     return "\n\nConversation so far:\n" + "\n".join(lines)
 
 
+def _extract_attachment_text(kind: str, data_b64: str, name: str) -> str:
+    try:
+        raw = base64.b64decode(data_b64)
+        if kind == "pdf":
+            reader = PdfReader(io.BytesIO(raw))
+            text = "\n".join((p.extract_text() or "") for p in reader.pages)
+        else:
+            text = raw.decode("utf-8", errors="ignore")
+        text = text.strip()[:12000]
+        return f"\n\n[Attached document: {name}]\n{text}" if text else ""
+    except Exception:
+        logger.exception("attachment extraction failed")
+        return ""
+
+
 def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[str] = None,
-                   system_base: Optional[str] = None, fallback=None):
+                   system_base: Optional[str] = None, fallback=None,
+                   user_id: Optional[str] = None, attachment: Optional[dict] = None):
     async def event_generator():
         now = datetime.now(timezone.utc).isoformat()
         await db.chat_messages.insert_one({
-            "id": str(uuid.uuid4()), "session_id": session_id,
+            "id": str(uuid.uuid4()), "session_id": session_id, "user_id": user_id,
             "role": "user", "content": message, "model": model, "ts": now,
         })
         history = await _recent_transcript(session_id)
         sb = system_base or LUCHII_SYSTEM
 
+        llm_text = message
+        image_contents = None
+        if attachment and attachment.get("data"):
+            if attachment.get("kind") == "image":
+                image_contents = [ImageContent(image_base64=attachment["data"])]
+            else:
+                llm_text = message + _extract_attachment_text(
+                    attachment.get("kind") or "text", attachment["data"], attachment.get("name") or "file")
+
         full = ""
-        # 1) Real Luchii API if it's live
-        upstream_text = await _try_upstream(message, sb, model or "luchii-70b")
+        # 1) Real Luchii API if it's live (no attachment payloads upstream)
+        upstream_text = None
+        if not attachment:
+            upstream_text = await _try_upstream(message, sb, model or "luchii-70b")
         if upstream_text:
             full = upstream_text
             for word in full.split(" "):
@@ -240,7 +288,8 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
                 system_message=sb + history,
             ).with_model("anthropic", "claude-sonnet-4-6")
             try:
-                async for event in llm.stream_message(UserMessage(text=message)):
+                user_msg = UserMessage(text=llm_text, file_contents=image_contents) if image_contents else UserMessage(text=llm_text)
+                async for event in llm.stream_message(user_msg):
                     if isinstance(event, TextDelta):
                         full += event.content
                         yield f"data: {json.dumps({'delta': event.content})}\n\n"
@@ -257,7 +306,7 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
                     await asyncio.sleep(0.03)
 
         await db.chat_messages.insert_one({
-            "id": str(uuid.uuid4()), "session_id": session_id,
+            "id": str(uuid.uuid4()), "session_id": session_id, "user_id": user_id,
             "role": "assistant", "content": full, "model": model,
             "ts": datetime.now(timezone.utc).isoformat(),
         })
@@ -276,13 +325,103 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
 
 
 @api_router.post("/chat")
-async def chat(req: ChatRequest):
+async def chat(req: ChatRequest, user: dict = Depends(auth_module.get_current_user)):
     if not req.message or not req.message.strip():
         raise HTTPException(status_code=400, detail="Message is required")
     if len(req.message) > MAX_MSG_LEN:
         raise HTTPException(status_code=413, detail=f"Message exceeds {MAX_MSG_LEN} chars")
     session_id = req.session_id or str(uuid.uuid4())
-    return _luchii_stream(req.message, session_id, req.model or "luchii-70b")
+    attachment = None
+    if req.attachment_base64:
+        attachment = {"data": req.attachment_base64, "kind": req.attachment_kind or "text",
+                      "name": req.attachment_name or "file"}
+    return _luchii_stream(req.message, session_id, req.model or "luchii-70b",
+                          user_id=user["id"], attachment=attachment)
+
+
+@api_router.get("/chat/history")
+async def chat_history(user: dict = Depends(auth_module.get_current_user)):
+    last = await db.chat_messages.find(
+        {"user_id": user["id"]}, {"_id": 0}
+    ).sort("ts", -1).to_list(1)
+    if not last:
+        return {"session_id": None, "messages": []}
+    session_id = last[0]["session_id"]
+    docs = await db.chat_messages.find(
+        {"session_id": session_id}, {"_id": 0, "id": 0}
+    ).sort("ts", 1).to_list(100)
+    return {"session_id": session_id, "messages": docs}
+
+
+class ImageGenRequest(BaseModel):
+    prompt: str
+    session_id: Optional[str] = None
+
+
+@api_router.post("/generate/image")
+async def generate_image(req: ImageGenRequest, user: dict = Depends(auth_module.get_current_user)):
+    prompt = (req.prompt or "").strip()
+    if not prompt:
+        raise HTTPException(status_code=400, detail="A prompt is required")
+    session_id = req.session_id or str(uuid.uuid4())
+    try:
+        image_gen = OpenAIImageGeneration(api_key=EMERGENT_LLM_KEY)
+        images = await image_gen.generate_images(prompt=prompt, model="gpt-image-1", number_of_images=1)
+        if not images:
+            raise HTTPException(status_code=502, detail="No image was generated")
+        now = datetime.now(timezone.utc).isoformat()
+        await db.chat_messages.insert_one({
+            "id": str(uuid.uuid4()), "session_id": session_id, "user_id": user["id"],
+            "role": "user", "content": f"[Image request] {prompt}", "model": "luchii-image", "ts": now,
+        })
+        await db.chat_messages.insert_one({
+            "id": str(uuid.uuid4()), "session_id": session_id, "user_id": user["id"],
+            "role": "assistant", "content": f"[Image created] {prompt}", "model": "luchii-image",
+            "ts": datetime.now(timezone.utc).isoformat(),
+        })
+        return {"image_base64": base64.b64encode(images[0]).decode("utf-8"), "session_id": session_id}
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("image generation failed")
+        raise HTTPException(status_code=502, detail="Image generation failed")
+
+
+@api_router.post("/voice/transcribe")
+async def voice_transcribe(file: UploadFile = File(...), user: dict = Depends(auth_module.get_current_user)):
+    raw = await file.read()
+    if len(raw) > 25 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Audio exceeds 25 MB")
+    suffix = ".webm" if "webm" in (file.content_type or "") or (file.filename or "").endswith(".webm") else ".mp3"
+    try:
+        stt = OpenAISpeechToText(api_key=EMERGENT_LLM_KEY)
+        with tempfile.NamedTemporaryFile(suffix=suffix, delete=True) as tmp:
+            tmp.write(raw)
+            tmp.flush()
+            with open(tmp.name, "rb") as audio_file:
+                response = await stt.transcribe(file=audio_file, model="whisper-1", response_format="json")
+        return {"text": getattr(response, "text", "") or ""}
+    except Exception:
+        logger.exception("transcription failed")
+        raise HTTPException(status_code=502, detail="Transcription failed")
+
+
+class SpeakRequest(BaseModel):
+    text: str
+
+
+@api_router.post("/voice/speak")
+async def voice_speak(req: SpeakRequest, user: dict = Depends(auth_module.get_current_user)):
+    text = (req.text or "").strip()[:4000]
+    if not text:
+        raise HTTPException(status_code=400, detail="Text is required")
+    try:
+        tts = OpenAITextToSpeech(api_key=EMERGENT_LLM_KEY)
+        audio_base64 = await tts.generate_speech_base64(text=text, model="tts-1", voice="coral")
+        return {"audio_base64": audio_base64}
+    except Exception:
+        logger.exception("tts failed")
+        raise HTTPException(status_code=502, detail="Voice generation failed")
 
 
 # ---------------- The Luchii AI Court ----------------
@@ -356,11 +495,12 @@ async def gateway_chat(req: ChatRequest, authorization: Optional[str] = Header(N
 
 
 @api_router.post("/keys")
-async def create_key(body: KeyCreate):
+async def create_key(body: KeyCreate, user: dict = Depends(auth_module.get_current_user)):
     doc = {
         "id": str(uuid.uuid4()),
         "name": body.name or "Default key",
         "key": "luchii-sk-" + secrets.token_hex(20),
+        "user_id": user["id"],
         "created": datetime.now(timezone.utc).isoformat(),
         "request_count": 0,
         "token_count": 0,
@@ -371,24 +511,24 @@ async def create_key(body: KeyCreate):
 
 
 @api_router.get("/keys")
-async def list_keys():
-    docs = await db.api_keys.find({}, {"_id": 0}).sort("created", -1).to_list(200)
+async def list_keys(user: dict = Depends(auth_module.get_current_user)):
+    docs = await db.api_keys.find({"user_id": user["id"]}, {"_id": 0}).sort("created", -1).to_list(200)
     for d in docs:
         d["key"] = _mask_key(d["key"])
     return docs
 
 
 @api_router.delete("/keys/{key_id}")
-async def delete_key(key_id: str):
-    res = await db.api_keys.delete_one({"id": key_id})
+async def delete_key(key_id: str, user: dict = Depends(auth_module.get_current_user)):
+    res = await db.api_keys.delete_one({"id": key_id, "user_id": user["id"]})
     if res.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Key not found")
     return {"deleted": key_id}
 
 
 @api_router.get("/usage")
-async def usage():
-    docs = await db.api_keys.find({}, {"_id": 0}).to_list(500)
+async def usage(user: dict = Depends(auth_module.get_current_user)):
+    docs = await db.api_keys.find({"user_id": user["id"]}, {"_id": 0}).to_list(500)
     total_req = sum(d.get("request_count", 0) for d in docs)
     total_tok = sum(d.get("token_count", 0) for d in docs)
     return {
@@ -580,12 +720,13 @@ async def paypal_capture_order(order_id: str, body: OrderCapture):
         raise HTTPException(status_code=502, detail="PayPal is unavailable")
 
 
+api_router.include_router(auth_module.router)
 app.include_router(api_router)
 
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_origin_regex=".*",
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -596,6 +737,9 @@ async def create_indexes():
     await db.api_keys.create_index("key", unique=True)
     await db.api_keys.create_index("id")
     await db.chat_messages.create_index([("session_id", 1), ("ts", 1)])
+    await db.chat_messages.create_index([("user_id", 1), ("ts", -1)])
+    await auth_module.create_indexes()
+    await auth_module.seed_admin()
     asyncio.create_task(_probe_upstreams())
 
 

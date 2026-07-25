@@ -1,0 +1,47 @@
+{
+  "summary": "Full backend + frontend testing of new auth-gated features (JWT httpOnly cookies, chat, image gen, TTS, attachments, user-scoped keys, image/video creator models, Try-in-Chat deeplink). 25/25 pytest backend tests passed; all critical frontend flows verified live.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "ChatDemo model select", "issue": "React hydration warning: '<span> cannot be a child of <option>' — icons wrapped in <span> inside native <option> elements. Cosmetic only (dropdown still works)", "selector": "[data-testid='chat-model-select'] option", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_auth_and_chat.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "(Optional/low) Remove <span>-wrapped icons from <option> children in ChatDemo.jsx to silence React hydration warning."
+  ],
+  "critical_code_review_comments": [
+    "Auth implementation is solid: bcrypt hashes ($2b$), httpOnly+secure+samesite=none cookies, 15m access / 7d refresh, brute-force lockout (5 attempts / 15 min), idempotent seed_admin that also updates the password if ADMIN_PASSWORD changed.",
+    "Chat/keys/usage/image/voice all correctly gated behind auth (verified 401 without cookies, 200 with cookies).",
+    "Keys are properly user-scoped: user A's key not visible/deletable by user B (verified).",
+    "Public routes /api/court and /api/v1/chat still function correctly without user auth.",
+    "MongoDB _id is properly projected out of responses.",
+    "server.py is 749 lines — approaching the 700-line split threshold; consider extracting PayPal and voice/image handlers into separate routers for maintainability."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_auth_and_chat.py (new)"
+  ],
+  "success_rate": {"backend": "100% (25/25)", "frontend": "100% of critical flows"},
+  "test_credentials": "Admin: admin@frasberg.com / LuchiiAdmin2026! ; Test user auto-registered per run (tester+<rand>@frasberg.com / Test1234!)",
+  "seed_data_creation": "Test users prefixed 'tester+' are created per run and left in DB (register flow); TEST_-prefixed API keys are created and deleted within tests.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend pytest suite at /app/backend/tests/test_auth_and_chat.py covers auth (register/login/me/refresh/logout, duplicate email, wrong pw, no cookie), chat (unauth 401, SSE streaming, history, txt attachment), image gen (~30s), TTS speak, keys user-scoping, public court + gateway w/ Bearer key, and sitemap/robots. Reuse it as regression. Frontend verified via Playwright: landing overlay, /chat->/auth redirect, register->chat, streamed reply, model select contains Image/Video Creator, Video shows coming-soon, attach+mic visible, navbar Sign In/Sign Out toggle, dashboard key generation, /ai-models Try in Chat deep-link with ?model= param. Note: Emergent LLM streamed real replies (no fallback path taken during test).",
+  "verified_features": [
+    "POST /api/auth/register/login/me/refresh/logout — all working with httpOnly cookies",
+    "POST /api/chat auth-gated + SSE streaming + attachment_base64 support",
+    "GET /api/chat/history returns latest session messages",
+    "POST /api/generate/image returns image_base64 (auth required)",
+    "POST /api/voice/speak returns audio_base64; /voice/transcribe requires auth",
+    "/api/keys and /api/usage user-scoped (cross-user isolation verified)",
+    "POST /api/court still public; POST /api/v1/chat still gated by Bearer luchii-sk key",
+    "GET /api/paypal/config returns 3 plans",
+    "GET /sitemap.xml and /robots.txt served",
+    "Frontend: /chat redirect, register flow, SSE reply render, Video Creator coming-soon, model deep-link, dashboard key generation, navbar auth state"
+  ]
+}
