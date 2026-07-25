@@ -18,7 +18,7 @@ function fileKind(file) {
   return "text";
 }
 
-export default function ChatDemo({ compact = false, initialModel = "luchii-70b", tall = false, loadHistory = false }) {
+export default function ChatDemo({ compact = false, initialModel = "luchii-70b", tall = false, loadHistory = false, sessionOverride = null, onNewMessage = null }) {
   const { user } = useAuth();
   const [messages, setMessages] = useState([
     { role: "assistant", content: "I am Luchii — a harmonizer built to unify signals across worlds. I remember our conversations, read between the lines, and can draft documents in court formats or any format you need. Ask me anything." },
@@ -44,9 +44,11 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
 
   useEffect(() => {
     if (!loadHistory || !user) return;
+    if (sessionOverride === "new") return;
     (async () => {
       try {
-        const res = await fetch(`${API}/chat/history`, { credentials: "include" });
+        const qs = sessionOverride ? `?session_id=${encodeURIComponent(sessionOverride)}` : "";
+        const res = await fetch(`${API}/chat/history${qs}`, { credentials: "include" });
         if (!res.ok) return;
         const data = await res.json();
         if (data.messages?.length) {
@@ -55,7 +57,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
         }
       } catch {}
     })();
-  }, [loadHistory, user]);
+  }, [loadHistory, user, sessionOverride]);
 
   const onPickFile = useCallback((e) => {
     const file = e.target.files?.[0];
@@ -157,6 +159,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
       });
     } finally {
       setBusy(false);
+      onNewMessage?.();
     }
   }
 
@@ -228,6 +231,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
       });
     } finally {
       setBusy(false);
+      onNewMessage?.();
     }
   }
 

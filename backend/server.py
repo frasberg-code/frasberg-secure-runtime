@@ -339,17 +339,39 @@ async def chat(req: ChatRequest, user: dict = Depends(auth_module.get_current_us
                           user_id=user["id"], attachment=attachment)
 
 
+@api_router.get("/chat/sessions")
+async def chat_sessions(user: dict = Depends(auth_module.get_current_user)):
+    pipeline = [
+        {"$match": {"user_id": user["id"]}},
+        {"$sort": {"ts": 1}},
+        {"$group": {
+            "_id": "$session_id",
+            "title": {"$first": "$content"},
+            "last_ts": {"$last": "$ts"},
+            "count": {"$sum": 1},
+            "model": {"$last": "$model"},
+        }},
+        {"$sort": {"last_ts": -1}},
+        {"$limit": 50},
+    ]
+    docs = await db.chat_messages.aggregate(pipeline).to_list(50)
+    return [{"session_id": d["_id"], "title": (d.get("title") or "New conversation")[:80],
+             "last_ts": d.get("last_ts"), "count": d.get("count", 0), "model": d.get("model")}
+            for d in docs]
+
+
 @api_router.get("/chat/history")
-async def chat_history(user: dict = Depends(auth_module.get_current_user)):
-    last = await db.chat_messages.find(
-        {"user_id": user["id"]}, {"_id": 0}
-    ).sort("ts", -1).to_list(1)
-    if not last:
-        return {"session_id": None, "messages": []}
-    session_id = last[0]["session_id"]
+async def chat_history(session_id: Optional[str] = None, user: dict = Depends(auth_module.get_current_user)):
+    if not session_id:
+        last = await db.chat_messages.find(
+            {"user_id": user["id"]}, {"_id": 0}
+        ).sort("ts", -1).to_list(1)
+        if not last:
+            return {"session_id": None, "messages": []}
+        session_id = last[0]["session_id"]
     docs = await db.chat_messages.find(
-        {"session_id": session_id}, {"_id": 0, "id": 0}
-    ).sort("ts", 1).to_list(100)
+        {"session_id": session_id, "user_id": user["id"]}, {"_id": 0, "id": 0}
+    ).sort("ts", 1).to_list(200)
     return {"session_id": session_id, "messages": docs}
 
 

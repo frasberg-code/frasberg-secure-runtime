@@ -175,6 +175,38 @@ async def refresh(request: Request, response: Response):
     return _public(user)
 
 
+class ProfileUpdate(BaseModel):
+    name: str
+
+
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str
+
+
+@router.patch("/profile")
+async def update_profile(body: ProfileUpdate, request: Request):
+    user = await get_current_user(request)
+    name = body.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Name cannot be empty")
+    await db.users.update_one({"id": user["id"]}, {"$set": {"name": name[:80]}})
+    user["name"] = name[:80]
+    return _public(user)
+
+
+@router.post("/change-password")
+async def change_password(body: PasswordChange, request: Request):
+    user = await get_current_user(request)
+    doc = await db.users.find_one({"id": user["id"]})
+    if not verify_password(body.current_password, doc.get("password_hash", "")):
+        raise HTTPException(status_code=401, detail="Current password is incorrect")
+    if len(body.new_password) < 6:
+        raise HTTPException(status_code=400, detail="New password must be at least 6 characters")
+    await db.users.update_one({"id": user["id"]}, {"$set": {"password_hash": hash_password(body.new_password)}})
+    return {"ok": True}
+
+
 async def seed_admin():
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@frasberg.com").lower()
     admin_password = os.environ.get("ADMIN_PASSWORD", "LuchiiAdmin2026!")

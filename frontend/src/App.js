@@ -13,6 +13,7 @@ import AiModels from "./pages/AiModels";
 import LuchiiCode from "./pages/LuchiiCode";
 import Auth from "./pages/Auth";
 import Chat from "./pages/Chat";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
               <Route path="/about" element={<About />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/chat" element={<Chat />} />
+              <Route path="/profile" element={<Profile />} />
             </Routes>
           </BrowserRouter>
           <Toaster position="top-center" richColors />

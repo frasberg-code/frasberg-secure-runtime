@@ -1,16 +1,31 @@
+import { useState, useEffect, useCallback } from "react";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
-import { Moon, Sun, ArrowLeft, Loader2, LogOut } from "lucide-react";
+import { Moon, Sun, ArrowLeft, Loader2, LogOut, Plus, MessagesSquare, User } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import Starfield from "../components/site/Starfield";
 import Seo from "../components/site/Seo";
 import ChatDemo from "../components/site/ChatDemo";
 
+const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+
 export default function Chat() {
   const { theme, toggle } = useTheme();
   const { user, logout } = useAuth();
   const [params] = useSearchParams();
   const initialModel = params.get("model") || "luchii-70b";
+  const [sessions, setSessions] = useState([]);
+  const [selected, setSelected] = useState(null); // null = latest, "new" = fresh
+  const [showList, setShowList] = useState(false);
+
+  const loadSessions = useCallback(async () => {
+    try {
+      const res = await fetch(`${API}/chat/sessions`, { credentials: "include" });
+      if (res.ok) setSessions(await res.json());
+    } catch {}
+  }, []);
+
+  useEffect(() => { if (user) loadSessions(); }, [user, loadSessions]);
 
   if (user === false) {
     return <Navigate to={`/auth?next=${encodeURIComponent(`/chat?model=${initialModel}`)}`} replace />;
@@ -22,13 +37,27 @@ export default function Chat() {
       <div className="pointer-events-none absolute inset-0 opacity-40"><Starfield /></div>
 
       <header className="glass sticky top-0 z-40 border-b border-lux-border">
-        <div className="mx-auto flex w-full max-w-4xl items-center justify-between px-5 py-4 sm:px-8">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/" className="flex items-center gap-2.5" data-testid="chat-home-link">
             <ArrowLeft size={16} className="text-lux-text2" />
             <img src="/luchii-logo.webp" alt="Frasberg Luchii" className="h-8 w-8 rounded-full ring-1 ring-lux-accent/40" />
             <span className="font-display text-lg font-700 tracking-tight">Luchii Chat</span>
           </Link>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowList((s) => !s)}
+              data-testid="chat-sessions-toggle"
+              aria-label="Conversations"
+              className="grid h-10 w-10 place-items-center rounded-full border border-lux-border text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent lg:hidden"
+            >
+              <MessagesSquare size={16} />
+            </button>
+            {user && (
+              <Link to="/profile" data-testid="chat-profile-link" aria-label="Profile"
+                className="grid h-10 w-10 place-items-center rounded-full border border-lux-border text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
+                <User size={16} />
+              </Link>
+            )}
             {user && (
               <button onClick={logout} data-testid="chat-logout-btn" aria-label="Sign out"
                 className="grid h-10 w-10 place-items-center rounded-full border border-lux-border text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
@@ -43,15 +72,58 @@ export default function Chat() {
         </div>
       </header>
 
-      <div className="relative mx-auto flex w-full max-w-4xl flex-1 flex-col px-5 py-8 sm:px-8">
+      <div className="relative mx-auto flex w-full max-w-6xl flex-1 gap-6 px-5 py-8 sm:px-8">
         {user === undefined ? (
           <div className="grid flex-1 place-items-center">
             <Loader2 size={26} className="animate-spin text-lux-accent" />
           </div>
         ) : (
-          <div className="flex-1">
-            <ChatDemo initialModel={initialModel} tall loadHistory />
-          </div>
+          <>
+            {/* Sessions sidebar */}
+            <aside className={`${showList ? "block" : "hidden"} w-full shrink-0 lg:block lg:w-64`} data-testid="chat-sessions-sidebar">
+              <button
+                onClick={() => { setSelected("new"); setShowList(false); }}
+                data-testid="chat-new-session-btn"
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-lux-text px-5 py-2.5 text-sm font-600 text-lux-bg transition-transform duration-200 hover:-translate-y-0.5"
+              >
+                <Plus size={15} /> New chat
+              </button>
+              <p className="mt-6 px-1 font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">Conversations</p>
+              <div className="mt-3 max-h-[60vh] space-y-1.5 overflow-y-auto pr-1" data-testid="chat-sessions-list">
+                {sessions.length === 0 && (
+                  <p className="px-1 text-xs text-lux-text2">No conversations yet — Luchii remembers every chat you have.</p>
+                )}
+                {sessions.map((s) => (
+                  <button
+                    key={s.session_id}
+                    onClick={() => { setSelected(s.session_id); setShowList(false); }}
+                    data-testid={`chat-session-${s.session_id}`}
+                    className={`block w-full rounded-xl border px-4 py-3 text-left transition-colors ${
+                      selected === s.session_id
+                        ? "border-lux-accent bg-lux-surface text-lux-text"
+                        : "border-lux-border bg-lux-surface/60 text-lux-text2 hover:border-lux-accent/50 hover:text-lux-text"
+                    }`}
+                  >
+                    <p className="truncate text-sm">{s.title}</p>
+                    <p className="mt-1 font-mono text-[10px] uppercase tracking-wide opacity-70">
+                      {s.count} msgs{s.model ? ` · ${s.model}` : ""}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </aside>
+
+            <div className={`${showList ? "hidden lg:block" : "block"} min-w-0 flex-1`}>
+              <ChatDemo
+                key={selected || "latest"}
+                initialModel={initialModel}
+                tall
+                loadHistory
+                sessionOverride={selected}
+                onNewMessage={loadSessions}
+              />
+            </div>
+          </>
         )}
       </div>
     </main>
