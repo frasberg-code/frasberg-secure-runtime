@@ -117,7 +117,7 @@ export default function Navbar() {
             <Link to="/brand" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Brand</Link>
             <Link to="/about" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">About</Link>
             <Link to="/ai-models" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">AI Models</Link>
-            <Link to="/luchii-code" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Luchii Code</Link>
+            <Link to="/luchii-code" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Luchii</Link>
           </div>
         </div>
       )}

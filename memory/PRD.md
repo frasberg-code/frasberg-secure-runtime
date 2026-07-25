@@ -92,3 +92,7 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
   links Frasberg.com (external, main project preserved).
 - Upstream: backend already probes BOTH api.frasberg.ai and api.frasberg.com (UPSTREAM_CANDIDATES)
   and auto-switches when either becomes reachable — no change needed.
+- (update) All "Luchii Code" labels relabeled to just "Luchii" (page, footer, mobile nav, ai-models
+  link, SEO title). GitHub repo link + git clone snippet REMOVED from public view per user request
+  (no repository shall be cloneable/visible). /luchii-code page now: Luchii heading, Get API Key
+  CTA, quickstart tabs only.

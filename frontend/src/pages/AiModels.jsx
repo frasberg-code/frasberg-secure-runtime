@@ -144,7 +144,7 @@ export default function AiModels() {
               </Link>
               <Link to="/luchii-code" data-testid="ai-models-code-link"
                 className="rounded-full border border-lux-border px-7 py-3 text-sm text-lux-text2 transition-colors duration-200 hover:border-lux-accent hover:text-lux-text">
-                Luchii Code →
+                Luchii →
               </Link>
             </div>
           </Reveal>
