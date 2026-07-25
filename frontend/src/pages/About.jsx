@@ -4,6 +4,7 @@ import { Moon, Sun, ArrowLeft } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import Starfield from "../components/site/Starfield";
 import Footer from "../components/site/Footer";
+import Seo from "../components/site/Seo";
 import Reveal, { Overline } from "../components/site/Reveal";
 
 const INTRO = [
@@ -155,6 +156,10 @@ export default function About() {
 
   return (
     <main className="relative z-10 min-h-screen bg-lux-bg text-lux-text" data-testid="about-page">
+      <Seo
+        title="About Frasberg, Inc. — Advancing Artificial Intelligence"
+        description="Frasberg, Inc. is an American multinational technology company advancing artificial intelligence, intelligent computing, and digital transformation through the Frasberg platform and Luchii AI Models."
+      />
       <div className="pointer-events-none absolute inset-0 opacity-50"><Starfield /></div>
 
       <header className="glass sticky top-0 z-40 border-b border-lux-border">

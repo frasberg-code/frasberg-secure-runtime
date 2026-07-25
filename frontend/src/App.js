@@ -8,6 +8,8 @@ import Dashboard from "./pages/Dashboard";
 import Court from "./pages/Court";
 import Brand from "./pages/Brand";
 import About from "./pages/About";
+import AiModels from "./pages/AiModels";
+import LuchiiCode from "./pages/LuchiiCode";
 
 function App() {
   return (
@@ -17,6 +19,9 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Landing />} />
+              <Route path="/luchii" element={<Landing />} />
+              <Route path="/ai-models" element={<AiModels />} />
+              <Route path="/luchii-code" element={<LuchiiCode />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/court" element={<Court />} />
               <Route path="/brand" element={<Brand />} />

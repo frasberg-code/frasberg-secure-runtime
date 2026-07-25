@@ -82,3 +82,13 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
   incl. Vision, Mission, Frasberg platform, Luchii AI Models app chips, Responsible AI, Culture,
   Looking Ahead + closing statement). All "AI Court" labels relabeled to "The AI World Court"
   (Court.jsx h1/intro, Navbar desktop+mobile, Footer).
+
+## Implemented — SEO + Subdomain Pages (2026-06)
+- Seo.jsx component (document.title + meta description per route). Applied: /about, /ai-models,
+  /luchii-code.
+- New routes: /luchii (alias of Landing), /ai-models (Luchii Chat Models dropdown — 4 tiers with
+  spec detail card), /luchii-code (GitHub link → github.com/frasbergai/luchii, clone snippet,
+  CodeTabs quickstart). Links added to footer Docs column + mobile nav; footer Company column
+  links Frasberg.com (external, main project preserved).
+- Upstream: backend already probes BOTH api.frasberg.ai and api.frasberg.com (UPSTREAM_CANDIDATES)
+  and auto-switches when either becomes reachable — no change needed.

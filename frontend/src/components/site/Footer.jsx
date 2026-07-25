@@ -27,6 +27,8 @@ export default function Footer() {
               <p className="mb-3 text-xs uppercase tracking-[0.2em] text-lux-text2">Docs</p>
               <ul className="space-y-2 text-lux-text2">
                 <li><a href="/dashboard" className="hover:text-lux-text">API</a></li>
+                <li><a href="/ai-models" className="hover:text-lux-text" data-testid="footer-ai-models-link">AI Models</a></li>
+                <li><a href="/luchii-code" className="hover:text-lux-text" data-testid="footer-luchii-code-link">Luchii Code</a></li>
                 <li><a href="#benchmarks" className="hover:text-lux-text">Benchmarks</a></li>
                 <li><a href="#safety" className="hover:text-lux-text">Safety</a></li>
                 <li><a href="/court" className="hover:text-lux-text">The AI World Court</a></li>
@@ -37,6 +39,7 @@ export default function Footer() {
               <p className="mb-3 text-xs uppercase tracking-[0.2em] text-lux-text2">Company</p>
               <ul className="space-y-2 text-lux-text2">
                 <li><a href="/about" className="hover:text-lux-text" data-testid="footer-about-link">About Frasberg</a></li>
+                <li><a href="https://frasberg.com" target="_blank" rel="noreferrer" className="hover:text-lux-text" data-testid="footer-frasberg-com-link">Frasberg.com</a></li>
                 <li><a href="mailto:support@frasberg.ai" className="hover:text-lux-text">support@frasberg.ai</a></li>
               </ul>
             </div>
