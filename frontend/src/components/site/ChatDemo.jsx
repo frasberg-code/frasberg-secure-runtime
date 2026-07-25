@@ -343,7 +343,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
                       data-testid="chat-generated-image"
                     />
                   )}
-                  <span className="whitespace-pre-wrap">{m.content || <Loader2 size={15} className="animate-spin text-lux-text2" />}</span>
+              <span className="whitespace-pre-wrap text-base leading-relaxed sm:text-[15px]">{m.content || <Loader2 size={15} className="animate-spin text-lux-text2" />}</span>
                   {m.role === "assistant" && m.content && (
                     <button
                       onClick={() => speak(m.content, i)}

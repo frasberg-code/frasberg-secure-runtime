@@ -133,3 +133,17 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - Tested: iteration_4.json — backend 31/31 pytest; frontend flows pass after re-adding voice
   toggle + guest banner (parallel-edit collision lesson: don't batch multiple search_replace on
   the same file region).
+
+## Implemented — Mobile Chat, Email, Court Constitution & Filings, Coding Agents (2026-07-25 pt3)
+- support@frasberg.ai → support@frasberg.com (Footer, ApiDocs).
+- Mobile chat redesign (Emergent-style): big rounded input container (input on top, icon row below
+  with attach/mic and large circular ArrowUp send), text-base messages on mobile, scroll-to-bottom
+  floating button (chat-scroll-bottom-btn), /chat frame ~100dvh on mobile. Verified iteration_5
+  (frontend 100%).
+- Chat message text enlarged (text-base mobile / 15px desktop).
+- /luchii-code: "Luchii Coding Agents" section (Architect 70b, Builder 7b, Reviewer 7b,
+  Debugger 1b) each with Launch in Chat link.
+- AI World Court: Constitution section (Articles I–VII, Sovereignty→Alignment), public docket
+  filing system — court cases stored with model 'court', GET /api/court/filings (docket
+  FRB-XXXXXXXX), expandable rulings + downloadable court-format .txt filing documents.
+- Verified via curl (filings endpoint) + screenshots (court + luchii-code pages).

@@ -518,9 +518,35 @@ async def court(req: ChatRequest):
         raise HTTPException(status_code=413, detail=f"Case exceeds {MAX_MSG_LEN} chars")
     session_id = req.session_id or str(uuid.uuid4())
     return _luchii_stream(
-        req.message, session_id, req.model or "luchii-70b",
+        req.message, session_id, "court",
         system_base=JUDGE_SYSTEM, fallback=_court_fallback,
     )
+
+
+@api_router.get("/court/filings")
+async def court_filings():
+    pipeline = [
+        {"$match": {"model": "court"}},
+        {"$sort": {"ts": 1}},
+        {"$group": {
+            "_id": "$session_id",
+            "case": {"$first": "$content"},
+            "ruling": {"$last": "$content"},
+            "count": {"$sum": 1},
+            "filed": {"$first": "$ts"},
+        }},
+        {"$match": {"count": {"$gte": 2}}},
+        {"$sort": {"filed": -1}},
+        {"$limit": 20},
+    ]
+    docs = await db.chat_messages.aggregate(pipeline).to_list(20)
+    return [{
+        "docket": "FRB-" + str(d["_id"]).replace("-", "")[:8].upper(),
+        "session_id": d["_id"],
+        "case": (d.get("case") or "")[:400],
+        "ruling": d.get("ruling") or "",
+        "filed": d.get("filed"),
+    } for d in docs]
 
 
 # ---------------- Public Developer Gateway ----------------
