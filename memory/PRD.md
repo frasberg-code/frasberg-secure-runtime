@@ -96,3 +96,20 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
   link, SEO title). GitHub repo link + git clone snippet REMOVED from public view per user request
   (no repository shall be cloneable/visible). /luchii-code page now: Luchii heading, Get API Key
   CTA, quickstart tabs only.
+
+## Implemented — Accounts, Gated Chat, Creators, Voice (2026-07-25)
+- JWT email/password auth (auth.py): register/login/me/refresh/logout, httpOnly cookies
+  (samesite=none), bcrypt, brute-force lockout, seeded admin (admin@frasberg.com / see
+  test_credentials.md). Frontend AuthContext + /auth page. Navbar Sign In/Sign out.
+- Chat requires login (unlimited free chat once signed in). New /chat page (protected,
+  loads history via GET /api/chat/history). Landing widget shows signup lock overlay.
+- Chat models now include Luchii Image Creator (real gpt-image-1 via POST /api/generate/image)
+  and Luchii Video Creator (COMING SOON message — MOCKED client-side, needs fal.ai for real video).
+- Chat extras: paperclip attachments (image → Claude vision, pdf via pypdf, txt), mic
+  (whisper-1 POST /api/voice/transcribe), speaker per reply (tts-1 coral POST /api/voice/speak).
+- Persona upgraded: human-like conversation, memory references, court-format document drafting.
+- API keys + usage now auth-required and user-scoped.
+- /ai-models: "Try in Chat" per tier → /chat?model=<id> preloads model.
+- sitemap.xml + robots.txt (frasberg.com URLs).
+- Tested: iteration_3.json — backend 25/25, all frontend flows pass. Regression suite at
+  /app/backend/tests/test_auth_and_chat.py.

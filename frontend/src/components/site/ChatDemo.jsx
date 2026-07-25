@@ -253,7 +253,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
             <option key={m.id} value={m.id}>{m.name}</option>
           ))}
           {CREATOR_MODELS.map((m) => (
-            <option key={m.id} value={m.id}>{m.name}{!user ? " 🔒" : ""}</option>
+            <option key={m.id} value={m.id}>{!user ? `${m.name} (sign in)` : m.name}</option>
           ))}
         </select>
       </div>
