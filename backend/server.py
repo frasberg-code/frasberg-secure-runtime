@@ -14,7 +14,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from emergentintegrations.llm.chat import LlmChat, UserMessage, TextDelta, StreamDone, ImageContent
 from emergentintegrations.llm.openai.image_generation import OpenAIImageGeneration
@@ -252,13 +252,18 @@ def _extract_attachment_text(kind: str, data_b64: str, name: str) -> str:
 
 def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[str] = None,
                    system_base: Optional[str] = None, fallback=None,
-                   user_id: Optional[str] = None, attachment: Optional[dict] = None):
+                   user_id: Optional[str] = None, attachment: Optional[dict] = None,
+                   guest: bool = False):
     async def event_generator():
         now = datetime.now(timezone.utc).isoformat()
-        await db.chat_messages.insert_one({
+        user_doc = {
             "id": str(uuid.uuid4()), "session_id": session_id, "user_id": user_id,
             "role": "user", "content": message, "model": model, "ts": now,
-        })
+        }
+        if guest:
+            user_doc["guest"] = True
+            user_doc["expires_at"] = datetime.now(timezone.utc) + timedelta(hours=24)
+        await db.chat_messages.insert_one(user_doc)
         history = await _recent_transcript(session_id)
         sb = system_base or LUCHII_SYSTEM
 
@@ -305,11 +310,15 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
                     yield f"data: {json.dumps({'delta': word + ' '})}\n\n"
                     await asyncio.sleep(0.03)
 
-        await db.chat_messages.insert_one({
+        assistant_doc = {
             "id": str(uuid.uuid4()), "session_id": session_id, "user_id": user_id,
             "role": "assistant", "content": full, "model": model,
             "ts": datetime.now(timezone.utc).isoformat(),
-        })
+        }
+        if guest:
+            assistant_doc["guest"] = True
+            assistant_doc["expires_at"] = datetime.now(timezone.utc) + timedelta(hours=24)
+        await db.chat_messages.insert_one(assistant_doc)
         if key_id:
             await db.api_keys.update_one(
                 {"id": key_id},
@@ -324,8 +333,15 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
     )
 
 
+async def optional_user(request: Request) -> Optional[dict]:
+    try:
+        return await auth_module.get_current_user(request)
+    except HTTPException:
+        return None
+
+
 @api_router.post("/chat")
-async def chat(req: ChatRequest, user: dict = Depends(auth_module.get_current_user)):
+async def chat(req: ChatRequest, user: Optional[dict] = Depends(optional_user)):
     if not req.message or not req.message.strip():
         raise HTTPException(status_code=400, detail="Message is required")
     if len(req.message) > MAX_MSG_LEN:
@@ -333,10 +349,13 @@ async def chat(req: ChatRequest, user: dict = Depends(auth_module.get_current_us
     session_id = req.session_id or str(uuid.uuid4())
     attachment = None
     if req.attachment_base64:
+        if not user:
+            raise HTTPException(status_code=401, detail="Sign in to attach files")
         attachment = {"data": req.attachment_base64, "kind": req.attachment_kind or "text",
                       "name": req.attachment_name or "file"}
     return _luchii_stream(req.message, session_id, req.model or "luchii-70b",
-                          user_id=user["id"], attachment=attachment)
+                          user_id=user["id"] if user else None, attachment=attachment,
+                          guest=user is None)
 
 
 @api_router.get("/chat/sessions")
@@ -380,11 +399,24 @@ class ImageGenRequest(BaseModel):
     session_id: Optional[str] = None
 
 
+IMAGE_LIMIT_FREE = 20
+IMAGE_LIMIT_PRO = 200
+
+
 @api_router.post("/generate/image")
 async def generate_image(req: ImageGenRequest, user: dict = Depends(auth_module.get_current_user)):
     prompt = (req.prompt or "").strip()
     if not prompt:
         raise HTTPException(status_code=400, detail="A prompt is required")
+    today_start = datetime.now(timezone.utc).strftime("%Y-%m-%dT00:00:00")
+    used = await db.chat_messages.count_documents({
+        "user_id": user["id"], "model": "luchii-image", "role": "user",
+        "ts": {"$gte": today_start},
+    })
+    limit = IMAGE_LIMIT_PRO if user.get("plan") == "pro" or user.get("role") == "admin" else IMAGE_LIMIT_FREE
+    if used >= limit:
+        raise HTTPException(status_code=429,
+                            detail=f"Daily image limit reached ({limit}/day on your plan). Upgrade to Luchii Pro for {IMAGE_LIMIT_PRO}/day.")
     session_id = req.session_id or str(uuid.uuid4())
     try:
         image_gen = OpenAIImageGeneration(api_key=EMERGENT_LLM_KEY)
@@ -401,7 +433,8 @@ async def generate_image(req: ImageGenRequest, user: dict = Depends(auth_module.
             "role": "assistant", "content": f"[Image created] {prompt}", "model": "luchii-image",
             "ts": datetime.now(timezone.utc).isoformat(),
         })
-        return {"image_base64": base64.b64encode(images[0]).decode("utf-8"), "session_id": session_id}
+        return {"image_base64": base64.b64encode(images[0]).decode("utf-8"), "session_id": session_id,
+                "images_used_today": used + 1, "daily_limit": limit}
     except HTTPException:
         raise
     except Exception:
@@ -576,6 +609,11 @@ PLANS = {
     "scale": {"id": "scale", "name": "Scale", "price": "100.00", "credits": 150000, "blurb": "150,000 tokens · best value"},
 }
 
+UPGRADE_PLANS = {
+    "luchii-pro": {"id": "luchii-pro", "name": "Luchii Pro", "price": "15.00", "kind": "upgrade",
+                   "blurb": "200 images/day · priority Video Creator access · Pro badge"},
+}
+
 
 class OrderCreate(BaseModel):
     plan_id: str
@@ -658,14 +696,19 @@ async def paypal_config():
         "mode": PAYPAL_MODE,
         "configured": bool(PAYPAL_CLIENT_ID and PAYPAL_SECRET),
         "plans": list(PLANS.values()),
+        "upgrade_plans": list(UPGRADE_PLANS.values()),
     }
 
 
 @api_router.post("/paypal/orders")
-async def paypal_create_order(body: OrderCreate):
-    plan = PLANS.get(body.plan_id)
+async def paypal_create_order(body: OrderCreate, request: Request):
+    plan = PLANS.get(body.plan_id) or UPGRADE_PLANS.get(body.plan_id)
     if not plan:
         raise HTTPException(status_code=400, detail="Unknown plan")
+    ref_suffix = body.key_id or "none"
+    if plan.get("kind") == "upgrade":
+        user = await auth_module.get_current_user(request)
+        ref_suffix = user["id"]
     try:
         token = await _paypal_token()
         async with httpx.AsyncClient(timeout=20) as c:
@@ -675,8 +718,8 @@ async def paypal_create_order(body: OrderCreate):
                 json={
                     "intent": "CAPTURE",
                     "purchase_units": [{
-                        "reference_id": f"{plan['id']}::{body.key_id or 'none'}",
-                        "description": f"Luchii {plan['name']} — {plan['credits']} credits",
+                        "reference_id": f"{plan['id']}::{ref_suffix}",
+                        "description": f"Luchii {plan['name']}" + (f" — {plan['credits']} credits" if plan.get("credits") else " — account upgrade"),
                         "amount": {"currency_code": "USD", "value": plan["price"]},
                     }],
                 },
@@ -715,26 +758,39 @@ async def paypal_capture_order(order_id: str, body: OrderCapture):
         key_id = (ref.split("::")[1] if "::" in ref else body.key_id) or None
         if key_id == "none":
             key_id = None
-        plan = PLANS.get(plan_id)
+        plan = PLANS.get(plan_id) or UPGRADE_PLANS.get(plan_id)
         credited = 0
+        upgraded = False
         receipt = {"sent": False}
         if status == "COMPLETED" and plan:
-            credited = plan["credits"]
             payer_email = body.email
             try:
                 payer_email = payer_email or data["payer"]["email_address"]
             except Exception:
                 pass
-            await db.purchases.insert_one({
-                "id": str(uuid.uuid4()), "order_id": order_id, "plan": plan_id,
-                "credits": credited, "key_id": key_id, "status": status,
-                "email": payer_email,
-                "ts": datetime.now(timezone.utc).isoformat(),
-            })
-            if key_id:
-                await db.api_keys.update_one({"id": key_id}, {"$inc": {"credits": credited}})
-            receipt = await _send_receipt(payer_email, plan, order_id)
-        return {"status": status, "credits_added": credited, "receipt": receipt}
+            if plan.get("kind") == "upgrade":
+                if key_id:
+                    await db.users.update_one({"id": key_id}, {"$set": {"plan": "pro"}})
+                    upgraded = True
+                await db.purchases.insert_one({
+                    "id": str(uuid.uuid4()), "order_id": order_id, "plan": plan_id,
+                    "kind": "upgrade", "user_id": key_id, "status": status,
+                    "email": payer_email,
+                    "ts": datetime.now(timezone.utc).isoformat(),
+                })
+                receipt = await _send_receipt(payer_email, {**plan, "credits": 0}, order_id)
+            else:
+                credited = plan["credits"]
+                await db.purchases.insert_one({
+                    "id": str(uuid.uuid4()), "order_id": order_id, "plan": plan_id,
+                    "credits": credited, "key_id": key_id, "status": status,
+                    "email": payer_email,
+                    "ts": datetime.now(timezone.utc).isoformat(),
+                })
+                if key_id:
+                    await db.api_keys.update_one({"id": key_id}, {"$inc": {"credits": credited}})
+                receipt = await _send_receipt(payer_email, plan, order_id)
+        return {"status": status, "credits_added": credited, "upgraded": upgraded, "receipt": receipt}
     except HTTPException:
         raise
     except Exception:
@@ -760,6 +816,7 @@ async def create_indexes():
     await db.api_keys.create_index("id")
     await db.chat_messages.create_index([("session_id", 1), ("ts", 1)])
     await db.chat_messages.create_index([("user_id", 1), ("ts", -1)])
+    await db.chat_messages.create_index("expires_at", expireAfterSeconds=0)
     await auth_module.create_indexes()
     await auth_module.seed_admin()
     asyncio.create_task(_probe_upstreams())

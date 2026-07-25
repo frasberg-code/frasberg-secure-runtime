@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Send, Sparkles, Loader2, Paperclip, Mic, Square, Volume2, X, Lock, ImageIcon } from "lucide-react";
+import { Send, Sparkles, Loader2, Paperclip, Mic, Square, Volume2, VolumeX, X, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
 import { CHAT_SUGGESTIONS, MODELS } from "../../data/content";
@@ -37,6 +37,13 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
   const chunksRef = useRef([]);
 
   const locked = user === false || user === null;
+  const [voiceOn, setVoiceOn] = useState(() => {
+    try { return localStorage.getItem("luchii-voice") !== "off"; } catch { return true; }
+  });
+  const toggleVoice = () => setVoiceOn((v) => {
+    try { localStorage.setItem("luchii-voice", v ? "off" : "on"); } catch {}
+    return !v;
+  });
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -108,7 +115,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
     }
   }
 
-  async function speak(text, idx) {
+  async function speak(text, idx = -1) {
     if (speakingIdx !== null) return;
     setSpeakingIdx(idx);
     try {
@@ -146,7 +153,10 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
         if (res.ok && data.image_base64) {
           next[next.length - 1] = { role: "assistant", content: "Here is your creation.", image: data.image_base64 };
         } else {
-          next[next.length - 1] = { role: "assistant", content: "Image creation is momentarily unavailable. Please try again." };
+          next[next.length - 1] = {
+            role: "assistant",
+            content: typeof data.detail === "string" ? data.detail : "Image creation is momentarily unavailable. Please try again.",
+          };
         }
         return next;
       });
@@ -165,7 +175,11 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
 
   async function send(text) {
     const msg = (text ?? input).trim();
-    if ((!msg && !attachment) || busy || locked) return;
+    if ((!msg && !attachment) || busy) return;
+    if (locked && (model === "luchii-image" || model === "luchii-video")) {
+      toast.error("Sign up free to use the Image & Video Creators");
+      return;
+    }
     setInput("");
     setBusy(true);
 
@@ -202,6 +216,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
+      let acc = "";
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -214,6 +229,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
           let data;
           try { data = JSON.parse(line.slice(5).trim()); } catch { continue; }
           if (data.delta) {
+            acc += data.delta;
             setMessages((m) => {
               const next = [...m];
               next[next.length - 1] = { role: "assistant", content: next[next.length - 1].content + data.delta };
@@ -223,6 +239,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
           if (data.session_id) setSession(data.session_id);
         }
       }
+      if (voiceOn && user && acc.trim()) speak(acc);
     } catch {
       setMessages((m) => {
         const next = [...m];
@@ -306,7 +323,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
         ))}
       </div>
 
-      {messages.length <= 1 && !locked && (
+      {messages.length <= 1 && (
         <div className="flex flex-wrap gap-2 px-4 pb-2">
           {CHAT_SUGGESTIONS.slice(0, compact ? 2 : 4).map((s) => (
             <button
@@ -361,43 +378,18 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={model === "luchii-image" ? "Describe the image to create…" : "Message Luchii…"}
-          disabled={locked}
           data-testid="chat-input"
-          className="flex-1 bg-transparent px-2 text-sm text-lux-text outline-none placeholder:text-lux-text2 disabled:opacity-50"
+          className="flex-1 bg-transparent px-2 text-sm text-lux-text outline-none placeholder:text-lux-text2"
         />
         <button
           type="submit"
-          disabled={busy || locked}
+          disabled={busy}
           data-testid="chat-send"
           className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-lux-text text-lux-bg transition-transform duration-200 hover:-translate-y-0.5 disabled:opacity-40"
         >
           {busy ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
         </button>
       </form>
-
-      {locked && (
-        <div className="absolute inset-0 z-10 grid place-items-center bg-lux-bg/60 backdrop-blur-md" data-testid="chat-signup-overlay">
-          <div className="mx-6 max-w-xs rounded-3xl border border-lux-border bg-lux-surface p-7 text-center shadow-2xl">
-            <span className="mx-auto grid h-12 w-12 place-items-center rounded-full border border-lux-accent/50 text-lux-accent" style={{ boxShadow: "0 0 30px var(--lux-glow)" }}>
-              <Lock size={19} />
-            </span>
-            <h3 className="mt-4 font-display text-lg font-700 tracking-tight text-lux-text">Talk to Luchii — free</h3>
-            <p className="mt-2 text-xs leading-relaxed text-lux-text2">
-              Create a free account for unlimited chat. Signing in also unlocks image creation, voice and attachments.
-            </p>
-            <Link
-              to={`/auth?next=${encodeURIComponent("/chat")}`}
-              data-testid="chat-signup-cta"
-              className="mt-5 inline-block rounded-full bg-lux-text px-6 py-2.5 text-sm font-600 text-lux-bg transition-transform duration-200 hover:-translate-y-0.5"
-            >
-              Sign up free
-            </Link>
-            <p className="mt-3 text-[11px] text-lux-text2">
-              <Link to="/auth?mode=login" className="underline hover:text-lux-text" data-testid="chat-login-link">Already have an account? Sign in</Link>
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

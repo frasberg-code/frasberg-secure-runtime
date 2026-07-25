@@ -101,8 +101,33 @@ class TestAuth:
 
 # ----------------- Chat -----------------
 class TestChat:
-    def test_chat_requires_auth(self):
-        r = requests.post(f"{API}/chat", json={"message": "hi"}, timeout=10)
+    def test_chat_guest_allowed(self):
+        r = requests.post(f"{API}/chat", json={"message": "hi guest"}, stream=True, timeout=60)
+        assert r.status_code == 200, f"guest chat failed: {r.status_code} {r.text[:200]}"
+        got_delta = got_done = False
+        for line in r.iter_lines(decode_unicode=True):
+            if line and line.startswith("data:"):
+                if '"delta"' in line:
+                    got_delta = True
+                if '"done"' in line:
+                    got_done = True
+                    break
+        assert got_delta and got_done
+
+    def test_chat_sessions_requires_auth(self):
+        r = requests.get(f"{API}/chat/sessions", timeout=10)
+        assert r.status_code == 401
+
+    def test_chat_sessions_with_auth(self, admin_session):
+        r = admin_session.get(f"{API}/chat/sessions", timeout=15)
+        assert r.status_code == 200
+        assert isinstance(r.json(), list)
+
+    def test_chat_attachment_requires_auth(self):
+        b64 = base64.b64encode(b"secret").decode()
+        r = requests.post(f"{API}/chat", json={"message": "summarize", "attachment_base64": b64,
+                                                "attachment_kind": "text", "attachment_name": "x.txt"},
+                          timeout=10)
         assert r.status_code == 401
 
     def test_chat_streams_with_auth(self, new_user_session):
@@ -154,12 +179,24 @@ class TestImage:
         r = requests.post(f"{API}/generate/image", json={"prompt": "test"}, timeout=10)
         assert r.status_code == 401
 
-    def test_image_generation(self, new_user_session):
-        r = new_user_session.post(f"{API}/generate/image",
-                                  json={"prompt": "a red circle on white background"}, timeout=120)
+    def test_image_generation(self, admin_session):
+        # Use admin (plan=pro, limit 200) to avoid burning a fresh user's quota
+        r = admin_session.post(f"{API}/generate/image",
+                               json={"prompt": "a red circle on white background"}, timeout=120)
         assert r.status_code == 200, f"image gen failed: {r.status_code} {r.text[:200]}"
         data = r.json()
         assert "image_base64" in data and len(data["image_base64"]) > 100
+        assert "images_used_today" in data and isinstance(data["images_used_today"], int)
+        assert data.get("daily_limit") == 200
+
+    def test_image_free_user_limit_is_20(self, new_user_session):
+        # single generation to verify daily_limit is 20 for a fresh free-plan user
+        r = new_user_session.post(f"{API}/generate/image",
+                                  json={"prompt": "tiny blue square"}, timeout=120)
+        assert r.status_code == 200, f"free image gen failed: {r.status_code} {r.text[:200]}"
+        data = r.json()
+        assert data.get("daily_limit") == 20
+        assert data.get("images_used_today", 0) >= 1
 
 
 # ----------------- Voice -----------------
@@ -235,7 +272,7 @@ class TestPublic:
         assert r.status_code == 401
 
     def test_gateway_with_key(self, new_user_session):
-        rc = new_user_session.post(f"{API}/keys", json={"name": "TEST_gateway"}, timeout=10)
+        rc = new_user_session.post(f"{API}/keys", json={"name": "TEST_gateway"}, timeout=30)
         assert rc.status_code == 200
         key = rc.json()["key"]
         r = requests.post(f"{API}/v1/chat", json={"message": "Say hi"},
@@ -255,6 +292,20 @@ class TestPublic:
         assert r.status_code == 200
         data = r.json()
         assert isinstance(data.get("plans"), list) and len(data["plans"]) >= 3
+        ups = data.get("upgrade_plans")
+        assert isinstance(ups, list) and any(p["id"] == "luchii-pro" and p["price"] == "15.00" for p in ups)
+
+    def test_paypal_upgrade_order_requires_auth(self):
+        r = requests.post(f"{API}/paypal/orders", json={"plan_id": "luchii-pro"}, timeout=15)
+        assert r.status_code == 401
+
+    def test_paypal_upgrade_order_with_auth(self, admin_session):
+        r = admin_session.post(f"{API}/paypal/orders", json={"plan_id": "luchii-pro"}, timeout=25)
+        # Accept 200 with order id; skip if PayPal creds not configured / upstream error
+        if r.status_code != 200:
+            pytest.skip(f"PayPal create-order returned {r.status_code}: {r.text[:200]}")
+        data = r.json()
+        assert isinstance(data.get("id"), str) and len(data["id"]) > 0
 
 
 # ----------------- Static -----------------

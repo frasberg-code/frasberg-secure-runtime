@@ -1,0 +1,43 @@
+{
+  "summary": "Iteration 4 — validated new session features: guest chat, attachment gating, image quota fields, PayPal Luchii Pro upgrade plan, profile upgrade card, sessions sidebar. Backend: 31/31 pytest passed. Frontend: chat loads for guest, guest sidebar visible, guest can send/receive message, Image Creator selection shows toast (no crash), admin login->sessions sidebar renders, /profile upgrade card shows pro-active for admin. CRITICAL: frontend was broken with a JSX parse error on ChatDemo.jsx (orphan JSX after function close) — patched so app compiles. Two required data-testids ('chat-guest-banner' and 'chat-voice-toggle') are NOT implemented in ChatDemo.jsx.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "ChatDemo.jsx", "issue": "File had a JSX parse error (orphan <Lock/> block after the component's closing brace, lines 396-414). Webpack failed with 'Adjacent JSX elements must be wrapped in an enclosing tag'. Removed the dead code so the app compiles. Root cause: incomplete refactor when replacing the old guest-lock overlay with the new guest-banner — old markup left behind.", "selector": "src/components/site/ChatDemo.jsx (was line 396-414)", "priority": "CRITICAL"},
+      {"component": "ChatDemo.jsx", "issue": "Required data-testid 'chat-guest-banner' is MISSING. Spec calls for a guest banner in the chat widget; no such element is rendered. voiceOn state exists in ChatDemo but no banner JSX exists.", "selector": "[data-testid='chat-guest-banner']", "priority": "HIGH"},
+      {"component": "ChatDemo.jsx header", "issue": "Required data-testid 'chat-voice-toggle' is MISSING for signed-in users. voiceOn/toggleVoice state is defined but no toggle button is rendered anywhere in the header. Auto-speak-after-stream code path exists (line 242) but user can never turn it on/off via UI.", "selector": "[data-testid='chat-voice-toggle']", "priority": "HIGH"}
+    ],
+    "integration_issues": [
+      {"flow": "Guest chat model=luchii-image", "issue": "Works correctly — shows red toast 'Sign up free to use the Image & Video Creators' and no crash. VERIFIED.", "affected_selectors": ["[data-testid='chat-model-select']"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_auth_and_chat.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Add the missing chat-voice-toggle button in the ChatDemo header (only render when `user` is truthy). Wire it to toggleVoice/voiceOn.",
+    "Add the missing chat-guest-banner element in ChatDemo (render when !user). It should include the sign-up CTA text.",
+    "Do NOT re-introduce the orphan Lock overlay JSX that was removed — the new guest UX is: guest can chat freely (banner + sidebar card), so no lock overlay is needed.",
+    "Consider: pin CI/lint step in the frontend pipeline so a parse error like this fails the build before it ships."
+  ],
+  "critical_code_review_comments": [
+    "server.py /api/chat now uses optional_user — guests are correctly allowed (no auth required); attachment_base64 still triggers 401 for guests — verified via test_chat_attachment_requires_auth.",
+    "server.py IMAGE_LIMIT_FREE=20 / IMAGE_LIMIT_PRO=200 enforced; response now returns images_used_today and daily_limit — verified for both admin (limit=200) and fresh free user (limit=20).",
+    "PayPal upgrade plan luchii-pro at $15.00 is exposed under upgrade_plans; POST /api/paypal/orders {plan_id:'luchii-pro'} requires auth (401 without cookie) and returns a real order id when authed — verified with admin session (no capture invoked).",
+    "server.py is now 828 lines — still over the 700 line soft threshold; split into routers (auth, chat, image/voice, paypal, keys) recommended.",
+    "ChatDemo.jsx contained committed-broken code that would have blocked the entire frontend from loading in production — needs stricter lint/CI gating.",
+    "Missing UI (voice toggle, guest banner) suggests the ChatDemo edit was not completed in this session even though the state/effect for auto-speak was wired up."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_auth_and_chat.py (added guest-chat, attachment-401, chat-sessions auth, image-quota-fields for admin+free, paypal upgrade plan+order tests)",
+    "/app/frontend/src/components/site/ChatDemo.jsx (removed dead/orphan JSX to unbreak frontend build — no functional change)"
+  ],
+  "success_rate": {"backend": "100% (31/31 pytest)", "frontend": "~70% — sidebar, guest chat, profile all work; voice toggle + guest banner missing"},
+  "test_credentials": "Admin: admin@frasberg.com / LuchiiAdmin2026! ; fresh testers created per run as tester+<hex>@frasberg.com / Test1234!",
+  "seed_data_creation": "Fresh test users prefixed 'tester+' created per run; TEST_-prefixed API keys created and deleted within tests.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "After main agent adds chat-voice-toggle and chat-guest-banner to ChatDemo.jsx, retest by (1) loading /chat as guest and asserting chat-guest-banner is visible, (2) logging in as admin and asserting chat-voice-toggle is visible in the header and its class/data-active state flips on click. Backend suite at /app/backend/tests/test_auth_and_chat.py (31 tests) is the regression baseline — all passing. Note: existing /app/backend/tests/backend_test.py has one obsolete test (test_chat_streams_and_returns_done) that assumes chat is public — actually now it IS public again for guests, so it should still work; test_gateway.py not opened this run."
+}

@@ -1,1 +1,59 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="25" time="31.991" timestamp="2026-07-25T18:30:59.054065+00:00" hostname="agent-env-4793a44b-b33b-4076-b55d-f272d88ffb4f"><testcase classname="tests.test_auth_and_chat.TestChat" name="test_chat_requires_auth" time="0.342" /><testcase classname="tests.test_auth_and_chat.TestAuth" name="test_admin_login" time="0.853" /><testcase classname="tests.test_auth_and_chat.TestChat" name="test_chat_streams_with_auth" time="2.248" /><testcase classname="tests.test_auth_and_chat.TestAuth" name="test_register_new_user_sets_cookies" time="0.384" /><testcase classname="tests.test_auth_and_chat.TestAuth" name="test_register_duplicate_email" time="0.391" /><testcase classname="tests.test_auth_and_chat.TestAuth" name="test_login_wrong_password" time="0.300" /><testcase classname="tests.test_auth_and_chat.TestAuth" name="test_me_without_cookie" time="0.059" /><testcase classname="tests.test_auth_and_chat.TestAuth" name="test_refresh_issues_new_access" time="0.077" /><testcase classname="tests.test_auth_and_chat.TestAuth" name="test_logout_clears" time="0.482" /><testcase classname="tests.test_auth_and_chat.TestPublic" name="test_court_public" time="20.015" /><testcase classname="tests.test_auth_and_chat.TestChat" name="test_chat_history" time="0.062" /><testcase classname="tests.test_auth_and_chat.TestChat" name="test_chat_with_attachment_text" time="1.492" /><testcase classname="tests.test_auth_and_chat.TestVoice" name="test_speak_requires_auth" time="0.095" /><testcase classname="tests.test_auth_and_chat.TestVoice" name="test_transcribe_requires_auth" time="0.062" /><testcase classname="tests.test_auth_and_chat.TestVoice" name="test_speak_with_auth" time="1.733" /><testcase classname="tests.test_auth_and_chat.TestKeys" name="test_keys_require_auth" time="0.263" /><testcase classname="tests.test_auth_and_chat.TestKeys" name="test_keys_user_scope" time="0.579" /><testcase classname="tests.test_auth_and_chat.TestKeys" name="test_usage_endpoint" time="0.024" /><testcase classname="tests.test_auth_and_chat.TestImage" name="test_image_requires_auth" time="0.063" /><testcase classname="tests.test_auth_and_chat.TestImage" name="test_image_generation" time="15.677" /><testcase classname="tests.test_auth_and_chat.TestPublic" name="test_gateway_requires_key" time="0.085" /><testcase classname="tests.test_auth_and_chat.TestStatic" name="test_sitemap" time="0.482" /><testcase classname="tests.test_auth_and_chat.TestPublic" name="test_gateway_with_key" time="8.790" /><testcase classname="tests.test_auth_and_chat.TestStatic" name="test_robots" time="0.063" /><testcase classname="tests.test_auth_and_chat.TestPublic" name="test_paypal_config" time="0.114" /></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="31" time="34.394" timestamp="2026-07-25T20:22:49.952694+00:00" hostname="agent-env-4793a44b-b33b-4076-b55d-f272d88ffb4f"><testcase classname="tests.test_auth_and_chat.TestChat" name="test_chat_guest_allowed" time="3.671" /><testcase classname="tests.test_auth_and_chat.TestAuth" name="test_admin_login" time="1.113" /><testcase classname="tests.test_auth_and_chat.TestAuth" name="test_register_new_user_sets_cookies" time="0.295" /><testcase classname="tests.test_auth_and_chat.TestAuth" name="test_register_duplicate_email" time="0.578" /><testcase classname="tests.test_auth_and_chat.TestAuth" name="test_login_wrong_password" time="0.290" /><testcase classname="tests.test_auth_and_chat.TestAuth" name="test_me_without_cookie" time="0.086" /><testcase classname="tests.test_auth_and_chat.TestAuth" name="test_refresh_issues_new_access" time="0.077" /><testcase classname="tests.test_auth_and_chat.TestAuth" name="test_logout_clears" time="0.444" /><testcase classname="tests.test_auth_and_chat.TestPublic" name="test_court_public" time="16.342" /><testcase classname="tests.test_auth_and_chat.TestChat" name="test_chat_sessions_requires_auth" time="0.059" /><testcase classname="tests.test_auth_and_chat.TestChat" name="test_chat_sessions_with_auth" time="0.304" /><testcase classname="tests.test_auth_and_chat.TestChat" name="test_chat_attachment_requires_auth" time="0.055" /><testcase classname="tests.test_auth_and_chat.TestChat" name="test_chat_streams_with_auth" time="1.576" /><testcase classname="tests.test_auth_and_chat.TestChat" name="test_chat_history" time="0.113" /><testcase classname="tests.test_auth_and_chat.TestChat" name="test_chat_with_attachment_text" time="1.989" /><testcase classname="tests.test_auth_and_chat.TestImage" name="test_image_requires_auth" time="0.063" /><testcase classname="tests.test_auth_and_chat.TestImage" name="test_image_generation" time="11.465" /><testcase classname="tests.test_auth_and_chat.TestPublic" name="test_gateway_requires_key" time="0.100" /><testcase classname="tests.test_auth_and_chat.TestImage" name="test_image_free_user_limit_is_20" time="11.479" /><testcase classname="tests.test_auth_and_chat.TestPublic" name="test_gateway_with_key" time="10.006"><failure message="requests.exceptions.ReadTimeout: HTTPSConnectionPool(host='ai-gateway-demo.preview.emergentagent.com', port=443): Read timed out. (read timeout=10)">/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py:534: in _make_request
+    response = conn.getresponse()
+               ^^^^^^^^^^^^^^^^^^
+/root/.venv/lib/python3.11/site-packages/urllib3/connection.py:571: in getresponse
+    httplib_response = super().getresponse()
+                       ^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/http/client.py:1415: in getresponse
+    response.begin()
+/usr/local/lib/python3.11/http/client.py:330: in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/http/client.py:291: in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/socket.py:718: in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/ssl.py:1314: in recv_into
+    return self.read(nbytes, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/ssl.py:1166: in read
+    return self._sslobj.read(len, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TimeoutError: The read operation timed out
+
+The above exception was the direct cause of the following exception:
+/root/.venv/lib/python3.11/site-packages/requests/adapters.py:696: in send
+    resp = conn.urlopen(
+/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py:842: in urlopen
+    retries = retries.increment(
+/root/.venv/lib/python3.11/site-packages/urllib3/util/retry.py:498: in increment
+    raise reraise(type(error), error, _stacktrace)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/.venv/lib/python3.11/site-packages/urllib3/util/util.py:39: in reraise
+    raise value
+/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py:788: in urlopen
+    response = self._make_request(
+/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py:536: in _make_request
+    self._raise_timeout(err=e, url=url, timeout_value=read_timeout)
+/root/.venv/lib/python3.11/site-packages/urllib3/connectionpool.py:367: in _raise_timeout
+    raise ReadTimeoutError(
+E   urllib3.exceptions.ReadTimeoutError: HTTPSConnectionPool(host='ai-gateway-demo.preview.emergentagent.com', port=443): Read timed out. (read timeout=10)
+
+During handling of the above exception, another exception occurred:
+backend/tests/test_auth_and_chat.py:275: in test_gateway_with_key
+    rc = new_user_session.post(f"{API}/keys", json={"name": "TEST_gateway"}, timeout=10)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/.venv/lib/python3.11/site-packages/requests/sessions.py:712: in post
+    return self.request("POST", url, data=data, json=json, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/.venv/lib/python3.11/site-packages/requests/sessions.py:651: in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/.venv/lib/python3.11/site-packages/requests/sessions.py:784: in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/.venv/lib/python3.11/site-packages/requests/adapters.py:742: in send
+    raise ReadTimeout(e, request=request)
+E   requests.exceptions.ReadTimeout: HTTPSConnectionPool(host='ai-gateway-demo.preview.emergentagent.com', port=443): Read timed out. (read timeout=10)</failure></testcase><testcase classname="tests.test_auth_and_chat.TestPublic" name="test_paypal_config" time="1.241" /><testcase classname="tests.test_auth_and_chat.TestPublic" name="test_paypal_upgrade_order_requires_auth" time="0.123" /><testcase classname="tests.test_auth_and_chat.TestVoice" name="test_speak_requires_auth" time="0.056" /><testcase classname="tests.test_auth_and_chat.TestPublic" name="test_paypal_upgrade_order_with_auth" time="2.382" /><testcase classname="tests.test_auth_and_chat.TestVoice" name="test_transcribe_requires_auth" time="0.057" /><testcase classname="tests.test_auth_and_chat.TestVoice" name="test_speak_with_auth" time="1.764" /><testcase classname="tests.test_auth_and_chat.TestStatic" name="test_sitemap" time="0.084" /><testcase classname="tests.test_auth_and_chat.TestStatic" name="test_robots" time="0.067" /><testcase classname="tests.test_auth_and_chat.TestKeys" name="test_keys_require_auth" time="0.176" /><testcase classname="tests.test_auth_and_chat.TestKeys" name="test_keys_user_scope" time="0.490" /><testcase classname="tests.test_auth_and_chat.TestKeys" name="test_usage_endpoint" time="0.025" /></testsuite></testsuites>

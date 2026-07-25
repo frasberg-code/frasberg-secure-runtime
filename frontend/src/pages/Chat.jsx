@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link, Navigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Moon, Sun, ArrowLeft, Loader2, LogOut, Plus, MessagesSquare, User } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
@@ -26,10 +26,6 @@ export default function Chat() {
   }, []);
 
   useEffect(() => { if (user) loadSessions(); }, [user, loadSessions]);
-
-  if (user === false) {
-    return <Navigate to={`/auth?next=${encodeURIComponent(`/chat?model=${initialModel}`)}`} replace />;
-  }
 
   return (
     <main className="relative z-10 flex min-h-screen flex-col bg-lux-bg text-lux-text" data-testid="chat-page">
@@ -81,36 +77,52 @@ export default function Chat() {
           <>
             {/* Sessions sidebar */}
             <aside className={`${showList ? "block" : "hidden"} w-full shrink-0 lg:block lg:w-64`} data-testid="chat-sessions-sidebar">
-              <button
-                onClick={() => { setSelected("new"); setShowList(false); }}
-                data-testid="chat-new-session-btn"
-                className="flex w-full items-center justify-center gap-2 rounded-full bg-lux-text px-5 py-2.5 text-sm font-600 text-lux-bg transition-transform duration-200 hover:-translate-y-0.5"
-              >
-                <Plus size={15} /> New chat
-              </button>
-              <p className="mt-6 px-1 font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">Conversations</p>
-              <div className="mt-3 max-h-[60vh] space-y-1.5 overflow-y-auto pr-1" data-testid="chat-sessions-list">
-                {sessions.length === 0 && (
-                  <p className="px-1 text-xs text-lux-text2">No conversations yet — Luchii remembers every chat you have.</p>
-                )}
-                {sessions.map((s) => (
+              {user ? (
+                <>
                   <button
-                    key={s.session_id}
-                    onClick={() => { setSelected(s.session_id); setShowList(false); }}
-                    data-testid={`chat-session-${s.session_id}`}
-                    className={`block w-full rounded-xl border px-4 py-3 text-left transition-colors ${
-                      selected === s.session_id
-                        ? "border-lux-accent bg-lux-surface text-lux-text"
-                        : "border-lux-border bg-lux-surface/60 text-lux-text2 hover:border-lux-accent/50 hover:text-lux-text"
-                    }`}
+                    onClick={() => { setSelected("new"); setShowList(false); }}
+                    data-testid="chat-new-session-btn"
+                    className="flex w-full items-center justify-center gap-2 rounded-full bg-lux-text px-5 py-2.5 text-sm font-600 text-lux-bg transition-transform duration-200 hover:-translate-y-0.5"
                   >
-                    <p className="truncate text-sm">{s.title}</p>
-                    <p className="mt-1 font-mono text-[10px] uppercase tracking-wide opacity-70">
-                      {s.count} msgs{s.model ? ` · ${s.model}` : ""}
-                    </p>
+                    <Plus size={15} /> New chat
                   </button>
-                ))}
-              </div>
+                  <p className="mt-6 px-1 font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">Conversations</p>
+                  <div className="mt-3 max-h-[60vh] space-y-1.5 overflow-y-auto pr-1" data-testid="chat-sessions-list">
+                    {sessions.length === 0 && (
+                      <p className="px-1 text-xs text-lux-text2">No conversations yet — Luchii remembers every chat you have.</p>
+                    )}
+                    {sessions.map((s) => (
+                      <button
+                        key={s.session_id}
+                        onClick={() => { setSelected(s.session_id); setShowList(false); }}
+                        data-testid={`chat-session-${s.session_id}`}
+                        className={`block w-full rounded-xl border px-4 py-3 text-left transition-colors ${
+                          selected === s.session_id
+                            ? "border-lux-accent bg-lux-surface text-lux-text"
+                            : "border-lux-border bg-lux-surface/60 text-lux-text2 hover:border-lux-accent/50 hover:text-lux-text"
+                        }`}
+                      >
+                        <p className="truncate text-sm">{s.title}</p>
+                        <p className="mt-1 font-mono text-[10px] uppercase tracking-wide opacity-70">
+                          {s.count} msgs{s.model ? ` · ${s.model}` : ""}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="rounded-2xl border border-lux-border bg-lux-surface p-6" data-testid="chat-guest-sidebar">
+                  <p className="font-display text-lg font-700 tracking-tight">Guest mode</p>
+                  <p className="mt-2 text-xs leading-relaxed text-lux-text2">
+                    You can chat freely, but conversations are deleted when you leave.
+                    Sign up free to save every chat, create images (20/day free) and use voice & attachments.
+                  </p>
+                  <Link to="/auth" data-testid="chat-sidebar-signup-cta"
+                    className="mt-4 inline-block w-full rounded-full bg-lux-text px-5 py-2.5 text-center text-sm font-600 text-lux-bg transition-transform duration-200 hover:-translate-y-0.5">
+                    Sign up free
+                  </Link>
+                </div>
+              )}
             </aside>
 
             <div className={`${showList ? "hidden lg:block" : "block"} min-w-0 flex-1`}>
