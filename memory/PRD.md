@@ -179,3 +179,25 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
   Five Realms map, Character Guide, v12 Launch) in /app/frontend/src/data/laws.js — each
   downloadable. Footer "AI Court Constitution and laws." → /laws; Court page links library.
 - Verified: curl (video endpoint branded response) + screenshot (/laws 14 docs render).
+
+## Implemented — Frasberg Treks + Laws Search + Chat Code Highlighting (2026-06-26 fork)
+- NEW section: Trek Booking Platform ("Frasberg Treks") at /trek, /trek/:slug, /trek/bookings.
+  Own light expedition theme (paper bg, forest green, amber), separate TrekNav/TrekFooter,
+  links from Luchii footer + mobile nav. 8 seeded treks (EBC, Annapurna, Langtang, Kilimanjaro,
+  Inca Trail, TMB, Kashmir Great Lakes, Torres del Paine) with AI-generated hero images.
+- Backend: /app/backend/trek.py router — GET /api/trek/treks (q/difficulty/country/max_price/sort),
+  GET /treks/{slug}, POST/GET /bookings + DELETE cancel (auth, cookie/JWT reuse), reviews GET/POST.
+  Seeded idempotently on startup. Bookings store reference TRK-XXXX, total_usd = price * pax.
+- Laws page (/laws): search bar with live filtering, match count, citation snippets, empty state.
+- ChatDemo CodeBlock: lightweight regex syntax highlighting (keywords/strings/comments/numbers).
+- Video Engine /v1/video hookup confirmed already present in server.py (mocked "initializing"
+  fallback until api.frasberg.com comes online).
+- Tested: iteration_9 — backend 19/19 pytest, frontend 100% (booking flow, cancel, reviews,
+  filters, laws search, code highlighting). Trek Booking spec (originally Next.js/NestJS) was
+  implemented within existing React+FastAPI stack per user choice "separate section within this app".
+
+## Backlog (updated)
+- P1: Luchii Sovereign Voice Engine (self-hosted Whisper/Coqui) — user demand for proprietary infra.
+- P1: Luchii Memory System / Vector DB (ChromaDB) for cross-session RAG.
+- P2: Trek payments (PayPal already integrated for Luchii credits — could extend to trek bookings).
+- P2: Filter past departure dates from trek booking select; re.escape() on trek search regex.
