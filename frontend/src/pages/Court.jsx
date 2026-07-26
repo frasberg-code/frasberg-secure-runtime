@@ -208,6 +208,10 @@ export default function Court() {
             <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">The Court Constitution</span>
           </div>
           <h2 className="mt-3 font-display text-2xl font-700 tracking-tight sm:text-3xl">Articles of the AI World Court</h2>
+          <Link to="/laws" data-testid="court-laws-link"
+            className="mt-4 inline-block rounded-full border border-lux-accent px-6 py-2.5 text-sm font-600 text-lux-accent transition-transform hover:-translate-y-0.5">
+            Read the full Constitution & Laws library →
+          </Link>
           <div className="mt-6 space-y-3">
             {CONSTITUTION.map((a) => (
               <div key={a.article} className="rounded-2xl border border-lux-border bg-lux-surface/60 p-5" data-testid={`constitution-${a.article.split(" ")[1].toLowerCase()}`}>

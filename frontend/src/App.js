@@ -16,6 +16,10 @@ import Auth from "./pages/Auth";
 import Chat from "./pages/Chat";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
+import Laws from "./pages/Laws";
+import TrekHome from "./pages/trek/TrekHome";
+import TrekDetail from "./pages/trek/TrekDetail";
+import TrekBookings from "./pages/trek/TrekBookings";
 
 function ScrollToHash() {
   const { pathname, hash } = useLocation();
@@ -52,6 +56,10 @@ function App() {
               <Route path="/chat" element={<Chat />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/laws" element={<Laws />} />
+              <Route path="/trek" element={<TrekHome />} />
+              <Route path="/trek/bookings" element={<TrekBookings />} />
+              <Route path="/trek/:slug" element={<TrekDetail />} />
             </Routes>
           </BrowserRouter>
           <Toaster position="top-center" richColors />

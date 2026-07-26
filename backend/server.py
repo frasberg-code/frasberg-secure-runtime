@@ -24,6 +24,7 @@ import tempfile
 import io
 from pypdf import PdfReader
 import auth as auth_module
+import trek as trek_module
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -532,6 +533,29 @@ async def generate_image(req: ImageGenRequest, user: dict = Depends(auth_module.
         raise HTTPException(status_code=502, detail="Image generation failed")
 
 
+@api_router.post("/generate/video")
+async def generate_video(req: ImageGenRequest, user: dict = Depends(auth_module.get_current_user)):
+    prompt = (req.prompt or "").strip()
+    if not prompt:
+        raise HTTPException(status_code=400, detail="A prompt is required")
+    if ACTIVE_UPSTREAM and LUCHII_UPSTREAM_API_KEY:
+        try:
+            async with httpx.AsyncClient(timeout=180) as c:
+                r = await c.post(
+                    f"{ACTIVE_UPSTREAM}/v1/video",
+                    json={"prompt": prompt, "model": "luchii-video"},
+                    headers={"Authorization": f"Bearer {LUCHII_UPSTREAM_API_KEY}"},
+                )
+                if r.status_code == 200:
+                    return r.json()
+        except Exception:
+            logger.exception("Luchii Video Engine upstream call failed")
+    return {
+        "status": "initializing",
+        "message": "The Luchii Video Engine is initializing on Frasberg sovereign infrastructure. Your account holds priority access — video creation unlocks here automatically the moment the engine comes online at api.frasberg.com.",
+    }
+
+
 @api_router.post("/voice/transcribe")
 async def voice_transcribe(file: UploadFile = File(...), user: dict = Depends(auth_module.get_current_user)):
     raw = await file.read()
@@ -1017,6 +1041,8 @@ async def paypal_capture_order(order_id: str, body: OrderCapture):
 
 api_router.include_router(auth_module.router)
 app.include_router(api_router)
+trek_module.setup(db)
+app.include_router(trek_module.router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -1042,6 +1068,7 @@ async def create_indexes():
         await db.knowledge.insert_many([
             {**d, "id": str(uuid.uuid4()), "updated_at": now} for d in KB_SEED
         ])
+    await trek_module.seed_treks()
     asyncio.create_task(_probe_upstreams())
 
 

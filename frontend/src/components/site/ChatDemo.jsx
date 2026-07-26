@@ -12,6 +12,72 @@ const CREATOR_MODELS = [
   { id: "luchii-video", name: "Luchii Video Creator" },
 ];
 
+const KEYWORDS = /\b(function|return|const|let|var|if|else|for|while|import|from|export|default|class|def|async|await|try|except|catch|finally|raise|throw|new|in|of|not|and|or|None|True|False|null|undefined|true|false|print|lambda|pass|with|as|yield|self|this|public|private|static|void|int|str|float|bool)\b/g;
+
+function highlight(code) {
+  const tokens = [];
+  const re = /(\/\/[^\n]*|#[^\n]*)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)|(\b\d+(?:\.\d+)?\b)/g;
+  let last = 0, m, i = 0;
+  const pushPlain = (text) => {
+    let pl = 0, km;
+    KEYWORDS.lastIndex = 0;
+    while ((km = KEYWORDS.exec(text))) {
+      if (km.index > pl) tokens.push(<span key={`p${i++}`}>{text.slice(pl, km.index)}</span>);
+      tokens.push(<span key={`k${i++}`} className="text-[#ff7b72]">{km[0]}</span>);
+      pl = km.index + km[0].length;
+    }
+    if (pl < text.length) tokens.push(<span key={`p${i++}`}>{text.slice(pl)}</span>);
+  };
+  while ((m = re.exec(code))) {
+    if (m.index > last) pushPlain(code.slice(last, m.index));
+    if (m[1]) tokens.push(<span key={`c${i++}`} className="text-[#8b949e] italic">{m[1]}</span>);
+    else if (m[2]) tokens.push(<span key={`s${i++}`} className="text-[#a5d6ff]">{m[2]}</span>);
+    else tokens.push(<span key={`n${i++}`} className="text-[#d2a8ff]">{m[3]}</span>);
+    last = m.index + m[0].length;
+  }
+  if (last < code.length) pushPlain(code.slice(last));
+  return tokens;
+}
+
+function CodeBlock({ lang, code }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <div className="my-2 max-w-full overflow-hidden rounded-xl border border-lux-border bg-[#0d1117]">
+      <div className="flex items-center justify-between border-b border-white/10 px-3 py-1.5">
+        <span className="font-mono text-[10px] uppercase tracking-wide text-[#7ee787]">{lang || "code"}</span>
+        <button
+          type="button"
+          onClick={() => {
+            navigator.clipboard.writeText(code).catch(() => {});
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+          }}
+          data-testid="code-copy-btn"
+          className="font-mono text-[10px] uppercase text-white/50 transition-colors hover:text-white"
+        >
+          {copied ? "copied!" : "copy"}
+        </button>
+      </div>
+      <pre className="overflow-x-auto p-3 font-mono text-[13px] leading-relaxed text-[#e6edf3]">{highlight(code)}</pre>
+    </div>
+  );
+}
+
+function renderRich(text) {
+  const out = [];
+  const re = /```(\w*)\n?([\s\S]*?)```/g;
+  let last = 0;
+  let m;
+  let i = 0;
+  while ((m = re.exec(text))) {
+    if (m.index > last) out.push(<span key={i++} className="whitespace-pre-wrap">{text.slice(last, m.index)}</span>);
+    out.push(<CodeBlock key={i++} lang={m[1]} code={m[2].replace(/\n$/, "")} />);
+    last = m.index + m[0].length;
+  }
+  out.push(<span key={i++} className="whitespace-pre-wrap">{text.slice(last)}</span>);
+  return out;
+}
+
 function fileKind(file) {
   if (file.type.startsWith("image/")) return "image";
   if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) return "pdf";
@@ -196,8 +262,33 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
     setBusy(true);
 
     if (model === "luchii-video") {
-      setMessages((m) => [...m, { role: "user", content: msg }, { role: "assistant", content: "Luchii Video Creator is coming soon. Your account is already eligible — video creation will unlock here the moment it goes live. Meanwhile, try the Luchii Image Creator." }]);
-      setBusy(false);
+      setMessages((m) => [...m, { role: "user", content: msg }, { role: "assistant", content: "", generating: true }]);
+      try {
+        const res = await fetch(`${API}/generate/video`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ prompt: msg || "A cinematic cosmic constellation", session_id: session }),
+        });
+        const data = await res.json();
+        setMessages((m) => {
+          const next = [...m];
+          next[next.length - 1] = {
+            role: "assistant",
+            content: data.video_url ? "Here is your creation." : (data.message || (typeof data.detail === "string" ? data.detail : "The Luchii Video Engine is busy — please try again.")),
+            video: data.video_url || null,
+          };
+          return next;
+        });
+      } catch {
+        setMessages((m) => {
+          const next = [...m];
+          next[next.length - 1] = { role: "assistant", content: "The Luchii Video Engine could not be reached. Please try again." };
+          return next;
+        });
+      } finally {
+        setBusy(false);
+      }
       return;
     }
     if (model === "luchii-image") {
@@ -353,6 +444,9 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
                 </span>
               ) : (
                 <>
+                  {m.video && (
+                    <video src={m.video} controls className="mb-2 max-h-72 rounded-xl" data-testid="chat-generated-video" />
+                  )}
                   {m.image && (
                     <img
                       src={`data:image/png;base64,${m.image}`}
@@ -361,7 +455,9 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
                       data-testid="chat-generated-image"
                     />
                   )}
-              <span className="whitespace-pre-wrap text-base leading-relaxed sm:text-[15px]">{m.content || <Loader2 size={15} className="animate-spin text-lux-text2" />}</span>
+              <div className="text-base leading-relaxed sm:text-[15px]">
+                    {m.content ? (m.role === "assistant" ? renderRich(m.content) : <span className="whitespace-pre-wrap">{m.content}</span>) : <Loader2 size={15} className="animate-spin text-lux-text2" />}
+                  </div>
                   {m.role === "assistant" && m.content && (
                     <button
                       onClick={() => speak(m.content, i)}

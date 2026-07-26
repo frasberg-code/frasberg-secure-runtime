@@ -161,3 +161,21 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
   Footer added to /court.
 - API snippet on homepage: api.frasberg.ai → api.frasberg.com.
 - Tested: iteration_6 (100%, backend 35/35) + iteration_7 (overflow fix verified).
+
+## Implemented — Sovereignty Build: Memory/KB/Admin/Tone + Laws Library (2026-07-26 pt2)
+- Memory System: background fact extraction per authed chat msg (cap 50), injected into prompt;
+  GET/DELETE /api/memory; Profile "Luchii's memory of you" w/ forget. Tested iteration_8 (15/15).
+- Knowledge Base RAG: db.knowledge seeded 5 docs, keyword top-2 injection; admin CRUD.
+- Admin Console /admin (role=admin): stats, users table, conversations, KB editor. 401/403 guards.
+- Emotion & Tone: ChatRequest.tone (warm/business/firm) + chat-tone-select; /voice/speak tone→
+  voice map (coral/alloy/onyx).
+- SOVEREIGN BRANDING (user demand — no 3rd-party names in product): Luchii Keys (luchii-sk-),
+  Luchii Voice Engine, Luchii Video Engine. POST /api/generate/video tries user's upstream
+  ({ACTIVE_UPSTREAM}/v1/video) FIRST, else returns branded "initializing on Frasberg sovereign
+  infrastructure" message; frontend renders video_url when upstream live.
+- /laws page: complete Constitution & Laws library — 14 verbatim documents (AGI Safety
+  Constitution v2, Hyperstructure + Global Governance Constitutions, Federation Protocol,
+  Kernel L12, Cognitive Graph, Model Card, Capability/Safety/Benchmark sheets, Mythos Timeline,
+  Five Realms map, Character Guide, v12 Launch) in /app/frontend/src/data/laws.js — each
+  downloadable. Footer "AI Court Constitution and laws." → /laws; Court page links library.
+- Verified: curl (video endpoint branded response) + screenshot (/laws 14 docs render).
