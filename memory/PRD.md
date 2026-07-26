@@ -147,3 +147,17 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
   filing system — court cases stored with model 'court', GET /api/court/filings (docket
   FRB-XXXXXXXX), expandable rulings + downloadable court-format .txt filing documents.
 - Verified via curl (filings endpoint) + screenshots (court + luchii-code pages).
+
+## Implemented — Personas, Accessibility, Overflow Fix, Nav (2026-07-26)
+- Agent personas: POST /api/chat accepts agent (architect/builder/reviewer/debugger) → distinct
+  system behavior; /luchii-code launch links pass &agent=; chat header shows "Luchii Architect"
+  (Title Case). Tests: /app/backend/tests/test_agent_personas.py 4/4.
+- Accessibility: global html font-size 17px desktop / 18px mobile (all rem text scales up).
+- Mobile hero overflow FIXED (h1 2.6rem mobile, break-words, body overflow-x hidden) — verified
+  iteration_7 (no horizontal overflow on /, /court, /chat, /about, /ai-models, /luchii-code).
+- Footer Docs column relabeled to user's exact list (API, AI Models, Luchii Chat, Luchii Code,
+  Luchii Coding Agents, Benchmarks, Safety, The AI World Court, AI Court Constitution and laws.,
+  Brand Kit) w/ anchors; /#benchmarks & /#safety cross-route + ScrollToHash router effect;
+  Footer added to /court.
+- API snippet on homepage: api.frasberg.ai → api.frasberg.com.
+- Tested: iteration_6 (100%, backend 35/35) + iteration_7 (overflow fix verified).

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Moon, Sun, ArrowLeft, Gavel, Loader2, Sparkles, ScrollText, Download, FolderOpen } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import Starfield from "../components/site/Starfield";
+import Footer from "../components/site/Footer";
 import { COURT_CASES } from "../data/content";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -265,6 +266,7 @@ export default function Court() {
           </div>
         </section>
       </div>
+      <Footer />
     </main>
   );
 }

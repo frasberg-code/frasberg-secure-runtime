@@ -1,6 +1,7 @@
 import "./App.css";
 import { ReactLenis } from "lenis/react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
@@ -15,6 +16,20 @@ import Auth from "./pages/Auth";
 import Chat from "./pages/Chat";
 import Profile from "./pages/Profile";
 
+function ScrollToHash() {
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    if (hash) {
+      const t = setTimeout(() => {
+        document.querySelector(hash)?.scrollIntoView({ behavior: "smooth" });
+      }, 350);
+      return () => clearTimeout(t);
+    }
+    window.scrollTo(0, 0);
+  }, [pathname, hash]);
+  return null;
+}
+
 function App() {
   return (
     <ThemeProvider>
@@ -22,6 +37,7 @@ function App() {
       <ReactLenis root options={{ lerp: 0.09, smoothWheel: true }}>
         <div className="App grain">
           <BrowserRouter>
+            <ScrollToHash />
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/luchii" element={<Landing />} />
