@@ -64,7 +64,7 @@ export default function Hero() {
             </span>
           </motion.div>
 
-          <h1 className="font-display text-5xl font-700 leading-[0.95] tracking-tighter text-lux-text sm:text-6xl lg:text-7xl">
+          <h1 className="max-w-full break-words font-display text-[2.6rem] font-700 leading-[1.02] tracking-tighter text-lux-text sm:text-6xl sm:leading-[0.95] lg:text-7xl">
             {HEADLINE.map((line, i) => (
               <MaskLine key={i} delay={0.25 + i * 0.12}>
                 {i === 2 ? <span className="accent-grad text-glow">{line}</span> : line}

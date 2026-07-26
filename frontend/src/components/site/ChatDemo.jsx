@@ -273,7 +273,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
         <div className="flex items-center gap-2">
           <Sparkles size={15} className="text-lux-accent" />
           <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">
-            {agent ? `Luchii ${agent}` : tall ? "Luchii Chat" : "Live demo"}
+            {agent ? `Luchii ${agent.charAt(0).toUpperCase()}${agent.slice(1)}` : tall ? "Luchii Chat" : "Live demo"}
           </span>
         </div>
         <div className="flex items-center gap-1.5">

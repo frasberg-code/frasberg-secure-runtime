@@ -1,0 +1,28 @@
+{
+  "summary": "Frontend regression testing for mobile hero overflow fix + minor footer/chat label changes. Verified no horizontal overflow across landing and 5 secondary routes at 390x844. Desktop hero still large. Chat header shows Title Case 'Luchii Architect'. Footer Benchmarks/Safety hrefs are correct (/#benchmarks, /#safety) but page does NOT auto-scroll to the anchor after navigation (minor). /court page has no <footer> at all so footer-link-from-court test could not be executed as written.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Footer hash anchors from another route", "issue": "Clicking Benchmarks (/#benchmarks) or Safety (/#safety) from /about navigates to landing with correct hash in URL, but the page does not scroll to the target section (scrollY stays 0; #benchmarks is at y=1974, #safety at y=6910). Needs a ScrollToHash effect in the router or Landing page.", "affected_selectors": ["footer a[href='/#benchmarks']", "footer a[href='/#safety']"]},
+      {"flow": "Footer links from /court", "issue": "/court page does NOT render <Footer /> at all, so Benchmarks/Safety links are not accessible from /court. If requirement is that footer must be present on /court, add <Footer /> to Court.jsx.", "affected_selectors": ["footer"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Add scroll-to-hash behavior on route change (useLocation hash effect) so /#benchmarks and /#safety actually scroll the landing page after navigating from another route.",
+    "Consider whether /court and /chat should include <Footer /> — currently they don't, so the 'links from /court' requirement cannot be met."
+  ],
+  "critical_code_review_comments": [
+    "Hero fix works: h1 bounding box right=367.5 within 390 viewport at mobile; scrollWidth == innerWidth on landing and /court, /chat, /about, /ai-models, /luchii-code.",
+    "Chat header correctly rendered as 'Luchii Architect' (Title Case) with agent=architect query param.",
+    "Router lacks a ScrollToHash utility — hash links from Footer are ineffective for in-page scrolling on cross-route navigation."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "80% (4/5 requirement groups pass; footer-from-court not testable as /court has no footer, and hash scroll doesn't happen)"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Mobile overflow fix verified. Remaining items are minor UX — hash-scroll from cross-route footer links + missing footer on /court /chat. Focus regression on any layout changes; the specific numbers to check are documentElement.scrollWidth == 390 at 390px viewport and h1 right edge <=390."
+}

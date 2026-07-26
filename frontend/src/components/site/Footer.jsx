@@ -31,8 +31,8 @@ export default function Footer() {
                 <li><a href="/chat" className="hover:text-lux-text" data-testid="footer-luchii-chat-link">Luchii Chat</a></li>
                 <li><a href="/luchii-code" className="hover:text-lux-text" data-testid="footer-luchii-code-link">Luchii Code</a></li>
                 <li><a href="/luchii-code#agents" className="hover:text-lux-text" data-testid="footer-coding-agents-link">Luchii Coding Agents</a></li>
-                <li><a href="#benchmarks" className="hover:text-lux-text">Benchmarks</a></li>
-                <li><a href="#safety" className="hover:text-lux-text">Safety</a></li>
+                <li><a href="/#benchmarks" className="hover:text-lux-text">Benchmarks</a></li>
+                <li><a href="/#safety" className="hover:text-lux-text">Safety</a></li>
                 <li><a href="/court" className="hover:text-lux-text">The AI World Court</a></li>
                 <li><a href="/court#constitution" className="hover:text-lux-text" data-testid="footer-constitution-link">AI Court Constitution and laws.</a></li>
                 <li><a href="/brand" className="hover:text-lux-text">Brand Kit</a></li>
