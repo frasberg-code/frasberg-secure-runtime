@@ -15,6 +15,7 @@ import LuchiiCode from "./pages/LuchiiCode";
 import Auth from "./pages/Auth";
 import Chat from "./pages/Chat";
 import Profile from "./pages/Profile";
+import Admin from "./pages/Admin";
 
 function ScrollToHash() {
   const { pathname, hash } = useLocation();
@@ -50,6 +51,7 @@ function App() {
               <Route path="/auth" element={<Auth />} />
               <Route path="/chat" element={<Chat />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/admin" element={<Admin />} />
             </Routes>
           </BrowserRouter>
           <Toaster position="top-center" richColors />

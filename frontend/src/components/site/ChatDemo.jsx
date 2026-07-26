@@ -32,6 +32,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
   const [transcribing, setTranscribing] = useState(false);
   const [speakingIdx, setSpeakingIdx] = useState(null);
   const [showScroll, setShowScroll] = useState(false);
+  const [tone, setTone] = useState("balanced");
   const scrollRef = useRef(null);
   const fileRef = useRef(null);
   const recorderRef = useRef(null);
@@ -134,7 +135,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ text: text.slice(0, 4000) }),
+        body: JSON.stringify({ text: text.slice(0, 4000), tone: tone === "balanced" ? null : tone }),
       });
       const data = await res.json();
       if (data.audio_base64) {
@@ -219,6 +220,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
           session_id: session,
           model,
           agent,
+          tone: tone === "balanced" ? null : tone,
           attachment_base64: att?.data || null,
           attachment_kind: att?.kind || null,
           attachment_name: att?.name || null,
@@ -277,6 +279,21 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
           </span>
         </div>
         <div className="flex items-center gap-1.5">
+          {user && (
+            <select
+              value={tone}
+              onChange={(e) => setTone(e.target.value)}
+              data-testid="chat-tone-select"
+              aria-label="Luchii tone"
+              className="rounded-full border border-lux-border bg-lux-surface px-2 py-1 font-mono text-[10px] text-lux-text2 outline-none focus:border-lux-accent"
+              title="Emotion & tone — how Luchii speaks"
+            >
+              <option value="balanced">Balanced</option>
+              <option value="warm">Warm</option>
+              <option value="business">Business</option>
+              <option value="firm">Firm</option>
+            </select>
+          )}
           {user && (
             <button
               type="button"

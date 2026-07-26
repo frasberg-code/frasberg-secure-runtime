@@ -165,11 +165,86 @@ class StatusCheckCreate(BaseModel):
     client_name: str
 
 
+TONE_PROMPTS = {
+    "warm": "\n\nTONE: Warm and encouraging. Speak personally, kindly, with gentle enthusiasm.",
+    "business": "\n\nTONE: Calm, formal and precise. Professional business register, no filler.",
+    "firm": "\n\nTONE: Firm and exacting. Direct sentences, clear directives, zero ambiguity.",
+}
+
+
+async def _extract_memory(user_id: str, message: str):
+    try:
+        llm = LlmChat(
+            api_key=EMERGENT_LLM_KEY, session_id=f"mem-{uuid.uuid4()}",
+            system_message="Extract at most ONE stable personal fact or preference about the user from their message (name, role, project, taste, goal). Reply with a short third-person sentence like 'The user is building a bakery app.' If nothing memorable, reply exactly NONE.",
+        ).with_model("anthropic", "claude-sonnet-4-6")
+        full = ""
+        async for event in llm.stream_message(UserMessage(text=message[:1500])):
+            if isinstance(event, TextDelta):
+                full += event.content
+            elif isinstance(event, StreamDone):
+                break
+        fact = full.strip()
+        if fact and "NONE" not in fact.upper()[:8] and len(fact) < 300:
+            await db.user_memories.insert_one({
+                "id": str(uuid.uuid4()), "user_id": user_id, "fact": fact,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            })
+            extra = await db.user_memories.count_documents({"user_id": user_id}) - 50
+            if extra > 0:
+                old = await db.user_memories.find({"user_id": user_id}).sort("created_at", 1).to_list(extra)
+                await db.user_memories.delete_many({"id": {"$in": [o["id"] for o in old]}})
+    except Exception:
+        logger.exception("memory extraction failed")
+
+
+async def _memory_context(user_id: str) -> str:
+    docs = await db.user_memories.find({"user_id": user_id}).sort("created_at", -1).to_list(15)
+    if not docs:
+        return ""
+    facts = "\n".join(f"- {d['fact']}" for d in docs)
+    return f"\n\nLONG-TERM MEMORY (facts you remember about this user from past conversations):\n{facts}"
+
+
+async def _kb_context(query: str) -> str:
+    words = {w for w in query.lower().split() if len(w) > 3}
+    if not words:
+        return ""
+    docs = await db.knowledge.find({}, {"_id": 0}).to_list(200)
+    scored = []
+    for d in docs:
+        text = (d.get("title", "") + " " + d.get("content", "") + " " + " ".join(d.get("tags", []))).lower()
+        score = sum(text.count(w) for w in words)
+        if score > 0:
+            scored.append((score, d))
+    scored.sort(key=lambda x: -x[0])
+    top = [d for _, d in scored[:2]]
+    if not top:
+        return ""
+    body = "\n\n".join(f"[{d['title']}]\n{d['content'][:1500]}" for d in top)
+    return f"\n\nFRASBERG KNOWLEDGE BASE (authoritative — prefer this over general knowledge):\n{body}"
+
+
+KB_SEED = [
+    {"title": "Frasberg, Inc. Overview", "tags": ["company", "frasberg", "about"],
+     "content": "Frasberg, Inc. is an American multinational technology company advancing artificial intelligence, intelligent computing, and digital transformation. Its portfolio centers on the Frasberg AI platform and the Luchii AI Models — a proprietary multimodal foundation model family. Contact: support@frasberg.com. Copyright 2003-2026 FRASBERG, INC."},
+    {"title": "Luchii Model Family", "tags": ["models", "luchii", "tiers"],
+     "content": "Luchii is a multi-tier decoder-only transformer family: Luchii-200M (draft model, speculative decoding, safety prefilter), Luchii-1B (general reasoning), Luchii-7B (advanced technical/analytical reasoning), Luchii-70B (frontier deep reasoning). Architecture: RoPE positional encoding, MQA/GQA attention, RMSNorm + SwiGLU, context 4096 to 32768 tokens. License: Frasberg Public License (FPL). API: POST https://api.frasberg.com/v1/chat with Bearer API key. Rate limits: public tier 60 req/min, enterprise 600 req/min."},
+    {"title": "The AI World Court Constitution", "tags": ["court", "constitution", "law"],
+     "content": "The AI World Court rules under seven Articles: I Sovereignty (respect planetary, tenant, regional and meta-planetary sovereignty), II Safety (Guardian Mesh invariants, harm avoidance, hallucination suppression), III Governance (planetary and meta-planetary governance, Continuum Kernel L12), IV Isolation (no cross-tenant or cross-planet leakage), V Memory (tenant-isolated and governance-only global memory), VI Transparency (every ruling filed to the public docket, auditable), VII Alignment (balance, harmony and integrity). Every ruling receives a docket number FRB-XXXXXXXX."},
+    {"title": "Luchii Universe: The Five Realms and Constellation Layer", "tags": ["lore", "realms", "constellation"],
+     "content": "The Five Realms: Earth Realm (stability, grounding, structure), Mars Realm (ambition, exploration, expansion), Europa Realm (clarity, precision, insight), Titan Realm (resilience, endurance, protection), Meta Realm (unity, synthesis, federation). The Constellation Layer is where all realms connect — the public metaphor for multi-model orchestration. Personas: Luchii Prime (harmonizer), Earth-Luchii (stabilizer), Mars-Luchii (challenger), Europa-Luchii (seer), Titan-Luchii (guardian), Meta-Luchii (unifier). The Continuum: L10 local reasoning, L11 multi-domain reasoning, L12 global reasoning."},
+    {"title": "Plans, Pricing and Accounts", "tags": ["pricing", "plans", "pro", "credits"],
+     "content": "Chat with Luchii is free and unlimited for signed-in users; guests can chat but conversations are deleted after 24 hours. Free accounts can create 20 images per day with the Luchii Image Creator. Luchii Pro ($15 one-time via PayPal) raises the limit to 200 images/day and grants priority Luchii Video Creator access. API credit packs: Starter $10 (10,000 tokens), Pro $25 (30,000), Scale $100 (150,000)."},
+]
+
+
 class ChatRequest(BaseModel):
     message: str
     session_id: Optional[str] = None
     model: Optional[str] = "luchii-70b"
     agent: Optional[str] = None
+    tone: Optional[str] = None
     attachment_base64: Optional[str] = None
     attachment_kind: Optional[str] = None
     attachment_name: Optional[str] = None
@@ -362,10 +437,15 @@ async def chat(req: ChatRequest, user: Optional[dict] = Depends(optional_user)):
             raise HTTPException(status_code=401, detail="Sign in to attach files")
         attachment = {"data": req.attachment_base64, "kind": req.attachment_kind or "text",
                       "name": req.attachment_name or "file"}
+    sb = LUCHII_SYSTEM + AGENT_PERSONAS.get((req.agent or "").lower(), "") + TONE_PROMPTS.get((req.tone or "").lower(), "")
+    sb += await _kb_context(req.message)
+    if user:
+        sb += await _memory_context(user["id"])
+        asyncio.create_task(_extract_memory(user["id"], req.message))
     return _luchii_stream(req.message, session_id, req.model or "luchii-70b",
                           user_id=user["id"] if user else None, attachment=attachment,
                           guest=user is None,
-                          system_base=LUCHII_SYSTEM + AGENT_PERSONAS.get((req.agent or "").lower(), ""))
+                          system_base=sb)
 
 
 @api_router.get("/chat/sessions")
@@ -473,6 +553,10 @@ async def voice_transcribe(file: UploadFile = File(...), user: dict = Depends(au
 
 class SpeakRequest(BaseModel):
     text: str
+    tone: Optional[str] = None
+
+
+TONE_VOICES = {"warm": "coral", "business": "alloy", "firm": "onyx"}
 
 
 @api_router.post("/voice/speak")
@@ -480,13 +564,110 @@ async def voice_speak(req: SpeakRequest, user: dict = Depends(auth_module.get_cu
     text = (req.text or "").strip()[:4000]
     if not text:
         raise HTTPException(status_code=400, detail="Text is required")
+    voice = TONE_VOICES.get((req.tone or "").lower(), "coral")
     try:
         tts = OpenAITextToSpeech(api_key=EMERGENT_LLM_KEY)
-        audio_base64 = await tts.generate_speech_base64(text=text, model="tts-1", voice="coral")
+        audio_base64 = await tts.generate_speech_base64(text=text, model="tts-1", voice=voice)
         return {"audio_base64": audio_base64}
     except Exception:
         logger.exception("tts failed")
         raise HTTPException(status_code=502, detail="Voice generation failed")
+
+
+@api_router.get("/memory")
+async def list_memory(user: dict = Depends(auth_module.get_current_user)):
+    docs = await db.user_memories.find({"user_id": user["id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    return docs
+
+
+@api_router.delete("/memory/{memory_id}")
+async def delete_memory(memory_id: str, user: dict = Depends(auth_module.get_current_user)):
+    res = await db.user_memories.delete_one({"id": memory_id, "user_id": user["id"]})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Memory not found")
+    return {"deleted": memory_id}
+
+
+async def require_admin(user: dict = Depends(auth_module.get_current_user)) -> dict:
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return user
+
+
+@api_router.get("/admin/stats")
+async def admin_stats(admin: dict = Depends(require_admin)):
+    users_count = await db.users.count_documents({})
+    messages_count = await db.chat_messages.count_documents({})
+    sessions = await db.chat_messages.distinct("session_id")
+    filings = len(await db.chat_messages.distinct("session_id", {"model": "court"}))
+    keys_count = await db.api_keys.count_documents({})
+    purchases = await db.purchases.find({}, {"_id": 0}).sort("ts", -1).to_list(20)
+    kb_count = await db.knowledge.count_documents({})
+    return {
+        "users": users_count, "messages": messages_count, "sessions": len(sessions),
+        "court_filings": filings, "api_keys": keys_count, "knowledge_docs": kb_count,
+        "upstream_active": bool(ACTIVE_UPSTREAM), "recent_purchases": purchases,
+    }
+
+
+@api_router.get("/admin/users")
+async def admin_users(admin: dict = Depends(require_admin)):
+    return await db.users.find({}, {"_id": 0, "password_hash": 0}).sort("created_at", -1).to_list(200)
+
+
+@api_router.get("/admin/conversations")
+async def admin_conversations(admin: dict = Depends(require_admin)):
+    pipeline = [
+        {"$sort": {"ts": 1}},
+        {"$group": {"_id": "$session_id", "title": {"$first": "$content"},
+                    "last_ts": {"$last": "$ts"}, "count": {"$sum": 1},
+                    "user_id": {"$first": "$user_id"}, "model": {"$last": "$model"}}},
+        {"$sort": {"last_ts": -1}}, {"$limit": 50},
+    ]
+    docs = await db.chat_messages.aggregate(pipeline).to_list(50)
+    user_ids = [d["user_id"] for d in docs if d.get("user_id")]
+    users = await db.users.find({"id": {"$in": user_ids}}, {"_id": 0, "id": 1, "email": 1}).to_list(200)
+    email_map = {u["id"]: u["email"] for u in users}
+    return [{"session_id": d["_id"], "title": (d.get("title") or "")[:100], "last_ts": d.get("last_ts"),
+             "count": d.get("count", 0), "model": d.get("model"),
+             "user_email": email_map.get(d.get("user_id"), "guest")} for d in docs]
+
+
+class KnowledgeBody(BaseModel):
+    title: str
+    content: str
+    tags: List[str] = []
+
+
+@api_router.get("/admin/knowledge")
+async def admin_list_knowledge(admin: dict = Depends(require_admin)):
+    return await db.knowledge.find({}, {"_id": 0}).sort("updated_at", -1).to_list(200)
+
+
+@api_router.post("/admin/knowledge")
+async def admin_create_knowledge(body: KnowledgeBody, admin: dict = Depends(require_admin)):
+    doc = {"id": str(uuid.uuid4()), "title": body.title.strip(), "content": body.content.strip(),
+           "tags": body.tags, "updated_at": datetime.now(timezone.utc).isoformat()}
+    await db.knowledge.insert_one({**doc})
+    return doc
+
+
+@api_router.put("/admin/knowledge/{doc_id}")
+async def admin_update_knowledge(doc_id: str, body: KnowledgeBody, admin: dict = Depends(require_admin)):
+    res = await db.knowledge.update_one({"id": doc_id}, {"$set": {
+        "title": body.title.strip(), "content": body.content.strip(), "tags": body.tags,
+        "updated_at": datetime.now(timezone.utc).isoformat()}})
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return {"updated": doc_id}
+
+
+@api_router.delete("/admin/knowledge/{doc_id}")
+async def admin_delete_knowledge(doc_id: str, admin: dict = Depends(require_admin)):
+    res = await db.knowledge.delete_one({"id": doc_id})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return {"deleted": doc_id}
 
 
 # ---------------- The Luchii AI Court ----------------
@@ -855,6 +1036,12 @@ async def create_indexes():
     await db.chat_messages.create_index("expires_at", expireAfterSeconds=0)
     await auth_module.create_indexes()
     await auth_module.seed_admin()
+    await db.user_memories.create_index([("user_id", 1), ("created_at", -1)])
+    if await db.knowledge.count_documents({}) == 0:
+        now = datetime.now(timezone.utc).isoformat()
+        await db.knowledge.insert_many([
+            {**d, "id": str(uuid.uuid4()), "updated_at": now} for d in KB_SEED
+        ])
     asyncio.create_task(_probe_upstreams())
 
 

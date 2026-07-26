@@ -21,6 +21,20 @@ export default function Profile() {
   const [busyPw, setBusyPw] = useState(false);
   const [paypal, setPaypal] = useState(null);
   const [showPay, setShowPay] = useState(false);
+  const [memories, setMemories] = useState([]);
+
+  useEffect(() => {
+    if (!user) return;
+    axios.get(`${API}/memory`, { withCredentials: true }).then((r) => setMemories(r.data)).catch(() => {});
+  }, [user]);
+
+  async function forget(id) {
+    try {
+      await axios.delete(`${API}/memory/${id}`, { withCredentials: true });
+      setMemories((m) => m.filter((x) => x.id !== id));
+      toast.success("Luchii forgot it");
+    } catch { toast.error("Could not delete"); }
+  }
 
   useEffect(() => { if (user) setName(user.name || ""); }, [user]);
   useEffect(() => {
@@ -186,6 +200,28 @@ export default function Profile() {
                 </>
               )}
             </div>
+
+            <div className="mt-6 rounded-2xl border border-lux-border bg-lux-surface p-7" data-testid="profile-memory-card">
+              <h2 className="font-display text-xl font-600 tracking-tight">Luchii's memory of you</h2>
+              <p className="mt-2 text-xs text-lux-text2">Facts Luchii has learned from your conversations. She uses them to personalize replies — delete any you don't want kept.</p>
+              <div className="mt-4 space-y-2">
+                {memories.length === 0 && <p className="text-sm text-lux-text2" data-testid="profile-memory-empty">Nothing remembered yet — just keep chatting.</p>}
+                {memories.map((m) => (
+                  <div key={m.id} className="flex items-start justify-between gap-3 rounded-xl border border-lux-border bg-lux-bg px-4 py-3" data-testid={`memory-${m.id}`}>
+                    <p className="text-sm text-lux-text2">{m.fact}</p>
+                    <button onClick={() => forget(m.id)} aria-label="Forget" data-testid={`memory-forget-${m.id}`}
+                      className="shrink-0 font-mono text-[10px] uppercase text-lux-text2 hover:text-red-400">forget</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {user.role === "admin" && (
+              <Link to="/admin" data-testid="profile-admin-link"
+                className="mt-6 inline-block rounded-full border border-lux-accent px-6 py-3 text-sm font-600 text-lux-accent transition-transform hover:-translate-y-0.5">
+                Open Admin Console →
+              </Link>
+            )}
 
             <button onClick={logout} data-testid="profile-signout-btn"
               className="mt-8 rounded-full border border-lux-border px-6 py-3 text-sm text-lux-text2 transition-colors hover:border-red-400 hover:text-red-400">
