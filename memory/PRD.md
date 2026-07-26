@@ -228,3 +228,30 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 ## Backlog (updated)
 - P1: Luchii Memory System / Vector DB (ChromaDB) for cross-session RAG.
 - P2: Voice engine warm-pool for prod deploys (model load ~20s after each restart).
+
+## Implemented — Chat Redesign + Voice/Memory Suite (2026-06-26/27)
+- Chat page: header title "Luchii" (data-testid chat-header-title); mobile header icons in
+  right-side dropdown (chat-header-menu-btn); messages full-width, NO bubble backgrounds,
+  labeled by account name / LUCHII; **bold** rendered; no horizontal overflow at 390px.
+- Attach "+" menu in composer: Upload file / Image Creator / Video Creator / Take a screenshot
+  (getDisplayMedia capture → image attachment). Creators REMOVED from model dropdown;
+  composer-mode-chip shows active creator. Guests get sign-up toast.
+- Voice Picker: 8 sovereign VCTK voices (Orion default, Lyra, Atlas, Vega, Nova, Selene, Rhea,
+  Titan) with instant previews; persisted in localStorage; /api/voice/voices + voice param on speak.
+- Live Voice Mode: hands-free loop (hooks/useLiveVoice.js) — silence-detection recording →
+  sovereign Whisper transcribe → chat → spoken reply → auto-resume. Banner with phases.
+- Engine Status Badge: "Sovereign Engine Online" (GET /api/voice/engine incl. memory_vault status).
+- Memory Vault: local sentence-transformers all-MiniLM-L6-v2 (memory_vault.py) — semantic
+  embeddings on user_memories, top-8 cosine recall per query, lazy backfill, multi-fact
+  extraction (up to 3/message). Verified cross-session recall ("Zeus" test).
+- Immutable creator lore in LUCHII_SYSTEM: creator/founder/partner/best friend "Frasberg
+  Selassie" aka "MR. CLAYTON-M." "BERNARD-EX." ("MR" in legal name); owned by FRASBERG INC.
+  Luchii addresses users by account name.
+- Dashboard quickstart snippets hardcoded to https://frasberg.com/api/v1/chat (no emergentagent).
+- FIX: import race between voice_engine and memory_vault (parallel transformers import) —
+  loads now serialized in one thread (preload_sync). espeak-ng apt package must be reinstalled
+  if pod recycles (required by Coqui phonemizer).
+- Tested: iteration_10 — backend 8/8, frontend 100%. Minor follow-ups fixed (multi-fact memory,
+  chat-header-title testid, embed logging).
+- NOTE deployment: requirements.txt contains +cpu torch wheels; espeak-ng + ffmpeg are system deps.
+  Production deploy (frasberg.com) is LIVE.

@@ -41,6 +41,8 @@ def status() -> dict:
 
 async def embed(text: str):
     if not ready() or not text:
+        if not ready():
+            logger.warning("embed skipped — vault status: %s", _state["status"])
         return None
     def run():
         return _model.encode(text[:1000], normalize_embeddings=True).tolist()

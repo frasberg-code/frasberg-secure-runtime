@@ -184,7 +184,7 @@ async def _extract_memory(user_id: str, message: str):
     try:
         llm = LlmChat(
             api_key=EMERGENT_LLM_KEY, session_id=f"mem-{uuid.uuid4()}",
-            system_message="Extract at most ONE stable personal fact or preference about the user from their message (name, role, project, taste, goal). Reply with a short third-person sentence like 'The user is building a bakery app.' If nothing memorable, reply exactly NONE.",
+            system_message="Extract up to THREE stable personal facts or preferences about the user from their message (name, role, project, people, pets, tastes, goals). Reply with one short third-person sentence per line, like 'The user's dog is named Zeus.' If nothing memorable, reply exactly NONE.",
         ).with_model("anthropic", "claude-sonnet-4-6")
         full = ""
         async for event in llm.stream_message(UserMessage(text=message[:1500])):
@@ -192,8 +192,12 @@ async def _extract_memory(user_id: str, message: str):
                 full += event.content
             elif isinstance(event, StreamDone):
                 break
-        fact = full.strip()
-        if fact and "NONE" not in fact.upper()[:8] and len(fact) < 300:
+        raw = full.strip()
+        if not raw or "NONE" in raw.upper()[:8]:
+            return
+        facts = [f.strip("-• ").strip() for f in raw.split("\n")]
+        facts = [f for f in facts if 3 < len(f) < 300][:3]
+        for fact in facts:
             emb = await memory_vault.embed(fact)
             doc = {
                 "id": str(uuid.uuid4()), "user_id": user_id, "fact": fact,
@@ -202,6 +206,7 @@ async def _extract_memory(user_id: str, message: str):
             if emb:
                 doc["embedding"] = emb
             await db.user_memories.insert_one(doc)
+        if facts:
             extra = await db.user_memories.count_documents({"user_id": user_id}) - 50
             if extra > 0:
                 old = await db.user_memories.find({"user_id": user_id}).sort("created_at", 1).to_list(extra)

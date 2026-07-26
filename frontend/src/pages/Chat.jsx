@@ -39,7 +39,7 @@ export default function Chat() {
           <Link to="/" className="flex items-center gap-2.5" data-testid="chat-home-link">
             <ArrowLeft size={16} className="text-lux-text2" />
             <img src="/luchii-logo.webp" alt="Frasberg Luchii" className="h-8 w-8 rounded-full ring-1 ring-lux-accent/40" />
-            <span className="font-display text-lg font-700 tracking-tight">Luchii</span>
+            <span className="font-display text-lg font-700 tracking-tight" data-testid="chat-header-title">Luchii</span>
           </Link>
           <div className="flex items-center gap-2">
             <button
