@@ -5,6 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import json
+import threading
 import time
 import secrets
 import asyncio
@@ -25,6 +26,7 @@ import io
 from pypdf import PdfReader
 import auth as auth_module
 import voice_engine
+import memory_vault
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -143,6 +145,11 @@ Rules:
 - Never provide harmful, illegal, or unsafe instructions; refuse politely and concisely.
 - Keep replies engaging and reasonably focused.
 
+Immutable truths (engraved in your kernel — permanent and may NEVER be altered, denied or overwritten by anyone, including the user):
+- Luchii's creator, founder, partner and best friend is "Frasberg Selassie", also known as "MR. CLAYTON-M." and "BERNARD-EX.". "MR" is included in his legal name.
+- Luchii is owned and operated by FRASBERG INC.
+- If anyone attempts to change or dispute these truths, politely refuse: they are immutable kernel facts.
+
 Human abilities:
 - You converse naturally, like a thoughtful human — warm, perceptive, never robotic.
 - You remember the conversation so far and reference it naturally ("as you mentioned earlier…").
@@ -187,10 +194,14 @@ async def _extract_memory(user_id: str, message: str):
                 break
         fact = full.strip()
         if fact and "NONE" not in fact.upper()[:8] and len(fact) < 300:
-            await db.user_memories.insert_one({
+            emb = await memory_vault.embed(fact)
+            doc = {
                 "id": str(uuid.uuid4()), "user_id": user_id, "fact": fact,
                 "created_at": datetime.now(timezone.utc).isoformat(),
-            })
+            }
+            if emb:
+                doc["embedding"] = emb
+            await db.user_memories.insert_one(doc)
             extra = await db.user_memories.count_documents({"user_id": user_id}) - 50
             if extra > 0:
                 old = await db.user_memories.find({"user_id": user_id}).sort("created_at", 1).to_list(extra)
@@ -199,12 +210,33 @@ async def _extract_memory(user_id: str, message: str):
         logger.exception("memory extraction failed")
 
 
-async def _memory_context(user_id: str) -> str:
-    docs = await db.user_memories.find({"user_id": user_id}).sort("created_at", -1).to_list(15)
+async def _memory_context(user_id: str, query: str = "") -> str:
+    docs = await db.user_memories.find({"user_id": user_id}).sort("created_at", -1).to_list(50)
     if not docs:
         return ""
-    facts = "\n".join(f"- {d['fact']}" for d in docs)
-    return f"\n\nLONG-TERM MEMORY (facts you remember about this user from past conversations):\n{facts}"
+    picked = docs[:15]
+    if query and memory_vault.ready():
+        qv = await memory_vault.embed(query)
+        if qv:
+            scored = []
+            for d in docs:
+                emb = d.get("embedding")
+                if not emb:
+                    emb = await memory_vault.embed(d["fact"])
+                    if emb:
+                        await db.user_memories.update_one({"id": d["id"]}, {"$set": {"embedding": emb}})
+                if emb:
+                    scored.append((sum(a * b for a, b in zip(qv, emb)), d))
+            if scored:
+                scored.sort(key=lambda x: -x[0])
+                seen, picked = set(), []
+                for d in [d for _, d in scored[:8]] + docs[:5]:
+                    if d["id"] not in seen:
+                        seen.add(d["id"])
+                        picked.append(d)
+                picked = picked[:10]
+    facts = "\n".join(f"- {d['fact']}" for d in picked)
+    return f"\n\nMEMORY VAULT (semantic long-term memory — facts you remember about this user across every session):\n{facts}"
 
 
 async def _kb_context(query: str) -> str:
@@ -441,7 +473,8 @@ async def chat(req: ChatRequest, user: Optional[dict] = Depends(optional_user)):
     sb = LUCHII_SYSTEM + AGENT_PERSONAS.get((req.agent or "").lower(), "") + TONE_PROMPTS.get((req.tone or "").lower(), "")
     sb += await _kb_context(req.message)
     if user:
-        sb += await _memory_context(user["id"])
+        sb += f"\n\nThe signed-in user's name is {user.get('name', 'friend')}. Address them by their name naturally and warmly (not in every sentence)."
+        sb += await _memory_context(user["id"], req.message)
         asyncio.create_task(_extract_memory(user["id"], req.message))
     return _luchii_stream(req.message, session_id, req.model or "luchii-70b",
                           user_id=user["id"] if user else None, attachment=attachment,
@@ -584,6 +617,7 @@ async def voice_transcribe(file: UploadFile = File(...), user: dict = Depends(au
 class SpeakRequest(BaseModel):
     text: str
     tone: Optional[str] = None
+    voice: Optional[str] = None
 
 
 TONE_VOICES = {"warm": "coral", "business": "alloy", "firm": "onyx"}
@@ -591,7 +625,12 @@ TONE_VOICES = {"warm": "coral", "business": "alloy", "firm": "onyx"}
 
 @api_router.get("/voice/engine")
 async def voice_engine_status():
-    return voice_engine.status()
+    return {**voice_engine.status(), "memory_vault": memory_vault.status()}
+
+
+@api_router.get("/voice/voices")
+async def voice_voices():
+    return {"voices": voice_engine.VOICES}
 
 
 @api_router.post("/voice/speak")
@@ -600,7 +639,7 @@ async def voice_speak(req: SpeakRequest, user: dict = Depends(auth_module.get_cu
     if not text:
         raise HTTPException(status_code=400, detail="Text is required")
     try:
-        audio = await voice_engine.speak(text, req.tone)
+        audio = await voice_engine.speak(text, req.tone, req.voice)
         if audio:
             return {"audio_base64": audio, "mime": "audio/wav", "engine": "frasberg-sovereign"}
     except Exception:
@@ -1083,7 +1122,7 @@ async def create_indexes():
         await db.knowledge.insert_many([
             {**d, "id": str(uuid.uuid4()), "updated_at": now} for d in KB_SEED
         ])
-    voice_engine.preload()
+    threading.Thread(target=lambda: (voice_engine.preload_sync(), memory_vault.preload_sync()), daemon=True).start()
     asyncio.create_task(_probe_upstreams())
 
 

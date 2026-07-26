@@ -1,16 +1,13 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Send, Sparkles, Loader2, Paperclip, Mic, Square, Volume2, VolumeX, X, ImageIcon, ArrowUp, ArrowDown } from "lucide-react";
+import { Loader2, Paperclip, Mic, Square, Volume2, VolumeX, X, ImageIcon, ArrowUp, ArrowDown, Plus, Upload, Clapperboard, MonitorUp, AudioLines, SlidersHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
+import { useLiveVoice } from "../../hooks/useLiveVoice";
+import { VoicePicker } from "./VoicePicker";
 import { CHAT_SUGGESTIONS, MODELS } from "../../data/content";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
-
-const CREATOR_MODELS = [
-  { id: "luchii-image", name: "Luchii Image Creator" },
-  { id: "luchii-video", name: "Luchii Video Creator" },
-];
 
 const KEYWORDS = /\b(function|return|const|let|var|if|else|for|while|import|from|export|default|class|def|async|await|try|except|catch|finally|raise|throw|new|in|of|not|and|or|None|True|False|null|undefined|true|false|print|lambda|pass|with|as|yield|self|this|public|private|static|void|int|str|float|bool)\b/g;
 
@@ -63,6 +60,11 @@ function CodeBlock({ lang, code }) {
   );
 }
 
+function renderInline(text, keyBase) {
+  const parts = text.split(/\*\*([^*]+)\*\*/g);
+  return parts.map((p, j) => (j % 2 === 1 ? <strong key={`${keyBase}-${j}`} className="font-700">{p}</strong> : p));
+}
+
 function renderRich(text) {
   const out = [];
   const re = /```(\w*)\n?([\s\S]*?)```/g;
@@ -70,11 +72,11 @@ function renderRich(text) {
   let m;
   let i = 0;
   while ((m = re.exec(text))) {
-    if (m.index > last) out.push(<span key={i++} className="whitespace-pre-wrap">{text.slice(last, m.index)}</span>);
+    if (m.index > last) out.push(<span key={i++} className="whitespace-pre-wrap break-words">{renderInline(text.slice(last, m.index), i)}</span>);
     out.push(<CodeBlock key={i++} lang={m[1]} code={m[2].replace(/\n$/, "")} />);
     last = m.index + m[0].length;
   }
-  out.push(<span key={i++} className="whitespace-pre-wrap">{text.slice(last)}</span>);
+  out.push(<span key={i++} className="whitespace-pre-wrap break-words">{renderInline(text.slice(last), i)}</span>);
   return out;
 }
 
@@ -82,6 +84,25 @@ function fileKind(file) {
   if (file.type.startsWith("image/")) return "image";
   if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) return "pdf";
   return "text";
+}
+
+function EngineBadge() {
+  const [st, setSt] = useState(null);
+  useEffect(() => {
+    fetch(`${API}/voice/engine`).then((r) => r.json()).then(setSt).catch(() => {});
+  }, []);
+  if (!st) return null;
+  const online = st.stt?.status === "ready" && st.tts?.status === "ready";
+  return (
+    <span
+      data-testid="engine-status-badge"
+      title={online ? "Frasberg Sovereign Engine — all systems online" : "Frasberg Sovereign Engine warming up"}
+      className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-lux-text2"
+    >
+      <span className={`h-1.5 w-1.5 rounded-full ${online ? "bg-emerald-400" : "bg-amber-400"} animate-pulse`} />
+      <span className="hidden md:inline">{online ? "Sovereign Engine Online" : "Engine Warming Up"}</span>
+    </span>
+  );
 }
 
 export default function ChatDemo({ compact = false, initialModel = "luchii-70b", tall = false, loadHistory = false, sessionOverride = null, onNewMessage = null, agent = null }) {
@@ -99,10 +120,19 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
   const [speakingIdx, setSpeakingIdx] = useState(null);
   const [showScroll, setShowScroll] = useState(false);
   const [tone, setTone] = useState("balanced");
+  const [attachMenu, setAttachMenu] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [composerMode, setComposerMode] = useState(null);
+  const [voiceId, setVoiceId] = useState(() => {
+    try { return localStorage.getItem("luchii-voice-id") || "p273"; } catch { return "p273"; }
+  });
   const scrollRef = useRef(null);
   const fileRef = useRef(null);
   const recorderRef = useRef(null);
   const chunksRef = useRef([]);
+  const attachMenuRef = useRef(null);
+  const settingsRef = useRef(null);
+  const utterRef = useRef(() => {});
 
   const locked = user === false || user === null;
   const [voiceOn, setVoiceOn] = useState(() => {
@@ -112,10 +142,25 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
     try { localStorage.setItem("luchii-voice", v ? "off" : "on"); } catch {}
     return !v;
   });
+  const pickVoice = (id) => {
+    setVoiceId(id);
+    try { localStorage.setItem("luchii-voice-id", id); } catch {}
+  };
+
+  const live = useLiveVoice(useCallback((blob) => utterRef.current(blob), []));
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    const onDoc = (e) => {
+      if (attachMenuRef.current && !attachMenuRef.current.contains(e.target)) setAttachMenu(false);
+      if (settingsRef.current && !settingsRef.current.contains(e.target)) setSettingsOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, []);
 
   const onScrollArea = useCallback(() => {
     const el = scrollRef.current;
@@ -156,6 +201,36 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
     reader.readAsDataURL(file);
     e.target.value = "";
   }, []);
+
+  async function captureScreenshot() {
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      const video = document.createElement("video");
+      video.srcObject = stream;
+      await video.play();
+      await new Promise((r) => setTimeout(r, 350));
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext("2d").drawImage(video, 0, 0);
+      stream.getTracks().forEach((t) => t.stop());
+      const b64 = canvas.toDataURL("image/png").split(",")[1];
+      setAttachment({ name: "screenshot.png", kind: "image", data: b64 });
+      toast.success("Screenshot attached — ask Luchii about it");
+    } catch {
+      toast.error("Screenshot cancelled");
+    }
+  }
+
+  function guardCreator(action) {
+    if (locked) {
+      toast.error("Sign up free to use this");
+      return false;
+    }
+    setAttachMenu(false);
+    action();
+    return true;
+  }
 
   async function toggleMic() {
     if (recording) {
@@ -201,19 +276,41 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ text: text.slice(0, 4000), tone: tone === "balanced" ? null : tone }),
+        body: JSON.stringify({ text: text.slice(0, 4000), tone: tone === "balanced" ? null : tone, voice: voiceId }),
       });
       const data = await res.json();
       if (data.audio_base64) {
-        const audio = new Audio(`data:${data.mime || "audio/mp3"};base64,${data.audio_base64}`);
-        audio.onended = () => setSpeakingIdx(null);
-        audio.onerror = () => setSpeakingIdx(null);
-        await audio.play();
+        await new Promise((resolve) => {
+          const audio = new Audio(`data:${data.mime || "audio/mp3"};base64,${data.audio_base64}`);
+          audio.onended = () => { setSpeakingIdx(null); resolve(); };
+          audio.onerror = () => { setSpeakingIdx(null); resolve(); };
+          audio.play().catch(() => { setSpeakingIdx(null); resolve(); });
+        });
       } else setSpeakingIdx(null);
     } catch {
       setSpeakingIdx(null);
       toast.error("Voice unavailable");
     }
+  }
+
+  utterRef.current = async (blob) => {
+    try {
+      const fd = new FormData();
+      fd.append("file", blob, "voice.webm");
+      const res = await fetch(`${API}/voice/transcribe`, { method: "POST", body: fd, credentials: "include" });
+      const data = await res.json();
+      const text = (data.text || "").trim();
+      if (!text) { live.resume(); return; }
+      await send(text, { fromLive: true });
+    } catch {
+      live.resume();
+    }
+  };
+
+  function toggleLive() {
+    if (locked) { toast.error("Sign up free to use Live Voice mode"); return; }
+    if (live.active) live.stop();
+    else live.start();
   }
 
   async function generateImage(prompt) {
@@ -251,17 +348,14 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
     }
   }
 
-  async function send(text) {
+  async function send(text, opts = {}) {
     const msg = (text ?? input).trim();
     if ((!msg && !attachment) || busy) return;
-    if (locked && (model === "luchii-image" || model === "luchii-video")) {
-      toast.error("Sign up free to use the Image & Video Creators");
-      return;
-    }
     setInput("");
     setBusy(true);
 
-    if (model === "luchii-video") {
+    if (composerMode === "video") {
+      setComposerMode(null);
       setMessages((m) => [...m, { role: "user", content: msg }, { role: "assistant", content: "", generating: true }]);
       try {
         const res = await fetch(`${API}/generate/video`, {
@@ -291,7 +385,8 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
       }
       return;
     }
-    if (model === "luchii-image") {
+    if (composerMode === "image") {
+      setComposerMode(null);
       await generateImage(msg || "A cinematic cosmic constellation");
       return;
     }
@@ -301,6 +396,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
     const userLabel = att ? `${msg || "(attachment)"} 📎 ${att.name}` : msg;
     setMessages((m) => [...m, { role: "user", content: userLabel }, { role: "assistant", content: "" }]);
 
+    let acc = "";
     try {
       const res = await fetch(`${API}/chat`, {
         method: "POST",
@@ -321,7 +417,6 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
-      let acc = "";
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -344,7 +439,6 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
           if (data.session_id) setSession(data.session_id);
         }
       }
-      if (voiceOn && user && acc.trim()) speak(acc);
     } catch {
       setMessages((m) => {
         const next = [...m];
@@ -355,65 +449,151 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
       setBusy(false);
       onNewMessage?.();
     }
+
+    if (user && acc.trim()) {
+      if (opts.fromLive) {
+        await speak(acc);
+        live.resume();
+      } else if (voiceOn) {
+        speak(acc);
+      }
+    }
   }
+
+  const modelSelect = (extraTestId = "") => (
+    <select
+      value={model}
+      onChange={(e) => setModel(e.target.value)}
+      data-testid={`chat-model-select${extraTestId}`}
+      className="w-full rounded-full border border-lux-border bg-lux-surface px-3 py-1 font-mono text-[11px] text-lux-text outline-none focus:border-lux-accent sm:w-auto"
+    >
+      {MODELS.map((m) => (
+        <option key={m.id} value={m.id}>{m.name}</option>
+      ))}
+    </select>
+  );
+
+  const toneSelect = (extraTestId = "") => (
+    <select
+      value={tone}
+      onChange={(e) => setTone(e.target.value)}
+      data-testid={`chat-tone-select${extraTestId}`}
+      aria-label="Luchii tone"
+      className="w-full rounded-full border border-lux-border bg-lux-surface px-2 py-1 font-mono text-[10px] text-lux-text2 outline-none focus:border-lux-accent sm:w-auto"
+      title="Emotion & tone — how Luchii speaks"
+    >
+      <option value="balanced">Balanced</option>
+      <option value="warm">Warm</option>
+      <option value="business">Business</option>
+      <option value="firm">Firm</option>
+    </select>
+  );
 
   return (
     <div
       className={`glass relative flex flex-col overflow-hidden rounded-3xl shadow-2xl ${tall ? "h-[calc(100dvh-150px)] min-h-[480px] sm:h-[calc(100vh-180px)] sm:min-h-[520px]" : "h-full"}`}
       data-testid="chat-demo"
     >
-      <div className="flex items-center justify-between border-b border-lux-border px-4 py-3">
-        <div className="flex items-center gap-2">
-          <Sparkles size={15} className="text-lux-accent" />
-          <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">
-            {agent ? `Luchii ${agent.charAt(0).toUpperCase()}${agent.slice(1)}` : tall ? "Luchii Chat" : "Live demo"}
+      <div className="flex items-center justify-between gap-2 border-b border-lux-border px-3 py-3 sm:px-4">
+        <div className="flex min-w-0 items-center gap-2">
+          <img src="/luchii-logo.webp" alt="Luchii" className="h-6 w-6 shrink-0 rounded-full ring-1 ring-lux-accent/40" />
+          <span className="truncate font-display text-sm font-700 tracking-tight text-lux-text">
+            {agent ? `Luchii ${agent.charAt(0).toUpperCase()}${agent.slice(1)}` : "Luchii"}
           </span>
+          <EngineBadge />
         </div>
-        <div className="flex items-center gap-1.5">
-          {user && (
-            <select
-              value={tone}
-              onChange={(e) => setTone(e.target.value)}
-              data-testid="chat-tone-select"
-              aria-label="Luchii tone"
-              className="rounded-full border border-lux-border bg-lux-surface px-2 py-1 font-mono text-[10px] text-lux-text2 outline-none focus:border-lux-accent"
-              title="Emotion & tone — how Luchii speaks"
-            >
-              <option value="balanced">Balanced</option>
-              <option value="warm">Warm</option>
-              <option value="business">Business</option>
-              <option value="firm">Firm</option>
-            </select>
-          )}
+        <div className="flex shrink-0 items-center gap-1.5">
           {user && (
             <button
               type="button"
-              onClick={toggleVoice}
-              aria-label={voiceOn ? "Turn voice off" : "Turn voice on"}
-              data-testid="chat-voice-toggle"
+              onClick={toggleLive}
+              aria-label={live.active ? "End live voice" : "Start live voice"}
+              data-testid="chat-live-voice-btn"
+              title="Live Voice — hands-free conversation with Luchii"
               className={`grid h-7 w-7 place-items-center rounded-full border transition-colors ${
-                voiceOn ? "border-lux-accent text-lux-accent" : "border-lux-border text-lux-text2 hover:border-lux-accent"
+                live.active ? "border-red-500 text-red-500 animate-pulse" : "border-lux-border text-lux-text2 hover:border-lux-accent hover:text-lux-accent"
               }`}
-              title={voiceOn ? "Luchii speaks replies aloud — click to mute" : "Voice off — click so Luchii speaks"}
             >
-              {voiceOn ? <Volume2 size={13} /> : <VolumeX size={13} />}
+              <AudioLines size={13} />
             </button>
           )}
-          <select
-            value={model}
-            onChange={(e) => setModel(e.target.value)}
-            data-testid="chat-model-select"
-            className="rounded-full border border-lux-border bg-lux-surface px-3 py-1 font-mono text-[11px] text-lux-text outline-none focus:border-lux-accent"
-          >
-            {MODELS.map((m) => (
-              <option key={m.id} value={m.id}>{m.name}</option>
-            ))}
-            {CREATOR_MODELS.map((m) => (
-              <option key={m.id} value={m.id}>{!user ? `${m.name} (sign in)` : m.name}</option>
-            ))}
-          </select>
+          <div className="hidden items-center gap-1.5 sm:flex">
+            {user && toneSelect()}
+            {user && (
+              <button
+                type="button"
+                onClick={toggleVoice}
+                aria-label={voiceOn ? "Turn voice off" : "Turn voice on"}
+                data-testid="chat-voice-toggle"
+                className={`grid h-7 w-7 place-items-center rounded-full border transition-colors ${
+                  voiceOn ? "border-lux-accent text-lux-accent" : "border-lux-border text-lux-text2 hover:border-lux-accent"
+                }`}
+                title={voiceOn ? "Luchii speaks replies aloud — click to mute" : "Voice off — click so Luchii speaks"}
+              >
+                {voiceOn ? <Volume2 size={13} /> : <VolumeX size={13} />}
+              </button>
+            )}
+            {user && <VoicePicker value={voiceId} onChange={pickVoice} />}
+            {modelSelect()}
+          </div>
+          <div className="relative sm:hidden" ref={settingsRef}>
+            <button
+              type="button"
+              onClick={() => setSettingsOpen((o) => !o)}
+              aria-label="Chat settings"
+              data-testid="chat-settings-btn"
+              className={`grid h-7 w-7 place-items-center rounded-full border transition-colors ${
+                settingsOpen ? "border-lux-accent text-lux-accent" : "border-lux-border text-lux-text2"
+              }`}
+            >
+              <SlidersHorizontal size={13} />
+            </button>
+            {settingsOpen && (
+              <div className="absolute right-0 top-9 z-50 w-72 space-y-3 rounded-2xl border border-lux-border bg-lux-surface p-3 shadow-2xl" data-testid="chat-settings-menu">
+                <div>
+                  <p className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-lux-text2">Model</p>
+                  {modelSelect("-mobile")}
+                </div>
+                {user && (
+                  <div>
+                    <p className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-lux-text2">Tone</p>
+                    {toneSelect("-mobile")}
+                  </div>
+                )}
+                {user && (
+                  <button
+                    type="button"
+                    onClick={toggleVoice}
+                    data-testid="chat-voice-toggle-mobile"
+                    className="flex w-full items-center justify-between rounded-xl border border-lux-border px-3 py-2 text-sm text-lux-text"
+                  >
+                    <span>Speak replies aloud</span>
+                    {voiceOn ? <Volume2 size={14} className="text-lux-accent" /> : <VolumeX size={14} className="text-lux-text2" />}
+                  </button>
+                )}
+                {user && (
+                  <div>
+                    <p className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-lux-text2">Luchii's voice</p>
+                    <VoicePicker value={voiceId} onChange={pickVoice} inline />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      {live.active && (
+        <div className="flex items-center gap-2 border-b border-lux-border bg-lux-surface/70 px-4 py-2" data-testid="live-voice-banner">
+          <span className={`h-2 w-2 shrink-0 rounded-full animate-pulse ${live.phase === "listening" ? "bg-emerald-400" : "bg-lux-accent"}`} />
+          <span className="text-xs text-lux-text2">
+            {live.phase === "listening" ? "Listening — just speak, Luchii answers aloud" : speakingIdx !== null ? "Luchii is speaking…" : "Thinking…"}
+          </span>
+          <button type="button" onClick={live.stop} data-testid="live-voice-stop" className="ml-auto text-xs text-lux-text2 underline hover:text-lux-text">
+            End
+          </button>
+        </div>
+      )}
 
       {locked && (
         <div className="border-b border-lux-border bg-lux-surface/60 px-4 py-2 text-center" data-testid="chat-guest-banner">
@@ -428,46 +608,45 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
       <div
         ref={scrollRef}
         onScroll={onScrollArea}
-        className={`flex-1 space-y-3 overflow-y-auto px-4 py-4 ${tall ? "" : compact ? "max-h-[320px]" : "max-h-[380px]"}`}
+        className={`flex-1 space-y-5 overflow-y-auto overflow-x-hidden px-4 py-4 sm:px-5 ${tall ? "" : compact ? "max-h-[320px]" : "max-h-[380px]"}`}
         data-testid="chat-messages"
       >
         {messages.map((m, i) => (
-          <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-            <div
-              className={`group max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-                m.role === "user" ? "bg-lux-accent text-lux-bg" : "bg-lux-surface2 text-lux-text"
-              }`}
-            >
+          <div key={i} className="group w-full min-w-0">
+            <p className={`font-mono text-[10px] uppercase tracking-[0.25em] ${m.role === "user" ? "text-lux-accent" : "text-lux-text2"}`}>
+              {m.role === "user" ? (user?.name || "You") : "Luchii"}
+            </p>
+            <div className="mt-1.5 w-full min-w-0">
               {m.generating ? (
-                <span className="flex items-center gap-2 text-lux-text2">
-                  <ImageIcon size={14} className="animate-pulse" /> Creating your image…
+                <span className="flex items-center gap-2 text-sm text-lux-text2">
+                  <ImageIcon size={14} className="animate-pulse" /> Creating…
                 </span>
               ) : (
                 <>
                   {m.video && (
-                    <video src={m.video} controls className="mb-2 max-h-72 rounded-xl" data-testid="chat-generated-video" />
+                    <video src={m.video} controls className="mb-2 max-h-72 max-w-full rounded-xl" data-testid="chat-generated-video" />
                   )}
                   {m.image && (
                     <img
                       src={`data:image/png;base64,${m.image}`}
                       alt="Luchii creation"
-                      className="mb-2 max-h-72 rounded-xl"
+                      className="mb-2 max-h-72 max-w-full rounded-xl"
                       data-testid="chat-generated-image"
                     />
                   )}
-              <div className="text-base leading-relaxed sm:text-[15px]">
-                    {m.content ? (m.role === "assistant" ? renderRich(m.content) : <span className="whitespace-pre-wrap">{m.content}</span>) : <Loader2 size={15} className="animate-spin text-lux-text2" />}
+                  <div className="w-full text-base leading-relaxed text-lux-text sm:text-[15px]">
+                    {m.content ? renderRich(m.content) : <Loader2 size={15} className="animate-spin text-lux-text2" />}
+                    {m.role === "assistant" && m.content && (
+                      <button
+                        onClick={() => speak(m.content, i)}
+                        aria-label="Read aloud"
+                        data-testid={`chat-speak-${i}`}
+                        className="ml-2 inline-flex align-middle text-lux-text2 opacity-0 transition-opacity hover:text-lux-accent group-hover:opacity-100"
+                      >
+                        {speakingIdx === i ? <Loader2 size={13} className="animate-spin" /> : <Volume2 size={13} />}
+                      </button>
+                    )}
                   </div>
-                  {m.role === "assistant" && m.content && (
-                    <button
-                      onClick={() => speak(m.content, i)}
-                      aria-label="Read aloud"
-                      data-testid={`chat-speak-${i}`}
-                      className="ml-2 inline-flex align-middle text-lux-text2 opacity-0 transition-opacity hover:text-lux-accent group-hover:opacity-100"
-                    >
-                      {speakingIdx === i ? <Loader2 size={13} className="animate-spin" /> : <Volume2 size={13} />}
-                    </button>
-                  )}
                 </>
               )}
             </div>
@@ -490,12 +669,21 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
         </div>
       )}
 
-      {attachment && (
-        <div className="flex items-center gap-2 px-4 pb-1">
-          <span className="inline-flex items-center gap-2 rounded-full border border-lux-accent/40 bg-lux-surface px-3 py-1 font-mono text-[11px] text-lux-text" data-testid="chat-attachment-chip">
-            <Paperclip size={11} /> {attachment.name}
-            <button onClick={() => setAttachment(null)} aria-label="Remove attachment" data-testid="chat-attachment-remove"><X size={11} /></button>
-          </span>
+      {(attachment || composerMode) && (
+        <div className="flex flex-wrap items-center gap-2 px-4 pb-1">
+          {composerMode && (
+            <span className="inline-flex items-center gap-2 rounded-full border border-lux-accent bg-lux-surface px-3 py-1 font-mono text-[11px] text-lux-accent" data-testid="composer-mode-chip">
+              {composerMode === "image" ? <ImageIcon size={11} /> : <Clapperboard size={11} />}
+              {composerMode === "image" ? "Image Creator" : "Video Creator"}
+              <button onClick={() => setComposerMode(null)} aria-label="Exit creator mode" data-testid="composer-mode-clear"><X size={11} /></button>
+            </span>
+          )}
+          {attachment && (
+            <span className="inline-flex items-center gap-2 rounded-full border border-lux-accent/40 bg-lux-surface px-3 py-1 font-mono text-[11px] text-lux-text" data-testid="chat-attachment-chip">
+              <Paperclip size={11} /> {attachment.name}
+              <button onClick={() => setAttachment(null)} aria-label="Remove attachment" data-testid="chat-attachment-remove"><X size={11} /></button>
+            </span>
+          )}
         </div>
       )}
 
@@ -518,22 +706,62 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={model === "luchii-image" ? "Describe the image to create…" : "Message Luchii…"}
+            placeholder={composerMode === "image" ? "Describe the image to create…" : composerMode === "video" ? "Describe the video to create…" : "Message Luchii…"}
             data-testid="chat-input"
             className="w-full bg-transparent px-1.5 py-2.5 text-base text-lux-text outline-none placeholder:text-lux-text2 sm:text-sm"
           />
           <div className="flex items-center gap-2">
             <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,.pdf,.txt,.md" className="hidden" onChange={onPickFile} data-testid="chat-file-input" />
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              disabled={locked || busy}
-              aria-label="Attach file"
-              data-testid="chat-attach-btn"
-              className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-lux-border text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent disabled:opacity-40"
-            >
-              <Paperclip size={17} />
-            </button>
+            <div className="relative" ref={attachMenuRef}>
+              <button
+                type="button"
+                onClick={() => setAttachMenu((o) => !o)}
+                disabled={busy}
+                aria-label="Add — upload, create image or video, take a screenshot"
+                data-testid="chat-attach-btn"
+                className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border transition-all duration-200 disabled:opacity-40 ${
+                  attachMenu ? "rotate-45 border-lux-accent text-lux-accent" : "border-lux-border text-lux-text2 hover:border-lux-accent hover:text-lux-accent"
+                }`}
+              >
+                <Plus size={18} />
+              </button>
+              {attachMenu && (
+                <div className="absolute bottom-12 left-0 z-50 w-60 rounded-2xl border border-lux-border bg-lux-surface p-2 shadow-2xl" data-testid="chat-attach-menu">
+                  <button
+                    type="button"
+                    onClick={() => guardCreator(() => fileRef.current?.click())}
+                    data-testid="attach-upload-btn"
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-lux-text transition-colors hover:bg-lux-surface2"
+                  >
+                    <Upload size={15} className="text-lux-text2" /> Upload a file
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => guardCreator(() => { setComposerMode("image"); toast.info("Image Creator on — describe your image"); })}
+                    data-testid="attach-image-creator-btn"
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-lux-text transition-colors hover:bg-lux-surface2"
+                  >
+                    <ImageIcon size={15} className="text-lux-text2" /> Image Creator
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => guardCreator(() => { setComposerMode("video"); toast.info("Video Creator on — describe your video"); })}
+                    data-testid="attach-video-creator-btn"
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-lux-text transition-colors hover:bg-lux-surface2"
+                  >
+                    <Clapperboard size={15} className="text-lux-text2" /> Video Creator
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => guardCreator(captureScreenshot)}
+                    data-testid="attach-screenshot-btn"
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-lux-text transition-colors hover:bg-lux-surface2"
+                  >
+                    <MonitorUp size={15} className="text-lux-text2" /> Take a screenshot
+                  </button>
+                </div>
+              )}
+            </div>
             <button
               type="button"
               onClick={toggleMic}

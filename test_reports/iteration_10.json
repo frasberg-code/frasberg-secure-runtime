@@ -1,0 +1,41 @@
+{
+  "summary": "Iteration 10 — Sovereign Voice Engine, Memory Vault, Chat redesign, Attach menu, Voice Picker, and Dashboard Quickstart URLs. Backend: 8/8 pytest pass (engine ready, 8 voices with Orion p273 + Lyra p335, guest 401 on speak, authed WAV audio_base64 with 'frasberg-sovereign', immutable creator lore 'Frasberg Selassie / MR. CLAYTON-M. / BERNARD-EX. / FRASBERG INC', addresses user by name 'Frasberg Admin', memory vault deposit+recall across new sessions returns 'Zeus' correctly). Frontend: chat header shows 'Luchii' (no 'Luchii Chat'), engine-status-badge 'Sovereign Engine Online', tone/voice/voice-picker/model/attach/live-voice controls present, model dropdown contains only Luchii-200M/1B/7B/70B (no Image/Video Creator), all 4 attach menu items work, Image Creator sets composer-mode-chip, voice-picker-panel opens with 8 voice-option rows, voice-preview-p335 triggers /api/voice/speak 200, voice-select-p335 toasts 'Luchii now speaks as Lyra', mobile 390px collapses to chat-header-menu-btn + chat-settings-btn with 0 horizontal overflow, dashboard quickstart cURL/Python/JS tabs all contain https://frasberg.com/api/v1/chat and NO 'emergentagent'.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/chat memory extraction", "issue": "System prompt in _extract_memory (server.py L187) instructs 'Extract at most ONE stable personal fact'. When user says 'Remember: my favorite mountain is Kilimanjaro AND my dog is Zeus' in a single message, only one fact is stored. Multi-fact deposits are silently dropped. Consider allowing extraction of up to 3-5 facts per message when the user uses the imperative 'Remember...'."},
+      {"endpoint": "_extract_memory embedding", "issue": "Occasionally the embedding is missing from the freshly inserted user_memories doc (observed 1/3 times) even though memory_vault.status is 'ready'. Non-blocking because _memory_context lazily backfills embeddings on next query, but worth logging why memory_vault.embed() returned None."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Chat page header", "issue": "No data-testid=\"chat-header-title\" attribute on the 'Luchii' header text. Visual value is correct ('Luchii', not 'Luchii Chat') but testid missing hinders regression testing.", "selector": "header > .title (no testid)", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "chat-model-select (native <select>)", "issues": ["React hydration warning in console: 'In HTML, <span> cannot be a child of <option>'. Renders correctly but produces client-side warning; the <option> labels probably contain an inner span (icon/badge). Should be plain text inside <option>."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_sovereign_voice_memory.py",
+    "/app/test_reports/pytest/iter10_results.xml"
+  ],
+  "action_items": [
+    "Consider relaxing _extract_memory prompt to allow multiple facts when user explicitly says 'Remember...'",
+    "Add data-testid=\"chat-header-title\" to the chat page header for testability",
+    "Fix <option><span>...</span></option> hydration warning in chat-model-select"
+  ],
+  "critical_code_review_comments": [
+    "server.py:637 voice_speak falls back to OpenAI TTS ('audio/mp3', engine 'bridge') when sovereign is not ready. If backend is restarted the first ~40s of speak calls will return non-sovereign mp3 audio. Consider surfacing 503 'engine warming' instead so client can retry rather than getting a different engine.",
+    "server.py:213 _memory_context does N+1 embed calls when embeddings are missing (one embed per doc). If many missing, this blocks the chat SSE start. Consider batch-embedding.",
+    "memory_vault.py:44 embed() catches all exceptions and returns None silently. Add logger.warning with the fact snippet so failures are debuggable."
+  ],
+  "updated_files": ["/app/backend/tests/test_sovereign_voice_memory.py"],
+  "success_rate": {"backend": "100% (8/8)", "frontend": "100% of testable UI claims"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026! (login worked via auth-toggle-mode -> auth-email-input -> auth-password-input -> auth-submit-btn; note /auth defaults to signup mode, must toggle first)",
+  "seed_data_creation": "Created 2 memory-vault docs under admin user (Kilimanjaro + Zeus). Left in db.user_memories, capped at 50 by rolling-delete logic.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All 8 pytest cases in test_sovereign_voice_memory.py are reusable. Auto-fixture _wait_engine_ready waits up to 90s for STT/TTS/memory to be 'ready' before running voice+memory tests (needed after backend restarts). Frontend /auth defaults to signup — must click data-testid='auth-toggle-mode' before login. Chat page all key data-testids confirmed working: engine-status-badge, chat-tone-select, chat-voice-toggle, voice-picker-btn (+ voice-picker-panel with voice-option-<id>, voice-preview-<id>, voice-select-<id>), chat-model-select, chat-attach-btn (+attach-upload-btn/attach-image-creator-btn/attach-video-creator-btn/attach-screenshot-btn), composer-mode-chip, chat-live-voice-btn. Mobile 390px: chat-header-menu-btn, chat-settings-btn, no horizontal overflow. Dashboard quickstart URL is 'https://frasberg.com/api/v1/chat' in all 3 tabs (cURL/Python/JavaScript) and 'emergentagent' string is nowhere on the page.",
+  "rca of the issue": "N/A — no critical bugs. Minor: multi-fact memory extraction limited by design of the extractor's system prompt (fix: relax prompt to allow up to N facts on explicit 'Remember' intents)."
+}

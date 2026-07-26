@@ -17,6 +17,18 @@ COQUI_MODEL = os.environ.get("COQUI_MODEL", "tts_models/en/vctk/vits")
 TONE_SPEAKERS = {"warm": "p335", "business": "p226", "firm": "p251"}
 DEFAULT_SPEAKER = "p273"
 
+VOICES = [
+    {"id": "p273", "name": "Orion", "description": "Balanced & clear", "default": True},
+    {"id": "p335", "name": "Lyra", "description": "Warm & friendly"},
+    {"id": "p226", "name": "Atlas", "description": "Composed business tone"},
+    {"id": "p251", "name": "Vega", "description": "Firm & direct"},
+    {"id": "p225", "name": "Nova", "description": "Bright & youthful"},
+    {"id": "p234", "name": "Selene", "description": "Calm & soft-spoken"},
+    {"id": "p245", "name": "Rhea", "description": "Deep & thoughtful"},
+    {"id": "p326", "name": "Titan", "description": "Bold & resonant"},
+]
+VOICE_IDS = {v["id"] for v in VOICES}
+
 _state = {"stt": "idle", "tts": "idle"}
 _whisper = None
 _tts = None
@@ -57,6 +69,13 @@ def preload():
         threading.Thread(target=_load_tts, daemon=True).start()
 
 
+def preload_sync():
+    if _state["stt"] in ("idle", "unavailable"):
+        _load_whisper()
+    if _state["tts"] in ("idle", "unavailable"):
+        _load_tts()
+
+
 def status():
     return {
         "sovereign": True,
@@ -81,10 +100,13 @@ async def transcribe(raw: bytes, suffix: str):
     return await asyncio.to_thread(run)
 
 
-async def speak(text: str, tone=None):
+async def speak(text: str, tone=None, voice=None):
     if _state["tts"] != "ready":
         return None
-    speaker = TONE_SPEAKERS.get((tone or "").lower(), DEFAULT_SPEAKER)
+    if voice and voice in VOICE_IDS:
+        speaker = voice
+    else:
+        speaker = TONE_SPEAKERS.get((tone or "").lower(), DEFAULT_SPEAKER)
 
     def run():
         import numpy as np

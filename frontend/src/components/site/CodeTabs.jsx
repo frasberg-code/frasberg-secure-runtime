@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 
-const BASE = process.env.REACT_APP_BACKEND_URL;
+const BASE = "https://frasberg.com";
 
 function build(apiKey) {
   const key = apiKey || "YOUR_API_KEY";

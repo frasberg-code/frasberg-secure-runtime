@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Moon, Sun, ArrowLeft, Loader2, LogOut, Plus, MessagesSquare, User } from "lucide-react";
+import { Moon, Sun, ArrowLeft, Loader2, LogOut, Plus, MessagesSquare, User, MoreVertical } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import Starfield from "../components/site/Starfield";
@@ -18,6 +18,7 @@ export default function Chat() {
   const [sessions, setSessions] = useState([]);
   const [selected, setSelected] = useState(null); // null = latest, "new" = fresh
   const [showList, setShowList] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const loadSessions = useCallback(async () => {
     try {
@@ -29,7 +30,7 @@ export default function Chat() {
   useEffect(() => { if (user) loadSessions(); }, [user, loadSessions]);
 
   return (
-    <main className="relative z-10 flex min-h-screen flex-col bg-lux-bg text-lux-text" data-testid="chat-page">
+    <main className="relative z-10 flex min-h-screen flex-col overflow-x-hidden bg-lux-bg text-lux-text" data-testid="chat-page">
       <Seo title="Luchii Chat — Talk to the Constellation" description="Chat with Luchii, Frasberg's multi-tier intelligence. Unlimited free conversation, image creation, voice and attachments for signed-in users." />
       <div className="pointer-events-none absolute inset-0 opacity-40"><Starfield /></div>
 
@@ -38,7 +39,7 @@ export default function Chat() {
           <Link to="/" className="flex items-center gap-2.5" data-testid="chat-home-link">
             <ArrowLeft size={16} className="text-lux-text2" />
             <img src="/luchii-logo.webp" alt="Frasberg Luchii" className="h-8 w-8 rounded-full ring-1 ring-lux-accent/40" />
-            <span className="font-display text-lg font-700 tracking-tight">Luchii Chat</span>
+            <span className="font-display text-lg font-700 tracking-tight">Luchii</span>
           </Link>
           <div className="flex items-center gap-2">
             <button
@@ -49,22 +50,55 @@ export default function Chat() {
             >
               <MessagesSquare size={16} />
             </button>
-            {user && (
-              <Link to="/profile" data-testid="chat-profile-link" aria-label="Profile"
-                className="grid h-10 w-10 place-items-center rounded-full border border-lux-border text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
-                <User size={16} />
-              </Link>
-            )}
-            {user && (
-              <button onClick={logout} data-testid="chat-logout-btn" aria-label="Sign out"
-                className="grid h-10 w-10 place-items-center rounded-full border border-lux-border text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
-                <LogOut size={16} />
+            <div className="hidden items-center gap-2 sm:flex">
+              {user && (
+                <Link to="/profile" data-testid="chat-profile-link" aria-label="Profile"
+                  className="grid h-10 w-10 place-items-center rounded-full border border-lux-border text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
+                  <User size={16} />
+                </Link>
+              )}
+              {user && (
+                <button onClick={logout} data-testid="chat-logout-btn" aria-label="Sign out"
+                  className="grid h-10 w-10 place-items-center rounded-full border border-lux-border text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
+                  <LogOut size={16} />
+                </button>
+              )}
+              <button onClick={toggle} aria-label="Toggle theme" data-testid="chat-theme-toggle"
+                className="grid h-10 w-10 place-items-center rounded-full border border-lux-border transition-colors hover:border-lux-accent hover:text-lux-accent">
+                {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
               </button>
-            )}
-            <button onClick={toggle} aria-label="Toggle theme" data-testid="chat-theme-toggle"
-              className="grid h-10 w-10 place-items-center rounded-full border border-lux-border transition-colors hover:border-lux-accent hover:text-lux-accent">
-              {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
-            </button>
+            </div>
+            <div className="relative sm:hidden">
+              <button
+                onClick={() => setMenuOpen((o) => !o)}
+                aria-label="Menu"
+                data-testid="chat-header-menu-btn"
+                className={`grid h-10 w-10 place-items-center rounded-full border transition-colors ${menuOpen ? "border-lux-accent text-lux-accent" : "border-lux-border text-lux-text2"}`}
+              >
+                <MoreVertical size={16} />
+              </button>
+              {menuOpen && (
+                <div className="absolute right-0 top-12 z-50 w-48 space-y-1 rounded-2xl border border-lux-border bg-lux-surface p-2 shadow-2xl" data-testid="chat-header-menu">
+                  {user && (
+                    <Link to="/profile" onClick={() => setMenuOpen(false)} data-testid="chat-profile-link-mobile"
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-lux-text transition-colors hover:bg-lux-surface2">
+                      <User size={15} className="text-lux-text2" /> Profile
+                    </Link>
+                  )}
+                  <button onClick={() => { toggle(); setMenuOpen(false); }} data-testid="chat-theme-toggle-mobile"
+                    className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-lux-text transition-colors hover:bg-lux-surface2">
+                    {theme === "dark" ? <Sun size={15} className="text-lux-text2" /> : <Moon size={15} className="text-lux-text2" />}
+                    {theme === "dark" ? "Light theme" : "Dark theme"}
+                  </button>
+                  {user && (
+                    <button onClick={() => { setMenuOpen(false); logout(); }} data-testid="chat-logout-btn-mobile"
+                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-lux-text transition-colors hover:bg-lux-surface2">
+                      <LogOut size={15} className="text-lux-text2" /> Sign out
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
