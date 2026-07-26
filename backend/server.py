@@ -24,7 +24,7 @@ import tempfile
 import io
 from pypdf import PdfReader
 import auth as auth_module
-import trek as trek_module
+import voice_engine
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -563,13 +563,19 @@ async def voice_transcribe(file: UploadFile = File(...), user: dict = Depends(au
         raise HTTPException(status_code=413, detail="Audio exceeds 25 MB")
     suffix = ".webm" if "webm" in (file.content_type or "") or (file.filename or "").endswith(".webm") else ".mp3"
     try:
+        text = await voice_engine.transcribe(raw, suffix)
+        if text is not None:
+            return {"text": text, "engine": "frasberg-sovereign"}
+    except Exception:
+        logger.exception("sovereign transcription failed, falling back")
+    try:
         stt = OpenAISpeechToText(api_key=EMERGENT_LLM_KEY)
         with tempfile.NamedTemporaryFile(suffix=suffix, delete=True) as tmp:
             tmp.write(raw)
             tmp.flush()
             with open(tmp.name, "rb") as audio_file:
                 response = await stt.transcribe(file=audio_file, model="whisper-1", response_format="json")
-        return {"text": getattr(response, "text", "") or ""}
+        return {"text": getattr(response, "text", "") or "", "engine": "bridge"}
     except Exception:
         logger.exception("transcription failed")
         raise HTTPException(status_code=502, detail="Transcription failed")
@@ -583,16 +589,27 @@ class SpeakRequest(BaseModel):
 TONE_VOICES = {"warm": "coral", "business": "alloy", "firm": "onyx"}
 
 
+@api_router.get("/voice/engine")
+async def voice_engine_status():
+    return voice_engine.status()
+
+
 @api_router.post("/voice/speak")
 async def voice_speak(req: SpeakRequest, user: dict = Depends(auth_module.get_current_user)):
     text = (req.text or "").strip()[:4000]
     if not text:
         raise HTTPException(status_code=400, detail="Text is required")
+    try:
+        audio = await voice_engine.speak(text, req.tone)
+        if audio:
+            return {"audio_base64": audio, "mime": "audio/wav", "engine": "frasberg-sovereign"}
+    except Exception:
+        logger.exception("sovereign tts failed, falling back")
     voice = TONE_VOICES.get((req.tone or "").lower(), "coral")
     try:
         tts = OpenAITextToSpeech(api_key=EMERGENT_LLM_KEY)
         audio_base64 = await tts.generate_speech_base64(text=text, model="tts-1", voice=voice)
-        return {"audio_base64": audio_base64}
+        return {"audio_base64": audio_base64, "mime": "audio/mp3", "engine": "bridge"}
     except Exception:
         logger.exception("tts failed")
         raise HTTPException(status_code=502, detail="Voice generation failed")
@@ -1041,8 +1058,6 @@ async def paypal_capture_order(order_id: str, body: OrderCapture):
 
 api_router.include_router(auth_module.router)
 app.include_router(api_router)
-trek_module.setup(db)
-app.include_router(trek_module.router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -1068,7 +1083,7 @@ async def create_indexes():
         await db.knowledge.insert_many([
             {**d, "id": str(uuid.uuid4()), "updated_at": now} for d in KB_SEED
         ])
-    await trek_module.seed_treks()
+    voice_engine.preload()
     asyncio.create_task(_probe_upstreams())
 
 

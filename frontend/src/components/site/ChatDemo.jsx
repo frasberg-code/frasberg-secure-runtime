@@ -205,7 +205,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
       });
       const data = await res.json();
       if (data.audio_base64) {
-        const audio = new Audio(`data:audio/mp3;base64,${data.audio_base64}`);
+        const audio = new Audio(`data:${data.mime || "audio/mp3"};base64,${data.audio_base64}`);
         audio.onended = () => setSpeakingIdx(null);
         audio.onerror = () => setSpeakingIdx(null);
         await audio.play();

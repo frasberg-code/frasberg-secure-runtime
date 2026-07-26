@@ -201,3 +201,30 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - P1: Luchii Memory System / Vector DB (ChromaDB) for cross-session RAG.
 - P2: Trek payments (PayPal already integrated for Luchii credits — could extend to trek bookings).
 - P2: Filter past departure dates from trek booking select; re.escape() on trek search regex.
+
+## Removed — Frasberg Treks (2026-06-26, user request)
+- User requested full removal mid-way through phase 2 (payments/availability/emails).
+- Deleted: backend trek.py, emailer.py, tests/test_trek.py; frontend pages/trek/*, components/trek/*
+  (incl. TrekPayModal), all routes/links (App.js, Footer, Navbar), SMTP env keys, and dropped Mongo
+  collections treks/trek_bookings/trek_reviews/trek_emails. /api/trek/* now 404. Verified clean.
+
+## Implemented — Sovereign Voice Engine (2026-06-26)
+- Fully self-hosted STT/TTS on Frasberg infrastructure (user's "maximum quality" choice):
+  - STT: faster-whisper large-v3 (int8, CPU, ~3GB) — /api/voice/transcribe
+  - TTS: Coqui VITS VCTK multi-speaker — /api/voice/speak returns WAV + mime field
+  - Tone → speaker mapping: balanced p273, warm p335, business p226, firm p251
+- /app/backend/voice_engine.py: lazy background preload on startup (threads), status states
+  idle/loading/ready/unavailable, thread-locked inference via asyncio.to_thread.
+- GET /api/voice/engine — public status endpoint (sovereign: true, model names, load states).
+- Cloud (emergent) STT/TTS kept ONLY as silent fallback while models load; responses tagged
+  engine: "frasberg-sovereign" vs "bridge".
+- ChatDemo.jsx uses returned mime (audio/wav) for playback.
+- System deps: espeak-ng (apt), torch/torchaudio +cpu wheels, transformers pinned 4.57.6
+  (coqui-tts 0.27.5 incompatible with transformers 5.x). NOTE for deployment: requirements.txt
+  contains +cpu local wheels and espeak-ng is an apt dependency.
+- Self-tested end-to-end via external API: speak (warm + business tones, sovereign engine) →
+  transcribe round-trip returned exact text; guest 401 gating intact.
+
+## Backlog (updated)
+- P1: Luchii Memory System / Vector DB (ChromaDB) for cross-session RAG.
+- P2: Voice engine warm-pool for prod deploys (model load ~20s after each restart).
