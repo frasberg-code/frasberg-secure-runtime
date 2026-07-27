@@ -18,21 +18,31 @@ export default function Admin() {
   const [users, setUsers] = useState([]);
   const [convos, setConvos] = useState([]);
   const [kb, setKb] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [editing, setEditing] = useState(null); // null | {id?, title, content, tags}
 
   const load = useCallback(async () => {
     try {
-      const [s, u, c, k] = await Promise.all([
+      const [s, u, c, k, p] = await Promise.all([
         axios.get(`${API}/admin/stats`, ax),
         axios.get(`${API}/admin/users`, ax),
         axios.get(`${API}/admin/conversations`, ax),
         axios.get(`${API}/admin/knowledge`, ax),
+        axios.get(`${API}/admin/cashapp`, ax),
       ]);
-      setStats(s.data); setUsers(u.data); setConvos(c.data); setKb(k.data);
+      setStats(s.data); setUsers(u.data); setConvos(c.data); setKb(k.data); setPayments(p.data.payments || []);
     } catch (err) {
       toast.error(formatApiErrorDetail(err.response?.data?.detail));
     }
   }, []);
+
+  async function decidePayment(reference, action) {
+    try {
+      await axios.post(`${API}/admin/cashapp/${reference}/${action}`, {}, ax);
+      toast.success(action === "approve" ? "Payment approved — user upgraded to Pro" : "Payment rejected");
+      load();
+    } catch (err) { toast.error(formatApiErrorDetail(err.response?.data?.detail)); }
+  }
 
   useEffect(() => { if (user?.role === "admin") load(); }, [user, load]);
 
@@ -147,6 +157,37 @@ export default function Admin() {
                       <p className="mt-0.5 font-mono text-[10px] text-lux-text2">{c.user_email} · {c.count} msgs · {c.model}</p>
                     </div>
                     <span className="shrink-0 font-mono text-[10px] text-lux-text2">{(c.last_ts || "").slice(0, 16).replace("T", " ")}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="mt-12">
+              <h2 className="font-display text-2xl font-700 tracking-tight">Cash App payments</h2>
+              <div className="mt-4 space-y-2" data-testid="admin-cashapp">
+                {payments.length === 0 && <p className="text-sm text-lux-text2">No Cash App payments yet.</p>}
+                {payments.map((p) => (
+                  <div key={p.reference} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-lux-border bg-lux-surface/60 px-4 py-3" data-testid={`admin-cashapp-${p.reference}`}>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-600">{p.plan_name} · ${p.amount} <span className="font-mono text-[11px] text-lux-accent">{p.reference}</span></p>
+                      <p className="mt-0.5 font-mono text-[10px] text-lux-text2">{p.user_email} · from {p.sender_cashtag || "—"} {p.note ? `· "${p.note}"` : ""}</p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <span className={`rounded-full border px-3 py-1 font-mono text-[10px] uppercase ${
+                        p.status === "approved" ? "border-green-500 text-green-400" :
+                        p.status === "pending_review" ? "border-amber-500 text-amber-400" :
+                        p.status === "rejected" ? "border-red-500 text-red-400" : "border-lux-border text-lux-text2"}`}>
+                        {p.status.replace("_", " ")}
+                      </span>
+                      {p.status === "pending_review" && (
+                        <>
+                          <button onClick={() => decidePayment(p.reference, "approve")} data-testid={`admin-cashapp-approve-${p.reference}`}
+                            className="rounded-full bg-green-500/90 px-4 py-1.5 text-xs font-600 text-black hover:bg-green-400">Approve</button>
+                          <button onClick={() => decidePayment(p.reference, "reject")} data-testid={`admin-cashapp-reject-${p.reference}`}
+                            className="rounded-full border border-lux-border px-4 py-1.5 text-xs text-lux-text2 hover:border-red-400 hover:text-red-400">Reject</button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

@@ -135,7 +135,7 @@ export default function Court() {
           <Link to="/" className="flex items-center gap-2.5" data-testid="court-home-link">
             <ArrowLeft size={16} className="text-lux-text2" />
             <img src="/luchii-logo.webp" alt="Frasberg Luchii" className="h-8 w-8 rounded-full ring-1 ring-lux-accent/40" />
-            <span className="font-display text-lg font-700 tracking-tight">AI Court World</span>
+            <span className="font-display text-lg font-700 tracking-tight">AI World Court</span>
           </Link>
           <button onClick={toggle} aria-label="Toggle theme" data-testid="court-theme-toggle"
             className="grid h-10 w-10 place-items-center rounded-full border border-lux-border transition-colors hover:border-lux-accent hover:text-lux-accent">
@@ -149,11 +149,10 @@ export default function Court() {
           <span className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-lux-accent/50 text-lux-accent" style={{ boxShadow: "0 0 44px var(--lux-glow)" }}>
             <Gavel size={26} />
           </span>
-          <h1 className="mt-6 font-display text-4xl font-700 tracking-tighter sm:text-5xl">AI Court World</h1>
+          <h1 className="mt-6 font-display text-4xl font-700 tracking-tighter sm:text-5xl">AI World Court</h1>
           <p className="mx-auto mt-4 max-w-xl text-lux-text2">
-            Bring a case before the Judge. AI Court World weighs both sides through the
-            Guardian Mesh — balance, harmony, integrity — and returns a ruling. AI Court
-            World will then deliver a full ruling.
+            Bring a case before the Judge. AI World Court weighs both sides through the
+            Guardian Mesh — balance, harmony, integrity — and returns a ruling. AI World Court will then deliver a full ruling.
           </p>
         </div>
 
@@ -207,7 +206,7 @@ export default function Court() {
             <ScrollText size={17} className="text-lux-accent" />
             <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">The Court Constitution</span>
           </div>
-          <h2 className="mt-3 font-display text-2xl font-700 tracking-tight sm:text-3xl">Articles of AI Court World</h2>
+          <h2 className="mt-3 font-display text-2xl font-700 tracking-tight sm:text-3xl">Articles of AI World Court</h2>
           <Link to="/laws" data-testid="court-laws-link"
             className="mt-4 inline-block rounded-full border border-lux-accent px-6 py-2.5 text-sm font-600 text-lux-accent transition-transform hover:-translate-y-0.5">
             Read the full Constitution & Laws library →

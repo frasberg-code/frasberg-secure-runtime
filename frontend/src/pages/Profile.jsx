@@ -268,6 +268,10 @@ export default function Profile() {
                   ) : (
                     <p className="mt-5 font-mono text-xs text-lux-text2">Checkout unavailable — PayPal not configured.</p>
                   )}
+                  <Link to="/pay" data-testid="profile-cashapp-link"
+                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-full border border-[#00d64f]/50 px-6 py-3 text-sm font-600 text-[#00d64f] transition-colors hover:bg-[#00d64f]/10">
+                    Pay with Cash App
+                  </Link>
                 </>
               )}
             </div>

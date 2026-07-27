@@ -9,17 +9,22 @@ import Seo from "../components/site/Seo";
 import { LAW_DOCUMENTS, LAW_CATEGORIES } from "../data/laws";
 
 function downloadDoc(d) {
+  const line = "\u2500".repeat(58);
   const text = [
-    "FRASBERG, INC. — THE AI WORLD COURT",
+    "FRASBERG, INC.  \u2014  THE AI WORLD COURT",
+    line,
+    "",
     d.title.toUpperCase(),
-    "".padEnd(60, "="),
+    "",
+    line,
     "",
     d.content,
     "",
-    "".padEnd(60, "="),
-    "Copyright © 2003-2026 FRASBERG, INC.",
-  ].join("\n");
-  const blob = new Blob([text], { type: "text/plain" });
+    line,
+    "\u00A9 2003-2026 FRASBERG, INC.  \u2022  All rights reserved.",
+    "This document is proprietary to Frasberg, Inc.",
+  ].join("\r\n");
+  const blob = new Blob(["\uFEFF" + text], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -44,7 +49,7 @@ export default function Laws() {
 
   return (
     <main className="relative z-10 min-h-screen bg-lux-bg text-lux-text" data-testid="laws-page">
-      <Seo title="AI Court Constitution and Laws — Frasberg, Inc." description="The complete constitutions, laws, protocols and public documents of the Luchii intelligence system and AI Court World by Frasberg, Inc." />
+      <Seo title="AI Court Constitution and Laws — Frasberg, Inc." description="The complete constitutions, laws, protocols and public documents of the Luchii intelligence system and AI World Court by Frasberg, Inc." />
       <div className="pointer-events-none absolute inset-0 opacity-40"><Starfield /></div>
 
       <header className="glass sticky top-0 z-40 border-b border-lux-border">
@@ -68,7 +73,7 @@ export default function Laws() {
           <h1 className="mt-6 font-display text-4xl font-700 tracking-tighter sm:text-5xl">AI Court Constitution and Laws</h1>
           <p className="mt-4 max-w-2xl text-lux-text2">
             The complete legal corpus of the Luchii intelligence system — constitutions, federation
-            protocols, kernel law and public documents. Every ruling of AI Court World is bound
+            protocols, kernel law and public documents. Every ruling of AI World Court is bound
             by these texts. Each document is downloadable.
           </p>
         </motion.div>
@@ -144,7 +149,7 @@ export default function Laws() {
           <p className="font-display text-xl font-600 tracking-tight">Bring a case before the Court</p>
           <Link to="/court" data-testid="laws-court-cta"
             className="mt-5 inline-block rounded-full bg-lux-text px-7 py-3 text-sm font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
-            Enter AI Court World
+            Enter AI World Court
           </Link>
         </div>
       </section>

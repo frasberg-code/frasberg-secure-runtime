@@ -68,7 +68,7 @@ export default function Navbar() {
             className="text-sm text-lux-text2 transition-colors duration-200 hover:text-lux-text"
             data-testid="nav-court"
           >
-            AI Court World
+            AI World Court
           </Link>
           <Link
             to="/dashboard"
@@ -164,7 +164,7 @@ export default function Navbar() {
                 {l.label}
               </a>
             ))}
-            <Link to="/court" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">AI Court World</Link>
+            <Link to="/court" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">AI World Court</Link>
             <Link to="/dashboard" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Developers</Link>
             <Link to="/brand" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Brand</Link>
             <Link to="/about" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">About</Link>

@@ -268,8 +268,8 @@ KB_SEED = [
      "content": "Frasberg, Inc. is an American multinational technology company advancing artificial intelligence, intelligent computing, and digital transformation. Its portfolio centers on the Frasberg AI platform and the Luchii AI Models — a proprietary multimodal foundation model family. Contact: support@frasberg.com. Copyright 2003-2026 FRASBERG, INC."},
     {"title": "Luchii Model Family", "tags": ["models", "luchii", "tiers"],
      "content": "Luchii is a multi-tier decoder-only transformer family: Luchii-200M (draft model, speculative decoding, safety prefilter), Luchii-1B (general reasoning), Luchii-7B (advanced technical/analytical reasoning), Luchii-70B (frontier deep reasoning). Architecture: RoPE positional encoding, MQA/GQA attention, RMSNorm + SwiGLU, context 4096 to 32768 tokens. License: Frasberg Public License (FPL). API: POST https://api.frasberg.com/v1/chat with Bearer API key. Rate limits: public tier 60 req/min, enterprise 600 req/min."},
-    {"title": "AI Court World Constitution", "tags": ["court", "constitution", "law"],
-     "content": "AI Court World rules under seven Articles: I Sovereignty (respect planetary, tenant, regional and meta-planetary sovereignty), II Safety (Guardian Mesh invariants, harm avoidance, hallucination suppression), III Governance (planetary and meta-planetary governance, Continuum Kernel L12), IV Isolation (no cross-tenant or cross-planet leakage), V Memory (tenant-isolated and governance-only global memory), VI Transparency (every ruling filed to the public docket, auditable), VII Alignment (balance, harmony and integrity). Every ruling receives a docket number FRB-XXXXXXXX."},
+    {"title": "AI World Court Constitution", "tags": ["court", "constitution", "law"],
+     "content": "AI World Court rules under seven Articles: I Sovereignty (respect planetary, tenant, regional and meta-planetary sovereignty), II Safety (Guardian Mesh invariants, harm avoidance, hallucination suppression), III Governance (planetary and meta-planetary governance, Continuum Kernel L12), IV Isolation (no cross-tenant or cross-planet leakage), V Memory (tenant-isolated and governance-only global memory), VI Transparency (every ruling filed to the public docket, auditable), VII Alignment (balance, harmony and integrity). Every ruling receives a docket number FRB-XXXXXXXX."},
     {"title": "Luchii Universe: The Five Realms and Constellation Layer", "tags": ["lore", "realms", "constellation"],
      "content": "The Five Realms: Earth Realm (stability, grounding, structure), Mars Realm (ambition, exploration, expansion), Europa Realm (clarity, precision, insight), Titan Realm (resilience, endurance, protection), Meta Realm (unity, synthesis, federation). The Constellation Layer is where all realms connect — the public metaphor for multi-model orchestration. Personas: Luchii Prime (harmonizer), Earth-Luchii (stabilizer), Mars-Luchii (challenger), Europa-Luchii (seer), Titan-Luchii (guardian), Meta-Luchii (unifier). The Continuum: L10 local reasoning, L11 multi-domain reasoning, L12 global reasoning."},
     {"title": "Plans, Pricing and Accounts", "tags": ["pricing", "plans", "pro", "credits"],
@@ -999,6 +999,108 @@ UPGRADE_PLANS = {
     "luchii-pro": {"id": "luchii-pro", "name": "Luchii Pro", "price": "15.00", "kind": "upgrade",
                    "blurb": "200 images/day · priority Video Creator access · Pro badge"},
 }
+
+CASHAPP_TAG = os.environ.get("CASHAPP_TAG", "$jccnvja")
+CASHAPP_PAYEE = os.environ.get("CASHAPP_PAYEE", "FRASBERG INC")
+
+
+@api_router.get("/cashapp/config")
+async def cashapp_config():
+    return {
+        "cashtag": CASHAPP_TAG,
+        "payee": CASHAPP_PAYEE,
+        "plans": list(UPGRADE_PLANS.values()),
+    }
+
+
+class CashAppIntent(BaseModel):
+    plan_id: str = "luchii-pro"
+
+
+@api_router.post("/cashapp/intent")
+async def cashapp_intent(body: CashAppIntent, user: dict = Depends(auth_module.get_current_user)):
+    plan = UPGRADE_PLANS.get(body.plan_id)
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    reference = "LCH-" + secrets.token_hex(4).upper()
+    doc = {
+        "id": str(uuid.uuid4()),
+        "reference": reference,
+        "user_id": user["id"],
+        "user_email": user.get("email", ""),
+        "plan_id": plan["id"],
+        "plan_name": plan["name"],
+        "amount": plan["price"],
+        "cashtag": CASHAPP_TAG,
+        "status": "awaiting_payment",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.cashapp_payments.insert_one({**doc})
+    tag_clean = CASHAPP_TAG.lstrip("$")
+    return {
+        **{k: v for k, v in doc.items() if k != "_id"},
+        "pay_url": f"https://cash.app/${tag_clean}/{plan['price']}",
+        "cashtag_url": f"https://cash.app/${tag_clean}",
+    }
+
+
+class CashAppConfirm(BaseModel):
+    reference: str
+    sender_cashtag: Optional[str] = None
+    note: Optional[str] = None
+
+
+@api_router.post("/cashapp/confirm")
+async def cashapp_confirm(body: CashAppConfirm, user: dict = Depends(auth_module.get_current_user)):
+    pay = await db.cashapp_payments.find_one({"reference": body.reference, "user_id": user["id"]})
+    if not pay:
+        raise HTTPException(status_code=404, detail="Payment request not found")
+    if pay["status"] in ("approved", "pending_review"):
+        return {"status": pay["status"], "reference": body.reference}
+    await db.cashapp_payments.update_one(
+        {"reference": body.reference},
+        {"$set": {
+            "status": "pending_review",
+            "sender_cashtag": (body.sender_cashtag or "").strip()[:60],
+            "note": (body.note or "").strip()[:200],
+            "confirmed_at": datetime.now(timezone.utc).isoformat(),
+        }},
+    )
+    return {"status": "pending_review", "reference": body.reference}
+
+
+@api_router.get("/cashapp/my")
+async def cashapp_my(user: dict = Depends(auth_module.get_current_user)):
+    docs = await db.cashapp_payments.find({"user_id": user["id"]}).sort("created_at", -1).to_list(20)
+    return {"payments": [{k: v for k, v in d.items() if k != "_id"} for d in docs]}
+
+
+@api_router.get("/admin/cashapp")
+async def admin_cashapp_list(admin: dict = Depends(require_admin)):
+    docs = await db.cashapp_payments.find().sort("created_at", -1).to_list(200)
+    return {"payments": [{k: v for k, v in d.items() if k != "_id"} for d in docs]}
+
+
+@api_router.post("/admin/cashapp/{reference}/approve")
+async def admin_cashapp_approve(reference: str, admin: dict = Depends(require_admin)):
+    pay = await db.cashapp_payments.find_one({"reference": reference})
+    if not pay:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    await db.cashapp_payments.update_one({"reference": reference}, {"$set": {
+        "status": "approved", "approved_at": datetime.now(timezone.utc).isoformat(), "approved_by": admin.get("email", "")}})
+    await db.users.update_one({"id": pay["user_id"]}, {"$set": {"plan": "pro"}})
+    return {"status": "approved", "reference": reference}
+
+
+@api_router.post("/admin/cashapp/{reference}/reject")
+async def admin_cashapp_reject(reference: str, admin: dict = Depends(require_admin)):
+    res = await db.cashapp_payments.update_one({"reference": reference}, {"$set": {
+        "status": "rejected", "rejected_at": datetime.now(timezone.utc).isoformat()}})
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    return {"status": "rejected", "reference": reference}
+
+
 
 
 class OrderCreate(BaseModel):

@@ -108,7 +108,7 @@ function EngineBadge() {
 export default function ChatDemo({ compact = false, initialModel = "luchii-70b", tall = false, loadHistory = false, sessionOverride = null, onNewMessage = null, agent = null }) {
   const { user } = useAuth();
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "I am Luchii — a harmonizer built to unify signals across worlds. I remember everything automatically — no setup, no searching. Tap the Talk button below to speak with me hands-free, tap the mic to dictate, or just type. Ask me anything." },
+    { role: "assistant", content: "I am Luchii — Ask me anything." },
   ]);
   const [input, setInput] = useState("");
   const [model, setModel] = useState(initialModel);
@@ -786,6 +786,9 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
             </button>
           </div>
         </div>
+        <p className="px-1 pt-2 text-center text-[10px] leading-relaxed text-lux-text2" data-testid="chat-disclaimer">
+          Luchii is AI. By using it, you agree to our <Link to="/laws" className="underline hover:text-lux-text">Terms &amp; Privacy Policy</Link>. Chats may be reviewed and used to improve our AI models. <Link to="/about" className="underline hover:text-lux-text">Learn more</Link>
+        </p>
       </form>
     </div>
   );
