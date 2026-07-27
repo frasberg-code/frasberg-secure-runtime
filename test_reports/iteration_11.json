@@ -1,0 +1,43 @@
+{
+  "summary": "Iteration 11 — Memory Manager, Voice Cloning (XTTS-v2), Navbar Explore dropdown, 'AI Court World' text sweep, Luchii Code page, Talk pill. Backend: 16/16 pytest pass (memory CRUD + validation edges + cross-user 404, clone status/upload/short-reject/speak-custom-clone-engine/delete/fallback-to-sovereign/restore, engine reports xtts-v2 ready). Frontend: navbar Explore dropdown shows all 9 items (Benchmarks/Realms/Mythos/API/AI Models/Luchii Code/Constitution/Brand/About) and closes on outside click; Models/AI Court World/Developers links present; /court h1='AI Court World'; /luchii-code h1='Luchii Code' + overline 'Luchii Coder' + brand still 'Luchii'; /laws clean of 'AI World Court'; Talk pill on chat labeled 'Talk' and guest click shows sign-in toast; welcome message mentions 'Talk button'; Profile Memory Manager add/edit/forget flows work end-to-end (verified new fact appears, edited fact persists, forget removes it); My Sovereign Voice card renders with voice-clone-record-btn (visible + 'CLONED VOICE ACTIVE' badge since admin has a sample); VoicePicker shows 9 rows including voice-option-custom ('My Voice') only because admin's clone sample exists; engine-status-badge='Sovereign Engine Online'; attach menu retains 4 options.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "voice_engine._load_tts (VITS/espeak) + speak()", "issue": "espeak-ng is a hard system dependency but is NOT installed in the container image. On backend cold-start, _ensure_system_deps tries 'apt-get install -y espeak-ng' but this can fail silently (proxy/network) leaving _state['tts']='unavailable'. Worse, voice_engine.speak() at L184 returns None immediately if tts != 'ready' WITHOUT calling _load_tts() again — so /api/voice/speak permanently falls back to OpenAI 'bridge' (audio/mp3) even after espeak-ng becomes available, until backend restart. Repro: fresh container -> engine reports tts.status='unavailable' -> speak returns engine 'bridge'. Fix (either): (a) add espeak-ng to Dockerfile/apt install list, (b) retry _load_tts() from within speak() when state != 'ready', (c) fail-fast on startup if _ensure_system_deps returns non-zero.", "priority": "HIGH"}
+    ],
+    "minor": [
+      {"endpoint": "voice_engine XTTS lazy init", "issue": "cloning status flips idle→loading→ready roughly 60-90s after backend start; during that window POST /api/voice/speak with voice='custom' silently falls back to plain sovereign VITS (engine 'frasberg-sovereign') instead of the clone. Consider queueing/awaiting XTTS readiness in clone_speak or returning 503 'clone engine warming' so the client can retry."},
+      {"endpoint": "POST/PUT /api/memory validation", "issue": "Bounds use strict '3 < len < 300' — length 3 and length 300 are both rejected. Docs/testids suggest '4 to 300 chars'. Consider '3 < len <= 300' if 300 is the intended inclusive upper bound."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "/court page hero paragraph", "issue": "Text sweep missed one occurrence: 'The AI World Court will then deliver a full ruling.' (Court.jsx line 154-156, string wraps across two source lines so grep on the exact phrase in one line misses it). Should be 'The AI Court World...'.", "selector": "p.mx-auto.mt-4.max-w-xl.text-lux-text2 on /court", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_memory_voice_clone.py",
+    "/app/test_reports/pytest/iter11_results.xml"
+  ],
+  "action_items": [
+    "Add espeak-ng to Dockerfile apt install list (system dep for Coqui VITS phonemizer) and/or make voice_engine.speak() retry _load_tts on 'unavailable' state — currently sovereign TTS permanently degrades to OpenAI bridge if espeak isn't present at startup.",
+    "Fix Court.jsx hero paragraph: change 'The AI World Court will then deliver a full ruling.' → 'The AI Court World will then deliver a full ruling.' (Court.jsx L154-156).",
+    "Consider changing memory validation to '3 < len(fact) <= 300' if 300 chars is intended to be valid (currently 300 is rejected)."
+  ],
+  "critical_code_review_comments": [
+    "voice_engine.speak() (L183-185): early return on state!='ready' has no self-heal path. Once state=='unavailable' at boot (espeak missing), no request can recover it without a full backend restart — silently switches to OpenAI bridge (mp3, non-sovereign) forever.",
+    "server.py L648-655: when XTTS is still 'loading', voice='custom' falls through to plain VITS with no signal to the client that the clone was skipped. A client asking for their cloned voice will get a different voice with no indication.",
+    "server.py L689 & L708: '3 < len(fact) < 300' — inclusive-vs-exclusive off-by-one on the upper bound (300 rejected). Also error message says '4-300 characters' but actually accepts 4..299."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_memory_voice_clone.py"
+  ],
+  "success_rate": {"backend": "100% (16/16)", "frontend": "95% (1 stale text on /court)"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026! — /auth defaults to signup, must click data-testid='auth-toggle-mode' before login.",
+  "seed_data_creation": "One ephemeral TEST_ memory (UI: TEST_ui_fact_<ns>) created then deleted. Backend tests created & deleted 'TEST_favorite_color…' memory. Admin voice-clone sample was deleted mid-test then re-uploaded at end (test_zzz_restore_sample) — admin retains their clone. One TEST_other_<ts> user registered for cross-user 404 check (left in DB, ~1 memory left in vault since best-effort cleanup).",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "New reusable test file: /app/backend/tests/test_memory_voice_clone.py (16 tests). Auto-fixture waits up to 120s for stt/tts/memory_vault ready. XTTS 'cloning' status may still be 'loading' when tts is 'ready' — the fixture does NOT wait for cloning, so test_engine_cloning_ready may fail if run <90s after a backend restart; TestVoiceClone::test_speak_custom_returns_clone_engine will fall back to 'frasberg-sovereign' engine (not '-clone') if xtts is still loading. Wait ~120-180s after any backend restart before running voice-clone tests. IMPORTANT: espeak-ng gets uninstalled/missing on cold container start; I manually 'apt-get install -y espeak-ng' this session and restarted backend to get VITS to load — the container image needs espeak-ng baked in. Admin currently HAS a clone sample. UI: profile memory-add/edit-{id}/save-{id}/forget-{id} + voice-clone-record-btn testids all present and working. VoicePicker voice-option-custom appears only when clone exists.",
+  "rca of the issue": "Two independent issues: (1) TEXT: Court.jsx has a wrap-around string 'The AI\\nWorld Court will then deliver a full ruling.' — spans two source lines so a naive one-line grep for 'AI World Court' missed it during E1's sweep. Fix: reword to 'The AI Court World...'. (2) SOVEREIGN TTS DEGRADATION: espeak-ng is not in the container's baseline packages; voice_engine.py's _ensure_system_deps attempts a runtime apt-get install but if that fails (or hasn't yet completed when preload_sync runs the first _load_tts), _state['tts'] latches to 'unavailable'. voice_engine.speak() returns early without retrying — server.py then falls back to OpenAI TTS (engine='bridge', mp3), silently violating the 'sovereign' guarantee. Fix: bake espeak-ng into the image AND add a retry inside voice_engine.speak when state != 'ready'."
+}

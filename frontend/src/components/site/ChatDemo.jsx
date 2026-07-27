@@ -108,7 +108,7 @@ function EngineBadge() {
 export default function ChatDemo({ compact = false, initialModel = "luchii-70b", tall = false, loadHistory = false, sessionOverride = null, onNewMessage = null, agent = null }) {
   const { user } = useAuth();
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "I am Luchii — a harmonizer built to unify signals across worlds. I remember our conversations, read between the lines, and can draft documents in court formats or any format you need. Ask me anything." },
+    { role: "assistant", content: "I am Luchii — a harmonizer built to unify signals across worlds. I remember everything automatically — no setup, no searching. Tap the Talk button below to speak with me hands-free, tap the mic to dictate, or just type. Ask me anything." },
   ]);
   const [input, setInput] = useState("");
   const [model, setModel] = useState(initialModel);
@@ -503,20 +503,6 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
           <EngineBadge />
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
-          {user && (
-            <button
-              type="button"
-              onClick={toggleLive}
-              aria-label={live.active ? "End live voice" : "Start live voice"}
-              data-testid="chat-live-voice-btn"
-              title="Live Voice — hands-free conversation with Luchii"
-              className={`grid h-7 w-7 place-items-center rounded-full border transition-colors ${
-                live.active ? "border-red-500 text-red-500 animate-pulse" : "border-lux-border text-lux-text2 hover:border-lux-accent hover:text-lux-accent"
-              }`}
-            >
-              <AudioLines size={13} />
-            </button>
-          )}
           <div className="hidden items-center gap-1.5 sm:flex">
             {user && toneSelect()}
             {user && (
@@ -773,6 +759,20 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
               }`}
             >
               {transcribing ? <Loader2 size={17} className="animate-spin" /> : recording ? <Square size={15} /> : <Mic size={17} />}
+            </button>
+            <button
+              type="button"
+              onClick={toggleLive}
+              aria-label={live.active ? "End live voice conversation" : "Talk to Luchii hands-free"}
+              title="Talk to Luchii — hands-free voice conversation"
+              data-testid="chat-live-voice-btn"
+              className={`inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-600 transition-colors ${
+                live.active
+                  ? "border-red-500 text-red-500 animate-pulse"
+                  : "border-lux-accent/60 text-lux-accent hover:bg-lux-accent/10"
+              }`}
+            >
+              <AudioLines size={15} /> {live.active ? "End" : "Talk"}
             </button>
             <span className="flex-1" />
             <button

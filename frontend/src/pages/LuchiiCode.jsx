@@ -14,7 +14,7 @@ export default function LuchiiCode() {
   return (
     <main className="relative z-10 min-h-screen bg-lux-bg text-lux-text" data-testid="luchii-code-page">
       <Seo
-        title="Luchii — Developer Quickstart by Frasberg, Inc."
+        title="Luchii Code — Developer Quickstart by Frasberg, Inc."
         description="Luchii developer quickstarts and SDK snippets by Frasberg, Inc. Start building with the Luchii model family."
       />
       <div className="pointer-events-none absolute inset-0 opacity-50"><Starfield /></div>
@@ -43,7 +43,7 @@ export default function LuchiiCode() {
           <span className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-lux-accent/50 text-lux-accent" style={{ boxShadow: "0 0 44px var(--lux-glow)" }}>
             <Terminal size={26} />
           </span>
-          <h1 className="mt-6 font-display text-4xl font-700 tracking-tighter sm:text-5xl">Luchii</h1>
+          <h1 className="mt-6 font-display text-4xl font-700 tracking-tighter sm:text-5xl">Luchii Code</h1>
           <p className="mx-auto mt-4 max-w-xl text-lux-text2">
             Official quickstarts and SDK snippets.
             Build and ship with the Luchii model family.
@@ -58,7 +58,7 @@ export default function LuchiiCode() {
 
         <Reveal delay={0.1}>
           <div className="mx-auto mt-16 max-w-3xl">
-            <Overline>Luchii Coding Agents</Overline>
+            <Overline>Luchii Coder</Overline>
             <h2 className="mt-3 font-display text-2xl font-700 tracking-tight sm:text-3xl">Agents that build with you</h2>
             <p className="mt-3 text-sm leading-relaxed text-lux-text2">
               Specialized coding modes of the Luchii family. Launch any agent in chat and it will

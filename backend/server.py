@@ -268,8 +268,8 @@ KB_SEED = [
      "content": "Frasberg, Inc. is an American multinational technology company advancing artificial intelligence, intelligent computing, and digital transformation. Its portfolio centers on the Frasberg AI platform and the Luchii AI Models — a proprietary multimodal foundation model family. Contact: support@frasberg.com. Copyright 2003-2026 FRASBERG, INC."},
     {"title": "Luchii Model Family", "tags": ["models", "luchii", "tiers"],
      "content": "Luchii is a multi-tier decoder-only transformer family: Luchii-200M (draft model, speculative decoding, safety prefilter), Luchii-1B (general reasoning), Luchii-7B (advanced technical/analytical reasoning), Luchii-70B (frontier deep reasoning). Architecture: RoPE positional encoding, MQA/GQA attention, RMSNorm + SwiGLU, context 4096 to 32768 tokens. License: Frasberg Public License (FPL). API: POST https://api.frasberg.com/v1/chat with Bearer API key. Rate limits: public tier 60 req/min, enterprise 600 req/min."},
-    {"title": "The AI World Court Constitution", "tags": ["court", "constitution", "law"],
-     "content": "The AI World Court rules under seven Articles: I Sovereignty (respect planetary, tenant, regional and meta-planetary sovereignty), II Safety (Guardian Mesh invariants, harm avoidance, hallucination suppression), III Governance (planetary and meta-planetary governance, Continuum Kernel L12), IV Isolation (no cross-tenant or cross-planet leakage), V Memory (tenant-isolated and governance-only global memory), VI Transparency (every ruling filed to the public docket, auditable), VII Alignment (balance, harmony and integrity). Every ruling receives a docket number FRB-XXXXXXXX."},
+    {"title": "AI Court World Constitution", "tags": ["court", "constitution", "law"],
+     "content": "AI Court World rules under seven Articles: I Sovereignty (respect planetary, tenant, regional and meta-planetary sovereignty), II Safety (Guardian Mesh invariants, harm avoidance, hallucination suppression), III Governance (planetary and meta-planetary governance, Continuum Kernel L12), IV Isolation (no cross-tenant or cross-planet leakage), V Memory (tenant-isolated and governance-only global memory), VI Transparency (every ruling filed to the public docket, auditable), VII Alignment (balance, harmony and integrity). Every ruling receives a docket number FRB-XXXXXXXX."},
     {"title": "Luchii Universe: The Five Realms and Constellation Layer", "tags": ["lore", "realms", "constellation"],
      "content": "The Five Realms: Earth Realm (stability, grounding, structure), Mars Realm (ambition, exploration, expansion), Europa Realm (clarity, precision, insight), Titan Realm (resilience, endurance, protection), Meta Realm (unity, synthesis, federation). The Constellation Layer is where all realms connect — the public metaphor for multi-model orchestration. Personas: Luchii Prime (harmonizer), Earth-Luchii (stabilizer), Mars-Luchii (challenger), Europa-Luchii (seer), Titan-Luchii (guardian), Meta-Luchii (unifier). The Continuum: L10 local reasoning, L11 multi-domain reasoning, L12 global reasoning."},
     {"title": "Plans, Pricing and Accounts", "tags": ["pricing", "plans", "pro", "credits"],
@@ -644,6 +644,12 @@ async def voice_speak(req: SpeakRequest, user: dict = Depends(auth_module.get_cu
     if not text:
         raise HTTPException(status_code=400, detail="Text is required")
     try:
+        if (req.voice or "") == "custom":
+            sample = VOICE_SAMPLE_DIR / f"{user['id']}.wav"
+            if sample.exists():
+                audio = await voice_engine.clone_speak(text[:600], str(sample))
+                if audio:
+                    return {"audio_base64": audio, "mime": "audio/wav", "engine": "frasberg-sovereign-clone"}
         audio = await voice_engine.speak(text, req.tone, req.voice)
         if audio:
             return {"audio_base64": audio, "mime": "audio/wav", "engine": "frasberg-sovereign"}
@@ -671,6 +677,81 @@ async def delete_memory(memory_id: str, user: dict = Depends(auth_module.get_cur
     if res.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Memory not found")
     return {"deleted": memory_id}
+
+
+class MemoryBody(BaseModel):
+    fact: str
+
+
+@api_router.put("/memory/{memory_id}")
+async def update_memory(memory_id: str, body: MemoryBody, user: dict = Depends(auth_module.get_current_user)):
+    fact = body.fact.strip()
+    if not 3 < len(fact) < 300:
+        raise HTTPException(status_code=400, detail="Fact must be 4-300 characters")
+    emb = await memory_vault.embed(fact)
+    update = {"fact": fact, "updated_at": datetime.now(timezone.utc).isoformat()}
+    if emb:
+        update["embedding"] = emb
+    res = await db.user_memories.update_one({"id": memory_id, "user_id": user["id"]}, {"$set": update})
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Memory not found")
+    return {"id": memory_id, "fact": fact}
+
+
+class MemoryCreate(BaseModel):
+    fact: str
+
+
+@api_router.post("/memory")
+async def create_memory(body: MemoryCreate, user: dict = Depends(auth_module.get_current_user)):
+    fact = body.fact.strip()
+    if not 3 < len(fact) < 300:
+        raise HTTPException(status_code=400, detail="Fact must be 4-300 characters")
+    emb = await memory_vault.embed(fact)
+    doc = {"id": str(uuid.uuid4()), "user_id": user["id"], "fact": fact,
+           "created_at": datetime.now(timezone.utc).isoformat()}
+    if emb:
+        doc["embedding"] = emb
+    await db.user_memories.insert_one({**doc})
+    doc.pop("embedding", None)
+    doc.pop("_id", None)
+    return doc
+
+
+VOICE_SAMPLE_DIR = ROOT_DIR / "voice_samples"
+VOICE_SAMPLE_DIR.mkdir(exist_ok=True)
+
+
+@api_router.post("/voice/clone")
+async def voice_clone(file: UploadFile = File(...), user: dict = Depends(auth_module.get_current_user)):
+    raw = await file.read()
+    if len(raw) > 15 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Sample exceeds 15 MB")
+    path = str(VOICE_SAMPLE_DIR / f"{user['id']}.wav")
+    try:
+        duration = await asyncio.to_thread(voice_engine.convert_to_wav, raw, path)
+    except Exception:
+        logger.exception("voice sample conversion failed")
+        raise HTTPException(status_code=400, detail="Could not read that audio — try recording again")
+    if duration < 3:
+        raise HTTPException(status_code=400, detail="Sample too short — speak for at least 5 seconds")
+    await db.users.update_one({"id": user["id"]}, {"$set": {"custom_voice": True}})
+    return {"ok": True, "duration_sec": round(duration, 1), "cloning_status": voice_engine.status()["cloning"]["status"]}
+
+
+@api_router.get("/voice/clone/status")
+async def voice_clone_status(user: dict = Depends(auth_module.get_current_user)):
+    has = (VOICE_SAMPLE_DIR / f"{user['id']}.wav").exists()
+    return {"has_sample": has, "cloning_status": voice_engine.status()["cloning"]["status"]}
+
+
+@api_router.delete("/voice/clone")
+async def voice_clone_delete(user: dict = Depends(auth_module.get_current_user)):
+    p = VOICE_SAMPLE_DIR / f"{user['id']}.wav"
+    if p.exists():
+        p.unlink()
+    await db.users.update_one({"id": user["id"]}, {"$set": {"custom_voice": False}})
+    return {"ok": True}
 
 
 async def require_admin(user: dict = Depends(auth_module.get_current_user)) -> dict:
@@ -1127,7 +1208,7 @@ async def create_indexes():
         await db.knowledge.insert_many([
             {**d, "id": str(uuid.uuid4()), "updated_at": now} for d in KB_SEED
         ])
-    threading.Thread(target=lambda: (voice_engine.preload_sync(), memory_vault.preload_sync()), daemon=True).start()
+    threading.Thread(target=lambda: (voice_engine.preload_sync(), memory_vault.preload_sync(), voice_engine.preload_xtts_sync()), daemon=True).start()
     asyncio.create_task(_probe_upstreams())
 
 

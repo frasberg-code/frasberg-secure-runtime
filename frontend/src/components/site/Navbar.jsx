@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Moon, Sun, Menu, X } from "lucide-react";
+import { Moon, Sun, Menu, X, ChevronDown } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
 
@@ -12,17 +12,38 @@ const LINKS = [
   { label: "API", href: "#api" },
 ];
 
+const EXPLORE = [
+  { label: "Benchmarks", href: "#benchmarks" },
+  { label: "Realms", href: "#realms" },
+  { label: "Mythos", href: "#mythos" },
+  { label: "API", href: "#api" },
+  { label: "AI Models", to: "/ai-models" },
+  { label: "Luchii Code", to: "/luchii-code" },
+  { label: "Constitution & Laws", to: "/laws" },
+  { label: "Brand", to: "/brand" },
+  { label: "About", to: "/about" },
+];
+
 export default function Navbar() {
   const { theme, toggle } = useTheme();
   const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [exploreOpen, setExploreOpen] = useState(false);
+  const exploreRef = useRef(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!exploreOpen) return;
+    const onDoc = (e) => { if (exploreRef.current && !exploreRef.current.contains(e.target)) setExploreOpen(false); };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [exploreOpen]);
 
   return (
     <header
@@ -40,23 +61,14 @@ export default function Navbar() {
           </span>
         </a>
 
-        <div className="hidden items-center gap-8 md:flex">
-          {LINKS.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              className="text-sm text-lux-text2 transition-colors duration-200 hover:text-lux-text"
-              data-testid={`nav-${l.label.toLowerCase()}`}
-            >
-              {l.label}
-            </a>
-          ))}
+        <div className="hidden items-center gap-7 md:flex">
+          <a href="#models" className="text-sm text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-models">Models</a>
           <Link
             to="/court"
             className="text-sm text-lux-text2 transition-colors duration-200 hover:text-lux-text"
             data-testid="nav-court"
           >
-            The AI World Court
+            AI Court World
           </Link>
           <Link
             to="/dashboard"
@@ -65,13 +77,34 @@ export default function Navbar() {
           >
             Developers
           </Link>
-          <Link
-            to="/about"
-            className="text-sm text-lux-text2 transition-colors duration-200 hover:text-lux-text"
-            data-testid="nav-about"
-          >
-            About
-          </Link>
+          <div className="relative" ref={exploreRef}>
+            <button
+              onClick={() => setExploreOpen((o) => !o)}
+              data-testid="nav-explore-btn"
+              className={`inline-flex items-center gap-1.5 text-sm transition-colors duration-200 ${exploreOpen ? "text-lux-text" : "text-lux-text2 hover:text-lux-text"}`}
+            >
+              Explore <ChevronDown size={13} className={`transition-transform duration-200 ${exploreOpen ? "rotate-180" : ""}`} />
+            </button>
+            {exploreOpen && (
+              <div className="glass absolute left-1/2 top-10 z-50 w-56 -translate-x-1/2 space-y-0.5 rounded-2xl border border-lux-border p-2 shadow-2xl" data-testid="nav-explore-menu">
+                {EXPLORE.map((l) =>
+                  l.to ? (
+                    <Link key={l.label} to={l.to} onClick={() => setExploreOpen(false)}
+                      data-testid={`nav-explore-${l.label.toLowerCase().replace(/[^a-z]+/g, "-")}`}
+                      className="block rounded-xl px-3.5 py-2.5 text-sm text-lux-text2 transition-colors hover:bg-lux-surface2 hover:text-lux-text">
+                      {l.label}
+                    </Link>
+                  ) : (
+                    <a key={l.label} href={l.href} onClick={() => setExploreOpen(false)}
+                      data-testid={`nav-explore-${l.label.toLowerCase().replace(/[^a-z]+/g, "-")}`}
+                      className="block rounded-xl px-3.5 py-2.5 text-sm text-lux-text2 transition-colors hover:bg-lux-surface2 hover:text-lux-text">
+                      {l.label}
+                    </a>
+                  )
+                )}
+              </div>
+            )}
+          </div>
           {user ? (
             <button
               onClick={logout}
@@ -131,12 +164,12 @@ export default function Navbar() {
                 {l.label}
               </a>
             ))}
-            <Link to="/court" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">The AI World Court</Link>
+            <Link to="/court" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">AI Court World</Link>
             <Link to="/dashboard" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Developers</Link>
             <Link to="/brand" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Brand</Link>
             <Link to="/about" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">About</Link>
             <Link to="/ai-models" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">AI Models</Link>
-            <Link to="/luchii-code" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Luchii</Link>
+            <Link to="/luchii-code" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Luchii Code</Link>
             {user ? (
               <button onClick={() => { logout(); setOpen(false); }} className="py-2 text-left text-sm text-lux-text2 hover:text-lux-text">Sign out</button>
             ) : (

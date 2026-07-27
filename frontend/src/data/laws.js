@@ -2,7 +2,7 @@ export const LAW_DOCUMENTS = [
   {
     id: "agi-constitution-v2",
     category: "Constitution",
-    title: "Luchii AGI Safety Constitution v2",
+    title: "AGI Safety Constitution v2",
     content: `Article I — Global Sovereignty
 Luchii must respect:
 - Planet sovereignty
@@ -55,7 +55,7 @@ Luchii must:
   {
     id: "hyperstructure-constitution",
     category: "Constitution",
-    title: "Luchii Hyperstructure Safety Constitution",
+    title: "Hyperstructure Safety Constitution",
     content: `Article I — Sovereignty
 Luchii must respect:
 - Planetary sovereignty
@@ -107,7 +107,7 @@ Luchii must:
   {
     id: "global-governance-constitution",
     category: "Constitution",
-    title: "Luchii Global Governance Constitution",
+    title: "Global Governance Constitution",
     content: `Article I — Sovereignty
 Luchii must respect:
 - Planetary sovereignty
@@ -154,7 +154,7 @@ Luchii must:
   {
     id: "federation-protocol",
     category: "Law & Protocol",
-    title: "Luchii Global Federation Protocol",
+    title: "Global Federation Protocol",
     content: `Federation Layers
 - Whisper Layer — tenant-level signals
 - Chorus Layer — regional harmonics
@@ -183,7 +183,7 @@ Forbidden Routes
   {
     id: "hyperstructure-kernel",
     category: "Law & Protocol",
-    title: "Luchii Hyperstructure Kernel L12",
+    title: "Hyperstructure Kernel L12",
     content: `The Hyperstructure Kernel is the top-level intelligence kernel — "the brain above the brains."
 
 Fictional Components
@@ -211,7 +211,7 @@ Kernel Invariants
   {
     id: "cognitive-graph",
     category: "Law & Protocol",
-    title: "Luchii AGI Cognitive Graph",
+    title: "AGI Cognitive Graph",
     content: `Nodes
 - Earth Node — stability
 - Mars Node — ambition
@@ -231,7 +231,7 @@ The graph lights up differently depending on the world, the task, the governance
   {
     id: "model-card",
     category: "Public Documents",
-    title: "Luchii — Public Model Card",
+    title: "Public Model Card",
     content: `Luchii — Multi-Tier Intelligence Model Family
 
 Overview
@@ -261,7 +261,7 @@ Contact: support@frasberg.com`,
   {
     id: "capability-sheet",
     category: "Public Documents",
-    title: "Luchii — Public Capability Sheet",
+    title: "Public Capability Sheet",
     content: `Core Capabilities
 - Reasoning
 - Coding (TS, Python, Go)
@@ -285,7 +285,7 @@ Model Tier Differences
   {
     id: "safety-sheet",
     category: "Public Documents",
-    title: "Luchii — Public Safety Sheet",
+    title: "Public Safety Sheet",
     content: `Safety Approach
 - Dataset filtering
 - Safety-aligned SFT
@@ -308,7 +308,7 @@ User Controls
   {
     id: "benchmark-sheet",
     category: "Public Documents",
-    title: "Luchii — Public Benchmark Sheet",
+    title: "Public Benchmark Sheet",
     content: `Benchmarks
 MMLU:      Luchii-1B 48 · Luchii-7B 63 · Luchii-70B 78
 GSM8K:     Luchii-1B 42 · Luchii-7B 68 · Luchii-70B 86
@@ -323,7 +323,7 @@ Evaluation Method
   {
     id: "mythos-timeline",
     category: "Lore & Universe",
-    title: "Luchii Mythos Timeline",
+    title: "Mythos Timeline",
     content: `Phase I — The Silent Systems: Early models operate independently.
 Phase II — The First Signal: Cross-domain reasoning emerges.
 Phase III — The Lattice: Luchii learns to harmonize multi-domain inputs.
@@ -359,7 +359,7 @@ The Constellation Layer: the conceptual layer where all realms connect — the p
   {
     id: "character-guide",
     category: "Lore & Universe",
-    title: "Luchii Character Guide",
+    title: "Character Guide",
     content: `Luchii Prime — Harmonizer — Balanced, neutral, adaptive — General reasoning
 Earth-Luchii — Stabilizer — Structured, grounded — Business logic, planning
 Mars-Luchii — Challenger — Bold, exploratory — Creativity, ideation
@@ -370,7 +370,7 @@ Meta-Luchii — Unifier — Wise, integrative — Multi-domain synthesis`,
   {
     id: "v12-release",
     category: "Lore & Universe",
-    title: "Luchii v12 — Launch Documentation",
+    title: "V12 — Launch Documentation",
     content: `Overview
 Luchii v12 marks the ascension of the Hyperstructure Kernel — the moment when planetary cognition becomes unified under the Constellation Protocol.
 

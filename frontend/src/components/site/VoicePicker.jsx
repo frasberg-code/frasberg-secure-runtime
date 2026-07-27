@@ -6,12 +6,17 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 export const VoicePicker = ({ value, onChange, inline = false }) => {
   const [voices, setVoices] = useState([]);
+  const [hasCustom, setHasCustom] = useState(false);
   const [open, setOpen] = useState(false);
   const [previewing, setPreviewing] = useState(null);
   const boxRef = useRef(null);
 
   useEffect(() => {
     fetch(`${API}/voice/voices`).then((r) => r.json()).then((d) => setVoices(d.voices || [])).catch(() => {});
+    fetch(`${API}/voice/clone/status`, { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setHasCustom(!!d?.has_sample))
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -29,7 +34,7 @@ export const VoicePicker = ({ value, onChange, inline = false }) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ text: `Hi, I'm ${v.name}. This is how Luchii sounds with my voice.`, voice: v.id }),
+        body: JSON.stringify({ text: v.id === "custom" ? "This is your cloned sovereign voice, speaking just like you." : `Hi, I'm ${v.name}. This is how Luchii sounds with my voice.`, voice: v.id }),
       });
       const data = await res.json();
       if (data.audio_base64) {
@@ -47,10 +52,14 @@ export const VoicePicker = ({ value, onChange, inline = false }) => {
     }
   }
 
+  const allVoices = hasCustom
+    ? [{ id: "custom", name: "My Voice", description: "Your cloned sovereign voice" }, ...voices]
+    : voices;
+
   const list = (
     <div className="max-h-64 space-y-1 overflow-y-auto" data-testid="voice-picker-list">
-      {voices.length === 0 && <p className="px-2 py-3 text-xs text-lux-text2">Loading voices…</p>}
-      {voices.map((v) => (
+      {allVoices.length === 0 && <p className="px-2 py-3 text-xs text-lux-text2">Loading voices…</p>}
+      {allVoices.map((v) => (
         <div
           key={v.id}
           className={`flex items-center gap-2 rounded-xl border px-3 py-2 transition-colors ${

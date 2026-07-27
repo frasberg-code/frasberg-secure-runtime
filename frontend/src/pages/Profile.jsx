@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, Navigate } from "react-router-dom";
 import axios from "axios";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import { Moon, Sun, ArrowLeft, Loader2, User, Check, Crown } from "lucide-react";
+import { Moon, Sun, ArrowLeft, Loader2, User, Check, Crown, Mic, Square, Pencil, Plus, Trash2, AudioWaveform } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth, formatApiErrorDetail } from "../context/AuthContext";
@@ -22,10 +22,17 @@ export default function Profile() {
   const [paypal, setPaypal] = useState(null);
   const [showPay, setShowPay] = useState(false);
   const [memories, setMemories] = useState([]);
+  const [editId, setEditId] = useState(null);
+  const [editText, setEditText] = useState("");
+  const [newFact, setNewFact] = useState("");
+  const [voiceClone, setVoiceClone] = useState(null);
+  const [recState, setRecState] = useState("idle");
+  const recRef = useState({ rec: null, timer: null })[0];
 
   useEffect(() => {
     if (!user) return;
     axios.get(`${API}/memory`, { withCredentials: true }).then((r) => setMemories(r.data)).catch(() => {});
+    axios.get(`${API}/voice/clone/status`, { withCredentials: true }).then((r) => setVoiceClone(r.data)).catch(() => {});
   }, [user]);
 
   async function forget(id) {
@@ -34,6 +41,70 @@ export default function Profile() {
       setMemories((m) => m.filter((x) => x.id !== id));
       toast.success("Luchii forgot it");
     } catch { toast.error("Could not delete"); }
+  }
+
+  async function saveMemory(id) {
+    try {
+      const r = await axios.put(`${API}/memory/${id}`, { fact: editText }, { withCredentials: true });
+      setMemories((m) => m.map((x) => (x.id === id ? { ...x, fact: r.data.fact } : x)));
+      setEditId(null);
+      toast.success("Memory updated");
+    } catch (err) { toast.error(formatApiErrorDetail(err.response?.data?.detail)); }
+  }
+
+  async function addMemory(e) {
+    e.preventDefault();
+    if (newFact.trim().length < 4) { toast.error("Write a short fact first"); return; }
+    try {
+      const r = await axios.post(`${API}/memory`, { fact: newFact.trim() }, { withCredentials: true });
+      setMemories((m) => [r.data, ...m]);
+      setNewFact("");
+      toast.success("Luchii will remember that");
+    } catch (err) { toast.error(formatApiErrorDetail(err.response?.data?.detail)); }
+  }
+
+  async function uploadVoiceSample(blob) {
+    setRecState("uploading");
+    try {
+      const fd = new FormData();
+      fd.append("file", blob, "sample.webm");
+      const r = await axios.post(`${API}/voice/clone`, fd, { withCredentials: true });
+      setVoiceClone((v) => ({ ...(v || {}), has_sample: true, cloning_status: r.data.cloning_status }));
+      toast.success(`Voice sample saved (${r.data.duration_sec}s) — Luchii can now speak in your voice`);
+    } catch (err) {
+      toast.error(formatApiErrorDetail(err.response?.data?.detail) || "Upload failed");
+    } finally { setRecState("idle"); }
+  }
+
+  async function toggleVoiceRecord() {
+    if (recState === "recording") {
+      recRef.rec?.stop();
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const rec = new MediaRecorder(stream, { mimeType: "audio/webm" });
+      const chunks = [];
+      rec.ondataavailable = (e) => chunks.push(e.data);
+      rec.onstop = () => {
+        clearTimeout(recRef.timer);
+        stream.getTracks().forEach((t) => t.stop());
+        uploadVoiceSample(new Blob(chunks, { type: "audio/webm" }));
+      };
+      rec.start();
+      recRef.rec = rec;
+      recRef.timer = setTimeout(() => { if (rec.state !== "inactive") rec.stop(); }, 15000);
+      setRecState("recording");
+      toast.info("Recording — read a few sentences naturally (up to 15s)");
+    } catch { toast.error("Microphone access denied"); }
+  }
+
+  async function deleteVoiceSample() {
+    try {
+      await axios.delete(`${API}/voice/clone`, { withCredentials: true });
+      setVoiceClone((v) => ({ ...(v || {}), has_sample: false }));
+      toast.success("Cloned voice removed");
+    } catch { toast.error("Could not remove"); }
   }
 
   useEffect(() => { if (user) setName(user.name || ""); }, [user]);
@@ -202,18 +273,76 @@ export default function Profile() {
             </div>
 
             <div className="mt-6 rounded-2xl border border-lux-border bg-lux-surface p-7" data-testid="profile-memory-card">
-              <h2 className="font-display text-xl font-600 tracking-tight">Luchii's memory of you</h2>
-              <p className="mt-2 text-xs text-lux-text2">Facts Luchii has learned from your conversations. She uses them to personalize replies — delete any you don't want kept.</p>
+              <h2 className="font-display text-xl font-600 tracking-tight">Memory Manager</h2>
+              <p className="mt-2 text-xs text-lux-text2">Everything Luchii remembers about you. Add, edit or delete any fact — she uses them to personalize every reply.</p>
+              <form onSubmit={addMemory} className="mt-4 flex gap-2">
+                <input value={newFact} onChange={(e) => setNewFact(e.target.value)} placeholder="Teach Luchii a fact about you…"
+                  data-testid="memory-add-input"
+                  className="flex-1 rounded-xl border border-lux-border bg-lux-bg px-4 py-2.5 text-sm text-lux-text outline-none focus:border-lux-accent" />
+                <button type="submit" data-testid="memory-add-btn" aria-label="Add memory"
+                  className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-lux-text text-lux-bg transition-transform hover:-translate-y-0.5">
+                  <Plus size={16} />
+                </button>
+              </form>
               <div className="mt-4 space-y-2">
                 {memories.length === 0 && <p className="text-sm text-lux-text2" data-testid="profile-memory-empty">Nothing remembered yet — just keep chatting.</p>}
                 {memories.map((m) => (
                   <div key={m.id} className="flex items-start justify-between gap-3 rounded-xl border border-lux-border bg-lux-bg px-4 py-3" data-testid={`memory-${m.id}`}>
-                    <p className="text-sm text-lux-text2">{m.fact}</p>
-                    <button onClick={() => forget(m.id)} aria-label="Forget" data-testid={`memory-forget-${m.id}`}
-                      className="shrink-0 font-mono text-[10px] uppercase text-lux-text2 hover:text-red-400">forget</button>
+                    {editId === m.id ? (
+                      <form className="flex flex-1 gap-2" onSubmit={(e) => { e.preventDefault(); saveMemory(m.id); }}>
+                        <input value={editText} onChange={(e) => setEditText(e.target.value)} autoFocus
+                          data-testid={`memory-edit-input-${m.id}`}
+                          className="flex-1 rounded-lg border border-lux-accent bg-lux-surface px-3 py-1.5 text-sm text-lux-text outline-none" />
+                        <button type="submit" data-testid={`memory-save-${m.id}`} className="font-mono text-[10px] uppercase text-lux-accent">save</button>
+                        <button type="button" onClick={() => setEditId(null)} className="font-mono text-[10px] uppercase text-lux-text2">cancel</button>
+                      </form>
+                    ) : (
+                      <>
+                        <p className="text-sm text-lux-text2">{m.fact}</p>
+                        <span className="flex shrink-0 items-center gap-3">
+                          <button onClick={() => { setEditId(m.id); setEditText(m.fact); }} aria-label="Edit" data-testid={`memory-edit-${m.id}`}
+                            className="text-lux-text2 hover:text-lux-accent"><Pencil size={13} /></button>
+                          <button onClick={() => forget(m.id)} aria-label="Forget" data-testid={`memory-forget-${m.id}`}
+                            className="font-mono text-[10px] uppercase text-lux-text2 hover:text-red-400">forget</button>
+                        </span>
+                      </>
+                    )}
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-lux-border bg-lux-surface p-7" data-testid="profile-voice-clone-card">
+              <h2 className="flex items-center gap-2 font-display text-xl font-600 tracking-tight"><AudioWaveform size={18} className="text-lux-accent" /> My Sovereign Voice</h2>
+              <p className="mt-2 text-xs text-lux-text2">
+                Record a short sample (5-15 seconds of natural speech) and Luchii will answer in your own cloned voice —
+                built entirely on Frasberg sovereign infrastructure. Pick "My Voice" in the chat voice gallery once saved.
+              </p>
+              {voiceClone?.has_sample && (
+                <p className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-lux-accent/50 px-3 py-1 font-mono text-[10px] uppercase tracking-wide text-lux-accent" data-testid="voice-clone-active">
+                  <Check size={11} /> Cloned voice active
+                </p>
+              )}
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <button onClick={toggleVoiceRecord} disabled={recState === "uploading"} data-testid="voice-clone-record-btn"
+                  className={`inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-600 transition-transform hover:-translate-y-0.5 disabled:opacity-50 ${
+                    recState === "recording" ? "border border-red-500 text-red-500" : "bg-lux-text text-lux-bg"
+                  }`}>
+                  {recState === "uploading" ? <Loader2 size={15} className="animate-spin" /> : recState === "recording" ? <Square size={14} /> : <Mic size={15} />}
+                  {recState === "uploading" ? "Saving…" : recState === "recording" ? "Stop & save" : voiceClone?.has_sample ? "Re-record sample" : "Record my voice"}
+                </button>
+                {voiceClone?.has_sample && (
+                  <button onClick={deleteVoiceSample} data-testid="voice-clone-delete-btn"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-5 py-3 text-xs text-lux-text2 transition-colors hover:border-red-400 hover:text-red-400">
+                    <Trash2 size={13} /> Remove
+                  </button>
+                )}
+              </div>
+              {voiceClone && voiceClone.cloning_status !== "ready" && (
+                <p className="mt-3 font-mono text-[10px] uppercase tracking-wide text-lux-text2" data-testid="voice-clone-engine-status">
+                  Cloning engine: {voiceClone.cloning_status === "loading" ? "warming up…" : voiceClone.cloning_status}
+                </p>
+              )}
             </div>
 
             {user.role === "admin" && (
