@@ -152,8 +152,8 @@ export default function Court() {
           <h1 className="mt-6 font-display text-4xl font-700 tracking-tighter sm:text-5xl">AI Court World</h1>
           <p className="mx-auto mt-4 max-w-xl text-lux-text2">
             Bring a case before the Judge. AI Court World weighs both sides through the
-            Guardian Mesh — balance, harmony, integrity — and returns a ruling. The AI
-            World Court will then deliver a full ruling.
+            Guardian Mesh — balance, harmony, integrity — and returns a ruling. AI Court
+            World will then deliver a full ruling.
           </p>
         </div>
 

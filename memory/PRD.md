@@ -255,3 +255,27 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
   chat-header-title testid, embed logging).
 - NOTE deployment: requirements.txt contains +cpu torch wheels; espeak-ng + ffmpeg are system deps.
   Production deploy (frasberg.com) is LIVE.
+
+## Implemented — Memory Manager, Voice Cloning, Nav & Renames (2026-06-27)
+- Memory Manager (/profile): add (POST /api/memory), inline edit (PUT), delete facts; re-embeds on edit.
+  Validation 4-300 chars inclusive.
+- Voice Cloning: XTTS-v2 self-hosted. POST /api/voice/clone (webm/wav sample, converted via PyAV to
+  22.05k mono wav in /app/backend/voice_samples/{user_id}.wav), GET status, DELETE. speak voice="custom"
+  → engine "frasberg-sovereign-clone"; falls back to VITS with note "clone_warming" while XTTS loads.
+  Profile "My Sovereign Voice" card records 15s sample; VoicePicker shows "My Voice" when sample exists.
+- Navbar (desktop): professional layout — Models, AI Court World, Developers + "Explore" dropdown
+  (Benchmarks/Realms/Mythos/API/AI Models/Luchii Code/Constitution & Laws/Brand/About).
+- Renames: "The AI World Court" → "AI Court World" sitewide (frontend + backend KB, incl. multi-line
+  Court.jsx occurrence); law doc titles stripped of "Luchii" prefix (AGI Safety Constitution v2, etc.);
+  /luchii-code h1 "Luchii Code", overline "Luchii Coder", page header brand stays "Luchii";
+  nav item "Luchii" → "Luchii Code".
+- Talk discoverability: labeled "Talk" pill in chat composer (starts Live Voice); welcome message
+  explains Talk/mic/type. Header live-voice icon removed.
+- Self-healing system deps: _ensure_system_deps() apt-installs espeak-ng + ffmpeg when missing (pod
+  recycles wipe apt layer); speak()/clone_speak() retry engine load once via _try_recover when
+  "unavailable". torchcodec reinstalled as CPU build (was CUDA — libnvrtc error).
+- Quickstart snippets show https://frasberg.com/api/v1/chat only.
+- Tested: iteration_11 — backend 16/16, frontend 95% → all reported issues fixed (Court.jsx wrap-around
+  text, memory bound off-by-one, TTS self-heal, clone_warming note). Engines all ready.
+- DEPLOYMENT NOTE: espeak-ng + ffmpeg are apt deps; runtime self-heal handles preview. XTTS ~2GB,
+  whisper large-v3 ~3GB — production container needs ≥8GB RAM for full sovereign voice stack.

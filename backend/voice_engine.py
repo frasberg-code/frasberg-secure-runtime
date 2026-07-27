@@ -139,6 +139,8 @@ async def transcribe(raw: bytes, suffix: str):
 
 async def clone_speak(text: str, speaker_wav: str):
     if _state.get("xtts") != "ready":
+        if _state["xtts"] == "unavailable":
+            _try_recover("xtts", _load_xtts)
         return None
 
     def run():
@@ -180,8 +182,24 @@ def _encode_wav(wav, sr: int) -> str:
     return base64.b64encode(buf.getvalue()).decode("utf-8")
 
 
+_recovering = threading.Lock()
+
+
+def _try_recover(component: str, loader):
+    if _recovering.acquire(blocking=False):
+        def run():
+            try:
+                _ensure_system_deps()
+                loader()
+            finally:
+                _recovering.release()
+        threading.Thread(target=run, daemon=True).start()
+
+
 async def speak(text: str, tone=None, voice=None):
     if _state["tts"] != "ready":
+        if _state["tts"] == "unavailable":
+            _try_recover("tts", _load_tts)
         return None
     if voice and voice in VOICE_IDS:
         speaker = voice

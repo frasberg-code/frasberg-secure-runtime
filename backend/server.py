@@ -650,6 +650,9 @@ async def voice_speak(req: SpeakRequest, user: dict = Depends(auth_module.get_cu
                 audio = await voice_engine.clone_speak(text[:600], str(sample))
                 if audio:
                     return {"audio_base64": audio, "mime": "audio/wav", "engine": "frasberg-sovereign-clone"}
+                audio = await voice_engine.speak(text, req.tone, None)
+                if audio:
+                    return {"audio_base64": audio, "mime": "audio/wav", "engine": "frasberg-sovereign", "note": "clone_warming"}
         audio = await voice_engine.speak(text, req.tone, req.voice)
         if audio:
             return {"audio_base64": audio, "mime": "audio/wav", "engine": "frasberg-sovereign"}
@@ -686,7 +689,7 @@ class MemoryBody(BaseModel):
 @api_router.put("/memory/{memory_id}")
 async def update_memory(memory_id: str, body: MemoryBody, user: dict = Depends(auth_module.get_current_user)):
     fact = body.fact.strip()
-    if not 3 < len(fact) < 300:
+    if not 3 < len(fact) <= 300:
         raise HTTPException(status_code=400, detail="Fact must be 4-300 characters")
     emb = await memory_vault.embed(fact)
     update = {"fact": fact, "updated_at": datetime.now(timezone.utc).isoformat()}
@@ -705,7 +708,7 @@ class MemoryCreate(BaseModel):
 @api_router.post("/memory")
 async def create_memory(body: MemoryCreate, user: dict = Depends(auth_module.get_current_user)):
     fact = body.fact.strip()
-    if not 3 < len(fact) < 300:
+    if not 3 < len(fact) <= 300:
         raise HTTPException(status_code=400, detail="Fact must be 4-300 characters")
     emb = await memory_vault.embed(fact)
     doc = {"id": str(uuid.uuid4()), "user_id": user["id"], "fact": fact,
