@@ -279,3 +279,37 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
   text, memory bound off-by-one, TTS self-heal, clone_warming note). Engines all ready.
 - DEPLOYMENT NOTE: espeak-ng + ffmpeg are apt deps; runtime self-heal handles preview. XTTS ~2GB,
   whisper large-v3 ~3GB — production container needs ≥8GB RAM for full sovereign voice stack.
+
+## Implemented — PACER Paywall, Builders, QR, Mobile Chat, UI batch (2026-08-01 fork)
+- PACER-style doc paywall (backend/builder.py): GET /api/docs/entitlement, POST /api/docs/unlock —
+  Pro/admin free; free users need doc_credits (users.doc_credits). PayPal plans doc-single $1 (1 dl)
+  + doc-pack $5 (10 dl) added to UPGRADE_PLANS; capture credits doc_credits to user. Re-download of
+  owned doc is free (doc_purchases). Court/Laws downloads now certified **PDFs** (jspdf, lib/docPdf.js)
+  not txt. DocPaywallModal (upgrade CTA + PayPal buttons) on /court + /laws; guests → /auth.
+- Luchii Website Builder (/website-builder) + Game Builder (/game-builder): pages/Builder.jsx,
+  backend/builder.py — REAL Claude generation streamed via SSE into iframe preview; quota free 5/day,
+  pro 30/day (429 → Pro modal); projects CRUD; publish Pro-gated (402) → public at GET /api/p/{slug};
+  custom domain attach Pro-gated (MOCK DNS records). Links in navbar Explore + mobile + footer.
+- /pay Cash App step now renders scannable QR code (qrcode.react, pay_url) + cashtag pill.
+- Chat mobile: full-screen edge-to-edge frame, hideable header (chat-hide-header-btn / floating
+  chat-show-header-btn), ChatDemo mobileFull/headerHidden props.
+- Chat robustness: /api/chat frontend retries once on failure + surfaces backend error detail;
+  partial stream never overwritten by error message.
+- Removed: "Take a screenshot" attach option, chat suggestion prompt chips (user demand).
+- Ecosystem marquee: Slack removed (corrupted); Frasberg AI + Luchii logos added inline, slow
+  counterclockwise spin (.spin-slow 8s reverse). Spin removed from page headers (dizzy complaint);
+  EditorialMarquee reverted to text-only.
+- Footer: Docs column + Luchii Website Builder / Game Builder; tagline "Luchii is not the next
+  version. It is the next era. Built by Frasberg."; copyright "FRASBERG INC" links /about.
+- Court page constitution replaced with 3 verbatim groups (Court Constitution w/ Global articles,
+  Hyperstructure Safety Constitution, Global Governance Constitution) — bullet lists.
+- Light theme contrast: --lux-text #14181b, --lux-text-2 #212529 (near-black per user demand).
+- Profile "My Sovereign Voice" → "My Voice".
+- Tested: backend pytest tests/test_builder_docs.py 21/21; frontend iteration_13.json — all pass
+  after fixing missing hideHeader useState in Chat.jsx (crash); chat mobile flows self-verified.
+- NOTE: builder generation ~55s for small sites (real LLM); domain DNS is MOCKED.
+
+## Backlog (updated 2026-08-01)
+- P2: Real DNS verification for builder custom domains.
+- P2: Builder generation progress heartbeat copy after 30s.
+- P2: Voice engine warm-pool for prod deploys.

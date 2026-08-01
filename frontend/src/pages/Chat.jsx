@@ -19,6 +19,7 @@ export default function Chat() {
   const [selected, setSelected] = useState(null); // null = latest, "new" = fresh
   const [showList, setShowList] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [hideHeader, setHideHeader] = useState(false);
 
   const loadSessions = useCallback(async () => {
     try {
