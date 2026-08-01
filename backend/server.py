@@ -998,6 +998,10 @@ PLANS = {
 UPGRADE_PLANS = {
     "luchii-pro": {"id": "luchii-pro", "name": "Luchii Pro", "price": "15.00", "kind": "upgrade",
                    "blurb": "200 images/day · priority Video Creator access · Pro badge"},
+    "doc-single": {"id": "doc-single", "name": "Court Document Download", "price": "1.00", "kind": "doc_credits",
+                   "doc_credits": 1, "blurb": "1 certified PDF download from the docket & laws library"},
+    "doc-pack": {"id": "doc-pack", "name": "Docket Access Pack", "price": "5.00", "kind": "doc_credits",
+                 "doc_credits": 10, "blurb": "10 certified PDF downloads from the docket & laws library"},
 }
 
 CASHAPP_TAG = os.environ.get("CASHAPP_TAG", "$jccnvja")
@@ -1194,7 +1198,7 @@ async def paypal_create_order(body: OrderCreate, request: Request):
     if not plan:
         raise HTTPException(status_code=400, detail="Unknown plan")
     ref_suffix = body.key_id or "none"
-    if plan.get("kind") == "upgrade":
+    if plan.get("kind") in ("upgrade", "doc_credits"):
         user = await auth_module.get_current_user(request)
         ref_suffix = user["id"]
     try:
@@ -1256,7 +1260,19 @@ async def paypal_capture_order(order_id: str, body: OrderCapture):
                 payer_email = payer_email or data["payer"]["email_address"]
             except Exception:
                 pass
-            if plan.get("kind") == "upgrade":
+            if plan.get("kind") == "doc_credits":
+                added = int(plan.get("doc_credits", 0))
+                if key_id:
+                    await db.users.update_one({"id": key_id}, {"$inc": {"doc_credits": added}})
+                credited = added
+                await db.purchases.insert_one({
+                    "id": str(uuid.uuid4()), "order_id": order_id, "plan": plan_id,
+                    "kind": "doc_credits", "doc_credits": added, "user_id": key_id, "status": status,
+                    "email": payer_email,
+                    "ts": datetime.now(timezone.utc).isoformat(),
+                })
+                receipt = await _send_receipt(payer_email, {**plan, "credits": added}, order_id)
+            elif plan.get("kind") == "upgrade":
                 if key_id:
                     await db.users.update_one({"id": key_id}, {"$set": {"plan": "pro"}})
                     upgraded = True
@@ -1286,7 +1302,10 @@ async def paypal_capture_order(order_id: str, body: OrderCapture):
         raise HTTPException(status_code=502, detail="PayPal is unavailable")
 
 
+import builder as builder_module
+
 api_router.include_router(auth_module.router)
+api_router.include_router(builder_module.router)
 app.include_router(api_router)
 
 app.add_middleware(

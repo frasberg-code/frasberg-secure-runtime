@@ -1,42 +1,68 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Moon, Sun, ArrowLeft, Scale, Download, ChevronDown, Search, X } from "lucide-react";
+import { toast } from "sonner";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
 import Starfield from "../components/site/Starfield";
 import Footer from "../components/site/Footer";
 import Seo from "../components/site/Seo";
+import DocPaywallModal from "../components/site/DocPaywallModal";
+import { generateLegalPdf } from "../lib/docPdf";
 import { LAW_DOCUMENTS, LAW_CATEGORIES } from "../data/laws";
 
+const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+
 function downloadDoc(d) {
-  const line = "\u2500".repeat(58);
-  const text = [
-    "FRASBERG, INC.  \u2014  THE AI WORLD COURT",
-    line,
-    "",
-    d.title.toUpperCase(),
-    "",
-    line,
-    "",
-    d.content,
-    "",
-    line,
-    "\u00A9 2003-2026 FRASBERG, INC.  \u2022  All rights reserved.",
-    "This document is proprietary to Frasberg, Inc.",
-  ].join("\r\n");
-  const blob = new Blob(["\uFEFF" + text], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${d.id}.txt`;
-  a.click();
-  URL.revokeObjectURL(url);
+  generateLegalPdf({
+    heading: "FRASBERG, INC. — THE AI WORLD COURT",
+    subheading: "CONSTITUTION & LAWS LIBRARY · OFFICIAL PUBLICATION",
+    metaLines: [`DOCUMENT ID: ${d.id.toUpperCase()}`, `CATEGORY: ${d.category || ""}`],
+    title: d.title,
+    body: d.content,
+    footerLines: [
+      "© 2003-2026 FRASBERG, INC. • All rights reserved.",
+      "This document is proprietary to Frasberg, Inc. Certified copy issued via the Laws library.",
+    ],
+    filename: `${d.id}.pdf`,
+  });
 }
 
 export default function Laws() {
   const { theme, toggle } = useTheme();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [open, setOpen] = useState("agi-constitution-v2");
   const [q, setQ] = useState("");
+  const [paywallDoc, setPaywallDoc] = useState(null);
+
+  async function requestDownload(d) {
+    if (!user) {
+      toast.info("Sign in to download certified documents");
+      navigate("/auth?mode=login&next=%2Flaws");
+      return;
+    }
+    try {
+      const res = await fetch(`${API}/docs/unlock`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+        body: JSON.stringify({ doc_id: d.id, kind: "law", title: d.title }),
+      });
+      if (res.ok) {
+        const resp = await res.json();
+        downloadDoc(d);
+        toast.success(resp.free ? "Certified PDF downloaded — free with Pro" : resp.already_owned ? "Certified PDF downloaded — already purchased" : `Certified PDF downloaded — ${resp.remaining} credit${resp.remaining === 1 ? "" : "s"} left`);
+      } else if (res.status === 402) {
+        setPaywallDoc(d);
+      } else if (res.status === 401) {
+        navigate("/auth?mode=login&next=%2Flaws");
+      } else {
+        toast.error("Download failed — please try again");
+      }
+    } catch {
+      toast.error("Download failed — please try again");
+    }
+  }
   const query = q.trim().toLowerCase();
   const matches = (d) => !query || d.title.toLowerCase().includes(query) || d.content.toLowerCase().includes(query);
   const citation = (d) => {
@@ -130,11 +156,11 @@ export default function Laws() {
                       <div className="border-t border-lux-border p-5">
                         <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-lux-text2">{d.content}</pre>
                         <button
-                          onClick={() => downloadDoc(d)}
+                          onClick={() => requestDownload(d)}
                           data-testid={`law-download-${d.id}`}
                           className="mt-5 inline-flex items-center gap-2 rounded-full border border-lux-border px-5 py-2 text-xs text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text"
                         >
-                          <Download size={13} /> Download document
+                          <Download size={13} /> Download certified PDF · $1 (free with Pro)
                         </button>
                       </div>
                     )}
@@ -154,6 +180,12 @@ export default function Laws() {
         </div>
       </section>
 
+      <DocPaywallModal
+        open={!!paywallDoc}
+        onClose={() => setPaywallDoc(null)}
+        docTitle={paywallDoc?.title}
+        onPurchased={() => { const d = paywallDoc; setPaywallDoc(null); requestDownload(d); }}
+      />
       <Footer />
     </main>
   );

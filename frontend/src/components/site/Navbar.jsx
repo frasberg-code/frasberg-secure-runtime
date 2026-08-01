@@ -18,6 +18,8 @@ const EXPLORE = [
   { label: "Mythos", href: "#mythos" },
   { label: "API", href: "#api" },
   { label: "AI Models", to: "/ai-models" },
+  { label: "Website Builder", to: "/website-builder" },
+  { label: "Game Builder", to: "/game-builder" },
   { label: "Luchii Code", to: "/luchii-code" },
   { label: "Constitution & Laws", to: "/laws" },
   { label: "Brand", to: "/brand" },
@@ -170,6 +172,8 @@ export default function Navbar() {
             <Link to="/about" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">About</Link>
             <Link to="/ai-models" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">AI Models</Link>
             <Link to="/luchii-code" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Luchii Code</Link>
+            <Link to="/website-builder" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Website Builder</Link>
+            <Link to="/game-builder" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Game Builder</Link>
             {user ? (
               <button onClick={() => { logout(); setOpen(false); }} className="py-2 text-left text-sm text-lux-text2 hover:text-lux-text">Sign out</button>
             ) : (

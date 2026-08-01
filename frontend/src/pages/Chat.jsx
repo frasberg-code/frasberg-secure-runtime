@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Moon, Sun, ArrowLeft, Loader2, LogOut, Plus, MessagesSquare, User, MoreVertical } from "lucide-react";
+import { Moon, Sun, ArrowLeft, Loader2, LogOut, Plus, MessagesSquare, User, MoreVertical, ChevronUp, ChevronDown } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import Starfield from "../components/site/Starfield";
@@ -34,7 +34,7 @@ export default function Chat() {
       <Seo title="Luchii Chat — Talk to the Constellation" description="Chat with Luchii, Frasberg's multi-tier intelligence. Unlimited free conversation, image creation, voice and attachments for signed-in users." />
       <div className="pointer-events-none absolute inset-0 opacity-40"><Starfield /></div>
 
-      <header className="glass sticky top-0 z-40 border-b border-lux-border">
+      <header className={`glass sticky top-0 z-40 border-b border-lux-border ${hideHeader ? "hidden sm:block" : ""}`}>
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/" className="flex items-center gap-2.5" data-testid="chat-home-link">
             <ArrowLeft size={16} className="text-lux-text2" />
@@ -68,6 +68,14 @@ export default function Chat() {
                 {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
               </button>
             </div>
+            <button
+              onClick={() => setHideHeader(true)}
+              aria-label="Hide header"
+              data-testid="chat-hide-header-btn"
+              className="grid h-10 w-10 place-items-center rounded-full border border-lux-border text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent sm:hidden"
+            >
+              <ChevronUp size={16} />
+            </button>
             <div className="relative sm:hidden">
               <button
                 onClick={() => setMenuOpen((o) => !o)}
@@ -103,7 +111,18 @@ export default function Chat() {
         </div>
       </header>
 
-      <div className="relative mx-auto flex w-full max-w-6xl flex-1 gap-6 px-3 py-4 sm:px-8 sm:py-8">
+      {hideHeader && (
+        <button
+          onClick={() => setHideHeader(false)}
+          aria-label="Show header"
+          data-testid="chat-show-header-btn"
+          className="glass fixed right-3 top-3 z-50 grid h-9 w-9 place-items-center rounded-full border border-lux-border text-lux-text2 sm:hidden"
+        >
+          <ChevronDown size={15} />
+        </button>
+      )}
+
+      <div className="relative mx-auto flex w-full max-w-6xl flex-1 gap-0 px-0 py-0 sm:gap-6 sm:px-8 sm:py-8">
         {user === undefined ? (
           <div className="grid flex-1 place-items-center">
             <Loader2 size={26} className="animate-spin text-lux-accent" />
@@ -111,7 +130,7 @@ export default function Chat() {
         ) : (
           <>
             {/* Sessions sidebar */}
-            <aside className={`${showList ? "block" : "hidden"} w-full shrink-0 lg:block lg:w-64`} data-testid="chat-sessions-sidebar">
+            <aside className={`${showList ? "block" : "hidden"} w-full shrink-0 max-sm:px-4 max-sm:py-4 lg:block lg:w-64`} data-testid="chat-sessions-sidebar">
               {user ? (
                 <>
                   <button
@@ -165,6 +184,8 @@ export default function Chat() {
                 key={(selected || "latest") + (agent || "")}
                 initialModel={initialModel}
                 tall
+                mobileFull
+                headerHidden={hideHeader}
                 loadHistory
                 sessionOverride={selected}
                 onNewMessage={loadSessions}

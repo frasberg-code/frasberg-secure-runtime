@@ -9,8 +9,7 @@ export default function Footer() {
               <span className="font-display text-lg font-700 tracking-tight text-lux-text">Luchii</span>
             </div>
             <p className="mt-4 text-sm text-lux-text2">
-              Luchii v12 is not the next version. It is the next era. Built by
-              Frasberg.
+              Luchii is not the next version. It is the next era. Built by Frasberg.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-10 font-mono text-sm sm:grid-cols-3">
@@ -31,6 +30,8 @@ export default function Footer() {
                 <li><a href="/chat" className="hover:text-lux-text" data-testid="footer-luchii-chat-link">Luchii Chat</a></li>
                 <li><a href="/luchii-code" className="hover:text-lux-text" data-testid="footer-luchii-code-link">Luchii Code</a></li>
                 <li><a href="/luchii-code#agents" className="hover:text-lux-text" data-testid="footer-coding-agents-link">Luchii Coding Agents</a></li>
+                <li><a href="/website-builder" className="hover:text-lux-text" data-testid="footer-website-builder-link">Luchii Website Builder</a></li>
+                <li><a href="/game-builder" className="hover:text-lux-text" data-testid="footer-game-builder-link">Luchii Game Builder</a></li>
                 <li><a href="/#benchmarks" className="hover:text-lux-text">Benchmarks</a></li>
                 <li><a href="/#safety" className="hover:text-lux-text">Safety</a></li>
                 <li><a href="/court" className="hover:text-lux-text">AI World Court</a></li>
@@ -49,7 +50,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-lux-border pt-8 font-mono text-xs text-lux-text2 sm:flex-row sm:items-center">
-          <span>Copyright © 2003-2026 FRASBERG, INC.</span>
+          <span>Copyright © 2003-2026 <a href="/about" className="hover:text-lux-text" data-testid="footer-copyright-company-link">FRASBERG INC</a>.</span>
           <span>Constellation Layer · Continuum L12</span>
         </div>
       </div>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, ShieldCheck, Check, Copy, ExternalLink, Loader2, Lock, BadgeCheck } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 import { useAuth } from "../context/AuthContext";
 import Seo from "../components/site/Seo";
@@ -100,12 +101,23 @@ export default function Pay() {
               <p className="mt-2 text-sm text-white/60">Pay <span className="text-white">{cfg.payee}</span> and include your reference so we can match it instantly.</p>
 
               <div className="mt-6 space-y-3">
-                <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-black/30 px-5 py-4">
-                  <div>
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-white/40">Cashtag</p>
-                    <p className="mt-1 font-display text-2xl font-700 text-[#00d64f]" data-testid="pay-cashtag">{cfg.cashtag}</p>
+                <div className="rounded-2xl border border-white/10 bg-black/30 p-5">
+                  <div className="flex flex-col items-center gap-5 sm:flex-row">
+                    <div className="shrink-0 rounded-2xl bg-white p-3" data-testid="pay-qr">
+                      <QRCodeSVG value={intent.pay_url} size={160} bgColor="#ffffff" fgColor="#000000" level="M" />
+                    </div>
+                    <div className="text-center sm:text-left">
+                      <p className="font-mono text-[10px] uppercase tracking-widest text-white/40">Scan with Cash App</p>
+                      <p className="mt-2 text-sm leading-relaxed text-white/70">
+                        Open Cash App, tap the scan icon and point your camera at this code —
+                        the ${intent.amount} payment to <span className="text-white">{cfg.payee}</span> loads instantly.
+                      </p>
+                      <button onClick={() => copy(cfg.cashtag)} data-testid="pay-cashtag"
+                        className="mt-3 inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 font-mono text-sm font-700 text-[#00d64f] transition-colors hover:border-[#00d64f]">
+                        {cfg.cashtag} <Copy size={13} />
+                      </button>
+                    </div>
                   </div>
-                  <button onClick={() => copy(cfg.cashtag)} className="rounded-full border border-white/15 p-2.5 text-white/60 hover:text-white" aria-label="Copy cashtag"><Copy size={15} /></button>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-2xl border border-white/10 bg-black/30 px-5 py-4">

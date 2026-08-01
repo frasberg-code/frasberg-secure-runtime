@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Loader2, Paperclip, Mic, Square, Volume2, VolumeX, X, ImageIcon, ArrowUp, ArrowDown, Plus, Upload, Clapperboard, MonitorUp, AudioLines, SlidersHorizontal } from "lucide-react";
+import { Loader2, Paperclip, Mic, Square, Volume2, VolumeX, X, ImageIcon, ArrowUp, ArrowDown, Plus, Upload, Clapperboard, AudioLines, SlidersHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
 import { useLiveVoice } from "../../hooks/useLiveVoice";
 import { VoicePicker } from "./VoicePicker";
-import { CHAT_SUGGESTIONS, MODELS } from "../../data/content";
+import { MODELS } from "../../data/content";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -105,7 +105,7 @@ function EngineBadge() {
   );
 }
 
-export default function ChatDemo({ compact = false, initialModel = "luchii-70b", tall = false, loadHistory = false, sessionOverride = null, onNewMessage = null, agent = null }) {
+export default function ChatDemo({ compact = false, initialModel = "luchii-70b", tall = false, loadHistory = false, sessionOverride = null, onNewMessage = null, agent = null, mobileFull = false, headerHidden = false }) {
   const { user } = useAuth();
   const [messages, setMessages] = useState([
     { role: "assistant", content: "I am Luchii — Ask me anything." },
@@ -201,26 +201,6 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
     reader.readAsDataURL(file);
     e.target.value = "";
   }, []);
-
-  async function captureScreenshot() {
-    try {
-      const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-      const video = document.createElement("video");
-      video.srcObject = stream;
-      await video.play();
-      await new Promise((r) => setTimeout(r, 350));
-      const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas.getContext("2d").drawImage(video, 0, 0);
-      stream.getTracks().forEach((t) => t.stop());
-      const b64 = canvas.toDataURL("image/png").split(",")[1];
-      setAttachment({ name: "screenshot.png", kind: "image", data: b64 });
-      toast.success("Screenshot attached — ask Luchii about it");
-    } catch {
-      toast.error("Screenshot cancelled");
-    }
-  }
 
   function guardCreator(action) {
     if (locked) {
@@ -397,7 +377,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
     setMessages((m) => [...m, { role: "user", content: userLabel }, { role: "assistant", content: "" }]);
 
     let acc = "";
-    try {
+    const doRequest = async () => {
       const res = await fetch(`${API}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -413,7 +393,11 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
           attachment_name: att?.name || null,
         }),
       });
-      if (!res.ok || !res.body) throw new Error("network");
+      if (!res.ok || !res.body) {
+        let detail = "";
+        try { detail = (await res.json()).detail || ""; } catch {}
+        throw new Error(typeof detail === "string" && detail ? detail : "network");
+      }
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
@@ -439,10 +423,24 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
           if (data.session_id) setSession(data.session_id);
         }
       }
-    } catch {
+    };
+    try {
+      try {
+        await doRequest();
+      } catch (e1) {
+        if (acc) throw e1;
+        await new Promise((r) => setTimeout(r, 1200));
+        await doRequest();
+      }
+    } catch (err) {
       setMessages((m) => {
         const next = [...m];
-        next[next.length - 1] = { role: "assistant", content: "Connection to the mesh failed. Please try again." };
+        if (!next[next.length - 1].content) {
+          next[next.length - 1] = {
+            role: "assistant",
+            content: err?.message && err.message !== "network" ? err.message : "Connection to the mesh failed. Please try again.",
+          };
+        }
         return next;
       });
     } finally {
@@ -491,7 +489,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
 
   return (
     <div
-      className={`glass relative flex flex-col overflow-hidden rounded-3xl shadow-2xl ${tall ? "h-[calc(100dvh-150px)] min-h-[480px] sm:h-[calc(100vh-180px)] sm:min-h-[520px]" : "h-full"}`}
+      className={`glass relative flex flex-col overflow-hidden shadow-2xl ${mobileFull ? "rounded-none max-sm:!border-x-0 sm:rounded-3xl" : "rounded-3xl"} ${tall ? `${mobileFull ? (headerHidden ? "h-[100dvh]" : "h-[calc(100dvh-74px)]") : "h-[calc(100dvh-150px)] min-h-[480px]"} sm:h-[calc(100vh-180px)] sm:min-h-[520px]` : "h-full"}`}
       data-testid="chat-demo"
     >
       <div className="flex items-center justify-between gap-2 border-b border-lux-border px-3 py-3 sm:px-4">
@@ -640,21 +638,6 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
         ))}
       </div>
 
-      {messages.length <= 1 && (
-        <div className="flex flex-wrap gap-2 px-4 pb-2">
-          {CHAT_SUGGESTIONS.slice(0, compact ? 2 : 4).map((s) => (
-            <button
-              key={s}
-              onClick={() => send(s)}
-              className="rounded-full border border-lux-border px-3 py-1.5 text-xs text-lux-text2 transition-colors duration-200 hover:border-lux-accent hover:text-lux-text"
-              data-testid="chat-suggestion"
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      )}
-
       {(attachment || composerMode) && (
         <div className="flex flex-wrap items-center gap-2 px-4 pb-1">
           {composerMode && (
@@ -703,7 +686,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
                 type="button"
                 onClick={() => setAttachMenu((o) => !o)}
                 disabled={busy}
-                aria-label="Add — upload, create image or video, take a screenshot"
+                aria-label="Add — upload a file, create image or video"
                 data-testid="chat-attach-btn"
                 className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border transition-all duration-200 disabled:opacity-40 ${
                   attachMenu ? "rotate-45 border-lux-accent text-lux-accent" : "border-lux-border text-lux-text2 hover:border-lux-accent hover:text-lux-accent"
@@ -736,14 +719,6 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
                     className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-lux-text transition-colors hover:bg-lux-surface2"
                   >
                     <Clapperboard size={15} className="text-lux-text2" /> Video Creator
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => guardCreator(captureScreenshot)}
-                    data-testid="attach-screenshot-btn"
-                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-lux-text transition-colors hover:bg-lux-surface2"
-                  >
-                    <MonitorUp size={15} className="text-lux-text2" /> Take a screenshot
                   </button>
                 </div>
               )}

@@ -18,6 +18,7 @@ import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import Laws from "./pages/Laws";
 import Pay from "./pages/Pay";
+import Builder from "./pages/Builder";
 
 function ScrollToHash() {
   const { pathname, hash } = useLocation();
@@ -56,6 +57,8 @@ function App() {
               <Route path="/admin" element={<Admin />} />
               <Route path="/laws" element={<Laws />} />
               <Route path="/pay" element={<Pay />} />
+              <Route path="/website-builder" element={<Builder type="website" />} />
+              <Route path="/game-builder" element={<Builder type="game" />} />
             </Routes>
           </BrowserRouter>
           <Toaster position="top-center" richColors />

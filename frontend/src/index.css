@@ -9,8 +9,8 @@
   --lux-bg: #f8f9fa;
   --lux-surface: #ffffff;
   --lux-surface-2: #e9ecef;
-  --lux-text: #1e2327;
-  --lux-text-2: #6c757d;
+  --lux-text: #14181b;
+  --lux-text-2: #212529;
   --lux-border: #dee2e6;
   --lux-accent: #007AFF;
   --lux-accent-2: #5e5ce6;
@@ -146,6 +146,13 @@ body {
   transition: opacity 0.4s ease;
 }
 .tracing-card:hover::before { opacity: 0.6; }
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+.spin-slow {
+  animation: spin-slow 8s linear infinite reverse;
+}
 
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }

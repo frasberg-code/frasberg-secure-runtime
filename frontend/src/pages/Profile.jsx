@@ -317,7 +317,7 @@ export default function Profile() {
             </div>
 
             <div className="mt-6 rounded-2xl border border-lux-border bg-lux-surface p-7" data-testid="profile-voice-clone-card">
-              <h2 className="flex items-center gap-2 font-display text-xl font-600 tracking-tight"><AudioWaveform size={18} className="text-lux-accent" /> My Sovereign Voice</h2>
+              <h2 className="flex items-center gap-2 font-display text-xl font-600 tracking-tight"><AudioWaveform size={18} className="text-lux-accent" /> My Voice</h2>
               <p className="mt-2 text-xs text-lux-text2">
                 Record a short sample (5-15 seconds of natural speech) and Luchii will answer in your own cloned voice —
                 built entirely on Frasberg sovereign infrastructure. Pick "My Voice" in the chat voice gallery once saved.

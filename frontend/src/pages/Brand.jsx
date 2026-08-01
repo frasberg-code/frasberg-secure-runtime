@@ -52,7 +52,11 @@ export default function Brand() {
       </header>
 
       <div className="mx-auto max-w-5xl px-5 py-16 sm:px-8">
-        <h1 className="font-display text-4xl font-700 tracking-tighter sm:text-5xl">Brand Kit</h1>
+        <div className="flex items-center gap-4" data-testid="brand-spin-logos">
+          <img src="/luchii-logo.webp" alt="Luchii" className="h-14 w-14 rounded-full ring-1 ring-lux-accent/40" />
+          <img src="/frasberg-ai-logo.jpg" alt="Frasberg AI" className="h-14 w-14 rounded-full ring-1 ring-lux-accent/40" />
+        </div>
+        <h1 className="mt-6 font-display text-4xl font-700 tracking-tighter sm:text-5xl">Brand Kit</h1>
         <p className="mt-3 max-w-xl text-lux-text2">The Luchii by Frasberg identity system — logo, palette, and type.</p>
 
         {/* Logo */}

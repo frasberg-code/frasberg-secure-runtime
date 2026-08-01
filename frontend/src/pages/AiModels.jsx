@@ -52,9 +52,8 @@ export default function AiModels() {
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="text-center"
         >
-          <span className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-lux-accent/50 text-lux-accent" style={{ boxShadow: "0 0 44px var(--lux-glow)" }}>
-            <Cpu size={26} />
-          </span>
+          <img src="/luchii-logo.webp" alt="Luchii" data-testid="aimodels-spin-logo"
+            className="mx-auto h-16 w-16 rounded-full ring-1 ring-lux-accent/50" style={{ boxShadow: "0 0 44px var(--lux-glow)" }} />
           <h1 className="mt-6 font-display text-4xl font-700 tracking-tighter sm:text-5xl">Luchii Chat Models</h1>
           <p className="mx-auto mt-4 max-w-xl text-lux-text2">
             Frasberg's family of proprietary multimodal foundation models. Pick a

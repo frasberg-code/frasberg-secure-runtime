@@ -3,6 +3,8 @@ import Reveal, { Overline } from "./Reveal";
 import { ECOSYSTEM } from "../../data/content";
 
 const LOGOS = [
+  { name: "Frasberg AI", slug: "frasberg-ai", src: "/frasberg-ai-logo.jpg", spin: true },
+  { name: "Luchii", slug: "luchii", src: "/luchii-logo.webp", spin: true },
   { name: "Python", slug: "python" },
   { name: "JavaScript", slug: "javascript" },
   { name: "Go", slug: "go" },
@@ -13,7 +15,6 @@ const LOGOS = [
   { name: "LangChain", slug: "langchain" },
   { name: "Hugging Face", slug: "huggingface" },
   { name: "GitHub", slug: "github" },
-  { name: "Slack", slug: "slack" },
   { name: "Discord", slug: "discord" },
   { name: "Zapier", slug: "zapier" },
   { name: "Jupyter", slug: "jupyter" },
@@ -69,11 +70,13 @@ export default function Ecosystem() {
                   data-testid={`integration-logo-${l.slug}`}
                 >
                   <img
-                    src={`https://cdn.simpleicons.org/${l.slug}/8B949E`}
+                    src={l.src || `https://cdn.simpleicons.org/${l.slug}/8B949E`}
                     alt={l.name}
                     loading="lazy"
-                    className="h-7 w-7 grayscale transition-all duration-300 group-hover:grayscale-0"
-                    style={{ filter: "grayscale(1)" }}
+                    className={l.spin
+                      ? "spin-slow h-7 w-7 rounded-full ring-1 ring-lux-accent/40"
+                      : "h-7 w-7 grayscale transition-all duration-300 group-hover:grayscale-0"}
+                    style={l.spin ? undefined : { filter: "grayscale(1)" }}
                   />
                   <span className="font-mono text-xs text-lux-text2 transition-colors duration-300 group-hover:text-lux-text">{l.name}</span>
                 </div>

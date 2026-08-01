@@ -1,0 +1,62 @@
+{
+  "summary": "Frontend-only test of Luchii batch: PDF paywall on /laws, Court constitution, /pay QR, /website-builder + /game-builder, /profile 'My Voice', landing marquee & footer. All target features PASS except /chat which crashes entirely due to missing state declaration (ReferenceError: hideHeader is not defined). Chat mobile edge-to-edge, header hide/show, attach menu contents and guest streamed reply could not be verified because the page never renders.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Chat (/app/frontend/src/pages/Chat.jsx)",
+        "issue": "ReferenceError: hideHeader is not defined — the component uses `hideHeader` (lines 37, 72, 114, 116, 188) and `setHideHeader` (lines 72, 116) but never declares the state. The whole /chat route crashes to a blank page (React error boundary logs 'An error occurred in the <Chat> component'). Reproduces on both desktop (1440x900) and mobile (390x844), guest and logged-in.",
+        "selector": "[data-testid=\"chat-page\"]",
+        "priority": "CRITICAL",
+        "fix_hint": "Add `const [hideHeader, setHideHeader] = useState(false);` alongside the other useState hooks (near line 21)."
+      },
+      {
+        "component": "Laws page (law-toggle-* buttons)",
+        "issue": "Playwright click (even with force=true) does NOT fire the React onClick handler on `law-toggle-*` buttons — chevron does not rotate and the download button doesn't appear. Only synthetic `element.click()` via page.evaluate consistently expands the item. Real user clicks in a headed browser worked visually, so this is likely a hydration/event-timing quirk (button rendered before React attaches its synthetic listener), but it does hurt automated testability. Recommend adding an explicit onClick guard or using onPointerDown, or ensure hydration completes before interactive DOM is exposed.",
+        "selector": "[data-testid^=\"law-toggle-\"]",
+        "priority": "LOW"
+      }
+    ],
+    "integration_issues": [
+      {
+        "flow": "Chat send / streamed reply (guest & authenticated)",
+        "issue": "Blocked — cannot test because /chat page crashes on mount (see hideHeader bug).",
+        "affected_selectors": ["[data-testid=\"chat-input\"]", "[data-testid=\"chat-send\"]", "[data-testid=\"chat-messages\"]", "[data-testid=\"chat-attach-btn\"]", "[data-testid=\"chat-attach-menu\"]", "[data-testid=\"chat-hide-header-btn\"]", "[data-testid=\"chat-show-header-btn\"]"]
+      }
+    ],
+    "design_issues": []
+  },
+  "verified_pass": {
+    "landing_marquee": "integration-logo-marquee contains Frasberg AI + Luchii logos, no Slack",
+    "landing_footer": "Docs column includes 'Luchii Website Builder' and 'Luchii Game Builder'; tagline 'Luchii is not the next version. It is the next era. Built by Frasberg.'; copyright 'FRASBERG INC' links to /about (footer-copyright-company-link href=/about)",
+    "court_constitution": "3 groups rendered (constitution-group-0/1/2). Article I — Global Sovereignty present with bullet 'Hyperstructure sovereignty'. Headings 'Hyperstructure Safety Constitution' and 'Global Governance Constitution' present. No filings currently exist so filing-download-* gating not exercised (docket-empty state).",
+    "laws_button_label": "Expanded law download button text is exactly 'Download certified PDF · $1 (free with Pro)'",
+    "laws_guest": "Clicking download while unauthenticated redirects to /auth?mode=login&next=%2Flaws",
+    "laws_free_user_paywall": "Fresh registered free user sees doc-paywall-modal with 'Upgrade to Luchii Pro' link (data-testid=doc-paywall-upgrade) and both doc-paywall-plan-doc-single and doc-paywall-plan-doc-pack chips (PayPal was NOT executed).",
+    "laws_admin_pdf": "Admin click triggers a browser download of 'agi-constitution-v2.pdf' (.pdf filename confirmed via page.expect_download).",
+    "pay_admin": "pay-start-btn advances to step 2; pay-qr contains an <svg>; pay-cashtag='$jccnvja'; pay-reference contains LCH-XXXXXXXX. (No PayPal payment executed.)",
+    "profile_voice_rename": "/profile shows 'My Voice' and does NOT contain 'My Sovereign Voice'",
+    "game_builder_page": "/game-builder loads with 'Luchii Game Builder' title and builder-switch-link href=/website-builder",
+    "website_builder_signed_out": "builder-signin-card is visible to guests at /website-builder",
+    "website_builder_generate_publish_serve": "Admin generation of 'a one page site for a bakery' produced real streamed HTML (~11k chars, ~55s), builder-preview-iframe renders. builder-projects-list has entries. builder-publish-btn produces builder-live-link at https://ai-gateway-demo.preview.emergentagent.com/api/p/a-one-page-site-for-a-ba-7c4910 which returns HTTP 200 with 10,533-byte body.",
+    "chat_no_suggestion_chips": "0 elements with data-testid starting 'chat-suggestion' found on /chat (even though the page itself crashed, the absence of any such element in the rendered DOM is consistent with the code review — no suggestion chip JSX in ChatDemo.jsx)."
+  },
+  "test_report_links": [],
+  "action_items": [
+    "CRITICAL: Add `const [hideHeader, setHideHeader] = useState(false);` (and any related init) in /app/frontend/src/pages/Chat.jsx near line 21. This one-line fix will unblock every /chat feature (mobile full-screen, header hide/show, attach menu, message send/stream retry/error-detail).",
+    "Optional: harden law-toggle-* buttons so Playwright's real click reliably fires the React handler (currently only element.click() via JS works). Consider adding useEffect-based lazy hydration or switching to onPointerDown."
+  ],
+  "critical_code_review_comments": [
+    "Chat.jsx uses `hideHeader`/`setHideHeader` without a useState declaration — a runtime ReferenceError that took down the entire /chat page. This should have been caught by ESLint 'no-undef'; consider enabling / re-running lint in CI.",
+    "Laws.jsx: each row's expanded content is unmounted when collapsed; the download button is not present in the DOM until expansion. This is fine functionally but combined with the click-event issue makes automation flaky. Consider always rendering the download button (hidden via CSS) or exposing a data-testid on the wrapper to indicate expanded state.",
+    "Builder generation took ~55s for a tiny 1-page prompt; consider setting a client-side minimum SSE flush/heartbeat and a friendlier progress copy after 30s to reduce user anxiety on slow generations."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request; prior 21/21)", "frontend": "13/14 verified features PASS (chat features blocked by 1 critical bug)"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026!; fresh free users registered as TEST_free*@example.com / FreePass2026!",
+  "seed_data_creation": "Registered 3 TEST_free*@example.com free users during paywall verification. Created 3 builder projects under admin (visible in builder-projects-list) including a published 'a one page site for a bakery' at slug a-one-page-site-for-a-ba-7c4910.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "After main agent adds the missing useState for hideHeader in Chat.jsx, retest ONLY these items at 390x844: (a) chat frame is edge-to-edge (chat-demo bounding rect: left<=4 and viewport.width - right<=4), (b) chat-hide-header-btn hides header and floating chat-show-header-btn restores it, (c) chat-attach-btn menu contains 'Upload a file', 'Image Creator', 'Video Creator' and NO 'Take a screenshot', (d) send a message as guest and confirm a real streamed reply appears without 'Connection to the mesh failed'. NOTE for /laws automation: Playwright's real click on law-toggle-* does not trigger React's onClick; use `page.evaluate(() => document.querySelector('[data-testid=\"law-toggle-<id>\"]').click())` (with retry) — or fix the underlying hydration/event issue.",
+  "rca_of_the_issue": "Chat.jsx crash: developer added a header hide/show feature (buttons at lines 71-78 and 114-123, and a conditional on line 37) but forgot to declare the useState pair. React throws ReferenceError on first render, error boundary catches it, page renders blank. Fix = one line: `const [hideHeader, setHideHeader] = useState(false);` after line 21."
+}

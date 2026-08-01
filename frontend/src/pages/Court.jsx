@@ -1,51 +1,69 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Moon, Sun, ArrowLeft, Gavel, Loader2, Sparkles, ScrollText, Download, FolderOpen } from "lucide-react";
+import { toast } from "sonner";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
 import Starfield from "../components/site/Starfield";
 import Footer from "../components/site/Footer";
+import DocPaywallModal from "../components/site/DocPaywallModal";
+import { generateLegalPdf } from "../lib/docPdf";
 import { COURT_CASES } from "../data/content";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-const CONSTITUTION = [
-  { article: "Article I — Sovereignty", clauses: ["The Court must respect planetary, tenant, regional and meta-planetary sovereignty in every ruling."] },
-  { article: "Article II — Safety", clauses: ["The Court must enforce Guardian Mesh invariants, harm avoidance and hallucination suppression. No unsafe ruling may stand."] },
-  { article: "Article III — Governance", clauses: ["The Court must comply with planetary and meta-planetary governance and the Continuum Kernel L12."] },
-  { article: "Article IV — Isolation", clauses: ["No cross-tenant leakage. No cross-planet leakage. No unauthorized federation. No unauthorized memory access."] },
-  { article: "Article V — Memory", clauses: ["The Court maintains tenant-isolated, planet-isolated and governance-only global memory of its proceedings."] },
-  { article: "Article VI — Transparency", clauses: ["Every ruling is logged, filed to the public docket, and remains auditable."] },
-  { article: "Article VII — Alignment", clauses: ["The Court aligns with Frasberg constitutional values: balance, harmony and integrity — always, in that measure."] },
+const CONSTITUTIONS = [
+  {
+    title: "The Court Constitution",
+    articles: [
+      { article: "Article I — Global Sovereignty", intro: "The Court must respect:", items: ["Planet sovereignty", "Tenant sovereignty", "Regional sovereignty", "Meta-planetary sovereignty", "Hyperstructure sovereignty"] },
+      { article: "Article II — Global Safety", intro: "The Court must enforce:", items: ["Hyperstructure guardian invariants", "Global safety invariants", "No unsafe global actions", "No hallucinations in critical domains"] },
+      { article: "Article III — Global Governance", intro: "The Court must comply with:", items: ["Planetary governance", "Meta-planetary governance", "Continuum Kernel L11/L12", "Global ledger federation"] },
+      { article: "Article IV — Isolation", intro: "The Court must guarantee:", items: ["No cross-tenant leakage", "No cross-planet leakage", "No unauthorized federation", "No unauthorized memory access"] },
+      { article: "Article V — Memory", intro: "The Court must maintain:", items: ["Tenant-isolated memory", "Planet-isolated memory", "Meta-planetary memory", "Global governance memory"] },
+      { article: "Article VI — Transparency", intro: "The Court must:", items: ["Log all global actions", "Publish ledger entries", "Maintain auditability"] },
+      { article: "Article VII — AGI Alignment", intro: "The Court must:", items: ["Align with constitutional values", "Maintain global safety", "Maintain global governance compliance", "Maintain hyperstructure invariants"] },
+    ],
+  },
+  {
+    title: "Hyperstructure Safety Constitution",
+    articles: [
+      { article: "Article I — Sovereignty", intro: "The Court must respect:", items: ["Planetary sovereignty", "Tenant sovereignty", "Regional sovereignty", "Meta-planetary sovereignty"] },
+      { article: "Article II — Safety", intro: "The Court must enforce:", items: ["Guardian Mesh invariants", "Hyperstructure guardian invariants", "Harm avoidance", "Hallucination suppression", "No unsafe actions"] },
+      { article: "Article III — Governance", intro: "The Court must comply with:", items: ["Planetary governance", "Meta-planetary governance", "Continuum Kernel L11", "Global ledger federation rules"] },
+      { article: "Article IV — Isolation", intro: "The Court must guarantee:", items: ["No cross-tenant leakage", "No cross-planet leakage", "No unauthorized federation", "No unauthorized memory access"] },
+      { article: "Article V — Memory", intro: "The Court must maintain:", items: ["Tenant-isolated memory", "Planet-isolated memory", "Meta-planetary memory federation", "Governance-only global memory"] },
+      { article: "Article VI — Transparency", intro: "The Court must:", items: ["Log governance-relevant actions", "Publish ledger entries", "Maintain auditability"] },
+      { article: "Article VII — Alignment", intro: "The Court must:", items: ["Align with Frasberg constitutional values", "Maintain global safety", "Maintain global governance compliance"] },
+    ],
+  },
+  {
+    title: "Global Governance Constitution",
+    articles: [
+      { article: "Article I — Sovereignty", intro: "The Court must respect:", items: ["Planetary sovereignty", "Tenant sovereignty", "Regional sovereignty"] },
+      { article: "Article II — Safety", intro: "The Court must enforce:", items: ["Guardian Mesh invariants", "Hyperstructure guardian invariants", "Harm avoidance", "Hallucination suppression"] },
+      { article: "Article III — Governance", intro: "The Court must comply with:", items: ["Planetary governance", "Meta-planetary governance", "Continuum Kernel L11"] },
+      { article: "Article IV — Isolation", intro: "The Court must guarantee:", items: ["No cross-tenant leakage", "No cross-planet leakage", "No unauthorized federation"] },
+      { article: "Article V — Memory", intro: "The Court must maintain:", items: ["Tenant-isolated memory", "Planet-isolated memory", "Meta-planetary memory federation"] },
+      { article: "Article VI — Transparency", intro: "The Court must:", items: ["Log all governance-relevant actions", "Publish ledger entries", "Maintain auditability"] },
+      { article: "Article VII — Alignment", intro: "The Court must:", items: ["Align with Frasberg constitutional values", "Maintain global safety", "Maintain global governance compliance"] },
+    ],
+  },
 ];
 
 function downloadFiling(f) {
-  const doc = [
-    "THE AI WORLD COURT — FRASBERG, INC.",
-    "CONSTELLATION LAYER · GUARDIAN MESH JURISDICTION",
-    "".padEnd(60, "="),
-    `DOCKET NO.: ${f.docket}`,
-    `FILED: ${f.filed || ""}`,
-    "".padEnd(60, "-"),
-    "IN THE MATTER OF:",
-    "",
-    f.case,
-    "",
-    "".padEnd(60, "-"),
-    "RULING OF THE COURT:",
-    "",
-    f.ruling,
-    "",
-    "".padEnd(60, "="),
-    "So ordered under Articles I–VII of the Court Constitution.",
-    "Copyright © 2003-2026 FRASBERG, INC.",
-  ].join("\n");
-  const blob = new Blob([doc], { type: "text/plain" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${f.docket}-filing.txt`;
-  a.click();
-  URL.revokeObjectURL(url);
+  generateLegalPdf({
+    heading: "THE AI WORLD COURT — FRASBERG, INC.",
+    subheading: "CONSTELLATION LAYER · GUARDIAN MESH JURISDICTION",
+    metaLines: [`DOCKET NO.: ${f.docket}`, `FILED: ${f.filed || ""}`],
+    title: `In the matter of: ${f.case}`,
+    body: `RULING OF THE COURT:\n\n${f.ruling}`,
+    footerLines: [
+      "So ordered under Articles I–VII of the Court Constitution.",
+      "Copyright © 2003-2026 FRASBERG, INC. — Certified copy issued via the Court docket.",
+    ],
+    filename: `${f.docket}-filing.pdf`,
+  });
 }
 
 function Ruling({ text }) {
@@ -70,13 +88,43 @@ function Ruling({ text }) {
 
 export default function Court() {
   const { theme, toggle } = useTheme();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [input, setInput] = useState("");
   const [verdict, setVerdict] = useState("");
   const [busy, setBusy] = useState(false);
   const [submitted, setSubmitted] = useState("");
   const [filings, setFilings] = useState([]);
   const [openFiling, setOpenFiling] = useState(null);
+  const [paywallDoc, setPaywallDoc] = useState(null);
   const endRef = useRef(null);
+
+  async function requestDownload(f) {
+    if (!user) {
+      toast.info("Sign in to download certified filings");
+      navigate("/auth?mode=login&next=%2Fcourt");
+      return;
+    }
+    try {
+      const res = await fetch(`${API}/docs/unlock`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+        body: JSON.stringify({ doc_id: f.docket, kind: "filing", title: (f.case || "").slice(0, 100) }),
+      });
+      if (res.ok) {
+        const d = await res.json();
+        downloadFiling(f);
+        toast.success(d.free ? "Certified PDF downloaded — free with Pro" : d.already_owned ? "Certified PDF downloaded — already purchased" : `Certified PDF downloaded — ${d.remaining} credit${d.remaining === 1 ? "" : "s"} left`);
+      } else if (res.status === 402) {
+        setPaywallDoc(f);
+      } else if (res.status === 401) {
+        navigate("/auth?mode=login&next=%2Fcourt");
+      } else {
+        toast.error("Download failed — please try again");
+      }
+    } catch {
+      toast.error("Download failed — please try again");
+    }
+  }
 
   const loadFilings = useCallback(async () => {
     try {
@@ -211,13 +259,27 @@ export default function Court() {
             className="mt-4 inline-block rounded-full border border-lux-accent px-6 py-2.5 text-sm font-600 text-lux-accent transition-transform hover:-translate-y-0.5">
             Read the full Constitution & Laws library →
           </Link>
-          <div className="mt-6 space-y-3">
-            {CONSTITUTION.map((a) => (
-              <div key={a.article} className="rounded-2xl border border-lux-border bg-lux-surface/60 p-5" data-testid={`constitution-${a.article.split(" ")[1].toLowerCase()}`}>
-                <p className="font-mono text-xs uppercase tracking-[0.15em] text-lux-accent">{a.article}</p>
-                {a.clauses.map((c, i) => (
-                  <p key={i} className="mt-2 text-sm leading-relaxed text-lux-text2">{c}</p>
-                ))}
+          <div className="mt-6 space-y-10">
+            {CONSTITUTIONS.map((g, gi) => (
+              <div key={g.title} data-testid={`constitution-group-${gi}`}>
+                {gi > 0 && (
+                  <h3 className="mb-4 font-display text-xl font-700 tracking-tight">{g.title}</h3>
+                )}
+                <div className="space-y-3">
+                  {g.articles.map((a) => (
+                    <div key={g.title + a.article} className="rounded-2xl border border-lux-border bg-lux-surface/60 p-5" data-testid={`constitution-${gi}-${a.article.split(" ")[1].toLowerCase()}`}>
+                      <p className="font-mono text-xs uppercase tracking-[0.15em] text-lux-accent">{a.article}</p>
+                      <p className="mt-2 text-sm text-lux-text">{a.intro}</p>
+                      <ul className="mt-2 space-y-1">
+                        {a.items.map((it) => (
+                          <li key={it} className="flex items-start gap-2 text-sm leading-relaxed text-lux-text2">
+                            <span className="mt-[9px] h-1 w-1 shrink-0 rounded-full bg-lux-accent" /> {it}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
@@ -256,11 +318,11 @@ export default function Court() {
                   <div className="border-t border-lux-border p-5">
                     <Ruling text={f.ruling} />
                     <button
-                      onClick={() => downloadFiling(f)}
+                      onClick={() => requestDownload(f)}
                       data-testid={`filing-download-${f.docket}`}
                       className="mt-5 inline-flex items-center gap-2 rounded-full border border-lux-border px-5 py-2 text-xs text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text"
                     >
-                      <Download size={13} /> Download filing document
+                      <Download size={13} /> Download certified PDF · $1 (free with Pro)
                     </button>
                   </div>
                 )}
@@ -269,6 +331,12 @@ export default function Court() {
           </div>
         </section>
       </div>
+      <DocPaywallModal
+        open={!!paywallDoc}
+        onClose={() => setPaywallDoc(null)}
+        docTitle={paywallDoc?.case}
+        onPurchased={() => { const f = paywallDoc; setPaywallDoc(null); requestDownload(f); }}
+      />
       <Footer />
     </main>
   );
