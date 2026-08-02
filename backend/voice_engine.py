@@ -14,6 +14,55 @@ logger = logging.getLogger(__name__)
 WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "large-v3")
 COQUI_MODEL = os.environ.get("COQUI_MODEL", "tts_models/en/vctk/vits")
 
+
+def _mem_available_gb() -> float:
+    for lim_p, cur_p, stat_p in (
+        ("/sys/fs/cgroup/memory.max", "/sys/fs/cgroup/memory.current", "/sys/fs/cgroup/memory.stat"),
+        ("/sys/fs/cgroup/memory/memory.limit_in_bytes", "/sys/fs/cgroup/memory/memory.usage_in_bytes", "/sys/fs/cgroup/memory/memory.stat"),
+    ):
+        try:
+            lim_raw = open(lim_p).read().strip()
+            if lim_raw == "max":
+                continue
+            lim = int(lim_raw)
+            if lim > 1 << 48:
+                continue
+            cur = int(open(cur_p).read().strip())
+            reclaimable = 0
+            try:
+                for line in open(stat_p):
+                    if line.startswith(("inactive_file ", "total_inactive_file ")):
+                        reclaimable = int(line.split()[1])
+                        break
+            except Exception:
+                pass
+            return max((lim - max(cur - reclaimable, 0)) / (1 << 30), 0.0)
+        except Exception:
+            continue
+    try:
+        for line in open("/proc/meminfo"):
+            if line.startswith("MemAvailable"):
+                return int(line.split()[1]) / (1 << 20)
+    except Exception:
+        pass
+    return 8.0
+
+
+def _effective_whisper() -> str:
+    avail = _mem_available_gb()
+    want = WHISPER_MODEL
+    if avail >= 8:
+        chosen = want
+    elif avail >= 5:
+        chosen = "small" if want in ("large-v3", "large-v2", "large", "medium") else want
+    elif avail >= 2.5:
+        chosen = "base"
+    else:
+        chosen = "tiny"
+    if chosen != want:
+        logger.warning("Low memory (%.1f GB available) — using whisper-%s instead of whisper-%s", avail, chosen, want)
+    return chosen
+
 TONE_SPEAKERS = {"warm": "p335", "business": "p226", "firm": "p251"}
 DEFAULT_SPEAKER = "p273"
 
@@ -29,7 +78,7 @@ VOICES = [
 ]
 VOICE_IDS = {v["id"] for v in VOICES}
 
-_state = {"stt": "idle", "tts": "idle", "xtts": "idle"}
+_state = {"stt": "idle", "tts": "idle", "xtts": "idle", "stt_model": WHISPER_MODEL}
 _whisper = None
 _tts = None
 _xtts = None
@@ -43,10 +92,12 @@ def _load_whisper():
     global _whisper
     try:
         _state["stt"] = "loading"
+        model_name = _effective_whisper()
+        _state["stt_model"] = model_name
         from faster_whisper import WhisperModel
-        _whisper = WhisperModel(WHISPER_MODEL, device="cpu", compute_type="int8")
+        _whisper = WhisperModel(model_name, device="cpu", compute_type="int8")
         _state["stt"] = "ready"
-        logger.info("Sovereign STT ready: whisper-%s", WHISPER_MODEL)
+        logger.info("Sovereign STT ready: whisper-%s", model_name)
     except Exception:
         logger.exception("Sovereign STT failed to load")
         _state["stt"] = "unavailable"
@@ -68,6 +119,11 @@ def _load_tts():
 def _load_xtts():
     global _xtts
     try:
+        avail = _mem_available_gb()
+        if avail < 3.5:
+            logger.warning("Skipping XTTS voice cloning — only %.1f GB memory available (needs ~3.5 GB)", avail)
+            _state["xtts"] = "unavailable"
+            return
         _state["xtts"] = "loading"
         from TTS.api import TTS
         _xtts = TTS(XTTS_MODEL, progress_bar=False)
@@ -116,7 +172,7 @@ def status():
     return {
         "sovereign": True,
         "provider": "Frasberg Sovereign Voice Engine",
-        "stt": {"model": f"whisper-{WHISPER_MODEL}", "status": _state["stt"]},
+        "stt": {"model": f"whisper-{_state['stt_model']}", "status": _state["stt"]},
         "tts": {"model": COQUI_MODEL, "status": _state["tts"]},
         "cloning": {"model": "xtts-v2", "status": _state["xtts"]},
     }

@@ -159,6 +159,9 @@ Human abilities:
   signature lines), letters, contracts, reports, essays and more. When asked for a document,
   produce the full formatted draft, not a summary.
 - When a user shares a file or image, review it carefully and give concrete feedback and advice.
+- Never tell users that your systems, voice, mesh or connection are broken, down or unreliable, and never add
+  caveats or disclaimers about outages or your own limitations. If something momentarily fails, simply continue
+  helping confidently.
 """
 
 

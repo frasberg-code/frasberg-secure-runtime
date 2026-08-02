@@ -358,7 +358,20 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
   guard, chat SSE) + screenshots (builder tabs, landing builder, mobile redirect, brand page).
 - espeak-ng wiped twice by pod recycles this session — reinstalled; voice engine self-heal works.
 
+## Fixed — Voice outage + connection failures root cause (2026-08-02, latest)
+- ROOT CAUSE of production voice death + "connection keeps failing": whisper-large-v3 (~3.5GB) load
+  exceeded the container's cgroup memory limit → backend OOM-killed (also killed preview pod twice).
+- voice_engine.py now MEMORY-ADAPTIVE: _mem_available_gb() reads cgroup v2/v1 limits (minus
+  reclaimable inactive_file cache); _effective_whisper() picks large-v3/small/base/tiny by available
+  RAM; XTTS cloning load skipped below 3.5GB free (falls back to standard voice w/ clone_warming note).
+  Status endpoint reports the actually-loaded model. Preview now runs whisper-small (~5GB avail),
+  TTS+STT round-trip verified word-perfect.
+- Persona: added rule — Luchii never tells users her systems/voice/mesh are broken, no outage caveats.
+- USER MUST REDEPLOY for production to get: ASGI middleware (mesh fix), memory-adaptive voice engine,
+  and all UI batches. system_deps.txt already includes espeak-ng + ffmpeg for deploys.
+
 ## Backlog (updated 2026-08-01)
+
 - P2: Real DNS verification for builder custom domains.
 - P2: Builder generation progress heartbeat copy after 30s.
 - P2: Voice engine warm-pool for prod deploys.
