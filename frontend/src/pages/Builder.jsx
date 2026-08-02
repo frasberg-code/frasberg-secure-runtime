@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Moon, Sun, ArrowLeft, Loader2, Globe, Gamepad2, Rocket, Download, Trash2, ExternalLink, Sparkles, X, Link2, BadgeCheck, Share2, ShieldCheck } from "lucide-react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Moon, Sun, ArrowLeft, Loader2, Globe, Gamepad2, AppWindow, LayoutTemplate, Rocket, Download, Trash2, ExternalLink, Sparkles, X, Link2, BadgeCheck, Share2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
@@ -25,7 +25,28 @@ const COPY = {
     placeholder: "Describe the game you want… e.g. 'A neon space shooter where I dodge asteroids and collect stars'",
     examples: ["A snake game with a synthwave look", "A brick-breaker game with power-ups"],
   },
+  app: {
+    title: "Luchii App Builder",
+    Icon: AppWindow,
+    sub: "Describe any mobile app and Luchii builds a working version instantly — mobile-first, real state, real interactions, saved to your device. Free to try — upgrade to Luchii Pro to publish, attach your own domain and unlock more daily builds.",
+    placeholder: "Describe the mobile app you want… e.g. 'A budget tracker with categories, monthly totals and a spending chart'",
+    examples: ["A todo app with projects, due dates and dark mode", "A pomodoro focus timer with session history"],
+  },
+  landing: {
+    title: "Luchii Landing Page Builder",
+    Icon: LayoutTemplate,
+    sub: "Describe your product and Luchii builds a high-converting landing page instantly — hero, features, social proof and CTA. Free to try — upgrade to Luchii Pro to publish, attach your own domain and unlock more daily builds.",
+    placeholder: "Describe the landing page you want… e.g. 'A launch page for a smart water bottle called Hydra with pre-order CTA'",
+    examples: ["A waitlist landing page for an AI recipe app", "A launch page for a productivity course with pricing tiers"],
+  },
 };
+
+const BUILDER_TYPES = [
+  { id: "website", label: "Website", Icon: Globe },
+  { id: "app", label: "Mobile App", Icon: AppWindow },
+  { id: "game", label: "Game", Icon: Gamepad2 },
+  { id: "landing", label: "Landing Page", Icon: LayoutTemplate },
+];
 
 function ProGateModal({ open, onClose }) {
   if (!open) return null;
@@ -65,6 +86,8 @@ export default function Builder({ type = "website" }) {
   const [verifyBusy, setVerifyBusy] = useState(false);
   const [verifyChecks, setVerifyChecks] = useState(null);
   const htmlRef = useRef("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const remixDone = useRef(false);
 
   const loadProjects = useCallback(async () => {
     try {
@@ -94,6 +117,27 @@ export default function Builder({ type = "website" }) {
       }
     } catch {}
   }
+
+  useEffect(() => {
+    const slug = searchParams.get("remix");
+    if (!slug || !user || remixDone.current) return;
+    remixDone.current = true;
+    (async () => {
+      try {
+        const res = await fetch(`${API}/builder/remix`, {
+          method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+          body: JSON.stringify({ slug }),
+        });
+        if (!res.ok) throw new Error();
+        const d = await res.json();
+        await openProject({ id: d.id });
+        loadProjects();
+        toast.success(`"${d.title}" is loaded — describe a change to make it yours`);
+        setSearchParams({}, { replace: true });
+      } catch { toast.error("Could not remix this build"); }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, searchParams]);
 
   async function deleteProject(p, e) {
     e.stopPropagation();
@@ -233,10 +277,6 @@ export default function Builder({ type = "website" }) {
             <span className="font-display text-lg font-700 tracking-tight">{c.title}</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Link to={type === "website" ? "/game-builder" : "/website-builder"} data-testid="builder-switch-link"
-              className="hidden items-center gap-1.5 rounded-full border border-lux-border px-4 py-2 text-xs text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text sm:inline-flex">
-              {type === "website" ? <><Gamepad2 size={13} /> Game Builder</> : <><Globe size={13} /> Website Builder</>}
-            </Link>
             <button onClick={toggle} aria-label="Toggle theme" data-testid="builder-theme-toggle"
               className="grid h-10 w-10 place-items-center rounded-full border border-lux-border transition-colors hover:border-lux-accent hover:text-lux-accent">
               {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
@@ -250,6 +290,14 @@ export default function Builder({ type = "website" }) {
           <img src="/luchii-logo.webp" alt="Luchii" className="mx-auto h-16 w-16 rounded-full ring-1 ring-lux-accent/40" style={{ boxShadow: "0 0 44px var(--lux-glow)" }} />
           <h1 className="mt-6 font-display text-4xl font-700 tracking-tighter sm:text-5xl">{c.title}</h1>
           <p className="mx-auto mt-4 max-w-2xl text-lux-text2">{c.sub}</p>
+          <div className="mt-8 flex flex-wrap justify-center gap-2" data-testid="builder-tabs">
+            {BUILDER_TYPES.map((t) => (
+              <Link key={t.id} to={`/${t.id}-builder`} data-testid={`builder-tab-${t.id}`}
+                className={`inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm transition-colors ${t.id === type ? "border-lux-accent bg-lux-surface font-600 text-lux-text" : "border-lux-border text-lux-text2 hover:border-lux-accent/60 hover:text-lux-text"}`}>
+                <t.Icon size={14} /> {t.label}
+              </Link>
+            ))}
+          </div>
           {quota && (
             <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2" data-testid="builder-quota">
               {quota.used} / {quota.limit} builds used today {quota.pro ? "· Pro" : ""}
@@ -266,7 +314,7 @@ export default function Builder({ type = "website" }) {
                   className="flex w-full items-center justify-center gap-2 rounded-full bg-lux-text px-5 py-2.5 text-sm font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
                   <Sparkles size={15} /> New build
                 </button>
-                <p className="mt-6 px-1 font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">My {type === "website" ? "websites" : "games"}</p>
+                <p className="mt-6 px-1 font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">My {type === "website" ? "websites" : type === "game" ? "games" : type === "landing" ? "landing pages" : "apps"}</p>
                 <div className="mt-3 max-h-[55vh] space-y-1.5 overflow-y-auto pr-1" data-testid="builder-projects-list">
                   {projects.length === 0 && <p className="px-1 text-xs text-lux-text2">Nothing built yet — describe your first {type} above.</p>}
                   {projects.map((p) => (
@@ -288,7 +336,7 @@ export default function Builder({ type = "website" }) {
               <div className="rounded-2xl border border-lux-border bg-lux-surface p-6" data-testid="builder-signin-card">
                 <p className="font-display text-lg font-700 tracking-tight">Sign in to build</p>
                 <p className="mt-2 text-xs leading-relaxed text-lux-text2">
-                  Create a free account to generate {type === "website" ? "websites" : "games"} with Luchii, save your builds and publish them with Pro.
+                  Create a free account to build with Luchii, save your builds and publish them with Pro.
                 </p>
                 <Link to={`/auth?mode=login&next=%2F${type}-builder`} data-testid="builder-signin-cta"
                   className="mt-4 inline-block w-full rounded-full bg-lux-text px-5 py-2.5 text-center text-sm font-600 text-lux-bg transition-transform hover:-translate-y-0.5">

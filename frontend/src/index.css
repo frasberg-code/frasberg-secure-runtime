@@ -151,7 +151,7 @@ body {
   to { transform: rotate(360deg); }
 }
 .spin-slow {
-  animation: spin-slow 8s linear infinite reverse;
+  animation: spin-slow 2.5s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

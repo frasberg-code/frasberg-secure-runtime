@@ -331,6 +331,33 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
   (gallery grid w/ 3 live previews, play page counter 3 plays, downloads page w/ Pro badge + item).
 - User deployed to production at frasberg.com (2026-08-02). ASK preview vs production for new bugs.
 
+## Implemented — App/Landing Builders, Hub Tabs, Remix, Leaderboard, Curation, Receipts (2026-08-02, later)
+- Luchii App Builder (/app-builder, type "app", mobile-first prompt) + Landing Page Builder
+  (/landing-builder, type "landing"); /builder route alias. Builder page now has Emergent-style tabs:
+  Website / Mobile App / Game / Landing Page (data-testid builder-tab-*). Gallery tabs incl Apps +
+  Landing pages.
+- Build Remixing: POST /api/builder/remix {slug} copies a published build to the user; gallery cards
+  have Remix buttons → /{type}-builder?remix={slug}; Builder auto-remixes via searchParam.
+- Game Leaderboard: play endpoint tracks weekly_plays (week_key %G-W%V); GET /api/builder/leaderboard
+  → top-10 all-time + weekly spotlight; rendered on /gallery (games only, hidden excluded).
+- Admin Gallery Curation: GET /api/admin/builder + PATCH /api/admin/builder/{id} {featured, hidden};
+  Admin page section with Feature/Hide toggles; gallery sorts featured first, excludes hidden.
+- Email receipts: POST /api/docs/receipt (auth, ownership check) emails certified PDF attachment via
+  Resend; Court/Laws POST the client-generated PDF when unlock returns receipt_eligible.
+  **RESEND_API_KEY is EMPTY → receipts are silently skipped (sent:false). Need key from user.**
+- Chat "mesh failed" (production, 24h): root cause = deployed BaseHTTPMiddleware breaking streaming
+  behind Cloudflare. Fixed in preview with pure ASGI middleware (_CustomDomainASGI) + frontend retry.
+  USER MUST REDEPLOY. Preview chat SSE verified working repeatedly.
+- Mobile chat-first: frasberg.com on mobile (≤640px) redirects first visit to /chat
+  (sessionStorage luchii-home-seen); second visit shows homepage. Verified via screenshot tool.
+- Text fixes: About "Frasberg, Inc." → "Frasberg Inc."; laws.js "Luchii must" → "The Court must"
+  (21x); Brand Kit reworked: two big logo tiles (Luchii + "Frasberg") same color captions, icon pair
+  row removed, Frasberg PNG download added. Spin fixed to 2.5s clockwise (Emergent-like), only on
+  ecosystem marquee icons.
+- Verified: curl (leaderboard, admin curation feature/hide + gallery exclusion, remix copy, receipt
+  guard, chat SSE) + screenshots (builder tabs, landing builder, mobile redirect, brand page).
+- espeak-ng wiped twice by pod recycles this session — reinstalled; voice engine self-heal works.
+
 ## Backlog (updated 2026-08-01)
 - P2: Real DNS verification for builder custom domains.
 - P2: Builder generation progress heartbeat copy after 30s.

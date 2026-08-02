@@ -35,7 +35,13 @@ export default function Laws() {
       });
       if (res.ok) {
         const resp = await res.json();
-        downloadLawPdf(d);
+        const pdfDoc = downloadLawPdf(d);
+        if (resp.receipt_eligible && pdfDoc) {
+          fetch(`${API}/docs/receipt`, {
+            method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+            body: JSON.stringify({ doc_id: d.id, title: d.title, pdf_base64: pdfDoc.output("datauristring").split(",")[1] }),
+          }).catch(() => {});
+        }
         toast.success(resp.free ? "Certified PDF downloaded — free with Pro" : resp.already_owned ? "Certified PDF downloaded — already purchased" : `Certified PDF downloaded — ${resp.remaining} credit${resp.remaining === 1 ? "" : "s"} left`);
       } else if (res.status === 402) {
         setPaywallDoc(d);

@@ -62,6 +62,9 @@ function App() {
               <Route path="/pay" element={<Pay />} />
               <Route path="/website-builder" element={<Builder type="website" />} />
               <Route path="/game-builder" element={<Builder type="game" />} />
+              <Route path="/app-builder" element={<Builder type="app" />} />
+              <Route path="/landing-builder" element={<Builder type="landing" />} />
+              <Route path="/builder" element={<Builder type="website" />} />
               <Route path="/gallery" element={<Gallery />} />
               <Route path="/play/:slug" element={<PlayGame />} />
               <Route path="/downloads" element={<Downloads />} />

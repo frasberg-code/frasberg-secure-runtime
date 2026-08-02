@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, Navigate } from "react-router-dom";
 import axios from "axios";
-import { Moon, Sun, ArrowLeft, Loader2, Users, MessagesSquare, KeyRound, BookOpen, Gavel, Activity, Trash2, Plus, Pencil } from "lucide-react";
+import { Moon, Sun, ArrowLeft, Loader2, Users, MessagesSquare, KeyRound, BookOpen, Gavel, Activity, Trash2, Plus, Pencil, Star, EyeOff, Eye, Globe, Gamepad2, AppWindow } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth, formatApiErrorDetail } from "../context/AuthContext";
@@ -19,18 +19,20 @@ export default function Admin() {
   const [convos, setConvos] = useState([]);
   const [kb, setKb] = useState([]);
   const [payments, setPayments] = useState([]);
+  const [builds, setBuilds] = useState([]);
   const [editing, setEditing] = useState(null); // null | {id?, title, content, tags}
 
   const load = useCallback(async () => {
     try {
-      const [s, u, c, k, p] = await Promise.all([
+      const [s, u, c, k, p, b] = await Promise.all([
         axios.get(`${API}/admin/stats`, ax),
         axios.get(`${API}/admin/users`, ax),
         axios.get(`${API}/admin/conversations`, ax),
         axios.get(`${API}/admin/knowledge`, ax),
         axios.get(`${API}/admin/cashapp`, ax),
+        axios.get(`${API}/admin/builder`, ax),
       ]);
-      setStats(s.data); setUsers(u.data); setConvos(c.data); setKb(k.data); setPayments(p.data.payments || []);
+      setStats(s.data); setUsers(u.data); setConvos(c.data); setKb(k.data); setPayments(p.data.payments || []); setBuilds(b.data);
     } catch (err) {
       toast.error(formatApiErrorDetail(err.response?.data?.detail));
     }
@@ -41,6 +43,14 @@ export default function Admin() {
       await axios.post(`${API}/admin/cashapp/${reference}/${action}`, {}, ax);
       toast.success(action === "approve" ? "Payment approved — user upgraded to Pro" : "Payment rejected");
       load();
+    } catch (err) { toast.error(formatApiErrorDetail(err.response?.data?.detail)); }
+  }
+
+  async function curateBuild(id, patch) {
+    try {
+      await axios.patch(`${API}/admin/builder/${id}`, patch, ax);
+      setBuilds((bs) => bs.map((b) => (b.id === id ? { ...b, ...patch } : b)));
+      toast.success(patch.hidden === true ? "Build hidden from gallery" : patch.hidden === false ? "Build visible in gallery" : patch.featured ? "Build featured" : "Feature removed");
     } catch (err) { toast.error(formatApiErrorDetail(err.response?.data?.detail)); }
   }
 
@@ -187,6 +197,37 @@ export default function Admin() {
                             className="rounded-full border border-lux-border px-4 py-1.5 text-xs text-lux-text2 hover:border-red-400 hover:text-red-400">Reject</button>
                         </>
                       )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="mt-12">
+              <h2 className="font-display text-2xl font-700 tracking-tight">Builder gallery curation</h2>
+              <p className="mt-1 text-sm text-lux-text2">Feature the best builds or hide ones that shouldn't appear in the public gallery.</p>
+              <div className="mt-4 space-y-2" data-testid="admin-gallery">
+                {builds.length === 0 && <p className="text-sm text-lux-text2">No published builds yet.</p>}
+                {builds.map((b) => (
+                  <div key={b.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-lux-border bg-lux-surface/60 px-4 py-3" data-testid={`admin-build-${b.slug}`}>
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span className="text-lux-text2">{b.type === "game" ? <Gamepad2 size={15} /> : b.type === "app" ? <AppWindow size={15} /> : <Globe size={15} />}</span>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-600">{b.title}</p>
+                        <p className="mt-0.5 font-mono text-[10px] text-lux-text2">/{b.slug} · {b.plays || 0} plays{b.custom_domain ? ` · ${b.custom_domain}` : ""}</p>
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      {b.hidden && <span className="rounded-full border border-red-500 px-3 py-1 font-mono text-[10px] uppercase text-red-400">hidden</span>}
+                      {b.featured && !b.hidden && <span className="rounded-full border border-lux-accent px-3 py-1 font-mono text-[10px] uppercase text-lux-accent">featured</span>}
+                      <button onClick={() => curateBuild(b.id, { featured: !b.featured })} data-testid={`admin-build-feature-${b.slug}`}
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-xs ${b.featured ? "border-lux-accent text-lux-accent" : "border-lux-border text-lux-text2 hover:border-lux-accent hover:text-lux-text"}`}>
+                        <Star size={12} /> {b.featured ? "Unfeature" : "Feature"}
+                      </button>
+                      <button onClick={() => curateBuild(b.id, { hidden: !b.hidden })} data-testid={`admin-build-hide-${b.slug}`}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-1.5 text-xs text-lux-text2 hover:border-red-400 hover:text-red-400">
+                        {b.hidden ? <><Eye size={12} /> Show</> : <><EyeOff size={12} /> Hide</>}
+                      </button>
                     </div>
                   </div>
                 ))}

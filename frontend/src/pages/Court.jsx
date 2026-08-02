@@ -97,7 +97,13 @@ export default function Court() {
       });
       if (res.ok) {
         const d = await res.json();
-        downloadFilingPdf(f);
+        const pdfDoc = downloadFilingPdf(f);
+        if (d.receipt_eligible && pdfDoc) {
+          fetch(`${API}/docs/receipt`, {
+            method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+            body: JSON.stringify({ doc_id: f.docket, title: (f.case || "").slice(0, 100), pdf_base64: pdfDoc.output("datauristring").split(",")[1] }),
+          }).catch(() => {});
+        }
         toast.success(d.free ? "Certified PDF downloaded — free with Pro" : d.already_owned ? "Certified PDF downloaded — already purchased" : `Certified PDF downloaded — ${d.remaining} credit${d.remaining === 1 ? "" : "s"} left`);
       } else if (res.status === 402) {
         setPaywallDoc(f);

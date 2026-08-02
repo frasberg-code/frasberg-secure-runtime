@@ -31,6 +31,7 @@ export default function Footer() {
                 <li><a href="/luchii-code" className="hover:text-lux-text" data-testid="footer-luchii-code-link">Luchii Code</a></li>
                 <li><a href="/luchii-code#agents" className="hover:text-lux-text" data-testid="footer-coding-agents-link">Luchii Coding Agents</a></li>
                 <li><a href="/website-builder" className="hover:text-lux-text" data-testid="footer-website-builder-link">Luchii Website Builder</a></li>
+                <li><a href="/app-builder" className="hover:text-lux-text" data-testid="footer-app-builder-link">Luchii App Builder</a></li>
                 <li><a href="/game-builder" className="hover:text-lux-text" data-testid="footer-game-builder-link">Luchii Game Builder</a></li>
                 <li><a href="/#benchmarks" className="hover:text-lux-text">Benchmarks</a></li>
                 <li><a href="/#safety" className="hover:text-lux-text">Safety</a></li>

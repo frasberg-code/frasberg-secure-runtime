@@ -8,7 +8,7 @@ import Seo from "../components/site/Seo";
 import Reveal, { Overline } from "../components/site/Reveal";
 
 const INTRO = [
-  "Frasberg, Inc. is an American multinational technology company dedicated to advancing the future of artificial intelligence, intelligent computing, and digital transformation. Founded with the vision of making advanced technology accessible, practical, and beneficial for everyone, Frasberg develops innovative AI platforms, intelligent software, cloud technologies, and enterprise solutions that help organizations, governments, developers, creators, researchers, and individuals solve complex problems and unlock new opportunities.",
+  "Frasberg Inc. is an American multinational technology company dedicated to advancing the future of artificial intelligence, intelligent computing, and digital transformation. Founded with the vision of making advanced technology accessible, practical, and beneficial for everyone, Frasberg develops innovative AI platforms, intelligent software, cloud technologies, and enterprise solutions that help organizations, governments, developers, creators, researchers, and individuals solve complex problems and unlock new opportunities.",
   "At Frasberg, we believe that artificial intelligence is more than a technological breakthrough—it is a transformative force that is redefining how people communicate, create, learn, work, and innovate. Our mission is to build intelligent systems that augment human capabilities, improve productivity, accelerate scientific discovery, and enable businesses of every size to thrive in an increasingly digital world.",
   "Our portfolio is centered around Frasberg, our flagship artificial intelligence ecosystem, and Luchii AI Models, our family of advanced multimodal foundation models designed to power the next generation of intelligent applications. Together, these technologies provide the foundation for conversational AI, enterprise automation, software development, data intelligence, creative content generation, research assistance, intelligent agents, decision support systems, and industry-specific AI solutions.",
 ];
@@ -157,8 +157,8 @@ export default function About() {
   return (
     <main className="relative z-10 min-h-screen bg-lux-bg text-lux-text" data-testid="about-page">
       <Seo
-        title="About Frasberg, Inc. — Advancing Artificial Intelligence"
-        description="Frasberg, Inc. is an American multinational technology company advancing artificial intelligence, intelligent computing, and digital transformation through the Frasberg platform and Luchii AI Models."
+        title="About Frasberg Inc. — Advancing Artificial Intelligence"
+        description="Frasberg Inc. is an American multinational technology company advancing artificial intelligence, intelligent computing, and digital transformation through the Frasberg platform and Luchii AI Models."
       />
       <div className="pointer-events-none absolute inset-0 opacity-50"><Starfield /></div>
 
@@ -167,7 +167,7 @@ export default function About() {
           <Link to="/" className="flex items-center gap-2.5" data-testid="about-home-link">
             <ArrowLeft size={16} className="text-lux-text2" />
             <img src="/luchii-logo.webp" alt="Frasberg Luchii" className="h-8 w-8 rounded-full ring-1 ring-lux-accent/40" />
-            <span className="font-display text-lg font-700 tracking-tight">Frasberg, Inc.</span>
+            <span className="font-display text-lg font-700 tracking-tight">Frasberg Inc.</span>
           </Link>
           <button onClick={toggle} aria-label="Toggle theme" data-testid="about-theme-toggle"
             className="grid h-10 w-10 place-items-center rounded-full border border-lux-border transition-colors hover:border-lux-accent hover:text-lux-accent">
@@ -188,7 +188,7 @@ export default function About() {
           </div>
           <Overline>About the company</Overline>
           <h1 className="mt-5 font-display text-4xl font-700 tracking-tighter sm:text-5xl lg:text-6xl">
-            Frasberg, Inc.
+            Frasberg Inc.
           </h1>
           <div className="mt-8 space-y-5">
             {INTRO.map((p, i) => (
@@ -232,7 +232,7 @@ export default function About() {
         <Reveal delay={0.05}>
           <div className="mt-20 rounded-2xl border border-lux-border bg-lux-surface p-10 text-center">
             <p className="mx-auto max-w-2xl font-display text-xl font-600 tracking-tight sm:text-2xl">
-              Frasberg, Inc. is building intelligent technology for a smarter, more connected, and more innovative world.
+              Frasberg Inc. is building intelligent technology for a smarter, more connected, and more innovative world.
             </p>
             <Link to="/dashboard" data-testid="about-cta"
               className="mt-8 inline-block rounded-full bg-lux-text px-7 py-3 text-sm font-500 text-lux-bg transition-transform duration-200 hover:-translate-y-0.5">

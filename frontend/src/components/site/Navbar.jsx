@@ -19,6 +19,7 @@ const EXPLORE = [
   { label: "API", href: "#api" },
   { label: "AI Models", to: "/ai-models" },
   { label: "Website Builder", to: "/website-builder" },
+  { label: "App Builder", to: "/app-builder" },
   { label: "Game Builder", to: "/game-builder" },
   { label: "Builder Gallery", to: "/gallery" },
   { label: "Luchii Code", to: "/luchii-code" },
@@ -174,6 +175,7 @@ export default function Navbar() {
             <Link to="/ai-models" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">AI Models</Link>
             <Link to="/luchii-code" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Luchii Code</Link>
             <Link to="/website-builder" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Website Builder</Link>
+            <Link to="/app-builder" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">App Builder</Link>
             <Link to="/game-builder" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Game Builder</Link>
             <Link to="/gallery" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Builder Gallery</Link>
             {user ? (

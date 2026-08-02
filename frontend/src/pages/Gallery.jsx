@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Moon, Sun, ArrowLeft, Globe, Gamepad2, ExternalLink, Play, Sparkles } from "lucide-react";
+import { Moon, Sun, ArrowLeft, Globe, Gamepad2, AppWindow, ExternalLink, Play, Sparkles, GitFork, Trophy, Star } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import Starfield from "../components/site/Starfield";
 import Seo from "../components/site/Seo";
@@ -11,13 +11,20 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const TABS = [
   { id: "all", label: "All builds" },
   { id: "website", label: "Websites" },
+  { id: "app", label: "Apps" },
   { id: "game", label: "Games" },
+  { id: "landing", label: "Landing pages" },
 ];
 
 export default function Gallery() {
   const { theme, toggle } = useTheme();
   const [tab, setTab] = useState("all");
   const [items, setItems] = useState(null);
+  const [board, setBoard] = useState(null);
+
+  useEffect(() => {
+    fetch(`${API}/builder/leaderboard`).then((r) => r.json()).then(setBoard).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const q = tab === "all" ? "" : `?type=${tab}`;
@@ -84,7 +91,12 @@ export default function Gallery() {
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-testid="gallery-grid">
               {items.map((p) => (
-                <div key={p.id} className="overflow-hidden rounded-2xl border border-lux-border bg-lux-surface/60 transition-transform hover:-translate-y-1" data-testid={`gallery-card-${p.slug}`}>
+                <div key={p.id} className="relative overflow-hidden rounded-2xl border border-lux-border bg-lux-surface/60 transition-transform hover:-translate-y-1" data-testid={`gallery-card-${p.slug}`}>
+                  {p.featured && (
+                    <span className="absolute right-3 top-3 z-10 inline-flex items-center gap-1 rounded-full bg-lux-accent px-2.5 py-1 font-mono text-[9px] font-600 uppercase tracking-wide text-lux-bg" data-testid={`gallery-featured-${p.slug}`}>
+                      <Star size={10} /> Featured
+                    </span>
+                  )}
                   <div className="relative h-44 overflow-hidden border-b border-lux-border bg-white">
                     <iframe
                       src={`${process.env.REACT_APP_BACKEND_URL}/api/p/${p.slug}`}
@@ -99,21 +111,27 @@ export default function Gallery() {
                     <div className="flex items-center justify-between gap-3">
                       <p className="min-w-0 truncate font-display text-base font-600 tracking-tight">{p.title}</p>
                       <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-lux-border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wide text-lux-text2">
-                        {p.type === "game" ? <Gamepad2 size={11} /> : <Globe size={11} />} {p.type}
+                        {p.type === "game" ? <Gamepad2 size={11} /> : p.type === "app" ? <AppWindow size={11} /> : <Globe size={11} />} {p.type}
                       </span>
                     </div>
                     <div className="mt-4 flex items-center justify-between">
-                      {p.type === "game" ? (
-                        <Link to={`/play/${p.slug}`} data-testid={`gallery-play-${p.slug}`}
-                          className="inline-flex items-center gap-1.5 rounded-full bg-lux-accent px-4 py-2 text-xs font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
-                          <Play size={12} /> Play
+                      <div className="flex items-center gap-2">
+                        {p.type === "game" ? (
+                          <Link to={`/play/${p.slug}`} data-testid={`gallery-play-${p.slug}`}
+                            className="inline-flex items-center gap-1.5 rounded-full bg-lux-accent px-4 py-2 text-xs font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
+                            <Play size={12} /> Play
+                          </Link>
+                        ) : (
+                          <a href={`${process.env.REACT_APP_BACKEND_URL}/api/p/${p.slug}`} target="_blank" rel="noreferrer" data-testid={`gallery-visit-${p.slug}`}
+                            className="inline-flex items-center gap-1.5 rounded-full bg-lux-accent px-4 py-2 text-xs font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
+                            <ExternalLink size={12} /> {p.type === "app" ? "Open app" : "Visit site"}
+                          </a>
+                        )}
+                        <Link to={`/${p.type}-builder?remix=${p.slug}`} data-testid={`gallery-remix-${p.slug}`}
+                          className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-2 text-xs text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
+                          <GitFork size={12} /> Remix
                         </Link>
-                      ) : (
-                        <a href={`${process.env.REACT_APP_BACKEND_URL}/api/p/${p.slug}`} target="_blank" rel="noreferrer" data-testid={`gallery-visit-${p.slug}`}
-                          className="inline-flex items-center gap-1.5 rounded-full bg-lux-accent px-4 py-2 text-xs font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
-                          <ExternalLink size={12} /> Visit site
-                        </a>
-                      )}
+                      </div>
                       {p.type === "game" && (
                         <span className="font-mono text-[11px] uppercase tracking-wide text-lux-text2" data-testid={`gallery-plays-${p.slug}`}>
                           {p.plays || 0} play{(p.plays || 0) === 1 ? "" : "s"}
@@ -126,6 +144,42 @@ export default function Gallery() {
             </div>
           )}
         </div>
+
+        {board?.top?.length > 0 && (
+          <section className="mt-4 pb-16" data-testid="gallery-leaderboard">
+            <div className="flex items-center gap-3">
+              <span className="grid h-10 w-10 place-items-center rounded-full border border-lux-accent/50 text-lux-accent"><Trophy size={17} /></span>
+              <h2 className="font-display text-2xl font-700 tracking-tight">Game leaderboard</h2>
+            </div>
+            {board.spotlight && (
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-lux-accent/50 bg-lux-accent/5 p-6" data-testid="leaderboard-spotlight">
+                <div>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-lux-accent">Most played this week · {board.week}</p>
+                  <p className="mt-2 font-display text-xl font-700 tracking-tight">{board.spotlight.title}</p>
+                  <p className="mt-1 font-mono text-[11px] uppercase tracking-wide text-lux-text2">{board.spotlight.weekly_plays} play{board.spotlight.weekly_plays === 1 ? "" : "s"} this week · {board.spotlight.plays} all-time</p>
+                </div>
+                <Link to={`/play/${board.spotlight.slug}`} data-testid="leaderboard-spotlight-play"
+                  className="inline-flex items-center gap-2 rounded-full bg-lux-accent px-6 py-3 text-sm font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
+                  <Play size={14} /> Play now
+                </Link>
+              </div>
+            )}
+            <div className="mt-4 space-y-2" data-testid="leaderboard-list">
+              {board.top.map((g, i) => (
+                <div key={g.slug} className="flex items-center justify-between gap-4 rounded-xl border border-lux-border bg-lux-surface/60 px-5 py-3">
+                  <div className="flex min-w-0 items-center gap-4">
+                    <span className={`font-display text-lg font-700 ${i === 0 ? "text-lux-accent" : "text-lux-text2"}`}>#{i + 1}</span>
+                    <p className="truncate text-sm text-lux-text">{g.title}</p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-4">
+                    <span className="font-mono text-[11px] uppercase tracking-wide text-lux-text2">{g.plays} plays</span>
+                    <Link to={`/play/${g.slug}`} className="rounded-full border border-lux-accent px-4 py-1.5 text-xs font-600 text-lux-accent" data-testid={`leaderboard-play-${g.slug}`}>Play</Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
       <Footer />
     </main>

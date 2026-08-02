@@ -70,10 +70,11 @@ export function generateLegalPdf({ heading, subheading, metaLines = [], title, b
   });
 
   doc.save(filename);
+  return doc;
 }
 
 export function downloadLawPdf(d) {
-  generateLegalPdf({
+  return generateLegalPdf({
     heading: "FRASBERG, INC. — THE AI WORLD COURT",
     subheading: "CONSTITUTION & LAWS LIBRARY · OFFICIAL PUBLICATION",
     metaLines: [`DOCUMENT ID: ${d.id.toUpperCase()}`, `CATEGORY: ${d.category || ""}`],
@@ -88,7 +89,7 @@ export function downloadLawPdf(d) {
 }
 
 export function downloadFilingPdf(f) {
-  generateLegalPdf({
+  return generateLegalPdf({
     heading: "THE AI WORLD COURT — FRASBERG, INC.",
     subheading: "CONSTELLATION LAYER · GUARDIAN MESH JURISDICTION",
     metaLines: [`DOCKET NO.: ${f.docket}`, `FILED: ${f.filed || ""}`],

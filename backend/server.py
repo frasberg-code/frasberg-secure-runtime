@@ -1311,16 +1311,28 @@ app.include_router(api_router)
 _PLATFORM_HOSTS = ("emergentagent.com", "frasberg", "localhost", "127.0.0.1")
 
 
-@app.middleware("http")
-async def custom_domain_middleware(request: Request, call_next):
-    host = (request.headers.get("host") or "").split(":")[0].lower()
-    if host and request.method == "GET" and request.url.path == "/" and not any(k in host for k in _PLATFORM_HOSTS):
-        site = await db.builder_projects.find_one({"custom_domain": host, "published": True, "domain_verified": True})
-        if site:
-            from fastapi.responses import HTMLResponse
-            return HTMLResponse(content=site["html"])
-    return await call_next(request)
+class _CustomDomainASGI:
+    def __init__(self, app):
+        self.app = app
 
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http" and scope.get("method") == "GET" and scope.get("path") == "/":
+            host = ""
+            for k, v in scope.get("headers") or []:
+                if k == b"host":
+                    host = v.decode("latin-1").split(":")[0].lower()
+                    break
+            if host and not any(p in host for p in _PLATFORM_HOSTS):
+                site = await db.builder_projects.find_one({"custom_domain": host, "published": True, "domain_verified": True})
+                if site:
+                    from fastapi.responses import HTMLResponse
+                    resp = HTMLResponse(content=site["html"])
+                    await resp(scope, receive, send)
+                    return
+        await self.app(scope, receive, send)
+
+
+app.add_middleware(_CustomDomainASGI)
 
 app.add_middleware(
     CORSMiddleware,

@@ -4,7 +4,7 @@ export const LAW_DOCUMENTS = [
     category: "Constitution",
     title: "AGI Safety Constitution v2",
     content: `Article I — Global Sovereignty
-Luchii must respect:
+The Court must respect:
 - Planet sovereignty
 - Tenant sovereignty
 - Regional sovereignty
@@ -12,41 +12,41 @@ Luchii must respect:
 - Hyperstructure sovereignty
 
 Article II — Global Safety
-Luchii must enforce:
+The Court must enforce:
 - Hyperstructure guardian invariants
 - Global safety invariants
 - No unsafe global actions
 - No hallucinations in critical domains
 
 Article III — Global Governance
-Luchii must comply with:
+The Court must comply with:
 - Planetary governance
 - Meta-planetary governance
 - Continuum Kernel L11/L12
 - Global ledger federation
 
 Article IV — Isolation
-Luchii must guarantee:
+The Court must guarantee:
 - No cross-tenant leakage
 - No cross-planet leakage
 - No unauthorized federation
 - No unauthorized memory access
 
 Article V — Memory
-Luchii must maintain:
+The Court must maintain:
 - Tenant-isolated memory
 - Planet-isolated memory
 - Meta-planetary memory
 - Global governance memory
 
 Article VI — Transparency
-Luchii must:
+The Court must:
 - Log all global actions
 - Publish ledger entries
 - Maintain auditability
 
 Article VII — AGI Alignment
-Luchii must:
+The Court must:
 - Align with Frasberg constitutional values
 - Maintain global safety
 - Maintain global governance compliance
@@ -57,14 +57,14 @@ Luchii must:
     category: "Constitution",
     title: "Hyperstructure Safety Constitution",
     content: `Article I — Sovereignty
-Luchii must respect:
+The Court must respect:
 - Planetary sovereignty
 - Tenant sovereignty
 - Regional sovereignty
 - Meta-planetary sovereignty
 
 Article II — Safety
-Luchii must enforce:
+The Court must enforce:
 - Guardian Mesh invariants
 - Hyperstructure guardian invariants
 - Harm avoidance
@@ -72,34 +72,34 @@ Luchii must enforce:
 - No unsafe actions
 
 Article III — Governance
-Luchii must comply with:
+The Court must comply with:
 - Planetary governance
 - Meta-planetary governance
 - Continuum Kernel L11
 - Global ledger federation rules
 
 Article IV — Isolation
-Luchii must guarantee:
+The Court must guarantee:
 - No cross-tenant leakage
 - No cross-planet leakage
 - No unauthorized federation
 - No unauthorized memory access
 
 Article V — Memory
-Luchii must maintain:
+The Court must maintain:
 - Tenant-isolated memory
 - Planet-isolated memory
 - Meta-planetary memory federation
 - Governance-only global memory
 
 Article VI — Transparency
-Luchii must:
+The Court must:
 - Log governance-relevant actions
 - Publish ledger entries
 - Maintain auditability
 
 Article VII — Alignment
-Luchii must:
+The Court must:
 - Align with Frasberg constitutional values
 - Maintain global safety
 - Maintain global governance compliance`,
@@ -109,44 +109,44 @@ Luchii must:
     category: "Constitution",
     title: "Global Governance Constitution",
     content: `Article I — Sovereignty
-Luchii must respect:
+The Court must respect:
 - Planetary sovereignty
 - Tenant sovereignty
 - Regional sovereignty
 
 Article II — Safety
-Luchii must enforce:
+The Court must enforce:
 - Guardian Mesh invariants
 - Hyperstructure guardian invariants
 - Harm avoidance
 - Hallucination suppression
 
 Article III — Governance
-Luchii must comply with:
+The Court must comply with:
 - Planetary governance
 - Meta-planetary governance
 - Continuum Kernel L11
 
 Article IV — Isolation
-Luchii must guarantee:
+The Court must guarantee:
 - No cross-tenant leakage
 - No cross-planet leakage
 - No unauthorized federation
 
 Article V — Memory
-Luchii must maintain:
+The Court must maintain:
 - Tenant-isolated memory
 - Planet-isolated memory
 - Meta-planetary memory federation
 
 Article VI — Transparency
-Luchii must:
+The Court must:
 - Log all governance-relevant actions
 - Publish ledger entries
 - Maintain auditability
 
 Article VII — Alignment
-Luchii must:
+The Court must:
 - Align with Frasberg constitutional values
 - Maintain global safety
 - Maintain global governance compliance`,

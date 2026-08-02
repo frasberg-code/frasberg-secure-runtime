@@ -6,9 +6,10 @@ import { useTheme } from "../context/ThemeContext";
 import { BRAND_COLORS } from "../data/content";
 
 const LOGOS = [
-  { label: "Primary (WEBP)", href: "/luchii-logo.webp" },
-  { label: "512px PNG", href: "/favicon-512.png" },
-  { label: "192px PNG", href: "/favicon-192.png" },
+  { label: "Luchii — Primary (WEBP)", href: "/luchii-logo.webp" },
+  { label: "Luchii — 512px PNG", href: "/favicon-512.png" },
+  { label: "Luchii — 192px PNG", href: "/favicon-192.png" },
+  { label: "Frasberg — Primary (PNG)", href: "/frasberg-emblem.png" },
   { label: "OG image", href: "/og-image.png" },
 ];
 
@@ -52,29 +53,32 @@ export default function Brand() {
       </header>
 
       <div className="mx-auto max-w-5xl px-5 py-16 sm:px-8">
-        <div className="flex items-center gap-4" data-testid="brand-spin-logos">
-          <img src="/luchii-logo.webp" alt="Luchii" className="h-14 w-14 rounded-full ring-1 ring-lux-accent/40" />
-          <img src="/frasberg-emblem.png" alt="Frasberg AI" className="h-14 w-14 rounded-full" />
-        </div>
-        <h1 className="mt-6 font-display text-4xl font-700 tracking-tighter sm:text-5xl">Brand Kit</h1>
+        <h1 className="font-display text-4xl font-700 tracking-tighter sm:text-5xl">Brand Kit</h1>
         <p className="mt-3 max-w-xl text-lux-text2">The Luchii by Frasberg identity system — logo, palette, and type.</p>
 
         {/* Logo */}
         <section className="mt-14">
-          <h2 className="font-display text-2xl font-600 tracking-tight">Logo</h2>
+          <h2 className="font-display text-2xl font-600 tracking-tight">Logos</h2>
           <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="grid place-items-center rounded-2xl border border-lux-border bg-[#0d1013] p-12">
-              <img src="/luchii-logo.webp" alt="Frasberg Luchii logo" className="h-44 w-44 rounded-full" style={{ boxShadow: "0 0 60px rgba(0,150,255,0.35)" }} />
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-lux-border bg-[#0d1013] p-12" data-testid="brand-logo-luchii">
+              <img src="/luchii-logo.webp" alt="Luchii logo" className="h-44 w-44 rounded-full" style={{ boxShadow: "0 0 60px rgba(0,150,255,0.35)" }} />
+              <p className="mt-6 font-display text-lg font-700 tracking-tight text-white">Luchii</p>
+              <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.25em] text-white/50">Deep space navy · electric blue · starlight silver</p>
             </div>
-            <div className="flex flex-col justify-center gap-3">
-              {LOGOS.map((l) => (
-                <a key={l.href} href={l.href} download data-testid={`download-${l.label}`}
-                  className="flex items-center justify-between rounded-xl border border-lux-border bg-lux-surface px-5 py-4 transition-colors hover:border-lux-accent">
-                  <span className="text-sm text-lux-text">{l.label}</span>
-                  <Download size={16} className="text-lux-text2" />
-                </a>
-              ))}
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-lux-border bg-[#0d1013] p-12" data-testid="brand-logo-frasberg">
+              <img src="/frasberg-emblem.png" alt="Frasberg AI logo" className="h-44 w-44 rounded-full" style={{ boxShadow: "0 0 60px rgba(0,150,255,0.35)" }} />
+              <p className="mt-6 font-display text-lg font-700 tracking-tight text-white">Frasberg</p>
+              <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.25em] text-white/50">Deep space navy · electric blue · starlight silver</p>
             </div>
+          </div>
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {LOGOS.map((l) => (
+              <a key={l.href} href={l.href} download data-testid={`download-${l.label}`}
+                className="flex items-center justify-between rounded-xl border border-lux-border bg-lux-surface px-5 py-4 transition-colors hover:border-lux-accent">
+                <span className="text-sm text-lux-text">{l.label}</span>
+                <Download size={16} className="text-lux-text2" />
+              </a>
+            ))}
           </div>
         </section>
 
