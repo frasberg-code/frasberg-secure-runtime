@@ -33,7 +33,7 @@ const COPY = {
     examples: ["A todo app with projects, due dates and dark mode", "A pomodoro focus timer with session history"],
   },
   landing: {
-    title: "Luchii Landing Page Builder",
+    title: "Luchii",
     Icon: LayoutTemplate,
     sub: "Describe your product and Luchii builds a high-converting landing page instantly — hero, features, social proof and CTA. Free to try — upgrade to Luchii Pro to publish, attach your own domain and unlock more daily builds.",
     placeholder: "Describe the landing page you want… e.g. 'A launch page for a smart water bottle called Hydra with pre-order CTA'",
