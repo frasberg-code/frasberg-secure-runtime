@@ -71,3 +71,33 @@ export function generateLegalPdf({ heading, subheading, metaLines = [], title, b
 
   doc.save(filename);
 }
+
+export function downloadLawPdf(d) {
+  generateLegalPdf({
+    heading: "FRASBERG, INC. — THE AI WORLD COURT",
+    subheading: "CONSTITUTION & LAWS LIBRARY · OFFICIAL PUBLICATION",
+    metaLines: [`DOCUMENT ID: ${d.id.toUpperCase()}`, `CATEGORY: ${d.category || ""}`],
+    title: d.title,
+    body: d.content,
+    footerLines: [
+      "© 2003-2026 FRASBERG, INC. • All rights reserved.",
+      "This document is proprietary to Frasberg, Inc. Certified copy issued via the Laws library.",
+    ],
+    filename: `${d.id}.pdf`,
+  });
+}
+
+export function downloadFilingPdf(f) {
+  generateLegalPdf({
+    heading: "THE AI WORLD COURT — FRASBERG, INC.",
+    subheading: "CONSTELLATION LAYER · GUARDIAN MESH JURISDICTION",
+    metaLines: [`DOCKET NO.: ${f.docket}`, `FILED: ${f.filed || ""}`],
+    title: `In the matter of: ${f.case}`,
+    body: `RULING OF THE COURT:\n\n${f.ruling}`,
+    footerLines: [
+      "So ordered under Articles I–VII of the Court Constitution.",
+      "Copyright © 2003-2026 FRASBERG, INC. — Certified copy issued via the Court docket.",
+    ],
+    filename: `${f.docket}-filing.pdf`,
+  });
+}

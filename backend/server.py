@@ -590,7 +590,7 @@ async def generate_video(req: ImageGenRequest, user: dict = Depends(auth_module.
             logger.exception("Luchii Video Engine upstream call failed")
     return {
         "status": "initializing",
-        "message": "The Luchii Video Engine is initializing on Frasberg sovereign infrastructure. Your account holds priority access — video creation unlocks here automatically the moment the engine comes online at api.frasberg.com.",
+        "message": "The Luchii Video Engine is initializing on Frasberg infrastructure. Your account holds priority access — video creation unlocks here automatically the moment the engine comes online at api.frasberg.com.",
     }
 
 
@@ -1307,6 +1307,20 @@ import builder as builder_module
 api_router.include_router(auth_module.router)
 api_router.include_router(builder_module.router)
 app.include_router(api_router)
+
+_PLATFORM_HOSTS = ("emergentagent.com", "frasberg", "localhost", "127.0.0.1")
+
+
+@app.middleware("http")
+async def custom_domain_middleware(request: Request, call_next):
+    host = (request.headers.get("host") or "").split(":")[0].lower()
+    if host and request.method == "GET" and request.url.path == "/" and not any(k in host for k in _PLATFORM_HOSTS):
+        site = await db.builder_projects.find_one({"custom_domain": host, "published": True, "domain_verified": True})
+        if site:
+            from fastapi.responses import HTMLResponse
+            return HTMLResponse(content=site["html"])
+    return await call_next(request)
+
 
 app.add_middleware(
     CORSMiddleware,

@@ -276,6 +276,15 @@ export default function Profile() {
               )}
             </div>
 
+            <Link to="/downloads" data-testid="profile-downloads-link"
+              className="mt-6 flex items-center justify-between rounded-2xl border border-lux-border bg-lux-surface p-6 transition-colors hover:border-lux-accent">
+              <div>
+                <h2 className="font-display text-xl font-600 tracking-tight">My certified downloads</h2>
+                <p className="mt-1 text-xs text-lux-text2">Every court PDF you own — re-download any time, free.</p>
+              </div>
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-lux-accent">Open →</span>
+            </Link>
+
             <div className="mt-6 rounded-2xl border border-lux-border bg-lux-surface p-7" data-testid="profile-memory-card">
               <h2 className="font-display text-xl font-600 tracking-tight">Memory Manager</h2>
               <p className="mt-2 text-xs text-lux-text2">Everything Luchii remembers about you. Add, edit or delete any fact — she uses them to personalize every reply.</p>
@@ -320,7 +329,7 @@ export default function Profile() {
               <h2 className="flex items-center gap-2 font-display text-xl font-600 tracking-tight"><AudioWaveform size={18} className="text-lux-accent" /> My Voice</h2>
               <p className="mt-2 text-xs text-lux-text2">
                 Record a short sample (5-15 seconds of natural speech) and Luchii will answer in your own cloned voice —
-                built entirely on Frasberg sovereign infrastructure. Pick "My Voice" in the chat voice gallery once saved.
+                built entirely on Frasberg infrastructure. Pick "My Voice" in the chat voice gallery once saved.
               </p>
               {voiceClone?.has_sample && (
                 <p className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-lux-accent/50 px-3 py-1 font-mono text-[10px] uppercase tracking-wide text-lux-accent" data-testid="voice-clone-active">

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Moon, Sun, ArrowLeft, Loader2, Globe, Gamepad2, Rocket, Download, Trash2, ExternalLink, Sparkles, X, Link2, BadgeCheck } from "lucide-react";
+import { Moon, Sun, ArrowLeft, Loader2, Globe, Gamepad2, Rocket, Download, Trash2, ExternalLink, Sparkles, X, Link2, BadgeCheck, Share2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
@@ -14,7 +14,7 @@ const COPY = {
   website: {
     title: "Luchii Website Builder",
     Icon: Globe,
-    sub: "Describe any website and Luchii builds it live on Frasberg sovereign infrastructure. Free to try — upgrade to Luchii Pro to publish, attach your own domain and unlock more daily builds.",
+    sub: "Describe any website and Luchii builds it live on Frasberg infrastructure. Free to try — upgrade to Luchii Pro to publish, attach your own domain and unlock more daily builds.",
     placeholder: "Describe the website you want… e.g. 'A dark portfolio site for a photographer named Aria with a gallery and contact form'",
     examples: ["A landing page for a coffee roastery called Ember & Oak", "A sleek SaaS homepage for an AI note-taking app"],
   },
@@ -62,6 +62,8 @@ export default function Builder({ type = "website" }) {
   const [proModal, setProModal] = useState(false);
   const [domainInput, setDomainInput] = useState("");
   const [dns, setDns] = useState(null);
+  const [verifyBusy, setVerifyBusy] = useState(false);
+  const [verifyChecks, setVerifyChecks] = useState(null);
   const htmlRef = useRef("");
 
   const loadProjects = useCallback(async () => {
@@ -185,6 +187,22 @@ export default function Builder({ type = "website" }) {
     } catch { toast.error("Domain attach failed"); }
   }
 
+  async function verifyDomain() {
+    if (!current || verifyBusy) return;
+    setVerifyBusy(true);
+    try {
+      const res = await fetch(`${API}/builder/projects/${current.id}/domain/verify`, { method: "POST", credentials: "include" });
+      if (res.status === 402) { setProModal(true); return; }
+      const d = await res.json();
+      if (!res.ok) { toast.error(d.detail || "Verification failed"); return; }
+      setVerifyChecks(d.checks);
+      setCurrent((c) => ({ ...c, domain_verified: d.verified }));
+      if (d.verified) toast.success(`${current.custom_domain} verified — your build is live on your domain`);
+      else toast.error("DNS records not found yet — propagation can take up to 24h");
+    } catch { toast.error("Verification failed — please try again"); }
+    finally { setVerifyBusy(false); }
+  }
+
   function downloadHtml() {
     const blob = new Blob([html], { type: "text/html" });
     const url = URL.createObjectURL(blob);
@@ -229,7 +247,7 @@ export default function Builder({ type = "website" }) {
 
       <div className="relative mx-auto max-w-6xl px-5 py-12 sm:px-8">
         <div className="text-center">
-          <img src="/frasberg-ai-logo.jpg" alt="Frasberg AI" className="mx-auto h-16 w-16 rounded-full ring-1 ring-lux-accent/50" style={{ boxShadow: "0 0 44px var(--lux-glow)" }} />
+          <img src="/luchii-logo.webp" alt="Luchii" className="mx-auto h-16 w-16 rounded-full ring-1 ring-lux-accent/40" style={{ boxShadow: "0 0 44px var(--lux-glow)" }} />
           <h1 className="mt-6 font-display text-4xl font-700 tracking-tighter sm:text-5xl">{c.title}</h1>
           <p className="mx-auto mt-4 max-w-2xl text-lux-text2">{c.sub}</p>
           {quota && (
@@ -326,6 +344,15 @@ export default function Builder({ type = "website" }) {
                       className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-2 text-xs text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
                       <Download size={12} /> Download
                     </button>
+                    {type === "game" && current?.published && current?.slug && (
+                      <button
+                        onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/play/${current.slug}`).catch(() => {}); toast.success("Play link copied — share it anywhere"); }}
+                        data-testid="builder-share-play-btn"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-lux-accent px-4 py-2 text-xs text-lux-accent transition-colors hover:bg-lux-accent/10"
+                      >
+                        <Share2 size={12} /> Copy play link{typeof current.plays === "number" ? ` · ${current.plays} plays` : ""}
+                      </button>
+                    )}
                     {current?.published && liveUrl ? (
                       <a href={liveUrl} target="_blank" rel="noreferrer" data-testid="builder-live-link"
                         className="inline-flex items-center gap-1.5 rounded-full border border-lux-accent px-4 py-2 text-xs text-lux-accent">
@@ -359,6 +386,26 @@ export default function Builder({ type = "website" }) {
                         Attach
                       </button>
                     </div>
+                    {current.custom_domain && (
+                      <div className="mt-4 flex flex-wrap items-center gap-2" data-testid="builder-domain-status">
+                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-[10px] uppercase tracking-wide ${current.domain_verified ? "border-lux-accent text-lux-accent" : "border-lux-border text-lux-text2"}`}>
+                          <ShieldCheck size={11} /> {current.custom_domain} — {current.domain_verified ? "verified · live" : "pending verification"}
+                        </span>
+                        <button onClick={verifyDomain} disabled={verifyBusy} data-testid="builder-domain-verify-btn"
+                          className="inline-flex items-center gap-1.5 rounded-full bg-lux-text px-4 py-1.5 text-xs font-600 text-lux-bg transition-transform hover:-translate-y-0.5 disabled:opacity-50">
+                          {verifyBusy ? <Loader2 size={11} className="animate-spin" /> : <ShieldCheck size={11} />} Verify DNS
+                        </button>
+                      </div>
+                    )}
+                    {verifyChecks && (
+                      <div className="mt-3 space-y-1.5" data-testid="builder-verify-results">
+                        {verifyChecks.map((c) => (
+                          <p key={c.type} className={`rounded-xl px-3 py-2 font-mono text-[11px] ${c.ok ? "bg-lux-accent/10 text-lux-accent" : "bg-lux-surface2 text-lux-text2"}`}>
+                            {c.ok ? "✓" : "✗"} {c.type} {c.host} → expected {c.expected}{c.found?.length ? ` · found ${c.found.join(", ")}` : " · no record found"}
+                          </p>
+                        ))}
+                      </div>
+                    )}
                     {dns && (
                       <div className="mt-4 space-y-2" data-testid="builder-dns-records">
                         <p className="text-xs text-lux-text2">{dns.note}</p>

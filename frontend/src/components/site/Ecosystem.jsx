@@ -3,7 +3,7 @@ import Reveal, { Overline } from "./Reveal";
 import { ECOSYSTEM } from "../../data/content";
 
 const LOGOS = [
-  { name: "Frasberg AI", slug: "frasberg-ai", src: "/frasberg-ai-logo.jpg", spin: true },
+  { name: "Frasberg AI", slug: "frasberg-ai", src: "/frasberg-emblem.png", spin: true },
   { name: "Luchii", slug: "luchii", src: "/luchii-logo.webp", spin: true },
   { name: "Python", slug: "python" },
   { name: "JavaScript", slug: "javascript" },
@@ -74,7 +74,7 @@ export default function Ecosystem() {
                     alt={l.name}
                     loading="lazy"
                     className={l.spin
-                      ? "spin-slow h-7 w-7 rounded-full ring-1 ring-lux-accent/40"
+                      ? "spin-slow h-7 w-7 rounded-full"
                       : "h-7 w-7 grayscale transition-all duration-300 group-hover:grayscale-0"}
                     style={l.spin ? undefined : { filter: "grayscale(1)" }}
                   />

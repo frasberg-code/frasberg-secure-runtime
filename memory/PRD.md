@@ -309,6 +309,28 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
   after fixing missing hideHeader useState in Chat.jsx (crash); chat mobile flows self-verified.
 - NOTE: builder generation ~55s for small sites (real LLM); domain DNS is MOCKED.
 
+## Implemented — Gallery, Play Links, Real DNS, My Downloads, Logo fixes (2026-08-02)
+- Frasberg AI logo: navy square jpg cropped to circular emblem (/frasberg-emblem.png via PIL);
+  blue ring classes removed (user: logo has no blue border). Used on Ecosystem marquee, About, Brand.
+  Builder + Gallery pages use LUCHII logo (user: Frasberg AI and Luchii are separate models).
+- Relabel: "Frasberg sovereign infrastructure" → "Frasberg infrastructure" (Builder, Profile, server.py).
+- REAL DNS domain verification: POST /api/builder/projects/{id}/domain/verify — dnspython resolves
+  CNAME → sites.frasberg.com + TXT _luchii.{domain} → luchii-verify=xxx; sets domain_verified;
+  Builder UI shows status pill + Verify DNS button + per-record ✓/✗ results. server.py middleware
+  serves verified custom domains by Host header on GET / (production-ready host routing).
+- Builder Gallery (/gallery): public GET /api/builder/gallery; tabs All/Websites/Games; scaled
+  iframe live previews; Visit/Play actions; play counts; build CTAs. Navbar Explore + mobile link.
+- Game sharing (/play/{slug}): PlayGame.jsx — POST /api/builder/site/{slug}/play increments live
+  play counter; GET .../meta; Share play link copy button; also 'Copy play link · N plays' button
+  in Builder for published games.
+- My Downloads (/downloads): GET /api/docs/purchases; unlock now records purchases for Pro users
+  too; page lists owned certified PDFs (law + filing) w/ one-tap re-download (shared
+  downloadLawPdf/downloadFilingPdf in lib/docPdf.js — Court/Laws refactored to use them);
+  entitlement badge (Pro/credits). Profile card links to it.
+- Verified: curl (gallery/meta/play/purchases/domain attach+verify real DNS lookups) + screenshots
+  (gallery grid w/ 3 live previews, play page counter 3 plays, downloads page w/ Pro badge + item).
+- User deployed to production at frasberg.com (2026-08-02). ASK preview vs production for new bugs.
+
 ## Backlog (updated 2026-08-01)
 - P2: Real DNS verification for builder custom domains.
 - P2: Builder generation progress heartbeat copy after 30s.

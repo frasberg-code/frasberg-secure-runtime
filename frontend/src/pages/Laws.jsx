@@ -9,25 +9,10 @@ import Starfield from "../components/site/Starfield";
 import Footer from "../components/site/Footer";
 import Seo from "../components/site/Seo";
 import DocPaywallModal from "../components/site/DocPaywallModal";
-import { generateLegalPdf } from "../lib/docPdf";
+import { downloadLawPdf } from "../lib/docPdf";
 import { LAW_DOCUMENTS, LAW_CATEGORIES } from "../data/laws";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
-
-function downloadDoc(d) {
-  generateLegalPdf({
-    heading: "FRASBERG, INC. — THE AI WORLD COURT",
-    subheading: "CONSTITUTION & LAWS LIBRARY · OFFICIAL PUBLICATION",
-    metaLines: [`DOCUMENT ID: ${d.id.toUpperCase()}`, `CATEGORY: ${d.category || ""}`],
-    title: d.title,
-    body: d.content,
-    footerLines: [
-      "© 2003-2026 FRASBERG, INC. • All rights reserved.",
-      "This document is proprietary to Frasberg, Inc. Certified copy issued via the Laws library.",
-    ],
-    filename: `${d.id}.pdf`,
-  });
-}
 
 export default function Laws() {
   const { theme, toggle } = useTheme();
@@ -50,7 +35,7 @@ export default function Laws() {
       });
       if (res.ok) {
         const resp = await res.json();
-        downloadDoc(d);
+        downloadLawPdf(d);
         toast.success(resp.free ? "Certified PDF downloaded — free with Pro" : resp.already_owned ? "Certified PDF downloaded — already purchased" : `Certified PDF downloaded — ${resp.remaining} credit${resp.remaining === 1 ? "" : "s"} left`);
       } else if (res.status === 402) {
         setPaywallDoc(d);

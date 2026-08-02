@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import Starfield from "../components/site/Starfield";
 import Footer from "../components/site/Footer";
 import DocPaywallModal from "../components/site/DocPaywallModal";
-import { generateLegalPdf } from "../lib/docPdf";
+import { downloadFilingPdf } from "../lib/docPdf";
 import { COURT_CASES } from "../data/content";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -50,21 +50,6 @@ const CONSTITUTIONS = [
     ],
   },
 ];
-
-function downloadFiling(f) {
-  generateLegalPdf({
-    heading: "THE AI WORLD COURT — FRASBERG, INC.",
-    subheading: "CONSTELLATION LAYER · GUARDIAN MESH JURISDICTION",
-    metaLines: [`DOCKET NO.: ${f.docket}`, `FILED: ${f.filed || ""}`],
-    title: `In the matter of: ${f.case}`,
-    body: `RULING OF THE COURT:\n\n${f.ruling}`,
-    footerLines: [
-      "So ordered under Articles I–VII of the Court Constitution.",
-      "Copyright © 2003-2026 FRASBERG, INC. — Certified copy issued via the Court docket.",
-    ],
-    filename: `${f.docket}-filing.pdf`,
-  });
-}
 
 function Ruling({ text }) {
   const lines = text.split("\n").filter(Boolean);
@@ -112,7 +97,7 @@ export default function Court() {
       });
       if (res.ok) {
         const d = await res.json();
-        downloadFiling(f);
+        downloadFilingPdf(f);
         toast.success(d.free ? "Certified PDF downloaded — free with Pro" : d.already_owned ? "Certified PDF downloaded — already purchased" : `Certified PDF downloaded — ${d.remaining} credit${d.remaining === 1 ? "" : "s"} left`);
       } else if (res.status === 402) {
         setPaywallDoc(f);

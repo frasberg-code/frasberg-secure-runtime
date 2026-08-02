@@ -2,9 +2,12 @@ import os
 import re
 import json
 import uuid
+import asyncio
 import secrets
 from datetime import datetime, timezone
 from typing import Optional
+
+import dns.resolver
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import HTMLResponse, StreamingResponse
@@ -211,6 +214,76 @@ async def builder_domain(pid: str, body: DomainReq, user: dict = Depends(auth_mo
     }
 
 
+@router.post("/builder/projects/{pid}/domain/verify")
+async def builder_domain_verify(pid: str, user: dict = Depends(auth_module.get_current_user)):
+    doc = await db.builder_projects.find_one({"id": pid, "user_id": user["id"]})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Project not found")
+    if not _is_pro(user):
+        raise HTTPException(status_code=402, detail="pro_required")
+    domain = doc.get("custom_domain")
+    if not domain:
+        raise HTTPException(status_code=400, detail="Attach a domain first")
+    expected_cname = "sites.frasberg.com"
+    expected_txt = f"luchii-verify={doc['id'][:12]}"
+
+    def _resolve(qname, rtype):
+        try:
+            answers = dns.resolver.resolve(qname, rtype, lifetime=6)
+            if rtype == "CNAME":
+                return [str(r.target).rstrip(".").lower() for r in answers]
+            return [b"".join(r.strings).decode("utf-8", "ignore") for r in answers]
+        except Exception:
+            return []
+
+    cname_found = await asyncio.to_thread(_resolve, domain, "CNAME")
+    txt_found = await asyncio.to_thread(_resolve, f"_luchii.{domain}", "TXT")
+    cname_ok = expected_cname in cname_found
+    txt_ok = expected_txt in txt_found
+    verified = cname_ok and txt_ok
+    await db.builder_projects.update_one({"id": pid}, {"$set": {
+        "domain_verified": verified,
+        "domain_checked_at": datetime.now(timezone.utc).isoformat(),
+    }})
+    return {
+        "verified": verified,
+        "checks": [
+            {"type": "CNAME", "host": domain, "expected": expected_cname, "found": cname_found, "ok": cname_ok},
+            {"type": "TXT", "host": f"_luchii.{domain}", "expected": expected_txt, "found": txt_found, "ok": txt_ok},
+        ],
+    }
+
+
+@router.get("/builder/gallery")
+async def builder_gallery(type: Optional[str] = None):
+    q = {"published": True}
+    if type in ("website", "game"):
+        q["type"] = type
+    docs = await db.builder_projects.find(
+        q, {"_id": 0, "html": 0, "user_id": 0, "last_prompt": 0}
+    ).sort("updated_at", -1).to_list(60)
+    return docs
+
+
+@router.get("/builder/site/{slug}/meta")
+async def builder_site_meta(slug: str):
+    doc = await db.builder_projects.find_one({"slug": slug, "published": True})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Site not found")
+    return {"slug": slug, "title": doc.get("title"), "type": doc.get("type"),
+            "plays": int(doc.get("plays", 0)), "created_at": doc.get("created_at")}
+
+
+@router.post("/builder/site/{slug}/play")
+async def builder_site_play(slug: str):
+    doc = await db.builder_projects.find_one_and_update(
+        {"slug": slug, "published": True}, {"$inc": {"plays": 1}}, return_document=True,
+    )
+    if not doc:
+        raise HTTPException(status_code=404, detail="Site not found")
+    return {"plays": int(doc.get("plays", 0))}
+
+
 @router.get("/p/{slug}")
 async def builder_public(slug: str):
     doc = await db.builder_projects.find_one({"slug": slug, "published": True})
@@ -243,9 +316,14 @@ class UnlockReq(BaseModel):
 async def docs_unlock(body: UnlockReq, user: dict = Depends(auth_module.get_current_user)):
     fresh = await db.users.find_one({"id": user["id"]}) or user
     now = datetime.now(timezone.utc).isoformat()
-    if _is_pro(fresh):
-        return {"ok": True, "free": True, "remaining": None}
     existing = await db.doc_purchases.find_one({"user_id": user["id"], "doc_id": body.doc_id})
+    if _is_pro(fresh):
+        if not existing:
+            await db.doc_purchases.insert_one({
+                "id": str(uuid.uuid4()), "user_id": user["id"], "doc_id": body.doc_id,
+                "kind": body.kind, "title": (body.title or "")[:120], "ts": now, "pro": True,
+            })
+        return {"ok": True, "free": True, "remaining": None}
     if existing:
         return {"ok": True, "free": False, "already_owned": True,
                 "remaining": int(fresh.get("doc_credits", 0))}
@@ -258,3 +336,9 @@ async def docs_unlock(body: UnlockReq, user: dict = Depends(auth_module.get_curr
         "kind": body.kind, "title": (body.title or "")[:120], "ts": now,
     })
     return {"ok": True, "free": False, "remaining": credits - 1}
+
+
+@router.get("/docs/purchases")
+async def docs_purchases(user: dict = Depends(auth_module.get_current_user)):
+    docs = await db.doc_purchases.find({"user_id": user["id"]}, {"_id": 0}).sort("ts", -1).to_list(200)
+    return docs
