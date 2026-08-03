@@ -1,0 +1,10 @@
+# Heavy ML stack for the local Sovereign Voice Engine + Memory Vault.
+# Installed ONLY in the preview/dev environment (needs >=6GB RAM).
+# Production deploys use requirements.txt and fall back to cloud voice APIs.
+torch==2.13.0+cpu
+faster-whisper==1.2.1
+coqui-tts==0.27.5
+sentence-transformers==4.1.0
+transformers==4.57.6
+av==18.0.0
+numpy==2.4.6
