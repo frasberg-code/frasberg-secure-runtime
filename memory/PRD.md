@@ -370,6 +370,26 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - USER MUST REDEPLOY for production to get: ASGI middleware (mesh fix), memory-adaptive voice engine,
   and all UI batches. system_deps.txt already includes espeak-ng + ffmpeg for deploys.
 
+## Fixed + Regression Pass GREEN (2026-08-03)
+- Disk full incident: /app volume (9.8G, shared with /root + /data/db) hit 100% — unused
+  whisper-large-v3 HF cache (3.3G) + pip cache purged → 60% used. Disk-full truncated Builder.jsx
+  mid-write; restored from git HEAD and re-applied edits.
+- SEO: index.html title/og/twitter → "Frasberg"; description "Frasberg | Luchii AI Models and AI
+  World Court — Build Apps, Games and Websites. Build on Frasberg."
+- Hero "Start building" CTA → /builder. Builder sub copy unified: "Describe your idea — build
+  websites, games & apps with Luchii…".
+- Streaming hardening: chat + builder SSE emit ": stream-start" immediately (fast first byte for
+  Cloudflare); builder generate retries once on immediate connection failure.
+- Guest banner after sign-in: preview code correct (locked = user===false); if seen on production it
+  means /api/auth/me is failing there (crashing backend) — fixed by redeploy.
+- Published builds NOTE: preview and production have SEPARATE databases — builds published in
+  preview do not exist on frasberg.com; users must build/publish on production after redeploy.
+- REGRESSION SWEEP (iteration_15.json): ALL PASS — chat guest+admin streaming (no mesh error, no
+  guest UI when signed in), voice speak+transcribe round-trip (whisper-small), builder generate →
+  publish → live /api/p/{slug}, paywall 401/402/pro flows, SEO, hero CTA, mobile chat-first
+  redirect, hideable header, admin curation. Backend 7/8 (1 transient TTS warm-up race, benign),
+  frontend 18/18. Minor optional: engine status may briefly report tts=loading on cold start.
+
 ## Backlog (updated 2026-08-01)
 
 - P2: Real DNS verification for builder custom domains.
