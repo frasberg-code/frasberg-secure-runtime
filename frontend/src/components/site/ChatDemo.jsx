@@ -89,18 +89,18 @@ function fileKind(file) {
 function EngineBadge() {
   const [st, setSt] = useState(null);
   useEffect(() => {
-    fetch(`${API}/voice/engine`).then((r) => r.json()).then(setSt).catch(() => {});
+    fetch(`${API}/system/status`).then((r) => r.json()).then(setSt).catch(() => {});
   }, []);
   if (!st) return null;
-  const online = st.stt?.status === "ready" && st.tts?.status === "ready";
+  const online = st.overall !== "outage" && st.overall !== "degraded";
   return (
     <span
       data-testid="engine-status-badge"
-      title={online ? "Frasberg Sovereign Engine — all systems online" : "Frasberg Sovereign Engine warming up"}
+      title={online ? "Frasberg Mesh — secure & connected (frasberg-secure-v1)" : "Frasberg Mesh degraded — some systems recovering"}
       className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-lux-text2"
     >
       <span className={`h-1.5 w-1.5 rounded-full ${online ? "bg-emerald-400" : "bg-amber-400"} animate-pulse`} />
-      <span className="hidden md:inline">{online ? "Sovereign Engine Online" : "Engine Warming Up"}</span>
+      <span className="hidden md:inline">{online ? "Mesh Online" : "Mesh Recovering"}</span>
     </span>
   );
 }
@@ -490,15 +490,19 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
 
   return (
     <div
-      className={`glass relative flex flex-col overflow-hidden shadow-2xl ${mobileFull ? "rounded-none max-sm:!border-x-0 sm:rounded-3xl" : "rounded-3xl"} ${tall ? `${mobileFull ? (headerHidden ? "h-[100dvh]" : "h-[calc(100dvh-74px)]") : "h-[calc(100dvh-150px)] min-h-[480px]"} sm:h-[calc(100vh-180px)] sm:min-h-[520px]` : "h-full"}`}
+      className={`glass relative flex flex-col overflow-hidden shadow-2xl ${mobileFull ? "max-sm:!rounded-none max-sm:!border-0 max-sm:!shadow-none sm:rounded-3xl" : "rounded-3xl"} ${tall ? `${mobileFull ? (headerHidden ? "h-[100dvh]" : "h-[calc(100dvh-74px)]") : "h-[calc(100dvh-150px)] min-h-[480px]"} sm:h-[calc(100vh-180px)] sm:min-h-[520px]` : "h-full"}`}
       data-testid="chat-demo"
     >
-      <div className="flex items-center justify-between gap-2 border-b border-lux-border px-3 py-3 sm:px-4">
+      <div className={`flex items-center justify-between gap-2 border-b border-lux-border px-3 py-3 sm:px-4 ${mobileFull ? "max-sm:border-0 max-sm:py-2" : ""}`}>
         <div className="flex min-w-0 items-center gap-2">
-          <img src="/luchii-logo.webp" alt="Luchii" className="h-6 w-6 shrink-0 rounded-full ring-1 ring-lux-accent/40" />
-          <span className="truncate font-display text-sm font-700 tracking-tight text-lux-text">
-            {agent ? `Luchii ${agent.charAt(0).toUpperCase()}${agent.slice(1)}` : "Luchii"}
-          </span>
+          {(!mobileFull || agent) && (
+            <>
+              <img src="/luchii-logo.webp" alt="Luchii" className="h-6 w-6 shrink-0 rounded-full ring-1 ring-lux-accent/40" />
+              <span className="truncate font-display text-sm font-700 tracking-tight text-lux-text">
+                {agent ? `Luchii ${agent.charAt(0).toUpperCase()}${agent.slice(1)}` : "Luchii"}
+              </span>
+            </>
+          )}
           <EngineBadge />
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
