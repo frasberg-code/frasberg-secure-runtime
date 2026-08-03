@@ -436,3 +436,10 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - Chat page: removed duplicate Luchii branding inside ChatDemo panel when embedded (/chat) — single header now; panel is truly edge-to-edge on mobile (no border/shadow/rounding via max-sm:!border-0).
 - EngineBadge now reads /api/system/status (mesh health) instead of voice engine state → shows "Mesh Online" green unless degraded/outage (voice standby no longer shows misleading "Engine Warming Up").
 - deployment_agent readiness check: PASS (ready to deploy). User instructed to click Deploy for frasberg.com.
+
+## 2026-06 — Standalone Mesh WebSocket + Self-Host Kit (user demanded infra ownership)
+- NEW /app/backend/mesh_ws.py: live WebSocket server at /api/ws/mesh/{client_id} — HMAC-SHA256 verify on inbound, signed streamed Luchii replies (real Claude inference), tamper rejection, offline buffering (Redis via REDIS_URL, automatic Mongo fallback w/ 24h TTL), REST buffer endpoint POST /api/ws/buffer/{client_id}, GET /api/ws/mesh-status. Verified end-to-end incl. public WSS through ingress + offline flush on reconnect.
+- redis==8.1.0 appended to requirements.txt (careful: pip freeze polluted it with ML deps once — restored from git; NEVER pip freeze in this repo).
+- NEW /app/selfhost/ kit (ships to GitHub): README, docker-compose.yml (backend/frontend/mongo/redis/nginx/certbot), backend.Dockerfile (+optional ML), frontend.Dockerfile, nginx TLS+WSS conf, certbot init script, .env.example, k8s/ manifests (namespace, secrets, mongo, redis, backend, frontend, cert-manager ingress, HPA). Lets user self-host with own TLS/ingress/scaling.
+- system status now 12 components (added Mesh WebSocket Server row).
+- mesh_ws.py loads its own dotenv (import-order KeyError fix).

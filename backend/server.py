@@ -29,6 +29,7 @@ import auth as auth_module
 import voice_engine
 import memory_vault
 import ontology
+import mesh_ws
 import hmac
 import hashlib
 
@@ -492,6 +493,7 @@ async def system_status():
         {"id": "memory", "name": "Memory Vault", "status": _STATUS_LABELS.get(mv["status"], mv["status"]), "detail": "Unlimited semantic long-term memory"},
         {"id": "ontology", "name": "Ontology Context Accelerator", "status": "operational", "detail": f"{len(ontology.NODES)} canonical concepts · explainable grounding"},
         {"id": "integrity", "name": "Mesh Integrity Layer", "status": "operational", "detail": "frasberg-secure-v1 · HMAC-SHA256 signed responses"},
+        {"id": "mesh-ws", "name": "Mesh WebSocket Server", "status": "operational", "detail": f"{len(mesh_ws.manager.active)} live clients · offline buffer: {await mesh_ws.buffer_backend()}"},
     ]
     if any(c["status"] == "outage" for c in comps):
         overall = "outage"
@@ -1377,6 +1379,7 @@ import builder as builder_module
 
 api_router.include_router(auth_module.router)
 api_router.include_router(builder_module.router)
+api_router.include_router(mesh_ws.router)
 app.include_router(api_router)
 
 _PLATFORM_HOSTS = ("emergentagent.com", "frasberg", "localhost", "127.0.0.1")
