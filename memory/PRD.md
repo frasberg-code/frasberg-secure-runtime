@@ -431,3 +431,8 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - /api/system/status now 11 components (added ontology + integrity rows; status page renders them automatically).
 - Deliberately NOT built from user's pasted blueprint: separate websocket server, Redis, Docker/K8s/nginx/certbot files — Emergent's managed infra already provides TLS, ingress, scaling; duplicates would break deployment. Resilient reconnect/keepalive already shipped via sse_utils.guard_stream.
 - User must REDEPLOY via platform to push all of this (plus earlier stability fixes) to frasberg.com.
+
+## 2026-06 — Chat header cleanup + deploy readiness
+- Chat page: removed duplicate Luchii branding inside ChatDemo panel when embedded (/chat) — single header now; panel is truly edge-to-edge on mobile (no border/shadow/rounding via max-sm:!border-0).
+- EngineBadge now reads /api/system/status (mesh health) instead of voice engine state → shows "Mesh Online" green unless degraded/outage (voice standby no longer shows misleading "Engine Warming Up").
+- deployment_agent readiness check: PASS (ready to deploy). User instructed to click Deploy for frasberg.com.
