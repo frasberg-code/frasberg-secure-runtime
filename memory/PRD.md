@@ -390,7 +390,24 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
   redirect, hideable header, admin curation. Backend 7/8 (1 transient TTS warm-up race, benign),
   frontend 18/18. Minor optional: engine status may briefly report tts=loading on cold start.
 
+## Seed Gallery + Production Deployability (2026-08-03, latest)
+- Flagship demo builds seeded at backend startup (backend/seed_builds.py, idempotent by slug):
+  Nebula Dodge (game), Ember & Oak (website), Pulse (app), Hydra (landing) — published + featured,
+  owned by admin. Auto-seeds PRODUCTION DB on redeploy. Verified: gallery shows 4 featured cards,
+  /api/p/{slug} 200 for all, game playable w/ counter.
+- DEPLOYMENT BLOCKER FIXED: production containers = 1Gi RAM / 250m CPU — local ML stack can never
+  run there (root cause of all production OOM crashes). requirements.txt slimmed to 17 prod packages;
+  ML stack (torch, faster-whisper, coqui-tts, sentence-transformers, transformers, av, numpy) moved
+  to backend/requirements-ml.txt (preview-only; freeze backup at requirements-ml-freeze-backup.txt).
+  All ML imports were already lazy; production falls back automatically: STT/TTS → cloud bridge via
+  emergentintegrations (engine label "bridge", Frasberg-branded UI), memory vault → unavailable-safe.
+  Simulated production (imports blocked): graceful fallbacks verified. Preview unchanged (local
+  whisper-small + VITS still load). deployment_agent: STATUS PASS.
+- NOTE: do NOT pip-freeze requirements.txt anymore — it is hand-curated for production. Add new
+  prod deps individually; ML deps go to requirements-ml.txt.
+
 ## Backlog (updated 2026-08-01)
+
 
 - P2: Real DNS verification for builder custom domains.
 - P2: Builder generation progress heartbeat copy after 30s.
