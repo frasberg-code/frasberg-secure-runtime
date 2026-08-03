@@ -412,3 +412,13 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - P2: Real DNS verification for builder custom domains.
 - P2: Builder generation progress heartbeat copy after 30s.
 - P2: Voice engine warm-pool for prod deploys.
+
+## 2026-06 (fork) — Stability + Court Seal release
+- AI World Court seal (court-seal.png) now on Court, Laws, Downloads pages (replaced Gavel/Scale/FileText icons; data-testids court-seal / laws-court-seal / downloads-court-seal).
+- NEW /app/backend/sse_utils.py guard_stream: wraps /api/chat and /api/builder/generate SSE — errors now yield graceful payloads + 15s keepalives instead of dropping ("Connection to the mesh failed" root cause).
+- Startup ML preload is memory-guarded (skips Whisper/VITS/XTTS below 5GB free; engines lazy-load on first voice use). This was the production OOM that caused the Cloudflare "could not parse origin response" sign-in error.
+- voice_engine speak/transcribe/clone_speak now trigger lazy recovery from "idle" state too.
+- builder.py: LLM exceptions logged (were silently swallowed). Verified builder streams REAL Claude-generated games/sites (neon snake + pong tested).
+- Auth.jsx: signup 409 now auto-switches to login mode with friendly message.
+- Regression: /app/test_reports/iteration_16.json — all backend (6/6) and frontend (4/4) targeted tests PASS.
+- Backlog: real domain verification for builder (currently DNS-check based), production redeploy needed for user to see fixes on frasberg.com.

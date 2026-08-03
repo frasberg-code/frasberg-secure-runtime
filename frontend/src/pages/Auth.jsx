@@ -30,7 +30,12 @@ export default function Auth() {
       toast.success(mode === "signup" ? "Welcome to Luchii" : "Welcome back");
       navigate(next);
     } catch (err) {
-      setError(formatApiErrorDetail(err.response?.data?.detail) || err.message);
+      if (mode === "signup" && err.response?.status === 409) {
+        setMode("login");
+        setError("This email already has a Luchii account — sign in below.");
+      } else {
+        setError(formatApiErrorDetail(err.response?.data?.detail) || err.message);
+      }
     } finally {
       setBusy(false);
     }
