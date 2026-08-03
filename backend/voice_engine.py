@@ -180,6 +180,8 @@ def status():
 
 async def transcribe(raw: bytes, suffix: str):
     if _state["stt"] != "ready":
+        if _state["stt"] in ("idle", "unavailable"):
+            _try_recover("stt", _load_whisper)
         return None
 
     def run():
@@ -195,7 +197,7 @@ async def transcribe(raw: bytes, suffix: str):
 
 async def clone_speak(text: str, speaker_wav: str):
     if _state.get("xtts") != "ready":
-        if _state["xtts"] == "unavailable":
+        if _state["xtts"] in ("idle", "unavailable"):
             _try_recover("xtts", _load_xtts)
         return None
 
@@ -254,7 +256,7 @@ def _try_recover(component: str, loader):
 
 async def speak(text: str, tone=None, voice=None):
     if _state["tts"] != "ready":
-        if _state["tts"] == "unavailable":
+        if _state["tts"] in ("idle", "unavailable"):
             _try_recover("tts", _load_tts)
         return None
     if voice and voice in VOICE_IDS:

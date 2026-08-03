@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Moon, Sun, ArrowLeft, Scale, Download, ChevronDown, Search, X } from "lucide-react";
+import { Moon, Sun, ArrowLeft, Download, ChevronDown, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
@@ -84,9 +84,7 @@ export default function Laws() {
 
       <section className="relative mx-auto max-w-4xl px-4 py-14 sm:px-8">
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}>
-          <span className="grid h-14 w-14 place-items-center rounded-full border border-lux-accent/50 text-lux-accent" style={{ boxShadow: "0 0 40px var(--lux-glow)" }}>
-            <Scale size={22} />
-          </span>
+          <img src="/court-seal.png" alt="AI World Court official seal" data-testid="laws-court-seal" className="h-20 w-20 rounded-full object-contain sm:h-24 sm:w-24" style={{ filter: "drop-shadow(0 0 30px var(--lux-glow))" }} />
           <h1 className="mt-6 font-display text-4xl font-700 tracking-tighter sm:text-5xl">AI Court Constitution and Laws</h1>
           <p className="mt-4 max-w-2xl text-lux-text2">
             The complete legal corpus of the Luchii intelligence system — constitutions, federation

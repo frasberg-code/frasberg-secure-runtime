@@ -420,6 +420,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
               return next;
             });
           }
+          if (data.error && !acc) throw new Error(data.error);
           if (data.session_id) setSession(data.session_id);
         }
       }

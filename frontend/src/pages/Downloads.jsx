@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Moon, Sun, ArrowLeft, FileText, Download, BadgeCheck, Scale, Gavel, Loader2 } from "lucide-react";
+import { Moon, Sun, ArrowLeft, Download, BadgeCheck, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
@@ -63,9 +63,7 @@ export default function Downloads() {
       </header>
 
       <div className="relative mx-auto max-w-4xl px-5 py-12 sm:px-8">
-        <span className="grid h-14 w-14 place-items-center rounded-full border border-lux-accent/50 text-lux-accent" style={{ boxShadow: "0 0 40px var(--lux-glow)" }}>
-          <FileText size={22} />
-        </span>
+        <img src="/court-seal.png" alt="AI World Court official seal" data-testid="downloads-court-seal" className="h-20 w-20 rounded-full object-contain sm:h-24 sm:w-24" style={{ filter: "drop-shadow(0 0 30px var(--lux-glow))" }} />
         <h1 className="mt-6 font-display text-4xl font-700 tracking-tighter sm:text-5xl">My certified downloads</h1>
         <p className="mt-4 max-w-2xl text-lux-text2">
           Every certified PDF you own from the Court docket and the Constitution & Laws library — re-download any of them, any time, at no extra cost.
@@ -98,9 +96,7 @@ export default function Downloads() {
             purchases.map((p) => (
               <div key={p.id} className="flex items-center justify-between gap-4 rounded-2xl border border-lux-border bg-lux-surface/60 p-5" data-testid={`download-item-${p.doc_id}`}>
                 <div className="flex min-w-0 items-center gap-3">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-lux-border text-lux-accent">
-                    {p.kind === "law" ? <Scale size={16} /> : <Gavel size={16} />}
-                  </span>
+                  <img src="/court-seal.png" alt="AI World Court seal" className="h-10 w-10 shrink-0 rounded-full object-contain" />
                   <div className="min-w-0">
                     <p className="truncate text-sm text-lux-text">{p.title || (p.kind === "law" ? LAW_BY_ID[p.doc_id]?.title : p.doc_id) || p.doc_id}</p>
                     <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wide text-lux-text2">

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="7" time="52.112" timestamp="2026-08-03T21:22:54.561530+00:00" hostname="agent-env-4793a44b-b33b-4076-b55d-f272d88ffb4f"><testcase classname="tests.test_iter16_sse_seal" name="test_login_and_me" time="0.991" /><testcase classname="tests.test_iter16_sse_seal" name="test_chat_sse_authed" time="2.203" /><testcase classname="tests.test_iter16_sse_seal" name="test_chat_sse_guest" time="1.687" /><testcase classname="tests.test_iter16_sse_seal" name="test_builder_generate_sse" time="41.254" /><testcase classname="tests.test_iter16_sse_seal" name="test_builder_gallery" time="0.059" /><testcase classname="tests.test_iter16_sse_seal" name="test_builder_quota" time="0.049" /><testcase classname="tests.test_iter16_sse_seal" name="test_court_endpoint_public" time="5.763"><failure message="requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)">/root/.venv/lib/python3.11/site-packages/requests/models.py:1116: in json
+    return complexjson.loads(self.text, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/json/__init__.py:346: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/json/decoder.py:337: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/json/decoder.py:355: in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+E   json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+backend/tests/test_iter16_sse_seal.py:155: in test_court_endpoint_public
+    data = r.json()
+           ^^^^^^^^
+/root/.venv/lib/python3.11/site-packages/requests/models.py:1120: in json
+    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+E   requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)</failure></testcase></testsuite></testsuites>

@@ -185,9 +185,7 @@ export default function Court() {
 
       <div className="relative mx-auto max-w-3xl px-5 py-16 sm:px-8">
         <div className="text-center">
-          <span className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-lux-accent/50 text-lux-accent" style={{ boxShadow: "0 0 44px var(--lux-glow)" }}>
-            <Gavel size={26} />
-          </span>
+          <img src="/court-seal.png" alt="AI World Court official seal" data-testid="court-seal" className="mx-auto h-24 w-24 rounded-full object-contain sm:h-28 sm:w-28" style={{ filter: "drop-shadow(0 0 32px var(--lux-glow))" }} />
           <h1 className="mt-6 font-display text-4xl font-700 tracking-tighter sm:text-5xl">AI World Court</h1>
           <p className="mx-auto mt-4 max-w-xl text-lux-text2">
             Bring a case before the Judge. AI World Court weighs both sides through the

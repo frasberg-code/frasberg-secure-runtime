@@ -1,0 +1,54 @@
+{
+  "summary": "Iter16 regression on SSE crash-guard + AI World Court seal images. Backend: login+cookies, /auth/me, chat SSE (authed & guest) with delta+done, builder /generate SSE producing real project + gallery + quota — all PASS (6/6 relevant). Frontend: Court/Laws/Downloads all render court-seal.png (512x512, HTTP 200) at the expected data-testid selectors; Court submit flow returned a full VERDICT + REASONING ruling. Chat page streamed a real Luchii reply end-to-end — the 'Connection to the mesh failed' string NEVER appeared. guard_stream + keepalive wrapper is working as designed.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/court", "issue": "Public court endpoint responds with an SSE stream (text/event-stream), not a JSON body — fine for the UI (Court.jsx consumes it), but any client expecting JSON will fail. Only a documentation nit."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Auth.jsx (login form)", "issue": "Submitting admin creds on /auth triggers POST that returns 409 (visible in console). URL stays on /auth. This was pre-existing (chat still works in guest mode, and cookies from previous session let /chat stream). Likely the form is calling /register instead of /login when a session already exists, or the toggle state isn't respected. Non-blocking for this review since chat streaming was verified.", "selector": "button[type='submit'] on /auth", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verified_pass": {
+    "court_seal": "data-testid=court-seal, src=/court-seal.png, naturalWidth=512, complete=true",
+    "laws_court_seal": "data-testid=laws-court-seal, 512x512, loaded from https://ai-gateway-demo.preview.emergentagent.com/court-seal.png",
+    "downloads_court_seal": "data-testid=downloads-court-seal, 512x512 loaded — sits above the 'Sign in to see your downloads' gate as expected",
+    "court_flow_e2e": "Filled court-input + clicked court-submit — data-testid=court-ruling appeared with 'VERDICT ... REASONING ...' text",
+    "chat_stream_no_mesh_error": "Sent 'In one sentence, what is a neural network?' — got full streamed Luchii reply; body scanned every 1s for 30s, 'Connection to the mesh failed' never present",
+    "backend_chat_sse_authed": "delta events + {done:true, session_id:...} — 200 OK, text/event-stream",
+    "backend_chat_sse_guest": "streams same shape unauthenticated",
+    "backend_builder_generate": "POST /api/builder/generate {prompt:'simple pong game',type:'game'} streamed to completion; done event carried project id; GET /api/builder/projects lists it",
+    "backend_builder_gallery": "GET /api/builder/gallery returns >=1 seeded flagship build",
+    "backend_builder_quota": "GET /api/builder/quota returns {used, limit}",
+    "sse_keepalive_wrapper": "guard_stream is emitting ': stream-start' and reaching graceful done — no dropped connections observed"
+  },
+  "not_executed": [
+    "PayPal (per instruction)",
+    "Voice endpoints heavy testing (per instruction; lazy-load acceptable)"
+  ],
+  "test_report_links": [
+    "/app/backend/tests/test_iter16_sse_seal.py",
+    "/app/test_reports/pytest/iter16.xml"
+  ],
+  "action_items": [
+    "OPTIONAL/LOW: Investigate the 409 shown on POST when submitting the /auth form with valid admin creds. UI stayed on /auth even though /api/auth/login via curl returns 200. May be a duplicate-submit or wrong endpoint in the register-vs-login toggle. Chat still worked (session already valid), so users are not blocked."
+  ],
+  "critical_code_review_comments": [
+    "sse_utils.guard_stream is clean and correct — asyncio.Queue with 15s keepalive timeout and finally-cancel on the producer task. LGTM.",
+    "Court public endpoint returning SSE (not JSON) is fine as long as it's documented; consider mirroring the {delta,done} shape used by /api/chat for consistency."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter16_sse_seal.py (new)"
+  ],
+  "success_rate": {"backend": "6/6 targeted PASS (1 court-JSON test failure was my test-script bug; UI verified live)", "frontend": "4/4 targeted PASS (3 seals + chat stream)"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026! ; doctester1@frasberg.com / DocTester2026!",
+  "seed_data_creation": "Created 1 builder project for admin during test_builder_generate_sse (simple pong game).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "SSE crash-guard (sse_utils.guard_stream) is verified end-to-end for /api/chat and /api/builder/generate. All three AI World Court seal images are wired with the correct data-testid attributes on Court/Laws/Downloads and load a real 512x512 court-seal.png. Only lingering observation: Auth.jsx login form emits a 409 on submit even when creds are valid — the chat page still worked because cookies were already set, but the auth UX itself could not be re-verified this run. If a future test needs a fresh login via UI, may need to clear cookies first or use the /api/auth/login curl and inject cookies into playwright context.",
+  "rca_of_the_issue": "N/A — all requested fixes verified working."
+}

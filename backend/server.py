@@ -1,5 +1,6 @@
 from fastapi import FastAPI, APIRouter, Header, HTTPException, Depends, Request, UploadFile, File
 from fastapi.responses import StreamingResponse
+from sse_utils import guard_stream
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -454,7 +455,11 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
         yield f"data: {json.dumps({'done': True, 'session_id': session_id})}\n\n"
 
     return StreamingResponse(
-        event_generator(), media_type="text/event-stream",
+        guard_stream(event_generator(), [
+            {"delta": "The mesh hit turbulence mid-response — please send that again."},
+            {"done": True, "session_id": session_id},
+        ]),
+        media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
 
@@ -1364,7 +1369,21 @@ async def create_indexes():
         await db.knowledge.insert_many([
             {**d, "id": str(uuid.uuid4()), "updated_at": now} for d in KB_SEED
         ])
-    threading.Thread(target=lambda: (voice_engine.preload_sync(), memory_vault.preload_sync(), voice_engine.preload_xtts_sync()), daemon=True).start()
+    def _preload_ml():
+        try:
+            memory_vault.preload_sync()
+            avail = voice_engine._mem_available_gb()
+            if avail < 5:
+                logger.warning("Deferring sovereign voice preload — only %.1f GB memory available (engines will lazy-load on first voice use)", avail)
+                return
+            voice_engine.preload_sync()
+            if voice_engine._mem_available_gb() >= 4:
+                voice_engine.preload_xtts_sync()
+            else:
+                logger.warning("Skipping XTTS preload — low memory (will lazy-load on first cloning use)")
+        except Exception:
+            logger.exception("ML preload failed — continuing without sovereign voice")
+    threading.Thread(target=_preload_ml, daemon=True).start()
     asyncio.create_task(_probe_upstreams())
 
 

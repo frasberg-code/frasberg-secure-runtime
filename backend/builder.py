@@ -3,6 +3,7 @@ import re
 import json
 import uuid
 import asyncio
+import logging
 import secrets
 from datetime import datetime, timezone
 from typing import Optional
@@ -16,6 +17,9 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from emergentintegrations.llm.chat import LlmChat, UserMessage, TextDelta, StreamDone
 
 import auth as auth_module
+from sse_utils import guard_stream
+
+logger = logging.getLogger(__name__)
 
 client = AsyncIOMotorClient(os.environ["MONGO_URL"])
 db = client[os.environ["DB_NAME"]]
@@ -141,7 +145,7 @@ async def builder_generate(body: GenerateReq, user: dict = Depends(auth_module.g
                 elif isinstance(event, StreamDone):
                     break
         except Exception:
-            pass
+            logger.exception("builder LLM stream failed")
         html = _clean_html(full)
         if not html or "<html" not in html.lower():
             yield f"data: {json.dumps({'error': 'The Luchii Builder engine could not complete this build. Please try again.'})}\n\n"
@@ -165,7 +169,10 @@ async def builder_generate(body: GenerateReq, user: dict = Depends(auth_module.g
         yield f"data: {json.dumps({'done': True, 'project': {'id': pid, 'title': title, 'type': body.type}, 'generations_used': used + 1, 'daily_limit': limit})}\n\n"
 
     return StreamingResponse(
-        event_gen(), media_type="text/event-stream",
+        guard_stream(event_gen(), [
+            {"error": "The Luchii Builder engine hit turbulence — please try again."},
+        ]),
+        media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
 
