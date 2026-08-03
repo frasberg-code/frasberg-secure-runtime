@@ -1356,6 +1356,8 @@ async def create_indexes():
     await db.chat_messages.create_index("expires_at", expireAfterSeconds=0)
     await auth_module.create_indexes()
     await auth_module.seed_admin()
+    from seed_builds import seed_flagship_builds
+    await seed_flagship_builds(db)
     await db.user_memories.create_index([("user_id", 1), ("created_at", -1)])
     if await db.knowledge.count_documents({}) == 0:
         now = datetime.now(timezone.utc).isoformat()
