@@ -207,8 +207,6 @@ async def builder_publish(pid: str, user: dict = Depends(auth_module.get_current
     doc = await db.builder_projects.find_one({"id": pid, "user_id": user["id"]})
     if not doc:
         raise HTTPException(status_code=404, detail="Project not found")
-    if not _is_pro(user):
-        raise HTTPException(status_code=402, detail="pro_required")
     slug = doc.get("slug")
     if not slug:
         base = re.sub(r"[^a-z0-9]+", "-", (doc.get("title") or "site").lower())[:24].strip("-") or "site"

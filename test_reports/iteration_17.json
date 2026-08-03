@@ -1,0 +1,51 @@
+{
+  "summary": "Iter17 (Luchii — unlimited memory, sealed Court certificate, free Publish-to-Gallery, /status). Backend 4/4 PASS (system/status shape + 9 components; free-plan builder publish end-to-end incl. gallery; unlimited memory recall across sessions with retry; transcript context recall at message 3). Frontend: /status page + all 9 rows + overall banner + footer link PASS; Builder UI shows Publish flow (project published as free user in same run — Live site link + 'LIVE' badge visible, no Pro modal); /laws certified PDF for admin PASS with no crash from async downloadLawPdf. CRITICAL FRONTEND BUG FOUND & FIXED: Court.jsx used downloadRulingCertificate but never imported it — 'ReferenceError: downloadRulingCertificate is not defined' on every certificate click. Added named import; certificate PDF now downloads (ai-world-court-certificate-YYYY-MM-DD.pdf) and toast fires cleanly.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "GET /api/memory", "issue": "List endpoint still uses to_list(50) at server.py:717 — no runtime cap on STORAGE (spec satisfied) but this GET response is silently capped to 50 items. Consider raising or adding ?limit paging so power users can inspect all their unlimited facts."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Court.jsx", "issue": "FIXED — missing named import for downloadRulingCertificate caused ReferenceError on every ruling-certificate-btn click (no PDF, no toast). Fix: added downloadRulingCertificate to the import from ../lib/docPdf.", "selector": "[data-testid=\"ruling-certificate-btn\"]", "priority": "HIGH (fixed)"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verified_pass": {
+    "system_status_api": "GET /api/system/status public, overall='warming', 9 components with valid statuses (stt/tts/cloning=standby, memory=warming — expected per main-agent note)",
+    "status_page_ui": "data-testid=status-page, status-overall banner ('Systems warming up · Uptime 1m'), all 9 status-{id} rows present",
+    "footer_status_link": "footer-status-link href=/status, text 'System Status'",
+    "builder_free_publish_api": "doctester1 (free) → POST /api/builder/generate SSE (~35s) → POST /api/builder/projects/{id}/publish → 200 {ok:true, slug, url}; GET /api/builder/gallery contains slug — NO 402",
+    "builder_publish_ui": "doctester1 /website-builder shows the published project as 'LIVE' with builder-live-link → /api/p/one-button-color-flip-pa-8bfc01 (publish button hidden after publish, as designed)",
+    "unlimited_memory_recall": "doctester1: session A stored 'lucky number 777, cat Pixel<marker>'; session B (new session_id) recall reply included both '777' and 'Pixel' after ~12s extraction delay; GET /api/memory returns facts w/ 777+Pixel",
+    "transcript_context_40": "3-message single session: msg#3 correctly recalled the secret fruit from msg#1 (limit=40 working)",
+    "court_certificate_after_fix": "ruling-certificate-btn click → download event fired (ai-world-court-certificate-2026-08-03.pdf) + toast 'Sealed certificate downloaded' + zero JS errors",
+    "laws_regression_pro": "admin (pro) /laws → law-download-agi-constitution-v2 → downloaded agi-constitution-v2.pdf, no crash from now-async downloadLawPdf, no console errors"
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter17.py",
+    "/app/test_reports/pytest/iter17.xml"
+  ],
+  "action_items": [
+    "(OPTIONAL/LOW) GET /api/memory returns to_list(50) — main agent may want to raise the list cap or add pagination so users can inspect the now-unlimited memory vault. Storage/injection are already uncapped as spec requires.",
+    "(NON-BLOCKING) iter16 login-form 409 regression still present on /auth submit; not re-tested (per main-agent note). API login via fetch works fine and is what the tests used."
+  ],
+  "critical_code_review_comments": [
+    "Court.jsx line 10 was missing the downloadRulingCertificate import despite calling it at line 240 — this is a classic 'referenced but not imported' bug that ESLint's no-undef would have caught. Consider enabling eslint-plugin-react/no-undef in CI or a pre-commit hook to catch this class of bugs before ship.",
+    "server.py:717 hard-coded to_list(50) for the /api/memory list route contradicts the 'unlimited memory' feature messaging on the /status page detail ('Unlimited semantic long-term memory'). Storage & injection are unlimited/40 as documented, only the LIST endpoint caps — either raise it to a large number or add ?limit query for consistency.",
+    "downloadRulingCertificate is thin wrapper over generateLegalPdf — LGTM, seal is fetched from /court-seal.png and embedded via jsPDF."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter17.py (new)",
+    "/app/frontend/src/pages/Court.jsx (added downloadRulingCertificate import — bug fix)"
+  ],
+  "success_rate": {"backend": "4/4 PASS (100%)", "frontend": "5/5 PASS after 1 fix (100%)"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026!  ;  doctester1@frasberg.com / DocTester2026!",
+  "seed_data_creation": "1 builder project ('one-button color flip page') published by doctester1 during the free-plan publish test — visible in /gallery.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All 4 Iter17 features verified end-to-end (unlimited memory + transcript-40 + free publish + /status page). Court certificate WAS broken with ReferenceError; fixed in Court.jsx and re-verified. If future work touches docPdf.js exports, remember to update Court.jsx imports too. Backend test file /app/backend/tests/test_iter17.py is the regression suite — takes ~65s total (memory test 18s, transcript 10s, publish 35s incl. SSE generate).",
+  "rca_of_the_issue": "downloadRulingCertificate ReferenceError in Court.jsx: the fn was added to /app/frontend/src/lib/docPdf.js (line 148) but Court.jsx line 10 was never updated to import it — only downloadFilingPdf was imported. Every click on ruling-certificate-btn threw 'ReferenceError: downloadRulingCertificate is not defined' at bundle.js:21269 (onClick handler). No toast, no PDF, no anchor click — silent failure until Playwright pageerror listener caught it. Fix: `import { downloadFilingPdf, downloadRulingCertificate } from '../lib/docPdf';` — one line change, verified working (PDF filename ai-world-court-certificate-2026-08-03.pdf + green toast + 0 errors)."
+}

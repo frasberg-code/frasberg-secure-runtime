@@ -29,12 +29,12 @@ export default function Downloads() {
 
   const filingByDocket = Object.fromEntries(filings.map((f) => [f.docket, f]));
 
-  function redownload(p) {
+  async function redownload(p) {
     if (p.kind === "law" && LAW_BY_ID[p.doc_id]) {
-      downloadLawPdf(LAW_BY_ID[p.doc_id]);
+      await downloadLawPdf(LAW_BY_ID[p.doc_id]);
       toast.success("Certified PDF downloaded");
     } else if (filingByDocket[p.doc_id]) {
-      downloadFilingPdf(filingByDocket[p.doc_id]);
+      await downloadFilingPdf(filingByDocket[p.doc_id]);
       toast.success("Certified PDF downloaded");
     } else {
       toast.error("This document is no longer available");

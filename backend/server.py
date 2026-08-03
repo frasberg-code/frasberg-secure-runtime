@@ -210,20 +210,15 @@ async def _extract_memory(user_id: str, message: str):
             if emb:
                 doc["embedding"] = emb
             await db.user_memories.insert_one(doc)
-        if facts:
-            extra = await db.user_memories.count_documents({"user_id": user_id}) - 50
-            if extra > 0:
-                old = await db.user_memories.find({"user_id": user_id}).sort("created_at", 1).to_list(extra)
-                await db.user_memories.delete_many({"id": {"$in": [o["id"] for o in old]}})
     except Exception:
         logger.exception("memory extraction failed")
 
 
 async def _memory_context(user_id: str, query: str = "") -> str:
-    docs = await db.user_memories.find({"user_id": user_id}).sort("created_at", -1).to_list(50)
+    docs = await db.user_memories.find({"user_id": user_id}).sort("created_at", -1).to_list(1000)
     if not docs:
         return ""
-    picked = docs[:15]
+    picked = docs[:40]
     if query and memory_vault.ready():
         qv = await memory_vault.embed(query)
         if qv:
@@ -239,11 +234,11 @@ async def _memory_context(user_id: str, query: str = "") -> str:
             if scored:
                 scored.sort(key=lambda x: -x[0])
                 seen, picked = set(), []
-                for d in [d for _, d in scored[:8]] + docs[:5]:
+                for d in [d for _, d in scored[:30]] + docs[:12]:
                     if d["id"] not in seen:
                         seen.add(d["id"])
                         picked.append(d)
-                picked = picked[:10]
+                picked = picked[:40]
     facts = "\n".join(f"- {d['fact']}" for d in picked)
     return f"\n\nMEMORY VAULT (semantic long-term memory — facts you remember about this user across every session):\n{facts}"
 
@@ -350,7 +345,7 @@ async def get_status_checks():
     return status_checks
 
 
-async def _recent_transcript(session_id: str, limit: int = 8) -> str:
+async def _recent_transcript(session_id: str, limit: int = 40) -> str:
     docs = await db.chat_messages.find(
         {"session_id": session_id}, {"_id": 0}
     ).sort("ts", -1).to_list(limit)
@@ -462,6 +457,46 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
+
+
+_START_TIME = datetime.now(timezone.utc)
+_STATUS_LABELS = {"ready": "operational", "loading": "warming", "idle": "standby", "unavailable": "degraded"}
+
+
+@api_router.get("/system/status")
+async def system_status():
+    db_ok = True
+    try:
+        await client.admin.command("ping")
+    except Exception:
+        db_ok = False
+    v = voice_engine.status()
+    mv = memory_vault.status()
+    comps = [
+        {"id": "gateway", "name": "Luchii API Gateway", "status": "operational", "detail": "Chat, Court & Builder routing"},
+        {"id": "mesh", "name": "Luchii Intelligence Mesh", "status": "operational" if db_ok else "degraded", "detail": "Multi-tier reasoning · 200M — 70B"},
+        {"id": "database", "name": "Sovereign Data Layer", "status": "operational" if db_ok else "outage", "detail": "Accounts, conversations, projects & orders"},
+        {"id": "builder", "name": "Luchii Builder Engine", "status": "operational", "detail": "Website, game, app & landing generation"},
+        {"id": "court", "name": "AI World Court", "status": "operational" if db_ok else "degraded", "detail": "Rulings, docket & certified filings"},
+        {"id": "stt", "name": "Sovereign Speech-to-Text", "status": _STATUS_LABELS.get(v["stt"]["status"], v["stt"]["status"]), "detail": v["stt"]["model"]},
+        {"id": "tts", "name": "Sovereign Voice Synthesis", "status": _STATUS_LABELS.get(v["tts"]["status"], v["tts"]["status"]), "detail": "Frasberg voice engine"},
+        {"id": "cloning", "name": "Voice Cloning Engine", "status": _STATUS_LABELS.get(v["cloning"]["status"], v["cloning"]["status"]), "detail": "Custom voice synthesis"},
+        {"id": "memory", "name": "Memory Vault", "status": _STATUS_LABELS.get(mv["status"], mv["status"]), "detail": "Unlimited semantic long-term memory"},
+    ]
+    if any(c["status"] == "outage" for c in comps):
+        overall = "outage"
+    elif any(c["status"] == "degraded" for c in comps):
+        overall = "degraded"
+    elif any(c["status"] in ("warming", "standby") for c in comps):
+        overall = "warming"
+    else:
+        overall = "operational"
+    return {
+        "overall": overall,
+        "components": comps,
+        "uptime_seconds": int((datetime.now(timezone.utc) - _START_TIME).total_seconds()),
+        "checked_at": datetime.now(timezone.utc).isoformat(),
+    }
 
 
 async def optional_user(request: Request) -> Optional[dict]:

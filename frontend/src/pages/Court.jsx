@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import Starfield from "../components/site/Starfield";
 import Footer from "../components/site/Footer";
 import DocPaywallModal from "../components/site/DocPaywallModal";
-import { downloadFilingPdf } from "../lib/docPdf";
+import { downloadFilingPdf, downloadRulingCertificate } from "../lib/docPdf";
 import { COURT_CASES } from "../data/content";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -97,7 +97,7 @@ export default function Court() {
       });
       if (res.ok) {
         const d = await res.json();
-        const pdfDoc = downloadFilingPdf(f);
+        const pdfDoc = await downloadFilingPdf(f);
         if (d.receipt_eligible && pdfDoc) {
           fetch(`${API}/docs/receipt`, {
             method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
@@ -231,7 +231,23 @@ export default function Court() {
                 <Sparkles size={15} className="text-lux-accent" />
                 <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">Ruling of the Court</span>
               </div>
-              {verdict ? <Ruling text={verdict} /> : <Loader2 size={18} className="animate-spin text-lux-text2" />}
+              {verdict ? (
+                <>
+                  <Ruling text={verdict} />
+                  {!busy && (
+                    <button
+                      onClick={async () => {
+                        await downloadRulingCertificate({ caseText: submitted, ruling: verdict });
+                        toast.success("Sealed certificate downloaded");
+                      }}
+                      data-testid="ruling-certificate-btn"
+                      className="mt-5 inline-flex items-center gap-2 rounded-full border border-lux-accent px-5 py-2.5 text-xs font-600 text-lux-accent transition-transform hover:-translate-y-0.5"
+                    >
+                      <Download size={13} /> Download sealed certificate
+                    </button>
+                  )}
+                </>
+              ) : <Loader2 size={18} className="animate-spin text-lux-text2" />}
             </div>
           </div>
         )}

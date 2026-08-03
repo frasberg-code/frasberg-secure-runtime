@@ -35,7 +35,7 @@ export default function Laws() {
       });
       if (res.ok) {
         const resp = await res.json();
-        const pdfDoc = downloadLawPdf(d);
+        const pdfDoc = await downloadLawPdf(d);
         if (resp.receipt_eligible && pdfDoc) {
           fetch(`${API}/docs/receipt`, {
             method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",

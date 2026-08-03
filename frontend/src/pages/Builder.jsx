@@ -10,7 +10,7 @@ import Footer from "../components/site/Footer";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-const SUB = "Describe your idea — build websites, games & apps with Luchii. Free to try; upgrade to Luchii Pro to publish, attach your own domain and unlock more daily builds.";
+const SUB = "Describe your idea — build websites, games & apps with Luchii. Publish to the public Gallery with one tap; upgrade to Luchii Pro to attach your own domain and unlock more daily builds.";
 
 const COPY = {
   website: {
@@ -59,7 +59,7 @@ function ProGateModal({ open, onClose }) {
         <span className="mx-auto grid h-12 w-12 place-items-center rounded-full border border-lux-accent/50 text-lux-accent"><Rocket size={20} /></span>
         <p className="mt-4 font-display text-xl font-700 tracking-tight text-lux-text">Luchii Pro required</p>
         <p className="mt-2 text-sm leading-relaxed text-lux-text2">
-          Publishing your build to the web, attaching a custom domain and higher daily build limits are Luchii Pro features.
+          Attaching a custom domain and higher daily build limits are Luchii Pro features.
         </p>
         <Link to="/pay" data-testid="builder-pro-upgrade"
           className="mt-5 inline-block w-full rounded-full bg-lux-accent px-6 py-3 text-sm font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
@@ -225,7 +225,7 @@ export default function Builder({ type = "website" }) {
       const d = await res.json();
       setCurrent((cur) => ({ ...cur, published: true, slug: d.slug }));
       loadProjects();
-      toast.success("Published! Your build is live.");
+      toast.success("Published! Your build is live in the Gallery.");
     } catch { toast.error("Publish failed — please try again"); }
   }
 
@@ -423,7 +423,7 @@ export default function Builder({ type = "website" }) {
                     ) : (
                       <button onClick={publish} data-testid="builder-publish-btn"
                         className="inline-flex items-center gap-1.5 rounded-full bg-lux-text px-4 py-2 text-xs font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
-                        <Rocket size={12} /> Publish (Pro)
+                        <Rocket size={12} /> Publish to Gallery
                       </button>
                     )}
                   </div>
