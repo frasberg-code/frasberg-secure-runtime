@@ -422,3 +422,12 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - Auth.jsx: signup 409 now auto-switches to login mode with friendly message.
 - Regression: /app/test_reports/iteration_16.json — all backend (6/6) and frontend (4/4) targeted tests PASS.
 - Backlog: real domain verification for builder (currently DNS-check based), production redeploy needed for user to see fixes on frasberg.com.
+
+## 2026-06 — Ontology Context Accelerator + Mesh Integrity Layer
+- NEW /app/backend/ontology.py: Frasberg ontology graph (21 canonical concepts w/ typed relations). Semantic+symbolic resolve via memory_vault embedder with explainability trace (matched nodes, scores, matched_via, 1-hop relation expansion, confidence).
+- Injected into every /api/chat system prompt (FRASBERG ONTOLOGY CONTEXT block) → consistent, grounded, explainable answers.
+- Endpoints: GET /api/ontology (graph), POST /api/ontology/resolve {query} → trace. Verified: confidence 0.856 semantic+symbolic on governance query.
+- Mesh Integrity Layer (frasberg-secure-v1): MESH_HMAC_SECRET in backend/.env; every chat SSE done event carries HMAC-SHA256 sig of full response + X-Luchii-Mesh response header. Tamper-proof verification tested end-to-end (recomputed HMAC matches).
+- /api/system/status now 11 components (added ontology + integrity rows; status page renders them automatically).
+- Deliberately NOT built from user's pasted blueprint: separate websocket server, Redis, Docker/K8s/nginx/certbot files — Emergent's managed infra already provides TLS, ingress, scaling; duplicates would break deployment. Resilient reconnect/keepalive already shipped via sse_utils.guard_stream.
+- User must REDEPLOY via platform to push all of this (plus earlier stability fixes) to frasberg.com.

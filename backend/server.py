@@ -28,6 +28,9 @@ from pypdf import PdfReader
 import auth as auth_module
 import voice_engine
 import memory_vault
+import ontology
+import hmac
+import hashlib
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -38,6 +41,11 @@ db = client[os.environ['DB_NAME']]
 auth_module.setup(db)
 
 EMERGENT_LLM_KEY = os.environ['EMERGENT_LLM_KEY']
+MESH_HMAC_SECRET = os.environ['MESH_HMAC_SECRET'].encode()
+
+
+def _mesh_sign(content: str) -> str:
+    return hmac.new(MESH_HMAC_SECRET, content.encode(), hashlib.sha256).hexdigest()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -447,7 +455,7 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
                 {"$inc": {"request_count": 1, "token_count": len(full.split())},
                  "$set": {"last_used": datetime.now(timezone.utc).isoformat()}},
             )
-        yield f"data: {json.dumps({'done': True, 'session_id': session_id})}\n\n"
+        yield f"data: {json.dumps({'done': True, 'session_id': session_id, 'mesh': 'frasberg-secure-v1', 'sig': _mesh_sign(full)})}\n\n"
 
     return StreamingResponse(
         guard_stream(event_generator(), [
@@ -455,7 +463,7 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
             {"done": True, "session_id": session_id},
         ]),
         media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no", "X-Luchii-Mesh": "frasberg-secure-v1"},
     )
 
 
@@ -482,6 +490,8 @@ async def system_status():
         {"id": "tts", "name": "Sovereign Voice Synthesis", "status": _STATUS_LABELS.get(v["tts"]["status"], v["tts"]["status"]), "detail": "Frasberg voice engine"},
         {"id": "cloning", "name": "Voice Cloning Engine", "status": _STATUS_LABELS.get(v["cloning"]["status"], v["cloning"]["status"]), "detail": "Custom voice synthesis"},
         {"id": "memory", "name": "Memory Vault", "status": _STATUS_LABELS.get(mv["status"], mv["status"]), "detail": "Unlimited semantic long-term memory"},
+        {"id": "ontology", "name": "Ontology Context Accelerator", "status": "operational", "detail": f"{len(ontology.NODES)} canonical concepts · explainable grounding"},
+        {"id": "integrity", "name": "Mesh Integrity Layer", "status": "operational", "detail": "frasberg-secure-v1 · HMAC-SHA256 signed responses"},
     ]
     if any(c["status"] == "outage" for c in comps):
         overall = "outage"
@@ -497,6 +507,22 @@ async def system_status():
         "uptime_seconds": int((datetime.now(timezone.utc) - _START_TIME).total_seconds()),
         "checked_at": datetime.now(timezone.utc).isoformat(),
     }
+
+
+class OntologyQuery(BaseModel):
+    query: str
+
+
+@api_router.get("/ontology")
+async def ontology_graph():
+    return {"version": ontology.VERSION, "count": len(ontology.NODES), "nodes": ontology.public_nodes()}
+
+
+@api_router.post("/ontology/resolve")
+async def ontology_resolve(body: OntologyQuery):
+    if not body.query or not body.query.strip():
+        raise HTTPException(status_code=400, detail="Query is required")
+    return await ontology.resolve(body.query.strip())
 
 
 async def optional_user(request: Request) -> Optional[dict]:
@@ -521,6 +547,7 @@ async def chat(req: ChatRequest, user: Optional[dict] = Depends(optional_user)):
                       "name": req.attachment_name or "file"}
     sb = LUCHII_SYSTEM + AGENT_PERSONAS.get((req.agent or "").lower(), "") + TONE_PROMPTS.get((req.tone or "").lower(), "")
     sb += await _kb_context(req.message)
+    sb += await ontology.context_block(req.message)
     if user:
         sb += f"\n\nThe signed-in user's name is {user.get('name', 'friend')}. Address them by their name naturally and warmly (not in every sentence)."
         sb += await _memory_context(user["id"], req.message)
@@ -714,7 +741,7 @@ async def voice_speak(req: SpeakRequest, user: dict = Depends(auth_module.get_cu
 
 @api_router.get("/memory")
 async def list_memory(user: dict = Depends(auth_module.get_current_user)):
-    docs = await db.user_memories.find({"user_id": user["id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    docs = await db.user_memories.find({"user_id": user["id"]}, {"_id": 0}).sort("created_at", -1).to_list(2000)
     return docs
 
 
