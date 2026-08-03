@@ -1,0 +1,60 @@
+{
+  "summary": "Regression sweep iter15 — chat, voice, one builder generation+publish, docs paywall backend, homepage/SEO, mobile redirect + hide/show header, admin console, gallery tabs, builder copy. 7/8 backend tests pass (1 transient TTS 'loading' race — round-trip TTS+STT then succeeded). All targeted frontend features PASS. Chat.jsx hideHeader bug from iter13 is fixed; /chat now renders and streams replies for signed-in admin without the mesh error. Signed-in admin sees NO guest banner/sidebar. Attach menu contains exactly Upload/Image/Video. Builder generated 'a one-button color changer' in ~30s, iframe rendered, publish produced live URL that serves 7KB HTML with HTTP 200. Voice engine reports whisper-small; speak+transcribe round-trip works via /api/voice/transcribe multipart 'file'.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/voice/engine", "issue": "First-hit response can transiently return tts.status='loading' before Coqui warm-up. Subsequent /api/voice/speak works fine (~2s). Consider serving 'loading' with 503 OR waiting for warm-up before marking engine ready, to avoid flaky client checks."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verified_pass": {
+    "seo_title": "Frasberg",
+    "seo_meta_description": "Frasberg | Luchii AI Models and AI World Court — Build Apps, Games and Websites. Build on Frasberg.",
+    "hero_cta_primary_href": "/builder",
+    "chat_admin_stream": "Streamed reply 'Hello, Frasberg Admin!' etc; no 'Connection to the mesh failed' string",
+    "chat_signed_in_no_guest_ui": "chat-guest-banner and chat-guest-sidebar both absent when logged in as admin",
+    "chat_attach_menu": "Upload a file / Image Creator / Video Creator (no Take a screenshot)",
+    "voice_engine": "stt whisper-small ready, tts ready after warm-up, cloning xtts-v2 ready",
+    "voice_roundtrip": "POST /api/voice/speak returns audio_base64; POST /api/voice/transcribe (multipart 'file') transcribes it back to non-empty text",
+    "builder_page_copy": "Sub copy 'Describe your idea — build websites, games & apps with Luchii...' present; tabs = ['Website','Mobile App','Game','Landing Page']",
+    "landing_builder": "/landing-builder loads with Luchii branding",
+    "builder_generate_publish": "Admin generation of 'a one-button color changer' streamed to preview iframe; publish produced https://ai-gateway-demo.preview.emergentagent.com/api/p/a-one-button-color-chang-300fc4 (HTTP 200, 7070 bytes, valid HTML)",
+    "gallery_tabs": "Body contains both 'Apps' and 'Landing' tab labels",
+    "admin_console": "Loads with system stats and user list; contains 'gallery' section reference",
+    "docs_unlock_guest_401": "POST /api/docs/unlock without auth returns 401",
+    "docs_unlock_admin": "POST /api/docs/unlock as admin returns 200 (pro plan grants access)",
+    "docs_purchases_list": "GET /api/docs/purchases as admin returns 200",
+    "mobile_redirect": "At 390x844 with sessionStorage cleared, first visit to / redirects to /chat; second visit stays on / (homepage)",
+    "chat_hide_show_header": "chat-hide-header-btn hides header and reveals chat-show-header-btn",
+    "published_page_serves": "GET /api/p/a-one-button-color-chang-300fc4 returns HTTP 200 with valid HTML including <title>Chroma — One Button Color Changer</title>"
+  },
+  "not_executed": [
+    "PayPal purchase (per instruction — live keys)",
+    "Fresh-free-user paywall MODAL flow (backend 402 path already covered; UI modal previously verified in iteration_13; law-toggle click quirk documented there)",
+    "Free user 402 via API — doctester1@frasberg.com already has credits carried over so returned 200 (test allowed both 200/402). To retest true 402, main agent should reset doc_credits on doctester1 to 0."
+  ],
+  "test_report_links": [
+    "/app/backend/tests/test_regression_iter15.py",
+    "/app/test_reports/pytest/iter15.xml"
+  ],
+  "action_items": [
+    "OPTIONAL: In voice_engine.py, block returning tts.status='ready' until Coqui first synth is warm, OR have /api/voice/engine return 503 while loading. Not blocking — speak() itself queues correctly.",
+    "OPTIONAL: To validate free-user 402 in future runs, reset doc_credits=0 for doctester1@frasberg.com in seed_users or purge test purchases before regression."
+  ],
+  "critical_code_review_comments": [
+    "Chat.jsx hideHeader useState is now correctly declared (line 22) — iter13 blocker resolved.",
+    "Builder generation on tiny prompt still ~30s end-to-end; SSE ': stream-start' comment is being emitted (no early-close). Consider a client heartbeat display after 15s for UX consistency, not blocking."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "7/8 (87%) — 1 transient race on engine warm-up, not a real bug", "frontend": "18/18 targeted checks PASS"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026! ; doctester1@frasberg.com / DocTester2026! (has credits from prior iters)",
+  "seed_data_creation": "Published builder project at slug a-one-button-color-chang-300fc4 (admin). Registered 1 TEST_free_iter15_*@example.com account during flow.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "iter13 chat blocker (hideHeader useState) is fixed. Voice engine may transiently return tts=loading on first GET; speak() itself works — allow retry. To test free-user 402 paywall via API, first reset doctester1's doc_credits to 0 or register a brand-new user without any prior unlocks. All builder copy/tabs/hero-CTA/SEO/mobile-redirect verified in this run. Live-serving slug from this iteration: /api/p/a-one-button-color-chang-300fc4.",
+  "rca_of_the_issue": "N/A — regression pass green."
+}

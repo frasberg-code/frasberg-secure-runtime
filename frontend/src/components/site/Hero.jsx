@@ -90,7 +90,7 @@ export default function Hero() {
             className="mt-9 flex flex-wrap items-center gap-4"
           >
             <a
-              href="#api"
+              href="/builder"
               data-testid="hero-cta-primary"
               className="group inline-flex items-center gap-2 rounded-full bg-lux-accent px-6 py-3 text-sm font-600 text-lux-bg transition-transform duration-200 hover:-translate-y-0.5"
             >

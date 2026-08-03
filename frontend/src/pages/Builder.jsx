@@ -10,32 +10,34 @@ import Footer from "../components/site/Footer";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
+const SUB = "Describe your idea — build websites, games & apps with Luchii. Free to try; upgrade to Luchii Pro to publish, attach your own domain and unlock more daily builds.";
+
 const COPY = {
   website: {
     title: "Luchii Website Builder",
     Icon: Globe,
-    sub: "Describe any website and Luchii builds it live on Frasberg infrastructure. Free to try — upgrade to Luchii Pro to publish, attach your own domain and unlock more daily builds.",
+    sub: SUB,
     placeholder: "Describe the website you want… e.g. 'A dark portfolio site for a photographer named Aria with a gallery and contact form'",
     examples: ["A landing page for a coffee roastery called Ember & Oak", "A sleek SaaS homepage for an AI note-taking app"],
   },
   game: {
     title: "Luchii Game Builder",
     Icon: Gamepad2,
-    sub: "Describe any game and Luchii builds a playable version instantly. Free to try — upgrade to Luchii Pro to publish, attach your own domain and unlock more daily builds.",
+    sub: SUB,
     placeholder: "Describe the game you want… e.g. 'A neon space shooter where I dodge asteroids and collect stars'",
     examples: ["A snake game with a synthwave look", "A brick-breaker game with power-ups"],
   },
   app: {
     title: "Luchii App Builder",
     Icon: AppWindow,
-    sub: "Describe any mobile app and Luchii builds a working version instantly — mobile-first, real state, real interactions, saved to your device. Free to try — upgrade to Luchii Pro to publish, attach your own domain and unlock more daily builds.",
+    sub: SUB,
     placeholder: "Describe the mobile app you want… e.g. 'A budget tracker with categories, monthly totals and a spending chart'",
     examples: ["A todo app with projects, due dates and dark mode", "A pomodoro focus timer with session history"],
   },
   landing: {
     title: "Luchii",
     Icon: LayoutTemplate,
-    sub: "Describe your product and Luchii builds a high-converting landing page instantly — hero, features, social proof and CTA. Free to try — upgrade to Luchii Pro to publish, attach your own domain and unlock more daily builds.",
+    sub: SUB,
     placeholder: "Describe the landing page you want… e.g. 'A launch page for a smart water bottle called Hydra with pre-order CTA'",
     examples: ["A waitlist landing page for an AI recipe app", "A launch page for a productivity course with pricing tiers"],
   },
@@ -153,8 +155,10 @@ export default function Builder({ type = "website" }) {
     const p = prompt.trim();
     if (!p || busy) return;
     if (!user) { navigate(`/auth?mode=login&next=%2F${type}-builder`); return; }
-    setBusy(true); setChars(0); htmlRef.current = "";
-    try {
+    setBusy(true); setChars(0);
+    let receivedAny = false;
+    const attempt = async () => {
+      htmlRef.current = "";
       const res = await fetch(`${API}/builder/generate`, {
         method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
         body: JSON.stringify({ prompt: p, type, project_id: current?.id || null }),
@@ -166,7 +170,7 @@ export default function Builder({ type = "website" }) {
         return;
       }
       if (res.status === 401) { navigate(`/auth?mode=login&next=%2F${type}-builder`); return; }
-      if (!res.ok) throw new Error("generate failed");
+      if (!res.ok || !res.body) throw new Error("generate failed");
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
@@ -180,9 +184,10 @@ export default function Builder({ type = "website" }) {
           const l = part.trim();
           if (!l.startsWith("data:")) continue;
           let d; try { d = JSON.parse(l.slice(5).trim()); } catch { continue; }
-          if (d.delta) { htmlRef.current += d.delta; setChars(htmlRef.current.length); }
+          if (d.delta) { receivedAny = true; htmlRef.current += d.delta; setChars(htmlRef.current.length); }
           if (d.error) { toast.error(d.error); return; }
           if (d.done) {
+            receivedAny = true;
             const projRes = await fetch(`${API}/builder/projects/${d.project.id}`, { credentials: "include" });
             if (projRes.ok) {
               const proj = await projRes.json();
@@ -194,6 +199,15 @@ export default function Builder({ type = "website" }) {
             toast.success(current ? "Build updated" : "Build complete");
           }
         }
+      }
+    };
+    try {
+      try {
+        await attempt();
+      } catch (e1) {
+        if (receivedAny) throw e1;
+        await new Promise((r) => setTimeout(r, 1500));
+        await attempt();
       }
     } catch {
       toast.error("The Builder engine hit a snag — please try again");

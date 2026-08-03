@@ -380,6 +380,7 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
                    user_id: Optional[str] = None, attachment: Optional[dict] = None,
                    guest: bool = False):
     async def event_generator():
+        yield ": stream-start\n\n"
         now = datetime.now(timezone.utc).isoformat()
         user_doc = {
             "id": str(uuid.uuid4()), "session_id": session_id, "user_id": user_id,

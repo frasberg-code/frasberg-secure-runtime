@@ -127,6 +127,7 @@ async def builder_generate(body: GenerateReq, user: dict = Depends(auth_module.g
     })
 
     async def event_gen():
+        yield ": stream-start\n\n"
         full = ""
         try:
             llm = LlmChat(
