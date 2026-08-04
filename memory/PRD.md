@@ -582,3 +582,23 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
   now accepts overridePrompt). Screenshot-verified.
 - GALLERY FEATURING: confirmed already shipped (featured-first sort in /api/builder/gallery +
   gold Featured ribbon gallery-featured-{slug}) — no change needed.
+
+## 2026-06 — Game Platform pt3: Champions, Weekly Boards, Build Recovery, Renewal Banner
+- LIBRARY CHAMPIONS: GET /api/games now embeds champion (top scorer) per game; GameCard shows
+  amber Crown row (game-champion-{id}) or "Throne unclaimed — be the first".
+- WEEKLY BOARDS: game_scores docs store week (%G-W%V); GET scores?period=weekly filters current
+  week. All 4 games' game-over leaderboards have ALL-TIME / WEEK tabs (#lbAll/#lbWeek,
+  flex-wrap header per test feedback).
+- BUILD PROGRESS RECOVERY (Builder.jsx): generate() snapshots project updated_at map
+  (recoverySnapRef); on stream failure startRecovery() polls /builder/projects every 6s (max 30);
+  when a changed project appears → toast "Your build finished in the background" with Open build
+  action (openProject). Detached server-side build task already existed.
+- RENEWAL REMINDER (TrialBanner.jsx): paid plans (builder/pro/premium) with plan_expires ≤3 days
+  show amber renewal-banner ("lapses in N days") + Renew now → /pay; trial banner unchanged.
+- Tested: iteration_20.json — frontend 6/6 PASS (renewal banner on /profile+/chat with doctester1
+  premium, champions row, in-game leaderboard submit + weekly tab, guest template-chip redirect,
+  touch controls presence). doctester1 left as premium expiring 2026-08-06 (auto-downgrades).
+  Cosmetic wrap issue fixed post-test. Known benign: guest 401s from auth probe; unlocated
+  '<span> in <option>' hydration warning (not in src).
+- NOTE: main agent's screenshot_tool stopped executing interaction steps this session (only
+  load-time capture) — use testing_agent for interactive UI checks.
