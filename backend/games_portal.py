@@ -58,7 +58,13 @@ GAME_REGISTRY = [
 
 @router.get("")
 async def list_games():
-    return GAME_REGISTRY
+    out = []
+    for g in GAME_REGISTRY:
+        top = await db.game_scores.find_one(
+            {"game_id": g["id"]}, {"_id": 0, "name": 1, "score": 1}, sort=[("score", -1)]
+        )
+        out.append({**g, "champion": top})
+    return out
 
 
 class ScoreIn(BaseModel):
@@ -73,10 +79,17 @@ def _valid_game(game_id: str):
     return game
 
 
+def _week_key():
+    return datetime.now(timezone.utc).strftime("%G-W%V")
+
+
 @router.get("/{game_id}/scores")
-async def get_scores(game_id: str):
+async def get_scores(game_id: str, period: str = "all"):
     _valid_game(game_id)
-    docs = await db.game_scores.find({"game_id": game_id}, {"_id": 0, "name": 1, "score": 1}) \
+    q = {"game_id": game_id}
+    if period == "weekly":
+        q["week"] = _week_key()
+    docs = await db.game_scores.find(q, {"_id": 0, "name": 1, "score": 1}) \
         .sort("score", -1).to_list(10)
     return docs
 
@@ -87,7 +100,8 @@ async def post_score(game_id: str, body: ScoreIn):
     name = body.name.strip()[:20] or "PLAYER"
     await db.game_scores.insert_one({
         "id": str(uuid.uuid4()), "game_id": game_id, "name": name,
-        "score": body.score, "ts": datetime.now(timezone.utc).isoformat(),
+        "score": body.score, "week": _week_key(),
+        "ts": datetime.now(timezone.utc).isoformat(),
     })
     docs = await db.game_scores.find({"game_id": game_id}, {"_id": 0, "name": 1, "score": 1}) \
         .sort("score", -1).to_list(10)

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Crown } from "lucide-react";
 
 export default function GameCard({ game, onPlay }) {
   const [hovered, setHovered] = useState(false);
@@ -23,6 +24,15 @@ export default function GameCard({ game, onPlay }) {
       <div className="p-5">
         <h3 className="text-lg font-bold text-white">{game.title}</h3>
         <p className="mt-2 min-h-[3.2rem] text-[13px] leading-relaxed text-[#aaa]">{game.description}</p>
+        {game.champion ? (
+          <p className="mt-2 flex items-center gap-1.5 text-[12px] text-amber-400" data-testid={`game-champion-${game.id}`}>
+            <Crown size={12} /> {game.champion.name} · {game.champion.score.toLocaleString()}
+          </p>
+        ) : (
+          <p className="mt-2 flex items-center gap-1.5 text-[12px] text-[#555]" data-testid={`game-champion-${game.id}`}>
+            <Crown size={12} /> Throne unclaimed — be the first
+          </p>
+        )}
         <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.15em] text-[#555]">{game.engine}</p>
         <button
           data-testid={`game-play-btn-${game.id}`}

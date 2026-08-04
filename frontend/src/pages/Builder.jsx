@@ -133,6 +133,8 @@ export default function Builder({ type = "website" }) {
     if (user) { loadProjects(); loadQuota(); }
   }, [user, type, loadProjects, loadQuota]);
 
+  const recoverySnapRef = useRef(null);
+
   async function openProject(p) {
     try {
       const res = await fetch(`${API}/builder/projects/${p.id}`, { credentials: "include" });
@@ -179,6 +181,7 @@ export default function Builder({ type = "website" }) {
     if (!p || busy) return;
     if (!user) { navigate(`/auth?mode=login&next=%2F${type}-builder`); return; }
     setBusy(true); setChars(0);
+    recoverySnapRef.current = new Map(projects.map((pr) => [pr.id, pr.updated_at]));
     let receivedAny = false;
     const attempt = async () => {
       htmlRef.current = "";
@@ -233,10 +236,32 @@ export default function Builder({ type = "website" }) {
         await attempt();
       }
     } catch {
-      toast.error("The Builder engine hit a snag — please try again");
+      toast.error("Connection dropped — Luchii is finishing your build in the background");
+      startRecovery();
     } finally {
       setBusy(false);
     }
+  }
+
+  function startRecovery() {
+    let tries = 0;
+    const iv = setInterval(async () => {
+      if (++tries > 30) { clearInterval(iv); return; }
+      try {
+        const res = await fetch(`${API}/builder/projects?type=${type}`, { credentials: "include" });
+        if (!res.ok) return;
+        const list = await res.json();
+        const fresh = list.find((p) => recoverySnapRef.current?.get(p.id) !== p.updated_at);
+        if (fresh) {
+          clearInterval(iv);
+          loadProjects();
+          toast.success("Your build finished in the background", {
+            duration: 15000,
+            action: { label: "Open build", onClick: () => openProject(fresh) },
+          });
+        }
+      } catch {}
+    }, 6000);
   }
 
   async function publish() {

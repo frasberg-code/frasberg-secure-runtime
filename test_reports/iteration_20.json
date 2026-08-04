@@ -1,0 +1,32 @@
+{
+  "summary": "Frontend-only verification of Game Platform batch. All 6 requested features passed end-to-end via Playwright against the preview URL.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "GamesLibrary Ship-Lost overlay (spaceshooter iframe)", "issues": ["Cosmetic only: 'TOP PILOTS' label wraps to two lines and the ALL-TIME / WEEK tab pair sits slightly cramped against it at 1920x4000 viewport — layout still fully usable."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "React hydration warning observed on both /profile and /chat: '<span> cannot be a child of <option>'. Likely a Select/Option component rendering a span inside a native <option>. Not blocking but should be cleaned up.",
+    "Multiple background 401s in the console on public pages (/games, /game-builder) — some component fires an authenticated request without gating. Not user-visible but noisy; consider guarding those fetches when user is anonymous."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100% (6/6)"},
+  "test_credentials": "doctester1@frasberg.com / DocTester2026! (premium, plan_expires 2026-08-06)",
+  "seed_data_creation": "Added one leaderboard entry 'PYTEST_UI' with score 0 to game 'spaceshooter' (both all-time and weekly). Safe to leave or purge.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Playwright tip: /games/play/:gameId keeps a rAF network active — always use wait_until='domcontentloaded' (networkidle times out). Force game-over inside the iframe with page-context evaluate calling gameOver() — verified working for spaceshooter.",
+  "detailed_results": {
+    "1_renewal_banner": "PASS. /profile and /chat both show [data-testid=renewal-banner] with text 'Your Luchii Premium plan lapses in 2 days — renew to keep your keys, builds & Pro features.' and [data-testid=renewal-renew-link] href=/pay. [data-testid=trial-banner] correctly absent. /api/auth/me returns plan=premium, plan_expires=2026-08-06 (bug from iter_19 already fixed).",
+    "2_games_library_champions": "PASS. 4 champion rows found. racer3d shows 'FRASBERG · 4,200'; spaceshooter, dungeon3d, and 4th card each show 'Throne unclaimed — be the first'.",
+    "3_ingame_leaderboard": "PASS. game-player-page + game-frame iframe render. Forced gameOver() via iframe evaluate — SHIP LOST screen shows #lbName, #lbSubmit, #lbAll, #lbWeek, #lbList. Submitting 'PYTEST_UI' flipped button to 'SAVED ✓' and inserted the row. Clicking WEEK tab re-fetched weekly list and the new entry is present in it.",
+    "4_weekly_scores_api": "PASS. /api/games/racer3d/scores?period=weekly -> 200, [{name:WEEKRUNNER,score:100}]. ?period=all -> 200, [FRASBERG 4200, WEEKRUNNER 100].",
+    "5_builder_starters": "PASS. [data-testid=builder-game-templates] row visible with fps/platformer/puzzle chips. Guest click on fps chip redirected to /auth?mode=login&next=%2Fgame-builder. No paid generation attempted.",
+    "6_touch_controls": "PASS. dungeon3d/play?touch=1 has #joy, #joyKnob, #btnFire, #btnJump, #btnReload. racer3d/play?touch=1 has #btnLeft, #btnRight, #btnBoost."
+  }
+}

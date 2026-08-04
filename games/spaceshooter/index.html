@@ -180,13 +180,29 @@ const lbScore = () => score;
         <input id="lbName" maxlength="20" placeholder="Your name" style="flex:1;min-width:0;padding:10px 14px;border-radius:12px;border:1px solid #6c63ff66;background:#1a1a2e;color:#fff;font-family:inherit;outline:none">
         <button id="lbSubmit" style="padding:10px 18px;border-radius:12px;border:none;background:#6c63ff;color:#fff;font-weight:bold;font-family:inherit;cursor:pointer;letter-spacing:1px">SUBMIT</button>
       </div>
-      <div style="margin-top:14px;color:#6c63ff;font-size:12px;letter-spacing:2px">⬡ TOP PILOTS</div>
+      <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <span style="color:#6c63ff;font-size:12px;letter-spacing:2px">⬡ TOP PILOTS</span>
+        <span style="display:flex;gap:6px">
+          <button id="lbAll" class="lbTab" style="background:#6c63ff">ALL-TIME</button>
+          <button id="lbWeek" class="lbTab" style="background:transparent">WEEK</button>
+        </span>
+      </div>
+      <style>.lbTab{padding:4px 10px;border-radius:8px;border:1px solid #6c63ff66;color:#fff;font-family:inherit;font-size:10px;letter-spacing:1px;cursor:pointer}</style>
       <ol id="lbList" style="list-style:none;margin-top:8px;text-align:left;font-size:13px;color:#aaa;max-height:170px;overflow:auto"></ol>
     </div>`);
   const esc = (s) => String(s).replace(/[<>&]/g, "");
+  let lbPeriod = "all";
+  function setPeriod(p) {
+    lbPeriod = p;
+    document.getElementById("lbAll").style.background = p === "all" ? "#6c63ff" : "transparent";
+    document.getElementById("lbWeek").style.background = p === "weekly" ? "#6c63ff" : "transparent";
+    lbLoad();
+  }
+  document.getElementById("lbAll").addEventListener("click", () => setPeriod("all"));
+  document.getElementById("lbWeek").addEventListener("click", () => setPeriod("weekly"));
   async function lbLoad() {
     try {
-      const d = await (await fetch("/api/games/" + GID + "/scores")).json();
+      const d = await (await fetch("/api/games/" + GID + "/scores?period=" + lbPeriod)).json();
       document.getElementById("lbList").innerHTML = d.map((s, i) =>
         `<li style="display:flex;justify-content:space-between;padding:3px 2px"><span>${i + 1}. ${esc(s.name)}</span><b style="color:#fff">${s.score}</b></li>`).join("") || "<li>No scores yet — be the first.</li>";
     } catch (_) {}
