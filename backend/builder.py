@@ -66,6 +66,7 @@ LANDING_SYSTEM = (
 )
 
 _SYSTEMS = {"website": WEBSITE_SYSTEM, "game": GAME_SYSTEM, "app": APP_SYSTEM, "landing": LANDING_SYSTEM}
+_BUILD_TASKS: set = set()
 
 
 def _is_pro(user: dict) -> bool:
@@ -130,8 +131,7 @@ async def builder_generate(body: GenerateReq, user: dict = Depends(auth_module.g
         "type": body.type, "ts": datetime.now(timezone.utc).isoformat(),
     })
 
-    async def event_gen():
-        yield ": stream-start\n\n"
+    async def produce(queue: asyncio.Queue):
         full = ""
         try:
             llm = LlmChat(
@@ -141,14 +141,15 @@ async def builder_generate(body: GenerateReq, user: dict = Depends(auth_module.g
             async for event in llm.stream_message(UserMessage(text=llm_text)):
                 if isinstance(event, TextDelta):
                     full += event.content
-                    yield f"data: {json.dumps({'delta': event.content})}\n\n"
+                    await queue.put({"delta": event.content})
                 elif isinstance(event, StreamDone):
                     break
         except Exception:
             logger.exception("builder LLM stream failed")
         html = _clean_html(full)
         if not html or "<html" not in html.lower():
-            yield f"data: {json.dumps({'error': 'The Luchii Builder engine could not complete this build. Please try again.'})}\n\n"
+            await queue.put({"error": "The Luchii Builder engine could not complete this build. Please try again."})
+            await queue.put(None)
             return
         now = datetime.now(timezone.utc).isoformat()
         if project:
@@ -166,7 +167,22 @@ async def builder_generate(body: GenerateReq, user: dict = Depends(auth_module.g
                 "last_prompt": prompt[:300], "html": html, "published": False, "slug": None,
                 "custom_domain": None, "created_at": now, "updated_at": now,
             })
-        yield f"data: {json.dumps({'done': True, 'project': {'id': pid, 'title': title, 'type': body.type}, 'generations_used': used + 1, 'daily_limit': limit})}\n\n"
+        await queue.put({"done": True, "project": {"id": pid, "title": title, "type": body.type}, "generations_used": used + 1, "daily_limit": limit})
+        await queue.put(None)
+
+    async def event_gen():
+        yield ": stream-start\n\n"
+        queue: asyncio.Queue = asyncio.Queue()
+        # Generation runs as an independent task: if the client connection drops
+        # mid-stream, the build still completes and saves to the user's projects.
+        task = asyncio.create_task(produce(queue))
+        _BUILD_TASKS.add(task)
+        task.add_done_callback(_BUILD_TASKS.discard)
+        while True:
+            item = await queue.get()
+            if item is None:
+                break
+            yield f"data: {json.dumps(item)}\n\n"
 
     return StreamingResponse(
         guard_stream(event_gen(), [
