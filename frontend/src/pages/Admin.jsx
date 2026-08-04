@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, Navigate } from "react-router-dom";
 import axios from "axios";
-import { Moon, Sun, ArrowLeft, Loader2, Users, MessagesSquare, KeyRound, BookOpen, Gavel, Activity, Trash2, Plus, Pencil, Star, EyeOff, Eye, Globe, Gamepad2, AppWindow } from "lucide-react";
+import { Moon, Sun, ArrowLeft, Loader2, Users, MessagesSquare, KeyRound, BookOpen, Gavel, Activity, Trash2, Plus, Pencil, Star, EyeOff, Eye, Globe, Gamepad2, AppWindow, Brain, Hammer, Crown, Timer } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth, formatApiErrorDetail } from "../context/AuthContext";
@@ -86,6 +86,12 @@ export default function Admin() {
     try { await axios.delete(`${API}/admin/knowledge/${id}`, ax); load(); } catch { toast.error("Delete failed"); }
   }
 
+  const fmtUptime = (s) => {
+    if (s == null) return "—";
+    const d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60);
+    return d > 0 ? `${d}d ${h}h` : h > 0 ? `${h}h ${m}m` : `${m}m`;
+  };
+
   const cards = stats ? [
     { icon: Users, label: "Users", value: stats.users },
     { icon: MessagesSquare, label: "Messages", value: stats.messages },
@@ -93,6 +99,10 @@ export default function Admin() {
     { icon: Gavel, label: "Court filings", value: stats.court_filings },
     { icon: KeyRound, label: "API keys", value: stats.api_keys },
     { icon: BookOpen, label: "Knowledge docs", value: stats.knowledge_docs },
+    { icon: Brain, label: "Vault memories", value: stats.memories },
+    { icon: Hammer, label: "Builds", value: stats.builds },
+    { icon: Crown, label: "Paid users", value: stats.paid_users },
+    { icon: Timer, label: "Mesh uptime", value: fmtUptime(stats.uptime_seconds) },
   ] : [];
 
   return (

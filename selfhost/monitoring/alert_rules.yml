@@ -1,0 +1,51 @@
+groups:
+  - name: luchii-mesh-alerts
+    rules:
+      - alert: BackendDown
+        expr: up{job="luchii-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Luchii backend is DOWN"
+          description: "The Luchii API has been unreachable for over 1 minute. Failover may trigger."
+
+      - alert: MeshWebSocketDown
+        expr: up{job="luchii-mesh-ws"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Mesh WebSocket server is DOWN"
+
+      - alert: UpstreamEngineOffline
+        expr: luchii_upstream_active == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Frasberg upstream engine offline — serving fallback"
+
+      - alert: HighMemory
+        expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) < 0.10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host memory below 10% available"
+
+      - alert: HighCPU
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host CPU above 90% for 10 minutes"
+
+      - alert: DiskFilling
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.15
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Root disk below 15% free"

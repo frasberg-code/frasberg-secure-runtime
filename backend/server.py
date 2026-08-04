@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, Header, HTTPException, Depends, Request, UploadFile, File
+from fastapi import FastAPI, APIRouter, Header, HTTPException, Depends, Request, UploadFile, File, Response
 from fastapi.responses import StreamingResponse
 from sse_utils import guard_stream
 from dotenv import load_dotenv
@@ -135,6 +135,8 @@ def _rate_check(key: str):
 
 def _mask_key(k: str) -> str:
     return k[:12] + "•" * 8 + k[-4:] if len(k) > 20 else k
+
+SERVER_STARTED_AT = time.time()
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -866,11 +868,46 @@ async def admin_stats(admin: dict = Depends(require_admin)):
     keys_count = await db.api_keys.count_documents({})
     purchases = await db.purchases.find({}, {"_id": 0}).sort("ts", -1).to_list(20)
     kb_count = await db.knowledge.count_documents({})
+    memories_count = await db.user_memories.count_documents({})
+    builds_count = await db.builder_projects.count_documents({})
+    paid_users = await db.users.count_documents({"plan": {"$nin": [None, "free"]}})
     return {
         "users": users_count, "messages": messages_count, "sessions": len(sessions),
         "court_filings": filings, "api_keys": keys_count, "knowledge_docs": kb_count,
+        "memories": memories_count, "builds": builds_count, "paid_users": paid_users,
+        "uptime_seconds": int(time.time() - SERVER_STARTED_AT),
         "upstream_active": bool(ACTIVE_UPSTREAM), "recent_purchases": purchases,
     }
+
+
+@api_router.get("/metrics")
+async def prometheus_metrics():
+    users_count = await db.users.count_documents({})
+    messages_count = await db.chat_messages.count_documents({})
+    sessions = await db.chat_messages.distinct("session_id")
+    builds_count = await db.builder_projects.count_documents({})
+    memories_count = await db.user_memories.count_documents({})
+    paid_users = await db.users.count_documents({"plan": {"$nin": [None, "free"]}})
+    lines = [
+        "# HELP luchii_users_total Registered users",
+        "# TYPE luchii_users_total gauge",
+        f"luchii_users_total {users_count}",
+        "# TYPE luchii_messages_total gauge",
+        f"luchii_messages_total {messages_count}",
+        "# TYPE luchii_sessions_total gauge",
+        f"luchii_sessions_total {len(sessions)}",
+        "# TYPE luchii_builds_total gauge",
+        f"luchii_builds_total {builds_count}",
+        "# TYPE luchii_memories_total gauge",
+        f"luchii_memories_total {memories_count}",
+        "# TYPE luchii_paid_users_total gauge",
+        f"luchii_paid_users_total {paid_users}",
+        "# TYPE luchii_upstream_active gauge",
+        f"luchii_upstream_active {1 if ACTIVE_UPSTREAM else 0}",
+        "# TYPE luchii_uptime_seconds counter",
+        f"luchii_uptime_seconds {int(time.time() - SERVER_STARTED_AT)}",
+    ]
+    return Response(content="\n".join(lines) + "\n", media_type="text/plain; version=0.0.4")
 
 
 @api_router.get("/admin/users")

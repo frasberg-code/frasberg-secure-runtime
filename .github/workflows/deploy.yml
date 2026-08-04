@@ -1,0 +1,111 @@
+name: Luchii Mesh — Build & Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_BACKEND: ghcr.io/${{ github.repository_owner }}/luchii-backend
+  IMAGE_FRONTEND: ghcr.io/${{ github.repository_owner }}/luchii-frontend
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install deps
+        run: pip install -r backend/requirements.txt
+      - name: Import check
+        env:
+          MONGO_URL: mongodb://localhost:27017
+          DB_NAME: luchii_ci
+          JWT_SECRET: ci-only-secret
+        run: python -c "import backend.server"
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install & build
+        working-directory: frontend
+        env:
+          REACT_APP_BACKEND_URL: ${{ secrets.PROD_BACKEND_URL }}
+        run: |
+          yarn install --frozen-lockfile
+          yarn build
+
+  docker-publish:
+    needs: [test-backend, build-frontend]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build & push backend
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: selfhost/backend.Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_BACKEND }}:latest
+            ${{ env.IMAGE_BACKEND }}:${{ github.sha }}
+      - name: Build & push frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: selfhost/frontend.Dockerfile
+          push: true
+          build-args: |
+            REACT_APP_BACKEND_URL=${{ secrets.PROD_BACKEND_URL }}
+          tags: |
+            ${{ env.IMAGE_FRONTEND }}:latest
+            ${{ env.IMAGE_FRONTEND }}:${{ github.sha }}
+
+  deploy-primary:
+    needs: docker-publish
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Deploy to primary region
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PRIMARY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd /opt/luchii/selfhost
+            docker compose pull
+            docker compose up -d --remove-orphans
+            docker system prune -f
+
+  deploy-secondary:
+    needs: deploy-primary
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Deploy to secondary region (failover standby)
+        uses: appleboy/ssh-action@v1
+        continue-on-error: true
+        with:
+          host: ${{ secrets.SECONDARY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd /opt/luchii/selfhost
+            docker compose pull
+            docker compose up -d --remove-orphans

@@ -475,3 +475,12 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - Gallery cards now have a Share2 copy-link button (gallery-share-{slug}): games → /play/{slug}, sites → /api/p/{slug}; public, no account needed. Builder already had copy-play-link.
 - Mesh-verified badge: new POST /api/mesh/verify {content,sig} (valid true/false, tamper tested); ChatDemo captures done.sig, verifies round-trip, renders green "✓ VERIFIED" shield (chat-verified-badge-{i}) on assistant replies.
 - doctester1 reset to plan=free after trial test.
+
+## 2026-06 — Luchii Mesh Complete Production Stack (user's architecture dump implemented)
+- MONITORING (/app/selfhost/monitoring/): prometheus.yml (scrapes backend /api/metrics, mesh, node-exporter, cadvisor), alert_rules.yml (BackendDown/MeshDown/UpstreamOffline/CPU/Mem/Disk), alertmanager.yml, Grafana auto-provisioned "Luchii Mesh — Sovereign Overview" dashboard (10 panels), docker-compose.monitoring.yml (prometheus+grafana:3001+alertmanager+node-exporter+cadvisor), README.
+- LIVE BACKEND: new public GET /api/metrics (Prometheus text format, zero deps: luchii_users/messages/sessions/builds/memories/paid_users/upstream_active/uptime). SERVER_STARTED_AT for uptime. Response added to fastapi imports.
+- ADMIN STATS EXTENDED (live, verified via screenshot): /api/admin/stats now returns memories, builds, paid_users, uptime_seconds; Admin.jsx shows 10 cards (added Vault memories/Builds/Paid users/Mesh uptime w/ Brain/Hammer/Crown/Timer icons + fmtUptime helper).
+- CI/CD: /app/.github/workflows/deploy.yml — test backend, build frontend, push both images to GHCR, SSH deploy primary then secondary region (secrets: PROD_BACKEND_URL, PRIMARY_HOST, SECONDARY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY).
+- MOBILE (/app/mobile/LuchiiMobile/): Expo RN client — libsodium E2E (secretbox device key encrypts chat history at rest, sealed-box + crypto_kx helpers for transit), MeshClient WS w/ auto-reconnect to /ws/mesh, mesh-verified shield via POST /api/mesh/verify, Login+Chat screens, yarn deps installed OK.
+- FAILOVER (/app/selfhost/failover/): failover.py watchdog — polls /api/health per region, flips Cloudflare DNS A record (TTL 60) after 3 consecutive fails, auto fail-back; systemd unit in README. py_compile OK.
+- Testing: /api/metrics curl OK, admin/stats curl OK (all new fields), Admin UI screenshot verified (10 cards render). NOTE: /auth defaults to register mode even with "Sign in" heading — use /auth?mode=login for automation.
