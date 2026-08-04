@@ -53,7 +53,7 @@ def _set_cookies(response: Response, access: str, refresh: str):
 def _public(user: dict) -> dict:
     return {"id": user["id"], "email": user["email"], "name": user.get("name", ""),
             "role": user.get("role", "user"), "plan": user.get("plan", "free"),
-            "plan_expires": user.get("plan_expires")}
+            "plan_expires": user.get("plan_expires"), "plan_started": user.get("plan_started")}
 
 
 async def get_current_user(request: Request) -> dict:
@@ -75,12 +75,13 @@ async def get_current_user(request: Request) -> dict:
     user = await db.users.find_one({"id": payload["sub"]}, {"_id": 0, "password_hash": 0})
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
-    if user.get("plan") == "trial" and user.get("plan_expires"):
+    if user.get("plan") in ("trial", "builder", "pro", "premium") and user.get("plan_expires"):
         try:
             if datetime.fromisoformat(user["plan_expires"]) < datetime.now(timezone.utc):
-                await db.users.update_one({"id": user["id"]}, {"$set": {"plan": "free"}, "$unset": {"plan_expires": ""}})
+                await db.users.update_one({"id": user["id"]}, {"$set": {"plan": "free"}, "$unset": {"plan_expires": "", "plan_started": ""}})
                 user["plan"] = "free"
                 user.pop("plan_expires", None)
+                user.pop("plan_started", None)
         except Exception:
             pass
     return user

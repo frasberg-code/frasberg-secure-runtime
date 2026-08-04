@@ -1308,9 +1308,11 @@ async def admin_cashapp_approve(reference: str, admin: dict = Depends(require_ad
     if plan_cfg.get("kind") == "doc_credits":
         await db.users.update_one({"id": pay["user_id"]}, {"$inc": {"doc_credits": plan_cfg.get("doc_credits", 0)}})
     else:
-        update = {"plan": plan_cfg.get("plan", "pro")}
-        if plan_cfg.get("plan") == "trial":
-            update["plan_expires"] = (datetime.now(timezone.utc) + timedelta(days=7)).isoformat()
+        days = 7 if plan_cfg.get("plan") == "trial" else (365 if pay.get("plan_id") == "annual" else 30)
+        now_dt = datetime.now(timezone.utc)
+        update = {"plan": plan_cfg.get("plan", "pro"),
+                  "plan_started": now_dt.isoformat(),
+                  "plan_expires": (now_dt + timedelta(days=days)).isoformat()}
         await db.users.update_one({"id": pay["user_id"]}, {"$set": update})
     return {"status": "approved", "reference": reference}
 
@@ -1493,9 +1495,11 @@ async def paypal_capture_order(order_id: str, body: OrderCapture):
                 receipt = await _send_receipt(payer_email, {**plan, "credits": added}, order_id)
             elif plan.get("kind") == "upgrade":
                 if key_id:
-                    update = {"plan": plan.get("plan", "pro")}
-                    if plan.get("plan") == "trial":
-                        update["plan_expires"] = (datetime.now(timezone.utc) + timedelta(days=7)).isoformat()
+                    days = 7 if plan.get("plan") == "trial" else (365 if plan_id == "annual" else 30)
+                    now_dt = datetime.now(timezone.utc)
+                    update = {"plan": plan.get("plan", "pro"),
+                              "plan_started": now_dt.isoformat(),
+                              "plan_expires": (now_dt + timedelta(days=days)).isoformat()}
                     await db.users.update_one({"id": key_id}, {"$set": update})
                     upgraded = True
                 await db.purchases.insert_one({

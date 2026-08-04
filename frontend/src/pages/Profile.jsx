@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, Navigate } from "react-router-dom";
 import axios from "axios";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import { Moon, Sun, ArrowLeft, Loader2, User, Check, Crown, Mic, Square, Pencil, Plus, Trash2, AudioWaveform } from "lucide-react";
+import { Moon, Sun, ArrowLeft, Loader2, User, Check, Crown, Mic, Square, Pencil, Plus, Trash2, AudioWaveform, CalendarDays, ArrowRightLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth, formatApiErrorDetail } from "../context/AuthContext";
@@ -207,6 +207,48 @@ export default function Profile() {
                 </button>
               </div>
             </form>
+
+            {user.plan && user.plan !== "free" && (
+              <div className="mt-6 rounded-2xl border border-lux-border bg-lux-surface p-7" data-testid="profile-subscription-card">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <h2 className="flex items-center gap-2 font-display text-xl font-600 tracking-tight">
+                    <CalendarDays size={19} className="text-lux-accent" /> Your subscription
+                  </h2>
+                  <span className={`rounded-full border px-3 py-1 font-mono text-[10px] font-700 uppercase tracking-[0.15em] ${user.plan === "premium" ? "border-amber-400/50 bg-amber-400/10 text-amber-300" : "border-lux-accent/50 bg-lux-accent/10 text-lux-accent"}`} data-testid="subscription-plan-badge">
+                    {user.plan}
+                  </span>
+                </div>
+                <div className="mt-5 grid gap-4 sm:grid-cols-3">
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">Started</p>
+                    <p className="mt-1 text-sm font-600" data-testid="subscription-started">{user.plan_started ? user.plan_started.slice(0, 10) : "—"}</p>
+                  </div>
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">Renews by</p>
+                    <p className="mt-1 text-sm font-600" data-testid="subscription-renews">{user.plan_expires ? user.plan_expires.slice(0, 10) : "No expiry"}</p>
+                  </div>
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">Days left</p>
+                    <p className="mt-1 text-sm font-600" data-testid="subscription-days-left">
+                      {user.plan_expires ? Math.max(0, Math.ceil((new Date(user.plan_expires) - Date.now()) / 86400000)) : "∞"}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-5 flex flex-wrap items-center gap-3">
+                  <Link to="/pay" data-testid="subscription-switch-plan-btn"
+                    className="inline-flex items-center gap-2 rounded-full bg-lux-text px-6 py-3 text-sm font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
+                    <ArrowRightLeft size={15} /> Switch plan
+                  </Link>
+                  <Link to="/pay" data-testid="subscription-renew-btn"
+                    className="inline-flex items-center gap-2 rounded-full border border-lux-border px-6 py-3 text-sm font-600 text-lux-text transition-colors hover:border-lux-accent">
+                    Renew early
+                  </Link>
+                </div>
+                <p className="mt-4 text-xs leading-relaxed text-lux-text2">
+                  Paying for any plan switches you to it instantly and resets your renewal date. If a plan lapses, your account moves to Free automatically — nothing is deleted.
+                </p>
+              </div>
+            )}
 
             <div className="mt-6 rounded-2xl border border-lux-accent/50 bg-lux-surface p-7" data-testid="profile-upgrade-card">
               <h2 className="flex items-center gap-2 font-display text-xl font-600 tracking-tight">
