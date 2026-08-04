@@ -23,6 +23,7 @@ const EXPLORE = [
   { label: "Game Builder", to: "/game-builder" },
   { label: "Builder Gallery", to: "/gallery" },
   { label: "Luchii Code", to: "/luchii-code" },
+  { label: "Frasberg Software", to: "/software" },
   { label: "Brand", to: "/brand" },
   { label: "About", to: "/about" },
 ];

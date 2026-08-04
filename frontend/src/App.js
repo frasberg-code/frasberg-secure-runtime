@@ -23,6 +23,7 @@ import Gallery from "./pages/Gallery";
 import PlayGame from "./pages/PlayGame";
 import Downloads from "./pages/Downloads";
 import Status from "./pages/Status";
+import Software from "./pages/Software";
 
 function ScrollToHash() {
   const { pathname, hash } = useLocation();
@@ -77,6 +78,7 @@ function App() {
               <Route path="/play/:slug" element={<PlayGame />} />
               <Route path="/downloads" element={<CourtGate><Downloads /></CourtGate>} />
               <Route path="/status" element={<Status />} />
+              <Route path="/software" element={<Software />} />
             </Routes>
           </BrowserRouter>
           <Toaster position="top-center" richColors />

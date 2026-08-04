@@ -409,6 +409,8 @@ export default function Builder({ type = "website" }) {
               )}
             </div>
 
+            {!html && !busy && <BuilderShowreel />}
+
             {demos.length > 0 && !busy && (
               <div className="mt-6" data-testid="builder-demos-strip">
                 <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">Real builds by Luchii — tap one to run it instantly</p>
