@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, ShieldCheck, Check, Loader2, Lock, Hourglass } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Check, Loader2, Lock, BadgeCheck } from "lucide-react";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { toast } from "sonner";
+import { useAuth } from "../context/AuthContext";
 import Seo from "../components/site/Seo";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -9,18 +12,23 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const ARCH = ["Client", "TLS 1.3 + Mutual Auth", "API Gateway", "Identity Verification", "Authorization", "Encrypted AI Runtime", "Luchii AI Models", "Response"];
 
 export default function Pay() {
+  const { user, refreshUser } = useAuth();
+  const navigate = useNavigate();
   const [cfg, setCfg] = useState(null);
+  const [step, setStep] = useState("review");
+  const [paidPlan, setPaidPlan] = useState(null);
 
   useEffect(() => {
-    fetch(`${API}/cashapp/config`).then((r) => r.json()).then(setCfg).catch(() => setCfg(null));
+    fetch(`${API}/paypal/config`).then((r) => r.json()).then(setCfg).catch(() => setCfg(null));
   }, []);
 
-  const subs = (cfg?.plans || []).filter((p) => p.kind === "upgrade");
+  const subs = (cfg?.upgrade_plans || []).filter((p) => p.kind === "upgrade");
   const [planId, setPlanId] = useState("builder");
+  const plan = subs.find((p) => p.id === planId) || subs[0];
 
   return (
     <main className="relative min-h-screen bg-[#0a0a0f] text-white" data-testid="pay-page">
-      <Seo title="Plans — Luchii · FRASBERG, INC." description="Luchii subscription plans by Frasberg, Inc." />
+      <Seo title="Checkout — Luchii · FRASBERG, INC." description="Secure card checkout for Luchii subscriptions by Frasberg, Inc." />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_0%,rgba(59,130,246,0.12),transparent)]" />
 
       <header className="relative z-10 mx-auto flex max-w-4xl items-center justify-between px-5 py-5">
@@ -37,13 +45,22 @@ export default function Pay() {
           className="rounded-3xl border border-white/10 bg-white/[0.03] p-7 backdrop-blur-xl sm:p-9">
           {!cfg ? (
             <div className="grid place-items-center py-20"><Loader2 className="animate-spin text-white/40" /></div>
+          ) : step === "done" ? (
+            <div className="py-6 text-center" data-testid="pay-done">
+              <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-blue-500/15 text-blue-400"><BadgeCheck size={30} /></div>
+              <h1 className="mt-5 font-display text-2xl font-700">You're all set</h1>
+              <p className="mx-auto mt-3 max-w-sm text-sm text-white/60">
+                Payment complete — your <span className="text-white">{paidPlan?.name}</span> plan is active right now. No waiting, no approval queue.
+              </p>
+              <Link to="/chat" className="mt-7 inline-block rounded-full bg-white px-7 py-3 text-sm font-700 text-black" data-testid="pay-done-chat">Start using Luchii</Link>
+            </div>
           ) : (
             <>
               <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-blue-400">Frasberg · Subscriptions</p>
               <h1 className="mt-3 font-display text-3xl font-700 tracking-tight sm:text-4xl">Choose your plan</h1>
               <p className="mt-3 text-white/60">
                 Luchii AI Models and our AI agents are <span className="text-white">free on every plan</span>. Subscribe to unlock
-                API &amp; LLM keys, builders and advanced tools.
+                API &amp; LLM keys, builders and advanced tools. Pay by card or PayPal — <span className="text-white">your plan activates instantly</span>.
               </p>
               <div className="mt-7 grid gap-3 sm:grid-cols-2" data-testid="pay-plan-grid">
                 {subs.map((p) => (
@@ -64,15 +81,53 @@ export default function Pay() {
                   <li key={f} className="flex items-center gap-3 text-sm text-white/80"><Check size={16} className="text-blue-400" /> {f}</li>
                 ))}
               </ul>
-              <div className="mt-8 flex items-start gap-3 rounded-2xl border border-amber-400/30 bg-amber-400/5 p-5" data-testid="pay-checkout-offline">
-                <Hourglass size={17} className="mt-0.5 shrink-0 text-amber-300" />
-                <div>
-                  <p className="text-sm font-600 text-amber-200">Checkout is temporarily offline</p>
-                  <p className="mt-1 text-xs leading-relaxed text-white/60">
-                    We're upgrading our payment processing. Subscriptions will reopen shortly — everything else stays live in the meantime.
+
+              {!user ? (
+                <button onClick={() => navigate("/auth?mode=login&next=%2Fpay")} data-testid="pay-signin-btn"
+                  className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-4 font-700 text-black transition-transform hover:-translate-y-0.5">
+                  Sign in to subscribe
+                </button>
+              ) : cfg.configured && plan ? (
+                <div className="mt-8" data-testid="pay-paypal-buttons">
+                  <p className="mb-3 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
+                    Paying ${plan.price} — {plan.name} · activates instantly
                   </p>
+                  <PayPalScriptProvider options={{ "client-id": cfg.client_id, currency: "USD", intent: "capture" }}>
+                    <PayPalButtons
+                      key={plan.id}
+                      forceReRender={[plan.id]}
+                      style={{ layout: "vertical", color: "black", shape: "pill", label: "pay" }}
+                      createOrder={async () => {
+                        const res = await fetch(`${API}/paypal/orders`, {
+                          method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+                          body: JSON.stringify({ plan_id: plan.id }),
+                        });
+                        const d = await res.json();
+                        if (!d.id) throw new Error(d.detail || "order failed");
+                        return d.id;
+                      }}
+                      onApprove={async (data) => {
+                        const res = await fetch(`${API}/paypal/orders/${data.orderID}/capture`, {
+                          method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+                          body: JSON.stringify({ plan_id: plan.id }),
+                        });
+                        const d = await res.json();
+                        if (d.status === "COMPLETED" && d.upgraded) {
+                          toast.success(`${plan.name} is live on your account!`);
+                          setPaidPlan(plan);
+                          setStep("done");
+                          refreshUser?.();
+                        } else {
+                          toast.error("Payment not completed — you have not been charged twice, try again");
+                        }
+                      }}
+                      onError={() => toast.error("Payment error — please try again")}
+                    />
+                  </PayPalScriptProvider>
                 </div>
-              </div>
+              ) : (
+                <p className="mt-8 text-center font-mono text-xs text-white/40" data-testid="pay-checkout-offline">Checkout is temporarily offline — please check back shortly.</p>
+              )}
             </>
           )}
         </motion.div>

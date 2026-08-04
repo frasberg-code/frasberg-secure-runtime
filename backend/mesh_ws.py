@@ -240,7 +240,7 @@ async def mesh_websocket(websocket: WebSocket, client_id: str):
             except Exception:
                 logger.exception("mesh inference failed")
             if not full:
-                full = "The mesh hit turbulence — please send that again."
+                full = "Let's try that again — please resend your message."
             response = {"role": "assistant", "content": full, "mesh": "frasberg-secure-v1",
                         "timestamp": time.time()}
             STATS["messages_out"] += 1

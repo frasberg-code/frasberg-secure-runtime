@@ -428,20 +428,23 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
       }
     };
     try {
-      try {
-        await doRequest();
-      } catch (e1) {
-        if (acc) throw e1;
-        await new Promise((r) => setTimeout(r, 1200));
-        await doRequest();
+      let lastErr = null;
+      const waits = [0, 1200, 2600];
+      for (let i = 0; i < waits.length; i++) {
+        if (waits[i]) await new Promise((r) => setTimeout(r, waits[i]));
+        try { lastErr = null; await doRequest(); break; } catch (e) {
+          lastErr = e;
+          if (acc) break;
+        }
       }
+      if (lastErr && !acc) throw lastErr;
     } catch (err) {
       setMessages((m) => {
         const next = [...m];
         if (!next[next.length - 1].content) {
           next[next.length - 1] = {
             role: "assistant",
-            content: err?.message && err.message !== "network" ? err.message : "Something went wrong — please try again.",
+            content: err?.message && err.message !== "network" ? err.message : "I didn't catch that — could you send your message once more?",
           };
         }
         return next;

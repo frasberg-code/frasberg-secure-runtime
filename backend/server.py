@@ -467,7 +467,7 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
 
     return StreamingResponse(
         guard_stream(event_generator(), [
-            {"delta": "The mesh hit turbulence mid-response — please send that again."},
+            {"delta": "Let's try that again — please resend your message."},
             {"done": True, "session_id": session_id},
         ]),
         media_type="text/event-stream",
@@ -1493,7 +1493,10 @@ async def paypal_capture_order(order_id: str, body: OrderCapture):
                 receipt = await _send_receipt(payer_email, {**plan, "credits": added}, order_id)
             elif plan.get("kind") == "upgrade":
                 if key_id:
-                    await db.users.update_one({"id": key_id}, {"$set": {"plan": "pro"}})
+                    update = {"plan": plan.get("plan", "pro")}
+                    if plan.get("plan") == "trial":
+                        update["plan_expires"] = (datetime.now(timezone.utc) + timedelta(days=7)).isoformat()
+                    await db.users.update_one({"id": key_id}, {"$set": update})
                     upgraded = True
                 await db.purchases.insert_one({
                     "id": str(uuid.uuid4()), "order_id": order_id, "plan": plan_id,
