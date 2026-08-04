@@ -450,3 +450,9 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - Footer "System Status" link removed; added "System Status" button in Admin Console header (admin-status-link). Status back-link now points to /admin.
 - ChatDemo EngineBadge uses /api/health. Selfhost docker-compose healthcheck + k8s probes switched to /api/health.
 - Note: Depends(require_admin) NameError trap — require_admin defined at line ~838; used local _status_admin dependency instead.
+
+## 2026-06 — Court hidden from public + Builder instant demos
+- COURT DECOMMISSIONED FROM PUBLIC UI (files preserved for GitHub / future courtdomain): /court /laws /downloads routes wrapped in CourtGate (App.js) — admin-only, others redirect to /. Navbar desktop+mobile & Footer court/laws links removed. ChatDemo Terms link now /about. Profile "certified downloads" card admin-only. Backend court APIs untouched (still functional).
+- Builder "Instant demos": gallery builds load into live preview iframe with one tap (guests too) via GET /api/p/{slug}; "Remix this build" button (guests → auth redirect). Gallery response uses `featured` field (no is_flagship/views in API payload).
+- iteration_18: all 7 frontend flows PASS, no bugs.
+- User told to use "Save to GitHub" to persist Court files to their repo, and Deploy to push hiding live.
