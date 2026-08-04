@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, Navigate } from "react-router-dom";
 import axios from "axios";
-import { Moon, Sun, ArrowLeft, Loader2, Users, MessagesSquare, KeyRound, BookOpen, Gavel, Activity, Trash2, Plus, Pencil, Star, EyeOff, Eye, Globe, Gamepad2, AppWindow, Brain, Hammer, Crown, Timer } from "lucide-react";
+import { Moon, Sun, ArrowLeft, Loader2, Users, MessagesSquare, KeyRound, BookOpen, Gavel, Activity, Trash2, Plus, Pencil, Star, EyeOff, Eye, Globe, Gamepad2, AppWindow, Brain, Hammer, Crown, Timer, Radio, ShieldAlert, RefreshCcw, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { useTheme } from "../context/ThemeContext";
@@ -22,6 +22,35 @@ export default function Admin() {
   const [payments, setPayments] = useState([]);
   const [builds, setBuilds] = useState([]);
   const [editing, setEditing] = useState(null); // null | {id?, title, content, tags}
+  const [ops, setOps] = useState(null);
+  const lastAlertRef = useRef(null);
+
+  useEffect(() => {
+    async function poll() {
+      try {
+        const r = await axios.get(`${API}/admin/mesh/live`, ax);
+        setOps(r.data);
+        const newest = r.data.alerts?.[0];
+        if (newest && lastAlertRef.current && newest.id !== lastAlertRef.current && newest.type === "tamper") {
+          toast.error(`Mesh blocked a tampered message — client ${newest.client_id || "unknown"}`);
+        }
+        if (newest) lastAlertRef.current = newest.id;
+      } catch { /* not admin yet / transient */ }
+    }
+    poll();
+    const timer = setInterval(poll, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  async function rotateKey() {
+    if (!window.confirm("Rotate the mesh E2E server key? Clients pick up the new key on their next connection.")) return;
+    try {
+      const r = await axios.post(`${API}/admin/mesh/rotate-key`, {}, ax);
+      toast.success(`New mesh key live: ${r.data.pubkey.slice(0, 16)}…`);
+    } catch {
+      toast.error("Key rotation failed");
+    }
+  }
 
   const load = useCallback(async () => {
     try {
@@ -151,6 +180,67 @@ export default function Admin() {
                 </div>
               ))}
             </div>
+
+            <section className="mt-12" data-testid="admin-live-ops">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <h2 className="font-display text-2xl font-700 tracking-tight">Live Ops</h2>
+                  <span className="flex items-center gap-1.5 rounded-full border border-green-500/40 px-3 py-1 font-mono text-[10px] uppercase tracking-wide text-green-400">
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-400" /> polling 5s
+                  </span>
+                </div>
+                <button onClick={rotateKey} data-testid="admin-rotate-key-btn"
+                  className="flex items-center gap-2 rounded-full border border-lux-border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.15em] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
+                  <RefreshCcw size={13} /> Rotate E2E Key
+                </button>
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
+                {[
+                  { icon: Radio, label: "Active connections", value: ops?.active_clients ?? "—", tid: "ops-active" },
+                  { icon: Lock, label: "E2E frames", value: ops?.stats?.e2e_frames ?? "—", tid: "ops-e2e" },
+                  { icon: MessagesSquare, label: "Mesh messages", value: ops ? ops.stats.messages_in + ops.stats.messages_out : "—", tid: "ops-messages" },
+                  { icon: ShieldAlert, label: "Tamper blocked", value: ops?.stats?.tamper_attempts ?? "—", tid: "ops-tamper" },
+                ].map((c) => (
+                  <div key={c.label} className="rounded-2xl border border-lux-border bg-lux-surface p-5" data-testid={c.tid}>
+                    <c.icon size={17} className={c.tid === "ops-tamper" && ops?.stats?.tamper_attempts > 0 ? "text-red-400" : "text-lux-accent"} />
+                    <p className="mt-3 font-display text-2xl font-700">{c.value}</p>
+                    <p className="mt-1 font-mono text-[10px] uppercase tracking-wide text-lux-text2">{c.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                <div className="rounded-2xl border border-lux-border bg-lux-surface p-5" data-testid="ops-clients">
+                  <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">Connected mesh clients</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {(ops?.client_ids || []).length === 0 ? (
+                      <span className="font-mono text-xs text-lux-text2">No live WebSocket clients right now</span>
+                    ) : ops.client_ids.map((id) => (
+                      <span key={id} className="rounded-full border border-lux-border px-3 py-1 font-mono text-xs text-lux-text">{id}</span>
+                    ))}
+                  </div>
+                  <p className="mt-4 font-mono text-[10px] uppercase tracking-wide text-lux-text2">E2E public key</p>
+                  <p className="mt-1 break-all font-mono text-xs text-lux-accent" data-testid="ops-pubkey">{ops?.e2e_pubkey || "—"}</p>
+                </div>
+                <div className="rounded-2xl border border-lux-border bg-lux-surface p-5" data-testid="ops-alerts">
+                  <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">Security alerts</p>
+                  <div className="mt-3 space-y-2">
+                    {(ops?.alerts || []).length === 0 ? (
+                      <span className="font-mono text-xs text-lux-text2">No alerts — mesh integrity clean</span>
+                    ) : ops.alerts.slice(0, 6).map((a) => (
+                      <div key={a.id} className="flex items-start gap-2.5 rounded-xl border border-lux-border p-3">
+                        <ShieldAlert size={14} className={a.type === "tamper" ? "mt-0.5 shrink-0 text-red-400" : "mt-0.5 shrink-0 text-lux-accent"} />
+                        <div className="min-w-0">
+                          <p className="text-xs text-lux-text">{a.detail}</p>
+                          <p className="mt-0.5 font-mono text-[10px] text-lux-text2">{a.type} · {a.client_id} · {(a.ts || "").slice(0, 19).replace("T", " ")}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
 
             <section className="mt-12" data-testid="admin-revenue-panel">
               <div className="flex items-center justify-between">

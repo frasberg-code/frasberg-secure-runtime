@@ -147,11 +147,15 @@ body {
 }
 .tracing-card:hover::before { opacity: 0.6; }
 
-@keyframes spin-slow {
-  to { transform: rotate(360deg); }
+@keyframes turn-step {
+  0%, 20% { transform: rotate(0deg); }
+  25%, 45% { transform: rotate(90deg); }
+  50%, 70% { transform: rotate(180deg); }
+  75%, 95% { transform: rotate(270deg); }
+  100% { transform: rotate(360deg); }
 }
-.spin-slow {
-  animation: spin-slow 2.5s linear infinite;
+.turn-step {
+  animation: turn-step 6.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

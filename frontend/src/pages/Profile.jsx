@@ -207,7 +207,7 @@ export default function Profile() {
               <h2 className="flex items-center gap-2 font-display text-xl font-600 tracking-tight">
                 <Crown size={19} className="text-lux-accent" /> Luchii Pro
               </h2>
-              {user.plan === "pro" || user.role === "admin" ? (
+              {user.plan === "pro" || user.plan === "premium" || user.role === "admin" ? (
                 <p className="mt-3 text-sm text-lux-text2" data-testid="profile-pro-active">
                   <Check size={14} className="mr-1 inline text-lux-accent" />
                   You are on the Pro plan — 200 images/day and priority Video Creator access.

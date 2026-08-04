@@ -8,6 +8,7 @@ import json
 import logging
 import os
 import time
+import uuid
 from datetime import datetime, timezone, timedelta
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
@@ -73,6 +74,27 @@ async def unseal(sealed_b64: str) -> dict:
     sk = await get_e2e_key()
     plain = SealedBox(sk).decrypt(base64.b64decode(sealed_b64))
     return json.loads(plain.decode())
+
+
+async def _alert(atype: str, client_id: str, detail: str):
+    try:
+        await _db.mesh_alerts.insert_one({
+            "id": str(uuid.uuid4()), "type": atype, "client_id": client_id,
+            "detail": detail, "ts": datetime.now(timezone.utc).isoformat(),
+        })
+    except Exception:
+        logger.exception("mesh alert write failed")
+
+
+async def rotate_e2e_key() -> str:
+    global _e2e_sk
+    _e2e_sk = PrivateKey.generate()
+    await _db.mesh_keys.update_one({"id": "server-e2e"}, {"$set": {
+        "sk": base64.b64encode(bytes(_e2e_sk)).decode(),
+        "rotated_at": datetime.now(timezone.utc).isoformat(),
+    }}, upsert=True)
+    await _alert("key_rotation", "admin", "Mesh E2E server key rotated — new curve25519 keypair live")
+    return e2e_pubkey_b64(_e2e_sk)
 
 
 _redis = None
@@ -184,12 +206,14 @@ async def mesh_websocket(websocket: WebSocket, client_id: str):
                     STATS["e2e_frames"] += 1
                 except Exception:
                     STATS["tamper_attempts"] += 1
+                    await _alert("tamper", client_id, "Sealed payload could not be opened — possible forged E2E frame")
                     await websocket.send_text(json.dumps({"error": "Sealed payload could not be opened."}))
                     continue
             else:
                 sig = data.pop("sig", "")
                 if not verify(data, sig):
                     STATS["tamper_attempts"] += 1
+                    await _alert("tamper", client_id, "HMAC signature invalid — payload rejected")
                     await websocket.send_text(json.dumps({"error": "Tamper detected — signature invalid."}))
                     continue
             if data.get("event") == "ping":

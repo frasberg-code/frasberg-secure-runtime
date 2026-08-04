@@ -638,7 +638,7 @@ async def generate_image(req: ImageGenRequest, user: dict = Depends(auth_module.
         "user_id": user["id"], "model": "luchii-image", "role": "user",
         "ts": {"$gte": today_start},
     })
-    limit = IMAGE_LIMIT_PRO if user.get("plan") == "pro" or user.get("role") == "admin" else IMAGE_LIMIT_FREE
+    limit = IMAGE_LIMIT_PRO if user.get("plan") in ("pro", "premium") or user.get("role") == "admin" else IMAGE_LIMIT_FREE
     if used >= limit:
         raise HTTPException(status_code=429,
                             detail=f"Daily image limit reached ({limit}/day on your plan). Upgrade to Luchii Pro for {IMAGE_LIMIT_PRO}/day.")
@@ -935,6 +935,25 @@ async def prometheus_metrics():
     return Response(content="\n".join(lines) + "\n", media_type="text/plain; version=0.0.4")
 
 
+@api_router.get("/admin/mesh/live")
+async def admin_mesh_live(admin: dict = Depends(require_admin)):
+    alerts = await db.mesh_alerts.find({}, {"_id": 0}).sort("ts", -1).to_list(20)
+    sk = await mesh_ws.get_e2e_key()
+    return {
+        "active_clients": len(mesh_ws.manager.active),
+        "client_ids": list(mesh_ws.manager.active.keys()),
+        "stats": mesh_ws.STATS, "alerts": alerts,
+        "e2e_pubkey": mesh_ws.e2e_pubkey_b64(sk),
+        "offline_buffer": await mesh_ws.buffer_backend(),
+    }
+
+
+@api_router.post("/admin/mesh/rotate-key")
+async def admin_mesh_rotate(admin: dict = Depends(require_admin)):
+    pubkey = await mesh_ws.rotate_e2e_key()
+    return {"ok": True, "pubkey": pubkey}
+
+
 @api_router.get("/admin/users")
 async def admin_users(admin: dict = Depends(require_admin)):
     return await db.users.find({}, {"_id": 0, "password_hash": 0}).sort("created_at", -1).to_list(200)
@@ -1156,19 +1175,21 @@ PLANS = {
 UPGRADE_PLANS = {
     "trial": {"id": "trial", "name": "7-Day Trial", "price": "1.00", "kind": "upgrade", "plan": "trial", "period": "one-time · 7 days",
               "blurb": "Everything unlocked for 7 days — API & LLM keys, builders and advanced tools"},
-    "builder": {"id": "builder", "name": "Builder", "price": "5.00", "kind": "upgrade", "plan": "builder", "period": "per month",
+    "builder": {"id": "builder", "name": "Builder", "price": "10.00", "kind": "upgrade", "plan": "builder", "period": "per month",
                 "blurb": "API & LLM keys · advanced build tools · start shipping"},
-    "luchii-pro": {"id": "luchii-pro", "name": "Luchii Pro", "price": "20.00", "kind": "upgrade", "plan": "pro", "period": "per month",
-                   "blurb": "200 images/day · priority Video Creator · Pro badge · top limits"},
-    "annual": {"id": "annual", "name": "Pro Annual", "price": "108.00", "kind": "upgrade", "plan": "pro", "period": "per year — $9/mo",
-               "blurb": "Everything in Luchii Pro at $9/mo, billed yearly — best value"},
+    "luchii-pro": {"id": "luchii-pro", "name": "Luchii Pro", "price": "5.00", "kind": "upgrade", "plan": "pro", "period": "per month",
+                   "blurb": "Pro badge · higher limits · priority access"},
+    "luchii-premium": {"id": "luchii-premium", "name": "Luchii Premium", "price": "10.00", "kind": "upgrade", "plan": "premium", "period": "per month",
+                       "blurb": "200 images/day · priority Video Creator · Premium badge · top limits"},
+    "annual": {"id": "annual", "name": "Premium Annual", "price": "120.00", "kind": "upgrade", "plan": "premium", "period": "per year — $10/mo",
+               "blurb": "Everything in Luchii Premium, billed yearly"},
     "doc-single": {"id": "doc-single", "name": "Court Document Download", "price": "1.00", "kind": "doc_credits",
                    "doc_credits": 1, "blurb": "1 certified PDF download from the docket & laws library"},
     "doc-pack": {"id": "doc-pack", "name": "Docket Access Pack", "price": "5.00", "kind": "doc_credits",
                  "doc_credits": 10, "blurb": "10 certified PDF downloads from the docket & laws library"},
 }
 
-PAID_PLANS = {"trial", "builder", "pro"}
+PAID_PLANS = {"trial", "builder", "pro", "premium"}
 
 CASHAPP_TAG = os.environ.get("CASHAPP_TAG", "$jccnvja")
 CASHAPP_PAYEE = os.environ.get("CASHAPP_PAYEE", "FRASBERG INC")

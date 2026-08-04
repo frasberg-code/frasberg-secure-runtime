@@ -69,7 +69,7 @@ _SYSTEMS = {"website": WEBSITE_SYSTEM, "game": GAME_SYSTEM, "app": APP_SYSTEM, "
 
 
 def _is_pro(user: dict) -> bool:
-    return user.get("plan") in ("pro", "builder", "trial") or user.get("role") == "admin"
+    return user.get("plan") in ("pro", "premium", "builder", "trial") or user.get("role") == "admin"
 
 
 def _today() -> str:

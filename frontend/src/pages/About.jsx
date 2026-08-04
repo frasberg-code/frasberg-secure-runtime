@@ -182,10 +182,6 @@ export default function About() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="mb-6 flex items-center gap-4" data-testid="about-spin-logos">
-            <img src="/frasberg-emblem.png" alt="Frasberg AI" className="h-14 w-14 rounded-full" />
-            <img src="/luchii-logo.webp" alt="Luchii" className="h-14 w-14 rounded-full ring-1 ring-lux-accent/40" />
-          </div>
           <Overline>About the company</Overline>
           <h1 className="mt-5 font-display text-4xl font-700 tracking-tighter sm:text-5xl lg:text-6xl">
             Frasberg Inc.

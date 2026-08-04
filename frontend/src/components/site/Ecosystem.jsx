@@ -74,7 +74,7 @@ export default function Ecosystem() {
                     alt={l.name}
                     loading="lazy"
                     className={l.spin
-                      ? "spin-slow h-7 w-7 rounded-full"
+                      ? "turn-step h-7 w-7 rounded-full"
                       : "h-7 w-7 grayscale transition-all duration-300 group-hover:grayscale-0"}
                     style={l.spin ? undefined : { filter: "grayscale(1)" }}
                   />
