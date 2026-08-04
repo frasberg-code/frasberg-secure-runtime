@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Moon, Sun, ArrowLeft, Activity, RefreshCw } from "lucide-react";
+import { Link, Navigate } from "react-router-dom";
+import { Moon, Sun, ArrowLeft, Activity, RefreshCw, ShieldAlert } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
 import Starfield from "../components/site/Starfield";
 import Seo from "../components/site/Seo";
 import Footer from "../components/site/Footer";
@@ -38,14 +39,18 @@ function fmtUptime(s) {
 
 export default function Status() {
   const { theme, toggle } = useTheme();
+  const { user } = useAuth();
   const [data, setData] = useState(null);
   const [error, setError] = useState(false);
 
+  const isAdmin = user?.role === "admin";
+
   useEffect(() => {
+    if (!isAdmin) return;
     let alive = true;
     const load = async () => {
       try {
-        const res = await fetch(`${API}/system/status`);
+        const res = await fetch(`${API}/system/status`, { credentials: "include" });
         if (!res.ok) throw new Error();
         const d = await res.json();
         if (alive) { setData(d); setError(false); }
@@ -56,7 +61,21 @@ export default function Status() {
     load();
     const t = setInterval(load, 10000);
     return () => { alive = false; clearInterval(t); };
-  }, []);
+  }, [isAdmin]);
+
+  if (user === false) return <Navigate to="/auth?mode=login&next=%2Fstatus" replace />;
+  if (user && !isAdmin) {
+    return (
+      <main className="grid min-h-screen place-items-center bg-lux-bg text-lux-text" data-testid="status-denied">
+        <div className="text-center">
+          <ShieldAlert size={28} className="mx-auto text-lux-accent" />
+          <p className="mt-4 font-display text-xl font-700 tracking-tight">Admin access required</p>
+          <p className="mt-2 text-sm text-lux-text2">System status is restricted to the Frasberg admin console.</p>
+          <Link to="/" className="mt-4 inline-block text-sm text-lux-accent underline">Back to Luchii</Link>
+        </div>
+      </main>
+    );
+  }
 
   const overall = error ? "outage" : data?.overall;
 
@@ -67,7 +86,7 @@ export default function Status() {
 
       <header className="glass sticky top-0 z-40 border-b border-lux-border">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-4 sm:px-8">
-          <Link to="/" className="flex items-center gap-2.5" data-testid="status-back-link">
+          <Link to="/admin" className="flex items-center gap-2.5" data-testid="status-back-link">
             <ArrowLeft size={16} className="text-lux-text2" />
             <img src="/luchii-logo.webp" alt="Frasberg Luchii" className="h-8 w-8 rounded-full ring-1 ring-lux-accent/40" />
             <span className="font-display text-lg font-700 tracking-tight">System Status</span>

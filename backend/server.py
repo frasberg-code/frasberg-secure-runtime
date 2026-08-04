@@ -472,8 +472,19 @@ _START_TIME = datetime.now(timezone.utc)
 _STATUS_LABELS = {"ready": "operational", "loading": "warming", "idle": "standby", "unavailable": "degraded"}
 
 
+@api_router.get("/health")
+async def health():
+    return {"ok": True, "mesh": "frasberg-secure-v1"}
+
+
+async def _status_admin(user: dict = Depends(auth_module.get_current_user)) -> dict:
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return user
+
+
 @api_router.get("/system/status")
-async def system_status():
+async def system_status(admin: dict = Depends(_status_admin)):
     db_ok = True
     try:
         await client.admin.command("ping")

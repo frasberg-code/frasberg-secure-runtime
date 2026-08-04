@@ -44,7 +44,6 @@ export default function Footer() {
               <p className="mb-3 text-xs uppercase tracking-[0.2em] text-lux-text2">Company</p>
               <ul className="space-y-2 text-lux-text2">
                 <li><a href="/about" className="hover:text-lux-text" data-testid="footer-about-link">About Frasberg</a></li>
-                <li><a href="/status" className="hover:text-lux-text" data-testid="footer-status-link">System Status</a></li>
                 <li><a href="https://frasberg.com" target="_blank" rel="noreferrer" className="hover:text-lux-text" data-testid="footer-frasberg-com-link">Frasberg.com</a></li>
                 <li><a href="mailto:support@frasberg.com" className="hover:text-lux-text">support@frasberg.com</a></li>
               </ul>

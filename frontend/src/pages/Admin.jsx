@@ -107,9 +107,15 @@ export default function Admin() {
             <img src="/luchii-logo.webp" alt="Frasberg" className="h-8 w-8 rounded-full ring-1 ring-lux-accent/40" />
             <span className="font-display text-lg font-700 tracking-tight">Admin Console</span>
           </Link>
-          <button onClick={toggle} aria-label="Toggle theme" className="grid h-10 w-10 place-items-center rounded-full border border-lux-border hover:border-lux-accent hover:text-lux-accent">
-            {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
-          </button>
+          <div className="flex items-center gap-2">
+            <Link to="/status" data-testid="admin-status-link"
+              className="rounded-full border border-lux-border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.15em] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
+              System Status
+            </Link>
+            <button onClick={toggle} aria-label="Toggle theme" className="grid h-10 w-10 place-items-center rounded-full border border-lux-border hover:border-lux-accent hover:text-lux-accent">
+              {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
+            </button>
+          </div>
         </div>
       </header>
 

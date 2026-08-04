@@ -89,10 +89,10 @@ function fileKind(file) {
 function EngineBadge() {
   const [st, setSt] = useState(null);
   useEffect(() => {
-    fetch(`${API}/system/status`).then((r) => r.json()).then(setSt).catch(() => {});
+    fetch(`${API}/health`).then((r) => setSt({ online: r.ok })).catch(() => setSt({ online: false }));
   }, []);
   if (!st) return null;
-  const online = st.overall !== "outage" && st.overall !== "degraded";
+  const online = st.online;
   return (
     <span
       data-testid="engine-status-badge"

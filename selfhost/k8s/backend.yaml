@@ -23,13 +23,13 @@ spec:
                 name: luchii-secrets
           livenessProbe:
             httpGet:
-              path: /api/system/status
+              path: /api/health
               port: 8001
             initialDelaySeconds: 15
             periodSeconds: 15
           readinessProbe:
             httpGet:
-              path: /api/system/status
+              path: /api/health
               port: 8001
             initialDelaySeconds: 5
             periodSeconds: 10

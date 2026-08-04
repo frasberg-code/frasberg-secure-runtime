@@ -443,3 +443,10 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - NEW /app/selfhost/ kit (ships to GitHub): README, docker-compose.yml (backend/frontend/mongo/redis/nginx/certbot), backend.Dockerfile (+optional ML), frontend.Dockerfile, nginx TLS+WSS conf, certbot init script, .env.example, k8s/ manifests (namespace, secrets, mongo, redis, backend, frontend, cert-manager ingress, HPA). Lets user self-host with own TLS/ingress/scaling.
 - system status now 12 components (added Mesh WebSocket Server row).
 - mesh_ws.py loads its own dotenv (import-order KeyError fix).
+
+## 2026-06 — Status page made admin-only
+- GET /api/system/status now requires admin role (403 otherwise; guests get 401). New public GET /api/health {ok, mesh} for lightweight checks.
+- /status page: guests redirected to /auth?next=/status; non-admin users see "Admin access required"; admins see full 12-component dashboard (fetch w/ credentials).
+- Footer "System Status" link removed; added "System Status" button in Admin Console header (admin-status-link). Status back-link now points to /admin.
+- ChatDemo EngineBadge uses /api/health. Selfhost docker-compose healthcheck + k8s probes switched to /api/health.
+- Note: Depends(require_admin) NameError trap — require_admin defined at line ~838; used local _status_admin dependency instead.
