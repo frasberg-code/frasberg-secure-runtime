@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Moon, Sun, ArrowLeft, Loader2, Globe, Gamepad2, AppWindow, LayoutTemplate, Rocket, Download, Trash2, ExternalLink, Sparkles, X, Link2, BadgeCheck, Share2, ShieldCheck } from "lucide-react";
+import { Moon, Sun, ArrowLeft, Loader2, Globe, Gamepad2, AppWindow, LayoutTemplate, Rocket, Download, Trash2, ExternalLink, Sparkles, X, Link2, BadgeCheck, Share2, ShieldCheck, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
@@ -87,6 +87,35 @@ export default function Builder({ type = "website" }) {
   const [busy, setBusy] = useState(false);
   const [chars, setChars] = useState(0);
   const [genAssets, setGenAssets] = useState([]);
+  const [regenBusy, setRegenBusy] = useState(null);
+
+  async function regenAsset(a) {
+    if (regenBusy) return;
+    setRegenBusy(a.url);
+    try {
+      const res = await fetch(`${API}/builder/assets/regenerate`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+        body: JSON.stringify({ kind: a.kind, key: a.key, old_url: a.url, project_id: current?.id || "" }),
+      });
+      if (res.status === 429) {
+        const d = await res.json().catch(() => ({}));
+        toast.error(d.detail || "Daily asset pack limit reached");
+        return;
+      }
+      if (!res.ok) throw new Error();
+      const d = await res.json();
+      setGenAssets((arr) => arr.map((x) => (x.url === a.url ? { ...x, url: d.url } : x)));
+      if (d.swapped_in_project && current) {
+        const pr = await fetch(`${API}/builder/projects/${current.id}`, { credentials: "include" });
+        if (pr.ok) { const proj = await pr.json(); setCurrent(proj); setHtml(proj.html); }
+      }
+      toast.success(d.swapped_in_project ? "Fresh asset generated and swapped into your build" : "Fresh asset generated");
+    } catch {
+      toast.error("Could not regenerate asset — please try again");
+    } finally {
+      setRegenBusy(null);
+    }
+  }
   const [current, setCurrent] = useState(null);
   const [projects, setProjects] = useState([]);
   const [quota, setQuota] = useState(null);
@@ -430,11 +459,16 @@ export default function Builder({ type = "website" }) {
                 <div className="mb-3 flex flex-wrap items-center gap-3" data-testid="builder-assets-strip">
                   <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-lux-text2">Visual assets:</span>
                   {genAssets.map((a) => (
-                    <div key={a.url} className="flex flex-col items-center gap-1">
+                    <div key={a.url} className="relative flex flex-col items-center gap-1">
                       <img src={`${process.env.REACT_APP_BACKEND_URL}${a.url}`} alt={a.key}
                         data-testid={`builder-asset-${a.kind}`}
                         className="h-14 w-14 rounded-lg object-cover ring-1 ring-lux-accent/40" />
-                      <span className="text-[9px] uppercase tracking-wider text-lux-text2">{a.kind}</span>
+                      <button type="button" onClick={() => regenAsset(a)} title="Regenerate this asset"
+                        data-testid={`builder-asset-regen-${a.kind}`}
+                        className="absolute -right-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-full bg-lux-accent text-lux-bg shadow transition-transform hover:scale-110">
+                        <RefreshCw size={10} className={regenBusy === a.url ? "animate-spin" : ""} />
+                      </button>
+                      <span className="text-[9px] uppercase tracking-wider text-lux-text2">{a.kind.replace("_", " ")}</span>
                     </div>
                   ))}
                 </div>

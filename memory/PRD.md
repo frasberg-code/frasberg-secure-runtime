@@ -660,3 +660,20 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
   imgBg/imgPlayer/imgDragon draw code; build survived client disconnect (detached task).
   Phase 2 backlog (per spec): sprite sheets/animation frames, dynamic damage states, watermarking
   free exports, private asset library UI, particle/lighting upgrades.
+
+## 2026-06 — Asset Pipeline pt2: Damage States, Boss Arenas, Regenerate Button (verified)
+- DAMAGE STATES: character detection now also generates a character_damaged variant (torn
+  clothing/wounds/exhausted, same outfit) with injection rule: swap player sprite below 40% HP,
+  swap back when healed (spec Module 4).
+- BOSS ARENA: \bboss\b in prompt → "arena" asset (dramatic lair of the detected creature, or
+  "colossal final boss" fallback) with rule: transition background to arena during boss fight
+  with red/orange grade, restore after. Plan cap raised 3→5 assets.
+- REGENERATE: POST /api/builder/assets/regenerate {kind,key,old_url,project_id} — bypasses cache
+  (fresh variation seed suffix), writes {hash}-{6hex}.png (serve regex updated), updates cache
+  doc file, records pack (free 5/day, 429 w/ upgrade msg, 400 unknown asset), and if old_url is
+  in the user's project html → string-swaps to new url + bumps updated_at (instant in-build swap).
+  Builder.jsx: RefreshCw overlay button per asset thumbnail (builder-asset-regen-{kind}),
+  per-asset spinner, refetches project html on swap so preview updates.
+- Refactored prompt templates into _item(kind,key) (shared by extraction + regenerate).
+- E2E: extraction returns 5-asset plan; regen dragon → new image 200, swapped_in_project true,
+  project html now references the fresh url only; bad key 400. Frontend compiles.
