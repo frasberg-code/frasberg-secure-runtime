@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import Starfield from "../components/site/Starfield";
 import Seo from "../components/site/Seo";
 import Footer from "../components/site/Footer";
+import { BuilderShowreel } from "../components/site/BuilderShowreel";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 

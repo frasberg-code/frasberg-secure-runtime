@@ -42,7 +42,7 @@ db = client[os.environ['DB_NAME']]
 auth_module.setup(db)
 
 EMERGENT_LLM_KEY = os.environ['EMERGENT_LLM_KEY']
-MESH_HMAC_SECRET = os.environ['MESH_HMAC_SECRET'].encode()
+MESH_HMAC_SECRET = (os.environ.get('MESH_HMAC_SECRET') or os.environ['JWT_SECRET']).encode()
 
 
 def _mesh_sign(content: str) -> str:

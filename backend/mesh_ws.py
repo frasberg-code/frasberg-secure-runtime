@@ -22,7 +22,7 @@ router = APIRouter()
 
 _client = AsyncIOMotorClient(os.environ["MONGO_URL"])
 _db = _client[os.environ["DB_NAME"]]
-MESH_HMAC_SECRET = os.environ["MESH_HMAC_SECRET"].encode()
+MESH_HMAC_SECRET = (os.environ.get("MESH_HMAC_SECRET") or os.environ["JWT_SECRET"]).encode()
 EMERGENT_LLM_KEY = os.environ["EMERGENT_LLM_KEY"]
 REDIS_URL = os.environ.get("REDIS_URL", "")
 BUFFER_TTL = 86400

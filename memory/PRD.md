@@ -456,3 +456,9 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - Builder "Instant demos": gallery builds load into live preview iframe with one tap (guests too) via GET /api/p/{slug}; "Remix this build" button (guests → auth redirect). Gallery response uses `featured` field (no is_flagship/views in API payload).
 - iteration_18: all 7 frontend flows PASS, no bugs.
 - User told to use "Save to GitHub" to persist Court files to their repo, and Deploy to push hiding live.
+
+## 2026-06 — Software page + Builder showreel + production auth resilience
+- NEW /software page (Software.jsx): 8 live product cards (Chat, Builder, Gallery, Voice, Memory Vault, Mesh, Luchii Code, API) w/ LIVE pills; navbar "Frasberg Software" + footer link added.
+- NEW BuilderShowreel component: auto-playing ~10s typing animation that writes NEON RUNNER code while rendering it live in an iframe beside; loops with replay; shown on Builder pages when no build loaded. (Bug fixed: forgot import in Builder.jsx → blank page.)
+- PRODUCTION LOGIN FAILURE ("All failed" screenshots from frasberg.com): preview auth verified 200/200. Root-cause hardening: MESH_HMAC_SECRET now falls back to JWT_SECRET (server.py + mesh_ws.py) so a missing env var in production can never crash the backend at boot (KeyError → empty responses → Cloudflare parse error). Deployment static check PASS.
+- USER MUST REDEPLOY. If production STILL fails after redeploy, it's a production env/infra issue → contact Emergent Support to inspect deployed logs.
