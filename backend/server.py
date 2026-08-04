@@ -1638,6 +1638,8 @@ import builder as builder_module
 api_router.include_router(auth_module.router)
 api_router.include_router(builder_module.router)
 api_router.include_router(mesh_ws.router)
+import games_portal
+api_router.include_router(games_portal.router)
 app.include_router(api_router)
 
 _PLATFORM_HOSTS = ("emergentagent.com", "frasberg", "localhost", "127.0.0.1")

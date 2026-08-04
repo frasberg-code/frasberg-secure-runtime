@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Meta Maze</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
+  canvas { display: block; }
+  #hud { position: fixed; top: 0; left: 0; right: 0; display: flex; justify-content: space-between;
+    padding: 16px 24px; color: #fff; font-size: 15px; pointer-events: none; z-index: 5; }
+  #hud span { background: rgba(13,13,26,0.6); padding: 6px 14px; border-radius: 8px; border: 1px solid #6c63ff44; }
+  .screen { position: fixed; inset: 0; background: rgba(13,13,26,0.94); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; color: #fff; z-index: 10; text-align: center; }
+  .screen h1 { color: #6c63ff; font-size: 44px; letter-spacing: 6px; margin-bottom: 12px; }
+  .screen p { color: #aaa; margin-bottom: 8px; }
+  .screen button { margin-top: 24px; padding: 14px 42px; background: #6c63ff; color: #fff; border: none;
+    border-radius: 30px; font-size: 17px; font-weight: bold; cursor: pointer; letter-spacing: 2px; font-family: inherit; }
+  .screen button:hover { background: #857dff; }
+  #win, #lose { display: none; }
+</style>
+</head>
+<body>
+<div id="hud">
+  <span>⏱ <b id="time">90</b>s</span>
+  <span>🏆 LEVEL <b id="level">1</b></span>
+</div>
+<div id="start" class="screen">
+  <h1>⬡ META MAZE</h1>
+  <p>Frasberg Engine · Procedural Labyrinth</p>
+  <p>WASD move · Mouse look · Reach the beacon before time runs out</p>
+  <button id="startBtn">ENTER THE MAZE</button>
+</div>
+<div id="win" class="screen">
+  <h1>BEACON REACHED</h1>
+  <p id="winText"></p>
+  <button id="nextBtn">NEXT LEVEL</button>
+</div>
+<div id="lose" class="screen">
+  <h1>LOST IN THE MAZE</h1>
+  <p id="loseText"></p>
+  <button id="restartBtn">TRY AGAIN</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+<script>
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x0d0d1a, 0.09);
+scene.background = new THREE.Color(0x0d0d1a);
+const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 100);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+addEventListener("resize", () => {
+  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+scene.add(new THREE.AmbientLight(0x8888ff, 0.35));
+const lamp = new THREE.PointLight(0x6c63ff, 2, 14);
+scene.add(lamp);
+
+const CELL = 4;
+let SIZE = 9;
+let grid = [], wallMeshes = [], beacon = null, beaconLight = null;
+
+function genMaze(n) {
+  // recursive backtracker on odd grid
+  const g = Array.from({ length: n }, () => Array(n).fill(1));
+  const stack = [[1, 1]];
+  g[1][1] = 0;
+  while (stack.length) {
+    const [x, y] = stack[stack.length - 1];
+    const dirs = [[2,0],[-2,0],[0,2],[0,-2]].sort(() => Math.random() - 0.5);
+    let moved = false;
+    for (const [dx, dy] of dirs) {
+      const nx = x + dx, ny = y + dy;
+      if (nx > 0 && ny > 0 && nx < n-1 && ny < n-1 && g[ny][nx] === 1) {
+        g[ny][nx] = 0; g[y + dy/2][x + dx/2] = 0;
+        stack.push([nx, ny]); moved = true; break;
+      }
+    }
+    if (!moved) stack.pop();
+  }
+  return g;
+}
+
+function buildMaze() {
+  wallMeshes.forEach(m => scene.remove(m)); wallMeshes = [];
+  if (beacon) { scene.remove(beacon); scene.remove(beaconLight); }
+  grid = genMaze(SIZE);
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0x2a2a4e, roughness: 0.85 });
+  const wallGeo = new THREE.BoxGeometry(CELL, 4, CELL);
+  for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
+    if (grid[y][x] === 1) {
+      const w = new THREE.Mesh(wallGeo, wallMat);
+      w.position.set(x * CELL, 2, y * CELL);
+      scene.add(w); wallMeshes.push(w);
+    }
+  }
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(SIZE * CELL + 8, SIZE * CELL + 8),
+    new THREE.MeshStandardMaterial({ color: 0x1c1c30, roughness: 0.95 }));
+  floor.rotation.x = -Math.PI/2;
+  floor.position.set(SIZE * CELL / 2, 0, SIZE * CELL / 2);
+  scene.add(floor); wallMeshes.push(floor);
+  // beacon at far corner
+  beacon = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 8, 16),
+    new THREE.MeshBasicMaterial({ color: 0x44ffaa, transparent: true, opacity: 0.7 }));
+  beacon.position.set((SIZE-2) * CELL, 4, (SIZE-2) * CELL);
+  scene.add(beacon);
+  beaconLight = new THREE.PointLight(0x44ffaa, 3, 20);
+  beaconLight.position.copy(beacon.position);
+  scene.add(beaconLight);
+}
+
+const player = { pos: new THREE.Vector3(CELL, 1.6, CELL), yaw: 0, pitch: 0 };
+const keys = {};
+document.addEventListener("keydown", e => keys[e.code] = true);
+document.addEventListener("keyup", e => keys[e.code] = false);
+document.addEventListener("mousemove", e => {
+  if (!document.pointerLockElement) return;
+  player.yaw -= e.movementX * 0.002;
+  player.pitch = Math.max(-1.2, Math.min(1.2, player.pitch - e.movementY * 0.002));
+});
+
+function isWall(x, z) {
+  const gx = Math.round(x / CELL), gz = Math.round(z / CELL);
+  if (gx < 0 || gz < 0 || gx >= SIZE || gz >= SIZE) return true;
+  return grid[gz][gx] === 1;
+}
+
+let running = false, timeLeft = 90, level = 1;
+function hud() {
+  document.getElementById("time").textContent = Math.ceil(timeLeft);
+  document.getElementById("level").textContent = level;
+}
+function start(reset) {
+  if (reset) { level = 1; SIZE = 9; }
+  buildMaze();
+  player.pos.set(CELL, 1.6, CELL); player.yaw = Math.PI / 4;
+  timeLeft = 60 + SIZE * 4; hud();
+  ["start","win","lose"].forEach(id => document.getElementById(id).style.display = "none");
+  running = true;
+  document.body.requestPointerLock();
+}
+function win() {
+  running = false; document.exitPointerLock();
+  document.getElementById("winText").textContent = `Level ${level} cleared with ${Math.ceil(timeLeft)}s left`;
+  document.getElementById("win").style.display = "flex";
+  level++; SIZE = Math.min(SIZE + 2, 19);
+}
+function lose() {
+  running = false; document.exitPointerLock();
+  document.getElementById("loseText").textContent = `The maze kept you · Level ${level}`;
+  document.getElementById("lose").style.display = "flex";
+}
+document.getElementById("startBtn").onclick = () => start(true);
+document.getElementById("restartBtn").onclick = () => start(true);
+document.getElementById("nextBtn").onclick = () => start(false);
+
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  if (running) {
+    timeLeft -= dt;
+    if (timeLeft <= 0) { lose(); }
+    const f = { x: Math.sin(player.yaw), z: Math.cos(player.yaw) };
+    const r = { x: Math.cos(player.yaw), z: -Math.sin(player.yaw) };
+    let dx = 0, dz = 0;
+    if (keys["KeyW"]) { dx -= f.x; dz -= f.z; }
+    if (keys["KeyS"]) { dx += f.x; dz += f.z; }
+    if (keys["KeyA"]) { dx -= r.x; dz -= r.z; }
+    if (keys["KeyD"]) { dx += r.x; dz += r.z; }
+    const len = Math.hypot(dx, dz) || 1; dx /= len; dz /= len;
+    const nx = player.pos.x + dx * 6 * dt, nz = player.pos.z + dz * 6 * dt;
+    if (!isWall(nx, player.pos.z)) player.pos.x = nx;
+    if (!isWall(player.pos.x, nz)) player.pos.z = nz;
+    camera.position.copy(player.pos);
+    camera.rotation.order = "YXZ";
+    camera.rotation.y = player.yaw;
+    camera.rotation.x = player.pitch;
+    lamp.position.set(player.pos.x, 3, player.pos.z);
+    beacon.rotation.y += dt;
+    beacon.material.opacity = 0.55 + Math.sin(Date.now() * 0.004) * 0.25;
+    if (player.pos.distanceTo(beacon.position.clone().setY(1.6)) < 2.2) win();
+    hud();
+  }
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>

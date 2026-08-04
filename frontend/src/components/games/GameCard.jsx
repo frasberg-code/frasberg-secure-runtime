@@ -1,0 +1,37 @@
+import { useState } from "react";
+
+export default function GameCard({ game, onPlay }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div
+      data-testid={`game-card-${game.id}`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="group overflow-hidden rounded-2xl border border-[#1a1a2e] bg-[#111122] shadow-[0_4px_24px_rgba(0,0,0,0.25)] transition-transform duration-200"
+      style={{ transform: hovered ? "scale(1.03)" : "scale(1)" }}
+    >
+      <div className="relative h-44 overflow-hidden bg-[#1a1a2e]">
+        <img
+          src={game.thumbnail}
+          alt={game.title}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+        />
+        <span className="absolute right-3 top-3 rounded-full bg-[#6c63ff] px-2.5 py-1 text-[11px] font-bold text-white">
+          {game.genre}
+        </span>
+      </div>
+      <div className="p-5">
+        <h3 className="text-lg font-bold text-white">{game.title}</h3>
+        <p className="mt-2 min-h-[3.2rem] text-[13px] leading-relaxed text-[#aaa]">{game.description}</p>
+        <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.15em] text-[#555]">{game.engine}</p>
+        <button
+          data-testid={`game-play-btn-${game.id}`}
+          onClick={onPlay}
+          className="mt-4 w-full rounded-xl bg-[#6c63ff] py-2.5 text-[15px] font-bold text-white transition-colors hover:bg-[#857dff]"
+        >
+          ▶ Play Now
+        </button>
+      </div>
+    </div>
+  );
+}

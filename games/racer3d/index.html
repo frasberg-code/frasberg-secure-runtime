@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Frasberg Racer</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
+  canvas { display: block; }
+  #hud { position: fixed; top: 0; left: 0; right: 0; display: flex; justify-content: space-between;
+    padding: 16px 24px; color: #fff; font-size: 15px; pointer-events: none; z-index: 5; }
+  #hud span { background: rgba(13,13,26,0.6); padding: 6px 14px; border-radius: 8px; border: 1px solid #6c63ff44; }
+  .screen { position: fixed; inset: 0; background: rgba(13,13,26,0.94); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; color: #fff; z-index: 10; text-align: center; }
+  .screen h1 { color: #6c63ff; font-size: 44px; letter-spacing: 6px; margin-bottom: 12px; }
+  .screen p { color: #aaa; margin-bottom: 8px; }
+  .screen button { margin-top: 24px; padding: 14px 42px; background: #6c63ff; color: #fff; border: none;
+    border-radius: 30px; font-size: 17px; font-weight: bold; cursor: pointer; letter-spacing: 2px; font-family: inherit; }
+  .screen button:hover { background: #857dff; }
+  #gameover { display: none; }
+</style>
+</head>
+<body>
+<div id="hud">
+  <span>⚡ SPEED <b id="speed">120</b> km/h</span>
+  <span>⭐ SCORE <b id="score">0</b></span>
+</div>
+<div id="start" class="screen">
+  <h1>⬡ FRASBERG RACER</h1>
+  <p>Frasberg Engine · Mesh Grid Circuit</p>
+  <p>A/D or ←/→ steer · W/↑ boost</p>
+  <button id="startBtn">IGNITION</button>
+</div>
+<div id="gameover" class="screen">
+  <h1>WRECKED</h1>
+  <p id="finalScore"></p>
+  <button id="restartBtn">RESTART ENGINE</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+<script>
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x0d0d1a, 0.018);
+scene.background = new THREE.Color(0x0d0d1a);
+const camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, 0.1, 500);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+addEventListener("resize", () => {
+  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+scene.add(new THREE.AmbientLight(0x8888ff, 0.5));
+const sun = new THREE.DirectionalLight(0x6c63ff, 1.2); sun.position.set(0, 10, 5); scene.add(sun);
+
+// Road
+const LANES = [-3, 0, 3];
+const road = new THREE.Mesh(new THREE.PlaneGeometry(10, 400), new THREE.MeshStandardMaterial({ color: 0x14142a }));
+road.rotation.x = -Math.PI/2; road.position.z = -150; scene.add(road);
+const grid = new THREE.GridHelper(400, 80, 0x6c63ff, 0x2a2a4e);
+grid.position.z = -150; grid.position.y = 0.01; scene.add(grid);
+// Lane stripes
+for (let i = 0; i < 40; i++) {
+  [-1.5, 1.5].forEach(x => {
+    const s = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 2.5), new THREE.MeshBasicMaterial({ color: 0x6c63ff }));
+    s.rotation.x = -Math.PI/2; s.position.set(x, 0.02, -i * 10);
+    scene.add(s);
+  });
+}
+// Side rails glow
+[-5.2, 5.2].forEach(x => {
+  const rail = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.6, 400), new THREE.MeshBasicMaterial({ color: 0x3a3aff }));
+  rail.position.set(x, 0.3, -150); scene.add(rail);
+});
+
+function makeCar(color) {
+  const g = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.5, 3), new THREE.MeshStandardMaterial({ color, metalness: 0.6, roughness: 0.3 }));
+  body.position.y = 0.45; g.add(body);
+  const cab = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.45, 1.4), new THREE.MeshStandardMaterial({ color: 0x111122, metalness: 0.8 }));
+  cab.position.set(0, 0.85, -0.1); g.add(cab);
+  [[-0.8,-1],[0.8,-1],[-0.8,1],[0.8,1]].forEach(([x,z]) => {
+    const w = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.3, 12), new THREE.MeshStandardMaterial({ color: 0x0a0a0a }));
+    w.rotation.z = Math.PI/2; w.position.set(x, 0.32, z); g.add(w);
+  });
+  return g;
+}
+
+const player = makeCar(0x6c63ff);
+player.position.set(0, 0, 4);
+scene.add(player);
+const glow = new THREE.PointLight(0x6c63ff, 2, 8); glow.position.set(0, 1, 5); scene.add(glow);
+
+let traffic = [];
+function spawnTraffic(z) {
+  const colors = [0xff3355, 0xffaa22, 0x22ccff, 0x44ff88];
+  const car = makeCar(colors[Math.floor(Math.random()*colors.length)]);
+  car.position.set(LANES[Math.floor(Math.random()*3)], 0, z);
+  car.rotation.y = Math.PI;
+  scene.add(car);
+  traffic.push(car);
+}
+
+const keys = {};
+document.addEventListener("keydown", e => keys[e.code] = true);
+document.addEventListener("keyup", e => keys[e.code] = false);
+
+let running = false, speed = 30, score = 0, px = 0;
+function hud() {
+  document.getElementById("speed").textContent = Math.round(speed * 4);
+  document.getElementById("score").textContent = Math.floor(score);
+}
+function start() {
+  traffic.forEach(t => scene.remove(t)); traffic = [];
+  for (let i = 1; i <= 8; i++) spawnTraffic(-i * 25);
+  speed = 30; score = 0; px = 0; player.position.x = 0;
+  document.getElementById("start").style.display = "none";
+  document.getElementById("gameover").style.display = "none";
+  running = true;
+}
+function gameOver() {
+  running = false;
+  document.getElementById("finalScore").textContent = `Distance ${Math.floor(score)} · Top speed ${Math.round(speed*4)} km/h`;
+  document.getElementById("gameover").style.display = "flex";
+}
+document.getElementById("startBtn").onclick = start;
+document.getElementById("restartBtn").onclick = start;
+
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  if (running) {
+    speed += dt * 0.6;
+    if (keys["KeyW"] || keys["ArrowUp"]) speed += dt * 6;
+    if (keys["KeyA"] || keys["ArrowLeft"]) px -= 9 * dt;
+    if (keys["KeyD"] || keys["ArrowRight"]) px += 9 * dt;
+    px = Math.max(-4.2, Math.min(4.2, px));
+    player.position.x += (px - player.position.x) * 10 * dt;
+    player.rotation.z = (player.position.x - px) * 0.25;
+    score += speed * dt;
+    hud();
+    for (const t of traffic) {
+      t.position.z += speed * dt * 0.9;
+      if (t.position.z > 8) {
+        t.position.z = -220 - Math.random() * 60;
+        t.position.x = LANES[Math.floor(Math.random()*3)];
+      }
+      if (Math.abs(t.position.z - player.position.z) < 2.6 && Math.abs(t.position.x - player.position.x) < 1.5) gameOver();
+    }
+    grid.position.z += speed * dt;
+    if (grid.position.z > -100) grid.position.z = -150;
+  }
+  camera.position.set(player.position.x * 0.5, 3.2, 10);
+  camera.lookAt(player.position.x * 0.5, 0.8, -10);
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>

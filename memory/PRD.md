@@ -543,3 +543,26 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - FRONTEND (user chose option B: dedicated page): /admin/mesh route → pages/MeshControlCenter.jsx (dark #0d0d1a mono aesthetic per user's dump, quick-stat cards, 7 tabs). Components in components/mesh/: LiveFeed, ClientsPanel (table + disconnect + broadcast), LatencyChart (region lines + inference bar), QueueDepthChart (flush all), EncryptionHealth (rotate key), VoiceHeatmap, FailoverControls (promote-to-primary). Hooks: useAdminMetrics (8s poll), useAdminSocket (WS reconnect). api/adminApi.js. Link added in Admin.jsx Live Ops header ("Mesh Control Center", Radio icon).
 - Auth guard convention: user===false → redirect /auth?next=/admin/mesh; user.role!=admin → /.
 - VERIFIED: live mesh WS test message generated real events; screenshots show Live Feed Active (WS auth OK), event feed populated, failover cards live.
+
+## 2026-06 — Luchii Game Platform Frontend Portal (user's Msg 66/71 dump — COMPLETE)
+- BACKEND /app/backend/games_portal.py (mounted in api_router): GET /api/games (registry of 4),
+  GET /api/games/{id} meta, GET /api/games/{id}/play (serves game HTML from /app/games/{id}/),
+  GET /api/games/stream/health (probes STREAM_NODE_URL / localhost:4000 streaming server, 1.5s
+  timeout → {online:false} when node down). All curl-verified: 200s + 404 unknown game.
+- 3 NEW PLAYABLE Three.js games in /app/games/ (matching dungeon3d style, #0d0d1a + #6c63ff):
+  racer3d (Frasberg Racer — lane traffic dodger), spaceshooter (Constellation Wars — wave
+  invaders), maze3d (Meta Maze — procedural FPS labyrinth w/ beacon + timer). Existing dungeon3d
+  = Luchii Dungeon.
+- FRONTEND: /games → pages/GamesLibrary.jsx (dark arcade dump aesthetic, search games-search,
+  genre filters games-filter-*, GameCard grid components/games/GameCard.jsx w/ AI-generated
+  thumbnails in public/games-thumbs/, stream status pill games-stream-status). /games/play/:gameId
+  → pages/GamePlayerPage.jsx (mode badge Cloud Stream/Local Engine, live latency pill 5s ping to
+  /api/health, fullscreen btn, exit link, controls hint bar). components/games/StreamPlayer.jsx:
+  full WebRTC client (offer/answer/ICE via WS /stream?token&game, ontrack → video, keyboard+mouse
+  input tunneling) — auto-falls back to local iframe when stream node offline (SCAFFOLDING: node
+  needs X11/FFmpeg host, treat cloud path as ready-when-infra-exists).
+- Routes in App.js; nav Explore "Luchii Games" + mobile link; footer "Luchii Games" link.
+- Verified: curl all endpoints + screenshots (library grid w/ 4 thumbs + LOCAL ENGINE MODE pill;
+  player page racer3d rendering 3D scene in iframe, 226ms latency pill).
+- NOTE: production frasberg.com Cloudflare "could not parse origin response" on signup (user
+  photo) = stale production build — user must Deploy latest.
