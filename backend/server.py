@@ -308,6 +308,7 @@ AGENT_PERSONAS = {
 
 class KeyCreate(BaseModel):
     name: str = "Default key"
+    expires_days: Optional[int] = None
 
 
 def _fallback_reply(message: str, model: str) -> str:
@@ -457,6 +458,10 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
                 {"id": key_id},
                 {"$inc": {"request_count": 1, "token_count": len(full.split())},
                  "$set": {"last_used": datetime.now(timezone.utc).isoformat()}},
+            )
+            await db.api_key_usage.update_one(
+                {"key_id": key_id, "day": datetime.now(timezone.utc).strftime("%Y-%m-%d")},
+                {"$inc": {"requests": 1, "tokens": len(full.split())}}, upsert=True,
             )
         yield f"data: {json.dumps({'done': True, 'session_id': session_id, 'mesh': 'frasberg-secure-v1', 'sig': _mesh_sign(full)})}\n\n"
 
@@ -1093,6 +1098,9 @@ async def gateway_chat(req: ChatRequest, authorization: Optional[str] = Header(N
     key_doc = await db.api_keys.find_one({"key": key}, {"_id": 0})
     if not key_doc:
         raise HTTPException(status_code=401, detail="Invalid API key")
+    exp = key_doc.get("expires_at")
+    if exp and exp < datetime.now(timezone.utc).isoformat():
+        raise HTTPException(status_code=401, detail="API key expired")
     if not req.message or not req.message.strip():
         raise HTTPException(status_code=400, detail="Message is required")
     if len(req.message) > MAX_MSG_LEN:
@@ -1114,12 +1122,17 @@ async def gateway_chat(req: ChatRequest, authorization: Optional[str] = Header(N
 async def create_key(body: KeyCreate, user: dict = Depends(auth_module.get_current_user)):
     if user.get("role") != "admin" and user.get("plan") not in PAID_PLANS:
         raise HTTPException(status_code=402, detail="subscription_required")
+    expires_at = None
+    if body.expires_days:
+        days = max(1, min(int(body.expires_days), 365))
+        expires_at = (datetime.now(timezone.utc) + timedelta(days=days)).isoformat()
     doc = {
         "id": str(uuid.uuid4()),
         "name": body.name or "Default key",
         "key": "luchii-sk-" + secrets.token_hex(20),
         "user_id": user["id"],
         "created": datetime.now(timezone.utc).isoformat(),
+        "expires_at": expires_at,
         "request_count": 0,
         "token_count": 0,
         "last_used": None,
@@ -1134,6 +1147,18 @@ async def list_keys(user: dict = Depends(auth_module.get_current_user)):
     for d in docs:
         d["key"] = _mask_key(d["key"])
     return docs
+
+
+@api_router.get("/keys/usage/daily")
+async def keys_usage_daily(user: dict = Depends(auth_module.get_current_user)):
+    key_ids = [d["id"] for d in await db.api_keys.find({"user_id": user["id"]}, {"id": 1}).to_list(200)]
+    days = [(datetime.now(timezone.utc) - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(13, -1, -1)]
+    docs = await db.api_key_usage.find({"key_id": {"$in": key_ids}, "day": {"$in": days}}, {"_id": 0}).to_list(3000)
+    agg = {d: {"requests": 0, "tokens": 0} for d in days}
+    for doc in docs:
+        agg[doc["day"]]["requests"] += doc.get("requests", 0)
+        agg[doc["day"]]["tokens"] += doc.get("tokens", 0)
+    return [{"day": d[5:], "requests": agg[d]["requests"], "tokens": agg[d]["tokens"]} for d in days]
 
 
 @api_router.delete("/keys/{key_id}")

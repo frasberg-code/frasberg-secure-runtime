@@ -170,7 +170,12 @@ export default function Profile() {
                 <User size={22} />
               </span>
               <div>
-                <h1 className="font-display text-3xl font-700 tracking-tighter" data-testid="profile-name-display">{user.name}</h1>
+                <h1 className="flex items-center gap-3 font-display text-3xl font-700 tracking-tighter" data-testid="profile-name-display">
+                  {user.name}
+                  {user.plan === "premium" && (
+                    <span className="rounded-full border border-amber-400/50 bg-amber-400/10 px-3 py-1 font-mono text-[10px] font-700 uppercase tracking-[0.15em] text-amber-300" data-testid="profile-premium-badge">Premium</span>
+                  )}
+                </h1>
                 <p className="font-mono text-xs text-lux-text2">{user.email} · <span className="uppercase text-lux-accent">{user.plan} plan</span></p>
               </div>
             </div>
@@ -210,7 +215,7 @@ export default function Profile() {
               {user.plan === "pro" || user.plan === "premium" || user.role === "admin" ? (
                 <p className="mt-3 text-sm text-lux-text2" data-testid="profile-pro-active">
                   <Check size={14} className="mr-1 inline text-lux-accent" />
-                  You are on the Pro plan — 200 images/day and priority Video Creator access.
+                  You are on the {user.plan === "premium" ? "Premium" : "Pro"} plan — 200 images/day and priority Video Creator access.
                 </p>
               ) : (
                 <>

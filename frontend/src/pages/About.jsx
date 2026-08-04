@@ -1,9 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Moon, Sun, ArrowLeft } from "lucide-react";
-import { useTheme } from "../context/ThemeContext";
 import Starfield from "../components/site/Starfield";
-import Footer from "../components/site/Footer";
 import Seo from "../components/site/Seo";
 import Reveal, { Overline } from "../components/site/Reveal";
 
@@ -152,8 +149,6 @@ const SECTIONS = [
 ];
 
 export default function About() {
-  const { theme, toggle } = useTheme();
-
   return (
     <main className="relative z-10 min-h-screen bg-lux-bg text-lux-text" data-testid="about-page">
       <Seo
@@ -164,15 +159,10 @@ export default function About() {
 
       <header className="glass sticky top-0 z-40 border-b border-lux-border">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
-          <Link to="/" className="flex items-center gap-2.5" data-testid="about-home-link">
-            <ArrowLeft size={16} className="text-lux-text2" />
-            <img src="/luchii-logo.webp" alt="Frasberg Luchii" className="h-8 w-8 rounded-full ring-1 ring-lux-accent/40" />
+          <Link to="/" className="flex items-baseline gap-4" data-testid="about-home-link">
+            <span className="font-mono text-xs uppercase tracking-[0.2em] text-lux-text2 transition-colors hover:text-lux-text">Back</span>
             <span className="font-display text-lg font-700 tracking-tight">Frasberg Inc.</span>
           </Link>
-          <button onClick={toggle} aria-label="Toggle theme" data-testid="about-theme-toggle"
-            className="grid h-10 w-10 place-items-center rounded-full border border-lux-border transition-colors hover:border-lux-accent hover:text-lux-accent">
-            {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
-          </button>
         </div>
       </header>
 
@@ -238,7 +228,10 @@ export default function About() {
         </Reveal>
       </section>
 
-      <Footer />
+      <footer className="border-t border-lux-border py-10 text-center">
+        <p className="font-mono text-xs text-lux-text2">Copyright © 2026 FRASBERG, INC. All rights reserved.</p>
+      </footer>
     </main>
   );
 }
+

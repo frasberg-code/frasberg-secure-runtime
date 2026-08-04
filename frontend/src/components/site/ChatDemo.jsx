@@ -441,7 +441,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
         if (!next[next.length - 1].content) {
           next[next.length - 1] = {
             role: "assistant",
-            content: err?.message && err.message !== "network" ? err.message : "Connection to the mesh failed. Please try again.",
+            content: err?.message && err.message !== "network" ? err.message : "Something went wrong — please try again.",
           };
         }
         return next;
@@ -449,22 +449,6 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
     } finally {
       setBusy(false);
       onNewMessage?.();
-    }
-
-    if (meshSig && acc) {
-      fetch(`${API}/mesh/verify`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: acc, sig: meshSig }),
-      }).then((r) => r.json()).then((v) => {
-        if (v.valid) {
-          setMessages((m) => {
-            const next = [...m];
-            const last = next[next.length - 1];
-            if (last?.role === "assistant") next[next.length - 1] = { ...last, verified: true };
-            return next;
-          });
-        }
-      }).catch(() => {});
     }
 
     if (user && acc.trim()) {
@@ -521,7 +505,6 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
               </span>
             </>
           )}
-          <EngineBadge />
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
           <div className="hidden items-center gap-1.5 sm:flex">
@@ -622,6 +605,9 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
           <div key={i} className="group w-full min-w-0">
             <p className={`font-mono text-[10px] uppercase tracking-[0.25em] ${m.role === "user" ? "text-lux-accent" : "text-lux-text2"}`}>
               {m.role === "user" ? (user?.name || "You") : "Luchii"}
+              {m.role === "user" && user?.plan === "premium" && (
+                <span className="ml-2 rounded-full border border-amber-400/50 bg-amber-400/10 px-2 py-0.5 text-[9px] font-700 tracking-wide text-amber-300" data-testid="chat-premium-badge">PREMIUM</span>
+              )}
             </p>
             <div className="mt-1.5 w-full min-w-0">
               {m.generating ? (
@@ -643,15 +629,6 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
                   )}
                   <div className="w-full text-base leading-relaxed text-lux-text sm:text-[15px]">
                     {m.content ? renderRich(m.content) : <Loader2 size={15} className="animate-spin text-lux-text2" />}
-                    {m.role === "assistant" && m.verified && (
-                      <span
-                        title="Mesh-verified — tamper-proof HMAC signature checked (frasberg-secure-v1)"
-                        data-testid={`chat-verified-badge-${i}`}
-                        className="ml-2 inline-flex items-center gap-1 align-middle font-mono text-[9px] uppercase tracking-wide text-emerald-400"
-                      >
-                        <ShieldCheck size={12} /> verified
-                      </span>
-                    )}
                     {m.role === "assistant" && m.content && (
                       <button
                         onClick={() => speak(m.content, i)}

@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
-  Key, Plus, Copy, Trash2, Activity, Cpu, Terminal, ArrowLeft, Moon, Sun, Check,
+  Key, Plus, Copy, Trash2, Activity, Cpu, Terminal, ArrowLeft, Moon, Sun, Check, BarChart3,
 } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import ChatDemo from "../components/site/ChatDemo";
@@ -33,16 +34,20 @@ export default function Dashboard() {
   const [usage, setUsage] = useState({ total_requests: 0, total_tokens: 0, keys: 0, rate_limit: 60 });
   const [newKey, setNewKey] = useState(null);
   const [name, setName] = useState("");
+  const [expiresDays, setExpiresDays] = useState("");
+  const [daily, setDaily] = useState([]);
   const [copied, setCopied] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
-      const [k, u] = await Promise.all([
+      const [k, u, d] = await Promise.all([
         fetch(`${API}/keys`, { credentials: "include" }).then((r) => (r.ok ? r.json() : [])),
         fetch(`${API}/usage`, { credentials: "include" }).then((r) => (r.ok ? r.json() : null)),
+        fetch(`${API}/keys/usage/daily`, { credentials: "include" }).then((r) => (r.ok ? r.json() : [])),
       ]);
       setKeys(Array.isArray(k) ? k : []);
       if (u) setUsage(u);
+      setDaily(Array.isArray(d) ? d : []);
     } catch {
       toast.error("Failed to load dashboard");
     }
@@ -56,7 +61,7 @@ export default function Dashboard() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ name: name || "Default key" }),
+        body: JSON.stringify({ name: name || "Default key", expires_days: expiresDays ? Number(expiresDays) : null }),
       });
       if (res.status === 401) { toast.error("Please sign in to generate keys"); return; }
       if (res.status === 402) {
@@ -145,6 +150,34 @@ export default function Dashboard() {
           <Stat label="Active keys" value={usage.keys} icon={Key} />
         </div>
 
+        {/* Usage graph */}
+        <section className="mt-10">
+          <h2 className="flex items-center gap-2 font-display text-2xl font-600 tracking-tight">
+            <BarChart3 size={20} className="text-lux-accent" /> Usage — last 14 days
+          </h2>
+          <div className="mt-5 rounded-2xl border border-lux-border bg-lux-surface p-5" style={{ height: 240 }} data-testid="key-usage-graph">
+            {daily.every((d) => d.requests === 0) ? (
+              <div className="grid h-full place-items-center font-mono text-xs uppercase tracking-wide text-lux-text2">
+                No API requests yet — call the gateway with your key to see traffic here
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={daily} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(140,140,170,0.15)" />
+                  <XAxis dataKey="day" tick={{ fontSize: 10 }} stroke="#8a86a3" />
+                  <YAxis tick={{ fontSize: 10 }} stroke="#8a86a3" allowDecimals={false} width={40} />
+                  <Tooltip
+                    formatter={(v, n, item) => n === "requests" ? [`${v} requests · ${item?.payload?.tokens ?? 0} tokens`, "Usage"] : [v, n]}
+                    cursor={{ fill: "rgba(140,140,170,0.08)" }}
+                    contentStyle={{ background: "#111018", border: "1px solid #2a2740", borderRadius: 12, fontSize: 12 }}
+                  />
+                  <Bar dataKey="requests" fill="#7c6cf0" radius={[5, 5, 0, 0]} maxBarSize={36} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </section>
+
         {/* API Keys */}
         <section className="mt-14">
           <h2 className="flex items-center gap-2 font-display text-2xl font-600 tracking-tight">
@@ -159,6 +192,17 @@ export default function Dashboard() {
               data-testid="key-name-input"
               className="flex-1 rounded-full border border-lux-border bg-lux-surface px-5 py-3 text-sm outline-none focus:border-lux-accent"
             />
+            <select
+              value={expiresDays}
+              onChange={(e) => setExpiresDays(e.target.value)}
+              data-testid="key-expiry-select"
+              className="rounded-full border border-lux-border bg-lux-surface px-5 py-3 text-sm text-lux-text outline-none focus:border-lux-accent"
+            >
+              <option value="">Never expires</option>
+              <option value="30">Expires in 30 days</option>
+              <option value="60">Expires in 60 days</option>
+              <option value="90">Expires in 90 days</option>
+            </select>
             <button
               onClick={generate}
               data-testid="generate-key-btn"
@@ -199,6 +243,13 @@ export default function Dashboard() {
                   <div className="min-w-0">
                     <p className="truncate font-500 text-lux-text">{k.name}</p>
                     <code className="font-mono text-xs text-lux-text2">{k.key}</code>
+                    {k.expires_at && (
+                      k.expires_at < new Date().toISOString() ? (
+                        <span className="ml-3 rounded-full border border-red-500/50 bg-red-500/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wide text-red-400" data-testid={`key-expired-${k.id}`}>Expired</span>
+                      ) : (
+                        <span className="ml-3 font-mono text-[10px] text-lux-text2" data-testid={`key-expires-${k.id}`}>expires {k.expires_at.slice(0, 10)}</span>
+                      )
+                    )}
                   </div>
                   <div className="flex shrink-0 items-center gap-6">
                     <span className="hidden font-mono text-xs text-lux-text2 sm:inline">

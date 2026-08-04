@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, ShieldCheck, Check, Copy, ExternalLink, Loader2, Lock, BadgeCheck } from "lucide-react";
-import { QRCodeSVG } from "qrcode.react";
-import { toast } from "sonner";
-import { useAuth } from "../context/AuthContext";
+import { ArrowLeft, ShieldCheck, Check, Loader2, Lock, Hourglass } from "lucide-react";
 import Seo from "../components/site/Seo";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -12,14 +9,7 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const ARCH = ["Client", "TLS 1.3 + Mutual Auth", "API Gateway", "Identity Verification", "Authorization", "Encrypted AI Runtime", "Luchii AI Models", "Response"];
 
 export default function Pay() {
-  const { user, refreshUser } = useAuth();
-  const navigate = useNavigate();
   const [cfg, setCfg] = useState(null);
-  const [step, setStep] = useState("review");
-  const [intent, setIntent] = useState(null);
-  const [busy, setBusy] = useState(false);
-  const [sender, setSender] = useState("");
-  const [note, setNote] = useState("");
 
   useEffect(() => {
     fetch(`${API}/cashapp/config`).then((r) => r.json()).then(setCfg).catch(() => setCfg(null));
@@ -27,44 +17,10 @@ export default function Pay() {
 
   const subs = (cfg?.plans || []).filter((p) => p.kind === "upgrade");
   const [planId, setPlanId] = useState("builder");
-  const plan = subs.find((p) => p.id === planId) || subs[0];
-
-  async function startPayment() {
-    if (!user) { navigate("/auth?mode=login&next=%2Fpay"); return; }
-    setBusy(true);
-    try {
-      const res = await fetch(`${API}/cashapp/intent`, {
-        method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
-        body: JSON.stringify({ plan_id: plan?.id || "builder" }),
-      });
-      const d = await res.json();
-      if (!res.ok) throw new Error(d.detail || "Could not start payment");
-      setIntent(d);
-      setStep("pay");
-    } catch (e) { toast.error(e.message || "Something went wrong"); }
-    finally { setBusy(false); }
-  }
-
-  async function confirmPayment() {
-    setBusy(true);
-    try {
-      const res = await fetch(`${API}/cashapp/confirm`, {
-        method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
-        body: JSON.stringify({ reference: intent.reference, sender_cashtag: sender, note }),
-      });
-      const d = await res.json();
-      if (!res.ok) throw new Error(d.detail || "Could not confirm");
-      setStep("done");
-      refreshUser?.();
-    } catch (e) { toast.error(e.message || "Something went wrong"); }
-    finally { setBusy(false); }
-  }
-
-  const copy = (t) => { navigator.clipboard.writeText(t).catch(() => {}); toast.success("Copied"); };
 
   return (
     <main className="relative min-h-screen bg-[#0a0a0f] text-white" data-testid="pay-page">
-      <Seo title="Checkout — Luchii Pro · FRASBERG, INC." description="Secure Cash App checkout for Luchii Pro by Frasberg, Inc." />
+      <Seo title="Plans — Luchii · FRASBERG, INC." description="Luchii subscription plans by Frasberg, Inc." />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_0%,rgba(59,130,246,0.12),transparent)]" />
 
       <header className="relative z-10 mx-auto flex max-w-4xl items-center justify-between px-5 py-5">
@@ -81,13 +37,13 @@ export default function Pay() {
           className="rounded-3xl border border-white/10 bg-white/[0.03] p-7 backdrop-blur-xl sm:p-9">
           {!cfg ? (
             <div className="grid place-items-center py-20"><Loader2 className="animate-spin text-white/40" /></div>
-          ) : step === "review" ? (
+          ) : (
             <>
               <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-blue-400">Frasberg · Subscriptions</p>
               <h1 className="mt-3 font-display text-3xl font-700 tracking-tight sm:text-4xl">Choose your plan</h1>
               <p className="mt-3 text-white/60">
                 Luchii AI Models and our AI agents are <span className="text-white">free on every plan</span>. Subscribe to unlock
-                API &amp; LLM keys, builders and advanced tools. Pay securely with Cash App to <span className="text-white">{cfg.payee}</span>.
+                API &amp; LLM keys, builders and advanced tools.
               </p>
               <div className="mt-7 grid gap-3 sm:grid-cols-2" data-testid="pay-plan-grid">
                 {subs.map((p) => (
@@ -95,7 +51,7 @@ export default function Pay() {
                     className={`rounded-2xl border p-5 text-left transition-all ${planId === p.id ? "border-blue-400 bg-blue-500/10" : "border-white/10 bg-black/20 hover:border-white/30"}`}>
                     <div className="flex items-center justify-between">
                       <p className="font-display text-lg font-700">{p.name}</p>
-                      {p.id === "annual" && <span className="rounded-full bg-[#00d64f]/15 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wide text-[#00d64f]">Best value</span>}
+                      {p.id === "annual" && <span className="rounded-full bg-blue-500/15 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wide text-blue-300">Best value</span>}
                       {p.id === "trial" && <span className="rounded-full bg-blue-500/15 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wide text-blue-300">Try it</span>}
                     </div>
                     <p className="mt-1 font-display text-2xl font-700">${p.price}<span className="ml-1.5 font-body text-xs font-400 text-white/50">{p.period}</span></p>
@@ -108,75 +64,16 @@ export default function Pay() {
                   <li key={f} className="flex items-center gap-3 text-sm text-white/80"><Check size={16} className="text-blue-400" /> {f}</li>
                 ))}
               </ul>
-              <button onClick={startPayment} disabled={busy || !plan} data-testid="pay-start-btn"
-                className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#00d64f] px-6 py-4 font-700 text-black transition-transform hover:-translate-y-0.5 disabled:opacity-50">
-                {busy ? <Loader2 size={17} className="animate-spin" /> : <>Pay ${plan?.price} with Cash App</>}
-              </button>
-            </>
-          ) : step === "pay" ? (
-            <>
-              <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-blue-400">Step 1 · Send payment</p>
-              <h1 className="mt-3 font-display text-2xl font-700 tracking-tight">Send ${intent.amount} on Cash App</h1>
-              <p className="mt-2 text-sm text-white/60">Pay <span className="text-white">{cfg.payee}</span> and include your reference so we can match it instantly.</p>
-
-              <div className="mt-6 space-y-3">
-                <div className="rounded-2xl border border-white/10 bg-black/30 p-5">
-                  <div className="flex flex-col items-center gap-5 sm:flex-row">
-                    <div className="shrink-0 rounded-2xl bg-white p-3" data-testid="pay-qr">
-                      <QRCodeSVG value={intent.pay_url} size={160} bgColor="#ffffff" fgColor="#000000" level="M" />
-                    </div>
-                    <div className="text-center sm:text-left">
-                      <p className="font-mono text-[10px] uppercase tracking-widest text-white/40">Scan with Cash App</p>
-                      <p className="mt-2 text-sm leading-relaxed text-white/70">
-                        Open Cash App, tap the scan icon and point your camera at this code —
-                        the ${intent.amount} payment to <span className="text-white">{cfg.payee}</span> loads instantly.
-                      </p>
-                      <button onClick={() => copy(cfg.cashtag)} data-testid="pay-cashtag"
-                        className="mt-3 inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 font-mono text-sm font-700 text-[#00d64f] transition-colors hover:border-[#00d64f]">
-                        {cfg.cashtag} <Copy size={13} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-2xl border border-white/10 bg-black/30 px-5 py-4">
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-white/40">Amount</p>
-                    <p className="mt-1 font-display text-xl font-700">${intent.amount}</p>
-                  </div>
-                  <button onClick={() => copy(intent.reference)} className="rounded-2xl border border-white/10 bg-black/30 px-5 py-4 text-left" data-testid="pay-reference">
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-white/40">Reference · tap to copy</p>
-                    <p className="mt-1 font-mono text-lg font-700 text-blue-400">{intent.reference}</p>
-                  </button>
+              <div className="mt-8 flex items-start gap-3 rounded-2xl border border-amber-400/30 bg-amber-400/5 p-5" data-testid="pay-checkout-offline">
+                <Hourglass size={17} className="mt-0.5 shrink-0 text-amber-300" />
+                <div>
+                  <p className="text-sm font-600 text-amber-200">Checkout is temporarily offline</p>
+                  <p className="mt-1 text-xs leading-relaxed text-white/60">
+                    We're upgrading our payment processing. Subscriptions will reopen shortly — everything else stays live in the meantime.
+                  </p>
                 </div>
               </div>
-
-              <a href={intent.pay_url} target="_blank" rel="noreferrer" data-testid="pay-open-cashapp"
-                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#00d64f] px-6 py-4 font-700 text-black transition-transform hover:-translate-y-0.5">
-                Open Cash App to pay <ExternalLink size={15} />
-              </a>
-
-              <div className="mt-8 border-t border-white/10 pt-6">
-                <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-blue-400">Step 2 · Confirm</p>
-                <p className="mt-2 text-sm text-white/60">After paying, enter your Cash App $cashtag so we can verify and activate Pro.</p>
-                <input value={sender} onChange={(e) => setSender(e.target.value)} placeholder="Your $cashtag" data-testid="pay-sender-input"
-                  className="mt-4 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm outline-none focus:border-blue-400" />
-                <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note (optional)" data-testid="pay-note-input"
-                  className="mt-3 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm outline-none focus:border-blue-400" />
-                <button onClick={confirmPayment} disabled={busy} data-testid="pay-confirm-btn"
-                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 font-700 text-black transition-transform hover:-translate-y-0.5 disabled:opacity-50">
-                  {busy ? <Loader2 size={16} className="animate-spin" /> : "I've sent the payment"}
-                </button>
-              </div>
             </>
-          ) : (
-            <div className="py-6 text-center" data-testid="pay-done">
-              <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#00d64f]/15 text-[#00d64f]"><BadgeCheck size={30} /></div>
-              <h1 className="mt-5 font-display text-2xl font-700">Payment received — verifying</h1>
-              <p className="mx-auto mt-3 max-w-sm text-sm text-white/60">
-                Thanks! We're matching your Cash App payment to <span className="text-white">{cfg.payee}</span>. Luchii Pro activates as soon as it clears — usually within minutes. You'll keep full access meanwhile.
-              </p>
-              <Link to="/chat" className="mt-7 inline-block rounded-full bg-white px-7 py-3 text-sm font-700 text-black" data-testid="pay-done-chat">Start using Luchii</Link>
-            </div>
           )}
         </motion.div>
 

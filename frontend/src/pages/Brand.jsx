@@ -6,10 +6,10 @@ import { useTheme } from "../context/ThemeContext";
 import { BRAND_COLORS } from "../data/content";
 
 const LOGOS = [
+  { label: "Frasberg — Primary (PNG)", href: "/frasberg-emblem.png" },
   { label: "Luchii — Primary (WEBP)", href: "/luchii-logo.webp" },
   { label: "Luchii — 512px PNG", href: "/favicon-512.png" },
   { label: "Luchii — 192px PNG", href: "/favicon-192.png" },
-  { label: "Frasberg — Primary (PNG)", href: "/frasberg-emblem.png" },
   { label: "OG image", href: "/og-image.png" },
 ];
 
@@ -60,14 +60,14 @@ export default function Brand() {
         <section className="mt-14">
           <h2 className="font-display text-2xl font-600 tracking-tight">Logos</h2>
           <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-lux-border bg-[#0d1013] p-12" data-testid="brand-logo-luchii">
-              <img src="/luchii-logo.webp" alt="Luchii logo" className="h-44 w-44 rounded-full" style={{ boxShadow: "0 0 60px rgba(0,150,255,0.35)" }} />
-              <p className="mt-6 font-display text-lg font-700 tracking-tight text-white">Luchii</p>
-              <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.25em] text-white/50">Deep space navy · electric blue · starlight silver</p>
-            </div>
             <div className="flex flex-col items-center justify-center rounded-2xl border border-lux-border bg-[#0d1013] p-12" data-testid="brand-logo-frasberg">
               <img src="/frasberg-emblem.png" alt="Frasberg AI logo" className="h-44 w-44 rounded-full" style={{ boxShadow: "0 0 60px rgba(0,150,255,0.35)" }} />
               <p className="mt-6 font-display text-lg font-700 tracking-tight text-white">Frasberg</p>
+              <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.25em] text-white/50">Deep space navy · electric blue · starlight silver</p>
+            </div>
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-lux-border bg-[#0d1013] p-12" data-testid="brand-logo-luchii">
+              <img src="/luchii-logo.webp" alt="Luchii logo" className="h-44 w-44 rounded-full" style={{ boxShadow: "0 0 60px rgba(0,150,255,0.35)" }} />
+              <p className="mt-6 font-display text-lg font-700 tracking-tight text-white">Luchii</p>
               <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.25em] text-white/50">Deep space navy · electric blue · starlight silver</p>
             </div>
           </div>
