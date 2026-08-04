@@ -14,6 +14,8 @@ from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from motor.motor_asyncio import AsyncIOMotorClient
 from nacl.public import PrivateKey, SealedBox
+
+import voice_engine
 from dotenv import load_dotenv
 from pathlib import Path
 from emergentintegrations.llm.chat import LlmChat, UserMessage, TextDelta, StreamDone
@@ -47,6 +49,8 @@ def verify(data: dict, sig: str) -> bool:
 
 
 STATS = {"messages_in": 0, "messages_out": 0, "tamper_attempts": 0, "e2e_frames": 0}
+
+client_voice: dict = {}
 
 _e2e_sk = None
 
@@ -219,6 +223,15 @@ async def mesh_websocket(websocket: WebSocket, client_id: str):
             if data.get("event") == "ping":
                 await websocket.send_text(json.dumps(_signed({"event": "pong", "timestamp": time.time()})))
                 continue
+            if data.get("type") == "set_voice":
+                requested = (data.get("voice") or "").strip()
+                match = next((v for v in voice_engine.VOICES if v["name"].lower() == requested.lower() or v["id"] == requested), None)
+                if match:
+                    client_voice[client_id] = match["id"]
+                    await websocket.send_text(json.dumps(_signed({"type": "voice_set", "voice": match["name"], "voice_id": match["id"], "status": "ok"})))
+                else:
+                    await websocket.send_text(json.dumps({"error": f"Unknown voice: {requested}"}))
+                continue
             content = (data.get("content") or "").strip()
             if not content:
                 await websocket.send_text(json.dumps({"error": "Empty message."}))
@@ -244,7 +257,16 @@ async def mesh_websocket(websocket: WebSocket, client_id: str):
             response = {"role": "assistant", "content": full, "mesh": "frasberg-secure-v1",
                         "timestamp": time.time()}
             STATS["messages_out"] += 1
-            await websocket.send_text(json.dumps({**_signed(response), "done": True}))
+            done_frame = {**_signed(response), "done": True}
+            if data.get("speak"):
+                try:
+                    vid = client_voice.get(client_id)
+                    audio = await voice_engine.speak(full[:600], "balanced", vid)
+                    if audio:
+                        done_frame.update({"audio": audio, "audio_format": "wav", "voice": vid or "default"})
+                except Exception:
+                    logger.exception("mesh voice synthesis failed")
+            await websocket.send_text(json.dumps(done_frame))
     except WebSocketDisconnect:
         manager.disconnect(client_id)
     except Exception:

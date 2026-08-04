@@ -530,3 +530,8 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 
 ## 2026-06 — Greeting text fix
 - Greeting was LLM-generated (not hardcoded). Added rule to LUCHII_SYSTEM: introduce simply as "I'm Luchii", never append titles/descriptors. Verified via live /api/chat: exact greeting "Hey! Good to have you here. I'm Luchii. How can I help you today?"
+
+## 2026-06 — Mesh Voice Layer (user's Layer 7-12 re-paste audited: all previously delivered)
+- AUDIT: Prometheus/Grafana, CI/CD, mobile client, failover, libsodium E2E, admin dashboard — all already shipped earlier this session. All 8 voices (Orion,Lyra,Atlas,Vega,Nova,Selene,Rhea,Titan) already in voice_engine.VOICES.
+- NEW (mesh_ws.py): client_voice{} per-client preference; frame {"type":"set_voice","voice":"Lyra"} → signed {"type":"voice_set",voice,voice_id}; chat frames with "speak":true get audio bundled in signed done frame (voice_engine.speak, wav base64, fields audio/audio_format/voice). Works through sealed-box E2E (unseal happens first). voice_engine imported in mesh_ws.
+- VERIFIED live WS: set_voice Lyra→p335 ok; sealed chat w/ speak → done frame content + 84KB wav audio + voice p335.
