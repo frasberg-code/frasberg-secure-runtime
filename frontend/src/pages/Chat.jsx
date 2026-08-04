@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Moon, Sun, ArrowLeft, Loader2, LogOut, Plus, MessagesSquare, User, MoreVertical, ChevronUp, ChevronDown } from "lucide-react";
+import { Moon, Sun, ArrowLeft, Loader2, LogOut, Plus, MessagesSquare, User, MoreVertical, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import Starfield from "../components/site/Starfield";
@@ -30,6 +30,20 @@ export default function Chat() {
   }, []);
 
   useEffect(() => { if (user) loadSessions(); }, [user, loadSessions]);
+
+  const deleteSession = useCallback(async (sessionId) => {
+    if (!window.confirm("Delete this conversation? This cannot be undone.")) return;
+    try {
+      const res = await fetch(`${API}/chat/sessions/${encodeURIComponent(sessionId)}`, {
+        method: "DELETE", credentials: "include",
+      });
+      if (!res.ok) throw new Error();
+      setSessions((prev) => prev.filter((s) => s.session_id !== sessionId));
+      setSelected((cur) => (cur === sessionId ? "new" : cur));
+    } catch {
+      window.alert("Could not delete conversation — please try again.");
+    }
+  }, []);
 
   return (
     <main className="relative z-10 flex min-h-screen flex-col overflow-x-hidden bg-lux-bg text-lux-text" data-testid="chat-page">
@@ -149,21 +163,33 @@ export default function Chat() {
                       <p className="px-1 text-xs text-lux-text2">No conversations yet — Luchii remembers every chat you have.</p>
                     )}
                     {sessions.map((s) => (
-                      <button
+                      <div
                         key={s.session_id}
-                        onClick={() => { setSelected(s.session_id); setShowList(false); }}
-                        data-testid={`chat-session-${s.session_id}`}
-                        className={`block w-full rounded-xl border px-4 py-3 text-left transition-colors ${
+                        className={`group relative w-full rounded-xl border transition-colors ${
                           selected === s.session_id
                             ? "border-lux-accent bg-lux-surface text-lux-text"
                             : "border-lux-border bg-lux-surface/60 text-lux-text2 hover:border-lux-accent/50 hover:text-lux-text"
                         }`}
                       >
-                        <p className="truncate text-sm">{s.title}</p>
-                        <p className="mt-1 font-mono text-[10px] uppercase tracking-wide opacity-70">
-                          {s.count} msgs{s.model ? ` · ${s.model}` : ""}
-                        </p>
-                      </button>
+                        <button
+                          onClick={() => { setSelected(s.session_id); setShowList(false); }}
+                          data-testid={`chat-session-${s.session_id}`}
+                          className="block w-full px-4 py-3 pr-10 text-left"
+                        >
+                          <p className="truncate text-sm">{s.title}</p>
+                          <p className="mt-1 font-mono text-[10px] uppercase tracking-wide opacity-70">
+                            {s.count} msgs{s.model ? ` · ${s.model}` : ""}
+                          </p>
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); deleteSession(s.session_id); }}
+                          data-testid={`chat-session-delete-${s.session_id}`}
+                          aria-label="Delete conversation"
+                          className="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full text-lux-text2 opacity-60 transition-colors hover:bg-red-500/15 hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
                     ))}
                   </div>
                 </>

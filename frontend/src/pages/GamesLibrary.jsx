@@ -15,7 +15,7 @@ export default function GamesLibrary() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Luchii Game Platform — Frasberg";
+    document.title = "Frasberg Game Platform";
     fetch(`${API}/api/games`).then((r) => r.json()).then((d) => { setGames(d); setLoading(false); }).catch(() => setLoading(false));
     fetch(`${API}/api/games/stream/health`).then((r) => r.json()).then(setStream).catch(() => setStream({ online: false }));
   }, []);
@@ -47,9 +47,9 @@ export default function GamesLibrary() {
         <div className="mt-10 text-center">
           <div className="inline-flex items-center gap-3">
             <Gamepad2 size={34} className="text-[#6c63ff]" />
-            <h1 className="text-4xl font-bold tracking-tight text-[#6c63ff] sm:text-5xl">Luchii Game Platform</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-[#6c63ff] sm:text-5xl">Frasberg Game Platform</h1>
           </div>
-          <p className="mt-3 text-sm text-[#666]">Powered by Frasberg Mesh — zero-install cloud gaming</p>
+          <p className="mt-3 text-sm text-[#666]">Powered by Frasberg</p>
         </div>
 
         <div className="mx-auto mt-10 max-w-3xl space-y-3">

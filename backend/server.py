@@ -610,6 +610,14 @@ async def chat_sessions(user: dict = Depends(auth_module.get_current_user)):
             for d in docs]
 
 
+@api_router.delete("/chat/sessions/{session_id}")
+async def delete_chat_session(session_id: str, user: dict = Depends(auth_module.get_current_user)):
+    result = await db.chat_messages.delete_many({"user_id": user["id"], "session_id": session_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    return {"ok": True, "deleted": result.deleted_count}
+
+
 @api_router.get("/chat/history")
 async def chat_history(session_id: Optional[str] = None, user: dict = Depends(auth_module.get_current_user)):
     if not session_id:
@@ -1642,6 +1650,8 @@ import games_portal
 api_router.include_router(games_portal.router)
 import asset_pipeline
 api_router.include_router(asset_pipeline.router)
+import studio
+api_router.include_router(studio.router)
 app.include_router(api_router)
 
 _PLATFORM_HOSTS = ("emergentagent.com", "frasberg", "localhost", "127.0.0.1")
@@ -1689,6 +1699,7 @@ async def create_indexes():
     await auth_module.create_indexes()
     await auth_module.seed_admin()
     from seed_builds import seed_flagship_builds
+    await studio.seed_creatures()
     await seed_flagship_builds(db)
     await db.user_memories.create_index([("user_id", 1), ("created_at", -1)])
     if await db.knowledge.count_documents({}) == 0:

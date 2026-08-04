@@ -677,3 +677,26 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - Refactored prompt templates into _item(kind,key) (shared by extraction + regenerate).
 - E2E: extraction returns 5-asset plan; regen dragon → new image 200, swapped_in_project true,
   project html now references the fresh url only; bad key 400. Frontend compiles.
+
+## 2026-06 — Relabels + Phase 1 Visual Realism Studio + Conversation Delete
+- RELABELS: /games header "Frasberg Game Platform" / "Powered by Frasberg"; nav+footer+mobile
+  links now "Frasberg Games"; doc title updated.
+- VISUAL REALISM STUDIO (/studio, user's Phase 1 dev brief adapted to our stack — gpt-image-1 +
+  Mongo instead of SDXL/Postgres/S3): backend/studio.py mounted at /api/studio.
+  • GET /studio/cities (Vegas 6 zones + LA 7 zones) · POST /studio/cities/generate-zone
+    {city_slug, zone, time_of_day, weather} w/ brief's prompt template
+  • POST /studio/characters/generate {type,gender,ethnicity,build,style,level 1-100 w/ tier
+    wording rookie/seasoned/legendary}
+  • GET /studio/creatures/list (5 seeded on startup: Dungeon Rat Lord T1, Shadow Wraith T2,
+    Stone Troll T2, Elder Dragon T3, The Void Entity T4 in db.studio_creatures) ·
+    POST /studio/creatures/generate (updates creature's generated_image_url)
+  • All generation auth-required, shares free-5/day pack quota (429), logs db.generated_assets,
+    files stored in builder_assets + served via /api/builder-assets/{20hex}.png.
+  Frontend pages/VisualStudio.jsx — 3 tabs (City Builder / Character Creator / Creature Library,
+  studio-tab-*), dark #08080f + #7c3aed per brief, result card w/ gen time. Nav Explore link.
+  VERIFIED: cities+creatures curl, Fremont/rain zone generated 13.9s, guest 401, screenshot clean.
+  Phase 2 (day/night engine, crowd density, weather shaders) = BACKLOG per brief.
+- CONVERSATION DELETE (user: "user cant delete conversation why" — feature never existed):
+  DELETE /api/chat/sessions/{session_id} (scoped to user, 404 if none). Chat.jsx sidebar rows now
+  have hover Trash2 button (chat-session-delete-{id}) w/ confirm; removes from list, resets to
+  new chat if active deleted. VERIFIED: delete 3→2 sessions, repeat 404.

@@ -27,6 +27,7 @@ import Status from "./pages/Status";
 import Software from "./pages/Software";
 import GamesLibrary from "./pages/GamesLibrary";
 import GamePlayerPage from "./pages/GamePlayerPage";
+import VisualStudio from "./pages/VisualStudio";
 
 function ScrollToHash() {
   const { pathname, hash } = useLocation();
@@ -85,6 +86,7 @@ function App() {
               <Route path="/software" element={<Software />} />
               <Route path="/games" element={<GamesLibrary />} />
               <Route path="/games/play/:gameId" element={<GamePlayerPage />} />
+              <Route path="/studio" element={<VisualStudio />} />
             </Routes>
           </BrowserRouter>
           <Toaster position="top-center" richColors />
