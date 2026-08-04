@@ -3,6 +3,7 @@ import { Link, Navigate } from "react-router-dom";
 import axios from "axios";
 import { Moon, Sun, ArrowLeft, Loader2, Users, MessagesSquare, KeyRound, BookOpen, Gavel, Activity, Trash2, Plus, Pencil, Star, EyeOff, Eye, Globe, Gamepad2, AppWindow, Brain, Hammer, Crown, Timer } from "lucide-react";
 import { toast } from "sonner";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth, formatApiErrorDetail } from "../context/AuthContext";
 import Starfield from "../components/site/Starfield";
@@ -150,6 +151,36 @@ export default function Admin() {
                 </div>
               ))}
             </div>
+
+            <section className="mt-12" data-testid="admin-revenue-panel">
+              <div className="flex items-center justify-between">
+                <h2 className="font-display text-2xl font-700 tracking-tight">Revenue</h2>
+                <span className="rounded-full border border-lux-accent/40 px-4 py-1.5 font-mono text-xs text-lux-accent" data-testid="admin-revenue-total">
+                  ${(stats.revenue_total ?? 0).toFixed(2)} all-time
+                </span>
+              </div>
+              <div className="mt-4 rounded-2xl border border-lux-border bg-lux-surface p-5" style={{ height: 280 }} data-testid="admin-revenue-chart">
+                {(stats.revenue_monthly || []).length === 0 ? (
+                  <div className="grid h-full place-items-center font-mono text-xs uppercase tracking-wide text-lux-text2">
+                    No confirmed payments yet
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={stats.revenue_monthly} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(140,140,170,0.15)" />
+                      <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="#8a86a3" />
+                      <YAxis tick={{ fontSize: 11 }} stroke="#8a86a3" tickFormatter={(v) => `$${v}`} width={54} />
+                      <Tooltip
+                        formatter={(v) => [`$${Number(v).toFixed(2)}`, "Revenue"]}
+                        cursor={{ fill: "rgba(140,140,170,0.08)" }}
+                        contentStyle={{ background: "#111018", border: "1px solid #2a2740", borderRadius: 12, fontSize: 12 }}
+                      />
+                      <Bar dataKey="revenue" fill="#7c6cf0" radius={[6, 6, 0, 0]} maxBarSize={56} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </section>
 
             <section className="mt-12">
               <h2 className="font-display text-2xl font-700 tracking-tight">Users</h2>

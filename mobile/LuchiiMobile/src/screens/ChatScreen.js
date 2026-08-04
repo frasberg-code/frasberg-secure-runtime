@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
-import { getToken, verifyMeshSignature } from "../api/client";
+import { verifyMeshSignature, getMeshPubkey } from "../api/client";
 import { MeshClient } from "../api/mesh";
-import { initCrypto, encryptLocal, decryptLocal } from "../crypto/e2e";
+import { initCrypto, encryptLocal, decryptLocal, sealForServer } from "../crypto/e2e";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const HISTORY_KEY = "luchii.chat.history.enc";
@@ -11,8 +11,10 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState("connecting");
+  const [e2eReady, setE2eReady] = useState(false);
   const meshRef = useRef(null);
   const listRef = useRef(null);
+  const pubkeyRef = useRef(null);
   const sessionId = useRef(`mobile-${Date.now()}`);
 
   useEffect(() => {
@@ -23,24 +25,28 @@ export default function ChatScreen() {
       if (enc) {
         try { setMessages(JSON.parse(await decryptLocal(enc))); } catch { /* fresh start */ }
       }
-      const token = await getToken();
       mesh = new MeshClient({
-        token,
+        clientId: sessionId.current,
         onStatus: setStatus,
         onMessage: async (frame) => {
-          if (frame.type === "token") {
+          if (frame.event === "connected" && frame.e2e_pubkey) {
+            pubkeyRef.current = frame.e2e_pubkey;
+            setE2eReady(true);
+          } else if (frame.delta) {
             setMessages((m) => {
               const last = m[m.length - 1];
               if (last && last.role === "assistant" && last.streaming) {
-                return [...m.slice(0, -1), { ...last, content: last.content + frame.text }];
+                return [...m.slice(0, -1), { ...last, content: last.content + frame.delta }];
               }
-              return [...m, { role: "assistant", content: frame.text, streaming: true }];
+              return [...m, { role: "assistant", content: frame.delta, streaming: true }];
             });
-          } else if (frame.type === "done") {
+          } else if (frame.done) {
             const verified = frame.sig ? await verifyMeshSignature(frame.content || "", frame.sig) : false;
             setMessages((m) => {
               const last = m[m.length - 1];
-              const finalized = last && last.streaming ? [...m.slice(0, -1), { ...last, streaming: false, verified }] : m;
+              const finalized = last && last.streaming
+                ? [...m.slice(0, -1), { ...last, content: frame.content || last.content, streaming: false, verified }]
+                : [...m, { role: "assistant", content: frame.content, verified }];
               persist(finalized);
               return finalized;
             });
@@ -49,6 +55,10 @@ export default function ChatScreen() {
       });
       mesh.connect();
       meshRef.current = mesh;
+      try {
+        pubkeyRef.current = pubkeyRef.current || (await getMeshPubkey());
+        setE2eReady(true);
+      } catch { /* hello frame will supply it */ }
     })();
     return () => mesh && mesh.close();
   }, []);
@@ -58,10 +68,12 @@ export default function ChatScreen() {
     await AsyncStorage.setItem(HISTORY_KEY, enc);
   }
 
-  function send() {
+  async function send() {
     const text = input.trim();
-    if (!text) return;
-    const ok = meshRef.current?.send({ type: "chat", content: text, session_id: sessionId.current, model: "luchii" });
+    if (!text || !pubkeyRef.current) return;
+    const frame = { content: text, session_id: sessionId.current };
+    const sealed = await sealForServer(JSON.stringify(frame), pubkeyRef.current);
+    const ok = meshRef.current?.send({ sealed });
     if (ok) {
       setMessages((m) => [...m, { role: "user", content: text }]);
       setInput("");
@@ -69,12 +81,14 @@ export default function ChatScreen() {
     }
   }
 
+  const pillLabel = status !== "connected" ? status.toUpperCase() : e2eReady ? "E2E MESH LIVE" : "MESH LIVE";
+
   return (
     <KeyboardAvoidingView style={s.root} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <View style={s.header}>
         <Text style={s.title}>Luchii</Text>
         <View style={[s.pill, status === "connected" ? s.pillOk : s.pillBad]}>
-          <Text style={s.pillText}>{status === "connected" ? "MESH LIVE" : status.toUpperCase()}</Text>
+          <Text style={s.pillText}>{pillLabel}</Text>
         </View>
       </View>
       <FlatList
@@ -90,8 +104,8 @@ export default function ChatScreen() {
         )}
       />
       <View style={s.inputRow}>
-        <TextInput style={s.input} placeholder="Message Luchii…" placeholderTextColor="#6b6880" value={input} onChangeText={setInput} multiline />
-        <TouchableOpacity style={s.send} onPress={send}>
+        <TextInput style={s.input} placeholder={e2eReady ? "Message Luchii…" : "Establishing encrypted channel…"} placeholderTextColor="#6b6880" value={input} onChangeText={setInput} multiline editable={e2eReady} />
+        <TouchableOpacity style={[s.send, !e2eReady && { opacity: 0.4 }]} onPress={send} disabled={!e2eReady}>
           <Text style={s.sendText}>↑</Text>
         </TouchableOpacity>
       </View>

@@ -37,10 +37,11 @@ export async function decryptLocal(payload) {
 
 // Sealed-box channel: encrypt to the mesh server public key so only the
 // origin server (holding the private key) can read the payload in transit.
-export async function sealForServer(plaintext, serverPubKeyHex) {
+export async function sealForServer(plaintext, serverPubKeyB64) {
   if (!ready) await initCrypto();
-  const sealed = sodium.crypto_box_seal(sodium.from_string(plaintext), sodium.from_hex(serverPubKeyHex));
-  return sodium.to_hex(sealed);
+  const pk = sodium.from_base64(serverPubKeyB64, sodium.base64_variants.ORIGINAL);
+  const sealed = sodium.crypto_box_seal(sodium.from_string(plaintext), pk);
+  return sodium.to_base64(sealed, sodium.base64_variants.ORIGINAL);
 }
 
 export async function generateKxPair() {

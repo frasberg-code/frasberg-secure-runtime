@@ -1,8 +1,8 @@
-import { MESH_WS_URL } from "../config";
+import { MESH_WS_BASE } from "../config";
 
 export class MeshClient {
-  constructor({ token, onMessage, onStatus }) {
-    this.token = token;
+  constructor({ clientId, onMessage, onStatus }) {
+    this.clientId = clientId;
     this.onMessage = onMessage;
     this.onStatus = onStatus || (() => {});
     this.ws = null;
@@ -12,8 +12,7 @@ export class MeshClient {
 
   connect() {
     this.closedByUser = false;
-    const url = this.token ? `${MESH_WS_URL}?token=${encodeURIComponent(this.token)}` : MESH_WS_URL;
-    this.ws = new WebSocket(url);
+    this.ws = new WebSocket(`${MESH_WS_BASE}/${encodeURIComponent(this.clientId)}`);
     this.ws.onopen = () => { this.retries = 0; this.onStatus("connected"); };
     this.ws.onmessage = (e) => {
       try { this.onMessage(JSON.parse(e.data)); } catch { /* ignore malformed frames */ }

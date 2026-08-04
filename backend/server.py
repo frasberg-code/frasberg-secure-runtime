@@ -871,11 +871,28 @@ async def admin_stats(admin: dict = Depends(require_admin)):
     memories_count = await db.user_memories.count_documents({})
     builds_count = await db.builder_projects.count_documents({})
     paid_users = await db.users.count_documents({"plan": {"$nin": [None, "free"]}})
+
+    def _plan_price(pid):
+        p = UPGRADE_PLANS.get(pid) or PLANS.get(pid)
+        return float(p["price"]) if p else 0.0
+
+    monthly: dict = {}
+    for doc in await db.purchases.find({}, {"plan": 1, "ts": 1}).to_list(5000):
+        month = (doc.get("ts") or "")[:7]
+        if month:
+            monthly[month] = monthly.get(month, 0.0) + _plan_price(doc.get("plan"))
+    for doc in await db.cashapp_payments.find({"status": "approved"}, {"plan_id": 1, "approved_at": 1, "created_at": 1}).to_list(5000):
+        month = (doc.get("approved_at") or doc.get("created_at") or "")[:7]
+        if month:
+            monthly[month] = monthly.get(month, 0.0) + _plan_price(doc.get("plan_id"))
+    revenue_monthly = [{"month": m, "revenue": round(v, 2)} for m, v in sorted(monthly.items())][-12:]
+
     return {
         "users": users_count, "messages": messages_count, "sessions": len(sessions),
         "court_filings": filings, "api_keys": keys_count, "knowledge_docs": kb_count,
         "memories": memories_count, "builds": builds_count, "paid_users": paid_users,
         "uptime_seconds": int(time.time() - SERVER_STARTED_AT),
+        "revenue_monthly": revenue_monthly, "revenue_total": round(sum(monthly.values()), 2),
         "upstream_active": bool(ACTIVE_UPSTREAM), "recent_purchases": purchases,
     }
 
@@ -906,6 +923,14 @@ async def prometheus_metrics():
         f"luchii_upstream_active {1 if ACTIVE_UPSTREAM else 0}",
         "# TYPE luchii_uptime_seconds counter",
         f"luchii_uptime_seconds {int(time.time() - SERVER_STARTED_AT)}",
+        "# TYPE luchii_ws_active_connections gauge",
+        f"luchii_ws_active_connections {len(mesh_ws.manager.active)}",
+        "# TYPE luchii_ws_messages_total counter",
+        f"luchii_ws_messages_total {mesh_ws.STATS['messages_in'] + mesh_ws.STATS['messages_out']}",
+        "# TYPE luchii_tamper_attempts_total counter",
+        f"luchii_tamper_attempts_total {mesh_ws.STATS['tamper_attempts']}",
+        "# TYPE luchii_e2e_frames_total counter",
+        f"luchii_e2e_frames_total {mesh_ws.STATS['e2e_frames']}",
     ]
     return Response(content="\n".join(lines) + "\n", media_type="text/plain; version=0.0.4")
 

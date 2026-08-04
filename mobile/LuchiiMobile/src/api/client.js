@@ -50,3 +50,8 @@ export async function verifyMeshSignature(content, sig) {
     return false;
   }
 }
+
+export async function getMeshPubkey() {
+  const data = await request("/mesh/pubkey");
+  return data.pubkey;
+}

@@ -1,6 +1,7 @@
 """Luchii Mesh — standalone WebSocket server (frasberg-secure-v1).
 HMAC-SHA256 tamper verification, Redis offline buffering (Mongo fallback), real Luchii inference."""
 import asyncio
+import base64
 import hashlib
 import hmac
 import json
@@ -11,6 +12,7 @@ from datetime import datetime, timezone, timedelta
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from motor.motor_asyncio import AsyncIOMotorClient
+from nacl.public import PrivateKey, SealedBox
 from dotenv import load_dotenv
 from pathlib import Path
 from emergentintegrations.llm.chat import LlmChat, UserMessage, TextDelta, StreamDone
@@ -41,6 +43,36 @@ def sign(data: dict) -> str:
 
 def verify(data: dict, sig: str) -> bool:
     return bool(sig) and hmac.compare_digest(sign(data), sig)
+
+
+STATS = {"messages_in": 0, "messages_out": 0, "tamper_attempts": 0, "e2e_frames": 0}
+
+_e2e_sk = None
+
+
+async def get_e2e_key() -> PrivateKey:
+    global _e2e_sk
+    if _e2e_sk is None:
+        doc = await _db.mesh_keys.find_one({"id": "server-e2e"})
+        if doc:
+            _e2e_sk = PrivateKey(base64.b64decode(doc["sk"]))
+        else:
+            _e2e_sk = PrivateKey.generate()
+            await _db.mesh_keys.insert_one({
+                "id": "server-e2e", "sk": base64.b64encode(bytes(_e2e_sk)).decode(),
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            })
+    return _e2e_sk
+
+
+def e2e_pubkey_b64(sk: PrivateKey) -> str:
+    return base64.b64encode(bytes(sk.public_key)).decode()
+
+
+async def unseal(sealed_b64: str) -> dict:
+    sk = await get_e2e_key()
+    plain = SealedBox(sk).decrypt(base64.b64decode(sealed_b64))
+    return json.loads(plain.decode())
 
 
 _redis = None
@@ -133,9 +165,11 @@ async def mesh_websocket(websocket: WebSocket, client_id: str):
         for msg in await flush_offline(client_id):
             await websocket.send_text(json.dumps(msg))
             await asyncio.sleep(0.03)
+        sk = await get_e2e_key()
         await websocket.send_text(json.dumps(_signed({
             "event": "connected", "mesh": "frasberg-secure-v1",
             "client_id": client_id, "timestamp": time.time(),
+            "e2e": "curve25519-sealed-box", "e2e_pubkey": e2e_pubkey_b64(sk),
         })))
         while True:
             raw = await websocket.receive_text()
@@ -144,10 +178,20 @@ async def mesh_websocket(websocket: WebSocket, client_id: str):
             except Exception:
                 await websocket.send_text(json.dumps({"error": "Malformed payload — expected JSON."}))
                 continue
-            sig = data.pop("sig", "")
-            if not verify(data, sig):
-                await websocket.send_text(json.dumps({"error": "Tamper detected — signature invalid."}))
-                continue
+            if data.get("sealed"):
+                try:
+                    data = await unseal(data["sealed"])
+                    STATS["e2e_frames"] += 1
+                except Exception:
+                    STATS["tamper_attempts"] += 1
+                    await websocket.send_text(json.dumps({"error": "Sealed payload could not be opened."}))
+                    continue
+            else:
+                sig = data.pop("sig", "")
+                if not verify(data, sig):
+                    STATS["tamper_attempts"] += 1
+                    await websocket.send_text(json.dumps({"error": "Tamper detected — signature invalid."}))
+                    continue
             if data.get("event") == "ping":
                 await websocket.send_text(json.dumps(_signed({"event": "pong", "timestamp": time.time()})))
                 continue
@@ -155,6 +199,7 @@ async def mesh_websocket(websocket: WebSocket, client_id: str):
             if not content:
                 await websocket.send_text(json.dumps({"error": "Empty message."}))
                 continue
+            STATS["messages_in"] += 1
             full = ""
             try:
                 llm = LlmChat(
@@ -174,6 +219,7 @@ async def mesh_websocket(websocket: WebSocket, client_id: str):
                 full = "The mesh hit turbulence — please send that again."
             response = {"role": "assistant", "content": full, "mesh": "frasberg-secure-v1",
                         "timestamp": time.time()}
+            STATS["messages_out"] += 1
             await websocket.send_text(json.dumps({**_signed(response), "done": True}))
     except WebSocketDisconnect:
         manager.disconnect(client_id)
@@ -189,7 +235,15 @@ async def rest_buffer(client_id: str, payload: dict):
     return {"status": "delivered" if delivered else "buffered", "backend": await buffer_backend()}
 
 
+@router.get("/mesh/pubkey")
+async def mesh_pubkey():
+    """Public curve25519 key — mobile clients seal payloads to this key (libsodium sealed box)."""
+    sk = await get_e2e_key()
+    return {"pubkey": e2e_pubkey_b64(sk), "algo": "curve25519-xsalsa20-poly1305 sealed box", "mesh": "frasberg-secure-v1"}
+
+
 @router.get("/ws/mesh-status")
 async def mesh_status():
     return {"mesh": "frasberg-secure-v1", "active_clients": len(manager.active),
-            "offline_buffer": await buffer_backend(), "integrity": "hmac-sha256"}
+            "offline_buffer": await buffer_backend(), "integrity": "hmac-sha256",
+            "e2e": "curve25519-sealed-box", "stats": STATS}
