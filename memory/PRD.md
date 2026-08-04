@@ -617,3 +617,18 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - CHAMPION ON START SCREEN: each game fetches its top score on load and shows amber
   "♛ CHAMPION: NAME · SCORE — the score to beat" (#champLine) above the start button
   (maze: DEEPEST RUNNER · Lv N). Screenshot-verified on racer (FRASBERG · 4200).
+
+## 2026-06 — Game Platform pt5: Music Tracks + Gamepad Support (all 4 games)
+- MUSIC: procedural synthwave loop per game (Web Audio sequencer — bass saw + kick thump + square
+  lead arp; per-game CFG: dungeon 100bpm E1 minor, racer 128bpm A1, shooter 120bpm, maze 90bpm
+  ambient triangle/sine). #musicCtl pill top-right: MUSIC ON/OFF button + volume range slider
+  (persisted luchii-music-muted / luchii-music-vol); starts on start/restart(/next) click
+  (gesture-safe), toggle stops/starts live, slider drives master gain.
+- GAMEPAD: Gamepad API rAF poll loop per game; green "PAD CONNECTED" pill (#padPill) on
+  gamepadconnected. Pad-owned key mapping (padKeys diff so keyboard/touch not clobbered):
+  dungeon left stick=WASD, right stick=look, RT fire, A jump, X reload, Start=start/restart;
+  racer stick steer + A/RT boost; shooter stick + A/RT fire; maze stick move + right-stick look.
+  pressStart() clicks whichever start/restart/next button is visible.
+- Verified: all inline game scripts pass node new Function() syntax check; served HTML contains
+  musicCtl/padPill/startMusic markers; screenshot shows SFX + MUSIC + slider controls top-right
+  without HUD overlap. Audio/pad hardware behavior code-verified (headless env has no audio/pad).

@@ -399,6 +399,88 @@ const lbScore = () => score;
       `<p id="champLine" style="color:#fbbf24;margin-top:6px">♛ CHAMPION: ${String(c.name).replace(/[<>&]/g, "")} · ${c.score} — the score to beat</p>`);
   }).catch(() => {});
 })();
+// ─── Music + Gamepad ──────────────────────────────────────
+(function () {
+  let ctx = null, playing = false, timer = null, master = null;
+  let mMuted = false, vol = 0.5;
+  try { mMuted = localStorage.getItem("luchii-music-muted") === "1"; vol = parseFloat(localStorage.getItem("luchii-music-vol") || "0.5"); } catch (_) {}
+  const ac = () => (ctx = ctx || new (window.AudioContext || window.webkitAudioContext)());
+  const CFG = { bpm: 100, root: 41.2, bass: [0, 0, -2, 3], lead: [0, 3, 7, 10, 12, 10, 7, 3] };
+  function note(f, t, dur, type, g, slide) {
+    const c = ac(), o = c.createOscillator(), gn = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t);
+    if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(f / 4, 1), t + dur);
+    gn.gain.setValueAtTime(g, t); gn.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(gn).connect(master); o.start(t); o.stop(t + dur);
+  }
+  function startMusic() {
+    if (playing || mMuted) return;
+    playing = true;
+    const c = ac();
+    master = c.createGain(); master.gain.value = vol * 0.22; master.connect(c.destination);
+    let step = 0;
+    const spb = 60 / CFG.bpm / 2;
+    timer = setInterval(() => {
+      const t = c.currentTime + 0.05;
+      const b = CFG.root * Math.pow(2, CFG.bass[Math.floor(step / 8) % CFG.bass.length] / 12);
+      note(b, t, spb * 0.9, "sawtooth", 0.5);
+      if (step % 4 === 0) note(110, t, 0.12, "sine", 0.8, true);
+      if (step % 2 === 0) note(CFG.root * 4 * Math.pow(2, CFG.lead[(step / 2) % CFG.lead.length] / 12), t, spb * 0.8, "square", 0.13);
+      step = (step + 1) % 64;
+    }, spb * 1000);
+  }
+  function stopMusic() { playing = false; clearInterval(timer); try { master && master.disconnect(); } catch (_) {} }
+  document.body.insertAdjacentHTML("beforeend", `
+    <div id="musicCtl" style="position:fixed;top:102px;right:24px;z-index:9;display:flex;gap:8px;align-items:center;background:rgba(13,13,26,.7);border:1px solid #6c63ff66;border-radius:20px;padding:6px 12px">
+      <button id="musicBtn" style="border:none;background:none;color:#fff;font:bold 11px 'Courier New';letter-spacing:1px;cursor:pointer">MUSIC ${mMuted ? "OFF" : "ON"}</button>
+      <input id="musicVol" type="range" min="0" max="1" step="0.05" value="${vol}" style="width:70px;accent-color:#6c63ff">
+    </div>
+    <div id="padPill" style="display:none;position:fixed;top:60px;right:110px;z-index:9;padding:8px 14px;border-radius:20px;border:1px solid #44ffaa66;background:rgba(13,13,26,.7);color:#44ffaa;font:bold 11px 'Courier New';letter-spacing:1px">PAD CONNECTED</div>`);
+  document.getElementById("musicBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    mMuted = !mMuted;
+    try { localStorage.setItem("luchii-music-muted", mMuted ? "1" : "0"); } catch (_) {}
+    document.getElementById("musicBtn").textContent = "MUSIC " + (mMuted ? "OFF" : "ON");
+    if (mMuted) stopMusic(); else if (running) startMusic();
+  });
+  document.getElementById("musicVol").addEventListener("input", (e) => {
+    vol = parseFloat(e.target.value);
+    try { localStorage.setItem("luchii-music-vol", String(vol)); } catch (_) {}
+    if (master) master.gain.value = vol * 0.22;
+  });
+  document.getElementById("startBtn").addEventListener("click", startMusic);
+  document.getElementById("restartBtn").addEventListener("click", startMusic);
+  // Gamepad
+  let padIdx = null, prevBtns = {}, padKeys = {};
+  window.addEventListener("gamepadconnected", (e) => { padIdx = e.gamepad.index; document.getElementById("padPill").style.display = "block"; });
+  window.addEventListener("gamepaddisconnected", (e) => { if (e.gamepad.index === padIdx) { padIdx = null; document.getElementById("padPill").style.display = "none"; } });
+  function pressStart() {
+    for (const id of ["startBtn", "restartBtn"]) {
+      const el = document.getElementById(id);
+      if (el && el.offsetParent !== null) { el.click(); return; }
+    }
+  }
+  const DZ = 0.28;
+  (function padLoop() {
+    requestAnimationFrame(padLoop);
+    const gp = padIdx !== null ? navigator.getGamepads()[padIdx] : null;
+    if (!gp) return;
+    const lx = gp.axes[0] || 0, ly = gp.axes[1] || 0, rx = gp.axes[2] || 0, ry = gp.axes[3] || 0;
+    const set = {};
+    if (lx < -DZ) set["KeyA"] = 1; if (lx > DZ) set["KeyD"] = 1;
+    if (ly < -DZ) set["KeyW"] = 1; if (ly > DZ) set["KeyS"] = 1;
+    if (gp.buttons[0]?.pressed) set["Space"] = 1;
+    for (const k in padKeys) if (!set[k]) keys[k] = false;
+    for (const k in set) keys[k] = true;
+    padKeys = set;
+    if (Math.abs(rx) > DZ) player.yaw -= rx * 0.045;
+    if (Math.abs(ry) > DZ) player.pitch = Math.max(-1.2, Math.min(1.2, player.pitch - ry * 0.035));
+    if (running && gp.buttons[7]?.pressed) fire();
+    if (gp.buttons[2]?.pressed && !prevBtns[2]) reload();
+    if (gp.buttons[9]?.pressed && !prevBtns[9]) pressStart();
+    prevBtns = { 2: gp.buttons[2]?.pressed, 9: gp.buttons[9]?.pressed };
+  })();
+})();
 </script>
 </body>
 </html>
