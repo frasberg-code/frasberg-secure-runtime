@@ -64,6 +64,17 @@ async def list_games():
             {"game_id": g["id"]}, {"_id": 0, "name": 1, "score": 1}, sort=[("score", -1)]
         )
         out.append({**g, "champion": top})
+    community = await db.builder_projects.find(
+        {"type": "game", "published": True, "featured": True, "hidden": {"$ne": True}},
+        {"_id": 0, "slug": 1, "title": 1, "plays": 1},
+    ).sort("plays", -1).to_list(12)
+    for d in community:
+        out.append({
+            "id": f"builder:{d['slug']}", "title": d["title"], "genre": "Community",
+            "description": "Community build — made with Luchii Game Builder and promoted to the official library.",
+            "thumbnail": None, "controls": "", "engine": "Built with Luchii Builder",
+            "community": True, "slug": d["slug"], "plays": int(d.get("plays", 0)), "champion": None,
+        })
     return out
 
 
@@ -124,8 +135,24 @@ async def stream_health():
         return {"online": False}
 
 
+async def _builder_game(slug: str):
+    return await db.builder_projects.find_one(
+        {"slug": slug, "type": "game", "published": True, "hidden": {"$ne": True}}
+    )
+
+
 @router.get("/{game_id}")
 async def game_meta(game_id: str):
+    if game_id.startswith("builder:"):
+        doc = await _builder_game(game_id[8:])
+        if not doc:
+            raise HTTPException(status_code=404, detail="Game not found")
+        return {
+            "id": game_id, "title": doc["title"], "genre": "Community",
+            "engine": "Built with Luchii Builder", "controls": "", "community": True,
+            "slug": doc["slug"], "plays": int(doc.get("plays", 0)),
+            "champion": None, "description": "", "thumbnail": None,
+        }
     game = next((g for g in GAME_REGISTRY if g["id"] == game_id), None)
     if not game:
         raise HTTPException(status_code=404, detail="Game not found")
@@ -134,6 +161,11 @@ async def game_meta(game_id: str):
 
 @router.get("/{game_id}/play")
 async def play_game(game_id: str):
+    if game_id.startswith("builder:"):
+        doc = await _builder_game(game_id[8:])
+        if not doc or not doc.get("html"):
+            raise HTTPException(status_code=404, detail="Game not found")
+        return HTMLResponse(doc["html"])
     game = next((g for g in GAME_REGISTRY if g["id"] == game_id), None)
     if not game:
         raise HTTPException(status_code=404, detail="Game not found")

@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Crown } from "lucide-react";
+import { Crown, Gamepad2 } from "lucide-react";
+
+const BACKEND = process.env.REACT_APP_BACKEND_URL;
 
 export default function GameCard({ game, onPlay }) {
   const [hovered, setHovered] = useState(false);
@@ -12,11 +14,22 @@ export default function GameCard({ game, onPlay }) {
       style={{ transform: hovered ? "scale(1.03)" : "scale(1)" }}
     >
       <div className="relative h-44 overflow-hidden bg-[#1a1a2e]">
-        <img
-          src={game.thumbnail}
-          alt={game.title}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-        />
+        {game.community ? (
+          <iframe
+            src={`${BACKEND}/api/p/${game.slug}`}
+            title={game.title}
+            sandbox="allow-scripts"
+            loading="lazy"
+            scrolling="no"
+            className="pointer-events-none absolute left-0 top-0 h-[400%] w-[400%] origin-top-left scale-[0.25] border-0 bg-black"
+          />
+        ) : (
+          <img
+            src={game.thumbnail}
+            alt={game.title}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+          />
+        )}
         <span className="absolute right-3 top-3 rounded-full bg-[#6c63ff] px-2.5 py-1 text-[11px] font-bold text-white">
           {game.genre}
         </span>
@@ -24,7 +37,11 @@ export default function GameCard({ game, onPlay }) {
       <div className="p-5">
         <h3 className="text-lg font-bold text-white">{game.title}</h3>
         <p className="mt-2 min-h-[3.2rem] text-[13px] leading-relaxed text-[#aaa]">{game.description}</p>
-        {game.champion ? (
+        {game.community ? (
+          <p className="mt-2 flex items-center gap-1.5 text-[12px] text-[#8b84ff]" data-testid={`game-plays-${game.id}`}>
+            <Gamepad2 size={12} /> {game.plays.toLocaleString()} plays
+          </p>
+        ) : game.champion ? (
           <p className="mt-2 flex items-center gap-1.5 text-[12px] text-amber-400" data-testid={`game-champion-${game.id}`}>
             <Crown size={12} /> {game.champion.name} · {game.champion.score.toLocaleString()}
           </p>

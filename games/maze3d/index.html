@@ -286,5 +286,47 @@ const lbScore = () => level;
   document.addEventListener("touchend", (e) => { for (const t of e.changedTouches) if (t.identifier === lookId) lookId = null; });
 })();
 </script>
+<script>
+// ─── SFX Engine + Champion banner ─────────────────────────
+(function () {
+  let ctx = null, muted = false;
+  try { muted = localStorage.getItem("luchii-sfx-muted") === "1"; } catch (_) {}
+  const ac = () => (ctx = ctx || new (window.AudioContext || window.webkitAudioContext)());
+  function tone(f0, f1, dur, type, vol) {
+    if (muted) return;
+    try {
+      const c = ac(), o = c.createOscillator(), g = c.createGain(), t = c.currentTime;
+      o.type = type; o.frequency.setValueAtTime(f0, t);
+      o.frequency.exponentialRampToValueAtTime(Math.max(f1, 1), t + dur);
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur);
+    } catch (_) {}
+  }
+  window.SFX = {
+    tone,
+    toggle() { muted = !muted; try { localStorage.setItem("luchii-sfx-muted", muted ? "1" : "0"); } catch (_) {} return muted; },
+  };
+  document.body.insertAdjacentHTML("beforeend",
+    `<button id="sfxBtn" style="position:fixed;top:60px;right:24px;z-index:9;padding:8px 14px;border-radius:20px;border:1px solid #6c63ff66;background:rgba(13,13,26,.7);color:#fff;font:bold 11px 'Courier New';letter-spacing:1px;cursor:pointer">SFX ${muted ? "OFF" : "ON"}</button>`);
+  document.getElementById("sfxBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    document.getElementById("sfxBtn").textContent = "SFX " + (window.SFX.toggle() ? "OFF" : "ON");
+  });
+  // Hooks: beacon chime on win, buzz on lose
+  const _winM = win;
+  win = function () { tone(523, 1046, 0.35, "sine", 0.18); setTimeout(() => tone(659, 1318, 0.4, "sine", 0.15), 180); _winM(); };
+  const _loseM = lose;
+  lose = function () { tone(220, 40, 0.9, "sawtooth", 0.2); _loseM(); };
+})();
+// Champion — level to beat
+(function () {
+  fetch("/api/games/" + GID + "/scores").then((r) => r.json()).then((d) => {
+    if (!d.length) return;
+    const c = d[0];
+    document.querySelector("#start button").insertAdjacentHTML("beforebegin",
+      `<p id="champLine" style="color:#fbbf24;margin-top:6px">♛ DEEPEST RUNNER: ${String(c.name).replace(/[<>&]/g, "")} · Lv ${c.score} — the depth to beat</p>`);
+  }).catch(() => {});
+})();
+</script>
 </body>
 </html>

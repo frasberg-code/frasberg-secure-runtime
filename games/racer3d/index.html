@@ -231,5 +231,64 @@ const lbScore = () => Math.floor(score);
   bindBtn("btnBoost", "ArrowUp");
 })();
 </script>
+<script>
+// ─── SFX Engine + Champion banner ─────────────────────────
+(function () {
+  let ctx = null, muted = false, engO = null, engG = null;
+  try { muted = localStorage.getItem("luchii-sfx-muted") === "1"; } catch (_) {}
+  const ac = () => (ctx = ctx || new (window.AudioContext || window.webkitAudioContext)());
+  function tone(f0, f1, dur, type, vol) {
+    if (muted) return;
+    try {
+      const c = ac(), o = c.createOscillator(), g = c.createGain(), t = c.currentTime;
+      o.type = type; o.frequency.setValueAtTime(f0, t);
+      o.frequency.exponentialRampToValueAtTime(Math.max(f1, 1), t + dur);
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur);
+    } catch (_) {}
+  }
+  function engineStart() {
+    if (muted || engO) return;
+    try {
+      const c = ac();
+      engO = c.createOscillator(); engG = c.createGain();
+      engO.type = "sawtooth"; engO.frequency.value = 60; engG.gain.value = 0.045;
+      engO.connect(engG).connect(c.destination); engO.start();
+    } catch (_) {}
+  }
+  function engineStop() { try { engO && engO.stop(); } catch (_) {} engO = engG = null; }
+  window.SFX = {
+    tone, engineStart, engineStop,
+    setEngine(f) { if (engO) try { engO.frequency.value = f; } catch (_) {} },
+    toggle() {
+      muted = !muted;
+      try { localStorage.setItem("luchii-sfx-muted", muted ? "1" : "0"); } catch (_) {}
+      if (muted) engineStop(); else if (running) engineStart();
+      return muted;
+    },
+  };
+  document.body.insertAdjacentHTML("beforeend",
+    `<button id="sfxBtn" style="position:fixed;top:60px;right:24px;z-index:9;padding:8px 14px;border-radius:20px;border:1px solid #6c63ff66;background:rgba(13,13,26,.7);color:#fff;font:bold 11px 'Courier New';letter-spacing:1px;cursor:pointer">SFX ${muted ? "OFF" : "ON"}</button>`);
+  document.getElementById("sfxBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    document.getElementById("sfxBtn").textContent = "SFX " + (window.SFX.toggle() ? "OFF" : "ON");
+  });
+  // Hooks: engine hum scales with speed, crash on wreck
+  document.getElementById("startBtn").addEventListener("click", engineStart);
+  document.getElementById("restartBtn").addEventListener("click", engineStart);
+  setInterval(() => { if (running) window.SFX.setEngine(50 + speed * 2.2); }, 150);
+  const _goR = gameOver;
+  gameOver = function () { engineStop(); tone(400, 30, 0.9, "sawtooth", 0.25); _goR(); };
+})();
+// Champion — score to beat
+(function () {
+  fetch("/api/games/" + GID + "/scores").then((r) => r.json()).then((d) => {
+    if (!d.length) return;
+    const c = d[0];
+    document.querySelector("#start button").insertAdjacentHTML("beforebegin",
+      `<p id="champLine" style="color:#fbbf24;margin-top:6px">♛ CHAMPION: ${String(c.name).replace(/[<>&]/g, "")} · ${c.score} — the score to beat</p>`);
+  }).catch(() => {});
+})();
+</script>
 </body>
 </html>

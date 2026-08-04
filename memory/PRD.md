@@ -602,3 +602,18 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
   '<span> in <option>' hydration warning (not in src).
 - NOTE: main agent's screenshot_tool stopped executing interaction steps this session (only
   load-time capture) — use testing_agent for interactive UI checks.
+
+## 2026-06 — Game Platform pt4: SFX, Community Graduation, In-Game Champions
+- SOUND EFFECTS (Web Audio synth, no assets) in all 4 games + "SFX ON/OFF" pill (top-right,
+  persisted localStorage luchii-sfx-muted): dungeon gunshot/kill/hurt/death (hp polled),
+  racer looping engine hum pitched by speed + crash, shooter laser/explosion/life-lost (score/
+  lives polled), maze win chime/lose buzz. Hooks via global function re-wrapping (fire/gameOver/
+  win/lose) + button addEventListener for racer engine (onclick was pre-bound).
+- BUILDER → PORTAL GRADUATION: featured+published builder games (type game) now appear in
+  GET /api/games as {id: "builder:{slug}", genre Community, plays}; game_meta + play endpoints
+  handle builder: prefix (serve project html). GamesLibrary has Community filter; GameCard
+  renders scaled live iframe preview + plays count (game-plays-{id}) for community games.
+  Nebula Dodge live in library (verified: list/meta/play 200 + screenshot).
+- CHAMPION ON START SCREEN: each game fetches its top score on load and shows amber
+  "♛ CHAMPION: NAME · SCORE — the score to beat" (#champLine) above the start button
+  (maze: DEEPEST RUNNER · Lv N). Screenshot-verified on racer (FRASBERG · 4200).

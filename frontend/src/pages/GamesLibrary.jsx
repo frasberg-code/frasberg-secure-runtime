@@ -4,7 +4,7 @@ import { ArrowLeft, Gamepad2, Radio, Search } from "lucide-react";
 import GameCard from "../components/games/GameCard";
 
 const API = process.env.REACT_APP_BACKEND_URL;
-const GENRES = ["All", "FPS", "Racing", "Shooter", "Puzzle"];
+const GENRES = ["All", "FPS", "Racing", "Shooter", "Puzzle", "Community"];
 
 export default function GamesLibrary() {
   const [games, setGames] = useState([]);
