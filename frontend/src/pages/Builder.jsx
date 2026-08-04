@@ -405,7 +405,7 @@ export default function Builder({ type = "website" }) {
               </div>
               {busy && (
                 <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2" data-testid="builder-progress">
-                  Sovereign Builder engine writing code · {chars.toLocaleString()} characters…
+                  Frasberg engine writing code · {chars.toLocaleString()} characters…
                 </p>
               )}
             </div>

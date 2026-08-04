@@ -521,3 +521,12 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - SELF-TEST PASSED: built "Neon Strike 3D" via /api/builder/generate (type game, claude-sonnet-4-6) — 11KB single-file 3D FPS: NEON ARENA start screen, pointer-lock aim, WASD, crosshair, score/health/wave HUD, drone waves (ENTER ARENA → WAVE 1, ENEMIES 6 spawned live in playwright). Published: /api/p/a-3d-first-person-shoote-65f108 (kept as demo).
 - BUG FOUND during test: external SSE connection dropped mid-generation → whole build lost (generator cancelled before save). FIXED in builder.py: generation now runs in a detached asyncio task (produce() + queue relay, _BUILD_TASKS keeps refs); client disconnect no longer cancels the build — VERIFIED by killing curl at 8s, project still saved (5.9KB) ~40s later.
 - Note: preview ingress may cut long SSE streams (~2min+); builds now survive it server-side. Frontend Builder.jsx still shows snag toast on cut — project appears in My Projects on refresh.
+
+## 2026-06 — Desktop Voice enablement + Builder label
+- LABEL: Builder.jsx "Sovereign Builder engine writing code" → "Frasberg engine writing code".
+- Desktop voice plan audit: ALREADY EXISTED in ChatDemo — auto-speak toggle (voiceOn, speaks each reply, localStorage), VoicePicker w/ named voices from /api/voice/voices (Orion default p273, Lyra, Atlas, Vega, Nova, Selene…), per-message speak buttons, gesture-safe play().catch.
+- ADDED: voice playback speed selector (0.75/1/1.25/1.5x) in chat header, persisted localStorage "luchii-voice-speed", applied via audio.playbackRate in speak(). Verified via screenshot: selector renders, selection persists (1.25).
+- NOT built (user's dump was Next.js/TSX npm-package concepts, N/A to this CRA app): npm package @frasberg/sovereign-voice, Storybook, waveform visualizer, vitest suite.
+
+## 2026-06 — Greeting text fix
+- Greeting was LLM-generated (not hardcoded). Added rule to LUCHII_SYSTEM: introduce simply as "I'm Luchii", never append titles/descriptors. Verified via live /api/chat: exact greeting "Hey! Good to have you here. I'm Luchii. How can I help you today?"

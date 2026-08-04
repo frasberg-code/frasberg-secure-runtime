@@ -146,6 +146,13 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
     setVoiceId(id);
     try { localStorage.setItem("luchii-voice-id", id); } catch {}
   };
+  const [voiceSpeed, setVoiceSpeed] = useState(() => {
+    try { return parseFloat(localStorage.getItem("luchii-voice-speed") || "1"); } catch { return 1; }
+  });
+  const pickSpeed = (s) => {
+    setVoiceSpeed(s);
+    try { localStorage.setItem("luchii-voice-speed", String(s)); } catch {}
+  };
 
   const live = useLiveVoice(useCallback((blob) => utterRef.current(blob), []));
 
@@ -262,6 +269,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
       if (data.audio_base64) {
         await new Promise((resolve) => {
           const audio = new Audio(`data:${data.mime || "audio/mp3"};base64,${data.audio_base64}`);
+          audio.playbackRate = voiceSpeed;
           audio.onended = () => { setSpeakingIdx(null); resolve(); };
           audio.onerror = () => { setSpeakingIdx(null); resolve(); };
           audio.play().catch(() => { setSpeakingIdx(null); resolve(); });
@@ -527,6 +535,19 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
               </button>
             )}
             {user && <VoicePicker value={voiceId} onChange={pickVoice} />}
+            {user && (
+              <select
+                value={voiceSpeed}
+                onChange={(e) => pickSpeed(parseFloat(e.target.value))}
+                data-testid="voice-speed-select"
+                title="Voice playback speed"
+                className="h-8 cursor-pointer rounded-full border border-lux-border bg-transparent px-2 font-mono text-[10px] text-lux-text2 outline-none transition-colors hover:border-lux-accent"
+              >
+                {[0.75, 1, 1.25, 1.5].map((s) => (
+                  <option key={s} value={s}>{s}x</option>
+                ))}
+              </select>
+            )}
             {modelSelect()}
           </div>
           <div className="relative sm:hidden" ref={settingsRef}>
