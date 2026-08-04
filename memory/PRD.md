@@ -462,3 +462,10 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - NEW BuilderShowreel component: auto-playing ~10s typing animation that writes NEON RUNNER code while rendering it live in an iframe beside; loops with replay; shown on Builder pages when no build loaded. (Bug fixed: forgot import in Builder.jsx → blank page.)
 - PRODUCTION LOGIN FAILURE ("All failed" screenshots from frasberg.com): preview auth verified 200/200. Root-cause hardening: MESH_HMAC_SECRET now falls back to JWT_SECRET (server.py + mesh_ws.py) so a missing env var in production can never crash the backend at boot (KeyError → empty responses → Cloudflare parse error). Deployment static check PASS.
 - USER MUST REDEPLOY. If production STILL fails after redeploy, it's a production env/infra issue → contact Emergent Support to inspect deployed logs.
+
+## 2026-06 — Pricing + Playground + Spotlight batch (iteration_19: pass, 1 minor fix)
+- New subscription plans live: trial $1/7d, builder $5/mo, luchii-pro $20/mo, annual $108/yr ($9/mo). API key creation gated (402) for free users; cashapp approve sets plan per plan_cfg (+plan_expires for trial). builder.py _is_pro includes builder/trial.
+- Model Playground on /ai-models (3-tier side-by-side streaming, works for guests), Gallery Spotlight on landing (rotating live iframes), guest banner hidden on mobile chat.
+- iteration_19: all frontend flows pass; fixed /api/auth/me now returns plan_expires.
+- PROOF-OF-BUILD: agent built "Neon Breakout" live through the UI as free user doctester1 (40s generation) — playable with score/lives/neon bricks; screenshots taken. Builder verified genuine end-to-end.
+- Production frasberg.com still on old build — user must Deploy; support escalation info given (support@emergent.sh, Cloudflare DNS checks).

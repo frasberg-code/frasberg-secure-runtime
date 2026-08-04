@@ -52,7 +52,8 @@ def _set_cookies(response: Response, access: str, refresh: str):
 
 def _public(user: dict) -> dict:
     return {"id": user["id"], "email": user["email"], "name": user.get("name", ""),
-            "role": user.get("role", "user"), "plan": user.get("plan", "free")}
+            "role": user.get("role", "user"), "plan": user.get("plan", "free"),
+            "plan_expires": user.get("plan_expires")}
 
 
 async def get_current_user(request: Request) -> dict:
