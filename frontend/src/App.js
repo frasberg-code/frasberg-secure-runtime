@@ -16,6 +16,7 @@ import Auth from "./pages/Auth";
 import Chat from "./pages/Chat";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
+import MeshControlCenter from "./pages/MeshControlCenter";
 import Laws from "./pages/Laws";
 import Pay from "./pages/Pay";
 import Builder from "./pages/Builder";
@@ -67,6 +68,7 @@ function App() {
               <Route path="/chat" element={<Chat />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/admin/mesh" element={<MeshControlCenter />} />
               <Route path="/laws" element={<CourtGate><Laws /></CourtGate>} />
               <Route path="/pay" element={<Pay />} />
               <Route path="/website-builder" element={<Builder type="website" />} />

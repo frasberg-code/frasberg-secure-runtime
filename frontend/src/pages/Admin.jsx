@@ -189,10 +189,16 @@ export default function Admin() {
                     <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-400" /> polling 5s
                   </span>
                 </div>
-                <button onClick={rotateKey} data-testid="admin-rotate-key-btn"
-                  className="flex items-center gap-2 rounded-full border border-lux-border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.15em] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
-                  <RefreshCcw size={13} /> Rotate E2E Key
-                </button>
+                <div className="flex items-center gap-3">
+                  <Link to="/admin/mesh" data-testid="admin-mesh-center-link"
+                    className="flex items-center gap-2 rounded-full border border-lux-accent/60 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.15em] text-lux-accent transition-colors hover:bg-lux-accent hover:text-white">
+                    <Radio size={13} /> Mesh Control Center
+                  </Link>
+                  <button onClick={rotateKey} data-testid="admin-rotate-key-btn"
+                    className="flex items-center gap-2 rounded-full border border-lux-border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.15em] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
+                    <RefreshCcw size={13} /> Rotate E2E Key
+                  </button>
+                </div>
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">

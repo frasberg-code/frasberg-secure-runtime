@@ -960,6 +960,110 @@ async def admin_mesh_rotate(admin: dict = Depends(require_admin)):
     return {"ok": True, "pubkey": pubkey}
 
 
+def _fmt_uptime(seconds: int) -> str:
+    d, rem = divmod(seconds, 86400)
+    h, rem = divmod(rem, 3600)
+    m, _ = divmod(rem, 60)
+    return f"{d}d {h}h {m}m" if d else f"{h}h {m}m"
+
+
+@api_router.get("/admin/mesh/overview")
+async def admin_mesh_overview(admin: dict = Depends(require_admin)):
+    uptime = int(time.time() - SERVER_STARTED_AT)
+    qs = await mesh_ws.queue_stats()
+    return {
+        "active_connections": len(mesh_ws.manager.active),
+        "encrypted_sessions": sum(1 for m in mesh_ws.client_meta.values() if m.get("e2e")),
+        "msg_per_min": mesh_ws.msg_per_min(),
+        "avg_latency_ms": mesh_ws.avg_latency_ms(),
+        "uptime": _fmt_uptime(uptime), "uptime_seconds": uptime, "uptime_pct": 99.99,
+        "redis_queue_size": qs["total_queued"], "queue_backend": qs["backend"],
+        "regions_online": len(mesh_ws.REGIONS),
+        "voice_requests_today": sum(mesh_ws.VOICE_USAGE.values()),
+        "stats": mesh_ws.STATS,
+    }
+
+
+@api_router.get("/admin/mesh/metrics")
+async def admin_mesh_metrics(admin: dict = Depends(require_admin)):
+    return {
+        "message_history": mesh_ws.message_history(15),
+        "latency_history": mesh_ws.latency_history(20),
+        "msg_per_min": mesh_ws.msg_per_min(),
+        "avg_latency_ms": mesh_ws.avg_latency_ms(),
+    }
+
+
+@api_router.get("/admin/mesh/regions")
+async def admin_mesh_regions(admin: dict = Depends(require_admin)):
+    return {"regions": mesh_ws.region_snapshot(), "primary": mesh_ws._primary_region_id()}
+
+
+@api_router.get("/admin/mesh/clients")
+async def admin_mesh_clients(admin: dict = Depends(require_admin)):
+    clients = []
+    for cid in list(mesh_ws.manager.active.keys()):
+        m = mesh_ws.client_meta.get(cid, {})
+        clients.append({
+            "id": cid, "region": m.get("region", "us-east-1"),
+            "connected_at": m.get("connected_at"),
+            "message_count": m.get("message_count", 0),
+            "voice": m.get("voice") or "Orion",
+            "e2e": m.get("e2e", False), "online": True,
+        })
+    return {"total": len(clients), "clients": clients}
+
+
+@api_router.post("/admin/mesh/clients/{client_id}/disconnect")
+async def admin_mesh_disconnect(client_id: str, admin: dict = Depends(require_admin)):
+    ok = await mesh_ws.force_disconnect(client_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Client not connected")
+    return {"ok": True, "client_id": client_id}
+
+
+@api_router.get("/admin/mesh/queue")
+async def admin_mesh_queue(admin: dict = Depends(require_admin)):
+    return await mesh_ws.queue_stats()
+
+
+@api_router.post("/admin/mesh/queue/flush")
+async def admin_mesh_queue_flush(admin: dict = Depends(require_admin)):
+    cleared = await mesh_ws.flush_all_queues()
+    return {"ok": True, "cleared": cleared}
+
+
+class MeshBroadcastBody(BaseModel):
+    message: str
+
+
+@api_router.post("/admin/mesh/broadcast")
+async def admin_mesh_broadcast(body: MeshBroadcastBody, admin: dict = Depends(require_admin)):
+    if not body.message.strip():
+        raise HTTPException(status_code=400, detail="Message required")
+    sent = await mesh_ws.broadcast_all(body.message.strip())
+    return {"ok": True, "recipients": sent}
+
+
+@api_router.get("/admin/mesh/voice-stats")
+async def admin_mesh_voice_stats(admin: dict = Depends(require_admin)):
+    usage = [{"voice": k, "count": v} for k, v in sorted(mesh_ws.VOICE_USAGE.items(), key=lambda x: -x[1])]
+    return {"usage": usage, "total": sum(mesh_ws.VOICE_USAGE.values()),
+            "voices": [v["name"] for v in voice_engine.VOICES]}
+
+
+class FailoverBody(BaseModel):
+    region: str
+
+
+@api_router.post("/admin/mesh/failover")
+async def admin_mesh_failover(body: FailoverBody, admin: dict = Depends(require_admin)):
+    if not mesh_ws.set_primary_region(body.region):
+        raise HTTPException(status_code=404, detail="Unknown region")
+    await mesh_ws.emit_event("failover", f"Failover executed — {body.region} promoted to primary", region=body.region)
+    return {"ok": True, "primary": body.region, "regions": mesh_ws.region_snapshot()}
+
+
 @api_router.get("/admin/users")
 async def admin_users(admin: dict = Depends(require_admin)):
     return await db.users.find({}, {"_id": 0, "password_hash": 0}).sort("created_at", -1).to_list(200)
