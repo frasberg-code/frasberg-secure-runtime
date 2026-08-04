@@ -1,11 +1,18 @@
 import os
+import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 
 import httpx
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import HTMLResponse
+from motor.motor_asyncio import AsyncIOMotorClient
+from pydantic import BaseModel, Field
 
 router = APIRouter(prefix="/games")
+
+client = AsyncIOMotorClient(os.environ["MONGO_URL"])
+db = client[os.environ["DB_NAME"]]
 
 GAMES_DIR = Path(__file__).parent.parent / "games"
 
@@ -52,6 +59,39 @@ GAME_REGISTRY = [
 @router.get("")
 async def list_games():
     return GAME_REGISTRY
+
+
+class ScoreIn(BaseModel):
+    name: str = Field(min_length=1, max_length=20)
+    score: int = Field(ge=0, le=1_000_000_000)
+
+
+def _valid_game(game_id: str):
+    game = next((g for g in GAME_REGISTRY if g["id"] == game_id), None)
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+    return game
+
+
+@router.get("/{game_id}/scores")
+async def get_scores(game_id: str):
+    _valid_game(game_id)
+    docs = await db.game_scores.find({"game_id": game_id}, {"_id": 0, "name": 1, "score": 1}) \
+        .sort("score", -1).to_list(10)
+    return docs
+
+
+@router.post("/{game_id}/scores")
+async def post_score(game_id: str, body: ScoreIn):
+    _valid_game(game_id)
+    name = body.name.strip()[:20] or "PLAYER"
+    await db.game_scores.insert_one({
+        "id": str(uuid.uuid4()), "game_id": game_id, "name": name,
+        "score": body.score, "ts": datetime.now(timezone.utc).isoformat(),
+    })
+    docs = await db.game_scores.find({"game_id": game_id}, {"_id": 0, "name": 1, "score": 1}) \
+        .sort("score", -1).to_list(10)
+    return {"ok": True, "top": docs}
 
 
 @router.get("/stream/health")

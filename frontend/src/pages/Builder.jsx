@@ -44,6 +44,12 @@ const COPY = {
   },
 };
 
+const GAME_TEMPLATES = [
+  { id: "fps", label: "FPS Arena", prompt: "A 3D first-person shooter arena game: WASD movement, mouse look with pointer lock, click to shoot glowing enemies that chase the player, waves that get progressively harder, score/health/ammo HUD, dark neon arena aesthetic with purple accents" },
+  { id: "platformer", label: "Platformer", prompt: "A polished 2D side-scrolling platformer: arrow keys to run and jump between floating platforms, collect spinning coins, avoid spike traps and patrolling enemies, 3 increasingly difficult levels, lives and score HUD, bright colorful cartoon style with parallax background" },
+  { id: "puzzle", label: "Puzzle", prompt: "A sliding-tile number puzzle game: 3x3 and 4x4 grid modes, click or arrow keys to slide tiles into the empty slot, move counter and timer, shuffle button, satisfying win celebration animation, clean minimal design with smooth tile transitions" },
+];
+
 const BUILDER_TYPES = [
   { id: "website", label: "Website", Icon: Globe },
   { id: "app", label: "Mobile App", Icon: AppWindow },
@@ -168,8 +174,8 @@ export default function Builder({ type = "website" }) {
     } catch {}
   }
 
-  async function generate() {
-    const p = prompt.trim();
+  async function generate(overridePrompt) {
+    const p = (typeof overridePrompt === "string" ? overridePrompt : prompt).trim();
     if (!p || busy) return;
     if (!user) { navigate(`/auth?mode=login&next=%2F${type}-builder`); return; }
     setBusy(true); setChars(0);
@@ -380,6 +386,18 @@ export default function Builder({ type = "website" }) {
           {/* Composer + preview */}
           <div className="min-w-0">
             <div className="glass rounded-3xl p-5">
+              {type === "game" && !current && !busy && (
+                <div className="mb-3 flex flex-wrap items-center gap-2" data-testid="builder-game-templates">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-lux-text2">One-click starters:</span>
+                  {GAME_TEMPLATES.map((t) => (
+                    <button key={t.id} type="button" data-testid={`builder-template-${t.id}`}
+                      onClick={() => { setPrompt(t.prompt); generate(t.prompt); }}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-lux-accent/50 bg-lux-accent/10 px-3.5 py-1.5 text-xs font-600 text-lux-text transition-all hover:-translate-y-0.5 hover:border-lux-accent">
+                      <Sparkles size={12} className="text-lux-accent" /> {t.label}
+                    </button>
+                  ))}
+                </div>
+              )}
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
@@ -397,7 +415,7 @@ export default function Builder({ type = "website" }) {
                     </button>
                   ))}
                 </div>
-                <button onClick={generate} disabled={busy || !prompt.trim()} data-testid="builder-generate-btn"
+                <button onClick={() => generate()} disabled={busy || !prompt.trim()} data-testid="builder-generate-btn"
                   className="inline-flex shrink-0 items-center gap-2 rounded-full bg-lux-accent px-6 py-3 text-sm font-600 text-lux-bg transition-transform hover:-translate-y-0.5 disabled:opacity-40">
                   {busy ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
                   {busy ? "Luchii is building…" : current ? "Update build" : "Build it"}

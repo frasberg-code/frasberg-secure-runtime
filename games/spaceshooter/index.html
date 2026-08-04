@@ -169,5 +169,66 @@ function animate() {
 }
 animate();
 </script>
+<script>
+// ─── Leaderboard ──────────────────────────────────────────
+const GID = "spaceshooter";
+const lbScore = () => score;
+(function () {
+  document.getElementById("gameover").insertAdjacentHTML("beforeend", `
+    <div style="margin-top:20px;width:min(340px,84vw)">
+      <div style="display:flex;gap:8px">
+        <input id="lbName" maxlength="20" placeholder="Your name" style="flex:1;min-width:0;padding:10px 14px;border-radius:12px;border:1px solid #6c63ff66;background:#1a1a2e;color:#fff;font-family:inherit;outline:none">
+        <button id="lbSubmit" style="padding:10px 18px;border-radius:12px;border:none;background:#6c63ff;color:#fff;font-weight:bold;font-family:inherit;cursor:pointer;letter-spacing:1px">SUBMIT</button>
+      </div>
+      <div style="margin-top:14px;color:#6c63ff;font-size:12px;letter-spacing:2px">⬡ TOP PILOTS</div>
+      <ol id="lbList" style="list-style:none;margin-top:8px;text-align:left;font-size:13px;color:#aaa;max-height:170px;overflow:auto"></ol>
+    </div>`);
+  const esc = (s) => String(s).replace(/[<>&]/g, "");
+  async function lbLoad() {
+    try {
+      const d = await (await fetch("/api/games/" + GID + "/scores")).json();
+      document.getElementById("lbList").innerHTML = d.map((s, i) =>
+        `<li style="display:flex;justify-content:space-between;padding:3px 2px"><span>${i + 1}. ${esc(s.name)}</span><b style="color:#fff">${s.score}</b></li>`).join("") || "<li>No scores yet — be the first.</li>";
+    } catch (_) {}
+  }
+  document.getElementById("lbName").value = localStorage.getItem("luchii-player-name") || "";
+  document.getElementById("lbSubmit").addEventListener("click", async () => {
+    const name = (document.getElementById("lbName").value || "PLAYER").trim().slice(0, 20) || "PLAYER";
+    try { localStorage.setItem("luchii-player-name", name); } catch (_) {}
+    try {
+      await fetch("/api/games/" + GID + "/scores", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, score: lbScore() }) });
+      document.getElementById("lbSubmit").textContent = "SAVED ✓";
+      lbLoad();
+    } catch (_) {}
+  });
+  const _gameOver = gameOver;
+  gameOver = function () { _gameOver(); document.getElementById("lbSubmit").textContent = "SUBMIT"; lbLoad(); };
+})();
+
+// ─── Touch Controls ───────────────────────────────────────
+(function () {
+  if (!(matchMedia("(pointer: coarse)").matches || new URLSearchParams(location.search).has("touch"))) return;
+  document.body.insertAdjacentHTML("beforeend", `
+    <style>
+      .tc{position:fixed;z-index:8;user-select:none;-webkit-user-select:none;touch-action:none}
+      .tcBtn{width:72px;height:72px;border-radius:50%;background:rgba(108,99,255,.22);border:1px solid rgba(108,99,255,.6);color:#fff;font:bold 15px 'Courier New';letter-spacing:1px}
+    </style>
+    <button id="btnLeft" class="tc tcBtn" style="left:22px;bottom:34px">◀</button>
+    <button id="btnRight" class="tc tcBtn" style="left:110px;bottom:34px">▶</button>
+    <button id="btnFire" class="tc tcBtn" style="right:22px;bottom:34px;font-size:12px">FIRE</button>`);
+  function bindBtn(id, key) {
+    const el = document.getElementById(id);
+    el.addEventListener("touchstart", (e) => { e.preventDefault(); keys[key] = true; });
+    el.addEventListener("touchend", (e) => { e.preventDefault(); keys[key] = false; });
+    el.addEventListener("touchcancel", () => keys[key] = false);
+  }
+  bindBtn("btnLeft", "ArrowLeft");
+  bindBtn("btnRight", "ArrowRight");
+  let fireIv = null;
+  const bf = document.getElementById("btnFire");
+  bf.addEventListener("touchstart", (e) => { e.preventDefault(); fire(); fireIv = setInterval(fire, 120); });
+  bf.addEventListener("touchend", (e) => { e.preventDefault(); clearInterval(fireIv); });
+})();
+</script>
 </body>
 </html>

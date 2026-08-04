@@ -566,3 +566,19 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
   player page racer3d rendering 3D scene in iframe, 226ms latency pill).
 - NOTE: production frasberg.com Cloudflare "could not parse origin response" on signup (user
   photo) = stale production build — user must Deploy latest.
+
+## 2026-06 — Game Platform pt2: Touch Controls + Leaderboards + Builder Templates (all verified)
+- LEADERBOARDS: games_portal.py + Mongo game_scores — GET/POST /api/games/{id}/scores (top-10 by
+  score desc, name 1-20 chars, 422/404 guards). Each game's game-over screen (maze: lose screen)
+  now has name input + SUBMIT + live top-10 list (relative fetch works inside player iframe);
+  name persisted localStorage luchii-player-name; gameOver/lose wrapped to auto-load board.
+  Maze submits level reached. Curl-verified incl. validation. Seed score FRASBERG 4200 on racer3d.
+- MOBILE TOUCH CONTROLS in all 4 games (shown when pointer:coarse OR ?touch=1 for testing):
+  dungeon3d — virtual joystick (WASD) + right-half drag look + FIRE (hold-repeat) + JUMP + R;
+  maze3d — joystick + drag look; racer3d — ◀ ▶ steer + BOOST; spaceshooter — ◀ ▶ + FIRE hold.
+  Screenshot-verified on shooter (420px viewport).
+- GAME BUILDER one-click starters: GAME_TEMPLATES (FPS Arena / Platformer / Puzzle) chips above
+  prompt on /game-builder (builder-template-{id}) — sets prompt AND auto-generates (generate()
+  now accepts overridePrompt). Screenshot-verified.
+- GALLERY FEATURING: confirmed already shipped (featured-first sort in /api/builder/gallery +
+  gold Featured ribbon gallery-featured-{slug}) — no change needed.
