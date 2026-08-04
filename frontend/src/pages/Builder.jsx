@@ -90,6 +90,22 @@ export default function Builder({ type = "website" }) {
   const htmlRef = useRef("");
   const [searchParams, setSearchParams] = useSearchParams();
   const remixDone = useRef(false);
+  const [demos, setDemos] = useState([]);
+  const [demo, setDemo] = useState(null);
+
+  useEffect(() => {
+    fetch(`${API}/builder/gallery`).then((r) => r.json()).then((d) => setDemos([...d.filter((b) => b.featured), ...d.filter((b) => !b.featured)].slice(0, 8))).catch(() => {});
+  }, []);
+
+  async function openDemo(b) {
+    try {
+      const res = await fetch(`${API}/p/${b.slug}`);
+      if (!res.ok) throw new Error();
+      const code = await res.text();
+      setCurrent(null); setDns(null); setDemo(b); setHtml(code);
+      toast.success(`"${b.title}" loaded — it's live below, try it`);
+    } catch { toast.error("Could not load this demo"); }
+  }
 
   const loadProjects = useCallback(async () => {
     try {
@@ -106,7 +122,7 @@ export default function Builder({ type = "website" }) {
   }, []);
 
   useEffect(() => {
-    setHtml(""); setCurrent(null); setPrompt(""); setDns(null);
+    setHtml(""); setCurrent(null); setPrompt(""); setDns(null); setDemo(null);
     if (user) { loadProjects(); loadQuota(); }
   }, [user, type, loadProjects, loadQuota]);
 
@@ -393,10 +409,26 @@ export default function Builder({ type = "website" }) {
               )}
             </div>
 
+            {demos.length > 0 && !busy && (
+              <div className="mt-6" data-testid="builder-demos-strip">
+                <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">Real builds by Luchii — tap one to run it instantly</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {[...demos.filter((b) => b.type === type), ...demos.filter((b) => b.type !== type)].slice(0, 6).map((b) => (
+                    <button key={b.slug} type="button" onClick={() => openDemo(b)} data-testid={`builder-demo-${b.slug}`}
+                      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs transition-colors ${demo?.slug === b.slug ? "border-lux-accent text-lux-text" : "border-lux-border text-lux-text2 hover:border-lux-accent hover:text-lux-text"}`}>
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                      {b.title}
+                      <span className="font-mono text-[9px] uppercase tracking-wide opacity-60">{b.type}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {html && !busy && (
               <div className="mt-6" data-testid="builder-preview-wrap">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">Live preview{current ? ` — ${current.title}` : ""}</p>
+                  <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">Live preview{current ? ` — ${current.title}` : demo ? ` — ${demo.title} (Luchii build)` : ""}</p>
                   <div className="flex flex-wrap gap-2">
                     <button onClick={openFull} data-testid="builder-open-btn"
                       className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-2 text-xs text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
@@ -415,7 +447,14 @@ export default function Builder({ type = "website" }) {
                         <Share2 size={12} /> Copy play link{typeof current.plays === "number" ? ` · ${current.plays} plays` : ""}
                       </button>
                     )}
-                    {current?.published && liveUrl ? (
+                    {demo && !current ? (
+                      <button
+                        onClick={() => { if (!user) { navigate(`/auth?mode=login&next=%2F${type}-builder%3Fremix%3D${demo.slug}`); return; } remixDone.current = false; setSearchParams({ remix: demo.slug }); }}
+                        data-testid="builder-remix-demo-btn"
+                        className="inline-flex items-center gap-1.5 rounded-full bg-lux-text px-4 py-2 text-xs font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
+                        <Sparkles size={12} /> Remix this build
+                      </button>
+                    ) : current?.published && liveUrl ? (
                       <a href={liveUrl} target="_blank" rel="noreferrer" data-testid="builder-live-link"
                         className="inline-flex items-center gap-1.5 rounded-full border border-lux-accent px-4 py-2 text-xs text-lux-accent">
                         <BadgeCheck size={12} /> Live site

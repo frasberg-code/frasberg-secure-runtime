@@ -1,0 +1,23 @@
+{
+  "summary": "Frontend-only regression for CourtGate + Builder instant demos + Chat/Profile changes. All 7 scoped features verified end-to-end. No bugs found.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_18.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Builder.jsx is now 533 lines — consider splitting demos strip and remix logic into a hook/component if it grows further.",
+    "Test spec referenced 'builder-demo-ai-gateway-demo' slug but real gallery slugs are 'flagship-*' or dynamic. Not a bug (real data loads correctly), but the spec's example slug was stale."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped)", "frontend": "100%"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026!  ,  doctester1@frasberg.com / DocTester2026!",
+  "seed_data_creation": "None. Free user gained 1 new website project via remix (TEST leftover).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Verified in this iteration: (1) Guest visiting /court /laws /downloads all redirect to /. (2) Landing Navbar (desktop+mobile) and Footer contain no court/laws/downloads/status links; Explore menu is clean. (3) Admin can load /court (h1 'AI World Court'), /laws (h1 'AI Court Constitution and Laws'), /downloads (h1 'My certified downloads'), and /status (System Status). (4) Guest on /game-builder sees 6 real demo chips inside data-testid=builder-demos-strip; clicking flagship-nebula-dodge loads srcdoc (3.5KB) into builder-preview-iframe and shows builder-remix-demo-btn; clicking Remix as guest redirects to /auth?mode=login&next=%2Fgame-builder%3Fremix%3Dflagship-nebula-dodge. (5) Signed-in free user (doctester1) on /website-builder: demo click loads preview, Remix creates a copy — projects count went 1 -> 2 in My websites sidebar. (6) Chat page footer Terms link href = /about (not /laws). (7) Profile downloads card (profile-downloads-link) visible for admin (count 1), hidden for free user (count 0). Regression: landing renders, chat page loads, admin /status loads. Note: mobile menu selector timed out once but navbar html scan already confirmed no court/laws text in mobile block via source review.",
+  "rca of the issue": "n/a — no issues found."
+}

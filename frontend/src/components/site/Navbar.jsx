@@ -23,7 +23,6 @@ const EXPLORE = [
   { label: "Game Builder", to: "/game-builder" },
   { label: "Builder Gallery", to: "/gallery" },
   { label: "Luchii Code", to: "/luchii-code" },
-  { label: "Constitution & Laws", to: "/laws" },
   { label: "Brand", to: "/brand" },
   { label: "About", to: "/about" },
 ];
@@ -67,13 +66,6 @@ export default function Navbar() {
 
         <div className="hidden items-center gap-7 md:flex">
           <a href="#models" className="text-sm text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-models">Models</a>
-          <Link
-            to="/court"
-            className="text-sm text-lux-text2 transition-colors duration-200 hover:text-lux-text"
-            data-testid="nav-court"
-          >
-            AI World Court
-          </Link>
           <Link
             to="/dashboard"
             className="text-sm text-lux-text2 transition-colors duration-200 hover:text-lux-text"
@@ -168,7 +160,6 @@ export default function Navbar() {
                 {l.label}
               </a>
             ))}
-            <Link to="/court" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">AI World Court</Link>
             <Link to="/dashboard" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Developers</Link>
             <Link to="/brand" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Brand</Link>
             <Link to="/about" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">About</Link>

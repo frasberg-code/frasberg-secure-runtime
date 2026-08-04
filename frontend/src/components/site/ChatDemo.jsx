@@ -767,7 +767,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
           </div>
         </div>
         <p className="px-1 pt-2 text-center text-[10px] leading-relaxed text-lux-text2" data-testid="chat-disclaimer">
-          Luchii is AI. By using it, you agree to our <Link to="/laws" className="underline hover:text-lux-text">Terms &amp; Privacy Policy</Link>. Chats may be reviewed and used to improve our AI models. <Link to="/about" className="underline hover:text-lux-text">Learn more</Link>
+          Luchii is AI. By using it, you agree to our <Link to="/about" className="underline hover:text-lux-text">Terms &amp; Privacy Policy</Link>. Chats may be reviewed and used to improve our AI models. <Link to="/about" className="underline hover:text-lux-text">Learn more</Link>
         </p>
       </form>
     </div>

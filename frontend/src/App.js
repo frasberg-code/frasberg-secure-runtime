@@ -1,10 +1,10 @@
 import "./App.css";
 import { ReactLenis } from "lenis/react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "./context/ThemeContext";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import Court from "./pages/Court";
@@ -38,6 +38,13 @@ function ScrollToHash() {
   return null;
 }
 
+function CourtGate({ children }) {
+  const { user } = useAuth();
+  if (user === undefined) return null;
+  if (!user || user.role !== "admin") return <Navigate to="/" replace />;
+  return children;
+}
+
 function App() {
   return (
     <ThemeProvider>
@@ -52,14 +59,14 @@ function App() {
               <Route path="/ai-models" element={<AiModels />} />
               <Route path="/luchii-code" element={<LuchiiCode />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/court" element={<Court />} />
+              <Route path="/court" element={<CourtGate><Court /></CourtGate>} />
               <Route path="/brand" element={<Brand />} />
               <Route path="/about" element={<About />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/chat" element={<Chat />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/admin" element={<Admin />} />
-              <Route path="/laws" element={<Laws />} />
+              <Route path="/laws" element={<CourtGate><Laws /></CourtGate>} />
               <Route path="/pay" element={<Pay />} />
               <Route path="/website-builder" element={<Builder type="website" />} />
               <Route path="/game-builder" element={<Builder type="game" />} />
@@ -68,7 +75,7 @@ function App() {
               <Route path="/builder" element={<Builder type="website" />} />
               <Route path="/gallery" element={<Gallery />} />
               <Route path="/play/:slug" element={<PlayGame />} />
-              <Route path="/downloads" element={<Downloads />} />
+              <Route path="/downloads" element={<CourtGate><Downloads /></CourtGate>} />
               <Route path="/status" element={<Status />} />
             </Routes>
           </BrowserRouter>

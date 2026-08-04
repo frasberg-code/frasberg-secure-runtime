@@ -276,15 +276,16 @@ export default function Profile() {
               )}
             </div>
 
-            <Link to="/downloads" data-testid="profile-downloads-link"
-              className="mt-6 flex items-center justify-between rounded-2xl border border-lux-border bg-lux-surface p-6 transition-colors hover:border-lux-accent">
-              <div>
-                <h2 className="font-display text-xl font-600 tracking-tight">My certified downloads</h2>
-                <p className="mt-1 text-xs text-lux-text2">Every court PDF you own — re-download any time, free.</p>
-              </div>
-              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-lux-accent">Open →</span>
-            </Link>
-
+            {user?.role === "admin" && (
+              <Link to="/downloads" data-testid="profile-downloads-link"
+                className="mt-6 flex items-center justify-between rounded-2xl border border-lux-border bg-lux-surface p-6 transition-colors hover:border-lux-accent">
+                <div>
+                  <h2 className="font-display text-xl font-600 tracking-tight">My certified downloads</h2>
+                  <p className="mt-1 text-xs text-lux-text2">Every court PDF you own — re-download any time, free.</p>
+                </div>
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-lux-accent">Open →</span>
+              </Link>
+            )}
             <div className="mt-6 rounded-2xl border border-lux-border bg-lux-surface p-7" data-testid="profile-memory-card">
               <h2 className="font-display text-xl font-600 tracking-tight">Memory Manager</h2>
               <p className="mt-2 text-xs text-lux-text2">Everything Luchii remembers about you. Add, edit or delete any fact — she uses them to personalize every reply.</p>
