@@ -469,3 +469,9 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - iteration_19: all frontend flows pass; fixed /api/auth/me now returns plan_expires.
 - PROOF-OF-BUILD: agent built "Neon Breakout" live through the UI as free user doctester1 (40s generation) — playable with score/lives/neon bricks; screenshots taken. Builder verified genuine end-to-end.
 - Production frasberg.com still on old build — user must Deploy; support escalation info given (support@emergent.sh, Cloudflare DNS checks).
+
+## 2026-06 — Trial banner + share links + verified badge (all verified via screenshots)
+- TrialBanner component (Chat/Profile/Dashboard, under header): "N days left on your trial" + Upgrade now → /pay. auth.py get_current_user auto-downgrades expired trials to free.
+- Gallery cards now have a Share2 copy-link button (gallery-share-{slug}): games → /play/{slug}, sites → /api/p/{slug}; public, no account needed. Builder already had copy-play-link.
+- Mesh-verified badge: new POST /api/mesh/verify {content,sig} (valid true/false, tamper tested); ChatDemo captures done.sig, verifies round-trip, renders green "✓ VERIFIED" shield (chat-verified-badge-{i}) on assistant replies.
+- doctester1 reset to plan=free after trial test.

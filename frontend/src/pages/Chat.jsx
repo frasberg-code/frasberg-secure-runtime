@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import Starfield from "../components/site/Starfield";
 import Seo from "../components/site/Seo";
 import ChatDemo from "../components/site/ChatDemo";
+import { TrialBanner } from "../components/site/TrialBanner";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -111,6 +112,7 @@ export default function Chat() {
           </div>
         </div>
       </header>
+      <TrialBanner />
 
       {hideHeader && (
         <button

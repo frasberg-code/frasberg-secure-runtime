@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Moon, Sun, ArrowLeft, Globe, Gamepad2, AppWindow, ExternalLink, Play, Sparkles, GitFork, Trophy, Star } from "lucide-react";
+import { Moon, Sun, ArrowLeft, Globe, Gamepad2, AppWindow, ExternalLink, Play, Sparkles, GitFork, Trophy, Star, Share2 } from "lucide-react";
+import { toast } from "sonner";
 import { useTheme } from "../context/ThemeContext";
 import Starfield from "../components/site/Starfield";
 import Seo from "../components/site/Seo";
@@ -131,6 +132,14 @@ export default function Gallery() {
                           className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-2 text-xs text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
                           <GitFork size={12} /> Remix
                         </Link>
+                        <button type="button" data-testid={`gallery-share-${p.slug}`} aria-label="Copy share link"
+                          onClick={() => {
+                            const url = p.type === "game" ? `${window.location.origin}/play/${p.slug}` : `${process.env.REACT_APP_BACKEND_URL}/api/p/${p.slug}`;
+                            navigator.clipboard.writeText(url).then(() => toast.success("Link copied — anyone can open it, no account needed")).catch(() => toast.error("Copy failed"));
+                          }}
+                          className="grid h-8 w-8 place-items-center rounded-full border border-lux-border text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
+                          <Share2 size={12} />
+                        </button>
                       </div>
                       {p.type === "game" && (
                         <span className="font-mono text-[11px] uppercase tracking-wide text-lux-text2" data-testid={`gallery-plays-${p.slug}`}>

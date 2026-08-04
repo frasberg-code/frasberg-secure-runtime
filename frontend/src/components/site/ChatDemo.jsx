@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Loader2, Paperclip, Mic, Square, Volume2, VolumeX, X, ImageIcon, ArrowUp, ArrowDown, Plus, Upload, Clapperboard, AudioLines, SlidersHorizontal } from "lucide-react";
+import { Loader2, Paperclip, Mic, Square, Volume2, VolumeX, X, ImageIcon, ArrowUp, ArrowDown, Plus, Upload, Clapperboard, AudioLines, SlidersHorizontal, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
 import { useLiveVoice } from "../../hooks/useLiveVoice";
@@ -377,6 +377,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
     setMessages((m) => [...m, { role: "user", content: userLabel }, { role: "assistant", content: "" }]);
 
     let acc = "";
+    let meshSig = null;
     const doRequest = async () => {
       const res = await fetch(`${API}/chat`, {
         method: "POST",
@@ -420,6 +421,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
               return next;
             });
           }
+          if (data.done && data.sig) meshSig = data.sig;
           if (data.error && !acc) throw new Error(data.error);
           if (data.session_id) setSession(data.session_id);
         }
@@ -447,6 +449,22 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
     } finally {
       setBusy(false);
       onNewMessage?.();
+    }
+
+    if (meshSig && acc) {
+      fetch(`${API}/mesh/verify`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: acc, sig: meshSig }),
+      }).then((r) => r.json()).then((v) => {
+        if (v.valid) {
+          setMessages((m) => {
+            const next = [...m];
+            const last = next[next.length - 1];
+            if (last?.role === "assistant") next[next.length - 1] = { ...last, verified: true };
+            return next;
+          });
+        }
+      }).catch(() => {});
     }
 
     if (user && acc.trim()) {
@@ -625,6 +643,15 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
                   )}
                   <div className="w-full text-base leading-relaxed text-lux-text sm:text-[15px]">
                     {m.content ? renderRich(m.content) : <Loader2 size={15} className="animate-spin text-lux-text2" />}
+                    {m.role === "assistant" && m.verified && (
+                      <span
+                        title="Mesh-verified — tamper-proof HMAC signature checked (frasberg-secure-v1)"
+                        data-testid={`chat-verified-badge-${i}`}
+                        className="ml-2 inline-flex items-center gap-1 align-middle font-mono text-[9px] uppercase tracking-wide text-emerald-400"
+                      >
+                        <ShieldCheck size={12} /> verified
+                      </span>
+                    )}
                     {m.role === "assistant" && m.content && (
                       <button
                         onClick={() => speak(m.content, i)}

@@ -522,6 +522,16 @@ async def system_status(admin: dict = Depends(_status_admin)):
     }
 
 
+class MeshVerifyBody(BaseModel):
+    content: str
+    sig: str
+
+
+@api_router.post("/mesh/verify")
+async def mesh_verify(body: MeshVerifyBody):
+    return {"valid": hmac.compare_digest(_mesh_sign(body.content), body.sig), "mesh": "frasberg-secure-v1"}
+
+
 class OntologyQuery(BaseModel):
     query: str
 

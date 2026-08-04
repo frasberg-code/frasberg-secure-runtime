@@ -8,6 +8,7 @@ import { useTheme } from "../context/ThemeContext";
 import { useAuth, formatApiErrorDetail } from "../context/AuthContext";
 import Starfield from "../components/site/Starfield";
 import Seo from "../components/site/Seo";
+import { TrialBanner } from "../components/site/TrialBanner";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -157,6 +158,7 @@ export default function Profile() {
           </button>
         </div>
       </header>
+      <TrialBanner />
 
       <div className="relative mx-auto max-w-3xl px-5 py-12 sm:px-8">
         {!user ? (

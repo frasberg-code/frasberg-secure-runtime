@@ -10,6 +10,7 @@ import ChatDemo from "../components/site/ChatDemo";
 import CodeTabs from "../components/site/CodeTabs";
 import Pricing from "../components/site/Pricing";
 import { MODELS } from "../data/content";
+import { TrialBanner } from "../components/site/TrialBanner";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -111,6 +112,7 @@ export default function Dashboard() {
           </button>
         </div>
       </header>
+      <TrialBanner />
 
       <div className="mx-auto max-w-6xl px-5 py-12 sm:px-8">
         <h1 className="font-display text-4xl font-700 tracking-tighter sm:text-5xl">Developer Dashboard</h1>
