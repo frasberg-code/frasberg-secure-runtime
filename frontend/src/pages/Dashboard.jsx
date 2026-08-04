@@ -58,6 +58,11 @@ export default function Dashboard() {
         body: JSON.stringify({ name: name || "Default key" }),
       });
       if (res.status === 401) { toast.error("Please sign in to generate keys"); return; }
+      if (res.status === 402) {
+        toast.error("API & LLM keys require a subscription — plans start at $5/mo (or try 7 days for $1)");
+        setTimeout(() => window.location.assign("/pay"), 1200);
+        return;
+      }
       const data = await res.json();
       setNewKey(data);
       setName("");

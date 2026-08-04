@@ -1,0 +1,36 @@
+{
+  "summary": "Backend + frontend test of new subscription batch. 5/6 backend tests passed; 1 backend bug found — /api/auth/me does not return plan_expires field. All 4 pay plan cards render, playground streams 3 tiers in ~8s, Gallery Spotlight iframe rotates real builds, mobile chat hides guest banner (desktop shows it).",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "GET /api/auth/me", "issue": "Response omits plan_expires field. auth._public() only exposes id/email/name/role/plan. Trial plan approval sets plan_expires in DB correctly, but frontend cannot read it via /me — trial countdowns / expiry warnings will not work.", "priority": "HIGH"}
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_subscription_batch.py",
+    "/app/test_reports/pytest/subscription_batch.xml"
+  ],
+  "action_items": [
+    "Fix auth._public() in /app/backend/auth.py to include plan_expires (and optionally doc_credits) so frontend can display trial countdown / gate features when trial lapses."
+  ],
+  "critical_code_review_comments": [
+    "auth._public() is the single source of truth for auth responses but silently drops plan_expires and doc_credits — any new user-scoped field must be added there. Consider whitelisting fewer fields OR moving to a Pydantic response model.",
+    "Backend has no automatic enforcement of trial expiry — plan_expires is set on approve but never checked when gating /api/keys or PAID_PLANS in create_key. A user whose trial expired 30 days ago still gets subscription access.",
+    "cashapp/confirm early-returns when status is already 'approved' or 'pending_review' but does not overwrite sender_cashtag/note — probably intended, but if a user resubmits with a correction it will be lost."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_subscription_batch.py (new)"
+  ],
+  "success_rate": {"backend": "83% (5/6)", "frontend": "100% (all scoped selectors verified)"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026!  ,  doctester1@frasberg.com / DocTester2026!",
+  "seed_data_creation": "Created 2 cashapp_payments docs for doctester1 (builder+trial), both approved during flow tests. Free user plan was reset back to 'free' with plan_expires unset via mongo at end (test_zz_reset_free_user_plan passed). No leftover paid data.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend contract for cashapp works: intent -> confirm -> admin approve -> plan updated. Trial plan sets plan_expires ~7d in DB but /auth/me hides it (bug). Frontend selectors confirmed: pay-plan-{trial,builder,luchii-pro,annual}, pay-start-btn, pay-plan-grid; model-playground + playground-input + playground-run-btn + playground-col-luchii-{1b,7b,70b} all present and streams complete in <10s; gallery-spotlight + spotlight-iframe (src=/api/p/{slug}) + spotlight-dots (5 dots) all present and auto-rotates every ~9s; chat-guest-banner has visible=False on mobile viewport and True on desktop as required. Login test on dashboard 402 flow was inconclusive because the frontend session did not persist through page.reload — backend 402 gate itself is verified via test_keys_free_user_returns_402. If retesting the UI 402 toast+redirect, use waitForResponse and check the Sonner/toast selector.",
+  "rca of the issue": "GET /api/auth/me bug: /app/backend/auth.py line 53-55 defines `_public(user)` which returns a hand-picked dict with only {id, email, name, role, plan}. When admin approves a trial payment, /admin/cashapp/{ref}/approve sets both {plan:'trial', plan_expires:<iso>} on the users doc, but _public strips plan_expires from every downstream response (login, refresh, me, profile). Fix: add `\"plan_expires\": user.get(\"plan_expires\")` (and probably `\"doc_credits\": user.get(\"doc_credits\", 0)`) to the returned dict."
+}

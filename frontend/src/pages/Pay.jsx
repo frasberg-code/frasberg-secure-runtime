@@ -25,7 +25,9 @@ export default function Pay() {
     fetch(`${API}/cashapp/config`).then((r) => r.json()).then(setCfg).catch(() => setCfg(null));
   }, []);
 
-  const plan = cfg?.plans?.[0];
+  const subs = (cfg?.plans || []).filter((p) => p.kind === "upgrade");
+  const [planId, setPlanId] = useState("builder");
+  const plan = subs.find((p) => p.id === planId) || subs[0];
 
   async function startPayment() {
     if (!user) { navigate("/auth?mode=login&next=%2Fpay"); return; }
@@ -33,7 +35,7 @@ export default function Pay() {
     try {
       const res = await fetch(`${API}/cashapp/intent`, {
         method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
-        body: JSON.stringify({ plan_id: plan?.id || "luchii-pro" }),
+        body: JSON.stringify({ plan_id: plan?.id || "builder" }),
       });
       const d = await res.json();
       if (!res.ok) throw new Error(d.detail || "Could not start payment");
@@ -81,17 +83,34 @@ export default function Pay() {
             <div className="grid place-items-center py-20"><Loader2 className="animate-spin text-white/40" /></div>
           ) : step === "review" ? (
             <>
-              <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-blue-400">Frasberg · Checkout</p>
-              <h1 className="mt-3 font-display text-3xl font-700 tracking-tight sm:text-4xl">Luchii Pro</h1>
-              <p className="mt-3 text-white/60">One-time upgrade. Pay securely with Cash App to <span className="text-white">{cfg.payee}</span>.</p>
-              <ul className="mt-7 space-y-3">
-                {["200 images/day (free plan: 20/day)", "Priority Luchii Video Creator access", "Unlimited chat, voice & attachments", "Pro badge on your profile"].map((f) => (
+              <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-blue-400">Frasberg · Subscriptions</p>
+              <h1 className="mt-3 font-display text-3xl font-700 tracking-tight sm:text-4xl">Choose your plan</h1>
+              <p className="mt-3 text-white/60">
+                Luchii AI Models and our AI agents are <span className="text-white">free on every plan</span>. Subscribe to unlock
+                API &amp; LLM keys, builders and advanced tools. Pay securely with Cash App to <span className="text-white">{cfg.payee}</span>.
+              </p>
+              <div className="mt-7 grid gap-3 sm:grid-cols-2" data-testid="pay-plan-grid">
+                {subs.map((p) => (
+                  <button key={p.id} type="button" onClick={() => setPlanId(p.id)} data-testid={`pay-plan-${p.id}`}
+                    className={`rounded-2xl border p-5 text-left transition-all ${planId === p.id ? "border-blue-400 bg-blue-500/10" : "border-white/10 bg-black/20 hover:border-white/30"}`}>
+                    <div className="flex items-center justify-between">
+                      <p className="font-display text-lg font-700">{p.name}</p>
+                      {p.id === "annual" && <span className="rounded-full bg-[#00d64f]/15 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wide text-[#00d64f]">Best value</span>}
+                      {p.id === "trial" && <span className="rounded-full bg-blue-500/15 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wide text-blue-300">Try it</span>}
+                    </div>
+                    <p className="mt-1 font-display text-2xl font-700">${p.price}<span className="ml-1.5 font-body text-xs font-400 text-white/50">{p.period}</span></p>
+                    <p className="mt-2 text-xs leading-relaxed text-white/60">{p.blurb}</p>
+                  </button>
+                ))}
+              </div>
+              <ul className="mt-6 space-y-2.5">
+                {["Luchii AI Models & AI agents included free", "API & LLM keys for your own apps", "Website, game & app builders with publishing", "Advanced tools: voice cloning, memory vault, priority access"].map((f) => (
                   <li key={f} className="flex items-center gap-3 text-sm text-white/80"><Check size={16} className="text-blue-400" /> {f}</li>
                 ))}
               </ul>
-              <button onClick={startPayment} disabled={busy} data-testid="pay-start-btn"
+              <button onClick={startPayment} disabled={busy || !plan} data-testid="pay-start-btn"
                 className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#00d64f] px-6 py-4 font-700 text-black transition-transform hover:-translate-y-0.5 disabled:opacity-50">
-                {busy ? <Loader2 size={17} className="animate-spin" /> : <>Pay with Cash App</>}
+                {busy ? <Loader2 size={17} className="animate-spin" /> : <>Pay ${plan?.price} with Cash App</>}
               </button>
             </>
           ) : step === "pay" ? (

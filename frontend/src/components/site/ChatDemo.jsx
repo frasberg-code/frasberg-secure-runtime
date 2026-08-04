@@ -585,7 +585,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
       )}
 
       {locked && (
-        <div className="border-b border-lux-border bg-lux-surface/60 px-4 py-2 text-center" data-testid="chat-guest-banner">
+        <div className={`border-b border-lux-border bg-lux-surface/60 px-4 py-2 text-center ${mobileFull ? "max-sm:hidden" : ""}`} data-testid="chat-guest-banner">
           <p className="text-[11px] text-lux-text2">
             Guest mode — conversations are deleted after you leave.{" "}
             <Link to="/auth" className="text-lux-accent underline" data-testid="chat-guest-signup-link">Sign up free</Link>

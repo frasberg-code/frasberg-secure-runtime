@@ -12,6 +12,7 @@ import Safety from "../components/site/Safety";
 import Ecosystem from "../components/site/Ecosystem";
 import Press from "../components/site/Press";
 import ApiDocs from "../components/site/ApiDocs";
+import { GallerySpotlight } from "../components/site/GallerySpotlight";
 import Footer from "../components/site/Footer";
 
 export default function Landing() {
@@ -32,6 +33,7 @@ export default function Landing() {
       <Hero />
       <EditorialMarquee />
       <Models />
+      <GallerySpotlight />
       <Benchmarks />
       <Capabilities />
       <Realms />

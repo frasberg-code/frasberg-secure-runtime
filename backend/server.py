@@ -1021,6 +1021,8 @@ async def gateway_chat(req: ChatRequest, authorization: Optional[str] = Header(N
 
 @api_router.post("/keys")
 async def create_key(body: KeyCreate, user: dict = Depends(auth_module.get_current_user)):
+    if user.get("role") != "admin" and user.get("plan") not in PAID_PLANS:
+        raise HTTPException(status_code=402, detail="subscription_required")
     doc = {
         "id": str(uuid.uuid4()),
         "name": body.name or "Default key",
@@ -1080,13 +1082,21 @@ PLANS = {
 }
 
 UPGRADE_PLANS = {
-    "luchii-pro": {"id": "luchii-pro", "name": "Luchii Pro", "price": "15.00", "kind": "upgrade",
-                   "blurb": "200 images/day · priority Video Creator access · Pro badge"},
+    "trial": {"id": "trial", "name": "7-Day Trial", "price": "1.00", "kind": "upgrade", "plan": "trial", "period": "one-time · 7 days",
+              "blurb": "Everything unlocked for 7 days — API & LLM keys, builders and advanced tools"},
+    "builder": {"id": "builder", "name": "Builder", "price": "5.00", "kind": "upgrade", "plan": "builder", "period": "per month",
+                "blurb": "API & LLM keys · advanced build tools · start shipping"},
+    "luchii-pro": {"id": "luchii-pro", "name": "Luchii Pro", "price": "20.00", "kind": "upgrade", "plan": "pro", "period": "per month",
+                   "blurb": "200 images/day · priority Video Creator · Pro badge · top limits"},
+    "annual": {"id": "annual", "name": "Pro Annual", "price": "108.00", "kind": "upgrade", "plan": "pro", "period": "per year — $9/mo",
+               "blurb": "Everything in Luchii Pro at $9/mo, billed yearly — best value"},
     "doc-single": {"id": "doc-single", "name": "Court Document Download", "price": "1.00", "kind": "doc_credits",
                    "doc_credits": 1, "blurb": "1 certified PDF download from the docket & laws library"},
     "doc-pack": {"id": "doc-pack", "name": "Docket Access Pack", "price": "5.00", "kind": "doc_credits",
                  "doc_credits": 10, "blurb": "10 certified PDF downloads from the docket & laws library"},
 }
+
+PAID_PLANS = {"trial", "builder", "pro"}
 
 CASHAPP_TAG = os.environ.get("CASHAPP_TAG", "$jccnvja")
 CASHAPP_PAYEE = os.environ.get("CASHAPP_PAYEE", "FRASBERG INC")
@@ -1176,7 +1186,14 @@ async def admin_cashapp_approve(reference: str, admin: dict = Depends(require_ad
         raise HTTPException(status_code=404, detail="Payment not found")
     await db.cashapp_payments.update_one({"reference": reference}, {"$set": {
         "status": "approved", "approved_at": datetime.now(timezone.utc).isoformat(), "approved_by": admin.get("email", "")}})
-    await db.users.update_one({"id": pay["user_id"]}, {"$set": {"plan": "pro"}})
+    plan_cfg = UPGRADE_PLANS.get(pay.get("plan_id"), {})
+    if plan_cfg.get("kind") == "doc_credits":
+        await db.users.update_one({"id": pay["user_id"]}, {"$inc": {"doc_credits": plan_cfg.get("doc_credits", 0)}})
+    else:
+        update = {"plan": plan_cfg.get("plan", "pro")}
+        if plan_cfg.get("plan") == "trial":
+            update["plan_expires"] = (datetime.now(timezone.utc) + timedelta(days=7)).isoformat()
+        await db.users.update_one({"id": pay["user_id"]}, {"$set": update})
     return {"status": "approved", "reference": reference}
 
 

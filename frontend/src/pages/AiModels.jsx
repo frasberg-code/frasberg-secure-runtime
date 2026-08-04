@@ -7,6 +7,7 @@ import Starfield from "../components/site/Starfield";
 import Footer from "../components/site/Footer";
 import Seo from "../components/site/Seo";
 import Reveal, { Overline } from "../components/site/Reveal";
+import { ModelPlayground } from "../components/site/ModelPlayground";
 import { MODELS } from "../data/content";
 
 export default function AiModels() {
@@ -156,6 +157,8 @@ export default function AiModels() {
           </Reveal>
         </div>
       </section>
+
+      <ModelPlayground />
 
       <Footer />
     </main>
