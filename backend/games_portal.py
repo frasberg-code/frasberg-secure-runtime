@@ -70,7 +70,7 @@ async def list_games():
     ).sort("plays", -1).to_list(12)
     for d in community:
         out.append({
-            "id": f"builder:{d['slug']}", "title": d["title"], "genre": "Community",
+            "id": f"builder-{d['slug']}", "title": d["title"], "genre": "Community",
             "description": "Community build — made with Luchii Game Builder and promoted to the official library.",
             "thumbnail": None, "controls": "", "engine": "Built with Luchii Builder",
             "community": True, "slug": d["slug"], "plays": int(d.get("plays", 0)), "champion": None,
@@ -141,10 +141,19 @@ async def _builder_game(slug: str):
     )
 
 
+def _community_slug(game_id: str):
+    if game_id.startswith("builder-"):
+        return game_id[8:]
+    if game_id.startswith("builder:"):
+        return game_id[8:]
+    return None
+
+
 @router.get("/{game_id}")
 async def game_meta(game_id: str):
-    if game_id.startswith("builder:"):
-        doc = await _builder_game(game_id[8:])
+    slug = _community_slug(game_id)
+    if slug:
+        doc = await _builder_game(slug)
         if not doc:
             raise HTTPException(status_code=404, detail="Game not found")
         return {
@@ -161,8 +170,9 @@ async def game_meta(game_id: str):
 
 @router.get("/{game_id}/play")
 async def play_game(game_id: str):
-    if game_id.startswith("builder:"):
-        doc = await _builder_game(game_id[8:])
+    slug = _community_slug(game_id)
+    if slug:
+        doc = await _builder_game(slug)
         if not doc or not doc.get("html"):
             raise HTTPException(status_code=404, detail="Game not found")
         return HTMLResponse(doc["html"])

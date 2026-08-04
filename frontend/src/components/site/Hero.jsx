@@ -44,8 +44,8 @@ export default function Hero() {
             className="mb-8"
           >
             <img
-              src="/luchii-logo.webp"
-              alt="Frasberg Luchii"
+              src="/luchii-mark.jpg"
+              alt="Luchii"
               data-testid="hero-logo"
               className="h-28 w-28 animate-float rounded-full sm:h-32 sm:w-32"
               style={{ boxShadow: "0 0 60px var(--lux-glow)" }}

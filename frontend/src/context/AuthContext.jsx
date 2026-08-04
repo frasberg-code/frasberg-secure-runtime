@@ -18,23 +18,38 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     let interval;
+    let cancelled = false;
     (async () => {
-      try {
-        const { data } = await axios.get(`${API}/auth/me`, { withCredentials: true });
-        setUser(data);
-      } catch {
+      // Persistent session boot: only a real 401/403 logs the user out.
+      // Network errors / 5xx are retried so a flaky connection never drops the session.
+      for (let tryNum = 0; tryNum < 3 && !cancelled; tryNum++) {
         try {
-          const { data } = await axios.post(`${API}/auth/refresh`, {}, { withCredentials: true });
-          setUser(data);
-        } catch {
-          setUser(false);
+          const { data } = await axios.get(`${API}/auth/me`, { withCredentials: true });
+          if (!cancelled) setUser(data);
+          break;
+        } catch (e1) {
+          const authFail = e1.response && (e1.response.status === 401 || e1.response.status === 403);
+          if (authFail) {
+            try {
+              const { data } = await axios.post(`${API}/auth/refresh`, {}, { withCredentials: true });
+              if (!cancelled) setUser(data);
+              break;
+            } catch (e2) {
+              const refreshAuthFail = e2.response && (e2.response.status === 401 || e2.response.status === 403);
+              if (refreshAuthFail || tryNum === 2) { if (!cancelled) setUser(false); break; }
+            }
+          } else if (tryNum === 2) {
+            if (!cancelled) setUser(false);
+            break;
+          }
+          await new Promise((r) => setTimeout(r, 2000));
         }
       }
       interval = setInterval(() => {
         axios.post(`${API}/auth/refresh`, {}, { withCredentials: true }).catch(() => {});
       }, 10 * 60 * 1000);
     })();
-    return () => clearInterval(interval);
+    return () => { cancelled = true; clearInterval(interval); };
   }, []);
 
   const login = useCallback(async (email, password) => {

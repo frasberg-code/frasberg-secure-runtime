@@ -632,3 +632,31 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - Verified: all inline game scripts pass node new Function() syntax check; served HTML contains
   musicCtl/padPill/startMusic markers; screenshot shows SFX + MUSIC + slider controls top-right
   without HUD overlap. Audio/pad hardware behavior code-verified (headless env has no audio/pad).
+
+## 2026-06 — Logo, Persistent Sessions, 520 fix, FR-LB-0042 Visual Asset Pipeline (Phase 1)
+- HERO LOGO: generated new Luchii mark (glowing cyan waveform-L badge) → /public/luchii-mark.jpg,
+  Hero.jsx hero-logo swapped (was the FA "Frasberg AI Model Luchii" badge = luchii-logo.webp).
+  Screenshot-verified. Navbar/footer still use luchii-logo.webp (unchanged, not requested).
+- PERSISTENT LOGIN ("like Instagram"): auth.py access token 15min→24h (max_age 86400, also on
+  refresh endpoint), refresh token 7d→30d (max_age 2592000). AuthContext boot hardened: only
+  401/403 log out; network/5xx errors retry ×3 w/ 2s backoff before user=false; 10-min silent
+  refresh interval kept. Root cause of user's "logout on refresh": prod 520s failing /me+/refresh.
+- PRODUCTION 520 (Cloudflare "could not parse origin response" on community game play): the
+  "builder:" colon in /api/games/builder:{slug}/play path likely rejected by prod proxy chain.
+  ID scheme now colon-free "builder-{slug}"; meta/play accept BOTH prefixes (back-compat).
+  USER MUST REDEPLOY for prod fixes.
+- VISUAL ASSET PIPELINE (backend/asset_pipeline.py, P0 spec FR-LB-0042 Phase 1):
+  extract_asset_plan(prompt) — deterministic NER: 10 cities w/ cinematic grade prompts, 20
+  creatures, 19 character archetypes → max 3 assets (environment/character/creature).
+  generate_assets: parallel gpt-image-1 (EMERGENT key) → /app/backend/builder_assets/{sha}.png,
+  cached in db.builder_assets by sha1(kind:key) (repeat prompts = instant, free). Served at
+  GET /api/builder-assets/{fname} (public, immutable cache). Quota: free 5 asset packs/day
+  (db.builder_asset_packs), pro unlimited. builder.py produce(): for type=game emits SSE
+  {assets_status} → {assets:[...]} then injects asset usage rules into llm_text.
+  Builder.jsx: genAssets state, toasts, "Visual assets:" thumbnail strip (builder-assets-strip,
+  builder-asset-{kind}).
+- E2E VERIFIED: "Vegas street racing + street fighter + dragon" build → 3 photorealistic assets
+  in ~35s (SSE events confirmed), Claude generated "Vegas Fury" (25KB) with 3 asset URL refs and
+  imgBg/imgPlayer/imgDragon draw code; build survived client disconnect (detached task).
+  Phase 2 backlog (per spec): sprite sheets/animation frames, dynamic damage states, watermarking
+  free exports, private asset library UI, particle/lighting upgrades.

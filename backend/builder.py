@@ -17,6 +17,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from emergentintegrations.llm.chat import LlmChat, UserMessage, TextDelta, StreamDone
 
 import auth as auth_module
+import asset_pipeline
 from sse_utils import guard_stream
 
 logger = logging.getLogger(__name__)
@@ -149,6 +150,20 @@ async def builder_generate(body: GenerateReq, user: dict = Depends(auth_module.g
 
     async def produce(queue: asyncio.Queue):
         full = ""
+        nonlocal llm_text
+        if body.type == "game":
+            try:
+                plan = asset_pipeline.extract_asset_plan(prompt)
+                if plan and await asset_pipeline.check_pack_quota(user, _is_pro(user)):
+                    await queue.put({"assets_status": "Generating photorealistic visual assets…",
+                                     "kinds": [i["kind"] for i in plan]})
+                    assets = await asset_pipeline.generate_assets(plan)
+                    if assets:
+                        await queue.put({"assets": assets})
+                        llm_text += asset_pipeline.asset_injection(assets)
+                        await asset_pipeline.record_pack(user)
+            except Exception:
+                logger.exception("asset pipeline failed, building without assets")
         try:
             llm = LlmChat(
                 api_key=EMERGENT_LLM_KEY, session_id=f"builder-{uuid.uuid4()}",

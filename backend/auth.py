@@ -33,21 +33,21 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 def create_access_token(user_id: str, email: str) -> str:
     payload = {"sub": user_id, "email": email, "type": "access",
-               "exp": datetime.now(timezone.utc) + timedelta(minutes=15)}
+               "exp": datetime.now(timezone.utc) + timedelta(days=1)}
     return jwt.encode(payload, _secret(), algorithm=JWT_ALGORITHM)
 
 
 def create_refresh_token(user_id: str) -> str:
     payload = {"sub": user_id, "type": "refresh",
-               "exp": datetime.now(timezone.utc) + timedelta(days=7)}
+               "exp": datetime.now(timezone.utc) + timedelta(days=30)}
     return jwt.encode(payload, _secret(), algorithm=JWT_ALGORITHM)
 
 
 def _set_cookies(response: Response, access: str, refresh: str):
     response.set_cookie("access_token", access, httponly=True, secure=True,
-                        samesite="none", max_age=900, path="/")
+                        samesite="none", max_age=86400, path="/")
     response.set_cookie("refresh_token", refresh, httponly=True, secure=True,
-                        samesite="none", max_age=604800, path="/")
+                        samesite="none", max_age=2592000, path="/")
 
 
 def _public(user: dict) -> dict:
@@ -181,7 +181,7 @@ async def refresh(request: Request, response: Response):
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
     response.set_cookie("access_token", create_access_token(user["id"], user["email"]),
-                        httponly=True, secure=True, samesite="none", max_age=900, path="/")
+                        httponly=True, secure=True, samesite="none", max_age=86400, path="/")
     return _public(user)
 
 

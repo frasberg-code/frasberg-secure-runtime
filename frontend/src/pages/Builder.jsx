@@ -86,6 +86,7 @@ export default function Builder({ type = "website" }) {
   const [html, setHtml] = useState("");
   const [busy, setBusy] = useState(false);
   const [chars, setChars] = useState(0);
+  const [genAssets, setGenAssets] = useState([]);
   const [current, setCurrent] = useState(null);
   const [projects, setProjects] = useState([]);
   const [quota, setQuota] = useState(null);
@@ -180,7 +181,7 @@ export default function Builder({ type = "website" }) {
     const p = (typeof overridePrompt === "string" ? overridePrompt : prompt).trim();
     if (!p || busy) return;
     if (!user) { navigate(`/auth?mode=login&next=%2F${type}-builder`); return; }
-    setBusy(true); setChars(0);
+    setBusy(true); setChars(0); setGenAssets([]);
     recoverySnapRef.current = new Map(projects.map((pr) => [pr.id, pr.updated_at]));
     let receivedAny = false;
     const attempt = async () => {
@@ -210,6 +211,8 @@ export default function Builder({ type = "website" }) {
           const l = part.trim();
           if (!l.startsWith("data:")) continue;
           let d; try { d = JSON.parse(l.slice(5).trim()); } catch { continue; }
+          if (d.assets_status) { receivedAny = true; toast(d.assets_status); }
+          if (d.assets) { receivedAny = true; setGenAssets(d.assets); toast.success("Photorealistic assets ready — building your game around them"); }
           if (d.delta) { receivedAny = true; htmlRef.current += d.delta; setChars(htmlRef.current.length); }
           if (d.error) { toast.error(d.error); return; }
           if (d.done) {
@@ -420,6 +423,19 @@ export default function Builder({ type = "website" }) {
                       className="inline-flex items-center gap-1.5 rounded-full border border-lux-accent/50 bg-lux-accent/10 px-3.5 py-1.5 text-xs font-600 text-lux-text transition-all hover:-translate-y-0.5 hover:border-lux-accent">
                       <Sparkles size={12} className="text-lux-accent" /> {t.label}
                     </button>
+                  ))}
+                </div>
+              )}
+              {genAssets.length > 0 && (
+                <div className="mb-3 flex flex-wrap items-center gap-3" data-testid="builder-assets-strip">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-lux-text2">Visual assets:</span>
+                  {genAssets.map((a) => (
+                    <div key={a.url} className="flex flex-col items-center gap-1">
+                      <img src={`${process.env.REACT_APP_BACKEND_URL}${a.url}`} alt={a.key}
+                        data-testid={`builder-asset-${a.kind}`}
+                        className="h-14 w-14 rounded-lg object-cover ring-1 ring-lux-accent/40" />
+                      <span className="text-[9px] uppercase tracking-wider text-lux-text2">{a.kind}</span>
+                    </div>
                   ))}
                 </div>
               )}
