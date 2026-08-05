@@ -1691,22 +1691,31 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def create_indexes():
-    await db.api_keys.create_index("key", unique=True)
-    await db.api_keys.create_index("id")
-    await db.chat_messages.create_index([("session_id", 1), ("ts", 1)])
-    await db.chat_messages.create_index([("user_id", 1), ("ts", -1)])
-    await db.chat_messages.create_index("expires_at", expireAfterSeconds=0)
-    await auth_module.create_indexes()
-    await auth_module.seed_admin()
-    from seed_builds import seed_flagship_builds
-    await studio.seed_creatures()
-    await seed_flagship_builds(db)
-    await db.user_memories.create_index([("user_id", 1), ("created_at", -1)])
-    if await db.knowledge.count_documents({}) == 0:
-        now = datetime.now(timezone.utc).isoformat()
-        await db.knowledge.insert_many([
-            {**d, "id": str(uuid.uuid4()), "updated_at": now} for d in KB_SEED
-        ])
+    try:
+        await db.api_keys.create_index("key", unique=True)
+        await db.api_keys.create_index("id")
+        await db.chat_messages.create_index([("session_id", 1), ("ts", 1)])
+        await db.chat_messages.create_index([("user_id", 1), ("ts", -1)])
+        await db.chat_messages.create_index("expires_at", expireAfterSeconds=0)
+        await db.user_memories.create_index([("user_id", 1), ("created_at", -1)])
+    except Exception:
+        logger.exception("Index creation failed — continuing (server must still boot)")
+    try:
+        await auth_module.create_indexes()
+        await auth_module.seed_admin()
+    except Exception:
+        logger.exception("Auth index/seed failed — continuing")
+    try:
+        from seed_builds import seed_flagship_builds
+        await studio.seed_creatures()
+        await seed_flagship_builds(db)
+        if await db.knowledge.count_documents({}) == 0:
+            now = datetime.now(timezone.utc).isoformat()
+            await db.knowledge.insert_many([
+                {**d, "id": str(uuid.uuid4()), "updated_at": now} for d in KB_SEED
+            ])
+    except Exception:
+        logger.exception("Seed data failed — continuing")
     def _preload_ml():
         try:
             memory_vault.preload_sync()
