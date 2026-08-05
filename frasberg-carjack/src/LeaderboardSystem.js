@@ -9,6 +9,24 @@ export class LeaderboardSystem {
     this.visible  = false;
     this._buildUI();
     this._listen();
+    this._fetchScores();
+  }
+
+  // ── Frasberg platform leaderboard (when served from /api/games/{id}/play) ──
+  _scoresUrl() {
+    try {
+      if (!/\/api\/games\//.test(location.pathname)) return null;
+      return new URL('scores', location.href).toString();
+    } catch { return null; }
+  }
+
+  async _fetchScores() {
+    const url = this._scoresUrl();
+    if (!url) return;
+    try {
+      const r = await fetch(url);
+      if (r.ok) this.update(await r.json());
+    } catch {}
   }
 
   _buildUI() {
@@ -47,17 +65,24 @@ export class LeaderboardSystem {
 
   submitScore(playerName, score, stats = {}) {
     this.myScore = score;
-    this.ws?.send(JSON.stringify({
-      type: 'leaderboard:submit',
-      data: {
-        name:       playerName,
-        score,
-        carjacks:   stats.carjacks   || 0,
-        distance:   stats.distance   || 0,
-        wanted:     stats.wantedLevel || 0,
-        timestamp:  Date.now(),
-      }
-    }));
+    this.ws?.send?.('leaderboard_submit', {
+      name:     playerName,
+      score,
+      carjacks: stats.carjacks    || 0,
+      distance: stats.distance    || 0,
+      wanted:   stats.wantedLevel || 0,
+    });
+    const url = this._scoresUrl();
+    if (url) {
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: String(playerName).slice(0, 20) || 'PLAYER', score: Math.max(0, Math.floor(score)) }),
+      })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => { if (d?.top) this.update(d.top); })
+        .catch(() => {});
+    }
   }
 
   update(entries) {

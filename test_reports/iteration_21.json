@@ -1,0 +1,18 @@
+{
+  "summary": "Regression pass for Frasberg Streets multi-file pro build + games portal. Backend: 8/8 pytest passed (registry lists streets w/ 'F carjack' controls, /play returns HTML referencing ./assets/ chunks, real hashed JS chunk served with JS content-type, path-traversal '..%2F' and '..evil.js' rejected (400/404), non-existent asset -> 404, score POST/GET round-trip + weekly period 200, regression /api/games/dungeon3d/play still 200, QA-BOT scores cleaned from mongo game_scores). Frontend: /games library renders all 5 games incl. Frasberg Streets; /games/play/streets shows data-testid='game-player-title'='Frasberg Streets', 'LOCAL ENGINE' badge visible, data-testid='game-frame' iframe loads game — inside iframe: #canvas exists, #hud-money & #hud-hp present (HP 100, $500), traffic + minimap render, no loading overlay stuck, no page/JS errors. Only expected noise: 401 on /api/auth/me and a 404 (accepted /api/save save-slot per request). Solo multiplayer mode as expected (no WS server running).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/backend/tests/test_streets_game.py", "/app/test_reports/pytest/streets_results.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "games_portal.py line 213: path-traversal check is good (rejects '/' and '..'). Consider also rejecting backslashes and null bytes for defense-in-depth, though FastAPI/Starlette normalize these.",
+    "test_streets_asset_serves_js_chunk: FileResponse relies on mimetypes; content-type came back as application/javascript — OK."
+  ],
+  "updated_files": ["/app/backend/tests/test_streets_game.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "not required (public games portal)",
+  "seed_data_creation": "Test inserts QA-BOT score row then cleans it up in test_zzz_cleanup_qa_bot (delete_many name=='QA-BOT'). No residual data.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Frasberg Streets pro build is stable. /api/games/{gid}/assets/{fname} route serves hashed chunks with traversal protection. Game runs in solo mode inside platform iframe; 401 on /api/auth/me and 404 on /api/save are accepted noise. Backend test file at /app/backend/tests/test_streets_game.py can be reused as a regression suite for future game-portal changes."
+}

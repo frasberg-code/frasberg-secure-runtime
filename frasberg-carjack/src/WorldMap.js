@@ -36,7 +36,7 @@ export class WorldMap {
   // ── Road grid (world space) ──────────────────────────────────────────────────
   _buildRoads() {
     const roads = [];
-    const SPACING = 160, EXTENT = 1200;
+    const SPACING = 160, EXTENT = 2400;
     for (let x = -EXTENT; x <= EXTENT; x += SPACING) {
       roads.push({ x1: x, y1: -EXTENT, x2: x, y2: EXTENT, vertical: true });
     }
@@ -48,7 +48,7 @@ export class WorldMap {
 
   _buildBuildings() {
     const buildings = [];
-    const SPACING = 160, EXTENT = 1200, ROAD_W = 40;
+    const SPACING = 160, EXTENT = 2400, ROAD_W = 40;
     let seed = 42;
     const rand = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
     for (let bx = -EXTENT; bx < EXTENT; bx += SPACING) {
@@ -109,7 +109,7 @@ export class WorldMap {
   render(ctx, player) {
     const px = player?.x ?? 0;
     const py = player?.y ?? player?.z ?? 0;
-    const view = 900;
+    const view = 1300;
 
     // Ground
     ctx.fillStyle = '#151820';

@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "Frasberg Carjack",
+    "slug": "frasberg-carjack",
+    "version": "1.0.0",
+    "orientation": "landscape",
+    "backgroundColor": "#0a0a0a",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0a0a0a"
+    },
+    "android": {
+      "package": "com.frasberginc.carjack"
+    },
+    "ios": {
+      "bundleIdentifier": "com.frasberginc.carjack"
+    }
+  }
+}

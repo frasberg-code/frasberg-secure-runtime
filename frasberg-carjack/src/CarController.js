@@ -1,5 +1,7 @@
 // ── Frasberg Carjack — Car Controller ─────────────────────────────────────────
 
+import { drawVehicle } from './CarSprites.js';
+
 export class CarController {
   constructor(canvas, physicsEngine, audioEngine) {
     this.canvas    = canvas;
@@ -130,11 +132,10 @@ export class CarController {
     car.gear = Math.min(6, Math.ceil(speedPct * 6) || 1);
     car.rpm  = 800 + (speedPct % (1/6)) * 6 * 5200;
 
-    // World bounds
-    const W = this.canvas?.width  ?? 1200;
-    const H = this.canvas?.height ?? 800;
-    car.x = Math.max(0, Math.min(W, car.x));
-    car.y = Math.max(0, Math.min(H, car.y));
+    // Open world — soft bounds far from origin
+    const EXTENT = 2360;
+    car.x = Math.max(-EXTENT, Math.min(EXTENT, car.x));
+    car.y = Math.max(-EXTENT, Math.min(EXTENT, car.y));
 
     // Physics engine collision
     if (this.physics) this.physics.resolveCarCollision(car, [...this.cars.values()]);
@@ -146,22 +147,18 @@ export class CarController {
     if (car.drifting) this.audio.playTireScreech();
   }
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  // ── Render — detailed sprite (movement forward is local −Y, sprite front is +Y) ──
   render(ctx, player) {
     for (const [, car] of this.cars) {
       ctx.save();
       ctx.translate(car.x, car.y);
-      ctx.rotate(car.angle * Math.PI / 180);
-      // Body
-      ctx.fillStyle = car.color;
-      ctx.fillRect(-car.width / 2, -car.height / 2, car.width, car.height);
-      // Windshield
-      ctx.fillStyle = 'rgba(180,220,255,0.7)';
-      ctx.fillRect(-car.width / 2 + 8, -car.height / 2 + 3, 10, car.height - 6);
-      // Headlights
-      ctx.fillStyle = '#fff8c4';
-      ctx.fillRect(car.width / 2 - 4, -car.height / 2 + 2, 3, 5);
-      ctx.fillRect(car.width / 2 - 4,  car.height / 2 - 7, 3, 5);
+      ctx.rotate(car.angle * Math.PI / 180 + Math.PI);
+      drawVehicle(ctx, car.spec ?? { color: car.color, tier: 'sport', length: 4.7 });
+      if (car.drifting) {
+        ctx.fillStyle = 'rgba(200,200,200,0.25)';
+        ctx.beginPath(); ctx.arc(-8, -20, 6, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(8, -20, 6, 0, Math.PI * 2); ctx.fill();
+      }
       ctx.restore();
     }
   }

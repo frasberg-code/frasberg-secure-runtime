@@ -1,5 +1,9 @@
 // ── TrafficAI.js ──────────────────────────────────────────────────────────────
-// Spawns and manages AI traffic vehicles throughout the city.
+// Spawns and manages AI traffic — real industry vehicles (Tesla, Mercedes-Benz,
+// Ferrari, Lamborghini, Rolls-Royce, Ford trucks…) from the VehicleCatalog.
+
+import { VEHICLE_CATALOG } from './VehicleCatalog.js';
+import { drawVehicle } from './CarSprites.js';
 
 export class TrafficAI {
   constructor(worldMap) {
@@ -10,15 +14,6 @@ export class TrafficAI {
     this.despawnRadius = 400;
     this.weather = 'clear';
     this._idCounter = 0;
-
-    this.CAR_TYPES = [
-      { name: 'Sedan',   speed: 60,  color: '#1a73e8', length: 4.5 },
-      { name: 'SUV',     speed: 55,  color: '#34a853', length: 5.0 },
-      { name: 'Truck',   speed: 45,  color: '#ea4335', length: 7.0 },
-      { name: 'Sports',  speed: 90,  color: '#fbbc04', length: 4.2 },
-      { name: 'Bus',     speed: 40,  color: '#ff6d00', length: 12.0 },
-      { name: 'Taxi',    speed: 65,  color: '#f9d71c', length: 4.5 },
-    ];
   }
 
   // ── Spawn initial traffic ─────────────────────────────────────────────────────
@@ -66,18 +61,22 @@ export class TrafficAI {
       x, z, direction: Math.round(Math.random() * 3) * (Math.PI / 2), lane: 0,
     };
 
-    const type = this.CAR_TYPES[Math.floor(Math.random() * this.CAR_TYPES.length)];
+    const spec = VEHICLE_CATALOG[Math.floor(Math.random() * VEHICLE_CATALOG.length)];
     const id   = ++this._idCounter;
+    const cruise = Math.min(65, spec.topSpeed * 0.3);
 
     this.vehicles.set(id, {
       id,
-      type:       type.name,
-      color:      type.color,
-      length:     type.length,
+      spec,
+      name:       `${spec.brand} ${spec.model}`,
+      type:       spec.tier,
+      color:      spec.color,
+      length:     spec.length,
+      value:      spec.value,
       position:   { x: road.x, y: 0, z: road.z },
       rotation:   road.direction,
-      speed:      type.speed * (0.7 + Math.random() * 0.3),
-      maxSpeed:   type.speed,
+      speed:      cruise * (0.7 + Math.random() * 0.3),
+      maxSpeed:   cruise,
       state:      'driving',   // driving | stopped | turning | parked
       stopTimer:  0,
       turnTarget: null,
@@ -125,18 +124,13 @@ export class TrafficAI {
     this.weather = type;
   }
 
-  // ── Render (2D canvas, world space) ──────────────────────────────────────────
+  // ── Render (2D canvas, world space) — detailed real-brand sprites ────────────
   render(ctx) {
     for (const v of this.vehicles.values()) {
       ctx.save();
       ctx.translate(v.position.x, v.position.z);
       ctx.rotate(v.rotation);
-      const len = v.length * 8;
-      const wid = 20;
-      ctx.fillStyle = v.color;
-      ctx.fillRect(-wid / 2, -len / 2, wid, len);
-      ctx.fillStyle = 'rgba(180,220,255,0.7)';
-      ctx.fillRect(-wid / 2 + 3, -len / 2 + 5, wid - 6, 8);
+      drawVehicle(ctx, v.spec);
       ctx.restore();
     }
   }

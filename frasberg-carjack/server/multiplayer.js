@@ -6,6 +6,12 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { createClient } from 'redis';
 import jwt from 'jsonwebtoken';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
+import sodium from 'libsodium-wrappers';
+
+// ── E2E encryption — server keypair ────────────────────────────────────────────
+await sodium.ready;
+const SERVER_KEYPAIR = sodium.crypto_box_keypair();
+console.log('[Server] 🔐 Server keypair generated.');
 
 const PORT       = process.env.PORT       || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'frasberg-dev-secret';
@@ -64,7 +70,7 @@ wss.on('connection', (ws, req) => {
   });
 
   metrics.connections++;
-  const clientData = { id: generateId(), roomId: null, playerId: null, x: 0, y: 0, angle: 0, speed: 0 };
+  const clientData = { id: generateId(), roomId: null, playerId: null, x: 0, y: 0, angle: 0, speed: 0, sharedSecret: null };
   clients.set(ws, clientData);
 
   console.log(`[WS] Client connected: ${clientData.id} (${ip}) — total: ${metrics.connections}`);
@@ -76,7 +82,11 @@ wss.on('connection', (ws, req) => {
   ws.on('message', (raw) => {
     metrics.messages++;
     try {
-      const msg = JSON.parse(raw);
+      let msg = JSON.parse(raw);
+      if (msg.__enc && clientData.sharedSecret) {
+        msg = decryptEnvelope(msg, clientData.sharedSecret);
+        if (!msg) return;
+      }
       handleMessage(ws, msg, clientData);
     } catch (e) {
       metrics.errors++;
@@ -95,12 +105,34 @@ wss.on('connection', (ws, req) => {
     console.error(`[WS] Error for ${clientData.id}:`, e.message);
   });
 
-  send(ws, { type: 'welcome', id: clientData.id });
+  send(ws, {
+    type: 'welcome',
+    id: clientData.id,
+    serverTime: Date.now(),
+    serverPublicKey: sodium.to_base64(SERVER_KEYPAIR.publicKey),
+  });
 });
 
 // ── Message Handler ────────────────────────────────────────────────────────────
 function handleMessage(ws, msg, client) {
   switch (msg.type) {
+
+    // ── E2E Key Exchange ──
+    case 'key_exchange': {
+      try {
+        const clientPublicKey = sodium.from_base64(msg.publicKey);
+        client.sharedSecret = sodium.crypto_box_beforenm(clientPublicKey, SERVER_KEYPAIR.privateKey);
+        console.log(`[Server] 🔐 E2E established with client ${client.id}`);
+        send(ws, {
+          type: 'key_exchange_ack',
+          serverPublicKey: sodium.to_base64(SERVER_KEYPAIR.publicKey),
+        });
+      } catch (e) {
+        metrics.errors++;
+        send(ws, { type: 'error', message: 'Key exchange failed' });
+      }
+      break;
+    }
 
     case 'auth': {
       try {
@@ -183,18 +215,41 @@ function handleMessage(ws, msg, client) {
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
+function encryptEnvelope(data, sharedSecret) {
+  const nonce  = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
+  const cipher = sodium.crypto_box_easy_afternm(JSON.stringify(data), nonce, sharedSecret);
+  return { __enc: 1, n: sodium.to_base64(nonce), c: sodium.to_base64(cipher) };
+}
+
+function decryptEnvelope(env, sharedSecret) {
+  try {
+    const plain = sodium.crypto_box_open_easy_afternm(
+      sodium.from_base64(env.c), sodium.from_base64(env.n), sharedSecret
+    );
+    return JSON.parse(sodium.to_string(plain));
+  } catch {
+    metrics.errors++;
+    return null;
+  }
+}
+
 function send(ws, data) {
-  if (ws.readyState === WebSocket.OPEN) {
+  if (ws.readyState !== WebSocket.OPEN) return;
+  const state = clients.get(ws);
+  // Encrypt per-client once the E2E handshake is done (ack itself stays readable
+  // because the client derives the secret from the welcome message)
+  if (state?.sharedSecret && data.type !== 'key_exchange_ack') {
+    ws.send(JSON.stringify(encryptEnvelope(data, state.sharedSecret)));
+  } else {
     ws.send(JSON.stringify(data));
   }
 }
 
 function broadcast(roomId, data, excludeWs = null) {
   if (!roomId || !rooms.has(roomId)) return;
-  const payload = JSON.stringify(data);
   for (const ws of rooms.get(roomId)) {
     if (ws !== excludeWs && ws.readyState === WebSocket.OPEN) {
-      ws.send(payload);
+      send(ws, data);
     }
   }
 }

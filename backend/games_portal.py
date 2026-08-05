@@ -23,7 +23,7 @@ GAME_REGISTRY = [
         "genre": "Open World",
         "description": "Carjack City. Pull drivers out of moving cars, outrun the police, and rule the streets — every car handles differently.",
         "thumbnail": "/games-thumbs/streets.jpg",
-        "controls": "WASD drive · E carjack/exit · Space brake · Shift sprint",
+        "controls": "WASD/arrows drive · F carjack · Space handbrake · Shift nitro · M map · L leaderboard · H horn",
         "engine": "Frasberg Engine · Canvas 2D",
     },
     {
@@ -202,6 +202,17 @@ async def game_asset(fname: str):
     if "/" in fname or ".." in fname:
         raise HTTPException(status_code=400, detail="Bad filename")
     path = GAMES_DIR / "_assets" / fname
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Asset not found")
+    return FileResponse(path, headers={"Cache-Control": "public, max-age=86400"})
+
+
+@router.get("/{game_id}/assets/{fname}")
+async def game_bundle_asset(game_id: str, fname: str):
+    """Serves hashed JS/CSS chunks for multi-file game builds (e.g. Frasberg Streets pro build)."""
+    if "/" in fname or ".." in fname or "/" in game_id or ".." in game_id:
+        raise HTTPException(status_code=400, detail="Bad filename")
+    path = GAMES_DIR / game_id / "assets" / fname
     if not path.exists():
         raise HTTPException(status_code=404, detail="Asset not found")
     return FileResponse(path, headers={"Cache-Control": "public, max-age=86400"})

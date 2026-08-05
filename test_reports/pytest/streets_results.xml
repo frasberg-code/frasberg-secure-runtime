@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="8" time="1.705" timestamp="2026-08-05T12:14:42.350990+00:00" hostname="agent-env-4793a44b-b33b-4076-b55d-f272d88ffb4f"><testcase classname="tests.test_streets_game" name="test_games_registry_includes_streets" time="0.560" /><testcase classname="tests.test_streets_game" name="test_streets_play_returns_html_referencing_assets" time="0.259" /><testcase classname="tests.test_streets_game" name="test_streets_asset_serves_js_chunk" time="0.071" /><testcase classname="tests.test_streets_game" name="test_streets_asset_path_traversal_rejected" time="0.073" /><testcase classname="tests.test_streets_game" name="test_streets_asset_missing_returns_404" time="0.082" /><testcase classname="tests.test_streets_game" name="test_streets_scores_post_and_get_and_weekly" time="0.108" /><testcase classname="tests.test_streets_game" name="test_dungeon3d_play_still_works" time="0.038" /><testcase classname="tests.test_streets_game" name="test_zzz_cleanup_qa_bot" time="0.002"><failure message="pymongo.errors.InvalidURI: Invalid URI scheme: URI must begin with 'mongodb://' or 'mongodb+srv://'">backend/tests/test_streets_game.py:120: in test_zzz_cleanup_qa_bot
+    n = asyncio.get_event_loop().run_until_complete(_clean()) if False else asyncio.run(_clean())
+                                                                            ^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/asyncio/runners.py:190: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/asyncio/base_events.py:654: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+backend/tests/test_streets_game.py:116: in _clean
+    client = AsyncIOMotorClient(mongo_url)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/.venv/lib/python3.11/site-packages/motor/core.py:148: in __init__
+    delegate = self.__delegate_class__(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/.venv/lib/python3.11/site-packages/pymongo/mongo_client.py:771: in __init__
+    res = uri_parser.parse_uri(
+/root/.venv/lib/python3.11/site-packages/pymongo/uri_parser.py:497: in parse_uri
+    raise InvalidURI(f"Invalid URI scheme: URI must begin with '{SCHEME}' or '{SRV_SCHEME}'")
+E   pymongo.errors.InvalidURI: Invalid URI scheme: URI must begin with 'mongodb://' or 'mongodb+srv://'</failure></testcase></testsuite></testsuites>
