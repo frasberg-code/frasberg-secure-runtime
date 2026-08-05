@@ -54,15 +54,6 @@ export default function GamePlayerPage() {
           <span className="block truncate text-sm font-bold text-white" data-testid="game-player-title">{game?.title || gameId}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span
-            data-testid="game-player-status"
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] uppercase tracking-[0.15em] ${
-              mode === "stream" ? "border-emerald-500/40 text-emerald-400" : "border-[#6c63ff]/40 text-[#8b84ff]"
-            }`}
-          >
-            {mode === "checking" ? <Wifi size={11} /> : mode === "stream" ? <Cloud size={11} /> : <Cpu size={11} />}
-            {mode === "checking" ? "Connecting…" : mode === "stream" ? "Cloud Stream" : "Local Engine"}
-          </span>
           <span className="hidden items-center gap-1.5 rounded-full border border-[#1a1a2e] px-3 py-1 text-[10px] text-[#888] sm:inline-flex" data-testid="game-player-latency">
             <Wifi size={11} className="text-[#6c63ff]" /> {latency === null ? "—" : `${latency} ms`}
           </span>

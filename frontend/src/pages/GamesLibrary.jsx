@@ -33,15 +33,6 @@ export default function GamesLibrary() {
           <Link to="/" className="inline-flex items-center gap-2 text-sm text-[#888] transition-colors hover:text-white" data-testid="games-back-link">
             <ArrowLeft size={15} /> Back to Luchii
           </Link>
-          <span
-            data-testid="games-stream-status"
-            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] uppercase tracking-[0.15em] ${
-              stream?.online ? "border-emerald-500/40 text-emerald-400" : "border-[#6c63ff]/40 text-[#8b84ff]"
-            }`}
-          >
-            <Radio size={11} />
-            {stream === null ? "Checking mesh…" : stream.online ? "Cloud stream live" : "Local engine mode"}
-          </span>
         </div>
 
         <div className="mt-10 text-center">

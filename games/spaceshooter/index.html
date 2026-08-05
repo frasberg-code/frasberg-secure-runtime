@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Constellation Wars</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -87,6 +88,7 @@ ship.position.y = -9; scene.add(ship);
 ship.rotation.x = -Math.PI/2;
 
 let bullets = [], enemies = [], ebullets = [], powerups = [], keys = {};
+let touchMove = { x: 0, y: 0 }, touchFire = false;
 document.addEventListener("keydown", e => {
   keys[e.code] = true;
   if (e.code === "Space") fire();
@@ -299,13 +301,14 @@ function animate() {
     if (invuln > 0) invuln -= dt;
     if (rapidTimer > 0) { rapidTimer -= dt; if (rapidTimer <= 0) hud(); }
     ship.visible = invuln <= 0 || Math.floor(invuln * 10) % 2 === 0;
-    if (mouseDown || keys["Space"]) fire();
+    if (mouseDown || keys["Space"] || touchFire) fire();
     // ── 360° movement ──
     let mx = 0, my = 0;
     if (keys["ArrowLeft"] || keys["KeyA"]) mx -= 1;
     if (keys["ArrowRight"] || keys["KeyD"]) mx += 1;
     if (keys["ArrowUp"] || keys["KeyW"]) my += 1;
     if (keys["ArrowDown"] || keys["KeyS"]) my -= 1;
+    mx += touchMove.x; my += touchMove.y;
     const ml = Math.hypot(mx, my) || 1;
     ship.position.x += (mx / ml) * 15 * dt;
     ship.position.y += (my / ml) * 15 * dt;
@@ -474,32 +477,52 @@ const lbScore = () => score;
   gameOver = function () { _gameOver(); document.getElementById("lbSubmit").textContent = "SUBMIT"; lbLoad(); };
 })();
 
-// ─── Touch Controls ───────────────────────────────────────
+// ─── Touch Controls — twin 360° sticks ─────────────────────
 (function () {
   if (!(matchMedia("(pointer: coarse)").matches || new URLSearchParams(location.search).has("touch"))) return;
   document.body.insertAdjacentHTML("beforeend", `
     <style>
-      .tc{position:fixed;z-index:8;user-select:none;-webkit-user-select:none;touch-action:none}
-      .tcBtn{width:72px;height:72px;border-radius:50%;background:rgba(108,99,255,.22);border:1px solid rgba(108,99,255,.6);color:#fff;font:bold 15px 'Courier New';letter-spacing:1px}
+      .stick{position:fixed;bottom:26px;z-index:8;width:118px;height:118px;border-radius:50%;
+        background:rgba(108,99,255,.10);border:1px solid rgba(108,99,255,.45);
+        user-select:none;-webkit-user-select:none;touch-action:none}
+      .knob{position:absolute;left:37px;top:37px;width:44px;height:44px;border-radius:50%;
+        background:rgba(108,99,255,.55);pointer-events:none}
+      .stickLbl{position:absolute;top:-18px;left:0;right:0;text-align:center;color:rgba(160,155,255,.7);
+        font:bold 9px 'Courier New';letter-spacing:2px}
     </style>
-    <button id="btnLeft" class="tc tcBtn" style="left:22px;bottom:34px">◀</button>
-    <button id="btnRight" class="tc tcBtn" style="left:110px;bottom:34px">▶</button>
-    <button id="btnUp" class="tc tcBtn" style="left:66px;bottom:118px">▲</button>
-    <button id="btnDown" class="tc tcBtn" style="left:66px;bottom:-2px;bottom:34px;display:none">▼</button>
-    <button id="btnFire" class="tc tcBtn" style="right:22px;bottom:34px;font-size:12px">FIRE</button>`);
-  function bindBtn(id, key) {
-    const el = document.getElementById(id);
-    el.addEventListener("touchstart", (e) => { e.preventDefault(); keys[key] = true; });
-    el.addEventListener("touchend", (e) => { e.preventDefault(); keys[key] = false; });
-    el.addEventListener("touchcancel", () => keys[key] = false);
+    <div id="stickL" class="stick" style="left:22px"><div class="knob"></div><span class="stickLbl">MOVE</span></div>
+    <div id="stickR" class="stick" style="right:22px;border-color:rgba(255,120,140,.45);background:rgba(255,90,138,.08)">
+      <div class="knob" style="background:rgba(255,90,138,.55)"></div><span class="stickLbl" style="color:rgba(255,140,160,.75)">AIM · FIRE</span></div>`);
+  function bindStick(el, onMove, onEnd) {
+    const knob = el.querySelector(".knob");
+    let id = null, cx = 0, cy = 0;
+    const reset = () => { id = null; knob.style.transform = ""; onEnd(); };
+    el.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      const t = e.changedTouches[0]; id = t.identifier;
+      const r = el.getBoundingClientRect(); cx = r.left + r.width / 2; cy = r.top + r.height / 2;
+    });
+    el.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+      for (const t of e.changedTouches) if (t.identifier === id) {
+        const dx = t.clientX - cx, dy = t.clientY - cy;
+        const m = Math.min(Math.hypot(dx, dy), 40), a = Math.atan2(dy, dx);
+        knob.style.transform = `translate(${Math.cos(a) * m}px,${Math.sin(a) * m}px)`;
+        onMove(Math.cos(a) * (m / 40), Math.sin(a) * (m / 40), m / 40);
+      }
+    });
+    el.addEventListener("touchend", reset);
+    el.addEventListener("touchcancel", reset);
   }
-  bindBtn("btnLeft", "ArrowLeft");
-  bindBtn("btnRight", "ArrowRight");
-  bindBtn("btnUp", "ArrowUp");
-  let fireIv = null;
-  const bf = document.getElementById("btnFire");
-  bf.addEventListener("touchstart", (e) => { e.preventDefault(); fire(); fireIv = setInterval(fire, 120); });
-  bf.addEventListener("touchend", (e) => { e.preventDefault(); clearInterval(fireIv); });
+  bindStick(document.getElementById("stickL"),
+    (x, y) => { touchMove.x = x; touchMove.y = -y; },
+    () => { touchMove.x = 0; touchMove.y = 0; });
+  bindStick(document.getElementById("stickR"),
+    (x, y, mag) => {
+      if (mag > 0.25) { const l = Math.hypot(x, y) || 1; aim.x = x / l; aim.y = -y / l; touchFire = true; }
+      else touchFire = false;
+    },
+    () => { touchFire = false; });
 })();
 </script>
 <script>

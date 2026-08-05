@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Las Vegas Racer</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -462,26 +463,42 @@ const lbScore = () => Math.floor(score);
   gameOver = function () { _gameOver(); document.getElementById("lbSubmit").textContent = "SUBMIT"; lbLoad(); };
 })();
 
-// ─── Touch Controls ───────────────────────────────────────
+// ─── Touch Controls — 360° steering stick + boost ──────────
 (function () {
   if (!(matchMedia("(pointer: coarse)").matches || new URLSearchParams(location.search).has("touch"))) return;
   document.body.insertAdjacentHTML("beforeend", `
     <style>
       .tc{position:fixed;z-index:8;user-select:none;-webkit-user-select:none;touch-action:none}
-      .tcBtn{width:72px;height:72px;border-radius:50%;background:rgba(108,99,255,.22);border:1px solid rgba(108,99,255,.6);color:#fff;font:bold 15px 'Courier New';letter-spacing:1px}
+      #stick{left:22px;bottom:26px;width:118px;height:118px;border-radius:50%;background:rgba(108,99,255,.10);border:1px solid rgba(108,99,255,.45)}
+      #stickKnob{position:absolute;left:37px;top:37px;width:44px;height:44px;border-radius:50%;background:rgba(108,99,255,.55);pointer-events:none}
+      #stickLbl{position:absolute;top:-18px;left:0;right:0;text-align:center;color:rgba(160,155,255,.7);font:bold 9px 'Courier New';letter-spacing:2px}
+      .tcBtn{width:78px;height:78px;border-radius:50%;background:rgba(108,99,255,.22);border:1px solid rgba(108,99,255,.6);color:#fff;font:bold 11px 'Courier New';letter-spacing:1px}
     </style>
-    <button id="btnLeft" class="tc tcBtn" style="left:22px;bottom:34px">◀</button>
-    <button id="btnRight" class="tc tcBtn" style="left:110px;bottom:34px">▶</button>
-    <button id="btnBoost" class="tc tcBtn" style="right:22px;bottom:34px;font-size:11px">BOOST</button>`);
-  function bindBtn(id, key) {
-    const el = document.getElementById(id);
-    el.addEventListener("touchstart", (e) => { e.preventDefault(); keys[key] = true; });
-    el.addEventListener("touchend", (e) => { e.preventDefault(); keys[key] = false; });
-    el.addEventListener("touchcancel", () => keys[key] = false);
-  }
-  bindBtn("btnLeft", "ArrowLeft");
-  bindBtn("btnRight", "ArrowRight");
-  bindBtn("btnBoost", "ArrowUp");
+    <div id="stick" class="tc"><div id="stickKnob"></div><span id="stickLbl">STEER</span></div>
+    <button id="btnBoost" class="tc tcBtn" style="right:22px;bottom:34px">BOOST</button>`);
+  const el = document.getElementById("stick"), knob = document.getElementById("stickKnob");
+  let id = null, cx = 0, cy = 0;
+  const reset = () => { id = null; knob.style.transform = ""; keys["ArrowLeft"] = keys["ArrowRight"] = keys["ArrowUp"] = false; };
+  el.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    const t = e.changedTouches[0]; id = t.identifier;
+    const r = el.getBoundingClientRect(); cx = r.left + r.width / 2; cy = r.top + r.height / 2;
+  });
+  el.addEventListener("touchmove", (e) => {
+    e.preventDefault();
+    for (const t of e.changedTouches) if (t.identifier === id) {
+      const dx = t.clientX - cx, dy = t.clientY - cy;
+      const m = Math.min(Math.hypot(dx, dy), 40), a = Math.atan2(dy, dx);
+      knob.style.transform = `translate(${Math.cos(a) * m}px,${Math.sin(a) * m}px)`;
+      keys["ArrowLeft"] = dx < -12; keys["ArrowRight"] = dx > 12; keys["ArrowUp"] = dy < -16;
+    }
+  });
+  el.addEventListener("touchend", reset);
+  el.addEventListener("touchcancel", reset);
+  const bb = document.getElementById("btnBoost");
+  bb.addEventListener("touchstart", (e) => { e.preventDefault(); keys["ArrowUp"] = true; });
+  bb.addEventListener("touchend", (e) => { e.preventDefault(); keys["ArrowUp"] = false; });
+  bb.addEventListener("touchcancel", () => keys["ArrowUp"] = false);
 })();
 </script>
 <script>

@@ -31,17 +31,17 @@ def test_list_games_titles_and_engine():
     assert r.status_code == 200, r.text
     games = r.json()
     by_id = {g["id"]: g for g in games if isinstance(g, dict) and "id" in g}
-    assert by_id["carjack"]["title"] == "Carjack Pro"
+    assert by_id["streets"]["title"] == "Carjack City"
     assert by_id["racer3d"]["title"] == "Las Vegas Racer"
-    assert by_id["streets"]["title"] == "Frasberg Streets"
+    assert "carjack" not in by_id  # merged into streets
     # engine == 'Multiplayer' only for carjack; other core games must have empty string
-    assert by_id["carjack"]["engine"] == "Multiplayer"
-    for gid in ("streets", "racer3d", "spaceshooter", "dungeon3d", "maze3d"):
+    assert by_id["streets"]["engine"] == "Multiplayer"
+    for gid in ("racer3d", "spaceshooter", "dungeon3d", "maze3d"):
         assert by_id[gid]["engine"] == "", f"{gid} engine is {by_id[gid]['engine']!r}"
 
 
 # ---------- Play HTML endpoints ----------
-@pytest.mark.parametrize("gid", ["streets", "carjack", "racer3d", "spaceshooter"])
+@pytest.mark.parametrize("gid", ["streets", "racer3d", "spaceshooter"])
 def test_play_endpoint_returns_html(gid):
     r = requests.get(f"{BASE_URL}/api/games/{gid}/play", timeout=15)
     assert r.status_code == 200, f"{gid} -> {r.status_code}"
