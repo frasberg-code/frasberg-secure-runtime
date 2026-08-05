@@ -125,6 +125,10 @@ export default function Builder({ type = "website" }) {
   const [verifyBusy, setVerifyBusy] = useState(false);
   const [verifyChecks, setVerifyChecks] = useState(null);
   const htmlRef = useRef("");
+  const previewRef = useRef(null);
+  const scrollToPreview = useCallback(() => {
+    setTimeout(() => previewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
+  }, []);
   const [searchParams, setSearchParams] = useSearchParams();
   const remixDone = useRef(false);
   const [demos, setDemos] = useState([]);
@@ -140,6 +144,7 @@ export default function Builder({ type = "website" }) {
       if (!res.ok) throw new Error();
       const code = await res.text();
       setCurrent(null); setDns(null); setDemo(b); setHtml(code);
+      scrollToPreview();
       toast.success(`"${b.title}" loaded — it's live below, try it`);
     } catch { toast.error("Could not load this demo"); }
   }
@@ -171,6 +176,7 @@ export default function Builder({ type = "website" }) {
       if (res.ok) {
         const d = await res.json();
         setCurrent(d); setHtml(d.html); setDns(null);
+        scrollToPreview();
       }
     } catch {}
   }
@@ -254,7 +260,8 @@ export default function Builder({ type = "website" }) {
             setQuota((q) => q ? { ...q, used: d.generations_used } : q);
             setPrompt("");
             loadProjects();
-            toast.success(current ? "Build updated" : "Build complete");
+            scrollToPreview();
+            toast.success(current ? "Build updated — live preview below" : "Build complete — your build is live below");
           }
         }
       }
@@ -522,7 +529,7 @@ export default function Builder({ type = "website" }) {
             )}
 
             {html && !busy && (
-              <div className="mt-6" data-testid="builder-preview-wrap">
+              <div className="mt-6" ref={previewRef} data-testid="builder-preview-wrap">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">Live preview{current ? ` — ${current.title}` : demo ? ` — ${demo.title} (Luchii build)` : ""}</p>
                   <div className="flex flex-wrap gap-2">

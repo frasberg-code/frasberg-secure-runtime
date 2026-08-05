@@ -868,3 +868,18 @@ All three next-action items SHIPPED and verified on preview:
   wave 10, race start economics, voice enabled. Nitro pickup + sector-bg switch logic
   verified by code-path (test evaluate artifacts, natural play correct).
 
+
+## Session Update — June 2026 (Fork pt.5: Builder verified working + fixes)
+- REMOVED "Nebula Dodge" from entire system: seed_builds.py entry + HTML deleted,
+  startup purge added (delete_many on flagship-nebula-dodge) — production DB cleans on next deploy.
+- BUILDER VERIFIED END-TO-END (browser + curl): login → /api/builder/generate SSE stream →
+  Claude Sonnet 4.6 writes code → project saved → publish → live at /api/p/{slug}.
+  Proof builds published: Orb Clicker game (a-tiny-clicker-game-with-329344), Pomodoro app
+  (a-pomodoro-focus-timer-a-7ca2c9), reaction game (a-very-simple-one-button-ea9ecb).
+- ROOT CAUSE of "builder doesn't work" perception: preview iframe rendered below the fold
+  with no scroll — FIXED: Builder.jsx now auto-scrolls to live preview on build done /
+  project open / demo open (previewRef + scrollToPreview).
+- STILL PENDING (user-approved plan option a): 3D human characters in Carjack,
+  blocking grid overlay bug, LOCAL ENGINE badge removal, Carjack Pro/City merge
+  (note: /api/games/carjack/play returns 404 — "streets" holds the real pro build),
+  Constellation Wars giant mobile joystick bug (source not yet found in code).
