@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft, Building2, User, Skull, Loader2, Sparkles } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft, Building2, User, Skull, Loader2, Sparkles, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
+import { WeatherOverlay } from "../components/WeatherOverlay";
+import { DayNightOverlay } from "../components/DayNightOverlay";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const B = process.env.REACT_APP_BACKEND_URL;
@@ -49,7 +51,6 @@ function CityTab() {
   useEffect(() => { fetch(`${API}/studio/cities`).then((x) => x.json()).then((d) => setCities(d.cities)); }, []);
   const zones = cities.find((c) => c.slug === f.city_slug)?.zones || [];
   const phase = f.hour >= 5 && f.hour < 10 ? "dawn" : f.hour >= 10 && f.hour < 17 ? "day" : f.hour >= 17 && f.hour < 21 ? "dusk" : "night";
-  const tint = { dawn: "rgba(245,158,11,0.12)", day: "rgba(255,255,255,0)", dusk: "rgba(239,68,68,0.15)", night: "rgba(30,27,75,0.4)" }[phase];
   const go = async () => {
     setBusy(true); setR(null);
     try { setR(await post("/studio/environment/render", f)); toast.success("Environment rendered"); }
@@ -83,9 +84,10 @@ function CityTab() {
         {busy ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />} {busy ? "Rendering environment…" : "Render Environment"}
       </button>
       {r && (
-        <div className="relative mt-6 max-w-2xl" data-testid="studio-result">
+        <div className="relative mt-6 max-w-2xl overflow-hidden rounded-xl" data-testid="studio-result">
           <img src={`${B}${r.image_url}`} alt="Environment" className="w-full rounded-xl border border-[#1f1f3a]" />
-          <div className="pointer-events-none absolute inset-0 rounded-xl transition-colors duration-1000" style={{ background: tint }} />
+          <DayNightOverlay hour={f.hour} />
+          <WeatherOverlay weather={f.weather} />
           <p className="mt-2 text-xs text-[#6b7280]">
             {r.time_of_day} · {r.weather} · crowd {r.crowd_density} · neon {Math.round(r.neon_intensity * 100)}% · {(r.generation_time_ms / 1000).toFixed(1)}s
           </p>
@@ -169,13 +171,15 @@ function CreatureTab() {
 
 const TABS = [
   { id: "cities", label: "City Builder", icon: Building2, el: <CityTab /> },
-  { id: "characters", label: "Character Creator", icon: User, el: <CharacterTab /> },
-  { id: "creatures", label: "Creature Library", icon: Skull, el: <CreatureTab /> },
+  { id: "characters", label: "Character Creator", icon: User, el: <CharacterTab />, href: "/studio/characters" },
+  { id: "creatures", label: "Creature Library", icon: Skull, el: <CreatureTab />, href: "/studio/creatures" },
 ];
 
 export default function VisualStudio() {
   const [tab, setTab] = useState("cities");
+  const navigate = useNavigate();
   useEffect(() => { document.title = "Visual Studio — Frasberg"; }, []);
+  const active = TABS.find((t) => t.id === tab);
   return (
     <div className="min-h-screen bg-[#08080f] px-5 py-10 font-mono text-white sm:px-10" data-testid="visual-studio-page">
       <Link to="/" className="inline-flex items-center gap-2 text-sm text-[#888] hover:text-white" data-testid="studio-back-link">
@@ -191,7 +195,13 @@ export default function VisualStudio() {
           </button>
         ))}
       </div>
-      <div className="mt-8 pb-20">{TABS.find((t) => t.id === tab)?.el}</div>
+      {active?.href && (
+        <button onClick={() => navigate(active.href)} data-testid={`studio-fullpage-${active.id}`}
+          className="mt-5 inline-flex items-center gap-2 rounded-lg border border-[#2d2d4a] bg-[#12121e] px-4 py-2 text-xs text-[#a78bfa] transition-colors hover:border-[#7c3aed] hover:text-white">
+          <ExternalLink size={13} /> Open full {active.label} studio
+        </button>
+      )}
+      <div className="mt-8 pb-20">{active?.el}</div>
     </div>
   );
 }

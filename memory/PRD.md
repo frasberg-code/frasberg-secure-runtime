@@ -406,7 +406,27 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - NOTE: do NOT pip-freeze requirements.txt anymore — it is hand-curated for production. Add new
   prod deps individually; ML deps go to requirements-ml.txt.
 
-## Backlog (updated 2026-08-01)
+## 2026-06 — Phase 2 Visual Realism (user's verbatim Deliverables 1-5) + Chat Thinking indicator
+- DELIVERABLE 1: /studio/creatures → pages/CreatureLibrary.jsx (user's creature-library.tsx verbatim,
+  adapted tsx→jsx + our /api/studio/creatures/* endpoints): tier/class filters, creature grid w/
+  Generate/Regenerate per card, Custom Creature form (name/class/tier/description/behavior tags).
+- DELIVERABLE 2: /studio/characters → pages/CharacterCreator.jsx (character-creator.tsx verbatim):
+  380px form panel + Preview panel, level slider Recruit/Veteran/Legend, stats box w/ prompt
+  disclosure, Download/Open Full Size, 12-item Generation History grid, spinner keyframes.
+- DELIVERABLE 3: components/WeatherOverlay.jsx (canvas rain/fog/heat_haze/stormy+lightning) +
+  components/DayNightOverlay.jsx (dawn/day/dusk/night tints, 2s transition) — both verbatim; wired
+  into VisualStudio CityTab environment result (replaced static tint). Backend day/night+crowd+
+  weather engines were already live in studio.py (/api/studio/environment/render matches brief 1:1).
+- DELIVERABLES 4-5: /app/selfhost/luchii-games/Dockerfile (CUDA 12.1 SDXL pre-download, uvicorn
+  2 workers, healthcheck) + deploy.yml (Lint/Test w/ Postgres 15, GHCR build+push, EC2 SSH deploy
+  w/ migrations, Vercel frontend job — truncated dump completed sensibly). NOT wired to platform
+  CI (selfhost kit only, ships via Save to GitHub).
+- VisualStudio tabs: Character/Creature tabs show "Open full page studio" button → new routes.
+- CHAT: "Thinking…" indicator now shows Luchii logo (luchii-logo.webp, pulsing) + Thinking… text
+  (Emergent style) instead of Loader2 spinner — chat-thinking-indicator testid.
+- Verified via screenshots: creature library grid (5 seeded), character creator panels, studio tabs
+  + fullpage link, chat thinking indicator live during guest stream.
+
 
 
 - P2: Real DNS verification for builder custom domains.
