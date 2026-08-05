@@ -34,6 +34,10 @@ export class MultiplayerClient {
   _url() {
     if (import.meta.env?.VITE_WS_URL) return import.meta.env.VITE_WS_URL;
     const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    // Served from the Frasberg platform → go through the backend WS proxy
+    if (location.pathname.includes('/api/games/')) {
+      return `${proto}//${location.host}/api/games/mp/ws`;
+    }
     return `${proto}//${location.host}/ws`;
   }
 

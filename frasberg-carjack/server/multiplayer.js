@@ -22,8 +22,11 @@ process.on('uncaughtException',  (err) => console.error('[Server] uncaughtExcept
 process.on('unhandledRejection', (r)   => console.error('[Server] unhandledRejection:', r));
 
 // ── Redis ──────────────────────────────────────────────────────────────────────
-const redis = createClient({ url: REDIS_URL });
-redis.on('error', (e) => console.error('[Redis]', e.message));
+const redis = createClient({
+  url: REDIS_URL,
+  socket: { reconnectStrategy: (retries) => (retries > 3 ? false : 500) },
+});
+redis.on('error', (e) => { if (!redis._warned) { console.warn('[Redis]', e.message, '— running without Redis'); redis._warned = true; } });
 redis.connect().then(() => console.log('[Redis] connected')).catch(() => {
   console.warn('[Redis] offline — buffering locally');
 });

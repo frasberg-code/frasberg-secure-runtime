@@ -34,6 +34,7 @@ export default defineConfig({
       input: 'index.html',
       output: {
         manualChunks: {
+          vendor: ['three'],
           engine: ['./src/GameEngine.js'],
           systems: [
             './src/CarController.js',

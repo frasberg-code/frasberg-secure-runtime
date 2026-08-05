@@ -1,4 +1,4 @@
-// src/GameEngine.js — Master game loop, all systems wired
+// src/GameEngine.js — Master game loop, all systems wired (Three.js renderer)
 import { CarController }    from './CarController.js';
 import { TrafficAI }        from './TrafficAI.js';
 import { NPCSystem }        from './NPCSystem.js';
@@ -15,11 +15,12 @@ import { LeaderboardSystem } from './LeaderboardSystem.js';
 import { MinimapSystem }    from './MinimapSystem.js';
 import { EventSystem }      from './EventSystem.js';
 import { MultiplayerClient } from './MultiplayerClient.js';
+import { Renderer3D }       from './Renderer3D.js';
+import { ShowroomSystem }   from './ShowroomSystem.js';
 
 export class GameEngine {
   constructor(canvas) {
     this.canvas  = canvas;
-    this.ctx     = canvas.getContext('2d');
     this.running = false;
     this.paused  = false;
     this.lastTime = 0;
@@ -28,12 +29,20 @@ export class GameEngine {
     this.fpsTimer   = 0;
     this._dt        = 0.016;
     this._hitFlashCooldown = 0;
+    // 2D overlay (mission text, name tags, big map, pause) above the WebGL canvas
+    this.overlay = document.createElement('canvas');
+    this.overlay.width  = canvas.width;
+    this.overlay.height = canvas.height;
+    this.overlay.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:50;';
+    document.body.appendChild(this.overlay);
+    this.octx = this.overlay.getContext('2d');
     // ── Player State ───────────────────────────────────────────
+    const spawnOff = () => Math.round((Math.random() - 0.5) * 240);
     this.player = {
-      x: 640, y: 360,
+      x: 640 + spawnOff(), y: 360 + spawnOff(),
       angle: 0, speed: 0,
       health: 100, maxHealth: 100,
-      money: 0, wantedLevel: 0,
+      money: 1500, wantedLevel: 0,
       name: 'Frasberg',
       carName: 'Frasberg GT',
       color: '#e63946',
@@ -45,7 +54,7 @@ export class GameEngine {
     this.audio       = new AudioEngine();
     this.hud         = new HUD();
     this.save        = new SaveSystem();
-    this.worldMap    = new WorldMap(this.ctx);
+    this.worldMap    = new WorldMap(this.octx);
     this.traffic     = new TrafficAI(this.worldMap);
     this.npcs        = new NPCSystem();
     this.car         = new CarController(this.canvas, this.physics, this.audio);
@@ -57,6 +66,8 @@ export class GameEngine {
     this.minimap     = new MinimapSystem(4800);
     this.multiplayer = new MultiplayerClient(this.player);
     this.leaderboard = new LeaderboardSystem(this.multiplayer);
+    this.showroom    = new ShowroomSystem(this);
+    this.renderer3d  = null;
     this.playerCar   = null;
     // ── Input ──────────────────────────────────────────────────
     this.keys = {};
@@ -71,17 +82,23 @@ export class GameEngine {
     this.hud.init();
     this.physics.init();
     await this.worldMap.load();
+    // Spawn on a road, not inside a building
+    const road = this.worldMap.getNearestRoad(this.player.x, this.player.y);
+    this.player.x = road.x;
+    this.player.y = road.z;
+    this.renderer3d = new Renderer3D(this.canvas, this.worldMap);
     this.carjack.init(this.traffic, this.player, this.hud);
-    // Restore save
-    const saved = this.save.load();
-    if (saved?.money != null)  this.player.money = saved.money;
-    if (saved?.player?.money != null) this.player.money = saved.player.money;
     // Player car
     this.playerCar = this.car.spawnCar('player', {
       x: this.player.x, y: this.player.y,
       isPlayer: true, color: this.player.color, maxSpeed: 220, accel: 0.55,
     });
-    this.playerCar.spec = { brand: 'Frasberg', model: 'GT', tier: 'sport', color: this.player.color, length: 4.7 };
+    this.playerCar.spec = { brand: 'Frasberg', model: 'GT', tier: 'sport', color: this.player.color, length: 4.7, topSpeed: 290 };
+    // Restore save
+    const saved = this.save.load();
+    if (saved?.money != null) this.player.money = saved.money;
+    if (saved?.player?.money != null) this.player.money = saved.player.money;
+    this.showroom.restore(saved?.garage);
     // World population
     this.traffic.spawn(30, { x: this.player.x, z: this.player.y });
     this.npcs.spawn(25);
@@ -89,8 +106,18 @@ export class GameEngine {
     this.events.start?.();
     // Multiplayer (non-blocking — game runs solo if server is down)
     this.multiplayer.connect().catch(() => {});
-    console.log('[GameEngine] All systems online.');
+    console.log('[GameEngine] All systems online (3D).');
     this.start();
+  }
+
+  // ── Ride swap (showroom + carjack) ──────────────────────────
+  equipVehicle(spec, { silent = false } = {}) {
+    if (!this.playerCar) return;
+    this.playerCar.color    = spec.color;
+    this.playerCar.maxSpeed = Math.min(260, (spec.topSpeed ?? 180) * 0.75);
+    this.playerCar.spec     = spec;
+    this.player.carName     = `${spec.brand} ${spec.model}`;
+    if (!silent) this.hud.showNotification(`Now driving: ${this.player.carName}`, 'info');
   }
 
   // ── Game Loop ────────────────────────────────────────────────
@@ -102,10 +129,9 @@ export class GameEngine {
 
   _loop(timestamp) {
     if (!this.running) return;
-    const dt = Math.min((timestamp - this.lastTime) / 1000, 0.05); // cap at 50ms
+    const dt = Math.min((timestamp - this.lastTime) / 1000, 0.05);
     this.lastTime = timestamp;
     this._dt = dt;
-    // FPS counter
     this.frameCount++;
     this.fpsTimer += dt;
     if (this.fpsTimer >= 1) {
@@ -124,7 +150,6 @@ export class GameEngine {
   _update(dt) {
     this.physics.update(dt);
     this.car.update(dt);
-    // Sync player state from the driven car
     const pc = this.playerCar;
     if (pc) {
       this.player.x     = pc.x;
@@ -134,17 +159,14 @@ export class GameEngine {
       this.player.health = Math.min(this.player.health, pc.health ?? 100);
     }
     const pos = { x: this.player.x, z: this.player.y };
-    // World systems
     this.traffic.update(dt, pos);
     this.npcs.update(dt, pos);
     this.weather.update(dt);
-    // Game logic
     this.carjack.update(dt, pos);
     this.police.update(dt, this.player);
     this.missions.update(dt);
     this.events.update(dt, this.player);
     this._hitFlashCooldown = Math.max(0, this._hitFlashCooldown - dt);
-    // UI systems
     this.hud.update({
       health: this.player.health,
       money:  this.player.money,
@@ -154,38 +176,50 @@ export class GameEngine {
     this.minimap.setPlayer('local', this.player.x, this.player.y, this.player.angle * Math.PI / 180, true);
     this.minimap.update(dt * 1000);
     this.worldMap.update(dt, this.player);
-    // Multiplayer sync
     this.multiplayer.sendUpdate(this.player);
     for (const [id, p] of this.multiplayer.remote) {
       this.minimap.setPlayer(id, p.x, p.y, 0, false);
     }
-    // Audio
     this.audio.update?.(this.player);
-    // Auto-save every 60s
     this._autoSave(dt);
   }
 
-  // ── Render ────────────────────────────────────────────────────
+  // ── Render (Three.js world + 2D overlay) ─────────────────────
   _render(dt) {
-    const { ctx, canvas } = this;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // World (camera follows player)
-    ctx.save();
-    const camX = canvas.width  / 2 - this.player.x;
-    const camY = canvas.height / 2 - this.player.y;
-    ctx.translate(camX, camY);
-    this.worldMap.render(ctx, this.player);
-    this.traffic.render(ctx);
-    this.npcs.render(ctx);
-    this.police.render(ctx);
-    this.carjack.render(ctx);
-    this.car.render(ctx, this.player);
-    ctx.restore();
-    // UI (fixed — no camera transform)
-    this.missions.renderObjective(ctx);
-    this.multiplayer.renderOtherPlayers(ctx, camX, camY);
-    this.events.draw?.(ctx, canvas);
-    if (this.paused) this._renderPauseScreen(ctx);
+    if (this.renderer3d) {
+      this.renderer3d.render({
+        player: this.player,
+        playerSpec: this.playerCar?.spec,
+        vehicles: this.traffic.vehicles,
+        npcs: this.npcs.npcs,
+        police: this.police.units,
+        helicopter: this.police.helicopter,
+        remote: this.multiplayer.remote,
+        time: this.worldMap.time,
+        dt,
+      });
+    }
+    const octx = this.octx;
+    octx.clearRect(0, 0, this.overlay.width, this.overlay.height);
+    this.missions.renderObjective(octx);
+    this._renderNameTags(octx);
+    this.worldMap.renderBigMapOverlay(octx, this.player);
+    if (this.paused && !this.showroom.visible) this._renderPauseScreen(octx);
+  }
+
+  _renderNameTags(octx) {
+    if (!this.renderer3d) return;
+    for (const [id, p] of this.multiplayer.remote) {
+      const s = this.renderer3d.project(p.x, p.y, 26);
+      if (!s.visible) continue;
+      octx.fillStyle = 'rgba(0,0,0,0.6)';
+      octx.fillRect(s.x - 32, s.y - 10, 64, 15);
+      octx.fillStyle = '#3a86ff';
+      octx.font = 'bold 10px monospace';
+      octx.textAlign = 'center';
+      octx.fillText(String(id).slice(0, 8), s.x, s.y + 1);
+      octx.textAlign = 'left';
+    }
   }
 
   // ── Pause ─────────────────────────────────────────────────────
@@ -195,37 +229,33 @@ export class GameEngine {
 
   _renderPauseScreen(ctx) {
     ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    ctx.fillStyle    = '#fff';
-    ctx.font         = 'bold 48px monospace';
-    ctx.textAlign    = 'center';
-    ctx.fillText('PAUSED', this.canvas.width / 2, this.canvas.height / 2);
-    ctx.font         = '24px monospace';
-    ctx.fillStyle    = '#aaa';
-    ctx.fillText('Press ESC to resume', this.canvas.width / 2, this.canvas.height / 2 + 48);
-    ctx.textAlign    = 'left';
+    ctx.fillRect(0, 0, this.overlay.width, this.overlay.height);
+    ctx.fillStyle = '#fff';
+    ctx.font      = 'bold 48px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('PAUSED', this.overlay.width / 2, this.overlay.height / 2);
+    ctx.font      = '24px monospace';
+    ctx.fillStyle = '#aaa';
+    ctx.fillText('Press ESC to resume', this.overlay.width / 2, this.overlay.height / 2 + 48);
+    ctx.textAlign = 'left';
   }
 
   // ── Cross-system Event Wiring ──────────────────────────────────
   _wireEvents() {
-    // Carjack → swap ride, wanted level, police
     this.carjack.on('carjacked', (vehicle) => {
       this.player.wantedLevel = Math.min(5, this.player.wantedLevel + 1);
       this.police.escalate(this.player.wantedLevel);
       this.audio.play('siren');
       this.missions.onCarjack();
-      // Take the stolen car as the player's ride
-      if (vehicle?.spec && this.playerCar) {
-        this.playerCar.color    = vehicle.spec.color;
-        this.playerCar.maxSpeed = Math.min(260, (vehicle.spec.topSpeed ?? 180) * 0.75);
-        this.playerCar.spec     = vehicle.spec;
-        this.player.carName     = vehicle.name ?? this.player.carName;
+      if (vehicle?.spec) {
+        this.equipVehicle(vehicle.spec, { silent: true });
+        this.showroom.owned.add(ShowroomSystem.id(vehicle.spec));
+        this.showroom.activeId = ShowroomSystem.id(vehicle.spec);
       }
       if (vehicle?.id != null) this.traffic.removeVehicle(vehicle.id);
       this.npcs.triggerPanic(this.player.x, this.player.y, 60);
       this.multiplayer.sendCarjack(vehicle?.id, this.player.x, this.player.y);
     });
-    // Police → player damage (dt-scaled, flash throttled)
     this.police.on('playerHit', (dmg) => {
       this.player.health -= dmg * this._dt * 4;
       if (this._hitFlashCooldown <= 0) {
@@ -235,24 +265,20 @@ export class GameEngine {
       }
       if (this.player.health <= 0) this._onPlayerDied();
     });
-    // Mission → reward
     this.missions.on('complete', (reward) => {
       this.player.money += reward.money;
       this.hud.showNotification(`Mission Complete! +$${reward.money}`, 'green');
       this.audio.play('mission_complete');
       this.leaderboard.submitScore(this.player.name, this.player.money);
     });
-    // Weather → traffic behaviour
     window.addEventListener('weather:change', (e) => {
       this.traffic.setWeather(e.detail.type);
       this.audio.setWeather(e.detail.type);
     });
-    // Events → missions + HUD
     this.events.on?.('worldEvent', (evt) => {
       this.missions.triggerEvent(evt);
       this.hud.showNotification(evt.title, 'yellow');
     });
-    // Multiplayer notifications
     this.multiplayer.on('carjack_event', (data) => {
       this.hud.showNotification(`Player ${String(data.by).slice(0, 8)} carjacked a vehicle!`, 'orange');
     });
@@ -260,7 +286,6 @@ export class GameEngine {
     this.multiplayer.on('disconnected', () => this.hud.showNotification('⚠️ Connection lost — reconnecting...', 'warning'));
     this.multiplayer.on('connected',    () => this.hud.showNotification('✅ Multiplayer online', 'success'));
     this.multiplayer.on('player_left',  ({ id }) => this.minimap.removePlayer(id));
-    // Save on exit
     window.addEventListener('beforeunload', () => this._persist());
   }
 
@@ -269,6 +294,7 @@ export class GameEngine {
       money: this.player.money,
       x: this.player.x, y: this.player.y,
       carName: this.player.carName,
+      garage: this.showroom.serialize(),
     });
   }
 
@@ -305,7 +331,10 @@ export class GameEngine {
   _bindInput() {
     window.addEventListener('keydown', (e) => {
       this.keys[e.code] = true;
-      if (e.code === 'Escape') this.toggle();
+      if (e.code === 'Escape') {
+        if (this.showroom.visible) this.showroom.close();
+        else this.toggle();
+      }
       if (e.code === 'KeyF')   this.carjack.attempt({ x: this.player.x, z: this.player.y });
       if (e.code === 'KeyH')   this.audio.play('horn');
       if (e.code === 'KeyL')   this.leaderboard.toggle();
@@ -321,6 +350,9 @@ export class GameEngine {
   _resize() {
     this.canvas.width  = window.innerWidth;
     this.canvas.height = window.innerHeight;
+    this.overlay.width  = window.innerWidth;
+    this.overlay.height = window.innerHeight;
+    this.renderer3d?.resize(window.innerWidth, window.innerHeight);
   }
   _toggleFullscreen() {
     if (!document.fullscreenElement) document.documentElement.requestFullscreen();

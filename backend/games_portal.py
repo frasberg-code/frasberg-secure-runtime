@@ -1,10 +1,12 @@
 import os
 import uuid
+import asyncio
 from datetime import datetime, timezone
 from pathlib import Path
 
 import httpx
-from fastapi import APIRouter, HTTPException
+import websockets as ws_client
+from fastapi import APIRouter, HTTPException, WebSocket
 from fastapi.responses import FileResponse, HTMLResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field
@@ -32,8 +34,8 @@ GAME_REGISTRY = [
         "genre": "Open World",
         "description": "The professional cut. Real industry cars — Tesla, Mercedes-Benz, Ferrari, Lamborghini, Rolls-Royce — living pedestrians, police heat, missions, and an encrypted multiplayer engine under the hood.",
         "thumbnail": "/games-thumbs/carjack.jpg",
-        "controls": "WASD/arrows drive · F carjack · Space handbrake · Shift nitro · M map · L leaderboard · H horn",
-        "engine": "Frasberg Engine · Canvas 2D · Mesh Multiplayer",
+        "controls": "WASD/arrows drive · F carjack · G showroom · Space handbrake · Shift nitro · M map · L leaderboard",
+        "engine": "Frasberg Engine · Three.js · Mesh Multiplayer",
     },
     {
         "id": "dungeon3d",
@@ -135,6 +137,38 @@ async def post_score(game_id: str, body: ScoreIn):
     docs = await db.game_scores.find({"game_id": game_id}, {"_id": 0, "name": 1, "score": 1}) \
         .sort("score", -1).to_list(10)
     return {"ok": True, "top": docs}
+
+
+GAME_WS_UPSTREAM = os.environ.get("GAME_WS_UPSTREAM", "ws://localhost:3001/ws")
+
+
+@router.websocket("/mp/ws")
+async def multiplayer_ws_proxy(websocket: WebSocket):
+    """Bridges browser clients to the Node.js encrypted multiplayer server."""
+    await websocket.accept()
+    try:
+        async with ws_client.connect(GAME_WS_UPSTREAM, max_size=2 ** 20) as upstream:
+            async def client_to_server():
+                while True:
+                    data = await websocket.receive_text()
+                    await upstream.send(data)
+
+            async def server_to_client():
+                async for message in upstream:
+                    await websocket.send_text(message if isinstance(message, str) else message.decode())
+
+            t1 = asyncio.create_task(client_to_server())
+            t2 = asyncio.create_task(server_to_client())
+            _, pending = await asyncio.wait({t1, t2}, return_when=asyncio.FIRST_COMPLETED)
+            for t in pending:
+                t.cancel()
+    except Exception:
+        pass
+    finally:
+        try:
+            await websocket.close()
+        except Exception:
+            pass
 
 
 @router.get("/stream/health")

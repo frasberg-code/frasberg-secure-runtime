@@ -177,6 +177,11 @@ export class WorldMap {
     if (this.visible) this._renderBigMap(ctx, px, py);
   }
 
+  // Big city map overlay (M key) — drawn on the 2D overlay canvas in 3D mode
+  renderBigMapOverlay(ctx, player) {
+    if (this.visible) this._renderBigMap(ctx, player?.x ?? 0, player?.y ?? 0);
+  }
+
   _renderBigMap(ctx, px, py) {
     const c = ctx.canvas;
     ctx.save();

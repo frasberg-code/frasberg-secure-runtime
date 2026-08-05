@@ -800,3 +800,27 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - Backlog: Three.js pipeline for Carjack Pro (user approved), weather/time picker, deploy WS
   server, wire mobile GAME_URL env.
 
+## Session Update — June 2026 (Fork pt.2: 3D + Live Multiplayer + Showroom)
+All three next-action items SHIPPED and verified on preview:
+- **Three.js renderer** (`src/Renderer3D.js`): procedural 3D city from WorldMap data (roads,
+  window-textured buildings capped at 165u, parks w/ trees), low-poly real-brand car meshes,
+  human/animal NPC meshes, police cars w/ flashing sirens + helicopter, day/night lighting,
+  player headlight, ELEVATED chase cam (y=235, clears skyline — ground-level cam clipped into
+  buildings, fixed). GameEngine v3: WebGL main canvas + separate 2D overlay canvas (mission
+  text, remote name tags, big map M, pause). Spawn snaps to nearest road (spawning inside
+  buildings caused a black screen — fixed).
+- **Live multiplayer in preview**: Node WS server now runs under supervisor
+  (/etc/supervisor/conf.d/gameserver.conf, port 3001, Redis-optional w/ capped retries).
+  New FastAPI WS bridge `/api/games/mp/ws` in games_portal.py proxies browser↔Node (works
+  through K8s ingress, verified with python client). MultiplayerClient auto-picks
+  /api/games/mp/ws when served from the platform, /ws standalone. VERIFIED 2 browsers:
+  both connected+E2E-secure, P1 sees P2's 3D car + name tag, minimap blips.
+- **Showroom/Garage** (`src/ShowroomSystem.js`): press G — full VEHICLE_CATALOG grid with 2D
+  sprite previews, arcade "street prices" (value/20), BUY with mission cash / DRIVE to equip,
+  owned+active persisted in save (garage key). Carjacked cars auto-added to garage. Player
+  starts with $1500. VERIFIED: bought Tesla Model 3 ($2150), equipped, Bugatti locked when
+  unaffordable.
+- Registry: carjack engine text now "Three.js · Mesh Multiplayer", controls mention G showroom.
+- Self-tested e2e via browser automation + curl + python WS client; zero JS errors.
+  test_streets_game.py regression suite still valid.
+
