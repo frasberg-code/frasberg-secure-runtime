@@ -23,8 +23,17 @@ GAME_REGISTRY = [
         "genre": "Open World",
         "description": "Carjack City. Pull drivers out of moving cars, outrun the police, and rule the streets — every car handles differently.",
         "thumbnail": "/games-thumbs/streets.jpg",
+        "controls": "WASD drive · E carjack/exit · Space brake · Shift sprint",
+        "engine": "Frasberg Engine · Three.js",
+    },
+    {
+        "id": "carjack",
+        "title": "Frasberg Carjack Pro",
+        "genre": "Open World",
+        "description": "The professional cut. Real industry cars — Tesla, Mercedes-Benz, Ferrari, Lamborghini, Rolls-Royce — living pedestrians, police heat, missions, and an encrypted multiplayer engine under the hood.",
+        "thumbnail": "/games-thumbs/carjack.jpg",
         "controls": "WASD/arrows drive · F carjack · Space handbrake · Shift nitro · M map · L leaderboard · H horn",
-        "engine": "Frasberg Engine · Canvas 2D",
+        "engine": "Frasberg Engine · Canvas 2D · Mesh Multiplayer",
     },
     {
         "id": "dungeon3d",

@@ -768,3 +768,35 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
   in-browser touch controls.
 - REMINDER: production frasberg.com Cloudflare 520 still needs USER TO REDEPLOY.
 
+## Session Update — June 2026 (Fork: Carjack Pro ecosystem + platform deploy)
+- COMPLETED the /app/frasberg-carjack/ pro ecosystem from user's code dumps:
+  - Created missing `src/MultiplayerClient.js` + `src/EncryptionLayer.js` (libsodium crypto_box
+    E2E: welcome→key_exchange→ack handshake, per-client encrypted envelopes, auto-reconnect,
+    silent solo-mode when no server). Server `server/multiplayer.js` upgraded with keypair +
+    key_exchange handler + encrypted send/broadcast. Protocol verified 5/5 by Node test client.
+  - Rewrote `GameEngine.js` — fixed all broken system wiring (HUD.init, player car spawn via
+    CarController, CarjackSystem.init, MissionSystem/Minimap ctor args, dt-scaled police damage,
+    stolen car becomes player ride, platform score submit on mission complete).
+  - REAL-BRAND RENDERING: new `src/CarSprites.js` (cached procedural top-down sprites — body
+    taper by tier, windshields, wheels, head/taillights, spoilers, truck beds, taxi signs,
+    EV accents). TrafficAI now spawns from VehicleCatalog (Tesla, Mercedes, Ferrari, Lambo,
+    Rolls-Royce, F-150…). NPCs (humans w/ skin tones/outfits + animals) already existed.
+  - Generated pending infra: `db/schema.sql` (player_profiles/save_slots/game_sessions/
+    leaderboard), `docker-compose.yml` (web/server/redis/postgres/prometheus/grafana),
+    `nginx/nginx.conf` (CLOUDFLARE 520 FIXES: 620s keepalive, CF real-IP ranges, 3600s ws
+    timeouts, big header buffers), `Dockerfile.server`, `Dockerfile.web`, `mobile/` Expo
+    WebView shell (App.js/app.json/package.json).
+- PLATFORM DEPLOY: pro build lives at /app/games/carjack/ as NEW game id `carjack`
+  ("Frasberg Carjack Pro", thumbnail /games-thumbs/carjack.jpg AI-generated). The prior
+  Three.js 3D game REMAINS at id `streets` (restored after briefly overwriting it — user rule
+  "all frasberg games are 3D" kept intact). New backend route
+  GET /api/games/{gid}/assets/{fname} serves hashed Vite chunks (traversal-protected).
+  LeaderboardSystem POSTs to /api/games/carjack/scores when served from the platform.
+- TESTED: testing agent iteration_21 — backend 8/8, frontend 100% (before the streets/carjack
+  split; post-split re-verified via curl: streets 3D 200, carjack play+assets 200, registry 6
+  games, library screenshot OK). Regression suite: /app/backend/tests/test_streets_game.py.
+- Multiplayer server is NOT running in preview (game runs solo mode by design). Start with
+  `npm run server` or docker-compose in /app/frasberg-carjack for real multiplayer.
+- Backlog: Three.js pipeline for Carjack Pro (user approved), weather/time picker, deploy WS
+  server, wire mobile GAME_URL env.
+

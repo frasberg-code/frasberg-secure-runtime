@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="description" content="Frasberg Carjack — Open world car game by FRASBERG INC." />
+  <title>Frasberg Carjack</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%;
+      background: #0a0a0a;
+      overflow: hidden;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    #canvas {
+      display: block;
+      width: 100vw; height: 100vh;
+      cursor: none;
+    }
+    #loading {
+      position: fixed; inset: 0;
+      background: #0a0a0a;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 20px; z-index: 999;
+      transition: opacity 0.5s;
+    }
+    #loading h1 {
+      color: #e63946;
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    #loading p  { color: #888; font-size: 0.9rem; }
+    #loading-bar-wrap {
+      width: 260px; height: 6px;
+      background: #1a1a2e;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    #loading-bar {
+      width: 0%; height: 100%;
+      background: #e63946;
+      transition: width 0.3s ease;
+    }
+  </style>
+  <script type="module" crossorigin src="./assets/index-BF4_KZLK.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/systems-nQpdmfEu.js">
+  <link rel="modulepreload" crossorigin href="./assets/ui-BqWwopfG.js">
+  <link rel="modulepreload" crossorigin href="./assets/engine-hFQ-MqxY.js">
+</head>
+<body>
+  <div id="loading">
+    <h1>Frasberg Carjack</h1>
+    <p>Loading Frasberg City…</p>
+    <div id="loading-bar-wrap"><div id="loading-bar"></div></div>
+  </div>
+  <canvas id="canvas"></canvas>
+</body>
+</html>
