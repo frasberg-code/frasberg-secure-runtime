@@ -16,10 +16,12 @@ export default function Footer() {
             <div>
               <p className="mb-3 text-xs uppercase tracking-[0.2em] text-lux-text2">Models</p>
               <ul className="space-y-2 text-lux-text2">
-                <li><a href="#models" className="hover:text-lux-text">200M</a></li>
-                <li><a href="#models" className="hover:text-lux-text">1B</a></li>
-                <li><a href="#models" className="hover:text-lux-text">7B</a></li>
-                <li><a href="#models" className="hover:text-lux-text">70B</a></li>
+                <li><a href="#models" className="hover:text-lux-text">Luchii 200M</a></li>
+                <li><a href="#models" className="hover:text-lux-text">Luchii 1B</a></li>
+                <li><a href="#models" className="hover:text-lux-text">Luchii 7B</a></li>
+                <li><a href="#models" className="hover:text-lux-text">Luchii 70B</a></li>
+                <li><span className="cursor-default">Luchii Earth 7 <span className="ml-1 rounded bg-lux-gold/15 px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-lux-gold">Soon</span></span></li>
+                <li><span className="cursor-default">Frasberg <span className="ml-1 rounded bg-lux-gold/15 px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-lux-gold">New · Soon</span></span></li>
               </ul>
             </div>
             <div>
@@ -27,16 +29,16 @@ export default function Footer() {
               <ul className="space-y-2 text-lux-text2">
                 <li><a href="/dashboard" className="hover:text-lux-text">API</a></li>
                 <li><a href="/ai-models" className="hover:text-lux-text" data-testid="footer-ai-models-link">AI Models</a></li>
-                <li><a href="/chat" className="hover:text-lux-text" data-testid="footer-luchii-chat-link">Luchii Chat</a></li>
-                <li><a href="/luchii-code" className="hover:text-lux-text" data-testid="footer-luchii-code-link">Luchii Code</a></li>
-                <li><a href="/luchii-code#agents" className="hover:text-lux-text" data-testid="footer-coding-agents-link">Luchii Coding Agents</a></li>
-                <li><a href="/website-builder" className="hover:text-lux-text" data-testid="footer-website-builder-link">Luchii Website Builder</a></li>
-                <li><a href="/app-builder" className="hover:text-lux-text" data-testid="footer-app-builder-link">Luchii App Builder</a></li>
-                <li><a href="/game-builder" className="hover:text-lux-text" data-testid="footer-game-builder-link">Luchii Game Builder</a></li>
+                <li><a href="/chat" className="hover:text-lux-text" data-testid="footer-luchii-chat-link">Chat</a></li>
+                <li><a href="/luchii-code" className="hover:text-lux-text" data-testid="footer-luchii-code-link">Code</a></li>
+                <li><a href="/luchii-code#agents" className="hover:text-lux-text" data-testid="footer-coding-agents-link">AI Coding Agents</a></li>
+                <li><a href="/website-builder" className="hover:text-lux-text" data-testid="footer-website-builder-link">Website Builder</a></li>
+                <li><a href="/app-builder" className="hover:text-lux-text" data-testid="footer-app-builder-link">App Builder</a></li>
+                <li><a href="/game-builder" className="hover:text-lux-text" data-testid="footer-game-builder-link">Game Builder</a></li>
                 <li><a href="/games" className="hover:text-lux-text" data-testid="footer-games-link">Frasberg Games</a></li>
                 <li><a href="/#benchmarks" className="hover:text-lux-text">Benchmarks</a></li>
                 <li><a href="/#safety" className="hover:text-lux-text">Safety</a></li>
-                <li><a href="/software" className="hover:text-lux-text" data-testid="footer-software-link">Frasberg Software</a></li>
+                <li><a href="/software" className="hover:text-lux-text" data-testid="footer-software-link">Softwares</a></li>
                 <li><a href="/brand" className="hover:text-lux-text">Brand Kit</a></li>
               </ul>
             </div>

@@ -18,6 +18,7 @@ import { MultiplayerClient } from './MultiplayerClient.js';
 import { Renderer3D }       from './Renderer3D.js';
 import { ShowroomSystem }   from './ShowroomSystem.js';
 import { RaceSystem }       from './RaceSystem.js';
+import { VoiceSystem }      from './VoiceSystem.js';
 
 export class GameEngine {
   constructor(canvas) {
@@ -69,6 +70,7 @@ export class GameEngine {
     this.leaderboard = new LeaderboardSystem(this.multiplayer);
     this.showroom    = new ShowroomSystem(this);
     this.race        = new RaceSystem(this);
+    this.voice       = new VoiceSystem();
     this.bribeSpots  = [];
     this._bribeHintT = 0;
     this.renderer3d  = null;
@@ -178,6 +180,7 @@ export class GameEngine {
     this.police.clearPursuit();
     this.audio.play('cash');
     this.hud.showNotification(`🤝 Cops paid off — heat cleared for $${cost}`, 'success');
+    this.voice.sayBribe();
   }
 
   // ── Ride swap (showroom + carjack) ──────────────────────────
@@ -330,6 +333,7 @@ export class GameEngine {
       }
       if (vehicle?.id != null) this.traffic.removeVehicle(vehicle.id);
       this.npcs.triggerPanic(this.player.x, this.player.y, 60);
+      this.voice.sayCarjack();
       this.multiplayer.sendCarjack(vehicle?.id, this.player.x, this.player.y);
     });
     this.police.on('playerHit', (dmg) => {
@@ -362,6 +366,9 @@ export class GameEngine {
       if (d.event === 'started') this.hud.showNotification(`🏁 ${String(d.by).slice(0, 8)} started a street race ($${d.bet})`, 'info');
       if (d.event === 'finished') this.hud.showNotification(`🏁 ${String(d.by).slice(0, 8)} ${d.won ? 'WON' : 'lost'} a race in ${d.time}s`, d.won ? 'success' : 'info');
     });
+    this.multiplayer.on('race_challenge', (d) => this.race.offer(d));
+    this.multiplayer.on('race_join',      (d) => this.race.onJoin(d.by));
+    this.multiplayer.on('race_finish',    (d) => this.race.onRemoteFinish(d));
     this.multiplayer.on('encrypted',    () => this.hud.showNotification('🔐 Secure connection established', 'blue'));
     this.multiplayer.on('disconnected', () => this.hud.showNotification('⚠️ Connection lost — reconnecting...', 'warning'));
     this.multiplayer.on('connected',    () => this.hud.showNotification('✅ Multiplayer online', 'success'));
@@ -418,6 +425,7 @@ export class GameEngine {
       if (e.code === 'KeyF')   this.carjack.attempt({ x: this.player.x, z: this.player.y });
       if (e.code === 'KeyB')   this._tryBribe();
       if (e.code === 'KeyR')   this.race.start();
+      if (e.code === 'KeyY')   this.race.joinPending();
       if (e.code === 'KeyH')   this.audio.play('horn');
       if (e.code === 'KeyL')   this.leaderboard.toggle();
       if (e.code === 'F11')    this._toggleFullscreen();

@@ -850,3 +850,21 @@ All three next-action items SHIPPED and verified on preview:
   (lane fairness verified, boss spawn verified, paint/nitro/race economics verified).
   Suite: /app/backend/tests/test_games_portal_iter22.py.
 
+## Session Update — June 2026 (Fork pt.4: footer text + 4 features, self-tested)
+- FOOTER: Models column → Luchii 200M/1B/7B/70B + "Luchii Earth 7 (SOON)" + "Frasberg
+  (NEW·SOON)"; Docs column shortened (Chat, Code, AI Coding Agents, Website/App/Game Builder,
+  Softwares). Streets game retitled "Carjack City" (registry + in-game start screen).
+- RACER NITRO PICKUPS: cyan octahedron pickups (+100, 2.5s boost +26 speed, FOV kick) and
+  NEAR-MISS slow-mo (brush past car 1.55-2.5 units → 0.35x timescale 0.55s, +60, flash msg).
+- WARS CAMPAIGN SECTORS: 3 AI nebula backdrops (nebula-crimson/emerald/violet.jpg in
+  _assets), sector every 5 waves (CRIMSON REACH aimed / EMERALD VEIL burst 8-way /
+  VIOLET ABYSS spiral boss patterns), star tint per sector, applySector at waves 1,6,11…
+- HEAD-TO-HEAD RACES: R = challenge broadcast when players online (8s join window, others
+  press Y, bets pooled, first race_finish takes pot bet*participants); solo fallback =
+  time-trial vs 75s par. Server relays race_challenge/join/cp/finish. VERIFIED solo flow.
+- CHARACTER VOICES: VoiceSystem (Web Speech API) — pedestrians shout random lines on
+  carjack, bribe confirmation line, race "Go!" (throttled 1.2s).
+- Verified via browser automation: footer texts, near-miss trigger, boss burst pattern at
+  wave 10, race start economics, voice enabled. Nitro pickup + sector-bg switch logic
+  verified by code-path (test evaluate artifacts, natural play correct).
+

@@ -137,8 +137,12 @@ function handleMessage(ws, msg, client) {
       break;
     }
 
-    case 'race_update': {
-      broadcast(client.roomId, { type: 'race_update', by: client.id, event: msg.event, won: msg.won, time: msg.time, bet: msg.bet }, ws);
+    case 'race_update':
+    case 'race_challenge':
+    case 'race_join':
+    case 'race_cp':
+    case 'race_finish': {
+      broadcast(client.roomId, { ...msg, by: client.id }, ws);
       break;
     }
 

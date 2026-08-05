@@ -234,15 +234,43 @@ const keys = {};
 document.addEventListener("keydown", e => keys[e.code] = true);
 document.addEventListener("keyup", e => keys[e.code] = false);
 
+// ── Nitro pickups + near-miss slow-mo ─────────────────────
+let pickups = [], nitroT = 0, slowT = 0;
+function flashMsg(t, color) {
+  let el = document.getElementById("flashMsg");
+  if (!el) {
+    el = document.createElement("div"); el.id = "flashMsg";
+    el.style.cssText = "position:fixed;top:30%;left:50%;transform:translateX(-50%);z-index:8;font:bold 22px 'Courier New';letter-spacing:3px;text-shadow:0 0 14px #000;transition:opacity .3s";
+    document.body.appendChild(el);
+  }
+  el.style.color = color || "#4affd2";
+  el.textContent = t;
+  el.style.opacity = 1;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.style.opacity = 0, 1100);
+}
+function spawnPickup(z) {
+  const p = new THREE.Mesh(new THREE.OctahedronGeometry(0.55), new THREE.MeshBasicMaterial({ color: 0x4affd2 }));
+  p.position.set(LANES[Math.floor(Math.random()*3)], 0.9, z);
+  p.userData = { baseLane: p.position.x };
+  scene.add(p); pickups.push(p);
+}
+function recyclePickup(p) {
+  p.userData.baseLane = LANES[Math.floor(Math.random()*3)];
+  p.position.set(p.userData.baseLane, 0.9, -260 - Math.random()*120);
+}
+
 let running = false, speed = 30, score = 0, px = 0;
 function hud() {
-  document.getElementById("speed").textContent = Math.round(speed * 4);
+  document.getElementById("speed").textContent = Math.round((speed + (nitroT > 0 ? 26 : 0)) * 4);
   document.getElementById("score").textContent = Math.floor(score);
 }
 function start() {
   traffic.forEach(t => scene.remove(t)); traffic = [];
+  pickups.forEach(p => scene.remove(p)); pickups = [];
   for (let i = 1; i <= 6; i++) spawnWave(-40 - i * 36);
-  speed = 30; score = 0; px = 0; dist = 0; curve = 0; curveTarget = 0;
+  for (let i = 0; i < 3; i++) spawnPickup(-90 - i * 110);
+  speed = 30; score = 0; px = 0; dist = 0; curve = 0; curveTarget = 0; nitroT = 0; slowT = 0;
   player.position.x = 0;
   document.getElementById("start").style.display = "none";
   document.getElementById("gameover").style.display = "none";
@@ -261,6 +289,11 @@ function animate() {
   requestAnimationFrame(animate);
   const dt = Math.min(clock.getDelta(), 0.05);
   if (running) {
+    slowT = Math.max(0, slowT - dt);
+    nitroT = Math.max(0, nitroT - dt);
+    const ts = slowT > 0 ? 0.35 : 1;                      // near-miss slow motion
+    const eff = speed + (nitroT > 0 ? 26 : 0);            // nitro boost
+    const wdt = dt * ts;
     speed += dt * 0.55;
     if (keys["KeyW"] || keys["ArrowUp"]) speed += dt * 6;
     speed = Math.min(speed, 80);
@@ -271,16 +304,33 @@ function animate() {
     player.position.x += (px - player.position.x) * 10 * dt;
     player.rotation.z = (player.position.x - px) * 0.25;
     player.position.y = hillY(4);
-    dist += speed * dt;
-    score += speed * dt;
+    dist += eff * wdt;
+    score += eff * wdt;
+    // Nitro camera kick
+    const targetFov = nitroT > 0 ? 82 : 70;
+    if (Math.abs(camera.fov - targetFov) > 0.3) { camera.fov += (targetFov - camera.fov) * dt * 6; camera.updateProjectionMatrix(); }
     // Curve director
     curveTimer -= dt;
     if (curveTimer <= 0) { curveTarget = (Math.random()*2 - 1) * 0.9; curveTimer = 5 + Math.random()*6; }
     curve += (curveTarget - curve) * dt * 0.35;
     hud();
+    // Nitro pickups
+    for (const p of pickups) {
+      p.position.z += eff * wdt;
+      p.rotation.y += dt * 4;
+      if (p.position.z > 8) recyclePickup(p);
+      p.position.x = p.userData.baseLane + bendX(p.position.z);
+      p.position.y = 0.9 + hillY(p.position.z);
+      if (Math.abs(p.position.z - player.position.z) < 2 && Math.abs(p.position.x - player.position.x) < 1.3) {
+        nitroT = 2.5; score += 100;
+        flashMsg("⚡ NITRO +100", "#4affd2");
+        window.SFX && SFX.tone(500, 1600, 0.25, "sawtooth", 0.18);
+        recyclePickup(p);
+      }
+    }
     // Traffic
     for (const t of traffic) {
-      t.position.z += speed * dt * 0.82;
+      t.position.z += eff * wdt * 0.82;
       if (!t.userData.passed && t.position.z > player.position.z) {
         t.userData.passed = true;
         score += 40;
@@ -289,11 +339,19 @@ function animate() {
       if (t.position.z > 10) recycleCar(t);
       t.position.x = t.userData.baseLane + bendX(t.position.z);
       t.position.y = hillY(t.position.z);
-      if (Math.abs(t.position.z - player.position.z) < 2.7 && Math.abs(t.position.x - player.position.x) < 1.55) gameOver();
+      const dz = Math.abs(t.position.z - player.position.z), dx = Math.abs(t.position.x - player.position.x);
+      // Near-miss: brushing past a car triggers slow-mo + bonus
+      if (!t.userData.nearMiss && dz < 2.4 && dx > 1.55 && dx < 2.5) {
+        t.userData.nearMiss = true;
+        slowT = 0.55; score += 60;
+        flashMsg("NEAR MISS +60", "#ffd24a");
+        window.SFX && SFX.tone(300, 90, 0.3, "triangle", 0.15);
+      }
+      if (dz < 2.7 && dx < 1.55) gameOver();
     }
     // Scroll the Strip
     for (const s of scrollers) {
-      s.position.z += speed * dt;
+      s.position.z += eff * wdt;
       if (s.position.z > NEAR + 10) s.position.z -= LOOP;
       s.position.x = s.userData.baseX + bendX(s.position.z);
       s.position.y = s.userData.baseY + hillY(s.position.z);

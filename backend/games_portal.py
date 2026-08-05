@@ -21,7 +21,7 @@ GAMES_DIR = Path(__file__).parent.parent / "games"
 GAME_REGISTRY = [
     {
         "id": "streets",
-        "title": "Frasberg Streets",
+        "title": "Carjack City",
         "genre": "Open World",
         "description": "Carjack City. Pull drivers out of moving cars, outrun the police, and rule the streets — every car handles differently.",
         "thumbnail": "/games-thumbs/streets.jpg",
