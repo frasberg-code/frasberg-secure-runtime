@@ -18,6 +18,15 @@ GAMES_DIR = Path(__file__).parent.parent / "games"
 
 GAME_REGISTRY = [
     {
+        "id": "streets",
+        "title": "Frasberg Streets",
+        "genre": "Open World",
+        "description": "Carjack City. Pull drivers out of moving cars, outrun the police, and rule the streets — every car handles differently.",
+        "thumbnail": "/games-thumbs/streets.jpg",
+        "controls": "WASD drive · E carjack/exit · Space brake · Shift sprint",
+        "engine": "Frasberg Engine · Canvas 2D",
+    },
+    {
         "id": "dungeon3d",
         "title": "Luchii Dungeon",
         "genre": "FPS",

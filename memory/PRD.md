@@ -743,3 +743,28 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
 - PRODUCTION: sign-in + "nothing generates" on frasberg.com = production backend down (Cloudflare
   parse error). Preview PROVEN healthy (login 200, builder generated Neon Pong live). Startup
   hardened (index/seed failures can't kill boot). USER MUST REDEPLOY; else Emergent Support.
+
+## Session Update — June 2026 (Fork: 3D Streets Carjack)
+- REBUILT `/app/games/streets/index.html` as a full **Three.js 3D** open-world carjack game
+  (user rule: "all of frasberg games is 3d game not 2d"). User's 2D canvas dumps were used as
+  the mechanics spec only.
+- Features: procedural night city (road grid, emissive buildings, street lamps), on-foot + driving
+  modes, 7 car types (sedan/taxi/suv/muscle/sports/truck/police) with distinct stats, E-to-carjack,
+  traffic AI with flee, NPC pedestrians with panic + dialogue bubbles, wanted stars 1-5, police
+  chase AI with flashing light bars, BUSTED/WRECKED game-overs, HUD + live minimap, leaderboard
+  (GID "streets"), CC0 music (music-streets.ogg) + engine/crash SFX, touch controls, gamepad,
+  env.js day-night/weather overlays.
+- Pro polish: toast notifications, crash screen-shake, speed FOV kick, career stats persisted in
+  localStorage (best/lifetime cash/jacked/runs, shown on start screen), driver ranks
+  (STREET ROOKIE → CITY LEGEND).
+- New asset: `/app/games/_assets/backdrop-streets.jpg` (AI-generated city skyline, ~145KB) served
+  via `/api/games/streets/environment`.
+- VERIFIED via browser automation: render, carjack (+$, wanted+1), driving, police spawn, toasts,
+  rank + career save.
+- Chat verified: real Claude responses in preview; user's "demo persona" screenshot = production
+  (needs redeploy) or exhausted LLM budget at the time.
+- NOT built (out of scope for web platform, user pasted specs): React Native app, Electron desktop
+  app, Node.js multiplayer room server, E2E encryption. Backlog candidates. Mobile is covered by
+  in-browser touch controls.
+- REMINDER: production frasberg.com Cloudflare 520 still needs USER TO REDEPLOY.
+
