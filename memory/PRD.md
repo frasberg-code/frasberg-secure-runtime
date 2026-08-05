@@ -824,3 +824,29 @@ All three next-action items SHIPPED and verified on preview:
 - Self-tested e2e via browser automation + curl + python WS client; zero JS errors.
   test_streets_game.py regression suite still valid.
 
+## Session Update — June 2026 (Fork pt.3: user's fix list — ALL SHIPPED, iter22 100%)
+- TEXT: engine strings hidden from public (registry engine="" except carjack="Multiplayer"),
+  "Carjack Pro", "Las Vegas Racer" retitled, GamePlayerPage engine subtitle + "Frasberg Mesh
+  renders on your device" removed, Footer: "...FRASBERG INC., All Rights Reserved." and
+  "Constellation Layer · Continuum L12" removed.
+- LAS VEGAS RACER rewritten (/app/games/racer3d/index.html): AI photo backdrop of the real
+  Strip, AI casino-facade textured towers + neon store/casino signs (DINER/MOTEL/SLOTS…),
+  palms, streetlights, CURVES (bendX per-z on all scrollers incl. road segments) + HILLS
+  (hillY), FAIR TRAFFIC (recycleCar guarantees never 3-lane wall), Tesla CYBERTRUCK player
+  (ExtrudeGeometry), V8 synth engine w/ gear shifts (window.RacerEngine), overtake bonuses.
+- CONSTELLATION WARS 2.0: 360° WASD movement + mouse aim + right-stick twin-stick gamepad,
+  4 weapons (PULSE/SPREAD/LASER/homing MISSILE, unlock waves 1/2/4/6, keys 1-4), enemy fire,
+  striker divers, ALIEN MOTHERSHIP boss every 5 waves (AI sprite boss-alien.png, HP bar,
+  3-way plasma), powerups (LIFE/RAPID/SHIELD), invuln blink.
+- CARJACK PRO: pre-game WEATHER PICKER (clear/rain/fog/dusk/night, locks WeatherSystem cycle,
+  sets worldMap.time), COP BRIBES (3 green hideout markers, B key, cost wanted*500),
+  PAINT SHOP + NITRO in garage (8 colors $250, nitro $2000 +40 top speed, persisted),
+  STREET RACES (R key, $200 bet, 5 checkpoint rings in 3D, beat 75s par → 3x payout,
+  race_update broadcast via server + toasts to other players). Realistic AI HUMAN NPCs:
+  billboard sprites (npc-man/woman/cop.png via THREE.Sprite) replace low-poly capsules.
+- Assets in /app/games/_assets/: npc-man/woman/cop.png (bg-keyed), boss-alien.png,
+  vegas-facade-1/2.jpg, backdrop-racer3d.jpg (all served via /api/games/assets/).
+- TESTED: iteration_22 — 12/12 backend pytest + all frontend interactions 100%
+  (lane fairness verified, boss spawn verified, paint/nitro/race economics verified).
+  Suite: /app/backend/tests/test_games_portal_iter22.py.
+
