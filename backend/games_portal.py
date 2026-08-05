@@ -5,7 +5,7 @@ from pathlib import Path
 
 import httpx
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field
 
@@ -183,3 +183,39 @@ async def play_game(game_id: str):
     if not html_path.exists():
         raise HTTPException(status_code=404, detail="Game build missing")
     return HTMLResponse(html_path.read_text())
+
+
+WEATHERS = ["clear", "rain", "fog", "stormy", "heat_haze", "clear", "rain"]
+
+
+@router.get("/assets/{fname}")
+async def game_asset(fname: str):
+    if "/" in fname or ".." in fname:
+        raise HTTPException(status_code=400, detail="Bad filename")
+    path = GAMES_DIR / "_assets" / fname
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Asset not found")
+    return FileResponse(path, headers={"Cache-Control": "public, max-age=86400"})
+
+
+@router.get("/{game_id}/environment")
+async def game_environment(game_id: str):
+    gid = game_id.replace("builder:", "builder-")
+    now = datetime.now(timezone.utc)
+    hour = now.hour
+    label = "dawn" if 5 <= hour < 10 else "day" if 10 <= hour < 17 else "dusk" if 17 <= hour < 21 else "night"
+    weather = WEATHERS[(now.timetuple().tm_yday + sum(map(ord, gid))) % len(WEATHERS)]
+    image_url = None
+    source = None
+    if gid == "racer3d":
+        doc = await db.generated_assets.find_one(
+            {"asset_type": {"$in": ["environment", "city_zone"]}}, sort=[("created_at", -1)])
+        if doc:
+            image_url, source = doc["image_url"], "studio"
+    bundled = GAMES_DIR / "_assets" / f"backdrop-{gid}.jpg"
+    if not image_url and bundled.exists():
+        image_url, source = f"/api/games/assets/backdrop-{gid}.jpg", "bundled"
+    if not image_url:
+        image_url, source = "/api/games/assets/backdrop-spaceshooter.jpg", "default"
+    return {"game": gid, "hour": hour, "time_of_day": label, "weather": weather,
+            "image_url": image_url, "source": source}

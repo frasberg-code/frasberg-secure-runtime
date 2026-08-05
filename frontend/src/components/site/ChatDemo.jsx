@@ -654,7 +654,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
                   <div className="w-full text-base leading-relaxed text-lux-text sm:text-[15px]">
                     {m.content ? renderRich(m.content) : (
                       <span className="inline-flex items-center gap-2" data-testid="chat-thinking-indicator">
-                        <img src="/luchii-logo.webp" alt="Luchii" className="h-5 w-5 rounded-md animate-pulse" />
+                        <img src="/luchii-mark.jpg" alt="Luchii" className="h-5 w-5 rounded-full animate-pulse" />
                         <span className="text-sm text-lux-text2 animate-pulse">Thinking…</span>
                       </span>
                     )}

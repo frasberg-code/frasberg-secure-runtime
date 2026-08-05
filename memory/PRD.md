@@ -720,3 +720,26 @@ personas, mythos timeline). Live chat demo requested (no real API key provided).
   DELETE /api/chat/sessions/{session_id} (scoped to user, 404 if none). Chat.jsx sidebar rows now
   have hover Trash2 button (chat-session-delete-{id}) w/ confirm; removes from list, resets to
   new chat if active deleted. VERIFIED: delete 3→2 sessions, repeat 404.
+
+## 2026-06 — Environment In Games + REAL music/SFX + Luchii Mark placement
+- ENVIRONMENT IN GAMES (all 4): shared /app/games/_assets/env.js (served via new GET
+  /api/games/assets/{fname}) mounts a rendered backdrop behind a now-transparent Three.js canvas
+  (renderer alpha:true, scene.background=null), live day/night tint (accelerated clock, 1 game-hour
+  /12s, user's DayNightOverlay colors), weather shader canvas (rain/fog/heat_haze/stormy+lightning,
+  user's WeatherOverlay logic) + "NIGHT · RAIN" env pill. New GET /api/games/{id}/environment:
+  hour/time_of_day/deterministic daily weather/image_url — racer3d prefers latest STUDIO-rendered
+  environment from db.generated_assets (verified: drives through Vegas pipeline render), others use
+  4 bundled pipeline-generated backdrops (/app/games/_assets/backdrop-*.jpg).
+- REAL AUDIO (user: "synth music sucks"): 12 CC0 files downloaded to /app/games/_assets (warfork
+  fvi music tracks per game, sci-fi laser, arcade gun/engine-loop/impact, explosion, hits, Kenney
+  win/lose jingles). env.js LuchiiAudio (sfx pool / looping music w/ vol / engine loop w/
+  playbackRate=speed). All 4 games' synth startMusic/stopMusic + tone() SFX hooks replaced with
+  real audio; MUSIC/SFX toggles + volume slider still work. Verified: all 4 games load + play with
+  zero JS errors, endpoints 200.
+- LUCHII MARK: added to Brand Kit (third logo tile + download row /luchii-mark.jpg) and Chat page
+  (header icon + Thinking… indicator now use the waveform mark).
+- Gotcha: racer3d scene.background search_replace reported success but didn't apply in the parallel
+  batch — re-applied solo. Verify grep after batched same-string edits across files.
+- PRODUCTION: sign-in + "nothing generates" on frasberg.com = production backend down (Cloudflare
+  parse error). Preview PROVEN healthy (login 200, builder generated Neon Pong live). Startup
+  hardened (index/seed failures can't kill boot). USER MUST REDEPLOY; else Emergent Support.

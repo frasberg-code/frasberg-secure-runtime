@@ -21,6 +21,7 @@
 </style>
 </head>
 <body>
+<script src="/api/games/assets/env.js"></script>
 <div id="hud">
   <span>❤️ <b id="lives">3</b></span>
   <span>⭐ SCORE <b id="score">0</b></span>
@@ -41,7 +42,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
 <script>
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x05050f);
+scene.background = null;
 const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 200);
 camera.position.set(0, 0, 26);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -274,17 +275,17 @@ const lbScore = () => score;
   });
   // Hooks: laser / explosion / life lost / ship lost
   const _fireSh = fire;
-  fire = function () { const n = bullets.length; _fireSh(); if (bullets.length > n) tone(880, 220, 0.12, "square", 0.1); };
+  fire = function () { const n = bullets.length; _fireSh(); if (bullets.length > n && !muted) LuchiiAudio.sfx("laser", 0.3); };
   let _sc = 0, _lv = 3;
   setInterval(() => {
     if (running) {
-      if (score > _sc) tone(300, 60, 0.2, "sawtooth", 0.14);
-      if (lives < _lv) tone(200, 50, 0.5, "triangle", 0.2);
+      if (score > _sc && !muted) LuchiiAudio.sfx("explosion", 0.4);
+      if (lives < _lv && !muted) LuchiiAudio.sfx("hit", 0.5);
     }
     _sc = score; _lv = lives;
   }, 100);
   const _goSh = gameOver;
-  gameOver = function () { tone(300, 30, 1.0, "sawtooth", 0.22); _goSh(); };
+  gameOver = function () { if (!muted) LuchiiAudio.sfx("lose", 0.6); _goSh(); };
 })();
 // Champion — score to beat
 (function () {
@@ -312,20 +313,9 @@ const lbScore = () => score;
   function startMusic() {
     if (playing || mMuted) return;
     playing = true;
-    const c = ac();
-    master = c.createGain(); master.gain.value = vol * 0.22; master.connect(c.destination);
-    let step = 0;
-    const spb = 60 / CFG.bpm / 2;
-    timer = setInterval(() => {
-      const t = c.currentTime + 0.05;
-      const b = CFG.root * Math.pow(2, CFG.bass[Math.floor(step / 8) % CFG.bass.length] / 12);
-      note(b, t, spb * 0.9, "sawtooth", 0.5);
-      if (step % 4 === 0) note(110, t, 0.12, "sine", 0.8, true);
-      if (step % 2 === 0) note(CFG.root * 4 * Math.pow(2, CFG.lead[(step / 2) % CFG.lead.length] / 12), t, spb * 0.8, "square", 0.13);
-      step = (step + 1) % 64;
-    }, spb * 1000);
+    window.LuchiiAudio && LuchiiAudio.music.start("/api/games/assets/music-spaceshooter.ogg", vol);
   }
-  function stopMusic() { playing = false; clearInterval(timer); try { master && master.disconnect(); } catch (_) {} }
+  function stopMusic() { playing = false; window.LuchiiAudio && LuchiiAudio.music.stop(); }
   document.body.insertAdjacentHTML("beforeend", `
     <div id="musicCtl" style="position:fixed;top:102px;right:24px;z-index:9;display:flex;gap:8px;align-items:center;background:rgba(13,13,26,.7);border:1px solid #6c63ff66;border-radius:20px;padding:6px 12px">
       <button id="musicBtn" style="border:none;background:none;color:#fff;font:bold 11px 'Courier New';letter-spacing:1px;cursor:pointer">MUSIC ${mMuted ? "OFF" : "ON"}</button>
@@ -342,7 +332,7 @@ const lbScore = () => score;
   document.getElementById("musicVol").addEventListener("input", (e) => {
     vol = parseFloat(e.target.value);
     try { localStorage.setItem("luchii-music-vol", String(vol)); } catch (_) {}
-    if (master) master.gain.value = vol * 0.22;
+    window.LuchiiAudio && LuchiiAudio.music.setVol(vol);
   });
   document.getElementById("startBtn").addEventListener("click", startMusic);
   document.getElementById("restartBtn").addEventListener("click", startMusic);
@@ -371,6 +361,11 @@ const lbScore = () => score;
     if (gp.buttons[9]?.pressed && !prevBtns[9]) pressStart();
     prevBtns = { 9: gp.buttons[9]?.pressed };
   })();
+})();
+</script>
+</body>
+</html>
+;
 })();
 </script>
 </body>

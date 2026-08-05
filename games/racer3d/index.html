@@ -21,6 +21,7 @@
 </style>
 </head>
 <body>
+<script src="/api/games/assets/env.js"></script>
 <div id="hud">
   <span>⚡ SPEED <b id="speed">120</b> km/h</span>
   <span>⭐ SCORE <b id="score">0</b></span>
@@ -41,9 +42,9 @@
 <script>
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x0d0d1a, 0.018);
-scene.background = new THREE.Color(0x0d0d1a);
+scene.background = null;
 const camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, 0.1, 500);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(innerWidth, innerHeight);
 document.body.appendChild(renderer.domElement);
 addEventListener("resize", () => {
@@ -249,17 +250,13 @@ const lbScore = () => Math.floor(score);
   }
   function engineStart() {
     if (muted || engO) return;
-    try {
-      const c = ac();
-      engO = c.createOscillator(); engG = c.createGain();
-      engO.type = "sawtooth"; engO.frequency.value = 60; engG.gain.value = 0.045;
-      engO.connect(engG).connect(c.destination); engO.start();
-    } catch (_) {}
+    engO = true;
+    window.LuchiiAudio && LuchiiAudio.engine.start(0.35);
   }
-  function engineStop() { try { engO && engO.stop(); } catch (_) {} engO = engG = null; }
+  function engineStop() { window.LuchiiAudio && LuchiiAudio.engine.stop(); engO = engG = null; }
   window.SFX = {
     tone, engineStart, engineStop,
-    setEngine(f) { if (engO) try { engO.frequency.value = f; } catch (_) {} },
+    setEngine(f) { if (engO && window.LuchiiAudio) LuchiiAudio.engine.setRate(f / 60); },
     toggle() {
       muted = !muted;
       try { localStorage.setItem("luchii-sfx-muted", muted ? "1" : "0"); } catch (_) {}
@@ -278,7 +275,7 @@ const lbScore = () => Math.floor(score);
   document.getElementById("restartBtn").addEventListener("click", engineStart);
   setInterval(() => { if (running) window.SFX.setEngine(50 + speed * 2.2); }, 150);
   const _goR = gameOver;
-  gameOver = function () { engineStop(); tone(400, 30, 0.9, "sawtooth", 0.25); _goR(); };
+  gameOver = function () { engineStop(); if (!muted) LuchiiAudio.sfx("crash", 0.7); _goR(); };
 })();
 // Champion — score to beat
 (function () {
@@ -306,20 +303,9 @@ const lbScore = () => Math.floor(score);
   function startMusic() {
     if (playing || mMuted) return;
     playing = true;
-    const c = ac();
-    master = c.createGain(); master.gain.value = vol * 0.22; master.connect(c.destination);
-    let step = 0;
-    const spb = 60 / CFG.bpm / 2;
-    timer = setInterval(() => {
-      const t = c.currentTime + 0.05;
-      const b = CFG.root * Math.pow(2, CFG.bass[Math.floor(step / 8) % CFG.bass.length] / 12);
-      note(b, t, spb * 0.9, "sawtooth", 0.5);
-      if (step % 4 === 0) note(110, t, 0.12, "sine", 0.8, true);
-      if (step % 2 === 0) note(CFG.root * 4 * Math.pow(2, CFG.lead[(step / 2) % CFG.lead.length] / 12), t, spb * 0.8, "square", 0.13);
-      step = (step + 1) % 64;
-    }, spb * 1000);
+    window.LuchiiAudio && LuchiiAudio.music.start("/api/games/assets/music-racer3d.ogg", vol);
   }
-  function stopMusic() { playing = false; clearInterval(timer); try { master && master.disconnect(); } catch (_) {} }
+  function stopMusic() { playing = false; window.LuchiiAudio && LuchiiAudio.music.stop(); }
   document.body.insertAdjacentHTML("beforeend", `
     <div id="musicCtl" style="position:fixed;top:102px;right:24px;z-index:9;display:flex;gap:8px;align-items:center;background:rgba(13,13,26,.7);border:1px solid #6c63ff66;border-radius:20px;padding:6px 12px">
       <button id="musicBtn" style="border:none;background:none;color:#fff;font:bold 11px 'Courier New';letter-spacing:1px;cursor:pointer">MUSIC ${mMuted ? "OFF" : "ON"}</button>
@@ -336,7 +322,7 @@ const lbScore = () => Math.floor(score);
   document.getElementById("musicVol").addEventListener("input", (e) => {
     vol = parseFloat(e.target.value);
     try { localStorage.setItem("luchii-music-vol", String(vol)); } catch (_) {}
-    if (master) master.gain.value = vol * 0.22;
+    window.LuchiiAudio && LuchiiAudio.music.setVol(vol);
   });
   document.getElementById("startBtn").addEventListener("click", startMusic);
   document.getElementById("restartBtn").addEventListener("click", startMusic);
