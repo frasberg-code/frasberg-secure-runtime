@@ -51,8 +51,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-lux-border pt-8 font-mono text-xs text-lux-text2 sm:flex-row sm:items-center">
-          <span>Copyright © 2003-2026 <a href="/about" className="hover:text-lux-text" data-testid="footer-copyright-company-link">FRASBERG INC</a>.</span>
-          <span>Constellation Layer · Continuum L12</span>
+          <span>Copyright © 2003-2026 <a href="/about" className="hover:text-lux-text" data-testid="footer-copyright-company-link">FRASBERG INC</a>., All Rights Reserved.</span>
         </div>
       </div>
     </footer>

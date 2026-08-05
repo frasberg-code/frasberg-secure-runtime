@@ -52,7 +52,6 @@ export default function GamePlayerPage() {
         </Link>
         <div className="min-w-0 px-3 text-center">
           <span className="block truncate text-sm font-bold text-white" data-testid="game-player-title">{game?.title || gameId}</span>
-          <span className="hidden text-[10px] uppercase tracking-[0.2em] text-[#555] sm:block">{game?.engine}</span>
         </div>
         <div className="flex items-center gap-2">
           <span
@@ -99,7 +98,7 @@ export default function GamePlayerPage() {
       </div>
 
       <div className="border-t border-[#1a1a2e] px-5 py-2 text-center text-[11px] text-[#555]" data-testid="game-player-controls-hint">
-        {game?.controls || ""} · Frasberg Mesh {mode === "stream" ? "cloud session" : "renders on your device"}
+        {game?.controls || ""}
       </div>
     </div>
   );

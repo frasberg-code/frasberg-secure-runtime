@@ -17,6 +17,7 @@ import { EventSystem }      from './EventSystem.js';
 import { MultiplayerClient } from './MultiplayerClient.js';
 import { Renderer3D }       from './Renderer3D.js';
 import { ShowroomSystem }   from './ShowroomSystem.js';
+import { RaceSystem }       from './RaceSystem.js';
 
 export class GameEngine {
   constructor(canvas) {
@@ -67,6 +68,9 @@ export class GameEngine {
     this.multiplayer = new MultiplayerClient(this.player);
     this.leaderboard = new LeaderboardSystem(this.multiplayer);
     this.showroom    = new ShowroomSystem(this);
+    this.race        = new RaceSystem(this);
+    this.bribeSpots  = [];
+    this._bribeHintT = 0;
     this.renderer3d  = null;
     this.playerCar   = null;
     // ── Input ──────────────────────────────────────────────────
@@ -87,6 +91,11 @@ export class GameEngine {
     this.player.x = road.x;
     this.player.y = road.z;
     this.renderer3d = new Renderer3D(this.canvas, this.worldMap);
+    // Cop bribe hideouts — snapped to roads
+    this.bribeSpots = [[420, 420], [-580, 180], [180, -740]].map(([x, y]) => {
+      const r = this.worldMap.getNearestRoad(x, y);
+      return { x: r.x, y: r.z };
+    });
     this.carjack.init(this.traffic, this.player, this.hud);
     // Player car
     this.playerCar = this.car.spawnCar('player', {
@@ -107,7 +116,68 @@ export class GameEngine {
     // Multiplayer (non-blocking — game runs solo if server is down)
     this.multiplayer.connect().catch(() => {});
     console.log('[GameEngine] All systems online (3D).');
-    this.start();
+    this._showWeatherPicker();
+  }
+
+  // ── Pre-game weather & time picker ───────────────────────────
+  _showWeatherPicker() {
+    const opts = [
+      { label: '☀️ CLEAR DAY', weather: 'clear', hour: 12 },
+      { label: '🌧 RAIN',      weather: 'rain',  hour: 15 },
+      { label: '🌫 FOG',       weather: 'fog',   hour: 8  },
+      { label: '🌆 DUSK',      weather: 'clear', hour: 19.5 },
+      { label: '🌙 NIGHT',     weather: 'clear', hour: 23 },
+    ];
+    const panel = document.createElement('div');
+    panel.setAttribute('data-testid', 'weather-picker');
+    panel.style.cssText = 'position:fixed;inset:0;background:rgba(5,7,14,0.95);z-index:6000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;font-family:monospace;cursor:auto;';
+    panel.innerHTML = `
+      <div style="color:#e63946;font-size:26px;font-weight:800;letter-spacing:3px;margin-bottom:4px;">CARJACK PRO</div>
+      <div style="color:#8a8f9c;font-size:12px;margin-bottom:14px;">Choose your weather &amp; time of day</div>
+      ${opts.map((o, i) => `<button data-testid="weather-opt-${i}" data-i="${i}" style="width:240px;padding:12px;border:1px solid #232634;border-radius:10px;background:#12141d;color:#fff;font-family:monospace;font-size:15px;font-weight:bold;cursor:pointer;letter-spacing:1px;">${o.label}</button>`).join('')}
+    `;
+    document.body.appendChild(panel);
+    panel.querySelectorAll('button').forEach((b) => {
+      b.onmouseenter = () => (b.style.borderColor = '#e63946');
+      b.onmouseleave = () => (b.style.borderColor = '#232634');
+      b.onclick = () => {
+        const o = opts[Number(b.dataset.i)];
+        this.worldMap.time = o.hour * 60;
+        this.weather.locked = true;
+        this.weather.transitionTo(o.weather);
+        panel.remove();
+        this.start();
+      };
+    });
+  }
+
+  // ── Cop bribes ────────────────────────────────────────────────
+  _updateBribes(dt) {
+    this._bribeHintT = Math.max(0, this._bribeHintT - dt);
+    if (this.player.wantedLevel <= 0) return;
+    for (const sp of this.bribeSpots) {
+      if (Math.hypot(this.player.x - sp.x, this.player.y - sp.y) < 70) {
+        if (this._bribeHintT <= 0) {
+          const cost = this.player.wantedLevel * 500;
+          this.hud.showNotification(`💵 Hideout — press B to bribe the cops ($${cost})`, 'warning');
+          this._bribeHintT = 4;
+        }
+        return;
+      }
+    }
+  }
+
+  _tryBribe() {
+    if (this.player.wantedLevel <= 0) return;
+    const near = this.bribeSpots.some((sp) => Math.hypot(this.player.x - sp.x, this.player.y - sp.y) < 70);
+    if (!near) { this.hud.showNotification('No hideout nearby — find a green marker', 'info'); return; }
+    const cost = this.player.wantedLevel * 500;
+    if (this.player.money < cost) { this.hud.showNotification(`Bribe costs $${cost} — not enough cash`, 'danger'); return; }
+    this.player.money -= cost;
+    this.player.wantedLevel = 0;
+    this.police.clearPursuit();
+    this.audio.play('cash');
+    this.hud.showNotification(`🤝 Cops paid off — heat cleared for $${cost}`, 'success');
   }
 
   // ── Ride swap (showroom + carjack) ──────────────────────────
@@ -166,6 +236,8 @@ export class GameEngine {
     this.police.update(dt, this.player);
     this.missions.update(dt);
     this.events.update(dt, this.player);
+    this.race.update(dt);
+    this._updateBribes(dt);
     this._hitFlashCooldown = Math.max(0, this._hitFlashCooldown - dt);
     this.hud.update({
       health: this.player.health,
@@ -196,12 +268,16 @@ export class GameEngine {
         helicopter: this.police.helicopter,
         remote: this.multiplayer.remote,
         time: this.worldMap.time,
+        weather: this.weather.current,
+        bribeSpots: this.bribeSpots,
+        race: this.race,
         dt,
       });
     }
     const octx = this.octx;
     octx.clearRect(0, 0, this.overlay.width, this.overlay.height);
     this.missions.renderObjective(octx);
+    this.race.renderOverlay(octx, this.overlay.width);
     this._renderNameTags(octx);
     this.worldMap.renderBigMapOverlay(octx, this.player);
     if (this.paused && !this.showroom.visible) this._renderPauseScreen(octx);
@@ -282,6 +358,10 @@ export class GameEngine {
     this.multiplayer.on('carjack_event', (data) => {
       this.hud.showNotification(`Player ${String(data.by).slice(0, 8)} carjacked a vehicle!`, 'orange');
     });
+    this.multiplayer.on('race_update', (d) => {
+      if (d.event === 'started') this.hud.showNotification(`🏁 ${String(d.by).slice(0, 8)} started a street race ($${d.bet})`, 'info');
+      if (d.event === 'finished') this.hud.showNotification(`🏁 ${String(d.by).slice(0, 8)} ${d.won ? 'WON' : 'lost'} a race in ${d.time}s`, d.won ? 'success' : 'info');
+    });
     this.multiplayer.on('encrypted',    () => this.hud.showNotification('🔐 Secure connection established', 'blue'));
     this.multiplayer.on('disconnected', () => this.hud.showNotification('⚠️ Connection lost — reconnecting...', 'warning'));
     this.multiplayer.on('connected',    () => this.hud.showNotification('✅ Multiplayer online', 'success'));
@@ -336,6 +416,8 @@ export class GameEngine {
         else this.toggle();
       }
       if (e.code === 'KeyF')   this.carjack.attempt({ x: this.player.x, z: this.player.y });
+      if (e.code === 'KeyB')   this._tryBribe();
+      if (e.code === 'KeyR')   this.race.start();
       if (e.code === 'KeyH')   this.audio.play('horn');
       if (e.code === 'KeyL')   this.leaderboard.toggle();
       if (e.code === 'F11')    this._toggleFullscreen();

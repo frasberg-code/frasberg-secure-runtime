@@ -40,8 +40,10 @@ export class WeatherSystem {
   _scheduleNextChange() {
     const delay = 30000 + Math.random() * 60000; // 30–90 seconds
     setTimeout(() => {
-      this.cycleIndex = (this.cycleIndex + 1) % this.weatherCycle.length;
-      this.transitionTo(this.weatherCycle[this.cycleIndex]);
+      if (!this.locked) {
+        this.cycleIndex = (this.cycleIndex + 1) % this.weatherCycle.length;
+        this.transitionTo(this.weatherCycle[this.cycleIndex]);
+      }
       this._scheduleNextChange();
     }, delay);
   }

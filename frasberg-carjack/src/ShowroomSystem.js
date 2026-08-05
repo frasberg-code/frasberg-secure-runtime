@@ -11,6 +11,8 @@ export class ShowroomSystem {
     this.engine  = engine;
     this.owned   = new Set(['frasberg-gt']);
     this.activeId = 'frasberg-gt';
+    this.customColors = {};
+    this.nitro   = false;
     this.visible = false;
     this.panel   = null;
     window.addEventListener('keydown', (e) => {
@@ -23,17 +25,26 @@ export class ShowroomSystem {
   static price(spec) { return Math.max(400, Math.round(spec.value / 20 / 50) * 50); }
 
   serialize() {
-    return { owned: [...this.owned], activeId: this.activeId };
+    return { owned: [...this.owned], activeId: this.activeId, colors: this.customColors, nitro: this.nitro };
   }
 
   restore(data) {
     if (!data) return;
     if (Array.isArray(data.owned)) data.owned.forEach((id) => this.owned.add(id));
+    if (data.colors) this.customColors = data.colors;
+    if (data.nitro) this.nitro = true;
     if (data.activeId) {
       this.activeId = data.activeId;
       const spec = VEHICLE_CATALOG.find((s) => ShowroomSystem.id(s) === data.activeId);
-      if (spec) this.engine.equipVehicle(spec, { silent: true });
+      if (spec) this._equip(spec, true);
     }
+  }
+
+  _equip(spec, silent = false) {
+    const id = ShowroomSystem.id(spec);
+    const custom = this.customColors[id];
+    this.engine.equipVehicle(custom ? { ...spec, color: custom } : spec, { silent });
+    if (this.nitro && this.engine.playerCar) this.engine.playerCar.maxSpeed = Math.min(300, this.engine.playerCar.maxSpeed + 40);
   }
 
   toggle() { this.visible ? this.close() : this.open(); }
@@ -69,7 +80,31 @@ export class ShowroomSystem {
 
   drive(spec) {
     this.activeId = ShowroomSystem.id(spec);
-    this.engine.equipVehicle(spec);
+    this._equip(spec);
+    this._render();
+  }
+
+  paint(color) {
+    const p = this.engine.player;
+    if (p.money < 250) { this.engine.hud.showNotification('Paint job costs $250', 'danger'); return; }
+    p.money -= 250;
+    this.customColors[this.activeId] = color;
+    const spec = VEHICLE_CATALOG.find((s) => ShowroomSystem.id(s) === this.activeId);
+    if (spec) this._equip(spec, true);
+    this.engine.audio.play('cash');
+    this.engine.hud.showNotification('🎨 Fresh paint applied!', 'success');
+    this._render();
+  }
+
+  buyNitro() {
+    const p = this.engine.player;
+    if (this.nitro) return;
+    if (p.money < 2000) { this.engine.hud.showNotification('Nitro kit costs $2,000', 'danger'); return; }
+    p.money -= 2000;
+    this.nitro = true;
+    if (this.engine.playerCar) this.engine.playerCar.maxSpeed = Math.min(300, this.engine.playerCar.maxSpeed + 40);
+    this.engine.audio.play('cash');
+    this.engine.hud.showNotification('⚡ NITRO installed — +40 top speed on every ride!', 'success');
     this._render();
   }
 
@@ -109,8 +144,12 @@ export class ShowroomSystem {
       padding:28px 4vw; cursor:auto; overflow:hidden;
     `;
     const cards = VEHICLE_CATALOG.map((s) => this._card(s)).join('');
+    const PAINTS = ['#e63946', '#f1c40f', '#00ff88', '#3a86ff', '#b14aed', '#ff7a3c', '#f5f6fa', '#111318'];
+    const paintRow = PAINTS.map((c) =>
+      `<span data-paint="${c}" data-testid="paint-${c.slice(1)}" style="width:26px;height:26px;border-radius:50%;background:${c};border:2px solid ${this.customColors[this.activeId] === c ? '#00ff88' : '#232634'};cursor:pointer;display:inline-block;"></span>`
+    ).join('');
     this.panel.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <div>
           <div style="color:#e63946;font-size:24px;font-weight:800;letter-spacing:2px;">FRASBERG SHOWROOM</div>
           <div style="color:#666;font-size:11px;">Buy with mission cash · press G to close</div>
@@ -122,11 +161,21 @@ export class ShowroomSystem {
           <span id="showroom-close" data-testid="garage-close" style="cursor:pointer;color:#888;font-size:26px;">✕</span>
         </div>
       </div>
+      <div data-testid="paint-shop" style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;background:#12141d;border:1px solid #232634;border-radius:10px;padding:10px 14px;margin-bottom:14px;">
+        <span style="color:#f1c40f;font-size:11px;font-weight:bold;letter-spacing:1px;">🎨 PAINT SHOP — $250</span>
+        ${paintRow}
+        <span style="flex:1"></span>
+        <button id="nitroBtn" data-testid="garage-nitro" ${this.nitro ? 'disabled' : ''} style="padding:8px 16px;border:none;border-radius:8px;background:${this.nitro ? '#1d3320' : '#b14aed'};color:${this.nitro ? '#7ee2a0' : '#fff'};font-family:monospace;font-weight:bold;cursor:${this.nitro ? 'default' : 'pointer'};">${this.nitro ? '⚡ NITRO INSTALLED' : '⚡ NITRO KIT — $2,000'}</button>
+      </div>
       <div style="flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;padding-right:6px;">
         ${cards}
       </div>`;
     document.body.appendChild(this.panel);
     this.panel.querySelector('#showroom-close').onclick = () => this.close();
+    this.panel.querySelector('#nitroBtn').onclick = () => this.buyNitro();
+    this.panel.querySelectorAll('span[data-paint]').forEach((s) => {
+      s.onclick = () => this.paint(s.dataset.paint);
+    });
     this.panel.querySelectorAll('button[data-act]').forEach((b) => {
       b.onclick = () => {
         const spec = VEHICLE_CATALOG.find((s) => ShowroomSystem.id(s) === b.dataset.id);

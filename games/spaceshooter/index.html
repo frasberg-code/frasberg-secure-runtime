@@ -24,13 +24,19 @@
 <script src="/api/games/assets/env.js"></script>
 <div id="hud">
   <span>❤️ <b id="lives">3</b></span>
+  <span>🔫 <b id="weapon">PULSE</b></span>
   <span>⭐ SCORE <b id="score">0</b></span>
   <span>🌊 WAVE <b id="wave">1</b></span>
+</div>
+<div id="bossbar" style="display:none;position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:6;width:min(420px,70vw);text-align:center">
+  <div style="color:#7dff9a;font:bold 12px 'Courier New';letter-spacing:2px;margin-bottom:4px">☠ ALIEN MOTHERSHIP</div>
+  <div style="height:10px;border:1px solid #7dff9a66;border-radius:6px;background:rgba(13,13,26,.7)"><div id="bossHp" style="height:100%;width:100%;background:#3ee06c;border-radius:6px;transition:width .15s"></div></div>
 </div>
 <div id="start" class="screen">
   <h1>⬡ CONSTELLATION WARS</h1>
   <p>Frasberg Engine · Defend the Constellation Layer</p>
-  <p>←/→ or A/D move · Space fire</p>
+  <p>WASD/arrows move · Mouse aim · Space or Click fire · 1-4 switch weapons</p>
+  <p style="color:#7dff9a">Alien mothership boss every 5 waves · collect powerups</p>
   <button id="startBtn">LAUNCH</button>
 </div>
 <div id="gameover" class="screen">
@@ -75,40 +81,170 @@ hull.rotation.x = Math.PI/2; hull.rotation.y = Math.PI/4; ship.add(hull);
   const wing = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.12, 0.9), new THREE.MeshStandardMaterial({ color: 0x2a2a4e }));
   wing.position.set(x, 0, 0.4); ship.add(wing);
 });
+const thruster = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 6), new THREE.MeshBasicMaterial({ color: 0x4affd2 }));
+thruster.position.set(0, 0, 1.3); ship.add(thruster);
 ship.position.y = -9; scene.add(ship);
 ship.rotation.x = -Math.PI/2;
 
-let bullets = [], enemies = [], keys = {};
-document.addEventListener("keydown", e => { keys[e.code] = true; if (e.code === "Space") fire(); });
+let bullets = [], enemies = [], ebullets = [], powerups = [], keys = {};
+document.addEventListener("keydown", e => {
+  keys[e.code] = true;
+  if (e.code === "Space") fire();
+  if (/^Digit[1-4]$/.test(e.code)) switchWeapon(parseInt(e.code.slice(5)) - 1);
+});
 document.addEventListener("keyup", e => keys[e.code] = false);
 
-let running = false, score = 0, lives = 3, wave = 1, cooldown = 0;
+// ── 360° mouse aim ─────────────────────────────────────────
+let aim = { x: 0, y: 1 }, mouseDown = false;
+function toWorld(cx, cy) {
+  const halfH = Math.tan(THREE.MathUtils.degToRad(30)) * 26;
+  const halfW = halfH * (innerWidth / innerHeight);
+  return { x: (cx / innerWidth - 0.5) * 2 * halfW, y: -(cy / innerHeight - 0.5) * 2 * halfH };
+}
+document.addEventListener("mousemove", e => {
+  const w = toWorld(e.clientX, e.clientY);
+  const dx = w.x - ship.position.x, dy = w.y - ship.position.y;
+  const len = Math.hypot(dx, dy) || 1;
+  aim.x = dx / len; aim.y = dy / len;
+});
+document.addEventListener("mousedown", e => { if (e.target.tagName !== "BUTTON" && e.target.tagName !== "INPUT") { mouseDown = true; fire(); } });
+document.addEventListener("mouseup", () => mouseDown = false);
+
+// ── Weapons ────────────────────────────────────────────────
+const WEAPONS = [
+  { name: "PULSE",   cd: 0.20, unlock: 1, color: 0xffff66 },
+  { name: "SPREAD",  cd: 0.34, unlock: 2, color: 0xff9a3c },
+  { name: "LASER",   cd: 0.06, unlock: 4, color: 0x4affd2 },
+  { name: "MISSILE", cd: 0.55, unlock: 6, color: 0xff5a8a },
+];
+let weapon = 0, maxWave = 1, rapidTimer = 0, shield = 0;
+function switchWeapon(i) {
+  if (maxWave >= WEAPONS[i].unlock) { weapon = i; hud(); window.SFX && SFX.tone(500, 900, 0.1, "square", 0.15); }
+  else flashMsg(`${WEAPONS[i].name} unlocks at wave ${WEAPONS[i].unlock}`);
+}
+function flashMsg(t) {
+  let el = document.getElementById("flashMsg");
+  if (!el) {
+    el = document.createElement("div"); el.id = "flashMsg";
+    el.style.cssText = "position:fixed;top:34%;left:50%;transform:translateX(-50%);z-index:7;color:#ffd24a;font:bold 16px 'Courier New';letter-spacing:2px;text-shadow:0 0 12px #000";
+    document.body.appendChild(el);
+  }
+  el.textContent = t;
+  el.style.opacity = 1;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.style.opacity = 0, 1400);
+}
+function makeBullet(vx, vy, dmg, color, homing) {
+  const b = new THREE.Mesh(new THREE.CapsuleGeometry(homing ? 0.14 : 0.08, homing ? 0.6 : 0.5), new THREE.MeshBasicMaterial({ color }));
+  b.position.copy(ship.position);
+  b.position.x += aim.x * 1.2; b.position.y += aim.y * 1.2;
+  b.userData = { vx, vy, dmg, homing: !!homing };
+  b.rotation.z = Math.atan2(vy, vx) - Math.PI/2;
+  scene.add(b); bullets.push(b);
+}
+
+let running = false, score = 0, lives = 3, wave = 1, cooldown = 0, invuln = 0;
 function hud() {
-  document.getElementById("lives").textContent = lives;
+  document.getElementById("lives").textContent = lives + (shield ? " 🛡" : "");
   document.getElementById("score").textContent = score;
   document.getElementById("wave").textContent = wave;
+  document.getElementById("weapon").textContent = WEAPONS[weapon].name + (rapidTimer > 0 ? " ⚡" : "");
 }
 function fire() {
   if (!running || cooldown > 0) return;
-  cooldown = 0.22;
-  const b = new THREE.Mesh(new THREE.CapsuleGeometry(0.08, 0.5), new THREE.MeshBasicMaterial({ color: 0xffff66 }));
-  b.position.copy(ship.position); b.position.y += 1.4;
-  scene.add(b); bullets.push(b);
+  const w = WEAPONS[weapon];
+  cooldown = w.cd * (rapidTimer > 0 ? 0.5 : 1);
+  const sp = 26;
+  if (w.name === "PULSE") makeBullet(aim.x * sp, aim.y * sp, 1, w.color);
+  else if (w.name === "SPREAD") {
+    for (const a of [-0.25, 0, 0.25]) {
+      const c = Math.cos(a), s = Math.sin(a);
+      makeBullet((aim.x * c - aim.y * s) * sp, (aim.x * s + aim.y * c) * sp, 1, w.color);
+    }
+  }
+  else if (w.name === "LASER") makeBullet(aim.x * 44, aim.y * 44, 0.6, w.color);
+  else makeBullet(aim.x * 16, aim.y * 16, 3, w.color, true);
 }
+
+// ── Enemies + AI alien boss ────────────────────────────────
+const bossTex = new THREE.TextureLoader().load("/api/games/assets/boss-alien.png");
+let boss = null;
 function spawnWave() {
+  if (wave % 5 === 0) { spawnBoss(); return; }
   const rows = 2 + Math.min(wave, 4), cols = 6;
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
-    const e = new THREE.Mesh(new THREE.OctahedronGeometry(0.7),
-      new THREE.MeshStandardMaterial({ color: 0xff3355, emissive: 0x440011 }));
+    const striker = wave >= 3 && Math.random() < 0.18;
+    const e = striker
+      ? new THREE.Mesh(new THREE.TetrahedronGeometry(0.8), new THREE.MeshStandardMaterial({ color: 0x22ccff, emissive: 0x003344 }))
+      : new THREE.Mesh(new THREE.OctahedronGeometry(0.7), new THREE.MeshStandardMaterial({ color: 0xff3355, emissive: 0x440011 }));
     e.position.set((c - cols/2 + 0.5) * 2.6, 12 + r * 2.2, 0);
-    e.userData = { vx: 2 + wave * 0.4, drop: 0 };
+    e.userData = { vx: 2 + wave * 0.4, hp: striker ? 1 : 1, type: striker ? "striker" : "basic", diving: false, r: 0.9 };
     scene.add(e); enemies.push(e);
   }
 }
+function spawnBoss() {
+  boss = new THREE.Mesh(new THREE.PlaneGeometry(9.5, 8.8), new THREE.MeshBasicMaterial({ map: bossTex, transparent: true }));
+  boss.position.set(0, 9, 0);
+  boss.userData = { hp: 50 + wave * 12, hpMax: 50 + wave * 12, type: "boss", t: 0, shotT: 1.4, r: 3.4 };
+  scene.add(boss); enemies.push(boss);
+  document.getElementById("bossbar").style.display = "block";
+  flashMsg("☠ ALIEN MOTHERSHIP DETECTED");
+}
+function spawnPowerup(x, y) {
+  const types = [
+    { k: "LIFE",   color: 0xff5a8a },
+    { k: "RAPID",  color: 0xffd24a },
+    { k: "SHIELD", color: 0x4affd2 },
+  ];
+  const t = types[Math.floor(Math.random() * types.length)];
+  const p = new THREE.Mesh(new THREE.IcosahedronGeometry(0.5), new THREE.MeshBasicMaterial({ color: t.color }));
+  p.position.set(x, y, 0);
+  p.userData = { k: t.k };
+  scene.add(p); powerups.push(p);
+}
+function killEnemy(e, i) {
+  scene.remove(e);
+  enemies.splice(i, 1);
+  if (e.userData.type === "boss") {
+    score += 1000;
+    boss = null;
+    document.getElementById("bossbar").style.display = "none";
+    spawnPowerup(e.position.x - 2, e.position.y);
+    spawnPowerup(e.position.x + 2, e.position.y);
+    flashMsg("+1000 · MOTHERSHIP DESTROYED");
+  } else {
+    score += e.userData.type === "striker" ? 80 : 50;
+    if (Math.random() < 0.08) spawnPowerup(e.position.x, e.position.y);
+  }
+  hud();
+}
+function enemyFire(e, spread) {
+  const dx = ship.position.x - e.position.x, dy = ship.position.y - e.position.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const angles = spread ? [-0.3, 0, 0.3] : [0];
+  for (const a of angles) {
+    const c = Math.cos(a), s = Math.sin(a);
+    const vx = (dx/len * c - dy/len * s) * 9, vy = (dx/len * s + dy/len * c) * 9;
+    const b = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 6), new THREE.MeshBasicMaterial({ color: 0x3ee06c }));
+    b.position.copy(e.position);
+    b.userData = { vx, vy };
+    scene.add(b); ebullets.push(b);
+  }
+}
+function playerHit() {
+  if (invuln > 0) return;
+  if (shield > 0) { shield--; invuln = 1.2; hud(); flashMsg("🛡 SHIELD ABSORBED"); return; }
+  lives--; invuln = 2; hud();
+  if (lives <= 0) gameOver();
+}
+
 function start() {
-  bullets.forEach(b => scene.remove(b)); bullets = [];
-  enemies.forEach(e => scene.remove(e)); enemies = [];
-  score = 0; lives = 3; wave = 1; ship.position.x = 0; hud();
+  [bullets, enemies, ebullets, powerups].forEach(arr => arr.forEach(o => scene.remove(o)));
+  bullets = []; enemies = []; ebullets = []; powerups = []; boss = null;
+  document.getElementById("bossbar").style.display = "none";
+  score = 0; lives = 3; wave = 1; weapon = 0; rapidTimer = 0; shield = 0; invuln = 0;
+  ship.position.set(0, -9, 0);
+  hud();
   spawnWave();
   document.getElementById("start").style.display = "none";
   document.getElementById("gameover").style.display = "none";
@@ -122,7 +258,7 @@ function gameOver() {
 document.getElementById("startBtn").onclick = start;
 document.getElementById("restartBtn").onclick = start;
 
-let dir = 1;
+let dir = 1, shotClock = 0;
 const clock = new THREE.Clock();
 function animate() {
   requestAnimationFrame(animate);
@@ -130,41 +266,120 @@ function animate() {
   stars.position.y -= dt * 2; if (stars.position.y < -30) stars.position.y = 0;
   if (running) {
     if (cooldown > 0) cooldown -= dt;
-    if (keys["ArrowLeft"] || keys["KeyA"]) ship.position.x -= 14 * dt;
-    if (keys["ArrowRight"] || keys["KeyD"]) ship.position.x += 14 * dt;
+    if (invuln > 0) invuln -= dt;
+    if (rapidTimer > 0) { rapidTimer -= dt; if (rapidTimer <= 0) hud(); }
+    ship.visible = invuln <= 0 || Math.floor(invuln * 10) % 2 === 0;
+    if (mouseDown || keys["Space"]) fire();
+    // ── 360° movement ──
+    let mx = 0, my = 0;
+    if (keys["ArrowLeft"] || keys["KeyA"]) mx -= 1;
+    if (keys["ArrowRight"] || keys["KeyD"]) mx += 1;
+    if (keys["ArrowUp"] || keys["KeyW"]) my += 1;
+    if (keys["ArrowDown"] || keys["KeyS"]) my -= 1;
+    const ml = Math.hypot(mx, my) || 1;
+    ship.position.x += (mx / ml) * 15 * dt;
+    ship.position.y += (my / ml) * 15 * dt;
     ship.position.x = Math.max(-14, Math.min(14, ship.position.x));
-    ship.rotation.z = Math.sin(Date.now() * 0.003) * 0.06;
+    ship.position.y = Math.max(-10, Math.min(5, ship.position.y));
+    ship.rotation.y = Math.atan2(aim.x, aim.y) * 0.5;
+    ship.rotation.z = -mx * 0.22;
+    thruster.scale.setScalar(1 + Math.sin(Date.now() * 0.02) * 0.3 + (ml > 1 ? 0.4 : 0));
 
+    // ── Player bullets ──
     bullets = bullets.filter(b => {
-      b.position.y += 24 * dt;
-      if (b.position.y > 16) { scene.remove(b); return false; }
-      return true;
-    });
-
-    let edge = false;
-    for (const e of enemies) {
-      e.position.x += e.userData.vx * dir * dt;
-      e.rotation.y += dt * 2; e.rotation.x += dt;
-      if (Math.abs(e.position.x) > 15) edge = true;
-    }
-    if (edge) { dir *= -1; enemies.forEach(e => e.position.y -= 0.8); }
-
-    enemies = enemies.filter(e => {
-      for (let i = 0; i < bullets.length; i++) {
-        if (e.position.distanceTo(bullets[i].position) < 0.9) {
-          scene.remove(bullets[i]); bullets.splice(i, 1);
-          scene.remove(e); score += 50; hud();
-          return false;
+      if (b.userData.homing && enemies.length) {
+        let best = null, bd = 1e9;
+        for (const e of enemies) { const d = e.position.distanceTo(b.position); if (d < bd) { bd = d; best = e; } }
+        if (best) {
+          const dx = best.position.x - b.position.x, dy = best.position.y - b.position.y, l = Math.hypot(dx, dy) || 1;
+          b.userData.vx += (dx/l) * 60 * dt; b.userData.vy += (dy/l) * 60 * dt;
+          const sp = Math.hypot(b.userData.vx, b.userData.vy);
+          if (sp > 24) { b.userData.vx *= 24/sp; b.userData.vy *= 24/sp; }
+          b.rotation.z = Math.atan2(b.userData.vy, b.userData.vx) - Math.PI/2;
         }
       }
-      if (e.position.y < -7.5) {
-        scene.remove(e); lives--; hud();
-        if (lives <= 0) gameOver();
-        return false;
-      }
+      b.position.x += b.userData.vx * dt;
+      b.position.y += b.userData.vy * dt;
+      if (Math.abs(b.position.y) > 17 || Math.abs(b.position.x) > 24) { scene.remove(b); return false; }
       return true;
     });
-    if (enemies.length === 0 && running) { wave++; hud(); spawnWave(); }
+
+    // ── Enemies ──
+    let edge = false;
+    shotClock -= dt;
+    for (const e of enemies) {
+      if (e.userData.type === "boss") {
+        e.userData.t += dt;
+        e.position.x = Math.sin(e.userData.t * 0.6) * 9;
+        e.position.y = 8 + Math.sin(e.userData.t * 1.3) * 1.4;
+        e.userData.shotT -= dt;
+        if (e.userData.shotT <= 0) { e.userData.shotT = Math.max(0.7, 1.6 - wave * 0.05); enemyFire(e, true); }
+        continue;
+      }
+      if (e.userData.type === "striker" && !e.userData.diving && e.position.y < 9 && Math.random() < dt * 0.4) e.userData.diving = true;
+      if (e.userData.diving) {
+        const dx = ship.position.x - e.position.x, l = Math.abs(dx) || 1;
+        e.position.x += (dx/l) * 5 * dt;
+        e.position.y -= 7 * dt;
+      } else {
+        e.position.x += e.userData.vx * dir * dt;
+      }
+      e.rotation.y += dt * 2; e.rotation.x += dt;
+      if (Math.abs(e.position.x) > 15) edge = true;
+      if (wave >= 2 && shotClock <= 0 && Math.random() < 0.004) enemyFire(e, false);
+      if (e.position.distanceTo(ship.position) < 1.3) playerHit();
+    }
+    if (edge) { dir *= -1; enemies.forEach(e => { if (e.userData.type !== "boss" && !e.userData.diving) e.position.y -= 0.8; }); }
+
+    // ── Enemy bullets ──
+    ebullets = ebullets.filter(b => {
+      b.position.x += b.userData.vx * dt;
+      b.position.y += b.userData.vy * dt;
+      if (b.position.distanceTo(ship.position) < 1) { playerHit(); scene.remove(b); return false; }
+      if (Math.abs(b.position.y) > 17 || Math.abs(b.position.x) > 24) { scene.remove(b); return false; }
+      return true;
+    });
+
+    // ── Powerups ──
+    powerups = powerups.filter(p => {
+      p.position.y -= 3.2 * dt;
+      p.rotation.y += dt * 3;
+      if (p.position.distanceTo(ship.position) < 1.5) {
+        if (p.userData.k === "LIFE") lives++;
+        if (p.userData.k === "RAPID") rapidTimer = 8;
+        if (p.userData.k === "SHIELD") shield = Math.min(2, shield + 1);
+        hud(); flashMsg("+" + p.userData.k);
+        window.SFX && SFX.tone(600, 1200, 0.15, "sine", 0.2);
+        scene.remove(p); return false;
+      }
+      if (p.position.y < -13) { scene.remove(p); return false; }
+      return true;
+    });
+
+    // ── Bullet hits ──
+    for (let ei = enemies.length - 1; ei >= 0; ei--) {
+      const e = enemies[ei];
+      for (let i = 0; i < bullets.length; i++) {
+        if (e.position.distanceTo(bullets[i].position) < e.userData.r) {
+          e.userData.hp -= bullets[i].userData.dmg;
+          scene.remove(bullets[i]); bullets.splice(i, 1);
+          if (e.userData.type === "boss") {
+            document.getElementById("bossHp").style.width = Math.max(0, (e.userData.hp / e.userData.hpMax) * 100) + "%";
+          }
+          if (e.userData.hp <= 0) killEnemy(e, ei);
+          break;
+        }
+      }
+      if (enemies[ei] === e && e.userData.type !== "boss" && e.position.y < -7.5) {
+        scene.remove(e); enemies.splice(ei, 1);
+        lives--; hud();
+        if (lives <= 0) gameOver();
+      }
+    }
+    if (enemies.length === 0 && running) {
+      wave++; maxWave = Math.max(maxWave, wave); hud(); spawnWave();
+      if (WEAPONS.some(w => w.unlock === wave)) flashMsg(WEAPONS.find(w => w.unlock === wave).name + " UNLOCKED — press " + (WEAPONS.findIndex(w => w.unlock === wave) + 1));
+    }
   }
   renderer.render(scene, camera);
 }
@@ -232,6 +447,8 @@ const lbScore = () => score;
     </style>
     <button id="btnLeft" class="tc tcBtn" style="left:22px;bottom:34px">◀</button>
     <button id="btnRight" class="tc tcBtn" style="left:110px;bottom:34px">▶</button>
+    <button id="btnUp" class="tc tcBtn" style="left:66px;bottom:118px">▲</button>
+    <button id="btnDown" class="tc tcBtn" style="left:66px;bottom:-2px;bottom:34px;display:none">▼</button>
     <button id="btnFire" class="tc tcBtn" style="right:22px;bottom:34px;font-size:12px">FIRE</button>`);
   function bindBtn(id, key) {
     const el = document.getElementById(id);
@@ -241,6 +458,7 @@ const lbScore = () => score;
   }
   bindBtn("btnLeft", "ArrowLeft");
   bindBtn("btnRight", "ArrowRight");
+  bindBtn("btnUp", "ArrowUp");
   let fireIv = null;
   const bf = document.getElementById("btnFire");
   bf.addEventListener("touchstart", (e) => { e.preventDefault(); fire(); fireIv = setInterval(fire, 120); });
@@ -351,9 +569,12 @@ const lbScore = () => score;
     requestAnimationFrame(padLoop);
     const gp = padIdx !== null ? navigator.getGamepads()[padIdx] : null;
     if (!gp) return;
-    const lx = gp.axes[0] || 0;
+    const lx = gp.axes[0] || 0, ly = gp.axes[1] || 0, rx = gp.axes[2] || 0, ry = gp.axes[3] || 0;
     const set = {};
     if (lx < -DZ) set["ArrowLeft"] = 1; if (lx > DZ) set["ArrowRight"] = 1;
+    if (ly < -DZ) set["ArrowUp"] = 1;   if (ly > DZ) set["ArrowDown"] = 1;
+    // Right stick = 360° aim
+    if (Math.hypot(rx, ry) > DZ) { const l = Math.hypot(rx, ry); aim.x = rx / l; aim.y = -ry / l; }
     for (const k in padKeys) if (!set[k]) keys[k] = false;
     for (const k in set) keys[k] = true;
     padKeys = set;

@@ -188,6 +188,26 @@ export class Renderer3D {
   }
 
   _humanMesh(npc) {
+    // Realistic AI-rendered human billboards (falls back to low-poly if texture missing)
+    if (!this._npcTex) {
+      const tl = new THREE.TextureLoader();
+      this._npcTex = {
+        man:   { tex: tl.load('/api/games/assets/npc-man.png'),   aspect: 0.51 },
+        woman: { tex: tl.load('/api/games/assets/npc-woman.png'), aspect: 0.42 },
+        cop:   { tex: tl.load('/api/games/assets/npc-cop.png'),   aspect: 0.33 },
+      };
+    }
+    const key = npc.type === 'cop' ? 'cop' : (npc.gender === 'woman' ? 'woman' : 'man');
+    const t = this._npcTex[key];
+    const mat = new THREE.SpriteMaterial({ map: t.tex, transparent: true });
+    const s = new THREE.Sprite(mat);
+    const h = 16;
+    s.scale.set(h * t.aspect, h, 1);
+    s.center.set(0.5, 0);
+    return s;
+  }
+
+  _humanMeshLowPoly(npc) {
     const g = new THREE.Group();
     const legs = new THREE.Mesh(
       new THREE.CylinderGeometry(1.8, 1.9, 5.5, 7),
@@ -275,7 +295,57 @@ export class Renderer3D {
 
   // ── Frame ────────────────────────────────────────────────────────────────────
   render(state) {
-    const { player, playerSpec, vehicles, npcs, police, helicopter, remote, time, dt } = state;
+    const { player, playerSpec, vehicles, npcs, police, helicopter, remote, time, dt, weather, bribeSpots, race } = state;
+
+    // Weather → 3D fog
+    if (weather && weather !== this._lastWeather) {
+      this._lastWeather = weather;
+      const f = { clear: [600, 1900], cloudy: [500, 1600], rain: [350, 1200], 'heavy-rain': [220, 800], fog: [120, 550] }[weather] || [600, 1900];
+      this.scene.fog.near = f[0]; this.scene.fog.far = f[1];
+    }
+
+    // Bribe hideout markers (static, created once)
+    if (bribeSpots && !this._bribeMeshes) {
+      this._bribeMeshes = bribeSpots.map(sp => {
+        const m = new THREE.Mesh(
+          new THREE.CylinderGeometry(14, 14, 3, 20, 1, true),
+          new THREE.MeshBasicMaterial({ color: 0x3ee06c, transparent: true, opacity: 0.4, side: THREE.DoubleSide })
+        );
+        m.position.set(sp.x, 2, sp.y);
+        this.scene.add(m);
+        return m;
+      });
+    }
+    if (this._bribeMeshes) {
+      const pulse = 1 + Math.sin(performance.now() * 0.004) * 0.12;
+      for (const m of this._bribeMeshes) { m.scale.set(pulse, 1, pulse); m.rotation.y += (dt ?? 0.016) * 0.6; }
+    }
+
+    // Race checkpoint rings
+    const raceKey = race?.active ? `${race.idx}:${race.checkpoints.length}` : '';
+    if (raceKey !== this._raceKey) {
+      this._raceKey = raceKey;
+      (this._raceMeshes || []).forEach(m => this.scene.remove(m));
+      this._raceMeshes = [];
+      if (race?.active) {
+        race.checkpoints.forEach((cp, i) => {
+          if (i < race.idx) return;
+          const active = i === race.idx;
+          const ring = new THREE.Mesh(
+            new THREE.TorusGeometry(22, active ? 2.4 : 1.2, 8, 28),
+            new THREE.MeshBasicMaterial({ color: active ? 0xffb020 : 0x6c63ff, transparent: true, opacity: active ? 0.9 : 0.35 })
+          );
+          ring.rotation.x = Math.PI / 2;
+          ring.position.set(cp.x, 8, cp.y);
+          this.scene.add(ring);
+          this._raceMeshes.push(ring);
+        });
+      }
+    }
+    if (this._raceMeshes?.length) {
+      const p2 = 1 + Math.sin(performance.now() * 0.006) * 0.08;
+      this._raceMeshes[0]?.scale.setScalar(p2);
+    }
 
     // Player car (rebuild on ride change)
     const key = `${playerSpec?.brand}|${playerSpec?.model}|${playerSpec?.color}`;

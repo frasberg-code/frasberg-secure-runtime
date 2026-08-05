@@ -26,16 +26,16 @@ GAME_REGISTRY = [
         "description": "Carjack City. Pull drivers out of moving cars, outrun the police, and rule the streets — every car handles differently.",
         "thumbnail": "/games-thumbs/streets.jpg",
         "controls": "WASD drive · E carjack/exit · Space brake · Shift sprint",
-        "engine": "Frasberg Engine · Three.js",
+        "engine": "",
     },
     {
         "id": "carjack",
-        "title": "Frasberg Carjack Pro",
+        "title": "Carjack Pro",
         "genre": "Open World",
         "description": "The professional cut. Real industry cars — Tesla, Mercedes-Benz, Ferrari, Lamborghini, Rolls-Royce — living pedestrians, police heat, missions, and an encrypted multiplayer engine under the hood.",
         "thumbnail": "/games-thumbs/carjack.jpg",
-        "controls": "WASD/arrows drive · F carjack · G showroom · Space handbrake · Shift nitro · M map · L leaderboard",
-        "engine": "Frasberg Engine · Three.js · Mesh Multiplayer",
+        "controls": "WASD drive · F carjack · G showroom/paint · R street race · B bribe cops · M map · L leaderboard",
+        "engine": "Multiplayer",
     },
     {
         "id": "dungeon3d",
@@ -44,16 +44,16 @@ GAME_REGISTRY = [
         "description": "Descend into the sovereign dungeon. Waves of drones, torchlight, and one way out — through them.",
         "thumbnail": "/games-thumbs/dungeon3d.jpg",
         "controls": "WASD move · Mouse aim · Click shoot · R reload · Space jump",
-        "engine": "Frasberg Engine · Three.js",
+        "engine": "",
     },
     {
         "id": "racer3d",
-        "title": "Frasberg Racer",
+        "title": "Las Vegas Racer",
         "genre": "Racing",
-        "description": "Neon highway at 300 km/h. Weave through traffic on the mesh grid — one touch and it's over.",
+        "description": "Neon Las Vegas at 300 km/h. Weave through Strip traffic — one touch and it's over.",
         "thumbnail": "/games-thumbs/racer3d.jpg",
         "controls": "A/D or ←/→ steer · W/↑ boost",
-        "engine": "Frasberg Engine · Three.js",
+        "engine": "",
     },
     {
         "id": "spaceshooter",
@@ -61,8 +61,8 @@ GAME_REGISTRY = [
         "genre": "Shooter",
         "description": "Defend the Constellation Layer. Endless enemy formations descend from the void.",
         "thumbnail": "/games-thumbs/spaceshooter.jpg",
-        "controls": "←/→ or A/D move · Space fire",
-        "engine": "Frasberg Engine · Three.js",
+        "controls": "WASD/arrows move · Space or click fire · 1-4 weapons",
+        "engine": "",
     },
     {
         "id": "maze3d",
@@ -71,7 +71,7 @@ GAME_REGISTRY = [
         "description": "A procedurally generated labyrinth. Find the beacon before the clock runs out.",
         "thumbnail": "/games-thumbs/maze3d.jpg",
         "controls": "WASD move · Mouse look",
-        "engine": "Frasberg Engine · Three.js",
+        "engine": "",
     },
 ]
 
@@ -270,11 +270,6 @@ async def game_environment(game_id: str):
     weather = WEATHERS[(now.timetuple().tm_yday + sum(map(ord, gid))) % len(WEATHERS)]
     image_url = None
     source = None
-    if gid == "racer3d":
-        doc = await db.generated_assets.find_one(
-            {"asset_type": {"$in": ["environment", "city_zone"]}}, sort=[("created_at", -1)])
-        if doc:
-            image_url, source = doc["image_url"], "studio"
     bundled = GAMES_DIR / "_assets" / f"backdrop-{gid}.jpg"
     if not image_url and bundled.exists():
         image_url, source = f"/api/games/assets/backdrop-{gid}.jpg", "bundled"
