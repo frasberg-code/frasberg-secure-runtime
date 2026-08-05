@@ -35,8 +35,8 @@ def test_list_games_titles_and_engine():
     assert by_id["racer3d"]["title"] == "Las Vegas Racer"
     assert "carjack" not in by_id  # merged into streets
     # engine == 'Multiplayer' only for carjack; other core games must have empty string
-    assert by_id["streets"]["engine"] == "Multiplayer"
-    for gid in ("racer3d", "spaceshooter", "dungeon3d", "maze3d"):
+    assert by_id["streets"]["engine"] == ""
+    for gid in ("streets", "racer3d", "spaceshooter", "dungeon3d", "maze3d"):
         assert by_id[gid]["engine"] == "", f"{gid} engine is {by_id[gid]['engine']!r}"
 
 

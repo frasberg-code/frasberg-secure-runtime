@@ -1,64 +1,689 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#0a0a0a" />
-  <meta name="description" content="Frasberg Carjack — Open world car game by FRASBERG INC." />
-  <title>Frasberg Carjack</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      width: 100%; height: 100%;
-      background: #0a0a0a;
-      overflow: hidden;
-      font-family: 'Segoe UI', system-ui, sans-serif;
-    }
-    #canvas {
-      display: block;
-      width: 100vw; height: 100vh;
-      cursor: none;
-    }
-    #loading {
-      position: fixed; inset: 0;
-      background: #0a0a0a;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 20px; z-index: 999;
-      transition: opacity 0.5s;
-    }
-    #loading h1 {
-      color: #e63946;
-      font-size: 2.5rem;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
-    #loading p  { color: #888; font-size: 0.9rem; }
-    #loading-bar-wrap {
-      width: 260px; height: 6px;
-      background: #1a1a2e;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    #loading-bar {
-      width: 0%; height: 100%;
-      background: #e63946;
-      transition: width 0.3s ease;
-    }
-  </style>
-  <script type="module" crossorigin src="./assets/index-EO7s3_SW.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/systems-Csmm2Bo8.js">
-  <link rel="modulepreload" crossorigin href="./assets/ui-DO_rAvvb.js">
-  <link rel="modulepreload" crossorigin href="./assets/vendor-RB5cjAqQ.js">
-  <link rel="modulepreload" crossorigin href="./assets/engine-zDOdrcJp.js">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frasberg Streets — Carjack City 3D</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0d0d1a; overflow:hidden; font-family:'Courier New',monospace; }
+  canvas.webgl { display:block; }
+  .pill { position:fixed; z-index:9; padding:8px 14px; border-radius:20px; border:1px solid #6c63ff66; background:rgba(13,13,26,.7); color:#fff; font:bold 11px 'Courier New'; letter-spacing:1px; }
+  #hud { top:14px; left:24px; display:flex; gap:14px; }
+  #carPill { top:14px; right:24px; color:#f0c040; }
+  #wantedPill { top:56px; right:24px; letter-spacing:3px; color:#444; }
+  #healthPill { top:98px; right:24px; }
+  #healthPill b { color:#4ade80; }
+  #prompt { display:none; bottom:96px; left:50%; transform:translateX(-50%); color:#f0c040; border-color:#f0c040; font-size:14px; padding:10px 24px; }
+  #minimap { position:fixed; bottom:14px; right:14px; z-index:9; border:1px solid #6c63ff66; border-radius:8px; background:rgba(13,13,26,.8); }
+  #ctrlHint { bottom:14px; left:50%; transform:translateX(-50%); color:#888; font-weight:normal; }
+  .screen { position:fixed; inset:0; z-index:20; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(8,8,16,.92); color:#fff; text-align:center; padding:20px; }
+  .screen h1 { font-size:44px; color:#f0c040; letter-spacing:6px; text-shadow:0 0 20px #f0c04066; }
+  .screen p { color:#9ca3af; margin-top:10px; font-size:14px; }
+  .screen button { margin-top:22px; background:#f0c040; color:#000; border:none; padding:14px 44px; font:bold 16px 'Courier New'; letter-spacing:2px; border-radius:30px; cursor:pointer; }
+  .screen button:hover { background:#fff; }
+  #gameover { display:none; }
+  #lbBox { margin-top:18px; width:min(340px,90vw); }
+  #lbBox input { width:60%; padding:10px; border-radius:8px 0 0 8px; border:1px solid #444; background:#14142a; color:#fff; font-family:inherit; }
+  #lbBox button { margin-top:0; padding:10px 16px; border-radius:0 8px 8px 0; font-size:13px; }
+  #lbTabs { margin-top:14px; display:flex; gap:8px; justify-content:center; }
+  #lbTabs span { cursor:pointer; padding:6px 18px; border-radius:16px; background:#22224a; font-size:12px; }
+  #lbTabs span.on { background:#6c63ff; }
+  #lbList { margin-top:10px; font-size:13px; color:#cfcfe8; text-align:left; }
+  #lbList div { padding:3px 0; display:flex; justify-content:space-between; }
+</style>
 </head>
 <body>
-  <div id="loading">
-    <h1>Frasberg Carjack</h1>
-    <p>Loading Frasberg City…</p>
-    <div id="loading-bar-wrap"><div id="loading-bar"></div></div>
+<script src="/api/games/assets/env.js"></script>
+<div class="pill" id="hud"><span>⭐ SCORE <b id="score">0</b></span><span>💵 <b id="cash">$0</b></span><span>🚗 JACKED <b id="jacked">0</b></span></div>
+<div class="pill" id="carPill">ON FOOT</div>
+<div class="pill" id="wantedPill">★★★★★</div>
+<div class="pill" id="healthPill">HP <b id="hp">100</b></div>
+<div class="pill" id="prompt">PRESS E TO CARJACK</div>
+<div id="toasts" style="position:fixed;top:100px;left:50%;transform:translateX(-50%);z-index:9;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none"></div>
+<div class="pill" id="ctrlHint">W/S drive · A/D steer · E jack/exit · SPACE handbrake · SHIFT sprint</div>
+<canvas id="minimap" width="140" height="140"></canvas>
+
+<div class="screen" id="start">
+  <h1>⬡ CARJACK CITY</h1>
+  <p>Open World</p>
+  <p>Walk up to any car and press E to pull the driver out. Every car handles differently.<br>Jacking raises your WANTED level — police cruisers will hunt you down.<br>Don't get busted, don't get wrecked.</p>
+  <button id="startBtn">HIT THE STREETS</button>
+</div>
+
+<div class="screen" id="gameover">
+  <h1 id="goTitle">BUSTED</h1>
+  <p id="goStats"></p>
+  <button id="restartBtn">BACK ON THE STREETS</button>
+  <div id="lbBox">
+    <div><input id="lbName" maxlength="20" placeholder="Your name"><button id="lbSubmit">SUBMIT</button></div>
+    <div id="lbTabs"><span id="tabAll" class="on">ALL-TIME</span><span id="tabWeek">WEEK</span></div>
+    <div id="lbList"></div>
   </div>
-  <canvas id="canvas"></canvas>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+<script>
+// ─── FRASBERG STREETS — full 3D open-world carjack game ───
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x0d0d1a, 0.011);
+const camera = new THREE.PerspectiveCamera(65, innerWidth/innerHeight, 0.1, 600);
+const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+renderer.domElement.className = "webgl";
+document.body.appendChild(renderer.domElement);
+addEventListener("resize", () => {
+  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+scene.add(new THREE.HemisphereLight(0x8888ff, 0x1a1a2e, 0.55));
+const moon = new THREE.DirectionalLight(0xaab4ff, 0.9); moon.position.set(40, 80, 30); scene.add(moon);
+const warm = new THREE.PointLight(0xf0c040, 1.4, 60); warm.position.set(0, 14, 0); scene.add(warm);
+
+// ─── City generation ──────────────────────────────────────
+const B = 36, HALF = 126;                 // road spacing, world half-size
+const ROADS = [-108, -72, -36, 0, 36, 72, 108];
+const ROAD_W = 9;
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(HALF*2+40, HALF*2+40),
+  new THREE.MeshStandardMaterial({ color:0x101020, roughness:1 }));
+ground.rotation.x = -Math.PI/2; scene.add(ground);
+ROADS.forEach(r => {
+  const mat = new THREE.MeshStandardMaterial({ color:0x1c1c2c, roughness:0.9 });
+  const rx = new THREE.Mesh(new THREE.PlaneGeometry(HALF*2+20, ROAD_W), mat);
+  rx.rotation.x = -Math.PI/2; rx.position.set(0, 0.02, r); scene.add(rx);
+  const rz = new THREE.Mesh(new THREE.PlaneGeometry(ROAD_W, HALF*2+20), mat);
+  rz.rotation.x = -Math.PI/2; rz.position.set(r, 0.02, 0); scene.add(rz);
+  for (let i = -HALF; i < HALF; i += 8) {
+    const s1 = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 0.22), new THREE.MeshBasicMaterial({ color:0xf0c040 }));
+    s1.rotation.x = -Math.PI/2; s1.position.set(i, 0.03, r); scene.add(s1);
+    const s2 = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 2.4), new THREE.MeshBasicMaterial({ color:0xf0c040 }));
+    s2.rotation.x = -Math.PI/2; s2.position.set(r, 0.03, i); scene.add(s2);
+  }
+});
+// Buildings with emissive windows (AABB colliders)
+const buildings = [];
+const winTex = (() => {
+  const c = document.createElement("canvas"); c.width = c.height = 64;
+  const x = c.getContext("2d"); x.fillStyle = "#151528"; x.fillRect(0,0,64,64);
+  for (let i = 4; i < 60; i += 10) for (let j = 4; j < 60; j += 8) {
+    x.fillStyle = Math.random() < 0.45 ? (Math.random()<0.5?"#f0c040":"#9ecbff") : "#0a0a18";
+    x.fillRect(i, j, 6, 4);
+  }
+  const t = new THREE.CanvasTexture(c); t.magFilter = THREE.NearestFilter; return t;
+})();
+const bColors = [0x23233f, 0x2b2b4a, 0x1d1d36, 0x30304f];
+for (let bi = 0; bi < ROADS.length - 1; bi++) for (let bj = 0; bj < ROADS.length - 1; bj++) {
+  const cx = (ROADS[bi] + ROADS[bi+1]) / 2, cz = (ROADS[bj] + ROADS[bj+1]) / 2;
+  const n = 1 + Math.floor(Math.random()*2);
+  for (let k = 0; k < n; k++) {
+    const w = 7 + Math.random()*8, d = 7 + Math.random()*8, h = 8 + Math.random()*26;
+    const ox = (Math.random()-0.5)*8, oz = (Math.random()-0.5)*8;
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d),
+      new THREE.MeshStandardMaterial({ color:bColors[Math.floor(Math.random()*4)], map:winTex,
+        emissive:0x8888aa, emissiveMap:winTex, emissiveIntensity:0.55, roughness:0.85 }));
+    mesh.position.set(cx+ox, h/2, cz+oz); scene.add(mesh);
+    buildings.push({ x:cx+ox, z:cz+oz, hw:w/2+0.8, hd:d/2+0.8 });
+  }
+}
+// Street lamps
+for (let i = 0; i < ROADS.length; i += 2) for (let j = 0; j < ROADS.length; j += 2) {
+  const p = new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.12,6,6), new THREE.MeshStandardMaterial({ color:0x333344 }));
+  p.position.set(ROADS[i]+ROAD_W/2+0.6, 3, ROADS[j]+ROAD_W/2+0.6); scene.add(p);
+  const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.35,8,8), new THREE.MeshBasicMaterial({ color:0xffd884 }));
+  bulb.position.set(p.position.x, 6, p.position.z); scene.add(bulb);
+}
+
+// ─── Car factory ──────────────────────────────────────────
+const CAR_TYPES = {
+  sedan:  { name:"SEDAN",   color:0x4488ff, top:24, accel:14, steer:1.9, value:200 },
+  taxi:   { name:"TAXI",    color:0xf1c40f, top:25, accel:15, steer:2.0, value:220 },
+  suv:    { name:"SUV",     color:0x27ae60, top:22, accel:12, steer:1.7, value:260 },
+  muscle: { name:"MUSCLE",  color:0xff7a1a, top:30, accel:20, steer:2.1, value:400 },
+  sports: { name:"SPORTS",  color:0xe74c3c, top:36, accel:24, steer:2.4, value:600 },
+  truck:  { name:"TRUCK",   color:0x8e9aa8, top:18, accel:9,  steer:1.4, value:300 },
+  police: { name:"POLICE CRUISER", color:0xf2f2f2, top:30, accel:19, steer:2.2, value:800 },
+};
+function makeCar(type) {
+  const t = CAR_TYPES[type], g = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.55, 3.4),
+    new THREE.MeshStandardMaterial({ color:t.color, metalness:0.6, roughness:0.3 }));
+  body.position.y = 0.5; g.add(body);
+  const cab = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.5, 1.6),
+    new THREE.MeshStandardMaterial({ color:0x10101e, metalness:0.8, roughness:0.2 }));
+  cab.position.set(0, 0.95, -0.15); g.add(cab);
+  [[-0.85,-1.1],[0.85,-1.1],[-0.85,1.1],[0.85,1.1]].forEach(([x,z]) => {
+    const w = new THREE.Mesh(new THREE.CylinderGeometry(0.33,0.33,0.32,10),
+      new THREE.MeshStandardMaterial({ color:0x0a0a0a }));
+    w.rotation.z = Math.PI/2; w.position.set(x, 0.33, z); g.add(w);
+  });
+  [[-0.55],[0.55]].forEach(([x]) => {
+    const h = new THREE.Mesh(new THREE.BoxGeometry(0.28,0.14,0.1), new THREE.MeshBasicMaterial({ color:0xfff2b0 }));
+    h.position.set(x, 0.55, 1.72); g.add(h);
+    const tl = new THREE.Mesh(new THREE.BoxGeometry(0.28,0.14,0.1), new THREE.MeshBasicMaterial({ color:0xff2222 }));
+    tl.position.set(x, 0.55, -1.72); g.add(tl);
+  });
+  if (type === "police") {
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(0.9,0.16,0.35), new THREE.MeshBasicMaterial({ color:0x111111 }));
+    bar.position.set(0, 1.28, -0.15); g.add(bar);
+    const rl = new THREE.Mesh(new THREE.BoxGeometry(0.4,0.14,0.3), new THREE.MeshBasicMaterial({ color:0xff2233 }));
+    rl.position.set(-0.24, 1.32, -0.15); g.add(rl); g.userData.redLight = rl;
+    const bl = new THREE.Mesh(new THREE.BoxGeometry(0.4,0.14,0.3), new THREE.MeshBasicMaterial({ color:0x2255ff }));
+    bl.position.set(0.24, 1.32, -0.15); g.add(bl); g.userData.blueLight = bl;
+    const stripe = new THREE.Mesh(new THREE.BoxGeometry(1.72,0.2,3.42), new THREE.MeshBasicMaterial({ color:0x1a1aff }));
+    stripe.position.y = 0.42; g.add(stripe);
+  }
+  g.userData.type = type;
+  return g;
+}
+function makePed() {
+  const g = new THREE.Group();
+  const c = new THREE.Color().setHSL(Math.random(), 0.55, 0.55);
+  const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.24, 0.7, 3, 8), new THREE.MeshStandardMaterial({ color:c }));
+  body.position.y = 0.85; g.add(body);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.2,10,10), new THREE.MeshStandardMaterial({ color:0xe8b88a }));
+  head.position.y = 1.55; g.add(head);
+  return g;
+}
+function bubble(text) {
+  const c = document.createElement("canvas"); c.width = 256; c.height = 64;
+  const x = c.getContext("2d");
+  x.fillStyle = "rgba(0,0,0,0.7)"; x.fillRect(0,0,256,64);
+  x.fillStyle = "#ffde59"; x.font = "bold 28px Courier New"; x.textAlign = "center";
+  x.fillText(text, 128, 42);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map:new THREE.CanvasTexture(c), transparent:true }));
+  sp.scale.set(3.4, 0.85, 1); sp.position.y = 2.3;
+  return sp;
+}
+
+// ─── State ────────────────────────────────────────────────
+const keys = {};
+document.addEventListener("keydown", e => { keys[e.code] = true; if (e.code === "KeyE") tryJack(); });
+document.addEventListener("keyup", e => keys[e.code] = false);
+
+const S = {
+  running:false, inCar:false, carType:null,
+  x:4.5, z:4.5, h:0, speed:0,
+  hp:100, cash:0, jacked:0, dist:0, wanted:0,
+  bustT:0, wantedT:0, dmgCd:0,
+};
+const player = makePed(); scene.add(player);
+let playerCar = null;
+
+// Traffic
+const traffic = [];
+function spawnTraffic(n) {
+  const types = ["sedan","taxi","suv","muscle","sports","truck"];
+  for (let i = 0; i < n; i++) {
+    const type = types[Math.floor(Math.random()*types.length)];
+    const mesh = makeCar(type); scene.add(mesh);
+    const axis = Math.random() < 0.5 ? "x" : "z";
+    const line = ROADS[Math.floor(Math.random()*ROADS.length)] + (Math.random()<0.5?-2.2:2.2);
+    const t = { mesh, type, axis, line, dir:Math.random()<0.5?1:-1,
+      pos:-HALF + Math.random()*HALF*2, speed:6+Math.random()*5, flee:false, alive:true };
+    traffic.push(t);
+  }
+}
+// NPCs
+const npcs = [];
+const NPC_LINES = ["HEY!", "THIEF!", "MY CAR!", "HELP!", "CALL 911!"];
+function spawnNpcs(n) {
+  for (let i = 0; i < n; i++) {
+    const mesh = makePed(); scene.add(mesh);
+    const r = ROADS[Math.floor(Math.random()*ROADS.length)];
+    const along = -HALF + Math.random()*HALF*2;
+    const side = ROAD_W/2 + 1.2;
+    const axis = Math.random()<0.5 ? "x" : "z";
+    const npc = { mesh, x:axis==="x"?along:r+(Math.random()<0.5?-side:side),
+      z:axis==="x"?r+(Math.random()<0.5?-side:side):along,
+      h:Math.random()*Math.PI*2, flee:0, down:false, bubble:null, bubbleT:0 };
+    npcs.push(npc);
+  }
+}
+// Police
+const police = [];
+function spawnPolice() {
+  const mesh = makeCar("police"); scene.add(mesh);
+  const edge = Math.random()<0.5 ? -HALF : HALF;
+  const p = { mesh, x:Math.random()<0.5?edge:(Math.random()-0.5)*HALF*2,
+    z:Math.random()<0.5?(Math.random()-0.5)*HALF*2:edge, h:0, speed:0 };
+  police.push(p);
+}
+
+function hitsBuilding(x, z, pad) {
+  for (const b of buildings)
+    if (Math.abs(x-b.x) < b.hw+pad && Math.abs(z-b.z) < b.hd+pad) return true;
+  return false;
+}
+
+// ─── Carjacking ───────────────────────────────────────────
+function nearestJackable() {
+  let best = null, bd = 5.5;
+  for (const t of traffic) {
+    if (!t.alive) continue;
+    const d = Math.hypot(t.mesh.position.x - S.x, t.mesh.position.z - S.z);
+    if (d < bd) { bd = d; best = t; }
+  }
+  for (const p of police) {
+    const d = Math.hypot(p.mesh.position.x - S.x, p.mesh.position.z - S.z);
+    if (d < bd && Math.abs(p.speed) < 4) { bd = d; best = { police:p }; }
+  }
+  return best;
+}
+function tryJack() {
+  if (!S.running) return;
+  if (S.inCar) { exitCar(); return; }
+  const t = nearestJackable();
+  if (!t) return;
+  let type;
+  if (t.police) {
+    type = "police";
+    scene.remove(t.police.mesh);
+    police.splice(police.indexOf(t.police), 1);
+    S.wanted = Math.min(5, S.wanted + 2);
+  } else {
+    type = t.type;
+    t.alive = false; scene.remove(t.mesh);
+    S.wanted = Math.min(5, S.wanted + 1);
+  }
+  S.inCar = true; S.carType = type; S.speed = 0;
+  S.cash += CAR_TYPES[type].value; S.jacked++;
+  playerCar = makeCar(type);
+  playerCar.position.set(S.x, 0, S.z); playerCar.rotation.y = S.h;
+  scene.add(playerCar);
+  player.visible = false;
+  window.LuchiiAudio && LuchiiAudio.sfx("hit", 0.6);
+  window.SFX && SFX.engineStart();
+  toast(`🚗 ${CAR_TYPES[type].name} JACKED  +$${CAR_TYPES[type].value}`, "#4ade80");
+  if (S.wanted >= 3) toast(`★ WANTED LEVEL ${S.wanted} — POLICE INBOUND`, "#ff5555");
+  for (let w = 0; w < S.wanted - police.length; w++) spawnPolice();
+  // Nearby NPCs panic
+  for (const n of npcs) {
+    if (n.down) continue;
+    if (Math.hypot(n.x - S.x, n.z - S.z) < 30) {
+      n.flee = 6;
+      if (n.bubble) n.mesh.remove(n.bubble);
+      n.bubble = bubble(NPC_LINES[Math.floor(Math.random()*NPC_LINES.length)]);
+      n.bubbleT = 3; n.mesh.add(n.bubble);
+    }
+  }
+  document.getElementById("carPill").textContent = "🚗 " + CAR_TYPES[type].name;
+}
+function exitCar() {
+  if (!S.inCar || Math.abs(S.speed) > 8) return;
+  S.inCar = false;
+  // leave the car parked as jackable traffic
+  const t = { mesh:playerCar, type:S.carType === "police" ? "sports" : S.carType,
+    axis:"x", line:S.z, dir:1, pos:S.x, speed:0, flee:false, alive:true, parked:true };
+  traffic.push(t);
+  playerCar = null; S.carType = null; S.speed = 0;
+  S.x += 2.4; player.visible = true;
+  window.SFX && SFX.engineStop();
+  document.getElementById("carPill").textContent = "ON FOOT";
+}
+
+// ─── HUD ──────────────────────────────────────────────────
+function toast(msg, color) {
+  const el = document.createElement("div");
+  el.className = "pill";
+  el.style.cssText = `position:static;color:${color||"#f0c040"};border-color:${color||"#f0c040"}66;transition:opacity .5s;font-size:13px`;
+  el.textContent = msg;
+  document.getElementById("toasts").appendChild(el);
+  setTimeout(() => { el.style.opacity = "0"; setTimeout(() => el.remove(), 500); }, 2200);
+}
+let shakeT = 0;
+function crashFx(power) { shakeT = Math.min(0.5, shakeT + power); }
+const mm = document.getElementById("minimap").getContext("2d");
+function scoreVal() { return Math.floor(S.cash + S.dist * 2 + S.jacked * 500); }
+function hud() {
+  document.getElementById("score").textContent = scoreVal();
+  document.getElementById("cash").textContent = "$" + S.cash;
+  document.getElementById("jacked").textContent = S.jacked;
+  document.getElementById("hp").textContent = Math.ceil(S.hp);
+  const wp = document.getElementById("wantedPill");
+  wp.innerHTML = "★★★★★".split("").map((s,i) =>
+    `<span style="color:${i < S.wanted ? "#f0c040" : "#333"}">★</span>`).join("");
+  // minimap
+  mm.clearRect(0,0,140,140);
+  mm.fillStyle = "rgba(13,13,26,0.85)"; mm.fillRect(0,0,140,140);
+  const sc = 140 / (HALF*2), ox = 70, oz = 70;
+  mm.strokeStyle = "#2a2a4e"; mm.lineWidth = 2;
+  ROADS.forEach(r => {
+    mm.beginPath(); mm.moveTo(0, oz + r*sc); mm.lineTo(140, oz + r*sc); mm.stroke();
+    mm.beginPath(); mm.moveTo(ox + r*sc, 0); mm.lineTo(ox + r*sc, 140); mm.stroke();
+  });
+  mm.fillStyle = "#888";
+  traffic.forEach(t => { if (t.alive) mm.fillRect(ox + t.mesh.position.x*sc - 1, oz + t.mesh.position.z*sc - 1, 2.5, 2.5); });
+  mm.fillStyle = "#ff3344";
+  police.forEach(p => mm.fillRect(ox + p.x*sc - 2, oz + p.z*sc - 2, 4, 4));
+  mm.fillStyle = "#f0c040";
+  mm.beginPath(); mm.arc(ox + S.x*sc, oz + S.z*sc, 3.4, 0, Math.PI*2); mm.fill();
+}
+
+// ─── Game flow ────────────────────────────────────────────
+function start() {
+  traffic.forEach(t => scene.remove(t.mesh)); traffic.length = 0;
+  police.forEach(p => scene.remove(p.mesh)); police.length = 0;
+  npcs.forEach(n => scene.remove(n.mesh)); npcs.length = 0;
+  if (playerCar) { scene.remove(playerCar); playerCar = null; }
+  Object.assign(S, { running:true, inCar:false, carType:null, x:4.5, z:4.5, h:0, speed:0,
+    hp:100, cash:0, jacked:0, dist:0, wanted:0, bustT:0, wantedT:0, dmgCd:0 });
+  player.visible = true;
+  spawnTraffic(16); spawnNpcs(22);
+  document.getElementById("start").style.display = "none";
+  document.getElementById("gameover").style.display = "none";
+  document.getElementById("carPill").textContent = "ON FOOT";
+}
+function gameOver(title) {
+  if (!S.running) return;
+  S.running = false;
+  window.SFX && SFX.engineStop();
+  window.LuchiiAudio && LuchiiAudio.sfx("lose", 0.6);
+  const sc = scoreVal();
+  const rank = sc >= 8000 ? "CITY LEGEND" : sc >= 4000 ? "STREET KING" : sc >= 1500 ? "GETAWAY DRIVER" : sc >= 500 ? "JOYRIDER" : "STREET ROOKIE";
+  document.getElementById("goTitle").textContent = title;
+  document.getElementById("goStats").innerHTML =
+    `Score ${sc} · $${S.cash} stolen · ${S.jacked} cars jacked · ${Math.floor(S.dist)}m driven<br><b style="color:#f0c040;letter-spacing:2px">RANK: ${rank}</b>`;
+  document.getElementById("gameover").style.display = "flex";
+  try {
+    const c = JSON.parse(localStorage.getItem("frasberg-streets-career") || "{}");
+    localStorage.setItem("frasberg-streets-career", JSON.stringify({
+      cash: (c.cash||0) + S.cash, jacked: (c.jacked||0) + S.jacked,
+      best: Math.max(c.best||0, sc), runs: (c.runs||0) + 1,
+    }));
+  } catch(_){}
+}
+document.getElementById("startBtn").onclick = start;
+document.getElementById("restartBtn").onclick = start;
+// Career stats on start screen
+try {
+  const c = JSON.parse(localStorage.getItem("frasberg-streets-career") || "{}");
+  if (c.runs) document.querySelector("#start button").insertAdjacentHTML("beforebegin",
+    `<p style="color:#6c63ff;margin-top:6px">CAREER · Best ${c.best} · $${c.cash} lifetime · ${c.jacked} cars jacked · ${c.runs} runs</p>`);
+} catch(_){}
+
+// ─── Main loop ────────────────────────────────────────────
+const clock = new THREE.Clock();
+let flashT = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  flashT += dt;
+  if (S.running) {
+    const cfg = S.inCar ? CAR_TYPES[S.carType] : null;
+    // ── movement
+    const fwd = keys["KeyW"] || keys["ArrowUp"], back = keys["KeyS"] || keys["ArrowDown"];
+    const left = keys["KeyA"] || keys["ArrowLeft"], right = keys["KeyD"] || keys["ArrowRight"];
+    if (S.inCar) {
+      if (fwd) S.speed = Math.min(S.speed + cfg.accel*dt, cfg.top);
+      else if (back) S.speed = Math.max(S.speed - cfg.accel*1.4*dt, -cfg.top*0.4);
+      else S.speed *= 0.985;
+      if (keys["Space"]) S.speed *= 0.94;
+      const sf = Math.min(Math.abs(S.speed)/8, 1) * (S.speed >= 0 ? 1 : -1);
+      if (left) S.h += cfg.steer * dt * sf;
+      if (right) S.h -= cfg.steer * dt * sf;
+    } else {
+      const ms = keys["ShiftLeft"] || keys["ShiftRight"] ? 10 : 6;
+      S.speed = fwd ? ms : back ? -ms*0.6 : 0;
+      if (left) S.h += 2.6 * dt;
+      if (right) S.h -= 2.6 * dt;
+    }
+    const nx = S.x + Math.sin(S.h) * S.speed * dt;
+    const nz = S.z + Math.cos(S.h) * S.speed * dt;
+    if (hitsBuilding(nx, nz, S.inCar ? 1.4 : 0.4)) {
+      if (S.inCar && Math.abs(S.speed) > 10) {
+        S.hp -= Math.abs(S.speed) * 0.35;
+        crashFx(0.3);
+        window.LuchiiAudio && LuchiiAudio.sfx("crash", 0.5);
+      }
+      S.speed = -S.speed * 0.3;
+    } else {
+      if (S.inCar) S.dist += Math.abs(S.speed) * dt;
+      S.x = Math.max(-HALF, Math.min(HALF, nx));
+      S.z = Math.max(-HALF, Math.min(HALF, nz));
+    }
+    const pm = S.inCar ? playerCar : player;
+    pm.position.set(S.x, 0, S.z); pm.rotation.y = S.h;
+    if (!S.inCar) player.children[0].position.y = 0.85 + (S.speed !== 0 ? Math.abs(Math.sin(flashT*10))*0.08 : 0);
+    window.SFX && S.inCar && SFX.setEngine(30 + Math.abs(S.speed) * 3);
+
+    // ── traffic
+    for (const t of traffic) {
+      if (!t.alive) continue;
+      if (t.parked) { t.mesh.position.set(t.pos, 0, t.line); continue; }
+      const sp = t.flee ? Math.min(t.speed + 14, 22) : t.speed;
+      t.pos += sp * t.dir * dt;
+      if (t.pos > HALF) t.pos = -HALF; if (t.pos < -HALF) t.pos = HALF;
+      if (t.axis === "x") { t.mesh.position.set(t.pos, 0, t.line); t.mesh.rotation.y = t.dir > 0 ? Math.PI/2 : -Math.PI/2; }
+      else { t.mesh.position.set(t.line, 0, t.pos); t.mesh.rotation.y = t.dir > 0 ? 0 : Math.PI; }
+      const d = Math.hypot(t.mesh.position.x - S.x, t.mesh.position.z - S.z);
+      if (S.wanted > 0 && d < 25) t.flee = true;
+      if (S.inCar && d < 2.6 && S.dmgCd <= 0) {
+        S.hp -= Math.abs(S.speed) * 0.25 + 3; S.speed *= 0.4; S.dmgCd = 0.6;
+        crashFx(0.25);
+        window.LuchiiAudio && LuchiiAudio.sfx("crash", 0.45);
+      }
+    }
+    // ── NPCs
+    for (const n of npcs) {
+      if (n.down) continue;
+      if (n.flee > 0) {
+        n.flee -= dt;
+        n.h = Math.atan2(n.x - S.x, n.z - S.z);
+        n.x += Math.sin(n.h) * 5.5 * dt; n.z += Math.cos(n.h) * 5.5 * dt;
+      } else {
+        n.h += (Math.random()-0.5) * 0.12;
+        n.x += Math.sin(n.h) * 1.4 * dt; n.z += Math.cos(n.h) * 1.4 * dt;
+      }
+      n.x = Math.max(-HALF, Math.min(HALF, n.x)); n.z = Math.max(-HALF, Math.min(HALF, n.z));
+      if (hitsBuilding(n.x, n.z, 0.3)) n.h += Math.PI;
+      n.mesh.position.set(n.x, 0, n.z); n.mesh.rotation.y = n.h;
+      if (n.bubbleT > 0) { n.bubbleT -= dt; if (n.bubbleT <= 0 && n.bubble) { n.mesh.remove(n.bubble); n.bubble = null; } }
+      if (S.inCar && Math.abs(S.speed) > 8 && Math.hypot(n.x - S.x, n.z - S.z) < 1.7) {
+        n.down = true; n.mesh.rotation.x = Math.PI/2; n.mesh.position.y = 0.3;
+        S.wanted = Math.min(5, S.wanted + 1);
+        window.LuchiiAudio && LuchiiAudio.sfx("hit", 0.5);
+        while (police.length < S.wanted) spawnPolice();
+      }
+    }
+    // ── police
+    while (police.length < S.wanted) spawnPolice();
+    while (police.length > S.wanted) { const p = police.pop(); scene.remove(p.mesh); }
+    let anyClose = false;
+    for (const p of police) {
+      const want = Math.atan2(S.x - p.x, S.z - p.z);
+      let diff = want - p.h;
+      while (diff > Math.PI) diff -= Math.PI*2; while (diff < -Math.PI) diff += Math.PI*2;
+      p.h += Math.max(-2.2*dt, Math.min(2.2*dt, diff));
+      const target = S.inCar ? 24 : 12;
+      p.speed += (target - p.speed) * 0.6 * dt;
+      const px = p.x + Math.sin(p.h) * p.speed * dt, pz = p.z + Math.cos(p.h) * p.speed * dt;
+      if (!hitsBuilding(px, pz, 1.2)) { p.x = px; p.z = pz; } else p.h += 1.5*dt;
+      p.mesh.position.set(p.x, 0, p.z); p.mesh.rotation.y = p.h;
+      const on = Math.floor(flashT*6) % 2 === 0;
+      if (p.mesh.userData.redLight) {
+        p.mesh.userData.redLight.material.color.setHex(on ? 0xff2233 : 0x440000);
+        p.mesh.userData.blueLight.material.color.setHex(on ? 0x001144 : 0x2255ff);
+      }
+      const d = Math.hypot(p.x - S.x, p.z - S.z);
+      if (d < 4.5) anyClose = true;
+      if (d < 2.8 && S.dmgCd <= 0) {
+        S.hp -= 9; S.speed *= 0.5; S.dmgCd = 0.7;
+        crashFx(0.35);
+        toast("⚠ POLICE RAM — GET OUT OF THERE", "#ff5555");
+        window.LuchiiAudio && LuchiiAudio.sfx("crash", 0.5);
+      }
+    }
+    if (anyClose && Math.abs(S.speed) < 4) { S.bustT += dt; if (S.bustT > 1.6) gameOver("BUSTED"); }
+    else S.bustT = Math.max(0, S.bustT - dt);
+    if (S.dmgCd > 0) S.dmgCd -= dt;
+    if (S.hp <= 0) gameOver("WRECKED");
+    // wanted decay
+    S.wantedT += dt;
+    if (S.wantedT > 22 && S.wanted > 0) { S.wanted--; S.wantedT = 0; }
+    // prompt
+    document.getElementById("prompt").style.display =
+      (!S.inCar && nearestJackable()) ? "block" : "none";
+    hud();
+  }
+  // camera follow + pro polish: speed FOV kick & crash shake
+  const tgt = S.inCar && playerCar ? playerCar : player;
+  const camD = S.inCar ? 11 : 7, camH = S.inCar ? 5.5 : 3.6;
+  const cx = tgt.position.x - Math.sin(S.h) * camD;
+  const cz = tgt.position.z - Math.cos(S.h) * camD;
+  camera.position.lerp(new THREE.Vector3(cx, camH, cz), 0.08);
+  if (shakeT > 0) {
+    shakeT -= dt;
+    camera.position.x += (Math.random()-0.5) * shakeT * 1.6;
+    camera.position.y += (Math.random()-0.5) * shakeT * 1.2;
+  }
+  const targetFov = 65 + (S.inCar ? Math.min(Math.abs(S.speed) * 0.35, 14) : 0);
+  if (Math.abs(camera.fov - targetFov) > 0.2) { camera.fov += (targetFov - camera.fov) * 0.06; camera.updateProjectionMatrix(); }
+  camera.lookAt(tgt.position.x, 1.2, tgt.position.z);
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+<script>
+// ─── Leaderboard ──────────────────────────────────────────
+const GID = "streets";
+const lbScore = () => scoreVal();
+(function () {
+  const esc = (s) => String(s).replace(/[<>&]/g, "");
+  let lbPeriod = "all";
+  function setPeriod(p) {
+    lbPeriod = p;
+    document.getElementById("tabAll").className = p === "all" ? "on" : "";
+    document.getElementById("tabWeek").className = p === "weekly" ? "on" : "";
+    lbLoad();
+  }
+  document.getElementById("tabAll").addEventListener("click", () => setPeriod("all"));
+  document.getElementById("tabWeek").addEventListener("click", () => setPeriod("weekly"));
+  async function lbLoad() {
+    try {
+      const d = await (await fetch("/api/games/" + GID + "/scores?period=" + lbPeriod)).json();
+      document.getElementById("lbList").innerHTML = d.map((s, i) =>
+        `<div><span>${i + 1}. ${esc(s.name)}</span><b style="color:#fff">${s.score}</b></div>`).join("") || "<div>No scores yet — be the first.</div>";
+    } catch (_) {}
+  }
+  document.getElementById("lbName").value = localStorage.getItem("luchii-player-name") || "";
+  document.getElementById("lbSubmit").addEventListener("click", async () => {
+    const name = (document.getElementById("lbName").value || "PLAYER").trim().slice(0, 20) || "PLAYER";
+    try { localStorage.setItem("luchii-player-name", name); } catch (_) {}
+    try {
+      await fetch("/api/games/" + GID + "/scores", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, score: lbScore() }) });
+      document.getElementById("lbSubmit").textContent = "SAVED ✓";
+      lbLoad();
+    } catch (_) {}
+  });
+  const _go = gameOver;
+  gameOver = function (t) { _go(t); document.getElementById("lbSubmit").textContent = "SUBMIT"; lbLoad(); };
+  fetch("/api/games/" + GID + "/scores").then(r => r.json()).then(d => {
+    if (!d.length) return;
+    document.querySelector("#start button").insertAdjacentHTML("beforebegin",
+      `<p style="color:#fbbf24;margin-top:6px">♛ CHAMPION: ${esc(d[0].name)} · ${d[0].score} — the score to beat</p>`);
+  }).catch(() => {});
+})();
+
+// ─── SFX engine wrapper ───────────────────────────────────
+(function () {
+  let muted = false, engOn = false;
+  try { muted = localStorage.getItem("luchii-sfx-muted") === "1"; } catch (_) {}
+  window.SFX = {
+    engineStart() { if (muted || engOn) return; engOn = true; window.LuchiiAudio && LuchiiAudio.engine.start(0.3); },
+    engineStop() { window.LuchiiAudio && LuchiiAudio.engine.stop(); engOn = false; },
+    setEngine(f) { if (engOn && window.LuchiiAudio) LuchiiAudio.engine.setRate(f / 60); },
+    toggle() {
+      muted = !muted;
+      try { localStorage.setItem("luchii-sfx-muted", muted ? "1" : "0"); } catch (_) {}
+      if (muted) this.engineStop(); else if (S.running && S.inCar) this.engineStart();
+      return muted;
+    },
+  };
+  document.body.insertAdjacentHTML("beforeend",
+    `<button id="sfxBtn" class="pill" style="top:140px;right:24px;cursor:pointer;pointer-events:auto">SFX ${muted ? "OFF" : "ON"}</button>`);
+  document.getElementById("sfxBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    document.getElementById("sfxBtn").textContent = "SFX " + (window.SFX.toggle() ? "OFF" : "ON");
+  });
+})();
+
+// ─── Music + Gamepad ──────────────────────────────────────
+(function () {
+  let mMuted = false, vol = 0.5;
+  try { mMuted = localStorage.getItem("luchii-music-muted") === "1"; vol = parseFloat(localStorage.getItem("luchii-music-vol") || "0.5"); } catch (_) {}
+  function startMusic() { if (mMuted) return; window.LuchiiAudio && LuchiiAudio.music.start("/api/games/assets/music-streets.ogg", vol); }
+  function stopMusic() { window.LuchiiAudio && LuchiiAudio.music.stop(); }
+  document.body.insertAdjacentHTML("beforeend", `
+    <div class="pill" style="top:182px;right:24px;display:flex;gap:8px;align-items:center;pointer-events:auto">
+      <button id="musicBtn" style="border:none;background:none;color:#fff;font:bold 11px 'Courier New';letter-spacing:1px;cursor:pointer">MUSIC ${mMuted ? "OFF" : "ON"}</button>
+      <input id="musicVol" type="range" min="0" max="1" step="0.05" value="${vol}" style="width:70px;accent-color:#f0c040">
+    </div>
+    <div id="padPill" class="pill" style="display:none;top:224px;right:24px;color:#44ffaa;border-color:#44ffaa66">PAD CONNECTED</div>`);
+  document.getElementById("musicBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    mMuted = !mMuted;
+    try { localStorage.setItem("luchii-music-muted", mMuted ? "1" : "0"); } catch (_) {}
+    document.getElementById("musicBtn").textContent = "MUSIC " + (mMuted ? "OFF" : "ON");
+    if (mMuted) stopMusic(); else if (S.running) startMusic();
+  });
+  document.getElementById("musicVol").addEventListener("input", (e) => {
+    vol = parseFloat(e.target.value);
+    try { localStorage.setItem("luchii-music-vol", String(vol)); } catch (_) {}
+    window.LuchiiAudio && LuchiiAudio.music.setVol(vol);
+  });
+  document.getElementById("startBtn").addEventListener("click", startMusic);
+  document.getElementById("restartBtn").addEventListener("click", startMusic);
+  // Gamepad
+  let padIdx = null, prevBtns = {}, padKeys = {};
+  window.addEventListener("gamepadconnected", (e) => { padIdx = e.gamepad.index; document.getElementById("padPill").style.display = "block"; });
+  window.addEventListener("gamepaddisconnected", (e) => { if (e.gamepad.index === padIdx) { padIdx = null; document.getElementById("padPill").style.display = "none"; } });
+  const DZ = 0.28;
+  (function padLoop() {
+    requestAnimationFrame(padLoop);
+    const gp = padIdx !== null ? navigator.getGamepads()[padIdx] : null;
+    if (!gp) return;
+    const lx = gp.axes[0] || 0;
+    const set = {};
+    if (lx < -DZ) set["KeyA"] = 1; if (lx > DZ) set["KeyD"] = 1;
+    if (gp.buttons[7]?.pressed) set["KeyW"] = 1;
+    if (gp.buttons[6]?.pressed) set["KeyS"] = 1;
+    if (gp.buttons[1]?.pressed) set["Space"] = 1;
+    for (const k in padKeys) if (!set[k]) keys[k] = false;
+    for (const k in set) keys[k] = true;
+    padKeys = set;
+    if (gp.buttons[0]?.pressed && !prevBtns[0]) tryJack();
+    if (gp.buttons[9]?.pressed && !prevBtns[9]) {
+      for (const id of ["startBtn", "restartBtn"]) {
+        const el = document.getElementById(id);
+        if (el && el.offsetParent !== null) { el.click(); break; }
+      }
+    }
+    prevBtns = { 0: gp.buttons[0]?.pressed, 9: gp.buttons[9]?.pressed };
+  })();
+})();
+
+// ─── Touch Controls ───────────────────────────────────────
+(function () {
+  if (!(matchMedia("(pointer: coarse)").matches || new URLSearchParams(location.search).has("touch"))) return;
+  document.getElementById("ctrlHint").style.display = "none";
+  document.body.insertAdjacentHTML("beforeend", `
+    <style>.tcBtn{position:fixed;z-index:8;width:66px;height:66px;border-radius:50%;background:rgba(240,192,64,.18);border:1px solid rgba(240,192,64,.6);color:#fff;font:bold 13px 'Courier New';user-select:none;-webkit-user-select:none;touch-action:none}</style>
+    <button id="tLeft" class="tcBtn" style="left:20px;bottom:96px">◀</button>
+    <button id="tRight" class="tcBtn" style="left:104px;bottom:96px">▶</button>
+    <button id="tGas" class="tcBtn" style="right:20px;bottom:170px">GAS</button>
+    <button id="tBrake" class="tcBtn" style="right:20px;bottom:92px;font-size:10px">BRAKE</button>
+    <button id="tJack" class="tcBtn" style="right:98px;bottom:130px;background:rgba(108,99,255,.25);border-color:#6c63ff">E</button>`);
+  function bind(id, key) {
+    const el = document.getElementById(id);
+    el.addEventListener("touchstart", (e) => { e.preventDefault(); keys[key] = true; });
+    el.addEventListener("touchend", (e) => { e.preventDefault(); keys[key] = false; });
+    el.addEventListener("touchcancel", () => keys[key] = false);
+  }
+  bind("tLeft", "KeyA"); bind("tRight", "KeyD"); bind("tGas", "KeyW"); bind("tBrake", "KeyS");
+  document.getElementById("tJack").addEventListener("touchstart", (e) => { e.preventDefault(); tryJack(); });
+})();
+</script>
 </body>
 </html>
