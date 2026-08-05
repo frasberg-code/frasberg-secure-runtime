@@ -142,7 +142,6 @@ footer{text-align:center;padding:36px;color:#5f8ba1;font-size:.85rem;border-top:
 </body></html>"""
 
 SEED_BUILDS = [
-    {"slug": "flagship-nebula-dodge", "type": "game", "title": "Nebula Dodge — arcade dodger", "html": _GAME_HTML},
     {"slug": "flagship-ember-oak", "type": "website", "title": "Ember & Oak — coffee roastery", "html": _WEBSITE_HTML},
     {"slug": "flagship-pulse-focus", "type": "app", "title": "Pulse — mobile focus timer", "html": _APP_HTML},
     {"slug": "flagship-hydra-launch", "type": "landing", "title": "Hydra — smart bottle launch page", "html": _LANDING_HTML},
