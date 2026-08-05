@@ -3,38 +3,6 @@ from datetime import datetime, timezone
 
 logger = logging.getLogger("seed_builds")
 
-_GAME_HTML = """<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Nebula Dodge</title><style>
-*{margin:0;padding:0;box-sizing:border-box}body{background:#05070f;color:#e8ecf5;font-family:'Segoe UI',system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;overflow:hidden}
-h1{font-size:1.4rem;letter-spacing:.4em;color:#5ec8ff;margin:14px 0 6px;text-transform:uppercase}
-#hud{font-size:.85rem;color:#9fb2cc;margin-bottom:10px}
-canvas{background:radial-gradient(ellipse at 50% 30%,#0b1226 0%,#05070f 70%);border:1px solid #1c2b4a;border-radius:14px;touch-action:none;max-width:94vw}
-#overlay{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(5,7,15,.85);backdrop-filter:blur(4px)}
-#overlay p{color:#9fb2cc;margin:10px 0 18px}button{background:#5ec8ff;color:#05070f;border:0;padding:12px 34px;border-radius:999px;font-weight:700;font-size:1rem;cursor:pointer}
-.hide{display:none!important}</style></head><body>
-<h1>Nebula Dodge</h1><div id="hud">Score <span id="score">0</span> · Best <span id="best">0</span></div>
-<canvas id="c" width="420" height="560"></canvas>
-<div id="overlay"><h1>Nebula Dodge</h1><p>Arrows / drag to weave through the nebula. Survive.</p><button id="go">Launch</button></div>
-<script>
-const cv=document.getElementById('c'),x=cv.getContext('2d'),ov=document.getElementById('overlay'),go=document.getElementById('go');
-let ship,rocks,stars,score,best=+localStorage.nebulaBest||0,run=false,t=0;document.getElementById('best').textContent=best;
-const keys={};addEventListener('keydown',e=>keys[e.key]=1);addEventListener('keyup',e=>keys[e.key]=0);
-let tx=null;cv.addEventListener('pointerdown',e=>tx=e.clientX);cv.addEventListener('pointermove',e=>{if(tx!==null){ship.x+=(e.clientX-tx)*1.3;tx=e.clientX}});addEventListener('pointerup',()=>tx=null);
-function reset(){ship={x:210,y:490,r:11};rocks=[];stars=[];score=0;t=0}
-function spawn(){if(t%Math.max(18,46-Math.floor(score/8))===0)rocks.push({x:20+Math.random()*380,y:-20,r:8+Math.random()*16,v:2+Math.random()*2+score/60});if(t%90===0)stars.push({x:20+Math.random()*380,y:-10,v:2.4})}
-function loop(){if(!run)return;t++;spawn();x.clearRect(0,0,420,560);
-if(keys.ArrowLeft)ship.x-=5.4;if(keys.ArrowRight)ship.x+=5.4;ship.x=Math.max(14,Math.min(406,ship.x));
-x.save();x.translate(ship.x,ship.y);x.fillStyle='#5ec8ff';x.beginPath();x.moveTo(0,-14);x.lineTo(10,10);x.lineTo(0,5);x.lineTo(-10,10);x.closePath();x.fill();
-x.fillStyle='#ffb457';x.fillRect(-2,10,4,6+Math.random()*5);x.restore();
-rocks.forEach(r=>{r.y+=r.v;x.fillStyle='#37507d';x.beginPath();x.arc(r.x,r.y,r.r,0,7);x.fill();x.fillStyle='#22355c';x.beginPath();x.arc(r.x-r.r/3,r.y-r.r/3,r.r/3,0,7);x.fill();
-if(Math.hypot(r.x-ship.x,r.y-ship.y)<r.r+ship.r-2)end()});
-stars.forEach((s,i)=>{s.y+=s.v;x.fillStyle='#ffe27a';x.beginPath();x.arc(s.x,s.y,5,0,7);x.fill();if(Math.hypot(s.x-ship.x,s.y-ship.y)<16){score+=10;stars.splice(i,1)}});
-rocks=rocks.filter(r=>r.y<590);stars=stars.filter(s=>s.y<580);score++;document.getElementById('score').textContent=score;requestAnimationFrame(loop)}
-function end(){run=false;best=Math.max(best,score);localStorage.nebulaBest=best;document.getElementById('best').textContent=best;ov.querySelector('p').textContent='Score '+score+' — the nebula claims another pilot.';go.textContent='Fly again';ov.classList.remove('hide')}
-go.onclick=()=>{reset();ov.classList.add('hide');run=true;loop()};
-</script></body></html>"""
-
 _WEBSITE_HTML = """<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ember &amp; Oak — Small-Batch Coffee Roastery</title>
@@ -149,6 +117,11 @@ SEED_BUILDS = [
 
 
 async def seed_flagship_builds(db):
+    removed = await db.builder_projects.delete_many(
+        {"$or": [{"slug": "flagship-nebula-dodge"}, {"title": {"$regex": "nebula dodge", "$options": "i"}}]}
+    )
+    if removed.deleted_count:
+        logger.info("Purged %d Nebula Dodge builds", removed.deleted_count)
     admin = await db.users.find_one({"email": "admin@frasberg.com"})
     owner = admin["id"] if admin else "system"
     now = datetime.now(timezone.utc).isoformat()
