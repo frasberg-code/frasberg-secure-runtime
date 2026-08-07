@@ -41,7 +41,7 @@
 <div class="pill" id="healthPill">HP <b id="hp">100</b></div>
 <div class="pill" id="prompt">PRESS E TO CARJACK</div>
 <div id="toasts" style="position:fixed;top:100px;left:50%;transform:translateX(-50%);z-index:9;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none"></div>
-<div class="pill" id="ctrlHint">W/S drive · A/D steer · E jack/exit · SPACE handbrake · SHIFT sprint</div>
+<div class="pill" id="ctrlHint">W/S drive · A/D steer · E jack/exit · F bat · G pistol · SPACE handbrake · SHIFT sprint</div>
 <canvas id="minimap" width="140" height="140"></canvas>
 
 <div class="screen" id="start">
@@ -306,7 +306,7 @@ function bubble(text) {
 
 // ─── State ────────────────────────────────────────────────
 const keys = {};
-document.addEventListener("keydown", e => { keys[e.code] = true; if (e.code === "KeyE") tryJack(); });
+document.addEventListener("keydown", e => { keys[e.code] = true; if (e.code === "KeyE") tryJack(); if (e.code === "KeyF") swingBat(); if (e.code === "KeyG") fireGun(); });
 document.addEventListener("keyup", e => keys[e.code] = false);
 
 const S = {
@@ -382,10 +382,20 @@ function nearestJackable() {
   return best;
 }
 function tryJack() {
-  if (!S.running) return;
+  if (!S.running || S.struggle) return;
   if (S.inCar) { exitCar(); return; }
   const t = nearestJackable();
   if (!t) return;
+  // ── Some drivers FIGHT BACK — struggle, then win or get shoved off
+  if (!t.police && !t.parked && Math.random() < 0.35) {
+    S.struggle = { t: 0.9, target: t };
+    toast("✊ DRIVER IS FIGHTING BACK!", "#ff9a3c");
+    window.LuchiiAudio && LuchiiAudio.sfx("hit", 0.4);
+    return;
+  }
+  completeJack(t);
+}
+function completeJack(t) {
   let type;
   if (t.police) {
     type = "police";
@@ -442,6 +452,61 @@ function exitCar() {
   S.x += 2.4; player.visible = true;
   window.SFX && SFX.engineStop();
   document.getElementById("carPill").textContent = "ON FOOT";
+}
+
+// ─── Weapons — baseball bat (F) & pistol (G) ───────────────
+let swingT = 0, gunFlashT = 0, holsterT = 0;
+const bat = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 0.8, 7),
+  new THREE.MeshStandardMaterial({ color: 0x9a6b3f }));
+bat.position.set(0, -0.75, 0.12); bat.rotation.x = 0.4; bat.visible = false;
+const gun = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.14, 0.26),
+  new THREE.MeshStandardMaterial({ color: 0x14141c, metalness: 0.7, roughness: 0.3 }));
+gun.position.set(0, -0.62, 0.14); gun.visible = false;
+player.userData.limbs.rArm.add(bat, gun);
+const muzzle = new THREE.Mesh(new THREE.SphereGeometry(0.09, 6, 6), new THREE.MeshBasicMaterial({ color: 0xffe27a }));
+muzzle.visible = false; scene.add(muzzle);
+function _inFront(dx, dz, cone) {
+  const ang = Math.atan2(dx, dz);
+  let diff = ang - S.h;
+  while (diff > Math.PI) diff -= Math.PI * 2; while (diff < -Math.PI) diff += Math.PI * 2;
+  return Math.abs(diff) < cone;
+}
+function swingBat() {
+  if (!S.running || S.inCar || swingT > 0 || S.struggle) return;
+  swingT = 0.38; holsterT = 2; bat.visible = true; gun.visible = false;
+  window.LuchiiAudio && LuchiiAudio.sfx("hit", 0.3);
+  for (const n of npcs) {
+    if (n.down) continue;
+    const dx = n.x - S.x, dz = n.z - S.z;
+    if (Math.hypot(dx, dz) < 2.3 && _inFront(dx, dz, 1.1)) {
+      n.down = true; n.mesh.rotation.x = Math.PI / 2; n.mesh.position.y = 0.3;
+      S.cash += 25; S.wanted = Math.min(5, S.wanted + 1);
+      toast("🏏 KNOCKED OUT  +$25", "#f0c040");
+    }
+  }
+  for (const t of traffic)
+    if (t.alive && !t.parked && Math.hypot(t.mesh.position.x - S.x, t.mesh.position.z - S.z) < 6) t.flee = true;
+}
+function fireGun() {
+  if (!S.running || S.inCar || gunFlashT > 0 || S.struggle) return;
+  gunFlashT = 0.12; holsterT = 2; gun.visible = true; bat.visible = false;
+  muzzle.visible = true;
+  muzzle.position.set(S.x + Math.sin(S.h) * 1.1, 1.15, S.z + Math.cos(S.h) * 1.1);
+  window.LuchiiAudio && LuchiiAudio.sfx("crash", 0.35);
+  S.wanted = Math.min(5, S.wanted + 1);
+  let best = null, bd = 20;
+  for (const n of npcs) {
+    if (n.down) continue;
+    const dx = n.x - S.x, dz = n.z - S.z, d = Math.hypot(dx, dz);
+    if (d < bd && _inFront(dx, dz, 0.28)) { bd = d; best = n; }
+  }
+  if (best) {
+    best.down = true; best.mesh.rotation.x = Math.PI / 2; best.mesh.position.y = 0.3;
+    S.cash += 40;
+    toast("🔫 TARGET DOWN  +$40", "#ff9a3c");
+  }
+  for (const n of npcs) if (!n.down && Math.hypot(n.x - S.x, n.z - S.z) < 25) n.flee = Math.max(n.flee, 5);
+  while (police.length < S.wanted) spawnPolice();
 }
 
 // ─── HUD ──────────────────────────────────────────────────
@@ -550,6 +615,28 @@ function animate() {
       if (left) S.h += 2.6 * dt;
       if (right) S.h -= 2.6 * dt;
     }
+    // ── driver fightback struggle
+    if (S.struggle) {
+      S.struggle.t -= dt;
+      S.speed = 0;
+      const sm = S.struggle.target.mesh;
+      if (sm) sm.rotation.z = Math.sin(flashT * 30) * 0.06;
+      if (S.struggle.t <= 0) {
+        const st = S.struggle.target; S.struggle = null;
+        if (sm) sm.rotation.z = 0;
+        if (Math.random() < 0.55) {
+          toast("💪 YOU WON THE STRUGGLE", "#4ade80");
+          completeJack(st);
+        } else {
+          const dx = S.x - sm.position.x, dz = S.z - sm.position.z, dl = Math.hypot(dx, dz) || 1;
+          S.x += (dx / dl) * 3.2; S.z += (dz / dl) * 3.2;
+          S.hp -= 8; crashFx(0.3);
+          st.flee = true;
+          toast("🚫 SHOVED OFF — DRIVER FOUGHT YOU OFF  −8 HP", "#ff5555");
+          window.LuchiiAudio && LuchiiAudio.sfx("crash", 0.4);
+        }
+      }
+    }
     const nx = S.x + Math.sin(S.h) * S.speed * dt;
     const nz = S.z + Math.cos(S.h) * S.speed * dt;
     if (hitsBuilding(nx, nz, S.inCar ? 1.4 : 0.4)) {
@@ -570,6 +657,10 @@ function animate() {
       const mv = Math.abs(S.speed);
       pedPhase += dt * (mv > 6 ? 11 : mv > 0.2 ? 6.5 : 1.6);
       animatePed(player, pedPhase, mv > 6 ? "run" : mv > 0.2 ? "walk" : "idle");
+      // weapon overrides right arm after the walk animation
+      if (swingT > 0) { swingT -= dt; player.userData.limbs.rArm.rotation.x = -2.4 + (0.38 - swingT) * 6.5; }
+      if (gunFlashT > 0) { gunFlashT -= dt; player.userData.limbs.rArm.rotation.x = -1.5; if (gunFlashT <= 0) muzzle.visible = false; }
+      if (holsterT > 0) { holsterT -= dt; if (holsterT <= 0) { bat.visible = false; gun.visible = false; } }
     }
     window.SFX && S.inCar && SFX.setEngine(30 + Math.abs(S.speed) * 3);
 
@@ -812,21 +903,54 @@ const lbScore = () => scoreVal();
 (function () {
   if (!(matchMedia("(pointer: coarse)").matches || new URLSearchParams(location.search).has("touch"))) return;
   document.getElementById("ctrlHint").style.display = "none";
+  // shrink + lift minimap so it never covers the action buttons
+  const mmEl = document.getElementById("minimap");
+  mmEl.style.width = "88px"; mmEl.style.height = "88px";
+  mmEl.style.bottom = "auto"; mmEl.style.top = "246px"; mmEl.style.right = "14px";
   document.body.insertAdjacentHTML("beforeend", `
-    <style>.tcBtn{position:fixed;z-index:8;width:66px;height:66px;border-radius:50%;background:rgba(240,192,64,.18);border:1px solid rgba(240,192,64,.6);color:#fff;font:bold 13px 'Courier New';user-select:none;-webkit-user-select:none;touch-action:none}</style>
-    <button id="tLeft" class="tcBtn" style="left:20px;bottom:96px">◀</button>
-    <button id="tRight" class="tcBtn" style="left:104px;bottom:96px">▶</button>
-    <button id="tGas" class="tcBtn" style="right:20px;bottom:170px">GAS</button>
-    <button id="tBrake" class="tcBtn" style="right:20px;bottom:92px;font-size:10px">BRAKE</button>
-    <button id="tJack" class="tcBtn" style="right:98px;bottom:130px;background:rgba(108,99,255,.25);border-color:#6c63ff">E</button>`);
-  function bind(id, key) {
-    const el = document.getElementById(id);
-    el.addEventListener("touchstart", (e) => { e.preventDefault(); keys[key] = true; });
-    el.addEventListener("touchend", (e) => { e.preventDefault(); keys[key] = false; });
-    el.addEventListener("touchcancel", () => keys[key] = false);
+    <style>
+      .tc{position:fixed;z-index:8;user-select:none;-webkit-user-select:none;touch-action:none}
+      #stick{left:22px;bottom:26px;width:118px;height:118px;border-radius:50%;background:rgba(240,192,64,.10);border:1px solid rgba(240,192,64,.5)}
+      #stickKnob{position:absolute;left:37px;top:37px;width:44px;height:44px;border-radius:50%;background:rgba(240,192,64,.55);pointer-events:none}
+      #stickLbl{position:absolute;top:-18px;left:0;right:0;text-align:center;color:rgba(240,192,64,.75);font:bold 9px 'Courier New';letter-spacing:2px}
+      .tcBtn{width:64px;height:64px;border-radius:50%;background:rgba(240,192,64,.18);border:1px solid rgba(240,192,64,.6);color:#fff;font:bold 11px 'Courier New';letter-spacing:1px}
+    </style>
+    <div id="stick" class="tc"><div id="stickKnob"></div><span id="stickLbl">DRIVE · WALK</span></div>
+    <button id="tJack" class="tc tcBtn" style="right:20px;bottom:120px;background:rgba(108,99,255,.3);border-color:#6c63ff">JACK</button>
+    <button id="tBrake" class="tc tcBtn" style="right:20px;bottom:34px;font-size:9px">BRAKE</button>
+    <button id="tBat" class="tc tcBtn" style="right:104px;bottom:34px;background:rgba(255,154,60,.2);border-color:#ff9a3c99">BAT</button>
+    <button id="tGun" class="tc tcBtn" style="right:104px;bottom:120px;background:rgba(255,85,85,.2);border-color:#ff555599">GUN</button>`);
+  // 360° round controller — up = gas/walk, down = reverse, left/right = steer
+  const el = document.getElementById("stick"), knob = document.getElementById("stickKnob");
+  let tid = null, cx = 0, cy = 0;
+  const reset = () => { tid = null; knob.style.transform = ""; keys["KeyW"] = keys["KeyS"] = keys["KeyA"] = keys["KeyD"] = false; };
+  el.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    const t = e.changedTouches[0]; tid = t.identifier;
+    const r = el.getBoundingClientRect(); cx = r.left + r.width / 2; cy = r.top + r.height / 2;
+  });
+  el.addEventListener("touchmove", (e) => {
+    e.preventDefault();
+    for (const t of e.changedTouches) if (t.identifier === tid) {
+      const dx = t.clientX - cx, dy = t.clientY - cy;
+      const m = Math.min(Math.hypot(dx, dy), 40), a = Math.atan2(dy, dx);
+      knob.style.transform = `translate(${Math.cos(a) * m}px,${Math.sin(a) * m}px)`;
+      keys["KeyA"] = dx < -13; keys["KeyD"] = dx > 13;
+      keys["KeyW"] = dy < -13; keys["KeyS"] = dy > 26;
+    }
+  });
+  el.addEventListener("touchend", reset);
+  el.addEventListener("touchcancel", reset);
+  function bindHold(id, key) {
+    const b = document.getElementById(id);
+    b.addEventListener("touchstart", (e) => { e.preventDefault(); keys[key] = true; });
+    b.addEventListener("touchend", (e) => { e.preventDefault(); keys[key] = false; });
+    b.addEventListener("touchcancel", () => keys[key] = false);
   }
-  bind("tLeft", "KeyA"); bind("tRight", "KeyD"); bind("tGas", "KeyW"); bind("tBrake", "KeyS");
+  bindHold("tBrake", "Space");
   document.getElementById("tJack").addEventListener("touchstart", (e) => { e.preventDefault(); tryJack(); });
+  document.getElementById("tBat").addEventListener("touchstart", (e) => { e.preventDefault(); swingBat(); });
+  document.getElementById("tGun").addEventListener("touchstart", (e) => { e.preventDefault(); fireGun(); });
 })();
 </script>
 </body>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Moon, Sun, ArrowLeft, Globe, Gamepad2, AppWindow, ExternalLink, Play, Sparkles, GitFork, Trophy, Star, Share2 } from "lucide-react";
+import { Moon, Sun, ArrowLeft, Globe, Gamepad2, AppWindow, ExternalLink, Play, Sparkles, GitFork, Trophy, Star, Share2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "../context/ThemeContext";
 import Starfield from "../components/site/Starfield";
@@ -20,6 +20,7 @@ const TABS = [
 export default function Gallery() {
   const { theme, toggle } = useTheme();
   const [tab, setTab] = useState("all");
+  const [query, setQuery] = useState("");
   const [items, setItems] = useState(null);
   const [board, setBoard] = useState(null);
 
@@ -71,7 +72,7 @@ export default function Gallery() {
           </div>
         </div>
 
-        <div className="mt-10 flex justify-center gap-2" data-testid="gallery-tabs">
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-2" data-testid="gallery-tabs">
           {TABS.map((t) => (
             <button key={t.id} onClick={() => setTab(t.id)} data-testid={`gallery-tab-${t.id}`}
               className={`rounded-full border px-5 py-2 text-sm transition-colors ${tab === t.id ? "border-lux-accent bg-lux-surface text-lux-text" : "border-lux-border text-lux-text2 hover:text-lux-text"}`}>
@@ -79,19 +80,33 @@ export default function Gallery() {
             </button>
           ))}
         </div>
+        <div className="mx-auto mt-4 max-w-md">
+          <div className="relative">
+            <Search size={15} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-lux-text2" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search builds…"
+              data-testid="gallery-search-input"
+              className="w-full rounded-full border border-lux-border bg-lux-surface/60 py-2.5 pl-11 pr-4 text-sm text-lux-text outline-none transition-colors placeholder:text-lux-text2 focus:border-lux-accent"
+            />
+          </div>
+        </div>
 
         <div className="mt-8 pb-16">
           {items === null ? (
             <p className="text-center font-mono text-xs uppercase tracking-[0.2em] text-lux-text2">Loading gallery…</p>
-          ) : items.length === 0 ? (
+          ) : (() => {
+            const shown = items.filter((p) => !query || p.title.toLowerCase().includes(query.toLowerCase()));
+            return shown.length === 0 ? (
             <div className="rounded-2xl border border-lux-border bg-lux-surface/60 p-10 text-center" data-testid="gallery-empty">
               <Sparkles size={22} className="mx-auto text-lux-accent" />
-              <p className="mt-3 font-display text-lg font-600">Nothing published here yet</p>
-              <p className="mt-1 text-sm text-lux-text2">Be the first — build and publish with Luchii Pro.</p>
+              <p className="mt-3 font-display text-lg font-600">{query ? `No builds match "${query}"` : "Nothing published here yet"}</p>
+              <p className="mt-1 text-sm text-lux-text2">{query ? "Try a different search." : "Be the first — build and publish with Luchii Pro."}</p>
             </div>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-testid="gallery-grid">
-              {items.map((p) => (
+              {shown.map((p) => (
                 <div key={p.id} className="relative overflow-hidden rounded-2xl border border-lux-border bg-lux-surface/60 transition-transform hover:-translate-y-1" data-testid={`gallery-card-${p.slug}`}>
                   {p.featured && (
                     <span className="absolute right-3 top-3 z-10 inline-flex items-center gap-1 rounded-full bg-lux-accent px-2.5 py-1 font-mono text-[9px] font-600 uppercase tracking-wide text-lux-bg" data-testid={`gallery-featured-${p.slug}`}>
@@ -151,7 +166,8 @@ export default function Gallery() {
                 </div>
               ))}
             </div>
-          )}
+          );
+          })()}
         </div>
 
         {board?.top?.length > 0 && (

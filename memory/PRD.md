@@ -909,3 +909,18 @@ All three next-action items SHIPPED and verified on preview:
 - GALLERY THUMBNAILS: Builder demo strip is now an app-store grid (2/3/4 cols) with LIVE
   scaled iframe previews (scale 0.25, sandbox, lazy, pointer-events-none) of /api/p/{slug},
   title + type + plays. Verified 8 thumbnail iframes render.
+
+## Session Update — June 2026 (Fork pt.5 cont3: fightback + weapons + mobile carjack + gallery)
+- DRIVER FIGHTBACK: 35% of drivers resist tryJack → 0.9s struggle (car rocks, movement locked)
+  → 55% win (jack completes) / 45% shoved off (-8HP, knockback, car flees). Verified: forced
+  struggle → "YOU WON THE STRUGGLE → SEDAN JACKED +$200".
+- REAL WEAPONS in Carjack City: baseball bat (F key / BAT btn) melee knockout +$25 +wanted,
+  pistol (G key / GUN btn) raycast cone shot +$40, muzzle flash, panic radius 25u, police spawn
+  per wanted. 3D models attached to player's right hand (rArm), swing/recoil arm overrides after
+  animatePed. Verified: gunHit=true, batHit=true, wanted=2, downed ped on street.
+- MOBILE CARJACK CONTROLS: 118px 360° round stick (DRIVE·WALK: up=gas, down=reverse, x=steer)
+  + JACK/GUN/BAT/BRAKE buttons. Minimap shrunk to 88px & moved to top:246px in touch mode so it
+  never covers buttons (was overlapping). Verified on 390x844 viewport.
+- GALLERY PAGE: added live search input (data-testid=gallery-search-input) filtering titles;
+  page already had app-store thumbnails + type tabs. Verified: 17 cards → 1 on "LUCHIIFLIX".
+- Registry/ctrlHint controls text updated with F bat · G pistol.

@@ -25,7 +25,7 @@ GAME_REGISTRY = [
         "genre": "Open World",
         "description": "Carjack City. Pull drivers out of moving cars, outrun the police, and rule the streets — every car handles differently.",
         "thumbnail": "/games-thumbs/streets.jpg",
-        "controls": "WASD drive · E carjack/exit · Space brake · Shift sprint",
+        "controls": "WASD drive · E carjack/exit · F bat · G pistol · Space brake · Shift sprint",
         "engine": "",
     },
     {
