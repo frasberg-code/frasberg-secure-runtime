@@ -1,0 +1,40 @@
+{
+  "summary": "Iteration 24 — full FRONTEND UI proof of the Luchii Website Builder + games regression at REACT_APP_BACKEND_URL. Logged in as admin@frasberg.com via /auth?mode=login, landed on /website-builder with quota badge '2 / 30 builds used today · Pro'. Typed sushi bar prompt into [data-testid=builder-prompt-input], clicked [data-testid=builder-generate-btn]; [data-testid=builder-progress] streamed with growing char count (236 → 7,355 chars over ~40s). Preview iframe appeared, page auto-scrolled to it (window.scrollY=908, iframe bbox y=77 in the 1080-tall viewport), and iframe srcdoc (8,373 bytes) contains both 'KOI' and 'sushi'. Clicked [data-testid=builder-publish-btn]; [data-testid=builder-live-link] resolved to /api/p/a-tiny-landing-page-for-1492fb which GETs 200 with 'koi' in body. Sidebar [data-testid=builder-projects-list] grew 8→9 items (persistence confirmed). /game-builder: [data-testid=builder-template-fps] present, [data-testid=builder-demos-strip] renders 6 demos and iframe loads on click without login issues. /games library lists EXACTLY the 5 required titles (Carjack City, Luchii Dungeon, Las Vegas Racer, Constellation Wars, Meta Maze) with none of the forbidden labels (Carjack Pro / Nebula Dodge / LOCAL ENGINE / Cloud stream). Carjack City: /games/play/streets loads inside [data-testid=game-frame], 'HIT THE STREETS' click starts the game, HUD contains SCORE + HP + $ + WANTED stars, walking with KeyW for 2s produces 0 console errors. Constellation Wars touch (/api/games/spaceshooter/play?touch=1 @ 390x844): #stickL 118x118, #stickR 118x118, canvas present, labels MOVE/AIM/FIRE all rendered, LAUNCH click starts the game with 0 JS errors. Las Vegas Racer touch (/api/games/racer3d/play?touch=1 @ 390x844): #stick 118x118 (STEER label), #btnBoost 78x78. All 4 arcade games (spaceshooter, racer3d, dungeon3d, maze3d) serve <meta name=viewport content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>. Backend regression: pytest 20/20 pass (test_games_portal_iter22.py 11/11 + test_builder_iter23.py 9/9).",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "N/A (test file)", "issue": "test_builder_iter23.py::test_games_registry_carjack_city_only used stale endpoint /api/games/registry (returns 404 'Game not found'). Corrected to /api/games. Fixed and re-verified."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/game-builder demos strip", "issues": ["[data-testid=builder-demos-strip] surfaces only the first 6 gallery items (Ember & Oak, Pulse, Hydra, one-page bakery, lemonade stand, KOI). The LUCHIIFLIX Netflix clone (slug a-netflix-clone-called-l-f6a5ee) is published in /api/builder/gallery but not featured, so it does not appear in the strip. Task expected LUCHIIFLIX to be visible there — either feature it (set featured=true) or expand strip length. Non-blocking."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_games_portal_iter22.py",
+    "/app/backend/tests/test_builder_iter23.py",
+    "/app/test_reports/pytest/iter24.xml"
+  ],
+  "action_items": [
+    "Optional: mark LUCHIIFLIX build (slug a-netflix-clone-called-l-f6a5ee) as featured=true, or increase demos-strip cap on /game-builder, so it surfaces alongside the other flagship demos as the request expected.",
+    "Optional QA note: Carjack City articulated ped structure could not be programmatically verified because the engine does not expose window.scene / window.game — visual screenshot of gameplay is available at /tmp/streets_gameplay.png. Consider exposing a dev global (e.g., window.__DEBUG_SCENE) in non-production builds to enable automated ped-shape assertions."
+  ],
+  "critical_code_review_comments": [
+    "Builder streaming UX is solid: SSE builder-progress updates growing character count in real time and preview auto-scrolls on completion — verified end-to-end.",
+    "Touch overlay CSS uses fixed 118px stick sizes across both games — good consistency. Consider `dvh` units for mobile Safari address-bar changes.",
+    "Auth default lands in signup mode on /auth (no ?mode= param). Deep-linking to /auth without ?mode=login and providing admin creds triggers a 409 from /api/auth/register before switching to login — first click is wasted. Consider defaulting mode=login when the email input auto-fills or when next= is present."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_builder_iter23.py (fixed stale /api/games/registry → /api/games in test_games_registry_carjack_city_only)"
+  ],
+  "success_rate": {"backend": "100% (20/20 pytest)", "frontend": "100% on required flows (builder KOI e2e, publish + public serve, sidebar persistence, game-builder templates+demos, /games library, Carjack City gameplay, spaceshooter+racer touch controls, viewport meta on all 4 arcade games)"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026! (pro, 30/day). Used 3/30 quota this run (1 build in-UI + prior 2 from earlier iterations).",
+  "seed_data_creation": "One published site created via UI: slug a-tiny-landing-page-for-1492fb (KOI sushi bar). This build is now visible in gallery + sidebar and serves at /api/p/a-tiny-landing-page-for-1492fb.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Frontend Builder UI is proven end-to-end (login → generate SSE → preview auto-scroll → publish → public /api/p/… serve → sidebar persistence). Reusable Playwright pattern: navigate to /auth?mode=login&next=<target> to avoid the signup default triggering a 409. All in-frame keyboard tests must page.locator('[data-testid=game-frame]').click(force=True) first to focus the iframe. Backend pytest at /app/backend/tests/test_builder_iter23.py + test_games_portal_iter22.py = 20/20 green with junit at /app/test_reports/pytest/iter24.xml. Note that /api/games (NOT /api/games/registry) is the correct games list endpoint.",
+  "rca of the issue": "The only failure encountered — test_games_registry_carjack_city_only — was a stale test-script endpoint (/api/games/registry does not exist; server exposes /api/games). Root cause: previous iteration author assumed a /registry suffix. Mitigation: single-line fix in test_builder_iter23.py to use /api/games. Re-ran: passed."
+}

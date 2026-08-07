@@ -162,7 +162,7 @@ def test_remix_published_build(user_session):
 
 # ── Games registry: Carjack City only, no duplicate Carjack Pro ────────────
 def test_games_registry_carjack_city_only():
-    r = requests.get(f"{BASE}/api/games/registry", timeout=15)
+    r = requests.get(f"{BASE}/api/games", timeout=15)
     assert r.status_code == 200, r.text
     games = r.json()
     if isinstance(games, dict):
