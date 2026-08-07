@@ -119,7 +119,7 @@ export default function Dashboard() {
       </header>
       <TrialBanner />
 
-      <div className="mx-auto max-w-6xl px-5 py-12 sm:px-8">
+      <div className="mx-auto max-w-[1600px] px-5 py-10 sm:px-8">
         <h1 className="font-display text-4xl font-700 tracking-tighter sm:text-5xl">Developer Dashboard</h1>
         <p className="mt-3 max-w-xl text-lux-text2">
           Generate keys, monitor usage, and try the models. Public tier is capped
@@ -144,7 +144,10 @@ export default function Dashboard() {
 
         {user && (
         <>
-        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-3" data-testid="usage-stats">
+        <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-0" data-testid="dashboard-split">
+        {/* LEFT — Control center */}
+        <div className="min-w-0 lg:h-[calc(100vh-230px)] lg:overflow-y-auto lg:pr-8" data-testid="dashboard-left-pane">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3" data-testid="usage-stats">
           <Stat label="Requests" value={usage.total_requests} icon={Activity} />
           <Stat label="Tokens" value={usage.total_tokens} icon={Terminal} />
           <Stat label="Active keys" value={usage.keys} icon={Key} />
@@ -270,30 +273,37 @@ export default function Dashboard() {
           </div>
         </section>
 
-        {/* Quickstart */}
-        <section className="mt-14">
-          <h2 className="flex items-center gap-2 font-display text-2xl font-600 tracking-tight">
-            <Terminal size={20} className="text-lux-accent" /> Quickstart
-          </h2>
-          <p className="mt-2 text-sm text-lux-text2">
-            Copy, paste, and run against the live gateway. Snippets auto-fill your
-            newest key.
-          </p>
-          <div className="mt-6">
-            <CodeTabs apiKey={newKey?.key} />
-          </div>
-        </section>
+        </div>
 
-        {/* Pricing / Credits */}
-        <Pricing keys={keys} onPurchased={refresh} />
-
-        {/* Models + Playground */}
-        <div className="mt-14 grid grid-cols-1 gap-10 lg:grid-cols-2">
+        {/* RIGHT — Live workspace */}
+        <div className="min-w-0 lg:h-[calc(100vh-230px)] lg:overflow-y-auto lg:border-l lg:border-lux-border lg:pl-8" data-testid="dashboard-right-pane">
           <section>
+            <h2 className="flex items-center gap-2 font-display text-2xl font-600 tracking-tight">
+              <Terminal size={20} className="text-lux-accent" /> Playground
+            </h2>
+            <div className="mt-5 h-[440px]">
+              <ChatDemo />
+            </div>
+          </section>
+
+          <section className="mt-12">
+            <h2 className="flex items-center gap-2 font-display text-2xl font-600 tracking-tight">
+              <Terminal size={20} className="text-lux-accent" /> Quickstart
+            </h2>
+            <p className="mt-2 text-sm text-lux-text2">
+              Copy, paste, and run against the live gateway. Snippets auto-fill your
+              newest key.
+            </p>
+            <div className="mt-5">
+              <CodeTabs apiKey={newKey?.key} />
+            </div>
+          </section>
+
+          <section className="mt-12">
             <h2 className="flex items-center gap-2 font-display text-2xl font-600 tracking-tight">
               <Cpu size={20} className="text-lux-accent" /> Models
             </h2>
-            <div className="mt-6 space-y-3" data-testid="dashboard-models">
+            <div className="mt-5 space-y-3" data-testid="dashboard-models">
               {MODELS.map((m) => (
                 <div key={m.id} className="flex items-center justify-between rounded-xl border border-lux-border bg-lux-surface px-5 py-4">
                   <div>
@@ -305,16 +315,11 @@ export default function Dashboard() {
               ))}
             </div>
           </section>
-
-          <section>
-            <h2 className="flex items-center gap-2 font-display text-2xl font-600 tracking-tight">
-              <Terminal size={20} className="text-lux-accent" /> Playground
-            </h2>
-            <div className="mt-6 h-[440px]">
-              <ChatDemo />
-            </div>
-          </section>
         </div>
+        </div>
+
+        {/* Pricing / Credits */}
+        <Pricing keys={keys} onPurchased={refresh} />
         </>
         )}
       </div>

@@ -518,13 +518,30 @@ export default function Builder({ type = "website" }) {
             {demos.length > 0 && !busy && (
               <div className="mt-6" data-testid="builder-demos-strip">
                 <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">Real builds by Luchii — tap one to run it instantly</p>
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                   {[...demos.filter((b) => b.type === type), ...demos.filter((b) => b.type !== type)].slice(0, 8).map((b) => (
                     <button key={b.slug} type="button" onClick={() => openDemo(b)} data-testid={`builder-demo-${b.slug}`}
-                      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs transition-colors ${demo?.slug === b.slug ? "border-lux-accent text-lux-text" : "border-lux-border text-lux-text2 hover:border-lux-accent hover:text-lux-text"}`}>
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                      {b.title}
-                      <span className="font-mono text-[9px] uppercase tracking-wide opacity-60">{b.type}</span>
+                      className={`group overflow-hidden rounded-2xl border text-left transition-all hover:-translate-y-0.5 ${demo?.slug === b.slug ? "border-lux-accent" : "border-lux-border hover:border-lux-accent/60"}`}>
+                      <div className="pointer-events-none relative h-24 w-full overflow-hidden bg-[#0d0d16]">
+                        <iframe
+                          src={`${API}/p/${b.slug}`}
+                          title={b.title}
+                          tabIndex={-1}
+                          loading="lazy"
+                          scrolling="no"
+                          sandbox="allow-scripts"
+                          data-testid={`builder-demo-thumb-${b.slug}`}
+                          className="pointer-events-none absolute left-0 top-0 origin-top-left"
+                          style={{ width: "400%", height: "400%", transform: "scale(0.25)", border: 0 }}
+                        />
+                      </div>
+                      <div className="px-3 py-2">
+                        <p className="truncate text-xs font-600 text-lux-text">{b.title}</p>
+                        <p className="mt-0.5 flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-wide text-lux-text2">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                          {b.type}{typeof b.plays === "number" && b.plays > 0 ? ` · ${b.plays} plays` : ""}
+                        </p>
+                      </div>
                     </button>
                   ))}
                 </div>

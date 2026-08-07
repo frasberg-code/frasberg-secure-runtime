@@ -896,3 +896,16 @@ All three next-action items SHIPPED and verified on preview:
   (data-testid=builder-engine-badge); progress line now "Frasberg engine · Luchii 70B writing
   code…". Zero user-facing Claude references (grep verified).
 - NOTE: production frasberg.com needs redeploy to receive ALL of the above.
+
+## Session Update — June 2026 (Fork pt.5 cont2: dashboard split + drivers + thumbnails)
+- DASHBOARD SPLIT SCREEN (Emergent option B): /dashboard now exact 50/50 on lg screens
+  (verified 766px/766px). LEFT pane (scrollable): stats, usage graph, API keys.
+  RIGHT pane (scrollable, border-l): Luchii Playground chat, Quickstart, Models.
+  Pricing full-width below. data-testids: dashboard-split/-left-pane/-right-pane.
+- HUMAN DRIVERS in Carjack City: makeDriver() seated human (head/hair/torso/arms on wheel)
+  in every car incl. cop drivers (navy). tryJack() pulls a REAL articulated ped out of the
+  car who flees screaming (bubble). Player's own car hides driver. Verified in-game:
+  jack → inCar true, fleeing driver NPC spawned, zero JS errors.
+- GALLERY THUMBNAILS: Builder demo strip is now an app-store grid (2/3/4 cols) with LIVE
+  scaled iframe previews (scale 0.25, sandbox, lazy, pointer-events-none) of /api/p/{slug},
+  title + type + plays. Verified 8 thumbnail iframes render.
