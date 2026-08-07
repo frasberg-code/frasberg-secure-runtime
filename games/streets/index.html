@@ -42,6 +42,8 @@
 <div class="pill" id="prompt">PRESS E TO CARJACK</div>
 <div id="toasts" style="position:fixed;top:100px;left:50%;transform:translateX(-50%);z-index:9;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none"></div>
 <div class="pill" id="ctrlHint">W/S drive · A/D steer · E jack/exit · F bat · G pistol · SPACE handbrake · SHIFT sprint</div>
+<div class="pill" id="missionPill" style="top:92px;left:24px;display:none;color:#ffd166;border-color:#ffd16666"></div>
+<div class="pill" id="weapPill" style="top:128px;left:24px;display:none;color:#ff9a3c;border-color:#ff9a3c66"></div>
 <canvas id="minimap" width="140" height="140"></canvas>
 
 <div class="screen" id="start">
@@ -314,6 +316,7 @@ const S = {
   x:4.5, z:4.5, h:0, speed:0,
   hp:100, cash:0, jacked:0, dist:0, wanted:0,
   bustT:0, wantedT:0, dmgCd:0,
+  hasBat:false, hasGun:false, ammo:0, mission:null, missionT:6, blockT:0,
 };
 const player = makePed(); scene.add(player);
 let playerCar = null;
@@ -426,6 +429,10 @@ function completeJack(t) {
   }
   window.LuchiiAudio && LuchiiAudio.sfx("hit", 0.6);
   window.SFX && SFX.engineStart();
+  if (S.mission && S.mission.stage === "steal" && type === S.mission.type) {
+    S.mission.stage = "deliver";
+    toast("📦 THAT'S THE ONE — DELIVER IT TO THE DOCKS ►", "#ffd166");
+  }
   toast(`🚗 ${CAR_TYPES[type].name} JACKED  +$${CAR_TYPES[type].value}`, "#4ade80");
   if (S.wanted >= 3) toast(`★ WANTED LEVEL ${S.wanted} — POLICE INBOUND`, "#ff5555");
   for (let w = 0; w < S.wanted - police.length; w++) spawnPolice();
@@ -473,6 +480,7 @@ function _inFront(dx, dz, cone) {
 }
 function swingBat() {
   if (!S.running || S.inCar || swingT > 0 || S.struggle) return;
+  if (!S.hasBat) { toast("🏏 NO BAT — grab a glowing orange pickup", "#888"); return; }
   swingT = 0.38; holsterT = 2; bat.visible = true; gun.visible = false;
   window.LuchiiAudio && LuchiiAudio.sfx("hit", 0.3);
   for (const n of npcs) {
@@ -489,6 +497,9 @@ function swingBat() {
 }
 function fireGun() {
   if (!S.running || S.inCar || gunFlashT > 0 || S.struggle) return;
+  if (!S.hasGun) { toast("🔫 NO PISTOL — grab a glowing red pickup", "#888"); return; }
+  if (S.ammo <= 0) { toast("🔫 OUT OF AMMO — find another pistol pickup", "#ff5555"); return; }
+  S.ammo--;
   gunFlashT = 0.12; holsterT = 2; gun.visible = true; bat.visible = false;
   muzzle.visible = true;
   muzzle.position.set(S.x + Math.sin(S.h) * 1.1, 1.15, S.z + Math.cos(S.h) * 1.1);
@@ -507,6 +518,83 @@ function fireGun() {
   }
   for (const n of npcs) if (!n.down && Math.hypot(n.x - S.x, n.z - S.z) < 25) n.flee = Math.max(n.flee, 5);
   while (police.length < S.wanted) spawnPolice();
+}
+
+// ─── The Docks — mission delivery zone ─────────────────────
+const DOCK = { x: 108, z: 108 };
+const dockRing = new THREE.Mesh(new THREE.TorusGeometry(5, 0.25, 8, 40), new THREE.MeshBasicMaterial({ color: 0xffd166 }));
+dockRing.rotation.x = -Math.PI / 2; dockRing.position.set(DOCK.x, 0.15, DOCK.z); scene.add(dockRing);
+const dockBeam = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 40, 8, 1, true),
+  new THREE.MeshBasicMaterial({ color: 0xffd166, transparent: true, opacity: 0.22, side: THREE.DoubleSide }));
+dockBeam.position.set(DOCK.x, 20, DOCK.z); scene.add(dockBeam);
+
+// ─── Missions — steal a specific car, deliver to the docks ─
+const MISSION_TYPES = ["sedan", "taxi", "suv", "muscle", "sports", "truck"];
+function offerMission() {
+  const type = MISSION_TYPES[Math.floor(Math.random() * MISSION_TYPES.length)];
+  const reward = CAR_TYPES[type].value * 2 + 300;
+  S.mission = { type, reward, stage: "steal" };
+  toast(`📦 MISSION: STEAL A ${CAR_TYPES[type].name} → DELIVER TO THE DOCKS  +$${reward}`, "#ffd166");
+  window.LuchiiAudio && LuchiiAudio.sfx("hit", 0.25);
+}
+
+// ─── Weapon pickups scattered around the city ──────────────
+const pickups = [];
+function pickupSpot() {
+  for (let i = 0; i < 30; i++) {
+    const r = ROADS[Math.floor(Math.random() * ROADS.length)];
+    const along = -HALF + 8 + Math.random() * (HALF * 2 - 16);
+    const onX = Math.random() < 0.5;
+    const x = onX ? along : r + (Math.random() < 0.5 ? -4 : 4);
+    const z = onX ? r + (Math.random() < 0.5 ? -4 : 4) : along;
+    if (!hitsBuilding(x, z, 0.8)) return { x, z };
+  }
+  return { x: 4, z: 8 };
+}
+function spawnPickups() {
+  pickups.forEach(p => scene.remove(p.mesh)); pickups.length = 0;
+  for (const kind of [...Array(5).fill("bat"), ...Array(4).fill("gun")]) {
+    const g = new THREE.Group();
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.8, 0.06, 8, 24),
+      new THREE.MeshBasicMaterial({ color: kind === "bat" ? 0xffa53c : 0xff5555 }));
+    ring.rotation.x = -Math.PI / 2; ring.position.y = 0.1; g.add(ring);
+    let item;
+    if (kind === "bat") {
+      item = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.062, 0.9, 7), new THREE.MeshStandardMaterial({ color: 0x9a6b3f }));
+      item.rotation.z = 0.8;
+    } else {
+      item = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.2, 0.36), new THREE.MeshStandardMaterial({ color: 0x14141c, metalness: 0.7, roughness: 0.3 }));
+    }
+    item.position.y = 1.0; g.add(item);
+    const spot = pickupSpot();
+    g.position.set(spot.x, 0, spot.z);
+    scene.add(g);
+    pickups.push({ mesh: g, item, kind, taken: 0 });
+  }
+}
+
+// ─── Roadblocks at wanted 3+ ───────────────────────────────
+const roadblocks = [];
+function spawnRoadblock() {
+  if (roadblocks.length >= 2) return;
+  const az = S.z + Math.cos(S.h) * 32;
+  let bz = ROADS[0], bd = 1e9;
+  for (const r of ROADS) { const d = Math.abs(az - r); if (d < bd) { bd = d; bz = r; } }
+  const bx = S.x + Math.sin(S.h) * 32;
+  if (Math.abs(bx) > HALF - 6 || Math.abs(bz) > HALF - 6 || bd > 20) return;
+  const g = new THREE.Group();
+  for (let i = 0; i < 2; i++) {
+    const c = makeCar("police");
+    c.position.x = (i - 0.5) * 3.4;
+    c.rotation.y = Math.PI / 2;
+    g.add(c);
+  }
+  const strip = new THREE.Mesh(new THREE.BoxGeometry(7, 0.4, 0.25), new THREE.MeshBasicMaterial({ color: 0xff8800 }));
+  strip.position.set(0, 1.05, 1.5); g.add(strip);
+  g.position.set(bx, 0, bz);
+  scene.add(g);
+  roadblocks.push({ mesh: g, x: bx, z: bz, t: 22 });
+  toast("🚧 POLICE ROADBLOCK AHEAD", "#ff8800");
 }
 
 // ─── HUD ──────────────────────────────────────────────────
@@ -530,6 +618,18 @@ function hud() {
   const wp = document.getElementById("wantedPill");
   wp.innerHTML = "★★★★★".split("").map((s,i) =>
     `<span style="color:${i < S.wanted ? "#f0c040" : "#333"}">★</span>`).join("");
+  const mp = document.getElementById("missionPill");
+  if (S.mission) {
+    mp.style.display = "block";
+    mp.textContent = S.mission.stage === "steal"
+      ? `📦 STEAL A ${CAR_TYPES[S.mission.type].name}  +$${S.mission.reward}`
+      : `📦 DELIVER TO THE DOCKS ►  +$${S.mission.reward}`;
+  } else mp.style.display = "none";
+  const wpill = document.getElementById("weapPill");
+  if (S.hasBat || S.hasGun) {
+    wpill.style.display = "block";
+    wpill.textContent = (S.hasBat ? "🏏 BAT" : "") + (S.hasBat && S.hasGun ? " · " : "") + (S.hasGun ? `🔫 ×${S.ammo}` : "");
+  } else wpill.style.display = "none";
   // minimap
   mm.clearRect(0,0,140,140);
   mm.fillStyle = "rgba(13,13,26,0.85)"; mm.fillRect(0,0,140,140);
@@ -554,7 +654,10 @@ function start() {
   npcs.forEach(n => scene.remove(n.mesh)); npcs.length = 0;
   if (playerCar) { scene.remove(playerCar); playerCar = null; }
   Object.assign(S, { running:true, inCar:false, carType:null, x:4.5, z:4.5, h:0, speed:0,
-    hp:100, cash:0, jacked:0, dist:0, wanted:0, bustT:0, wantedT:0, dmgCd:0 });
+    hp:100, cash:0, jacked:0, dist:0, wanted:0, bustT:0, wantedT:0, dmgCd:0,
+    hasBat:false, hasGun:false, ammo:0, mission:null, missionT:6, blockT:0 });
+  roadblocks.forEach(b => scene.remove(b.mesh)); roadblocks.length = 0;
+  spawnPickups();
   player.visible = true;
   spawnTraffic(16); spawnNpcs(22);
   document.getElementById("start").style.display = "none";
@@ -730,8 +833,8 @@ function animate() {
       const want = Math.atan2(S.x - p.x, S.z - p.z);
       let diff = want - p.h;
       while (diff > Math.PI) diff -= Math.PI*2; while (diff < -Math.PI) diff += Math.PI*2;
-      p.h += Math.max(-2.2*dt, Math.min(2.2*dt, diff));
-      const target = S.inCar ? 24 : 12;
+      p.h += Math.max(-(2.2 + (S.wanted >= 3 ? 0.8 : 0))*dt, Math.min((2.2 + (S.wanted >= 3 ? 0.8 : 0))*dt, diff));
+      const target = (S.inCar ? 24 : 12) + (S.wanted >= 3 ? 2.5 + S.wanted : 0);
       p.speed += (target - p.speed) * 0.6 * dt;
       const px = p.x + Math.sin(p.h) * p.speed * dt, pz = p.z + Math.cos(p.h) * p.speed * dt;
       if (!hitsBuilding(px, pz, 1.2)) { p.x = px; p.z = pz; } else p.h += 1.5*dt;
@@ -757,6 +860,56 @@ function animate() {
     // wanted decay
     S.wantedT += dt;
     if (S.wantedT > 22 && S.wanted > 0) { S.wanted--; S.wantedT = 0; }
+    // ── missions
+    dockRing.scale.setScalar(1 + Math.sin(flashT * 3) * 0.08);
+    if (!S.mission) {
+      S.missionT -= dt;
+      if (S.missionT <= 0) offerMission();
+    } else if (S.mission.stage === "deliver" && S.inCar && S.carType === S.mission.type
+      && Math.hypot(S.x - DOCK.x, S.z - DOCK.z) < 6) {
+      S.cash += S.mission.reward;
+      toast(`✅ DELIVERED — MISSION COMPLETE  +$${S.mission.reward}`, "#4ade80");
+      window.LuchiiAudio && LuchiiAudio.sfx("win", 0.6);
+      scene.remove(playerCar); playerCar = null;
+      S.inCar = false; S.carType = null; S.speed = 0;
+      S.x = DOCK.x - 8; player.visible = true;
+      window.SFX && SFX.engineStop();
+      document.getElementById("carPill").textContent = "ON FOOT";
+      S.mission = null; S.missionT = 9;
+    }
+    // ── weapon pickups
+    for (const pk of pickups) {
+      if (pk.taken > 0) {
+        pk.taken -= dt;
+        if (pk.taken <= 0) { const s = pickupSpot(); pk.mesh.position.set(s.x, 0, s.z); pk.mesh.visible = true; }
+        continue;
+      }
+      pk.item.rotation.y += 2 * dt;
+      pk.item.position.y = 1 + Math.sin(flashT * 2.5) * 0.15;
+      if (!S.inCar && Math.hypot(pk.mesh.position.x - S.x, pk.mesh.position.z - S.z) < 1.7) {
+        if (pk.kind === "bat") { S.hasBat = true; toast("🏏 BAT ACQUIRED — press F to swing", "#ffa53c"); }
+        else { S.hasGun = true; S.ammo += 8; toast("🔫 PISTOL ACQUIRED  +8 AMMO — press G to fire", "#ff5555"); }
+        window.LuchiiAudio && LuchiiAudio.sfx("win", 0.3);
+        pk.mesh.visible = false; pk.taken = 45;
+      }
+    }
+    // ── roadblocks at wanted 3+
+    if (S.wanted >= 3 && S.inCar) {
+      S.blockT -= dt;
+      if (S.blockT <= 0) { spawnRoadblock(); S.blockT = 9; }
+    }
+    for (let i = roadblocks.length - 1; i >= 0; i--) {
+      const b = roadblocks[i];
+      b.t -= dt;
+      if (b.t <= 0 || S.wanted < 3) { scene.remove(b.mesh); roadblocks.splice(i, 1); continue; }
+      if (Math.hypot(b.x - S.x, b.z - S.z) < 3.2 && S.dmgCd <= 0) {
+        S.hp -= Math.max(6, Math.abs(S.speed) * 0.8);
+        S.speed *= -0.3; S.dmgCd = 0.7;
+        crashFx(0.6);
+        toast("💥 SLAMMED THE ROADBLOCK", "#ff5555");
+        window.LuchiiAudio && LuchiiAudio.sfx("crash", 0.6);
+      }
+    }
     // prompt
     document.getElementById("prompt").style.display =
       (!S.inCar && nearestJackable()) ? "block" : "none";

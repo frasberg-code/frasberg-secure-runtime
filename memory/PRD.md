@@ -924,3 +924,18 @@ All three next-action items SHIPPED and verified on preview:
 - GALLERY PAGE: added live search input (data-testid=gallery-search-input) filtering titles;
   page already had app-store thumbnails + type tabs. Verified: 17 cards → 1 on "LUCHIIFLIX".
 - Registry/ctrlHint controls text updated with F bat · G pistol.
+
+## Session Update — June 2026 (Fork pt.5 cont4: missions + pickups + wanted escalation)
+- MISSION MODE: offerMission() every ~6-9s idle — "STEAL A {TYPE} → DELIVER TO THE DOCKS +$reward"
+  (reward = 2x car value + 300). Docks zone at (108,108): pulsing gold torus ring + light beam,
+  gold blinking marker on minimap. completeJack advances stage; delivery inside 6u radius pays,
+  removes the car, puts player on foot. Mission pill top-left (#missionPill).
+  VERIFIED: truck mission → steal → deliver → +$ paid, mission cleared.
+- WEAPON PICKUPS: players no longer start armed (S.hasBat/hasGun/ammo). 5 bat + 4 pistol pickups
+  (spinning item + colored ring) at road-side spots; collect <1.7u → bat / gun +8 ammo; respawn
+  45s at new spot. Green dots on minimap. Weapons pill (#weapPill) shows 🏏/🔫×ammo.
+  swingBat/fireGun gated with helpful toasts; ammo decrements. VERIFIED all.
+- WANTED ESCALATION 3+: police +speed (target +2.5+wanted) and +turn rate (+0.8); roadblocks
+  (2 police cars + orange strip) spawn 32u ahead on nearest road every 9s (max 2, 22s TTL),
+  collision = HP hit + bounce. BUSTED gameOver already existed (cornered <4 speed 1.6s).
+  VERIFIED: wanted 4 → roadblock spawned + toast.
