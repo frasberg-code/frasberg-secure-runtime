@@ -883,3 +883,16 @@ All three next-action items SHIPPED and verified on preview:
   blocking grid overlay bug, LOCAL ENGINE badge removal, Carjack Pro/City merge
   (note: /api/games/carjack/play returns 404 — "streets" holds the real pro build),
   Constellation Wars giant mobile joystick bug (source not yet found in code).
+
+## Session Update — June 2026 (Fork pt.5 cont: gallery + Luchii branding + iter24)
+- ITERATION 24 (testing agent): FULL UI PROOF passed — builder streamed 7,355 chars via the
+  real page buttons, auto-scroll verified, publish → live URL verified, sidebar persistence OK.
+  Games regression clean: exactly 5 games, no Carjack Pro/Nebula Dodge/LOCAL ENGINE. Carjack City
+  articulated humans run error-free. Twin 360° joysticks (118px) verified on spaceshooter+racer
+  mobile viewport. Viewport meta on all 4 arcade games. Pytest 20/20.
+- GALLERY: 6 Luchii-built clones featured with clean titles: LUCHIIFLIX (Netflix clone),
+  Orb Clicker, Pulse Pomodoro, Reflex, KOI sushi, TipTap. Demo strip cap raised 6→8.
+- BRANDING: Builder page shows "◈ Powered by Luchii 70B — Frasberg sovereign engine" badge
+  (data-testid=builder-engine-badge); progress line now "Frasberg engine · Luchii 70B writing
+  code…". Zero user-facing Claude references (grep verified).
+- NOTE: production frasberg.com needs redeploy to receive ALL of the above.

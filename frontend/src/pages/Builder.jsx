@@ -404,6 +404,9 @@ export default function Builder({ type = "website" }) {
               {quota.used} / {quota.limit} builds used today {quota.pro ? "· Pro" : ""}
             </p>
           )}
+          <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.25em] text-lux-accent" data-testid="builder-engine-badge">
+            ◈ Powered by Luchii 70B — Frasberg sovereign engine
+          </p>
         </div>
 
         <div className="mt-10 grid gap-8 lg:grid-cols-[280px_1fr]">
@@ -505,7 +508,7 @@ export default function Builder({ type = "website" }) {
               </div>
               {busy && (
                 <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2" data-testid="builder-progress">
-                  Frasberg engine writing code · {chars.toLocaleString()} characters…
+                  Frasberg engine · <span className="text-lux-accent">Luchii 70B</span> writing code · {chars.toLocaleString()} characters…
                 </p>
               )}
             </div>
@@ -516,7 +519,7 @@ export default function Builder({ type = "website" }) {
               <div className="mt-6" data-testid="builder-demos-strip">
                 <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">Real builds by Luchii — tap one to run it instantly</p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {[...demos.filter((b) => b.type === type), ...demos.filter((b) => b.type !== type)].slice(0, 6).map((b) => (
+                  {[...demos.filter((b) => b.type === type), ...demos.filter((b) => b.type !== type)].slice(0, 8).map((b) => (
                     <button key={b.slug} type="button" onClick={() => openDemo(b)} data-testid={`builder-demo-${b.slug}`}
                       className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs transition-colors ${demo?.slug === b.slug ? "border-lux-accent text-lux-text" : "border-lux-border text-lux-text2 hover:border-lux-accent hover:text-lux-text"}`}>
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
