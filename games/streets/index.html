@@ -177,14 +177,96 @@ function makeCar(type) {
   g.userData.type = type;
   return g;
 }
+const SKIN_T = [0x8d5524, 0xc68642, 0xe0ac69, 0xf1c27d, 0xffdbac, 0x5c3317];
+const CLOTH_T = [0xe63946, 0x457b9d, 0x2a9d8f, 0xe9c46a, 0x6d597a, 0x8338ec, 0xf4a261, 0x2b2d42, 0x006d77, 0x9b2226];
+const HAIR_T = [0x0b0b0b, 0x3b2716, 0x5e3b17, 0x8a6d3b, 0xb0b0b0, 0x7a1f1f];
 function makePed() {
   const g = new THREE.Group();
-  const c = new THREE.Color().setHSL(Math.random(), 0.55, 0.55);
-  const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.24, 0.7, 3, 8), new THREE.MeshStandardMaterial({ color:c }));
-  body.position.y = 0.85; g.add(body);
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.2,10,10), new THREE.MeshStandardMaterial({ color:0xe8b88a }));
-  head.position.y = 1.55; g.add(head);
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  const skinM  = new THREE.MeshStandardMaterial({ color: pick(SKIN_T) });
+  const shirtM = new THREE.MeshStandardMaterial({ color: pick(CLOTH_T) });
+  const pantsM = new THREE.MeshStandardMaterial({ color: pick(CLOTH_T) });
+  const hairM  = new THREE.MeshStandardMaterial({ color: pick(HAIR_T) });
+  const longHair = Math.random() < 0.4;
+  // Legs — pivot at hip so they swing when walking
+  const mkLeg = (x) => {
+    const leg = new THREE.Group(); leg.position.set(x, 0.86, 0);
+    const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.065, 0.42, 7), pantsM); thigh.position.y = -0.21;
+    const calf  = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.05, 0.4, 7), pantsM);  calf.position.y = -0.62;
+    const shoe  = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, 0.21), new THREE.MeshStandardMaterial({ color: 0x191919 })); shoe.position.set(0, -0.84, 0.05);
+    leg.add(thigh, calf, shoe); g.add(leg); return leg;
+  };
+  const lLeg = mkLeg(-0.11), rLeg = mkLeg(0.11);
+  // Torso
+  const torso = new THREE.Group(); torso.position.y = 0.86;
+  const chest = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.52, 0.22), shirtM); chest.position.y = 0.28; torso.add(chest);
+  const belt  = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.08, 0.21), pantsM); belt.position.y = 0.02; torso.add(belt);
+  // Arms — pivot at shoulder, hang down, swing while walking
+  const mkArm = (x) => {
+    const arm = new THREE.Group(); arm.position.set(x, 0.5, 0);
+    const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.3, 7), shirtM); upper.position.y = -0.15;
+    const fore  = new THREE.Mesh(new THREE.CylinderGeometry(0.048, 0.042, 0.28, 7), skinM); fore.position.y = -0.43;
+    const hand  = new THREE.Mesh(new THREE.SphereGeometry(0.05, 6, 6), skinM); hand.position.y = -0.58;
+    arm.add(upper, fore, hand); torso.add(arm); return arm;
+  };
+  const lArm = mkArm(-0.26), rArm = mkArm(0.26);
+  // Head with eyes + hair
+  const headG = new THREE.Group(); headG.position.y = 0.62;
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.155, 12, 10), skinM); head.position.y = 0.12; headG.add(head);
+  for (const ex of [-0.055, 0.055]) {
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.02, 6, 6), new THREE.MeshBasicMaterial({ color: 0x14100c }));
+    eye.position.set(ex, 0.14, 0.135); headG.add(eye);
+  }
+  if (longHair) {
+    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.165, 10, 8, 0, Math.PI * 2, 0, Math.PI * 0.55), hairM);
+    hair.position.y = 0.15; headG.add(hair);
+    const back = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.3, 0.1), hairM);
+    back.position.set(0, 0.02, -0.12); headG.add(back);
+  } else {
+    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 8, 0, Math.PI * 2, 0, Math.PI * 0.45), hairM);
+    hair.position.y = 0.16; headG.add(hair);
+  }
+  torso.add(headG); g.add(torso);
+  g.userData.limbs = { lArm, rArm, lLeg, rLeg, torso, head: headG };
   return g;
+}
+// ── Human animation — walk, run (arms pumping), panic (hands up), gesture (talk/wave) ──
+function animatePed(g, phase, mode) {
+  const L = g.userData.limbs; if (!L) return;
+  const s = Math.sin(phase);
+  if (mode === "panic") {
+    L.lArm.rotation.x = -2.5 + Math.sin(phase * 2) * 0.5;
+    L.rArm.rotation.x = -2.5 - Math.sin(phase * 2) * 0.5;
+    L.lArm.rotation.z = 0.35; L.rArm.rotation.z = -0.35;
+    L.lLeg.rotation.x = -s * 1.15; L.rLeg.rotation.x = s * 1.15;
+    L.torso.rotation.x = 0.2;
+    L.head.rotation.y = Math.sin(phase * 0.8) * 0.55;
+  } else if (mode === "run") {
+    L.lArm.rotation.x = s * 1.1; L.rArm.rotation.x = -s * 1.1;
+    L.lArm.rotation.z = 0.1; L.rArm.rotation.z = -0.1;
+    L.lLeg.rotation.x = -s * 1.05; L.rLeg.rotation.x = s * 1.05;
+    L.torso.rotation.x = 0.16;
+    L.head.rotation.y = 0;
+  } else if (mode === "gesture") {
+    L.lArm.rotation.x = -0.35 + s * 0.15; L.lArm.rotation.z = 0.15;
+    L.rArm.rotation.x = -1.85 + Math.sin(phase * 1.7) * 0.45; L.rArm.rotation.z = -0.3;
+    L.lLeg.rotation.x = 0; L.rLeg.rotation.x = 0;
+    L.torso.rotation.x = 0;
+    L.head.rotation.x = Math.sin(phase * 1.4) * 0.12;
+    L.head.rotation.y = Math.sin(phase * 0.5) * 0.2;
+  } else if (mode === "idle") {
+    L.lArm.rotation.x = s * 0.06; L.rArm.rotation.x = -s * 0.06;
+    L.lArm.rotation.z = 0.06; L.rArm.rotation.z = -0.06;
+    L.lLeg.rotation.x = 0; L.rLeg.rotation.x = 0;
+    L.torso.rotation.x = 0;
+    L.head.rotation.y = Math.sin(phase * 0.3) * 0.35; L.head.rotation.x = 0;
+  } else { // walk
+    L.lArm.rotation.x = s * 0.62; L.rArm.rotation.x = -s * 0.62;
+    L.lArm.rotation.z = 0.06; L.rArm.rotation.z = -0.06;
+    L.lLeg.rotation.x = -s * 0.58; L.rLeg.rotation.x = s * 0.58;
+    L.torso.rotation.x = 0.05;
+    L.head.rotation.y = Math.sin(phase * 0.22) * 0.3; L.head.rotation.x = 0;
+  }
 }
 function bubble(text) {
   const c = document.createElement("canvas"); c.width = 256; c.height = 64;
@@ -227,7 +309,9 @@ function spawnTraffic(n) {
 }
 // NPCs
 const npcs = [];
+let pedPhase = 0;
 const NPC_LINES = ["HEY!", "THIEF!", "MY CAR!", "HELP!", "CALL 911!"];
+const CHAT_LINES = ["NICE RIDE", "YO!", "SUP", "CRAZY TOWN", "LOVELY DAY", "WATCH IT!", "GOOD EVENING"];
 function spawnNpcs(n) {
   for (let i = 0; i < n; i++) {
     const mesh = makePed(); scene.add(mesh);
@@ -237,7 +321,8 @@ function spawnNpcs(n) {
     const axis = Math.random()<0.5 ? "x" : "z";
     const npc = { mesh, x:axis==="x"?along:r+(Math.random()<0.5?-side:side),
       z:axis==="x"?r+(Math.random()<0.5?-side:side):along,
-      h:Math.random()*Math.PI*2, flee:0, down:false, bubble:null, bubbleT:0 };
+      h:Math.random()*Math.PI*2, flee:0, down:false, bubble:null, bubbleT:0,
+      phase:Math.random()*6.28, gest:0, gestT:2+Math.random()*9 };
     npcs.push(npc);
   }
 }
@@ -445,7 +530,11 @@ function animate() {
     }
     const pm = S.inCar ? playerCar : player;
     pm.position.set(S.x, 0, S.z); pm.rotation.y = S.h;
-    if (!S.inCar) player.children[0].position.y = 0.85 + (S.speed !== 0 ? Math.abs(Math.sin(flashT*10))*0.08 : 0);
+    if (!S.inCar) {
+      const mv = Math.abs(S.speed);
+      pedPhase += dt * (mv > 6 ? 11 : mv > 0.2 ? 6.5 : 1.6);
+      animatePed(player, pedPhase, mv > 6 ? "run" : mv > 0.2 ? "walk" : "idle");
+    }
     window.SFX && S.inCar && SFX.setEngine(30 + Math.abs(S.speed) * 3);
 
     // ── traffic
@@ -465,16 +554,35 @@ function animate() {
         window.LuchiiAudio && LuchiiAudio.sfx("crash", 0.45);
       }
     }
-    // ── NPCs
+    // ── NPCs — living humans: walk, panic-flee, stop & chat, gesture
     for (const n of npcs) {
       if (n.down) continue;
+      const dp = Math.hypot(n.x - S.x, n.z - S.z);
       if (n.flee > 0) {
-        n.flee -= dt;
+        n.flee -= dt; n.gest = 0;
         n.h = Math.atan2(n.x - S.x, n.z - S.z);
         n.x += Math.sin(n.h) * 5.5 * dt; n.z += Math.cos(n.h) * 5.5 * dt;
+        n.phase += dt * 13;
+        animatePed(n.mesh, n.phase, "panic");
+      } else if (n.gest > 0) {
+        n.gest -= dt;
+        n.phase += dt * 6;
+        if (dp < 10) n.h = Math.atan2(S.x - n.x, S.z - n.z);
+        animatePed(n.mesh, n.phase, "gesture");
       } else {
+        n.gestT -= dt;
+        if (n.gestT <= 0) {
+          n.gest = 1.4 + Math.random() * 1.6;
+          n.gestT = 6 + Math.random() * 12;
+          if (!n.bubble && dp < 14 && Math.random() < 0.45) {
+            n.bubble = bubble(CHAT_LINES[Math.floor(Math.random() * CHAT_LINES.length)]);
+            n.mesh.add(n.bubble); n.bubbleT = 2.2;
+          }
+        }
         n.h += (Math.random()-0.5) * 0.12;
         n.x += Math.sin(n.h) * 1.4 * dt; n.z += Math.cos(n.h) * 1.4 * dt;
+        n.phase += dt * 5;
+        animatePed(n.mesh, n.phase, "walk");
       }
       n.x = Math.max(-HALF, Math.min(HALF, n.x)); n.z = Math.max(-HALF, Math.min(HALF, n.z));
       if (hitsBuilding(n.x, n.z, 0.3)) n.h += Math.PI;
