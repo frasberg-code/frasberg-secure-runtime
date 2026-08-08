@@ -25,7 +25,7 @@ export default function ApiDocs() {
 
   return (
     <section id="api" className="border-t border-lux-border bg-lux-surface/40">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-14 px-5 py-28 sm:px-8 lg:grid-cols-2">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-14 px-5 pt-8 pb-24 sm:px-8 lg:grid-cols-2">
         <Reveal>
           <Overline>Developer API</Overline>
           <h2 className="mt-4 font-display text-4xl font-700 tracking-tighter text-lux-text sm:text-5xl">

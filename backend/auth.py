@@ -1,5 +1,7 @@
 import os
 import uuid
+import asyncio
+import logging
 import bcrypt
 import jwt
 from datetime import datetime, timezone, timedelta
@@ -119,6 +121,35 @@ async def _record_failure(identifier: str):
     )
 
 
+async def _send_welcome_email(email: str, name: str):
+    api_key = os.environ.get("RESEND_API_KEY", "")
+    if not api_key:
+        return
+    html = (
+        "<div style='font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc;padding:28px;border-radius:14px;'>"
+        "<p style='color:#1A4FFF;font-size:12px;letter-spacing:2px;text-transform:uppercase;'>Welcome to FrasbergAI</p>"
+        f"<h2 style='margin:8px 0;'>Hey {name} — you're in.</h2>"
+        "<p style='color:#94a3b8;'>Your account is live. Here's how to make your first Luchii call in under a minute:</p>"
+        "<ol style='color:#cbd5e1;font-size:14px;line-height:1.8;'>"
+        "<li>Open your <a href='https://frasberg.com/dashboard' style='color:#1A4FFF;'>Developer Dashboard</a> and generate an API key</li>"
+        "<li>Call the gateway:</li></ol>"
+        "<pre style='background:#020617;border:1px solid #1e293b;border-radius:10px;padding:14px;color:#7dd3fc;font-size:12px;overflow-x:auto;'>"
+        "curl -N -X POST https://frasberg.com/api/v1/chat/completions \\\n"
+        "  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n"
+        "  -H \"Content-Type: application/json\" \\\n"
+        "  -d '{\"model\":\"luchii-6-plus\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello Luchii\"}]}'</pre>"
+        "<p style='color:#64748b;font-size:12px;margin-top:16px;'>Docs: https://frasberg.com/docs · Status: https://frasberg.com/status · support@frasberg.com</p></div>"
+    )
+    try:
+        import resend
+        resend.api_key = api_key
+        params = {"from": os.environ.get("SENDER_EMAIL", "onboarding@resend.dev"), "to": [email],
+                  "subject": "Welcome to FrasbergAI — your Luchii quickstart", "html": html}
+        await asyncio.to_thread(resend.Emails.send, params)
+    except Exception:
+        logging.getLogger(__name__).exception("welcome email failed")
+
+
 @router.post("/register")
 async def register(body: RegisterBody, response: Response):
     email = body.email.strip().lower()
@@ -134,6 +165,7 @@ async def register(body: RegisterBody, response: Response):
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.users.insert_one({**user})
+    asyncio.create_task(_send_welcome_email(email, user["name"]))
     _set_cookies(response, create_access_token(user["id"], email), create_refresh_token(user["id"]))
     return _public(user)
 

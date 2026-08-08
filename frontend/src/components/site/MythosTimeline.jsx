@@ -3,7 +3,7 @@ import { TIMELINE } from "../../data/content";
 
 export default function MythosTimeline() {
   return (
-    <section id="mythos" className="mx-auto max-w-5xl px-5 py-28 sm:px-8">
+    <section id="mythos" className="mx-auto max-w-5xl px-5 pt-8 pb-24 sm:px-8">
       <Reveal>
         <Overline>Mythos timeline</Overline>
         <h2 className="mt-4 font-display text-4xl font-700 tracking-tighter text-lux-text sm:text-5xl">

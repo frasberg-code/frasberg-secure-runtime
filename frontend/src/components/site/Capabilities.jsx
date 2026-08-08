@@ -3,7 +3,7 @@ import { CAPABILITIES } from "../../data/content";
 
 export default function Capabilities() {
   return (
-    <section id="capabilities" className="mx-auto max-w-7xl px-5 py-28 sm:px-8">
+    <section id="capabilities" className="mx-auto max-w-7xl px-5 pt-8 pb-24 sm:px-8">
       <Reveal>
         <Overline>Capabilities</Overline>
         <h2 className="mt-4 max-w-2xl font-display text-4xl font-700 tracking-tighter text-lux-text sm:text-5xl">

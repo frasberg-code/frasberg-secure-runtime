@@ -1074,6 +1074,32 @@ async def admin_tenants(admin: dict = Depends(require_admin)):
     }}
 
 
+@api_router.get("/admin/tenants/{user_id}")
+async def admin_tenant_detail(user_id: str, admin: dict = Depends(require_admin)):
+    u = await db.users.find_one({"id": user_id}, {"_id": 0, "id": 1, "email": 1, "name": 1,
+                                                  "plan": 1, "credit_balance": 1, "created_at": 1})
+    if not u:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+    keys = await db.api_keys.find({"user_id": user_id}, {"_id": 0, "id": 1, "name": 1, "key": 1,
+                                                         "credits": 1, "request_count": 1, "token_count": 1,
+                                                         "last_used": 1, "created": 1}).to_list(100)
+    key_ids = [k["id"] for k in keys]
+    for k in keys:
+        k["key"] = _mask_key(k.get("key", ""))
+    now = datetime.now(timezone.utc)
+    days = [(now - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(13, -1, -1)]
+    by_day = {d: {"day": d, "requests": 0, "tokens": 0} for d in days}
+    if key_ids:
+        for ud in await db.api_key_usage.find({"key_id": {"$in": key_ids}, "day": {"$gte": days[0]}},
+                                              {"_id": 0}).to_list(2000):
+            if ud.get("day") in by_day:
+                by_day[ud["day"]]["requests"] += ud.get("requests", 0)
+                by_day[ud["day"]]["tokens"] += ud.get("tokens", 0)
+    purchases = await db.purchases.find({"email": (u.get("email") or "").lower()},
+                                        {"_id": 0}).sort("ts", -1).to_list(50)
+    return {"tenant": u, "keys": keys, "daily": list(by_day.values()), "purchases": purchases}
+
+
 @api_router.get("/metrics")
 async def prometheus_metrics():
     users_count = await db.users.count_documents({})
@@ -1846,6 +1872,19 @@ async def set_autotopup(key_id: str, body: AutoTopupBody, user: dict = Depends(a
     return {"ok": True, "autotopup": at}
 
 
+@api_router.patch("/keys/{key_id}/alert-threshold")
+async def set_alert_threshold(key_id: str, body: dict, user: dict = Depends(auth_module.get_current_user)):
+    q = {"id": key_id}
+    if user.get("role") != "admin":
+        q["user_id"] = user["id"]
+    threshold = max(50, min(int(body.get("threshold", 500)), 100000))
+    res = await db.api_keys.update_one(q, {"$set": {"alert_threshold": threshold},
+                                           "$unset": {"low_credit_alerted": ""}})
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Key not found")
+    return {"ok": True, "alert_threshold": threshold}
+
+
 # ---------------- LINQ Live — PayPal Tip Jar ----------------
 class TipOrderCreate(BaseModel):
     roomId: str
@@ -2049,7 +2088,8 @@ async def _maybe_low_credit_alert(key_id: str):
     if not key_doc:
         return
     credits = key_doc.get("credits", 0)
-    if credits >= LOW_CREDIT_THRESHOLD:
+    threshold = int(key_doc.get("alert_threshold", LOW_CREDIT_THRESHOLD))
+    if credits >= threshold:
         if key_doc.get("low_credit_alerted"):
             await db.api_keys.update_one({"id": key_id}, {"$unset": {"low_credit_alerted": ""}})
         return
@@ -2064,7 +2104,7 @@ async def _maybe_low_credit_alert(key_id: str):
     html = (f"<div style='font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc;padding:28px;border-radius:14px;'>"
             f"<p style='color:#f59e0b;font-size:12px;letter-spacing:2px;text-transform:uppercase;'>FrasbergAI Low Credit Alert</p>"
             f"<h2 style='margin:8px 0;'>Key \u201c{key_doc.get('name', 'API key')}\u201d is running low</h2>"
-            f"<p style='color:#94a3b8;'>Only <b style='color:#f8fafc'>{credits:,}</b> credits left (alert threshold: {LOW_CREDIT_THRESHOLD:,}). "
+            f"<p style='color:#94a3b8;'>Only <b style='color:#f8fafc'>{credits:,}</b> credits left (alert threshold: {threshold:,}). "
             f"Requests will stop streaming once credits hit zero.</p>"
             f"<p style='margin-top:16px;'><a href='https://frasberg.com/dashboard' style='color:#1A4FFF;'>Top up now \u2192</a> "
             f"<span style='color:#64748b;font-size:12px;'>or enable Auto Top-Up in your dashboard so this never happens again.</span></p></div>")

@@ -4,7 +4,7 @@ import { SAFETY_POINTS } from "../../data/content";
 export default function Safety() {
   return (
     <section id="safety" className="border-t border-lux-border">
-      <div className="mx-auto max-w-4xl px-5 py-28 sm:px-8">
+      <div className="mx-auto max-w-4xl px-5 pt-8 pb-24 sm:px-8">
         <Reveal>
           <Overline>Safety & governance</Overline>
           <h2 className="mt-6 font-display text-3xl font-300 leading-tight tracking-tight text-lux-text sm:text-4xl lg:text-5xl">

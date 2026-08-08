@@ -27,7 +27,7 @@ export const GallerySpotlight = () => {
   if (!b) return null;
 
   return (
-    <section className="relative mx-auto max-w-6xl px-5 py-20 sm:px-8" data-testid="gallery-spotlight">
+    <section className="relative mx-auto max-w-6xl px-5 pt-8 pb-20 sm:px-8" data-testid="gallery-spotlight">
       <Reveal>
         <Overline>From the Gallery — built by Luchii</Overline>
         <div className="mt-6 flex flex-wrap items-end justify-between gap-4">

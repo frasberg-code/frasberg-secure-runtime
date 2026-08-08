@@ -27,7 +27,7 @@ const LOGOS = [
 export default function Ecosystem() {
   return (
     <section id="ecosystem" className="border-y border-lux-border bg-lux-surface/40">
-      <div className="mx-auto max-w-7xl px-5 py-28 sm:px-8">
+      <div className="mx-auto max-w-7xl px-5 pt-8 pb-24 sm:px-8">
         <Reveal>
           <Overline>Scale & ecosystem</Overline>
           <h2 className="mt-4 max-w-3xl font-display text-4xl font-700 tracking-tighter text-lux-text sm:text-5xl">

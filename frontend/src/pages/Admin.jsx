@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, Fragment } from "react";
 import { Link, Navigate } from "react-router-dom";
 import axios from "axios";
 import { Moon, Sun, ArrowLeft, Loader2, Users, MessagesSquare, KeyRound, BookOpen, Gavel, Activity, Trash2, Plus, Pencil, Star, EyeOff, Eye, Globe, Gamepad2, AppWindow, Brain, Hammer, Crown, Timer, Radio, ShieldAlert, RefreshCcw, Lock } from "lucide-react";
@@ -24,6 +24,19 @@ export default function Admin() {
   const [editing, setEditing] = useState(null); // null | {id?, title, content, tags}
   const [ops, setOps] = useState(null);
   const [tenants, setTenants] = useState(null);
+  const [tenantDetail, setTenantDetail] = useState(null); // {id, loading, data}
+
+  const openTenant = async (id) => {
+    if (tenantDetail?.id === id) { setTenantDetail(null); return; }
+    setTenantDetail({ id, loading: true, data: null });
+    try {
+      const r = await axios.get(`${API}/admin/tenants/${id}`, ax);
+      setTenantDetail({ id, loading: false, data: r.data });
+    } catch {
+      toast.error("Could not load tenant detail");
+      setTenantDetail(null);
+    }
+  };
   const lastAlertRef = useRef(null);
 
   useEffect(() => {
@@ -304,7 +317,10 @@ export default function Admin() {
                   </thead>
                   <tbody>
                     {(tenants?.tenants || []).map((t) => (
-                      <tr key={t.id} className="border-t border-lux-border" data-testid={`tenant-row-${t.id}`}>
+                      <Fragment key={t.id}>
+                      <tr onClick={() => openTenant(t.id)}
+                        className={`cursor-pointer border-t border-lux-border transition-colors hover:bg-lux-surface/60 ${tenantDetail?.id === t.id ? "bg-lux-surface/60" : ""}`}
+                        data-testid={`tenant-row-${t.id}`}>
                         <td className="p-3">
                           <p className="text-lux-text">{t.email}</p>
                           <p className="font-mono text-[10px] text-lux-text2">{t.name}</p>
@@ -318,6 +334,59 @@ export default function Admin() {
                         <td className={`p-3 text-right font-mono text-xs ${t.spend > 0 ? "text-emerald-400" : "text-lux-text2"}`}>${t.spend.toFixed(2)}</td>
                         <td className="p-3 font-mono text-xs text-lux-text2">{t.joined}</td>
                       </tr>
+                      {tenantDetail?.id === t.id && (
+                        <tr className="border-t border-lux-border bg-lux-bg/60">
+                          <td colSpan={9} className="p-5" data-testid={`tenant-detail-${t.id}`}>
+                            {tenantDetail.loading ? (
+                              <div className="flex items-center gap-2 font-mono text-xs text-lux-text2"><Loader2 size={14} className="animate-spin" /> Loading tenant detail…</div>
+                            ) : (
+                              <div className="grid gap-5 lg:grid-cols-3">
+                                <div>
+                                  <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">API keys ({tenantDetail.data.keys.length})</p>
+                                  <div className="mt-2 space-y-2">
+                                    {tenantDetail.data.keys.length === 0 && <p className="text-xs text-lux-text2">No keys</p>}
+                                    {tenantDetail.data.keys.map((k) => (
+                                      <div key={k.id} className="rounded-xl border border-lux-border p-3">
+                                        <p className="text-xs font-600 text-lux-text">{k.name}</p>
+                                        <p className="font-mono text-[10px] text-lux-text2">{k.key} · {(k.credits ?? 0).toLocaleString()} credits · {k.request_count || 0} req · {(k.token_count || 0).toLocaleString()} tok</p>
+                                        {k.last_used && <p className="font-mono text-[10px] text-lux-text2">last used {(k.last_used || "").slice(0, 16).replace("T", " ")}</p>}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                                <div>
+                                  <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">Purchases ({tenantDetail.data.purchases.length})</p>
+                                  <div className="mt-2 space-y-2">
+                                    {tenantDetail.data.purchases.length === 0 && <p className="text-xs text-lux-text2">No purchases</p>}
+                                    {tenantDetail.data.purchases.slice(0, 8).map((p) => (
+                                      <div key={p.id} className="rounded-xl border border-lux-border p-3">
+                                        <p className="text-xs text-lux-text">{p.plan} <span className="text-lux-text2">· {p.kind || "credits"}</span></p>
+                                        <p className="font-mono text-[10px] text-lux-text2">{(p.ts || "").slice(0, 16).replace("T", " ")} · {p.status}</p>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                                <div>
+                                  <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">Usage — last 14 days</p>
+                                  <div className="mt-2" style={{ height: 140 }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                      <BarChart data={tenantDetail.data.daily} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
+                                        <XAxis dataKey="day" tick={{ fontSize: 8 }} stroke="#8a86a3" tickFormatter={(d) => d.slice(5)} />
+                                        <YAxis tick={{ fontSize: 8 }} stroke="#8a86a3" width={30} allowDecimals={false} />
+                                        <Tooltip cursor={{ fill: "rgba(140,140,170,0.08)" }}
+                                          contentStyle={{ background: "#111018", border: "1px solid #2a2740", borderRadius: 10, fontSize: 11 }} />
+                                        <Bar dataKey="requests" name="Requests" fill="#7c6cf0" radius={[3, 3, 0, 0]} maxBarSize={14} />
+                                        <Bar dataKey="tokens" name="Tokens" fill="#22d3ee" radius={[3, 3, 0, 0]} maxBarSize={14} />
+                                      </BarChart>
+                                    </ResponsiveContainer>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      )}
+                      </Fragment>
                     ))}
                   </tbody>
                 </table>

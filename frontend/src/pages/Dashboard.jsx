@@ -88,6 +88,22 @@ export default function Dashboard() {
     }
   };
 
+  const setAlertThreshold = async (k, threshold) => {
+    try {
+      const res = await fetch(`${API}/keys/${k.id}/alert-threshold`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ threshold: Number(threshold) }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success(`Low-credit email alert set to ${Number(threshold).toLocaleString()} credits`);
+      refresh();
+    } catch {
+      toast.error("Could not update alert threshold");
+    }
+  };
+
   useEffect(() => { if (user) refresh(); }, [refresh, user]);
 
   useEffect(() => {
@@ -351,6 +367,18 @@ export default function Dashboard() {
                       Auto top-up {atOn ? "on" : "off"}
                     </button>
                     {atOn && <span className="font-mono text-[10px] text-lux-text2">+{(k.autotopup.amount || 5000).toLocaleString()} @ &lt;{k.autotopup.threshold || 500}</span>}
+                    <select
+                      value={k.alert_threshold || 500}
+                      onChange={(e) => setAlertThreshold(k, e.target.value)}
+                      data-testid={`key-alert-threshold-${k.id}`}
+                      className="rounded-full border border-lux-border bg-lux-surface px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-wide text-lux-text2 outline-none hover:text-lux-text focus:border-lux-accent"
+                    >
+                      <option value="250">Email alert @ 250</option>
+                      <option value="500">Email alert @ 500</option>
+                      <option value="1000">Email alert @ 1,000</option>
+                      <option value="2500">Email alert @ 2,500</option>
+                      <option value="5000">Email alert @ 5,000</option>
+                    </select>
                   </div>
                 </div>
                 );
