@@ -35,6 +35,7 @@ Awwwards-level cinematic landing page + platform for the "Luchii" multi-tier int
 - Favicon/mark: precision circle-fit crop (Kasa fit, center 510.3/503.2 r 401.7) of glowing ring → transparent luchii-mark-circle.png used for all UI icons + favicons 16-512 + .ico (cache-bust ?v=3)
 - Navbar Explore dropdown: grouped 2-column mega menu (On this page/Build/Products/Company); mobile menu 2-col grid capped 75vh
 - /linq auth gate now links /auth?mode=login
+- LINQ App tab (LuchiiFlix/cinemazone embed) hidden from public users — admin-only (role check on tab + render)
 - Testing: iteration_30.json — 100% pass backend + frontend (engine actions, PayPal order creation live-mode, usage daily, Plans tab, quick actions artifact cards, dropdown, regression)
 
 ## Known Constraints

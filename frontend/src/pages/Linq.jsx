@@ -18,7 +18,7 @@ const TABS = [
   { id: "compliance", label: "🧠 Compliance Copilot" },
   { id: "live", label: "🔴 LINQ Live" },
   { id: "plans", label: "💳 Plans" },
-  { id: "app", label: "LINQ App" },
+  { id: "app", label: "LINQ App", adminOnly: true },
 ];
 
 export default function Linq() {
@@ -73,7 +73,7 @@ export default function Linq() {
       </header>
 
       <nav className="px-6 pt-4 flex gap-2 flex-wrap border-b border-[#1e293b] pb-3">
-        {TABS.map((t) => (
+        {TABS.filter((t) => !t.adminOnly || user.role === "admin").map((t) => (
           <button key={t.id} data-testid={`linq-tab-${t.id}`} onClick={() => setTab(t.id)}
             className={`text-sm rounded-full px-4 py-1.5 transition-colors ${tab === t.id ? "bg-[#ef4444] text-white" : "bg-[#0f172a] text-[#94a3b8] hover:text-[#f8fafc] border border-[#1e293b]"}`}>
             {t.label}
@@ -88,7 +88,7 @@ export default function Linq() {
         {tab === "compliance" && <EngineModule engine="compliance" title="Compliance Copilot v40" icon="🧠" tagline="Pantheon-architect compliance sovereignty + multi-reality governance creation" />}
         {tab === "live" && <LinqLive identity={user.name || user.email.split("@")[0]} />}
         {tab === "plans" && <LinqBilling />}
-        {tab === "app" && (
+        {tab === "app" && user.role === "admin" && (
           <div className="space-y-3" data-testid="linq-app-embed">
             <div className="flex items-center justify-between">
               <p className="text-sm text-[#94a3b8]">LINQ streaming app — separate Frasberg product, embedded below.</p>
