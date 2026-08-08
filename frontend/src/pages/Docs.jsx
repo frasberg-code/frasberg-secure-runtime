@@ -153,6 +153,15 @@ export default function Docs() {
           </div>
         </section>
 
+        <section className="mt-10" data-testid="docs-legal">
+          <h2 className="font-display text-2xl font-600">Legal & compliance</h2>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link to="/legal?doc=partner" data-testid="docs-legal-partner" className="rounded-full border border-lux-border px-4 py-2 text-sm text-lux-text2 hover:border-lux-accent hover:text-lux-text">Partner API Agreement</Link>
+            <Link to="/legal?doc=sla" data-testid="docs-legal-sla" className="rounded-full border border-lux-border px-4 py-2 text-sm text-lux-text2 hover:border-lux-accent hover:text-lux-text">Provider SLA</Link>
+            <Link to="/legal?doc=compliance" data-testid="docs-legal-compliance" className="rounded-full border border-lux-border px-4 py-2 text-sm text-lux-text2 hover:border-lux-accent hover:text-lux-text">Compliance Packet</Link>
+          </div>
+        </section>
+
         <section className="mt-10" data-testid="docs-discovery">
           <h2 className="font-display text-2xl font-600">Provider verification</h2>
           <p className="mt-2 text-sm text-lux-text2">Standard discovery documents used by registries, routers and agent frameworks:</p>

@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import Docs from "./pages/Docs";
+import Legal from "./pages/Legal";
 import Court from "./pages/Court";
 import Brand from "./pages/Brand";
 import About from "./pages/About";
@@ -69,6 +70,7 @@ function App() {
               <Route path="/luchii-code" element={<LuchiiCode />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/docs" element={<Docs />} />
+              <Route path="/legal" element={<Legal />} />
               <Route path="/court" element={<CourtGate><Court /></CourtGate>} />
               <Route path="/brand" element={<Brand />} />
               <Route path="/about" element={<About />} />

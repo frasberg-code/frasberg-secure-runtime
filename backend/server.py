@@ -497,6 +497,117 @@ async def _status_admin(user: dict = Depends(auth_module.get_current_user)) -> d
     return user
 
 
+async def _uptime_recorder():
+    await asyncio.sleep(15)
+    while True:
+        ok = 1
+        try:
+            await client.admin.command("ping")
+        except Exception:
+            ok = 0
+        now = datetime.now(timezone.utc)
+        try:
+            await db.status_pings.insert_one({"ts": now.isoformat(), "day": now.strftime("%Y-%m-%d"), "ok": ok})
+        except Exception:
+            pass
+        await asyncio.sleep(300)
+
+
+async def _send_usage_receipt(user_doc: dict, period_label: str, days_prefix: str) -> bool:
+    api_key_env = os.environ.get("RESEND_API_KEY", "")
+    email = user_doc.get("email")
+    if not (api_key_env and email):
+        return False
+    keys = await db.api_keys.find({"user_id": user_doc["id"]}, {"_id": 0}).to_list(50)
+    if not keys:
+        return False
+    rows, total_req, total_tok = [], 0, 0
+    for k in keys:
+        usage = await db.api_key_usage.find({"key_id": k["id"], "day": {"$regex": f"^{days_prefix}"}}).to_list(40)
+        req = sum(u.get("requests", 0) for u in usage)
+        tok = sum(u.get("tokens", 0) for u in usage)
+        total_req += req
+        total_tok += tok
+        rows.append((k["name"], req, tok, k.get("credits", 0)))
+    trs = "".join(
+        f"<tr><td style='padding:6px 12px;border-bottom:1px solid #1e293b;'>{n}</td>"
+        f"<td style='padding:6px 12px;border-bottom:1px solid #1e293b;text-align:right;'>{r}</td>"
+        f"<td style='padding:6px 12px;border-bottom:1px solid #1e293b;text-align:right;'>{t}</td>"
+        f"<td style='padding:6px 12px;border-bottom:1px solid #1e293b;text-align:right;'>{c:,}</td></tr>"
+        for n, r, t, c in rows)
+    html = (f"<div style='font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc;padding:28px;border-radius:14px;'>"
+            f"<p style='color:#1A4FFF;font-size:12px;letter-spacing:2px;text-transform:uppercase;'>FrasbergAI Usage Statement</p>"
+            f"<h2 style='margin:8px 0;'>{period_label}</h2>"
+            f"<p style='color:#94a3b8;'>Total: <b style='color:#f8fafc'>{total_req}</b> requests · <b style='color:#f8fafc'>{total_tok}</b> tokens</p>"
+            f"<table style='border-collapse:collapse;width:100%;color:#cbd5e1;font-size:13px;'>"
+            f"<tr style='color:#64748b;text-transform:uppercase;font-size:10px;letter-spacing:1px;'>"
+            f"<th style='text-align:left;padding:6px 12px;'>Key</th><th style='text-align:right;padding:6px 12px;'>Requests</th>"
+            f"<th style='text-align:right;padding:6px 12px;'>Tokens</th><th style='text-align:right;padding:6px 12px;'>Credits left</th></tr>{trs}</table>"
+            f"<p style='color:#64748b;font-size:12px;margin-top:16px;'>Manage keys &amp; top up: https://frasberg.com/dashboard · support@frasberg.com</p></div>")
+    try:
+        import resend
+        resend.api_key = api_key_env
+        params = {"from": os.environ.get("SENDER_EMAIL", "onboarding@resend.dev"), "to": [email],
+                  "subject": f"Your FrasbergAI usage statement — {period_label}", "html": html}
+        await asyncio.to_thread(resend.Emails.send, params)
+        return True
+    except Exception:
+        logger.exception("usage receipt email failed")
+        return False
+
+
+async def _receipts_loop():
+    await asyncio.sleep(60)
+    while True:
+        try:
+            now = datetime.now(timezone.utc)
+            if now.day == 1:
+                prev = (now.replace(day=1) - timedelta(days=1))
+                month = prev.strftime("%Y-%m")
+                state = await db.receipt_state.find_one({"id": "state"}) or {}
+                if state.get("last_month") != month:
+                    await db.receipt_state.update_one({"id": "state"}, {"$set": {"last_month": month}}, upsert=True)
+                    key_owners = await db.api_keys.distinct("user_id")
+                    sent = 0
+                    for uid in key_owners:
+                        if not uid:
+                            continue
+                        u = await db.users.find_one({"id": uid}, {"_id": 0, "id": 1, "email": 1})
+                        if u and await _send_usage_receipt(u, prev.strftime("%B %Y"), month):
+                            sent += 1
+                    logger.info("monthly receipts sent: %s for %s", sent, month)
+        except Exception:
+            logger.exception("receipts loop failed")
+        await asyncio.sleep(21600)
+
+
+@api_router.get("/system/uptime")
+async def system_uptime():
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=30)).strftime("%Y-%m-%d")
+    pipeline = [
+        {"$match": {"day": {"$gte": cutoff}}},
+        {"$group": {"_id": "$day", "ok": {"$sum": "$ok"}, "total": {"$sum": 1}}},
+        {"$sort": {"_id": 1}},
+    ]
+    rows = await db.status_pings.aggregate(pipeline).to_list(31)
+    days = [{"day": r["_id"], "pct": round(100 * r["ok"] / max(r["total"], 1), 3), "checks": r["total"]} for r in rows]
+    ok_sum = sum(r["ok"] for r in rows)
+    total_sum = sum(r["total"] for r in rows)
+    overall = round(100 * ok_sum / max(total_sum, 1), 3) if total_sum else 100.0
+    return {"overall_30d": overall, "days": days,
+            "process_uptime_seconds": int((datetime.now(timezone.utc) - _START_TIME).total_seconds()),
+            "sla_target": 99.9}
+
+
+@api_router.post("/receipts/send-now")
+async def send_receipt_now(user: dict = Depends(auth_module.get_current_user)):
+    now = datetime.now(timezone.utc)
+    ok = await _send_usage_receipt(user, now.strftime("%B %Y (month to date)"), now.strftime("%Y-%m"))
+    if not ok:
+        raise HTTPException(status_code=400, detail="No keys with usage, or email service unavailable")
+    return {"ok": True, "sent_to": user.get("email")}
+
+
 @api_router.get("/system/status")
 async def system_status(admin: dict = Depends(_status_admin)):
     db_ok = True
@@ -1765,15 +1876,22 @@ async def tip_capture_order(order_id: str, body: TipCaptureBody):
 # ---------------- Purchase / Billing history ----------------
 @api_router.get("/purchases/my")
 async def my_purchases(user: dict = Depends(auth_module.get_current_user)):
-    q = {"$or": [{"user_id": user["id"]}, {"key_id": user["id"]}, {"email": user.get("email")}]}
+    q = {"$or": [{"user_id": user["id"]}, {"key_id": user["id"]},
+                 {"key_id": f"wallet-{user['id']}"}, {"email": user.get("email")}]}
     purchases = await db.purchases.find(q, {"_id": 0}).sort("ts", -1).to_list(100)
     cash = await db.cashapp_payments.find({"user_id": user["id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    transfers = await db.credit_transfers.find({"user_id": user["id"]}, {"_id": 0}).sort("ts", -1).to_list(50)
+    wallet_doc = await db.users.find_one({"id": user["id"]}, {"credit_balance": 1})
     meta = {**{p["id"]: p for p in PLANS.values()}, **{p["id"]: p for p in UPGRADE_PLANS.values()}}
     for p in purchases:
         m = meta.get(p.get("plan"), {})
         p["plan_name"] = m.get("name", p.get("plan"))
         p["price"] = m.get("price")
-    return {"purchases": purchases, "cashapp": cash, "plan": user.get("plan"),
+        if str(p.get("key_id", "")).startswith("wallet-"):
+            p["wallet"] = True
+    return {"purchases": purchases, "cashapp": cash, "transfers": transfers,
+            "wallet_balance": int((wallet_doc or {}).get("credit_balance", 0)),
+            "plan": user.get("plan"),
             "plan_started": user.get("plan_started"), "plan_expires": user.get("plan_expires")}
 
 
@@ -2256,6 +2374,8 @@ async def create_indexes():
     threading.Thread(target=_preload_ml, daemon=True).start()
     asyncio.create_task(_probe_upstreams())
     asyncio.create_task(linq_governance.scheduler_loop())
+    asyncio.create_task(_uptime_recorder())
+    asyncio.create_task(_receipts_loop())
 
 
 @app.on_event("shutdown")

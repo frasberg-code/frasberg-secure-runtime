@@ -27,13 +27,17 @@ export const LinqHistory = () => {
 
   const rows = [
     ...(data?.purchases || []).map((p) => ({
-      id: p.order_id || p.id, date: p.ts, item: p.plan_name || p.plan,
+      id: p.order_id || p.id, date: p.ts, item: p.wallet ? `💰 Wallet top-up — ${p.plan_name || p.plan}` : (p.plan_name || p.plan),
       amount: p.price ? `$${p.price}` : (p.credits ? `${p.credits} credits` : "—"),
       status: p.status || "COMPLETED", method: "PayPal", ref: p.order_id,
     })),
     ...(data?.cashapp || []).map((c) => ({
       id: c.id, date: c.created_at, item: c.plan_name,
       amount: `$${c.amount}`, status: c.status, method: "Cash App", ref: c.reference,
+    })),
+    ...(data?.transfers || []).map((t) => ({
+      id: t.id, date: t.ts, item: "⚡ Auto refill — wallet → key",
+      amount: `${t.amount.toLocaleString()} credits`, status: "COMPLETED", method: "Wallet", ref: t.key_id,
     })),
   ].sort((a, b) => (b.date || "").localeCompare(a.date || ""));
 
@@ -48,6 +52,9 @@ export const LinqHistory = () => {
         <div className="rounded-xl border border-[#1e293b] bg-[#0f172a] p-4">
           <div className="text-[10px] uppercase tracking-widest text-[#94a3b8]">Current plan</div>
           <div className="text-xl text-[#f8fafc] mt-1 capitalize" data-testid="history-current-plan">{data?.plan || user?.plan || "free"}</div>
+          {typeof data?.wallet_balance === "number" && (
+            <div className="mt-1 font-mono text-[11px] text-[#facc15]" data-testid="history-wallet-balance">💰 Wallet: {data.wallet_balance.toLocaleString()} tokens</div>
+          )}
         </div>
         <div className="rounded-xl border border-[#1e293b] bg-[#0f172a] p-4">
           <div className="text-[10px] uppercase tracking-widest text-[#94a3b8]">Started</div>

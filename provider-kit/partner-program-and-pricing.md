@@ -55,3 +55,6 @@ Starter $5 / 10K tokens · Pro $12.50 / 30K tokens · Scale $50 / 150K tokens
 
 ## 6. Overages
 Overages billed at standard rates.
+
+## 7. Governing Law
+This Program is governed by the laws of the State of Delaware, United States.

@@ -35,6 +35,6 @@ FrasbergAI does not store prompts or outputs for training. Metadata-only logging
 FrasbergAI may revoke access for violation of this Agreement.
 
 ## 8. Governing Law
-This Agreement is governed by Nevada law.
+This Agreement is governed by the laws of the State of Delaware, United States. Any disputes arising under or relating to this Agreement shall be resolved exclusively in the state or federal courts located in Delaware.
 
 By integrating FrasbergAI, Partner agrees to this Agreement.

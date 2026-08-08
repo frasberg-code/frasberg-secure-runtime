@@ -42,8 +42,13 @@ export default function Status() {
   const { user } = useAuth();
   const [data, setData] = useState(null);
   const [error, setError] = useState(false);
+  const [uptime, setUptime] = useState(null);
 
   const isAdmin = user?.role === "admin";
+
+  useEffect(() => {
+    fetch(`${API}/system/uptime`).then((r) => r.json()).then(setUptime).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -126,6 +131,30 @@ export default function Status() {
         )}
         {!data && !error && (
           <div className="mt-8 flex items-center gap-2 text-sm text-lux-text2"><RefreshCw size={14} className="animate-spin" /> Checking systems…</div>
+        )}
+
+        {uptime && (
+          <div className="mt-6 rounded-2xl border border-lux-border bg-lux-surface/60 p-5" data-testid="status-uptime">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-lux-text2">Measured uptime — 30 days</span>
+              <span className={`font-display text-2xl font-700 ${uptime.overall_30d >= uptime.sla_target ? "text-emerald-400" : "text-amber-400"}`} data-testid="uptime-percentage">
+                {uptime.overall_30d}%
+              </span>
+              <span className="font-mono text-[10px] text-lux-text2">SLA target {uptime.sla_target}%</span>
+              <span className={`rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase tracking-widest ${uptime.overall_30d >= uptime.sla_target ? "border-emerald-400/50 text-emerald-400" : "border-amber-400/50 text-amber-400"}`}>
+                {uptime.overall_30d >= uptime.sla_target ? "SLA met" : "Below target"}
+              </span>
+            </div>
+            {uptime.days.length > 0 && (
+              <div className="mt-4 flex items-end gap-1" data-testid="uptime-day-bars">
+                {uptime.days.map((d) => (
+                  <div key={d.day} title={`${d.day}: ${d.pct}% (${d.checks} checks)`}
+                    className={`w-3 rounded-sm ${d.pct >= 99.9 ? "bg-emerald-400" : d.pct >= 99 ? "bg-amber-400" : "bg-red-500"}`}
+                    style={{ height: `${Math.max(8, (d.pct / 100) * 40)}px` }} />
+                ))}
+              </div>
+            )}
+          </div>
         )}
 
         <div className="mt-4 space-y-3 pb-16">

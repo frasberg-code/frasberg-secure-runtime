@@ -29,7 +29,7 @@ Enterprise tenants may enforce: US-only · EU-only · APAC-only · Custom reside
 This Contract remains in effect until terminated by either party.
 
 ## 8. Governing Law
-Nevada, United States.
+Delaware, United States.
 
 ---
 

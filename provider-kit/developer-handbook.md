@@ -48,4 +48,7 @@ data: [DONE]
 Any OpenAI-compatible SDK works via `baseURL` override: JavaScript (`openai`, Vercel AI SDK), Python (`openai`, LangChain, LlamaIndex), Go, Rust, Swift.
 
 ## 10. Support
-support@frasberg.com · status: https://frasberg.com/status
+support@frasberg.com · status: https://status.frasberg.com
+
+## 11. Governing Law
+Developer policies governed by Delaware, United States.

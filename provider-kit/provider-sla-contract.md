@@ -24,7 +24,7 @@ Multi-region failover is automatic for enterprise tenants.
 - Standard: 24 hours · Premium: 4 hours · Enterprise: 1 hour · Dedicated: 15 minutes
 
 ## 6. Incident Reporting
-All incidents are posted on https://frasberg.com/status
+All incidents are posted on https://status.frasberg.com
 
 ## 7. Remedies
 If SLA is not met, FrasbergAI provides service credits.

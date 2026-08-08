@@ -12,7 +12,7 @@ Subject: Provider listing request — FrasbergAI (Luchii models, OpenAI-compatib
 | Provider slug | `frasbergai` |
 | Operator / legal entity | FRASBERG INC |
 | Website | https://frasberg.com |
-| Documentation | https://frasberg.com/docs |
+| Documentation | https://docs.frasberg.com |
 | Contact email | admin@frasberg.com |
 
 ## 2. API details (OpenAI-compatible)
