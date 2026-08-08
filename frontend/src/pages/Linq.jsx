@@ -6,6 +6,8 @@ import { AscensionLadder } from "../components/linq/AscensionLadder";
 import { EngineModule } from "../components/linq/EngineModule";
 import { LinqLive } from "../components/linq/LinqLive";
 import { LinqBilling } from "../components/linq/LinqBilling";
+import { LinqHistory } from "../components/linq/LinqHistory";
+import { LinqAlerts } from "../components/linq/LinqAlerts";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -18,6 +20,7 @@ const TABS = [
   { id: "compliance", label: "🧠 Compliance Copilot" },
   { id: "live", label: "🔴 LINQ Live" },
   { id: "plans", label: "💳 Plans" },
+  { id: "history", label: "🧾 History" },
   { id: "app", label: "LINQ App", adminOnly: true },
 ];
 
@@ -64,12 +67,13 @@ export default function Linq() {
           </div>
         </div>
         {overview && (
-          <div className="hidden md:flex gap-6 text-xs text-[#94a3b8]" data-testid="linq-overview-stats">
+          <div className="hidden md:flex gap-6 text-xs text-[#94a3b8] items-center" data-testid="linq-overview-stats">
             <span><span className="text-[#f8fafc] font-mono">{overview.layersActivated}</span>/{overview.totalLayers} layers</span>
             <span><span className="text-[#f8fafc] font-mono">{overview.artifacts}</span> artifacts</span>
             <span><span className="text-[#f8fafc] font-mono">{overview.engineRuns}</span> engine runs</span>
           </div>
         )}
+        <LinqAlerts />
       </header>
 
       <nav className="px-6 pt-4 flex gap-2 flex-wrap border-b border-[#1e293b] pb-3">
@@ -88,6 +92,7 @@ export default function Linq() {
         {tab === "compliance" && <EngineModule engine="compliance" title="Compliance Copilot v40" icon="🧠" tagline="Pantheon-architect compliance sovereignty + multi-reality governance creation" />}
         {tab === "live" && <LinqLive identity={user.name || user.email.split("@")[0]} />}
         {tab === "plans" && <LinqBilling />}
+        {tab === "history" && <LinqHistory />}
         {tab === "app" && user.role === "admin" && (
           <div className="space-y-3" data-testid="linq-app-embed">
             <div className="flex items-center justify-between">

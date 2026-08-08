@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import axios from "axios";
 import { Room, RoomEvent } from "livekit-client";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { toast } from "sonner";
-import { Loader2, Radio, Video, MessageSquare } from "lucide-react";
+import { Loader2, Radio, Video, MessageSquare, Volume2, VolumeX, DollarSign, X } from "lucide-react";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -18,6 +19,11 @@ export const LinqLive = ({ identity }) => {
   const [luchiiInput, setLuchiiInput] = useState("");
   const [preview, setPreview] = useState(null);
   const [thinking, setThinking] = useState(false);
+  const [voiceOn, setVoiceOn] = useState(false);
+  const [tipOpen, setTipOpen] = useState(false);
+  const [tipAmount, setTipAmount] = useState(5);
+  const [tipBursts, setTipBursts] = useState([]);
+  const [ppCfg, setPpCfg] = useState(null);
   const roomRef = useRef(null);
   const videoRef = useRef(null);
 
@@ -42,6 +48,16 @@ export const LinqLive = ({ identity }) => {
     return () => { clearInterval(id); roomRef.current?.disconnect(); };
   }, [loadRooms, loadPreview]);
 
+  useEffect(() => {
+    fetch(`${API}/paypal/config`).then((r) => r.json()).then(setPpCfg).catch(() => setPpCfg({ configured: false }));
+  }, []);
+
+  const burstTip = useCallback((amount, from) => {
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    setTipBursts((prev) => [...prev, { id, amount, from }]);
+    setTimeout(() => setTipBursts((prev) => prev.filter((b) => b.id !== id)), 4200);
+  }, []);
+
   const attachTrack = (track) => {
     if (track.kind === "video" && videoRef.current) track.attach(videoRef.current);
   };
@@ -56,6 +72,14 @@ export const LinqLive = ({ identity }) => {
       lkRoom.on(RoomEvent.TrackSubscribed, (track) => attachTrack(track));
       lkRoom.on(RoomEvent.DataReceived, (payload, participant) => {
         const text = new TextDecoder().decode(payload);
+        if (text.startsWith("TIP::")) {
+          try {
+            const t = JSON.parse(text.slice(5));
+            burstTip(t.amount, t.from);
+            setMessages((prev) => [...prev, { from: t.from, text: `tipped $${t.amount} 💸`, tip: true }]);
+          } catch {}
+          return;
+        }
         setMessages((prev) => [...prev, { from: participant?.identity || "unknown", text }]);
       });
       lkRoom.on(RoomEvent.Disconnected, () => setConnected(false));
@@ -102,6 +126,17 @@ export const LinqLive = ({ identity }) => {
     setChatInput("");
   };
 
+  const speak = useCallback(async (text) => {
+    if (!voiceOn || !text) return;
+    try {
+      const { data } = await axios.post(`${API}/voice/speak`, { text, tone: "balanced" });
+      if (data?.audio_base64) {
+        const audio = new Audio(`data:${data.mime || "audio/mpeg"};base64,${data.audio_base64}`);
+        audio.play().catch(() => {});
+      }
+    } catch {}
+  }, [voiceOn]);
+
   const askLuchii = async () => {
     if (!luchiiInput.trim()) return;
     const text = luchiiInput.trim();
@@ -110,7 +145,10 @@ export const LinqLive = ({ identity }) => {
     setThinking(true);
     try {
       const { data } = await axios.post(`${API}/agents/luchii/actions`, { roomId: roomName, action: "viewer_question", from: identity, details: { text } });
-      if (data.reply) setMessages((prev) => [...prev, { from: "luchii", text: data.reply, artifact: data.artifact }]);
+      if (data.reply) {
+        setMessages((prev) => [...prev, { from: "luchii", text: data.reply, artifact: data.artifact }]);
+        speak(data.reply);
+      }
     } catch {
       toast.error("Luchii is unavailable");
     } finally {
@@ -167,10 +205,99 @@ export const LinqLive = ({ identity }) => {
               <button data-testid="live-leave-btn" onClick={leave} className="bg-[#1e293b] hover:bg-[#334155] text-white text-sm rounded-full px-5 py-2">Leave</button>
             )}
             {agentPresent && <span className="text-xs text-[#4ade80]" data-testid="agent-badge">• Luchii active</span>}
+            <button data-testid="luchii-voice-toggle" onClick={() => setVoiceOn((v) => !v)}
+              title={voiceOn ? "Luchii voice on" : "Luchii voice off"}
+              className={`grid h-9 w-9 place-items-center rounded-full border transition-colors ${voiceOn ? "border-[#4ade80]/60 text-[#4ade80]" : "border-[#1e293b] text-[#64748b]"}`}>
+              {voiceOn ? <Volume2 size={14} /> : <VolumeX size={14} />}
+            </button>
+            <button data-testid="tip-jar-btn" onClick={() => setTipOpen((o) => !o)}
+              className="flex items-center gap-1.5 rounded-full border border-[#facc15]/60 text-[#facc15] hover:bg-[#facc15]/10 px-4 py-2 text-sm">
+              <DollarSign size={14} /> Tip
+            </button>
           </div>
 
-          <div className="bg-black rounded-lg aspect-video overflow-hidden border border-[#1e293b] flex items-center justify-center">
+          {tipOpen && (
+            <div className="bg-[#0f172a] border border-[#facc15]/30 rounded-lg p-4 space-y-3" data-testid="tip-jar-panel">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-[#f8fafc]">💸 Send a tip to the room</span>
+                <button onClick={() => setTipOpen(false)} data-testid="tip-jar-close" className="text-[#64748b] hover:text-[#f8fafc]"><X size={14} /></button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[2, 5, 10, 20, 50].map((a) => (
+                  <button key={a} data-testid={`tip-amount-${a}`} onClick={() => setTipAmount(a)}
+                    className={`rounded-full px-3.5 py-1.5 text-sm border font-mono ${tipAmount === a ? "bg-[#facc15] border-[#facc15] text-black" : "border-[#1e293b] text-[#cbd5e1] hover:border-[#facc15]"}`}>
+                    ${a}
+                  </button>
+                ))}
+              </div>
+              {ppCfg?.configured ? (
+                <div className="max-w-xs" data-testid="tip-paypal-buttons">
+                  <PayPalScriptProvider options={{ "client-id": ppCfg.client_id, currency: "USD", intent: "capture" }}>
+                    <PayPalButtons
+                      style={{ layout: "horizontal", color: "gold", height: 38, tagline: false }}
+                      forceReRender={[tipAmount, roomName]}
+                      createOrder={async () => {
+                        const res = await fetch(`${API}/rooms/tip/orders`, {
+                          method: "POST", headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ roomId: roomName, amount: tipAmount }),
+                        });
+                        if (!res.ok) throw new Error("tip order failed");
+                        return (await res.json()).id;
+                      }}
+                      onApprove={async (data) => {
+                        const res = await fetch(`${API}/rooms/tip/orders/${data.orderID}/capture`, {
+                          method: "POST", headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ roomId: roomName, from_name: identity }),
+                        });
+                        const out = await res.json();
+                        if (out.status === "COMPLETED") {
+                          toast.success(`Tip sent — $${out.amount} 💸`);
+                          burstTip(out.amount, identity);
+                          setMessages((prev) => [...prev, { from: identity, text: `tipped $${out.amount} 💸`, tip: true }]);
+                          if (roomRef.current) {
+                            roomRef.current.localParticipant.publishData(
+                              new TextEncoder().encode(`TIP::${JSON.stringify({ amount: out.amount, from: identity })}`),
+                              { reliable: true }).catch(() => {});
+                          }
+                          setTipOpen(false);
+                        } else {
+                          toast.error("Tip did not complete");
+                        }
+                      }}
+                      onError={() => toast.error("PayPal tip failed")}
+                    />
+                  </PayPalScriptProvider>
+                </div>
+              ) : (
+                <p className="text-xs text-[#64748b]">Payments not configured.</p>
+              )}
+            </div>
+          )}
+
+          <div className="relative bg-black rounded-lg aspect-video overflow-hidden border border-[#1e293b] flex items-center justify-center">
             <video ref={videoRef} autoPlay playsInline muted={mode === "host"} className="w-full h-full object-contain" data-testid="live-video" />
+            <div className="pointer-events-none absolute inset-0 overflow-hidden" data-testid="tip-burst-layer">
+              {tipBursts.map((t, i) => (
+                <div key={t.id} className="linq-tip-burst" style={{ left: `${18 + ((i * 23) % 60)}%` }}>
+                  <span className="text-3xl">💸</span>
+                  <span className="ml-1 font-mono text-[#facc15] text-lg drop-shadow">${t.amount}</span>
+                  <div className="text-[10px] text-[#f8fafc]/80 text-center">{t.from}</div>
+                </div>
+              ))}
+            </div>
+            <style>{`
+              .linq-tip-burst {
+                position: absolute; bottom: 8%;
+                animation: linqTipFloat 4s ease-out forwards;
+                display: flex; flex-direction: column; align-items: center;
+              }
+              @keyframes linqTipFloat {
+                0% { transform: translateY(0) scale(0.6); opacity: 0; }
+                12% { transform: translateY(-8%) scale(1.15); opacity: 1; }
+                25% { transform: translateY(-18%) scale(1); }
+                100% { transform: translateY(-320%) scale(1.05); opacity: 0; }
+              }
+            `}</style>
           </div>
 
           <div className="bg-[#0f172a] border border-[#1e293b] rounded-lg p-3 space-y-2">
@@ -188,7 +315,7 @@ export const LinqLive = ({ identity }) => {
               {messages.length === 0 && <div className="text-[#64748b] text-xs">No messages yet — ask Luchii to "run a threat scan" or "pull billing data"</div>}
               {messages.map((m, i) => (
                 <div key={i}>
-                  <span className={m.from === "luchii" ? "text-[#4ade80]" : "text-[#f87171]"}>{m.from}</span>: <span className="text-[#e2e8f0]">{m.text}</span>
+                  <span className={m.from === "luchii" ? "text-[#4ade80]" : m.tip ? "text-[#facc15]" : "text-[#f87171]"}>{m.from}</span>: <span className={m.tip ? "text-[#facc15]" : "text-[#e2e8f0]"}>{m.text}</span>
                   {m.artifact && (
                     <div className="mt-1 mb-2 ml-4 rounded-lg border border-[#1e293b] bg-[#020617] p-2.5 text-xs space-y-1" data-testid={`engine-artifact-${m.artifact.engine}`}>
                       <div className="flex items-center justify-between">

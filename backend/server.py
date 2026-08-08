@@ -1647,6 +1647,94 @@ async def paypal_capture_order(order_id: str, body: OrderCapture):
         raise HTTPException(status_code=502, detail="PayPal is unavailable")
 
 
+# ---------------- LINQ Live — PayPal Tip Jar ----------------
+class TipOrderCreate(BaseModel):
+    roomId: str
+    amount: float
+
+
+@api_router.post("/rooms/tip/orders")
+async def tip_create_order(body: TipOrderCreate):
+    amt = round(float(body.amount), 2)
+    if amt < 1 or amt > 500:
+        raise HTTPException(status_code=400, detail="Tip must be between $1 and $500")
+    try:
+        token = await _paypal_token()
+        async with httpx.AsyncClient(timeout=20) as c:
+            r = await c.post(
+                f"{PAYPAL_BASE}/v2/checkout/orders",
+                headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+                json={"intent": "CAPTURE", "purchase_units": [{
+                    "reference_id": f"tip::{body.roomId}",
+                    "description": f"LINQ Live tip — {body.roomId}",
+                    "amount": {"currency_code": "USD", "value": f"{amt:.2f}"}}]},
+            )
+        if r.status_code >= 400:
+            logger.error("tip order failed: %s", r.text)
+            raise HTTPException(status_code=502, detail="PayPal tip order failed")
+        return {"id": r.json()["id"]}
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("tip order error")
+        raise HTTPException(status_code=502, detail="PayPal is unavailable")
+
+
+class TipCaptureBody(BaseModel):
+    roomId: str
+    from_name: str = "viewer"
+
+
+@api_router.post("/rooms/tip/orders/{order_id}/capture")
+async def tip_capture_order(order_id: str, body: TipCaptureBody):
+    try:
+        token = await _paypal_token()
+        async with httpx.AsyncClient(timeout=25) as c:
+            r = await c.post(
+                f"{PAYPAL_BASE}/v2/checkout/orders/{order_id}/capture",
+                headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+            )
+        if r.status_code >= 400:
+            logger.error("tip capture failed: %s", r.text)
+            raise HTTPException(status_code=502, detail="PayPal tip capture failed")
+        data = r.json()
+        status = data.get("status")
+        amount = 0.0
+        try:
+            amount = float(data["purchase_units"][0]["payments"]["captures"][0]["amount"]["value"])
+        except Exception:
+            pass
+        if status == "COMPLETED":
+            now = datetime.now(timezone.utc).isoformat()
+            await db.linq_tips.insert_one({"id": str(uuid.uuid4()), "roomId": body.roomId,
+                                           "from": body.from_name, "amount": amount,
+                                           "orderId": order_id, "createdAt": now})
+            await db.linq_events.insert_one({"id": str(uuid.uuid4()), "roomId": body.roomId,
+                                             "type": "tip", "identity": body.from_name,
+                                             "payload": {"amount": amount, "paid": True}, "timestamp": now})
+        return {"status": status, "amount": amount}
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("tip capture error")
+        raise HTTPException(status_code=502, detail="PayPal is unavailable")
+
+
+# ---------------- Purchase / Billing history ----------------
+@api_router.get("/purchases/my")
+async def my_purchases(user: dict = Depends(auth_module.get_current_user)):
+    q = {"$or": [{"user_id": user["id"]}, {"key_id": user["id"]}, {"email": user.get("email")}]}
+    purchases = await db.purchases.find(q, {"_id": 0}).sort("ts", -1).to_list(100)
+    cash = await db.cashapp_payments.find({"user_id": user["id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    meta = {**{p["id"]: p for p in PLANS.values()}, **{p["id"]: p for p in UPGRADE_PLANS.values()}}
+    for p in purchases:
+        m = meta.get(p.get("plan"), {})
+        p["plan_name"] = m.get("name", p.get("plan"))
+        p["price"] = m.get("price")
+    return {"purchases": purchases, "cashapp": cash, "plan": user.get("plan"),
+            "plan_started": user.get("plan_started"), "plan_expires": user.get("plan_expires")}
+
+
 import builder as builder_module
 
 api_router.include_router(auth_module.router)
@@ -1742,6 +1830,7 @@ async def create_indexes():
             logger.exception("ML preload failed — continuing without sovereign voice")
     threading.Thread(target=_preload_ml, daemon=True).start()
     asyncio.create_task(_probe_upstreams())
+    asyncio.create_task(linq_governance.scheduler_loop())
 
 
 @app.on_event("shutdown")

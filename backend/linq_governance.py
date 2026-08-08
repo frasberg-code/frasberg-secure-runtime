@@ -2,6 +2,7 @@ import os
 import json
 import re
 import uuid
+import asyncio
 import logging
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Depends
@@ -193,3 +194,97 @@ async def overview(user=Depends(get_current_user)):
     layers_run = len(await db.linq_gov_artifacts.distinct("layer"))
     return {"totalLayers": len(LAYERS), "layersActivated": layers_run,
             "artifacts": artifacts, "engineRuns": runs}
+
+
+# ---------------- Engine Scheduler & Alerts ----------------
+SCHED_ENGINES = ("threat", "compliance")
+
+
+async def _run_and_alert(eng: str):
+    prev = await db.linq_engine_runs.find_one({"engine": eng}, sort=[("createdAt", -1)])
+    doc = await run_engine_core(eng, "scheduler")
+    prev_score, curr = (prev or {}).get("score"), doc.get("score")
+    alerted = False
+    if isinstance(prev_score, (int, float)) and isinstance(curr, (int, float)) and curr < prev_score:
+        drop = round(prev_score - curr, 1)
+        await db.linq_alerts.insert_one({
+            "id": str(uuid.uuid4()), "engine": eng, "prevScore": prev_score, "score": curr,
+            "delta": -drop,
+            "message": f"{ENGINES[eng]['title']} score dropped {drop} points ({prev_score} → {curr})",
+            "read": False, "createdAt": _now()})
+        alerted = True
+    return doc, alerted
+
+
+async def _scheduler_tick():
+    state = await db.linq_scheduler.find_one({"id": "state"}) or {}
+    if not state.get("enabled", True):
+        return
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    if state.get("last_run_day") == today:
+        return
+    await db.linq_scheduler.update_one({"id": "state"},
+                                       {"$set": {"last_run_day": today, "last_run_at": _now()}}, upsert=True)
+    for eng in SCHED_ENGINES:
+        try:
+            await _run_and_alert(eng)
+        except Exception:
+            logger.exception("scheduled %s run failed", eng)
+
+
+async def scheduler_loop():
+    await asyncio.sleep(30)
+    while True:
+        try:
+            await _scheduler_tick()
+        except Exception:
+            logger.exception("scheduler tick failed")
+        await asyncio.sleep(1800)
+
+
+@router.get("/scheduler")
+async def scheduler_status(user=Depends(get_current_user)):
+    state = await db.linq_scheduler.find_one({"id": "state"}, {"_id": 0}) or {}
+    runs = await db.linq_engine_runs.find({"createdBy": "scheduler"},
+                                          {"_id": 0, "engine": 1, "score": 1, "tag": 1, "createdAt": 1}
+                                          ).sort("createdAt", -1).to_list(10)
+    return {"enabled": state.get("enabled", True), "last_run_day": state.get("last_run_day"),
+            "last_run_at": state.get("last_run_at"), "engines": list(SCHED_ENGINES), "recentRuns": runs}
+
+
+@router.post("/scheduler/toggle")
+async def scheduler_toggle(user=Depends(get_current_user)):
+    state = await db.linq_scheduler.find_one({"id": "state"}) or {}
+    new_val = not state.get("enabled", True)
+    await db.linq_scheduler.update_one({"id": "state"}, {"$set": {"enabled": new_val}}, upsert=True)
+    return {"enabled": new_val}
+
+
+@router.post("/scheduler/run-now")
+async def scheduler_run_now(user=Depends(get_current_user)):
+    results, alerts_created = [], 0
+    for eng in SCHED_ENGINES:
+        try:
+            doc, alerted = await _run_and_alert(eng)
+        except Exception:
+            logger.exception("run-now %s failed", eng)
+            continue
+        alerts_created += 1 if alerted else 0
+        results.append({"engine": eng, "score": doc.get("score"), "tag": doc.get("tag")})
+    await db.linq_scheduler.update_one({"id": "state"},
+                                       {"$set": {"last_run_day": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                                                 "last_run_at": _now()}}, upsert=True)
+    return {"results": results, "alertsCreated": alerts_created}
+
+
+@router.get("/alerts")
+async def list_alerts(user=Depends(get_current_user)):
+    items = await db.linq_alerts.find({}, {"_id": 0}).sort("createdAt", -1).to_list(50)
+    unread = await db.linq_alerts.count_documents({"read": False})
+    return {"alerts": items, "unread": unread}
+
+
+@router.post("/alerts/read")
+async def mark_alerts_read(user=Depends(get_current_user)):
+    await db.linq_alerts.update_many({}, {"$set": {"read": True}})
+    return {"ok": True}
