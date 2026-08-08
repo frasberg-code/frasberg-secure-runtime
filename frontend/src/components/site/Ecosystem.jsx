@@ -3,8 +3,8 @@ import Reveal, { Overline } from "./Reveal";
 import { ECOSYSTEM } from "../../data/content";
 
 const LOGOS = [
-  { name: "Frasberg AI", slug: "frasberg-ai", src: "/frasberg-emblem.png", spin: true },
-  { name: "Luchii", slug: "luchii", src: "/luchii-mark-circle.png", spin: true },
+  { name: "Frasberg AI", slug: "frasberg-ai", src: "/frasberg-emblem.png" },
+  { name: "Luchii", slug: "luchii", src: "/luchii-mark-circle.png" },
   { name: "Python", slug: "python" },
   { name: "JavaScript", slug: "javascript" },
   { name: "Go", slug: "go" },
@@ -73,10 +73,8 @@ export default function Ecosystem() {
                     src={l.src || `https://cdn.simpleicons.org/${l.slug}/8B949E`}
                     alt={l.name}
                     loading="lazy"
-                    className={l.spin
-                      ? "turn-step h-7 w-7 rounded-full"
-                      : "h-7 w-7 grayscale transition-all duration-300 group-hover:grayscale-0"}
-                    style={l.spin ? undefined : { filter: "grayscale(1)" }}
+                    className={`h-7 w-7 grayscale transition-all duration-300 group-hover:grayscale-0 ${l.src ? "rounded-full" : ""}`}
+                    style={{ filter: "grayscale(1)" }}
                   />
                   <span className="font-mono text-xs text-lux-text2 transition-colors duration-300 group-hover:text-lux-text">{l.name}</span>
                 </div>

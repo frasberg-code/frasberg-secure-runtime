@@ -146,8 +146,17 @@ async def _send_welcome_email(email: str, name: str):
         params = {"from": os.environ.get("SENDER_EMAIL", "onboarding@resend.dev"), "to": [email],
                   "subject": "Welcome to FrasbergAI — your Luchii quickstart", "html": html}
         await asyncio.to_thread(resend.Emails.send, params)
+        ok = True
     except Exception:
         logging.getLogger(__name__).exception("welcome email failed")
+        ok = False
+    try:
+        await db.email_log.insert_one({"id": str(uuid.uuid4()), "kind": "welcome", "to": email,
+                                       "subject": "Welcome to FrasbergAI — your Luchii quickstart",
+                                       "ok": ok, "user_id": None,
+                                       "ts": datetime.now(timezone.utc).isoformat()})
+    except Exception:
+        pass
 
 
 @router.post("/register")

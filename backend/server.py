@@ -514,6 +514,15 @@ async def _uptime_recorder():
         await asyncio.sleep(300)
 
 
+async def _log_email(kind: str, to: str, subject: str, ok: bool, user_id: str = None):
+    try:
+        await db.email_log.insert_one({"id": str(uuid.uuid4()), "kind": kind, "to": to, "subject": subject,
+                                       "ok": ok, "user_id": user_id,
+                                       "ts": datetime.now(timezone.utc).isoformat()})
+    except Exception:
+        pass
+
+
 async def _send_usage_receipt(user_doc: dict, period_label: str, days_prefix: str) -> bool:
     api_key_env = os.environ.get("RESEND_API_KEY", "")
     email = user_doc.get("email")
@@ -551,9 +560,11 @@ async def _send_usage_receipt(user_doc: dict, period_label: str, days_prefix: st
         params = {"from": os.environ.get("SENDER_EMAIL", "onboarding@resend.dev"), "to": [email],
                   "subject": f"Your FrasbergAI usage statement — {period_label}", "html": html}
         await asyncio.to_thread(resend.Emails.send, params)
+        await _log_email("usage_receipt", email, params["subject"], True, user_doc.get("id"))
         return True
     except Exception:
         logger.exception("usage receipt email failed")
+        await _log_email("usage_receipt", email, f"Your FrasbergAI usage statement — {period_label}", False, user_doc.get("id"))
         return False
 
 
@@ -607,6 +618,90 @@ async def send_receipt_now(user: dict = Depends(auth_module.get_current_user)):
     if not ok:
         raise HTTPException(status_code=400, detail="No keys with usage, or email service unavailable")
     return {"ok": True, "sent_to": user.get("email")}
+
+
+@api_router.get("/emails/history")
+async def email_history(user: dict = Depends(auth_module.get_current_user)):
+    q = {"$or": [{"user_id": user["id"]}, {"to": user.get("email")}]}
+    docs = await db.email_log.find(q, {"_id": 0}).sort("ts", -1).to_list(20)
+    return docs
+
+
+async def _send_weekly_digest() -> int:
+    api_key_env = os.environ.get("RESEND_API_KEY", "")
+    if not api_key_env:
+        return 0
+    now = datetime.now(timezone.utc)
+    week_ago = (now - timedelta(days=7)).isoformat()
+    new_users = await db.users.count_documents({"created_at": {"$gte": week_ago}})
+
+    def _plan_price(pid):
+        p = UPGRADE_PLANS.get(pid) or PLANS.get(pid)
+        return float(p["price"]) if p else 0.0
+
+    revenue = 0.0
+    for doc in await db.purchases.find({"ts": {"$gte": week_ago}}, {"plan": 1}).to_list(2000):
+        revenue += _plan_price(doc.get("plan"))
+    for doc in await db.cashapp_payments.find({"status": "approved", "approved_at": {"$gte": week_ago}},
+                                              {"plan_id": 1}).to_list(2000):
+        revenue += _plan_price(doc.get("plan_id"))
+    top_keys = await db.api_keys.find({}, {"_id": 0, "user_id": 1, "token_count": 1}).to_list(5000)
+    by_user: dict = {}
+    for k in top_keys:
+        by_user[k.get("user_id")] = by_user.get(k.get("user_id"), 0) + k.get("token_count", 0)
+    top5 = sorted(by_user.items(), key=lambda x: x[1], reverse=True)[:5]
+    rows = ""
+    for uid, tok in top5:
+        u = await db.users.find_one({"id": uid}, {"email": 1})
+        rows += (f"<tr><td style='padding:6px 12px;border-bottom:1px solid #1e293b;'>{(u or {}).get('email', uid)}</td>"
+                 f"<td style='padding:6px 12px;border-bottom:1px solid #1e293b;text-align:right;'>{tok:,}</td></tr>")
+    html = (f"<div style='font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc;padding:28px;border-radius:14px;'>"
+            f"<p style='color:#1A4FFF;font-size:12px;letter-spacing:2px;text-transform:uppercase;'>FrasbergAI Weekly Digest</p>"
+            f"<h2 style='margin:8px 0;'>Week of {now.strftime('%B %d, %Y')}</h2>"
+            f"<p style='color:#94a3b8;'>New signups: <b style='color:#f8fafc'>{new_users}</b> · "
+            f"Revenue: <b style='color:#34d399'>${revenue:.2f}</b></p>"
+            f"<p style='color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-top:18px;'>Top tenants by tokens</p>"
+            f"<table style='border-collapse:collapse;width:100%;color:#cbd5e1;font-size:13px;'>{rows}</table>"
+            f"<p style='color:#64748b;font-size:12px;margin-top:16px;'>Full detail: https://frasberg.com/admin</p></div>")
+    admins = await db.users.find({"role": "admin"}, {"id": 1, "email": 1}).to_list(20)
+    sent = 0
+    subject = f"FrasbergAI weekly digest — {new_users} signups · ${revenue:.2f}"
+    for a in admins:
+        try:
+            import resend
+            resend.api_key = api_key_env
+            await asyncio.to_thread(resend.Emails.send, {
+                "from": os.environ.get("SENDER_EMAIL", "onboarding@resend.dev"),
+                "to": [a["email"]], "subject": subject, "html": html})
+            await _log_email("weekly_digest", a["email"], subject, True, a.get("id"))
+            sent += 1
+        except Exception:
+            logger.exception("weekly digest failed for %s", a.get("email"))
+            await _log_email("weekly_digest", a["email"], subject, False, a.get("id"))
+    return sent
+
+
+async def _digest_loop():
+    await asyncio.sleep(120)
+    while True:
+        try:
+            now = datetime.now(timezone.utc)
+            if now.weekday() == 0:
+                week = now.strftime("%G-W%V")
+                state = await db.digest_state.find_one({"id": "state"}) or {}
+                if state.get("last_week") != week:
+                    await db.digest_state.update_one({"id": "state"}, {"$set": {"last_week": week}}, upsert=True)
+                    sent = await _send_weekly_digest()
+                    logger.info("weekly digest sent to %s admins for %s", sent, week)
+        except Exception:
+            logger.exception("digest loop failed")
+        await asyncio.sleep(21600)
+
+
+@api_router.post("/admin/digest/send-now")
+async def digest_send_now(admin: dict = Depends(_status_admin)):
+    sent = await _send_weekly_digest()
+    return {"ok": True, "sent_to_admins": sent}
 
 
 @api_router.get("/system/status")
@@ -1031,8 +1126,8 @@ async def admin_stats(admin: dict = Depends(require_admin)):
 
 @api_router.get("/admin/tenants")
 async def admin_tenants(admin: dict = Depends(require_admin)):
-    users = await db.users.find({}, {"_id": 0, "id": 1, "email": 1, "name": 1, "plan": 1,
-                                     "credit_balance": 1, "created_at": 1}).to_list(1000)
+    users = await db.users.find({}, {"_id": 0, "id": 1, "email": 1, "name": 1, "plan": 1, "role": 1,
+                                     "credit_balance": 1, "created_at": 1, "suspended": 1}).to_list(1000)
     keys = await db.api_keys.find({}, {"_id": 0, "user_id": 1, "request_count": 1,
                                        "token_count": 1, "credits": 1}).to_list(5000)
     by_user: dict = {}
@@ -1063,6 +1158,7 @@ async def admin_tenants(admin: dict = Depends(require_admin)):
         tenants.append({
             "id": u["id"], "email": u.get("email"), "name": u.get("name"), "plan": u.get("plan", "free"),
             "joined": (u.get("created_at") or "")[:10], "wallet": u.get("credit_balance", 0),
+            "suspended": bool(u.get("suspended")), "role": u.get("role", "user"),
             **agg, "spend": round(spend_by_email.get((u.get("email") or "").lower(), 0.0), 2),
         })
     tenants.sort(key=lambda t: (t["spend"], t["tokens"]), reverse=True)
@@ -1077,7 +1173,7 @@ async def admin_tenants(admin: dict = Depends(require_admin)):
 @api_router.get("/admin/tenants/{user_id}")
 async def admin_tenant_detail(user_id: str, admin: dict = Depends(require_admin)):
     u = await db.users.find_one({"id": user_id}, {"_id": 0, "id": 1, "email": 1, "name": 1,
-                                                  "plan": 1, "credit_balance": 1, "created_at": 1})
+                                                  "plan": 1, "credit_balance": 1, "created_at": 1, "suspended": 1})
     if not u:
         raise HTTPException(status_code=404, detail="Tenant not found")
     keys = await db.api_keys.find({"user_id": user_id}, {"_id": 0, "id": 1, "name": 1, "key": 1,
@@ -1098,6 +1194,32 @@ async def admin_tenant_detail(user_id: str, admin: dict = Depends(require_admin)
     purchases = await db.purchases.find({"email": (u.get("email") or "").lower()},
                                         {"_id": 0}).sort("ts", -1).to_list(50)
     return {"tenant": u, "keys": keys, "daily": list(by_day.values()), "purchases": purchases}
+
+
+@api_router.post("/admin/tenants/{user_id}/grant-credits")
+async def admin_grant_credits(user_id: str, body: dict, admin: dict = Depends(require_admin)):
+    amount = max(1, min(int(body.get("amount", 0)), 1000000))
+    res = await db.users.update_one({"id": user_id}, {"$inc": {"credit_balance": amount}})
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+    await db.credit_transfers.insert_one({
+        "id": str(uuid.uuid4()), "user_id": user_id, "amount": amount, "kind": "admin_grant",
+        "granted_by": admin["id"], "ts": datetime.now(timezone.utc).isoformat()})
+    doc = await db.users.find_one({"id": user_id}, {"credit_balance": 1})
+    return {"ok": True, "granted": amount, "wallet": int((doc or {}).get("credit_balance", 0))}
+
+
+@api_router.post("/admin/tenants/{user_id}/suspend")
+async def admin_suspend_tenant(user_id: str, body: dict, admin: dict = Depends(require_admin)):
+    suspended = bool(body.get("suspended", True))
+    target = await db.users.find_one({"id": user_id}, {"role": 1})
+    if not target:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+    if target.get("role") == "admin":
+        raise HTTPException(status_code=400, detail="Cannot suspend an admin account")
+    await db.users.update_one({"id": user_id}, {"$set": {"suspended": suspended}})
+    await db.api_keys.update_many({"user_id": user_id}, {"$set": {"suspended": suspended}})
+    return {"ok": True, "suspended": suspended}
 
 
 @api_router.get("/metrics")
@@ -1400,6 +1522,8 @@ async def gateway_chat(req: ChatRequest, authorization: Optional[str] = Header(N
     key_doc = await db.api_keys.find_one({"key": key}, {"_id": 0})
     if not key_doc:
         raise HTTPException(status_code=401, detail="Invalid API key")
+    if key_doc.get("suspended"):
+        raise HTTPException(status_code=403, detail="Account suspended — contact support@frasberg.com")
     exp = key_doc.get("expires_at")
     if exp and exp < datetime.now(timezone.utc).isoformat():
         raise HTTPException(status_code=401, detail="API key expired")
@@ -2048,6 +2172,8 @@ async def _validate_bearer_key(authorization: Optional[str]) -> dict:
     key_doc = await db.api_keys.find_one({"key": key}, {"_id": 0})
     if not key_doc:
         raise HTTPException(status_code=401, detail="Invalid API key")
+    if key_doc.get("suspended"):
+        raise HTTPException(status_code=403, detail="Account suspended — contact support@frasberg.com")
     exp = key_doc.get("expires_at")
     if exp and exp < datetime.now(timezone.utc).isoformat():
         raise HTTPException(status_code=401, detail="API key expired")
@@ -2114,9 +2240,11 @@ async def _maybe_low_credit_alert(key_id: str):
         params = {"from": os.environ.get("SENDER_EMAIL", "onboarding@resend.dev"), "to": [email],
                   "subject": f"\u26a0\ufe0f Low credits on \u201c{key_doc.get('name', 'API key')}\u201d \u2014 {credits:,} left", "html": html}
         await asyncio.to_thread(_resend.Emails.send, params)
+        await _log_email("low_credit_alert", email, params["subject"], True, key_doc.get("user_id"))
         logger.info("low credit alert sent for key %s", key_id)
     except Exception:
         logger.exception("low credit alert failed")
+        await _log_email("low_credit_alert", email, f"Low credits on {key_doc.get('name', 'API key')}", False, key_doc.get("user_id"))
 
 
 async def _meter_key(key_id: str, tokens: int, deduct: bool = False):
@@ -2501,6 +2629,7 @@ async def create_indexes():
     asyncio.create_task(linq_governance.scheduler_loop())
     asyncio.create_task(_uptime_recorder())
     asyncio.create_task(_receipts_loop())
+    asyncio.create_task(_digest_loop())
 
 
 @app.on_event("shutdown")

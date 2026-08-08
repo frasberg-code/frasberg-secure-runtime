@@ -38,6 +38,7 @@ export default function Dashboard() {
   const [daily, setDaily] = useState([]);
   const [copied, setCopied] = useState(false);
   const [wallet, setWallet] = useState(0);
+  const [emails, setEmails] = useState([]);
   const [sendingStatement, setSendingStatement] = useState(false);
 
   const emailStatement = async () => {
@@ -56,16 +57,18 @@ export default function Dashboard() {
 
   const refresh = useCallback(async () => {
     try {
-      const [k, u, d, w] = await Promise.all([
+      const [k, u, d, w, e] = await Promise.all([
         fetch(`${API}/keys`, { credentials: "include" }).then((r) => (r.ok ? r.json() : [])),
         fetch(`${API}/usage`, { credentials: "include" }).then((r) => (r.ok ? r.json() : null)),
         fetch(`${API}/keys/usage/daily`, { credentials: "include" }).then((r) => (r.ok ? r.json() : [])),
         fetch(`${API}/wallet`, { credentials: "include" }).then((r) => (r.ok ? r.json() : null)),
+        fetch(`${API}/emails/history`, { credentials: "include" }).then((r) => (r.ok ? r.json() : [])),
       ]);
       setKeys(Array.isArray(k) ? k : []);
       if (u) setUsage(u);
       setDaily(Array.isArray(d) ? d : []);
       if (w) setWallet(w.balance);
+      setEmails(Array.isArray(e) ? e : []);
     } catch {
       toast.error("Failed to load dashboard");
     }
@@ -383,6 +386,33 @@ export default function Dashboard() {
                 </div>
                 );
               })
+            )}
+          </div>
+        </section>
+
+        {/* Email history */}
+        <section className="mt-14">
+          <h2 className="flex items-center gap-2 font-display text-2xl font-600 tracking-tight">
+            <Mail size={20} className="text-lux-accent" /> Email history
+          </h2>
+          <p className="mt-2 text-sm text-lux-text2">Receipts, alerts and notifications sent to your inbox.</p>
+          <div className="mt-5 overflow-hidden rounded-2xl border border-lux-border" data-testid="email-history">
+            {emails.length === 0 ? (
+              <p className="p-6 text-sm text-lux-text2">No emails yet — statements and low-credit alerts will appear here.</p>
+            ) : (
+              emails.map((e) => (
+                <div key={e.id} className="flex items-center justify-between gap-4 border-b border-lux-border px-5 py-3 last:border-0" data-testid={`email-row-${e.id}`}>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm text-lux-text">{e.subject}</p>
+                    <p className="font-mono text-[10px] text-lux-text2">
+                      {(e.kind || "").replace(/_/g, " ")} · {(e.ts || "").slice(0, 16).replace("T", " ")}
+                    </p>
+                  </div>
+                  <span className={`shrink-0 rounded-full border px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-wide ${e.ok ? "border-emerald-400/60 text-emerald-400" : "border-amber-500/60 text-amber-400"}`}>
+                    {e.ok ? "Sent" : "Pending domain"}
+                  </span>
+                </div>
+              ))
             )}
           </div>
         </section>

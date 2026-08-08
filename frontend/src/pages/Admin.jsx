@@ -25,6 +25,28 @@ export default function Admin() {
   const [ops, setOps] = useState(null);
   const [tenants, setTenants] = useState(null);
   const [tenantDetail, setTenantDetail] = useState(null); // {id, loading, data}
+  const [grantAmount, setGrantAmount] = useState("");
+
+  const grantCredits = async (id) => {
+    const amount = Number(grantAmount);
+    if (!amount || amount < 1) { toast.error("Enter a credit amount"); return; }
+    try {
+      const r = await axios.post(`${API}/admin/tenants/${id}/grant-credits`, { amount }, ax);
+      toast.success(`Granted ${amount.toLocaleString()} credits — wallet now ${r.data.wallet.toLocaleString()}`);
+      setGrantAmount("");
+      openTenant(id); setTenantDetail(null); openTenant(id);
+      load();
+    } catch (err) { toast.error(formatApiErrorDetail(err.response?.data?.detail)); }
+  };
+
+  const suspendTenant = async (id, suspended) => {
+    try {
+      await axios.post(`${API}/admin/tenants/${id}/suspend`, { suspended }, ax);
+      toast.success(suspended ? "Tenant suspended — API keys blocked" : "Tenant reinstated");
+      setTenantDetail(null);
+      load();
+    } catch (err) { toast.error(formatApiErrorDetail(err.response?.data?.detail)); }
+  };
 
   const openTenant = async (id) => {
     if (tenantDetail?.id === id) { setTenantDetail(null); return; }
@@ -322,7 +344,9 @@ export default function Admin() {
                         className={`cursor-pointer border-t border-lux-border transition-colors hover:bg-lux-surface/60 ${tenantDetail?.id === t.id ? "bg-lux-surface/60" : ""}`}
                         data-testid={`tenant-row-${t.id}`}>
                         <td className="p-3">
-                          <p className="text-lux-text">{t.email}</p>
+                          <p className="text-lux-text">{t.email}
+                            {t.suspended && <span className="ml-2 rounded-full border border-red-500/60 bg-red-500/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wide text-red-400" data-testid={`tenant-suspended-${t.id}`}>Suspended</span>}
+                          </p>
                           <p className="font-mono text-[10px] text-lux-text2">{t.name}</p>
                         </td>
                         <td className="p-3"><span className={t.plan !== "free" ? "text-lux-accent" : "text-lux-text2"}>{t.plan}</span></td>
@@ -340,6 +364,28 @@ export default function Admin() {
                             {tenantDetail.loading ? (
                               <div className="flex items-center gap-2 font-mono text-xs text-lux-text2"><Loader2 size={14} className="animate-spin" /> Loading tenant detail…</div>
                             ) : (
+                              <>
+                              <div className="mb-4 flex flex-wrap items-center gap-3" data-testid={`tenant-actions-${t.id}`}>
+                                <input
+                                  type="number" min="1" placeholder="Credits (e.g. 5000)"
+                                  value={grantAmount} onChange={(e) => setGrantAmount(e.target.value)}
+                                  onClick={(e) => e.stopPropagation()}
+                                  data-testid={`tenant-grant-input-${t.id}`}
+                                  className="w-44 rounded-full border border-lux-border bg-lux-surface px-4 py-2 font-mono text-xs outline-none focus:border-lux-accent"
+                                />
+                                <button onClick={(e) => { e.stopPropagation(); grantCredits(t.id); }}
+                                  data-testid={`tenant-grant-btn-${t.id}`}
+                                  className="rounded-full bg-lux-accent px-4 py-2 text-xs font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
+                                  Grant credits
+                                </button>
+                                {t.role !== "admin" && (
+                                  <button onClick={(e) => { e.stopPropagation(); suspendTenant(t.id, !t.suspended); }}
+                                    data-testid={`tenant-suspend-btn-${t.id}`}
+                                    className={`rounded-full border px-4 py-2 text-xs transition-colors ${t.suspended ? "border-emerald-400/60 text-emerald-400 hover:bg-emerald-400/10" : "border-red-500/60 text-red-400 hover:bg-red-500/10"}`}>
+                                    {t.suspended ? "Reinstate tenant" : "Suspend tenant"}
+                                  </button>
+                                )}
+                              </div>
                               <div className="grid gap-5 lg:grid-cols-3">
                                 <div>
                                   <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">API keys ({tenantDetail.data.keys.length})</p>
@@ -382,6 +428,7 @@ export default function Admin() {
                                   </div>
                                 </div>
                               </div>
+                              </>
                             )}
                           </td>
                         </tr>
