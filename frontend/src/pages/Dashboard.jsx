@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
-  Key, Plus, Copy, Trash2, Activity, Cpu, Terminal, ArrowLeft, Moon, Sun, Check, BarChart3,
+  Key, Plus, Copy, Trash2, Activity, Cpu, Terminal, ArrowLeft, Moon, Sun, Check, BarChart3, Mail,
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
 import { useTheme } from "../context/ThemeContext";
@@ -38,6 +38,21 @@ export default function Dashboard() {
   const [daily, setDaily] = useState([]);
   const [copied, setCopied] = useState(false);
   const [wallet, setWallet] = useState(0);
+  const [sendingStatement, setSendingStatement] = useState(false);
+
+  const emailStatement = async () => {
+    setSendingStatement(true);
+    try {
+      const res = await fetch(`${API}/receipts/send-now`, { method: "POST", credentials: "include" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Failed");
+      toast.success(`Usage statement sent to ${data.sent_to}`);
+    } catch (e) {
+      toast.error(e.message || "Could not send statement");
+    } finally {
+      setSendingStatement(false);
+    }
+  };
 
   const refresh = useCallback(async () => {
     try {
@@ -189,6 +204,14 @@ export default function Dashboard() {
             <span className="ml-auto rounded-full border border-lux-border px-3 py-1 font-mono text-[11px] text-lux-text2" data-testid="wallet-balance">
               💰 Wallet: {wallet.toLocaleString()} tokens
             </span>
+            <button
+              onClick={emailStatement}
+              disabled={sendingStatement}
+              data-testid="email-statement-btn"
+              className="flex items-center gap-1.5 rounded-full border border-lux-border px-3 py-1 font-mono text-[11px] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent disabled:opacity-50"
+            >
+              <Mail size={12} /> {sendingStatement ? "Sending…" : "Email me my statement"}
+            </button>
           </h2>
           <div className="mt-5 rounded-2xl border border-lux-border bg-lux-surface p-5" style={{ height: 240 }} data-testid="key-usage-graph">
             {daily.every((d) => d.requests === 0) ? (

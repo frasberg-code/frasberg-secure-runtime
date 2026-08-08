@@ -470,6 +470,7 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
             )
             if deduct_credits:
                 await _maybe_autotopup(key_id)
+                await _maybe_low_credit_alert(key_id)
         yield f"data: {json.dumps({'done': True, 'session_id': session_id, 'mesh': 'frasberg-secure-v1', 'sig': _mesh_sign(full)})}\n\n"
 
     return StreamingResponse(
@@ -1026,6 +1027,51 @@ async def admin_stats(admin: dict = Depends(require_admin)):
         "revenue_monthly": revenue_monthly, "revenue_total": round(sum(monthly.values()), 2),
         "upstream_active": bool(ACTIVE_UPSTREAM), "recent_purchases": purchases,
     }
+
+
+@api_router.get("/admin/tenants")
+async def admin_tenants(admin: dict = Depends(require_admin)):
+    users = await db.users.find({}, {"_id": 0, "id": 1, "email": 1, "name": 1, "plan": 1,
+                                     "credit_balance": 1, "created_at": 1}).to_list(1000)
+    keys = await db.api_keys.find({}, {"_id": 0, "user_id": 1, "request_count": 1,
+                                       "token_count": 1, "credits": 1}).to_list(5000)
+    by_user: dict = {}
+    for k in keys:
+        agg = by_user.setdefault(k.get("user_id"), {"keys": 0, "requests": 0, "tokens": 0, "credits": 0})
+        agg["keys"] += 1
+        agg["requests"] += k.get("request_count", 0)
+        agg["tokens"] += k.get("token_count", 0)
+        agg["credits"] += k.get("credits", 0)
+
+    def _plan_price(pid):
+        p = UPGRADE_PLANS.get(pid) or PLANS.get(pid)
+        return float(p["price"]) if p else 0.0
+
+    spend_by_email: dict = {}
+    for p in await db.purchases.find({}, {"email": 1, "plan": 1}).to_list(5000):
+        em = (p.get("email") or "").lower()
+        if em:
+            spend_by_email[em] = spend_by_email.get(em, 0.0) + _plan_price(p.get("plan"))
+    for p in await db.cashapp_payments.find({"status": "approved"}, {"user_email": 1, "plan_id": 1}).to_list(5000):
+        em = (p.get("user_email") or "").lower()
+        if em:
+            spend_by_email[em] = spend_by_email.get(em, 0.0) + _plan_price(p.get("plan_id"))
+
+    tenants = []
+    for u in users:
+        agg = by_user.get(u["id"], {"keys": 0, "requests": 0, "tokens": 0, "credits": 0})
+        tenants.append({
+            "id": u["id"], "email": u.get("email"), "name": u.get("name"), "plan": u.get("plan", "free"),
+            "joined": (u.get("created_at") or "")[:10], "wallet": u.get("credit_balance", 0),
+            **agg, "spend": round(spend_by_email.get((u.get("email") or "").lower(), 0.0), 2),
+        })
+    tenants.sort(key=lambda t: (t["spend"], t["tokens"]), reverse=True)
+    return {"tenants": tenants, "totals": {
+        "tenants": len(tenants),
+        "revenue": round(sum(t["spend"] for t in tenants), 2),
+        "tokens": sum(t["tokens"] for t in tenants),
+        "requests": sum(t["requests"] for t in tenants),
+    }}
 
 
 @api_router.get("/metrics")
@@ -1995,6 +2041,44 @@ async def _maybe_autotopup(key_id: str):
     logger.info("auto top-up: %s tokens -> key %s", transfer, key_id)
 
 
+LOW_CREDIT_THRESHOLD = 500
+
+
+async def _maybe_low_credit_alert(key_id: str):
+    key_doc = await db.api_keys.find_one({"id": key_id})
+    if not key_doc:
+        return
+    credits = key_doc.get("credits", 0)
+    if credits >= LOW_CREDIT_THRESHOLD:
+        if key_doc.get("low_credit_alerted"):
+            await db.api_keys.update_one({"id": key_id}, {"$unset": {"low_credit_alerted": ""}})
+        return
+    if key_doc.get("low_credit_alerted"):
+        return
+    api_key_env = os.environ.get("RESEND_API_KEY", "")
+    owner = await db.users.find_one({"id": key_doc.get("user_id")}, {"email": 1})
+    email = (owner or {}).get("email")
+    if not (api_key_env and email):
+        return
+    await db.api_keys.update_one({"id": key_id}, {"$set": {"low_credit_alerted": True}})
+    html = (f"<div style='font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc;padding:28px;border-radius:14px;'>"
+            f"<p style='color:#f59e0b;font-size:12px;letter-spacing:2px;text-transform:uppercase;'>FrasbergAI Low Credit Alert</p>"
+            f"<h2 style='margin:8px 0;'>Key \u201c{key_doc.get('name', 'API key')}\u201d is running low</h2>"
+            f"<p style='color:#94a3b8;'>Only <b style='color:#f8fafc'>{credits:,}</b> credits left (alert threshold: {LOW_CREDIT_THRESHOLD:,}). "
+            f"Requests will stop streaming once credits hit zero.</p>"
+            f"<p style='margin-top:16px;'><a href='https://frasberg.com/dashboard' style='color:#1A4FFF;'>Top up now \u2192</a> "
+            f"<span style='color:#64748b;font-size:12px;'>or enable Auto Top-Up in your dashboard so this never happens again.</span></p></div>")
+    try:
+        import resend as _resend
+        _resend.api_key = api_key_env
+        params = {"from": os.environ.get("SENDER_EMAIL", "onboarding@resend.dev"), "to": [email],
+                  "subject": f"\u26a0\ufe0f Low credits on \u201c{key_doc.get('name', 'API key')}\u201d \u2014 {credits:,} left", "html": html}
+        await asyncio.to_thread(_resend.Emails.send, params)
+        logger.info("low credit alert sent for key %s", key_id)
+    except Exception:
+        logger.exception("low credit alert failed")
+
+
 async def _meter_key(key_id: str, tokens: int, deduct: bool = False):
     now = datetime.now(timezone.utc)
     inc = {"request_count": 1, "token_count": tokens}
@@ -2006,6 +2090,7 @@ async def _meter_key(key_id: str, tokens: int, deduct: bool = False):
                                       {"$inc": {"requests": 1, "tokens": tokens}}, upsert=True)
     if deduct:
         await _maybe_autotopup(key_id)
+        await _maybe_low_credit_alert(key_id)
 
 
 @api_router.get("/v1/models")

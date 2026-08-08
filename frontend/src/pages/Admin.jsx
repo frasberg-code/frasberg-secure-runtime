@@ -23,6 +23,7 @@ export default function Admin() {
   const [builds, setBuilds] = useState([]);
   const [editing, setEditing] = useState(null); // null | {id?, title, content, tags}
   const [ops, setOps] = useState(null);
+  const [tenants, setTenants] = useState(null);
   const lastAlertRef = useRef(null);
 
   useEffect(() => {
@@ -63,6 +64,7 @@ export default function Admin() {
         axios.get(`${API}/admin/builder`, ax),
       ]);
       setStats(s.data); setUsers(u.data); setConvos(c.data); setKb(k.data); setPayments(p.data.payments || []); setBuilds(b.data);
+      axios.get(`${API}/admin/tenants`, ax).then((r) => setTenants(r.data)).catch(() => {});
     } catch (err) {
       toast.error(formatApiErrorDetail(err.response?.data?.detail));
     }
@@ -275,6 +277,50 @@ export default function Admin() {
                     </BarChart>
                   </ResponsiveContainer>
                 )}
+              </div>
+            </section>
+
+            <section className="mt-12" data-testid="admin-tenants-panel">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2 className="font-display text-2xl font-700 tracking-tight">Tenants &amp; revenue</h2>
+                {tenants?.totals && (
+                  <div className="flex flex-wrap gap-2 font-mono text-[11px] text-lux-text2">
+                    <span className="rounded-full border border-lux-border px-3 py-1" data-testid="tenants-total-count">{tenants.totals.tenants} tenants</span>
+                    <span className="rounded-full border border-lux-accent/40 px-3 py-1 text-lux-accent" data-testid="tenants-total-revenue">${tenants.totals.revenue.toFixed(2)} revenue</span>
+                    <span className="rounded-full border border-lux-border px-3 py-1" data-testid="tenants-total-tokens">{tenants.totals.tokens.toLocaleString()} tokens</span>
+                    <span className="rounded-full border border-lux-border px-3 py-1" data-testid="tenants-total-requests">{tenants.totals.requests.toLocaleString()} requests</span>
+                  </div>
+                )}
+              </div>
+              <div className="mt-4 overflow-x-auto rounded-2xl border border-lux-border" data-testid="admin-tenants-table">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-lux-surface font-mono text-[10px] uppercase tracking-wide text-lux-text2">
+                    <tr>
+                      <th className="p-3">Tenant</th><th className="p-3">Plan</th><th className="p-3 text-right">Keys</th>
+                      <th className="p-3 text-right">Requests</th><th className="p-3 text-right">Tokens</th>
+                      <th className="p-3 text-right">Key credits</th><th className="p-3 text-right">Wallet</th>
+                      <th className="p-3 text-right">Spend</th><th className="p-3">Joined</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(tenants?.tenants || []).map((t) => (
+                      <tr key={t.id} className="border-t border-lux-border" data-testid={`tenant-row-${t.id}`}>
+                        <td className="p-3">
+                          <p className="text-lux-text">{t.email}</p>
+                          <p className="font-mono text-[10px] text-lux-text2">{t.name}</p>
+                        </td>
+                        <td className="p-3"><span className={t.plan !== "free" ? "text-lux-accent" : "text-lux-text2"}>{t.plan}</span></td>
+                        <td className="p-3 text-right font-mono text-xs text-lux-text2">{t.keys}</td>
+                        <td className="p-3 text-right font-mono text-xs text-lux-text2">{t.requests.toLocaleString()}</td>
+                        <td className="p-3 text-right font-mono text-xs text-lux-text2">{t.tokens.toLocaleString()}</td>
+                        <td className="p-3 text-right font-mono text-xs text-lux-text2">{t.credits.toLocaleString()}</td>
+                        <td className="p-3 text-right font-mono text-xs text-lux-text2">{(t.wallet || 0).toLocaleString()}</td>
+                        <td className={`p-3 text-right font-mono text-xs ${t.spend > 0 ? "text-emerald-400" : "text-lux-text2"}`}>${t.spend.toFixed(2)}</td>
+                        <td className="p-3 font-mono text-xs text-lux-text2">{t.joined}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </section>
 
