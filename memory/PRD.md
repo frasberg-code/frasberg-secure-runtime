@@ -54,6 +54,7 @@ Awwwards-level cinematic landing page + platform for the "Luchii" multi-tier int
 - PAID KEY MODEL (user: "we charge, half prices"): every key mints with 2,500 trial token credits; usage deducts credits for free-plan owners; 0 credits → 402 insufficient_credits w/ purchase_url; paid-plan/admin owners unmetered; credit packs HALVED: starter $5/10k, pro $12.50/30k, scale $50/150k; 13 existing keys backfilled 2500 credits
 - /docs public quickstart page (curl/python/js OpenAI SDK snippets, models table, discovery links, pricing) + navbar Explore link
 - Alert emails via Resend on engine score drops (linq_governance._send_alert_email → ADMIN_EMAIL)
+- Usage Receipts via Resend (LIVE 2026-06): RESEND_API_KEY injected in backend/.env. Monthly auto-statement loop (_receipts_loop, runs on 1st of month) + POST /api/receipts/send-now (authed). Test email delivered to billing@frasberg.com (Resend account owner). LIMITATION: sender is onboarding@resend.dev; frasberg.com domain NOT yet verified at resend.com/domains, so delivery is restricted to billing@frasberg.com until user verifies the domain (then set SENDER_EMAIL=receipts@frasberg.com in backend/.env).
 - Tip leaderboard: GET /rooms/{id}/tips/leaderboard + Top tippers panel in LinqLive
 - Gallery: 18 real screenshot thumbs via playwright one-off (scripts/gen_gallery_thumbs.py → /gallery-thumbs/*.jpg; NOT runtime dep); marquee img w/ iframe fallback; smart dedupe buckets; LUCHIIFLIX build hidden:true in db
 - /auth defaults to LOGIN mode now (?mode=signup to register) — fixes iter29-32 carry-over
