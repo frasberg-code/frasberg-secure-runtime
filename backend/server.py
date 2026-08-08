@@ -627,10 +627,7 @@ async def email_history(user: dict = Depends(auth_module.get_current_user)):
     return docs
 
 
-async def _send_weekly_digest() -> int:
-    api_key_env = os.environ.get("RESEND_API_KEY", "")
-    if not api_key_env:
-        return 0
+async def _build_weekly_digest():
     now = datetime.now(timezone.utc)
     week_ago = (now - timedelta(days=7)).isoformat()
     new_users = await db.users.count_documents({"created_at": {"$gte": week_ago}})
@@ -649,12 +646,18 @@ async def _send_weekly_digest() -> int:
     by_user: dict = {}
     for k in top_keys:
         by_user[k.get("user_id")] = by_user.get(k.get("user_id"), 0) + k.get("token_count", 0)
-    top5 = sorted(by_user.items(), key=lambda x: x[1], reverse=True)[:5]
-    rows = ""
+    top5 = sorted(by_user.items(), key=lambda x: x[1], reverse=True)[:8]
+    top_tenants, rows = [], ""
     for uid, tok in top5:
         u = await db.users.find_one({"id": uid}, {"email": 1})
-        rows += (f"<tr><td style='padding:6px 12px;border-bottom:1px solid #1e293b;'>{(u or {}).get('email', uid)}</td>"
+        em = (u or {}).get("email")
+        if not em:
+            continue
+        top_tenants.append({"email": em, "tokens": tok})
+        rows += (f"<tr><td style='padding:6px 12px;border-bottom:1px solid #1e293b;'>{em}</td>"
                  f"<td style='padding:6px 12px;border-bottom:1px solid #1e293b;text-align:right;'>{tok:,}</td></tr>")
+        if len(top_tenants) >= 5:
+            break
     html = (f"<div style='font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc;padding:28px;border-radius:14px;'>"
             f"<p style='color:#1A4FFF;font-size:12px;letter-spacing:2px;text-transform:uppercase;'>FrasbergAI Weekly Digest</p>"
             f"<h2 style='margin:8px 0;'>Week of {now.strftime('%B %d, %Y')}</h2>"
@@ -663,9 +666,17 @@ async def _send_weekly_digest() -> int:
             f"<p style='color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-top:18px;'>Top tenants by tokens</p>"
             f"<table style='border-collapse:collapse;width:100%;color:#cbd5e1;font-size:13px;'>{rows}</table>"
             f"<p style='color:#64748b;font-size:12px;margin-top:16px;'>Full detail: https://frasberg.com/admin</p></div>")
+    subject = f"FrasbergAI weekly digest — {new_users} signups · ${revenue:.2f}"
+    return html, subject, {"new_signups": new_users, "revenue": round(revenue, 2), "top_tenants": top_tenants}
+
+
+async def _send_weekly_digest() -> int:
+    api_key_env = os.environ.get("RESEND_API_KEY", "")
+    if not api_key_env:
+        return 0
+    html, subject, _stats = await _build_weekly_digest()
     admins = await db.users.find({"role": "admin"}, {"id": 1, "email": 1}).to_list(20)
     sent = 0
-    subject = f"FrasbergAI weekly digest — {new_users} signups · ${revenue:.2f}"
     for a in admins:
         try:
             import resend
@@ -702,6 +713,12 @@ async def _digest_loop():
 async def digest_send_now(admin: dict = Depends(_status_admin)):
     sent = await _send_weekly_digest()
     return {"ok": True, "sent_to_admins": sent}
+
+
+@api_router.get("/admin/digest/preview")
+async def digest_preview(admin: dict = Depends(_status_admin)):
+    html, subject, stats = await _build_weekly_digest()
+    return {"subject": subject, "html": html, "stats": stats}
 
 
 @api_router.get("/system/status")
@@ -1209,17 +1226,66 @@ async def admin_grant_credits(user_id: str, body: dict, admin: dict = Depends(re
     return {"ok": True, "granted": amount, "wallet": int((doc or {}).get("credit_balance", 0))}
 
 
+async def _send_suspension_notice(email: str, name: str, suspended: bool):
+    api_key_env = os.environ.get("RESEND_API_KEY", "")
+    if not (api_key_env and email):
+        return
+    if suspended:
+        title, color, body = ("Your FrasbergAI account has been suspended", "#ef4444",
+                              "Your account and all API keys have been suspended by an administrator. "
+                              "API requests will return 403 until access is restored. "
+                              "If you believe this is a mistake, contact support@frasberg.com.")
+    else:
+        title, color, body = ("Your FrasbergAI account has been reinstated", "#34d399",
+                              "Good news — your account has been reinstated. All API keys are active again "
+                              "and requests will resume immediately.")
+    html = (f"<div style='font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc;padding:28px;border-radius:14px;'>"
+            f"<p style='color:{color};font-size:12px;letter-spacing:2px;text-transform:uppercase;'>FrasbergAI Account Notice</p>"
+            f"<h2 style='margin:8px 0;'>{title}</h2>"
+            f"<p style='color:#94a3b8;'>Hi {name or 'there'},</p>"
+            f"<p style='color:#94a3b8;'>{body}</p>"
+            f"<p style='color:#64748b;font-size:12px;margin-top:16px;'>support@frasberg.com · https://frasberg.com/legal</p></div>")
+    subject = title
+    try:
+        import resend
+        resend.api_key = api_key_env
+        await asyncio.to_thread(resend.Emails.send, {
+            "from": os.environ.get("SENDER_EMAIL", "onboarding@resend.dev"),
+            "to": [email], "subject": subject, "html": html})
+        await _log_email("suspension_notice", email, subject, True)
+    except Exception:
+        logger.exception("suspension notice failed")
+        await _log_email("suspension_notice", email, subject, False)
+
+
 @api_router.post("/admin/tenants/{user_id}/suspend")
 async def admin_suspend_tenant(user_id: str, body: dict, admin: dict = Depends(require_admin)):
     suspended = bool(body.get("suspended", True))
-    target = await db.users.find_one({"id": user_id}, {"role": 1})
+    target = await db.users.find_one({"id": user_id}, {"role": 1, "email": 1, "name": 1})
     if not target:
         raise HTTPException(status_code=404, detail="Tenant not found")
     if target.get("role") == "admin":
         raise HTTPException(status_code=400, detail="Cannot suspend an admin account")
     await db.users.update_one({"id": user_id}, {"$set": {"suspended": suspended}})
     await db.api_keys.update_many({"user_id": user_id}, {"$set": {"suspended": suspended}})
+    asyncio.create_task(_send_suspension_notice(target.get("email"), target.get("name"), suspended))
     return {"ok": True, "suspended": suspended}
+
+
+@api_router.get("/admin/tenants-export.csv")
+async def admin_tenants_export(admin: dict = Depends(require_admin)):
+    data = await admin_tenants(admin)
+    import io, csv
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow(["Email", "Name", "Plan", "Role", "Suspended", "Keys", "Requests", "Tokens",
+                "Key Credits", "Wallet", "Spend USD", "Joined"])
+    for t in data["tenants"]:
+        w.writerow([t["email"], t["name"], t["plan"], t["role"], "yes" if t["suspended"] else "no",
+                    t["keys"], t["requests"], t["tokens"], t["credits"], t["wallet"], t["spend"], t["joined"]])
+    fname = f"frasberg-tenants-{datetime.now(timezone.utc).strftime('%Y-%m-%d')}.csv"
+    return Response(content=buf.getvalue(), media_type="text/csv",
+                    headers={"Content-Disposition": f"attachment; filename={fname}"})
 
 
 @api_router.get("/metrics")

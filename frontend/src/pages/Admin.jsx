@@ -26,6 +26,42 @@ export default function Admin() {
   const [tenants, setTenants] = useState(null);
   const [tenantDetail, setTenantDetail] = useState(null); // {id, loading, data}
   const [grantAmount, setGrantAmount] = useState("");
+  const [digest, setDigest] = useState(null); // {loading, data}
+
+  const previewDigest = async () => {
+    setDigest({ loading: true });
+    try {
+      const r = await axios.get(`${API}/admin/digest/preview`, ax);
+      setDigest({ loading: false, data: r.data });
+    } catch {
+      toast.error("Could not build digest preview");
+      setDigest(null);
+    }
+  };
+
+  const sendDigest = async () => {
+    try {
+      const r = await axios.post(`${API}/admin/digest/send-now`, {}, ax);
+      toast.success(r.data.sent_to_admins > 0
+        ? `Digest emailed to ${r.data.sent_to_admins} admin(s)`
+        : "Digest attempted — delivery pending domain verification");
+      setDigest(null);
+    } catch { toast.error("Digest send failed"); }
+  };
+
+  const exportTenants = async () => {
+    try {
+      const r = await fetch(`${API}/admin/tenants-export.csv`, { credentials: "include" });
+      if (!r.ok) throw new Error();
+      const blob = await r.blob();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `frasberg-tenants-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast.success("Tenants CSV downloaded");
+    } catch { toast.error("Export failed"); }
+  };
 
   const grantCredits = async (id) => {
     const amount = Number(grantAmount);
@@ -318,15 +354,48 @@ export default function Admin() {
             <section className="mt-12" data-testid="admin-tenants-panel">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="font-display text-2xl font-700 tracking-tight">Tenants &amp; revenue</h2>
-                {tenants?.totals && (
-                  <div className="flex flex-wrap gap-2 font-mono text-[11px] text-lux-text2">
-                    <span className="rounded-full border border-lux-border px-3 py-1" data-testid="tenants-total-count">{tenants.totals.tenants} tenants</span>
-                    <span className="rounded-full border border-lux-accent/40 px-3 py-1 text-lux-accent" data-testid="tenants-total-revenue">${tenants.totals.revenue.toFixed(2)} revenue</span>
-                    <span className="rounded-full border border-lux-border px-3 py-1" data-testid="tenants-total-tokens">{tenants.totals.tokens.toLocaleString()} tokens</span>
-                    <span className="rounded-full border border-lux-border px-3 py-1" data-testid="tenants-total-requests">{tenants.totals.requests.toLocaleString()} requests</span>
-                  </div>
-                )}
+                <div className="flex flex-wrap items-center gap-2">
+                  <button onClick={previewDigest} data-testid="digest-preview-btn"
+                    className="rounded-full border border-lux-border px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
+                    Preview weekly digest
+                  </button>
+                  <button onClick={exportTenants} data-testid="export-tenants-btn"
+                    className="rounded-full border border-lux-border px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
+                    Export CSV
+                  </button>
+                  {tenants?.totals && (
+                    <div className="flex flex-wrap gap-2 font-mono text-[11px] text-lux-text2">
+                      <span className="rounded-full border border-lux-border px-3 py-1" data-testid="tenants-total-count">{tenants.totals.tenants} tenants</span>
+                      <span className="rounded-full border border-lux-accent/40 px-3 py-1 text-lux-accent" data-testid="tenants-total-revenue">${tenants.totals.revenue.toFixed(2)} revenue</span>
+                    </div>
+                  )}
+                </div>
               </div>
+              {digest && (
+                <div className="mt-4 rounded-2xl border border-lux-accent/40 bg-lux-surface p-5" data-testid="digest-preview-panel">
+                  {digest.loading ? (
+                    <div className="flex items-center gap-2 font-mono text-xs text-lux-text2"><Loader2 size={14} className="animate-spin" /> Building digest…</div>
+                  ) : (
+                    <>
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <p className="font-mono text-xs text-lux-accent" data-testid="digest-subject">{digest.data.subject}</p>
+                        <div className="flex gap-2">
+                          <button onClick={sendDigest} data-testid="digest-send-btn"
+                            className="rounded-full bg-lux-accent px-4 py-1.5 text-xs font-600 text-lux-bg hover:-translate-y-0.5 transition-transform">
+                            Send to admins now
+                          </button>
+                          <button onClick={() => setDigest(null)} data-testid="digest-close-btn"
+                            className="rounded-full border border-lux-border px-4 py-1.5 text-xs text-lux-text2 hover:text-lux-text">
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                      <div className="mt-4 overflow-hidden rounded-xl border border-lux-border"
+                        dangerouslySetInnerHTML={{ __html: digest.data.html }} />
+                    </>
+                  )}
+                </div>
+              )}
               <div className="mt-4 overflow-x-auto rounded-2xl border border-lux-border" data-testid="admin-tenants-table">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-lux-surface font-mono text-[10px] uppercase tracking-wide text-lux-text2">
