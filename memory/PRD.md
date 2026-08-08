@@ -65,6 +65,7 @@ Awwwards-level cinematic landing page + platform for the "Luchii" multi-tier int
 - Credit Balance Bar: each Dashboard key row shows credits bar (green/amber/red), "Low — top up" badge <500, wallet chip in Usage header
 - Auto Top-Up: wallet-based (users.credit_balance); PATCH /api/keys/{id}/autotopup {enabled,threshold,amount}; refill fires post-deduction (_maybe_autotopup, logged in credit_transfers); GET /api/wallet; credit packs purchasable INTO wallet via Pricing key-select option value wallet-{userId} (capture handles wallet- prefix). SELF-TESTED: key 100→5099 credits, wallet 10000→5000
 - OpenRouter listing submission prepared: /app/OPENROUTER_SUBMISSION.md (identity, endpoints, models, half-market pricing, verification URLs, sample requests)
+- FINAL REGISTRY STEP (Aug 2026): alias discovery endpoints added — /v1/provider-registry.json, /v1/provider-manifest.json, /v1/openapi.yaml, /v1/luchii-models.json + /.well-known/luchii-models.json (backend + static, all 200). LUCHII_MODELS_DOC: 128k/64k context, 384-dim embed. Full submission kit archived at /app/provider-kit/ (openrouter, huggingface, github-ai, vercel letters; model cards; DNS TXT records; press kit; framework integration docs — all using canonical api.frasberg.com)
 
 
 ## Known Constraints

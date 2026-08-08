@@ -2105,6 +2105,19 @@ components:
 """
 
 
+LUCHII_MODELS_DOC = {
+    "provider": "frasbergai",
+    "models": [
+        {"id": "luchii-6-plus", "type": "chat", "context_window": 128000, "streaming": True,
+         "description": "Flagship long-context reasoning model"},
+        {"id": "luchii-6-mini", "type": "chat", "context_window": 64000, "streaming": True,
+         "description": "Fast, cost-efficient chat model for agents and automation"},
+        {"id": "luchii-6-embed", "type": "embedding", "dimensions": 384,
+         "description": "High-performance embeddings for search, retrieval and similarity"},
+    ],
+}
+
+
 @api_router.get("/.well-known/frasbergai-provider.json")
 async def well_known_provider():
     return PROVIDER_REGISTRY
@@ -2113,6 +2126,32 @@ async def well_known_provider():
 @api_router.get("/.well-known/provider-manifest.json")
 async def well_known_manifest():
     return PROVIDER_MANIFEST
+
+
+@api_router.get("/.well-known/luchii-models.json")
+async def well_known_models():
+    return LUCHII_MODELS_DOC
+
+
+@api_router.get("/v1/provider-registry.json")
+async def v1_provider_registry():
+    return PROVIDER_REGISTRY
+
+
+@api_router.get("/v1/provider-manifest.json")
+async def v1_provider_manifest():
+    return PROVIDER_MANIFEST
+
+
+@api_router.get("/v1/luchii-models.json")
+async def v1_luchii_models():
+    return LUCHII_MODELS_DOC
+
+
+@api_router.get("/v1/openapi.yaml")
+async def v1_openapi():
+    from fastapi.responses import PlainTextResponse
+    return PlainTextResponse(_WELL_KNOWN_OPENAPI, media_type="application/yaml")
 
 
 @api_router.get("/.well-known/openapi.yaml")
