@@ -963,3 +963,23 @@ All three next-action items SHIPPED and verified on preview:
 - TAXI DAY JOBS: 3 waving passengers (cyan minimap dots), pick up in a taxi → green destination
   ring → deliver for +$80-170 clean money, ZERO wanted. VERIFIED full loop, wanted unchanged.
 - iter25 testing agent: 8/8 areas PASS, retest_needed=false, 100% frontend.
+
+## Session Update — June 2026 (Fork pt.5 cont6: REBRAND Street Vybz + realistic RPM humans + LVMPD/LVFR/fire)
+- REBRAND: "Carjack City" → "Street Vybz" everywhere (registry title, game title/H1 "◆ STREET VYBZ",
+  description, tests updated). Backend tests pass (11 + 9).
+- REPORTED BUG FIXED (fake/pink people → realistic humans): swapped mannequin GLBs (Soldier/Xbot)
+  for Ready Player Me photorealistic avatars rpm-male.glb + rpm-female.glb, animated by RPM mocap
+  clips anim-{m,f}-{idle,walk,run}.glb (same Wolf3D skeleton, clips play directly, no retarget).
+  ROOT CAUSE of "fake": prior code multiplied character textures by a random HSL color → pink/alien.
+  Removed the tint entirely; textures preserved. VERIFIED iter26: 31 NPCs, both sexes, no tint.
+- CHARACTER SELECT: start screen .charBtn male/female; S.sex drives player model; start() rebuilds
+  player as chosen sex. VERIFIED female player renders.
+- LVMPD: CAR_TYPES.police renamed "LVMPD CRUISER", gold/black livery + canvas "LVMPD" decals.
+- LVFR FIRE DEPT: new firetruck car type "LVFR ENGINE" (ladder, beacon, "LVFR" decals). Cars ignite
+  when shot by pistol (~50%) or wrecked at high speed <35HP; igniteCar() = flames(cones)+smoke plume
+  +point light; fire damages player on foot; LVFR engine auto-dispatches, drives to blaze, douses it.
+  fires[] + fireTrucks[] cleaned on restart. VERIFIED igniteCar, spawnFireTruck, fireGun ignite.
+- signLabel() canvas-texture helper for vehicle decals.
+- iter26 testing agent: 10/10 PASS, 100% frontend, retest_needed=false.
+- Assets added to /app/games/_assets: rpm-male.glb(1.1MB), rpm-female.glb(2MB), 6 anim clips.
+- NOTE: production frasberg.com needs redeploy for all of the above.
