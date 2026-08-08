@@ -49,7 +49,25 @@ export const GalleryMarquee = () => {
   useEffect(() => {
     fetch(`${API}/builder/gallery`)
       .then((r) => r.json())
-      .then((d) => setBuilds([...d.filter((b) => b.featured), ...d.filter((b) => !b.featured)].slice(0, 14)))
+      .then((d) => {
+        const sigOf = (t) => {
+          const s = (t || "").toLowerCase();
+          if (/tip calc|tip-calc|tipcalc|tiptap/.test(s)) return "tip-calculator";
+          if (/pomodoro|focus tim/.test(s)) return "focus-timer";
+          if (/color (flip|chang)|color-flip/.test(s)) return "color-flip";
+          if (/todo|to-do/.test(s)) return "todo";
+          return s.replace(/[^a-z0-9 ]/g, "").split(" ").filter(Boolean).slice(0, 3).join(" ");
+        };
+        const seen = new Set();
+        const unique = [];
+        for (const b of [...d.filter((x) => x.featured), ...d.filter((x) => !x.featured)]) {
+          const sig = sigOf(b.title);
+          if (seen.has(sig)) continue;
+          seen.add(sig);
+          unique.push(b);
+        }
+        setBuilds(unique.slice(0, 14));
+      })
       .catch(() => {});
   }, []);
 

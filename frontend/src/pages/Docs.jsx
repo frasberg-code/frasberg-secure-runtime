@@ -116,7 +116,9 @@ export default function Docs() {
           <h2 className="flex items-center gap-2 font-display text-2xl font-600"><KeyRound size={18} className="text-lux-accent" /> 1. Get your key</h2>
           <p className="mt-2 text-sm text-lux-text2">
             Create a free account and mint a <span className="font-mono text-lux-text">luchii-sk</span> key from the{" "}
-            <Link to="/dashboard" className="text-lux-accent underline">Developer Dashboard</Link>. Free accounts include 3 keys and 60 req/min.
+            <Link to="/dashboard" className="text-lux-accent underline">Developer Dashboard</Link>.
+            Every key ships with <span className="text-lux-text">2,500 trial tokens</span> — then top up with credit packs at{" "}
+            <span className="text-lux-text">half the price of other providers</span> (from $5 / 10k tokens), or subscribe for unmetered usage.
           </p>
         </section>
 

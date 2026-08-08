@@ -12,7 +12,7 @@ export default function Auth() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const next = params.get("next") || "/chat";
-  const [mode, setMode] = useState(params.get("mode") === "login" ? "login" : "signup");
+  const [mode, setMode] = useState(params.get("mode") === "signup" ? "signup" : "login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

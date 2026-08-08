@@ -387,7 +387,7 @@ def _extract_attachment_text(kind: str, data_b64: str, name: str) -> str:
 def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[str] = None,
                    system_base: Optional[str] = None, fallback=None,
                    user_id: Optional[str] = None, attachment: Optional[dict] = None,
-                   guest: bool = False):
+                   guest: bool = False, deduct_credits: bool = False):
     async def event_generator():
         yield ": stream-start\n\n"
         now = datetime.now(timezone.utc).isoformat()
@@ -455,9 +455,13 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
             assistant_doc["expires_at"] = datetime.now(timezone.utc) + timedelta(hours=24)
         await db.chat_messages.insert_one(assistant_doc)
         if key_id:
+            tok = len(full.split())
+            inc = {"request_count": 1, "token_count": tok}
+            if deduct_credits:
+                inc["credits"] = -tok
             await db.api_keys.update_one(
                 {"id": key_id},
-                {"$inc": {"request_count": 1, "token_count": len(full.split())},
+                {"$inc": inc,
                  "$set": {"last_used": datetime.now(timezone.utc).isoformat()}},
             )
             await db.api_key_usage.update_one(
@@ -1219,6 +1223,9 @@ async def gateway_chat(req: ChatRequest, authorization: Optional[str] = Header(N
     if len(req.message) > MAX_MSG_LEN:
         raise HTTPException(status_code=413, detail=f"Message exceeds {MAX_MSG_LEN} chars")
     _rate_check(key)
+    unmetered = await _key_owner_unmetered(key_doc)
+    if not unmetered and key_doc.get("credits", 0) <= 0:
+        raise _insufficient_credits()
     lowered = req.message.lower()
     if any(b in lowered for b in BLOCKED_TERMS):
         async def refuse():
@@ -1228,7 +1235,8 @@ async def gateway_chat(req: ChatRequest, authorization: Optional[str] = Header(N
         return StreamingResponse(refuse(), media_type="text/event-stream",
                                  headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
     session_id = req.session_id or str(uuid.uuid4())
-    return _luchii_stream(req.message, session_id, req.model or "luchii-70b", key_id=key_doc["id"])
+    return _luchii_stream(req.message, session_id, req.model or "luchii-70b", key_id=key_doc["id"],
+                          deduct_credits=not unmetered)
 
 
 @api_router.post("/keys")
@@ -1250,6 +1258,7 @@ async def create_key(body: KeyCreate, user: dict = Depends(auth_module.get_curre
         "expires_at": expires_at,
         "request_count": 0,
         "token_count": 0,
+        "credits": TRIAL_KEY_CREDITS,
         "last_used": None,
     }
     await db.api_keys.insert_one({**doc})
@@ -1307,9 +1316,9 @@ PAYPAL_SECRET = os.environ.get("PAYPAL_SECRET", "")
 PAYPAL_BASE = "https://api-m.paypal.com" if PAYPAL_MODE == "live" else "https://api-m.sandbox.paypal.com"
 
 PLANS = {
-    "starter": {"id": "starter", "name": "Starter", "price": "10.00", "credits": 10000, "blurb": "10,000 tokens · hobby projects"},
-    "pro": {"id": "pro", "name": "Pro", "price": "25.00", "credits": 30000, "blurb": "30,000 tokens · production apps"},
-    "scale": {"id": "scale", "name": "Scale", "price": "100.00", "credits": 150000, "blurb": "150,000 tokens · best value"},
+    "starter": {"id": "starter", "name": "Starter", "price": "5.00", "credits": 10000, "blurb": "10,000 tokens · half the price of other providers"},
+    "pro": {"id": "pro", "name": "Pro", "price": "12.50", "credits": 30000, "blurb": "30,000 tokens · production apps · half price"},
+    "scale": {"id": "scale", "name": "Scale", "price": "50.00", "credits": 150000, "blurb": "150,000 tokens · best value · half price"},
 }
 
 UPGRADE_PLANS = {
@@ -1783,6 +1792,21 @@ OAI_MODEL_ALIASES = {
 }
 
 
+TRIAL_KEY_CREDITS = 2500
+
+
+async def _key_owner_unmetered(key_doc: dict) -> bool:
+    owner = await db.users.find_one({"id": key_doc.get("user_id")}, {"role": 1, "plan": 1})
+    return bool(owner and (owner.get("role") == "admin" or owner.get("plan") in PAID_PLANS))
+
+
+def _insufficient_credits():
+    return HTTPException(status_code=402, detail={
+        "error": "insufficient_credits",
+        "message": "This key is out of credits. Top up at half the price of other providers.",
+        "purchase_url": "https://frasberg.com/pay"})
+
+
 async def _validate_bearer_key(authorization: Optional[str]) -> dict:
     if not authorization or not authorization.lower().startswith("bearer "):
         raise HTTPException(status_code=401, detail="Missing or invalid API key")
@@ -1794,12 +1818,18 @@ async def _validate_bearer_key(authorization: Optional[str]) -> dict:
     if exp and exp < datetime.now(timezone.utc).isoformat():
         raise HTTPException(status_code=401, detail="API key expired")
     _rate_check(key)
+    key_doc["_unmetered"] = await _key_owner_unmetered(key_doc)
+    if not key_doc["_unmetered"] and key_doc.get("credits", 0) <= 0:
+        raise _insufficient_credits()
     return key_doc
 
 
-async def _meter_key(key_id: str, tokens: int):
+async def _meter_key(key_id: str, tokens: int, deduct: bool = False):
     now = datetime.now(timezone.utc)
-    await db.api_keys.update_one({"id": key_id}, {"$inc": {"request_count": 1, "token_count": tokens},
+    inc = {"request_count": 1, "token_count": tokens}
+    if deduct:
+        inc["credits"] = -tokens
+    await db.api_keys.update_one({"id": key_id}, {"$inc": inc,
                                                   "$set": {"last_used": now.isoformat()}})
     await db.api_key_usage.update_one({"key_id": key_id, "day": now.strftime("%Y-%m-%d")},
                                       {"$inc": {"requests": 1, "tokens": tokens}}, upsert=True)
@@ -1903,12 +1933,12 @@ async def oai_chat_completions(body: OAIChatBody, authorization: Optional[str] =
                     logger.exception("oai stream error")
             yield chunk({}, finish="stop")
             yield "data: [DONE]\n\n"
-            await _meter_key(key_doc["id"], len(full.split()))
+            await _meter_key(key_doc["id"], len(full.split()), deduct=not key_doc["_unmetered"])
         return StreamingResponse(sse(), media_type="text/event-stream",
                                  headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
     full = await generate_full()
-    await _meter_key(key_doc["id"], len(full.split()))
+    await _meter_key(key_doc["id"], len(full.split()), deduct=not key_doc["_unmetered"])
     p_tok, c_tok = len(last_user.split()), len(full.split())
     return {
         "id": completion_id, "object": "chat.completion", "created": created, "model": body.model,
@@ -1937,7 +1967,7 @@ async def oai_embeddings(body: OAIEmbedBody, authorization: Optional[str] = Head
             raise HTTPException(status_code=503, detail="Embedding engine is warming up — retry in a moment")
         total_tok += len(text.split())
         data.append({"object": "embedding", "index": i, "embedding": vec})
-    await _meter_key(key_doc["id"], total_tok)
+    await _meter_key(key_doc["id"], total_tok, deduct=not key_doc["_unmetered"])
     return {"object": "list", "data": data, "model": "luchii-6-embed",
             "usage": {"prompt_tokens": total_tok, "total_tokens": total_tok}}
 

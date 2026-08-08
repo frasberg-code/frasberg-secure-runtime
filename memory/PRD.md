@@ -47,6 +47,19 @@ Awwwards-level cinematic landing page + platform for the "Luchii" multi-tier int
 - NOTE: testing agent patched LinqLive.jsx in iter31; audited and kept, matches intended design
 - Testing: iteration_30.json — 100% pass backend + frontend (engine actions, PayPal order creation live-mode, usage daily, Plans tab, quick actions artifact cards, dropdown, regression)
 
+## Aug 2026 — FrasbergAI Provider Gateway + monetization
+- OpenAI-compatible provider gateway in server.py: GET /v1/models, GET /v1/provider (registry+manifest+providers list incl frasbergai, verified:true), POST /v1/chat/completions (bearer luchii-sk, SSE chat.completion.chunk + [DONE], multi-turn, non-stream w/ usage), POST /v1/embeddings (luchii-6-embed, 384-dim MiniLM via memory_vault)
+- Well-known verification files: /api/.well-known/{frasbergai-provider.json, provider-manifest.json, openapi.yaml} + static frontend /.well-known/*. Base URL: https://api.frasberg.com/v1 (PROVIDER_BASE_URL env overridable)
+- Model aliases: luchii-6-plus→70b, luchii-6-mini→1b + legacy names
+- PAID KEY MODEL (user: "we charge, half prices"): every key mints with 2,500 trial token credits; usage deducts credits for free-plan owners; 0 credits → 402 insufficient_credits w/ purchase_url; paid-plan/admin owners unmetered; credit packs HALVED: starter $5/10k, pro $12.50/30k, scale $50/150k; 13 existing keys backfilled 2500 credits
+- /docs public quickstart page (curl/python/js OpenAI SDK snippets, models table, discovery links, pricing) + navbar Explore link
+- Alert emails via Resend on engine score drops (linq_governance._send_alert_email → ADMIN_EMAIL)
+- Tip leaderboard: GET /rooms/{id}/tips/leaderboard + Top tippers panel in LinqLive
+- Gallery: 18 real screenshot thumbs via playwright one-off (scripts/gen_gallery_thumbs.py → /gallery-thumbs/*.jpg; NOT runtime dep); marquee img w/ iframe fallback; smart dedupe buckets; LUCHIIFLIX build hidden:true in db
+- /auth defaults to LOGIN mode now (?mode=signup to register) — fixes iter29-32 carry-over
+- Testing: iteration_32 — 100% backend + 100% frontend (provider gateway, docs, marquee, leaderboard); credit metering self-tested (2500→2499 deduct, 402 drain, restore)
+
+
 ## Known Constraints
 - WebGL/Three.js cannot reach Cyberpunk 2077 path-traced fidelity; using ACES tonemapping, env reflections, soft shadows, neon emissives
 - Production frasberg.com is a SEPARATE deployment — user must redeploy to see preview changes (recurring confusion, Cloudflare 520 history)
