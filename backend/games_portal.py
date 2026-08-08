@@ -21,9 +21,9 @@ GAMES_DIR = Path(__file__).parent.parent / "games"
 GAME_REGISTRY = [
     {
         "id": "streets",
-        "title": "Carjack City",
+        "title": "Street Vybz",
         "genre": "Open World",
-        "description": "Carjack City. Pull drivers out of moving cars, outrun the police, and rule the streets — every car handles differently.",
+        "description": "Street Vybz. Play as a realistic male or female character, pull drivers from moving cars, outrun LVMPD, run missions and taxi fares. Shoot or wreck cars and they burn — LVFR fire crews respond. Every car handles differently.",
         "thumbnail": "/games-thumbs/streets.jpg",
         "controls": "WASD drive · E carjack/exit · F bat · G pistol · Space brake · Shift sprint",
         "engine": "",

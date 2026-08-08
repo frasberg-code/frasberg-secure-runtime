@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Frasberg Streets — Carjack City 3D</title>
+<title>Frasberg — Street Vybz 3D</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body { background:#0d0d1a; overflow:hidden; font-family:'Courier New',monospace; }
@@ -48,9 +48,14 @@
 <canvas id="minimap" width="140" height="140"></canvas>
 
 <div class="screen" id="start">
-  <h1>⬡ CARJACK CITY</h1>
+  <h1>◆ STREET VYBZ</h1>
   <p>Open World</p>
-  <p>Walk up to any car and press E to pull the driver out. Every car handles differently.<br>Jacking raises your WANTED level — police cruisers will hunt you down.<br>Don't get busted, don't get wrecked.</p>
+  <p>Walk up to any car and press E to pull the driver out. Every car handles differently.<br>Jacking raises your WANTED level — LVMPD cruisers will hunt you down. Shoot or wreck cars and they catch fire — LVFR rolls in to douse the blaze.<br>Don't get busted, don't get wrecked.</p>
+  <p style="margin-top:14px;color:#9f9fd0;font-size:12px;letter-spacing:2px">CHOOSE YOUR CHARACTER</p>
+  <div id="charSelect" style="display:flex;gap:14px;margin-top:10px">
+    <button class="charBtn on" data-sex="male" style="padding:12px 28px;border-radius:24px;border:2px solid #f0c040;background:rgba(240,192,64,.15);color:#fff;font:bold 13px 'Courier New';letter-spacing:1px;cursor:pointer">♂ MALE</button>
+    <button class="charBtn" data-sex="female" style="padding:12px 28px;border-radius:24px;border:2px solid #6c63ff66;background:rgba(108,99,255,.1);color:#fff;font:bold 13px 'Courier New';letter-spacing:1px;cursor:pointer">♀ FEMALE</button>
+  </div>
   <p id="careerStart" style="display:none;margin-top:10px;color:#9f9fd0;font-size:13px"></p>
   <button id="startBtn">HIT THE STREETS</button>
 </div>
@@ -72,7 +77,7 @@
 <script src="/api/games/assets/SkeletonUtils147.js"></script>
 <div style="position:fixed;inset:0;pointer-events:none;z-index:7;background:radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,.55) 100%)"></div>
 <script>
-// ─── FRASBERG STREETS — full 3D open-world carjack game ───
+// ─── FRASBERG STREET VYBZ — full 3D open-world game ───
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x0d0d1a, 0.011);
 const camera = new THREE.PerspectiveCamera(65, innerWidth/innerHeight, 0.1, 600);
@@ -192,6 +197,16 @@ for (let i = 0; i < ROADS.length; i += 2) for (let j = 0; j < ROADS.length; j +=
 }
 
 // ─── Car factory ──────────────────────────────────────────
+function signLabel(text, bg, fg) {
+  const c = document.createElement("canvas"); c.width = 256; c.height = 64;
+  const x = c.getContext("2d");
+  x.fillStyle = "#" + bg.toString(16).padStart(6, "0"); x.fillRect(0, 0, 256, 64);
+  x.fillStyle = "#" + fg.toString(16).padStart(6, "0");
+  x.font = "bold 42px Arial"; x.textAlign = "center"; x.textBaseline = "middle";
+  x.fillText(text, 128, 34);
+  const t = new THREE.CanvasTexture(c);
+  return new THREE.Mesh(new THREE.PlaneGeometry(1.3, 0.32), new THREE.MeshBasicMaterial({ map: t, transparent: true }));
+}
 const CAR_TYPES = {
   sedan:  { name:"SEDAN",   color:0x4488ff, top:24, accel:14, steer:1.9, value:200 },
   taxi:   { name:"TAXI",    color:0xf1c40f, top:25, accel:15, steer:2.0, value:220 },
@@ -199,7 +214,8 @@ const CAR_TYPES = {
   muscle: { name:"MUSCLE",  color:0xff7a1a, top:30, accel:20, steer:2.1, value:400 },
   sports: { name:"SPORTS",  color:0xe74c3c, top:36, accel:24, steer:2.4, value:600 },
   truck:  { name:"TRUCK",   color:0x8e9aa8, top:18, accel:9,  steer:1.4, value:300 },
-  police: { name:"POLICE CRUISER", color:0xf2f2f2, top:30, accel:19, steer:2.2, value:800 },
+  police: { name:"LVMPD CRUISER", color:0xf2f2f2, top:31, accel:20, steer:2.3, value:800 },
+  firetruck: { name:"LVFR ENGINE", color:0xd11313, top:20, accel:11, steer:1.5, value:500 },
 };
 function makeCar(type) {
   const t = CAR_TYPES[type], g = new THREE.Group();
@@ -227,8 +243,24 @@ function makeCar(type) {
     rl.position.set(-0.24, 1.32, -0.15); g.add(rl); g.userData.redLight = rl;
     const bl = new THREE.Mesh(new THREE.BoxGeometry(0.4,0.14,0.3), new THREE.MeshBasicMaterial({ color:0x2255ff }));
     bl.position.set(0.24, 1.32, -0.15); g.add(bl); g.userData.blueLight = bl;
-    const stripe = new THREE.Mesh(new THREE.BoxGeometry(1.72,0.2,3.42), new THREE.MeshBasicMaterial({ color:0x1a1aff }));
+    // LVMPD gold/black livery
+    const stripe = new THREE.Mesh(new THREE.BoxGeometry(1.72,0.22,3.42), new THREE.MeshBasicMaterial({ color:0x111111 }));
     stripe.position.y = 0.42; g.add(stripe);
+    const gold = new THREE.Mesh(new THREE.BoxGeometry(1.74,0.1,1.4), new THREE.MeshBasicMaterial({ color:0xd4af37 }));
+    gold.position.set(0, 0.5, 0); g.add(gold);
+    const lbl = signLabel("LVMPD", 0x111111, 0xd4af37);
+    lbl.position.set(0.87, 0.55, 0); lbl.rotation.y = Math.PI/2; g.add(lbl);
+    const lbl2 = lbl.clone(); lbl2.position.set(-0.87, 0.55, 0); lbl2.rotation.y = -Math.PI/2; g.add(lbl2);
+  }
+  if (type === "firetruck") {
+    body.scale.set(1.15, 1.5, 1.25);
+    const ladder = new THREE.Mesh(new THREE.BoxGeometry(0.3,0.12,3), new THREE.MeshStandardMaterial({ color:0xc0c0c0, metalness:0.7 }));
+    ladder.position.set(0, 1.35, -0.2); g.add(ladder);
+    const beacon = new THREE.Mesh(new THREE.BoxGeometry(0.7,0.14,0.3), new THREE.MeshBasicMaterial({ color:0xff2233 }));
+    beacon.position.set(0, 1.4, -0.15); g.add(beacon); g.userData.redLight = beacon;
+    const lbl = signLabel("LVFR", 0xffffff, 0xd11313);
+    lbl.position.set(0.92, 0.7, 0); lbl.rotation.y = Math.PI/2; g.add(lbl);
+    const lbl2 = lbl.clone(); lbl2.position.set(-0.92, 0.7, 0); lbl2.rotation.y = -Math.PI/2; g.add(lbl2);
   }
   // Visible human driver behind the wheel
   const driver = makeDriver(type === "police");
@@ -270,47 +302,46 @@ function makeDriver(isCop) {
 const SKIN_T = [0x8d5524, 0xc68642, 0xe0ac69, 0xf1c27d, 0xffdbac, 0x5c3317];
 const CLOTH_T = [0xe63946, 0x457b9d, 0x2a9d8f, 0xe9c46a, 0x6d597a, 0x8338ec, 0xf4a261, 0x2b2d42, 0x006d77, 0x9b2226];
 const HAIR_T = [0x0b0b0b, 0x3b2716, 0x5e3b17, 0x8a6d3b, 0xb0b0b0, 0x7a1f1f];
-// ── Real rigged human avatars (GLB, skeletal walk/run animations) ──
+// ── Real realistic human avatars (Ready Player Me) + RPM mocap clips ──
 const MIXERS = [];
-const AVATARS = { list: [], ready: false };
+const AVATARS = { male: null, female: null, clips: {}, ready: false };
 (function loadAvatars() {
   if (!THREE.GLTFLoader || !THREE.SkeletonUtils) return;
   const ld = new THREE.GLTFLoader();
-  let done = 0;
-  ["/api/games/assets/char-soldier.glb", "/api/games/assets/char-xbot.glb"].forEach((url) => {
-    ld.load(url, (g) => {
-      AVATARS.list.push(g);
-      if (++done && AVATARS.list.length >= 1) AVATARS.ready = true;
-    }, undefined, () => {});
+  const load = (url) => new Promise((res) => ld.load(url, res, undefined, () => res(null)));
+  Promise.all([
+    load("/api/games/assets/rpm-male.glb"),
+    load("/api/games/assets/rpm-female.glb"),
+    load("/api/games/assets/anim-m-idle.glb"),
+    load("/api/games/assets/anim-m-walk.glb"),
+    load("/api/games/assets/anim-m-run.glb"),
+    load("/api/games/assets/anim-f-idle.glb"),
+    load("/api/games/assets/anim-f-walk.glb"),
+    load("/api/games/assets/anim-f-run.glb"),
+  ]).then(([m, f, mi, mw, mr, fi, fw, fr]) => {
+    AVATARS.male = m; AVATARS.female = f;
+    const grab = (g) => (g && g.animations && g.animations[0]) || null;
+    AVATARS.clips = {
+      male:   { idle: grab(mi), walk: grab(mw), run: grab(mr) },
+      female: { idle: grab(fi), walk: grab(fw), run: grab(fr) },
+    };
+    if (m || f) AVATARS.ready = true;
   });
 })();
-function makeAvatarPed(tintHue) {
-  const src = AVATARS.list[Math.floor(Math.random() * AVATARS.list.length)];
+function makeAvatarPed(forceSex) {
+  const sex = forceSex || (Math.random() < 0.5 ? "male" : "female");
+  const src = AVATARS[sex] || AVATARS.male || AVATARS.female;
+  const clips = AVATARS.clips[AVATARS[sex] ? sex : (AVATARS.male ? "male" : "female")];
   const inner = THREE.SkeletonUtils.clone(src.scene);
-  inner.updateMatrixWorld(true);
-  let minY = Infinity, maxY = -Infinity;
-  const bv = new THREE.Vector3();
   inner.traverse((o) => {
-    if (o.isBone) { o.getWorldPosition(bv); minY = Math.min(minY, bv.y); maxY = Math.max(maxY, bv.y); }
-  });
-  const mh = (maxY - minY) || 1.6;
-  inner.scale.multiplyScalar(1.62 / mh);
-  inner.rotation.y = Math.PI;
-  const tint = new THREE.Color().setHSL(tintHue !== undefined ? tintHue : Math.random(), 0.55, 0.62);
-  inner.traverse((o) => {
-    if (o.isMesh || o.isSkinnedMesh) {
-      o.castShadow = true;
-      o.material = o.material.clone();
-      o.material.color.multiply(tint);
-      o.frustumCulled = false;
-    }
+    if (o.isMesh || o.isSkinnedMesh) { o.castShadow = true; o.frustumCulled = false; if (o.material) o.material.side = THREE.FrontSide; }
   });
   const wrap = new THREE.Group();
   wrap.add(inner);
   const mixer = new THREE.AnimationMixer(inner);
   const acts = {};
-  src.animations.forEach((c) => { acts[c.name.toLowerCase()] = mixer.clipAction(c); });
-  wrap.userData.avatar = { mixer, acts, cur: null };
+  for (const k of ["idle", "walk", "run"]) if (clips[k]) acts[k] = mixer.clipAction(clips[k]);
+  wrap.userData.avatar = { mixer, acts, cur: null, sex };
   MIXERS.push(mixer);
   if (acts.idle) { acts.idle.play(); wrap.userData.avatar.cur = "idle"; }
   return wrap;
@@ -374,8 +405,10 @@ function animatePed(g, phase, mode) {
     if (av.cur !== want && av.acts[want]) {
       if (av.cur && av.acts[av.cur]) av.acts[av.cur].fadeOut(0.22);
       av.acts[want].reset().fadeIn(0.22).play();
-      av.acts[want].timeScale = mode === "panic" ? 1.35 : 1;
+      av.acts[want].timeScale = mode === "panic" ? 1.4 : 1;
       av.cur = want;
+    } else if (av.cur === want && av.acts[want] && (mode === "run" || mode === "panic")) {
+      av.acts[want].timeScale = mode === "panic" ? 1.4 : 1;
     }
     return;
   }
@@ -649,6 +682,10 @@ function fireGun() {
   }
   for (const n of npcs) if (!n.down && Math.hypot(n.x - S.x, n.z - S.z) < 25) n.flee = Math.max(n.flee, 5);
   while (police.length < S.wanted) spawnPolice();
+  // shooting a nearby car ignites it
+  const ct = traffic.find(t => t.alive && !t.parked && _inFront(t.mesh.position.x - S.x, t.mesh.position.z - S.z, 0.35)
+    && Math.hypot(t.mesh.position.x - S.x, t.mesh.position.z - S.z) < 14);
+  if (ct && Math.random() < 0.5) igniteCar(ct.mesh, ct.mesh.position.x, ct.mesh.position.z);
 }
 
 // ─── The Docks — mission delivery zone ─────────────────────
@@ -750,7 +787,7 @@ function spawnGangs() {
       }
       const gn = { mesh: gm, x: spot.x + (Math.random() - 0.5) * 7, z: spot.z + (Math.random() - 0.5) * 7,
         h: Math.random() * 6.28, flee: 0, down: false, bubble: null, bubbleT: 0,
-        phase: Math.random() * 6.28, gest: 0, gestT: 1e9, gang: zone, shootT: 1 };
+        phase: Math.random() * 6.28, gest: 0, gestT: 1e9, gang: zone, shootT: 0.3 };
       npcs.push(gn);
     }
     gangs.push(zone);
@@ -800,6 +837,88 @@ function toast(msg, color) {
 }
 let shakeT = 0;
 function crashFx(power) { shakeT = Math.min(0.5, shakeT + power); }
+
+// ─── Fire & smoke — cars burn when shot up or wrecked, LVFR responds ──
+const fires = [];
+const fireTrucks = [];
+function igniteCar(mesh, x, z) {
+  if (!mesh || mesh.userData.burning) return;
+  mesh.userData.burning = true;
+  const grp = new THREE.Group(); grp.position.set(x, 0.6, z);
+  const flames = [];
+  for (let i = 0; i < 7; i++) {
+    const fl = new THREE.Mesh(new THREE.ConeGeometry(0.28 + Math.random() * 0.2, 1 + Math.random(), 6),
+      new THREE.MeshBasicMaterial({ color: [0xff3b00, 0xff8c00, 0xffd000][i % 3], transparent: true, opacity: 0.92 }));
+    fl.position.set((Math.random() - 0.5) * 1.2, 0.4 + Math.random() * 0.5, (Math.random() - 0.5) * 2.2);
+    grp.add(fl); flames.push(fl);
+  }
+  const light = new THREE.PointLight(0xff5a10, 3, 22); light.position.y = 1.2; grp.add(light);
+  const smoke = [];
+  for (let i = 0; i < 5; i++) {
+    const sm = new THREE.Mesh(new THREE.SphereGeometry(0.6 + Math.random() * 0.5, 6, 6),
+      new THREE.MeshBasicMaterial({ color: 0x222222, transparent: true, opacity: 0.5 }));
+    sm.position.set((Math.random() - 0.5), 1.5 + i * 0.9, (Math.random() - 0.5));
+    grp.add(sm); smoke.push(sm);
+  }
+  scene.add(grp);
+  const f = { grp, mesh, x, z, flames, smoke, light, t: 16, respT: 2.5, extinguished: false };
+  fires.push(f);
+  toast("🔥 VEHICLE ABLAZE — LVFR DISPATCHED", "#ff6a00");
+  window.LuchiiAudio && LuchiiAudio.sfx("crash", 0.5);
+}
+function spawnFireTruck(fx, fz) {
+  const mesh = makeCar("firetruck"); scene.add(mesh);
+  const edge = Math.random() < 0.5 ? -HALF : HALF;
+  const ft = { mesh, x: Math.random() < 0.5 ? edge : (Math.random()-0.5)*HALF*2,
+    z: Math.random() < 0.5 ? (Math.random()-0.5)*HALF*2 : edge, h: 0, speed: 0, tx: fx, tz: fz };
+  fireTrucks.push(ft);
+}
+function updateFires(dt) {
+  for (let i = fires.length - 1; i >= 0; i--) {
+    const f = fires[i];
+    f.flames.forEach((fl, k) => {
+      fl.scale.y = 0.7 + Math.sin(flashT * 12 + k) * 0.35 * (f.extinguished ? 0.2 : 1);
+      fl.material.opacity = (f.extinguished ? 0.25 : 0.92) * (0.7 + Math.random() * 0.3);
+    });
+    f.smoke.forEach((sm) => { sm.position.y += dt * 0.8; if (sm.position.y > 7) sm.position.y = 1.5; sm.rotation.y += dt; });
+    f.light.intensity = (f.extinguished ? 0.6 : 3) * (0.7 + Math.random() * 0.5);
+    // fire spreads danger to player on foot
+    if (!f.extinguished && !S.inCar && Math.hypot(S.x - f.x, S.z - f.z) < 3 && S.dmgCd <= 0) {
+      S.hp -= 6; S.dmgCd = 0.6; crashFx(0.2);
+      toast("🔥 TOO CLOSE TO THE FIRE  −6 HP", "#ff6a00");
+    }
+    // LVFR response
+    if (!f.extinguished) {
+      f.respT -= dt;
+      if (f.respT <= 0 && fireTrucks.length < 2) { spawnFireTruck(f.x, f.z); f.respT = 99; }
+    }
+    f.t -= dt;
+    if (f.t <= 0) {
+      scene.remove(f.grp);
+      if (f.mesh && f.mesh.parent) scene.remove(f.mesh);
+      fires.splice(i, 1);
+    }
+  }
+  // fire trucks drive to the blaze and put it out
+  for (let i = fireTrucks.length - 1; i >= 0; i--) {
+    const ft = fireTrucks[i];
+    const want = Math.atan2(ft.tx - ft.x, ft.tz - ft.z);
+    let diff = want - ft.h; while (diff > Math.PI) diff -= Math.PI*2; while (diff < -Math.PI) diff += Math.PI*2;
+    ft.h += Math.max(-2*dt, Math.min(2*dt, diff));
+    const d = Math.hypot(ft.tx - ft.x, ft.tz - ft.z);
+    ft.speed += ((d > 6 ? 20 : 0) - ft.speed) * 0.5 * dt;
+    const nx = ft.x + Math.sin(ft.h) * ft.speed * dt, nz = ft.z + Math.cos(ft.h) * ft.speed * dt;
+    if (!hitsBuilding(nx, nz, 1.4)) { ft.x = nx; ft.z = nz; } else ft.h += 1.5 * dt;
+    ft.mesh.position.set(ft.x, 0, ft.z); ft.mesh.rotation.y = ft.h;
+    if (ft.mesh.userData.redLight) ft.mesh.userData.redLight.material.color.setHex(Math.floor(flashT*6)%2 ? 0xff2233 : 0x440000);
+    if (d < 6) {
+      const fire = fires.find(f => Math.hypot(f.x - ft.tx, f.z - ft.tz) < 4);
+      if (fire && !fire.extinguished) { fire.extinguished = true; fire.t = Math.min(fire.t, 3); toast("🚒 LVFR ON SCENE — DOUSING THE FIRE", "#22d3ee"); }
+      ft.done = (ft.done || 0) + dt;
+      if (ft.done > 5) { scene.remove(ft.mesh); fireTrucks.splice(i, 1); }
+    }
+  }
+}
 const mm = document.getElementById("minimap").getContext("2d");
 function scoreVal() { return Math.floor(S.cash + S.dist * 2 + S.jacked * 500); }
 function hud() {
@@ -864,10 +983,21 @@ function start() {
     missionsDone:0, fare:null });
   roadblocks.forEach(b => scene.remove(b.mesh)); roadblocks.length = 0;
   fareRing.visible = false;
+  fires.forEach(f => { scene.remove(f.grp); if (f.mesh && f.mesh.parent) scene.remove(f.mesh); }); fires.length = 0;
+  fireTrucks.forEach(ft => scene.remove(ft.mesh)); fireTrucks.length = 0;
   spawnPickups();
   spawnGangs();
   for (let i = 0; i < 3; i++) spawnFarePassenger();
   player.visible = true;
+  // (re)build player as the chosen character
+  if (AVATARS.ready) {
+    const np = makeAvatarPed(S.sex || "male");
+    np.position.copy(player.position); np.rotation.y = player.rotation.y;
+    const proxy = new THREE.Group(); proxy.position.set(0.34, 1.15, 0.16);
+    bat.position.set(0, -0.18, 0.1); gun.position.set(0, -0.02, 0.12);
+    proxy.add(bat, gun); np.add(proxy);
+    scene.remove(player); player = np; scene.add(player);
+  }
   spawnTraffic(16); spawnNpcs(22);
   document.getElementById("start").style.display = "none";
   document.getElementById("gameover").style.display = "none";
@@ -896,6 +1026,18 @@ function gameOver(title) {
 }
 document.getElementById("startBtn").onclick = start;
 document.getElementById("restartBtn").onclick = start;
+S.sex = "male";
+document.querySelectorAll(".charBtn").forEach((b) => {
+  b.addEventListener("click", () => {
+    S.sex = b.dataset.sex;
+    document.querySelectorAll(".charBtn").forEach((o) => {
+      const on = o === b;
+      o.classList.toggle("on", on);
+      o.style.borderColor = on ? "#f0c040" : "#6c63ff66";
+      o.style.background = on ? "rgba(240,192,64,.15)" : "rgba(108,99,255,.1)";
+    });
+  });
+});
 refreshCareerPanels();
 // Career stats on start screen
 try {
@@ -914,9 +1056,9 @@ function animate() {
   MIXERS.forEach(m => m.update(dt));
   // upgrade player to real avatar once models are loaded
   if (AVATARS.ready && !player.userData.avatar) {
-    const np = makeAvatarPed(0.61);
+    const np = makeAvatarPed(S.sex || "male");
     np.position.copy(player.position); np.rotation.y = player.rotation.y; np.visible = player.visible;
-    const proxy = new THREE.Group(); proxy.position.set(0.34, 1.02, 0.16);
+    const proxy = new THREE.Group(); proxy.position.set(0.34, 1.15, 0.16);
     bat.position.set(0, -0.18, 0.1); gun.position.set(0, -0.02, 0.12);
     proxy.add(bat, gun); np.add(proxy);
     scene.remove(player); player = np; scene.add(player);
@@ -980,6 +1122,8 @@ function animate() {
         S.hp -= Math.abs(S.speed) * 0.35;
         crashFx(0.3);
         window.LuchiiAudio && LuchiiAudio.sfx("crash", 0.5);
+        if (S.hp < 35 && playerCar && !playerCar.userData.burning && Math.random() < 0.5)
+          igniteCar(playerCar, S.x, S.z);
       }
       S.speed = -S.speed * 0.3;
     } else {
@@ -1202,6 +1346,7 @@ function animate() {
     document.getElementById("prompt").style.display =
       (!S.inCar && nearestJackable()) ? "block" : "none";
     hud();
+    updateFires(dt);
   }
   // camera follow + pro polish: speed FOV kick & crash shake
   const tgt = S.inCar && playerCar ? playerCar : player;

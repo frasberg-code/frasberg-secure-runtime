@@ -31,7 +31,7 @@ def test_list_games_titles_and_engine():
     assert r.status_code == 200, r.text
     games = r.json()
     by_id = {g["id"]: g for g in games if isinstance(g, dict) and "id" in g}
-    assert by_id["streets"]["title"] == "Carjack City"
+    assert by_id["streets"]["title"] == "Street Vybz"
     assert by_id["racer3d"]["title"] == "Las Vegas Racer"
     assert "carjack" not in by_id  # merged into streets
     # engine == 'Multiplayer' only for carjack; other core games must have empty string

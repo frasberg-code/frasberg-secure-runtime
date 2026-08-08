@@ -1,7 +1,7 @@
 """Iteration 23: Luchii Builder end-to-end proof tests.
 Tests: auth login (httpOnly cookie), quota, generate SSE (short prompt),
 project fetch, publish, public site fetch, gallery, remix, unauth 401,
-Carjack City games registry.
+Street Vybz games registry.
 """
 import os
 import json
@@ -160,15 +160,15 @@ def test_remix_published_build(user_session):
     assert d.get("id") and d.get("title", "").startswith("Remix of")
 
 
-# ── Games registry: Carjack City only, no duplicate Carjack Pro ────────────
-def test_games_registry_carjack_city_only():
+# ── Games registry: Street Vybz only, no duplicate Carjack Pro ────────────
+def test_games_registry_street_vybz_only():
     r = requests.get(f"{BASE}/api/games", timeout=15)
     assert r.status_code == 200, r.text
     games = r.json()
     if isinstance(games, dict):
         games = games.get("games", [])
     titles = [g.get("title", "") for g in games]
-    carjacks = [t for t in titles if "carjack" in t.lower()]
-    assert len(carjacks) == 1, f"expected exactly 1 Carjack entry, got {carjacks}"
-    assert carjacks[0] == "Carjack City", f"expected 'Carjack City', got {carjacks[0]!r}"
+    carjacks = [t for t in titles if "carjack" in t.lower() or "street vybz" in t.lower()]
+    assert len(carjacks) == 1, f"expected exactly 1 open-world entry, got {carjacks}"
+    assert carjacks[0] == "Street Vybz", f"expected 'Street Vybz', got {carjacks[0]!r}"
     assert not any("Carjack Pro" in t for t in titles), "Carjack Pro duplicate found"

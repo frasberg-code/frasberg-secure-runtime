@@ -939,3 +939,27 @@ All three next-action items SHIPPED and verified on preview:
   (2 police cars + orange strip) spawn 32u ahead on nearest road every 9s (max 2, 22s TTL),
   collision = HP hit + bounce. BUSTED gameOver already existed (cornered <4 speed 1.6s).
   VERIFIED: wanted 4 → roadblock spawned + toast.
+
+## Session Update — June 2026 (Fork pt.5 cont5: REAL avatars + cinematic + career/gangs/taxi)
+- REPORTED BUG FIXED (stick figures → real avatars): replaced procedural box-limb peds with
+  rigged GLB human avatars (three.js r147 local + GLTFLoader + SkeletonUtils; Soldier.glb & Xbot.glb
+  served from /api/games/assets/). Skeletal idle/walk/run animation via AnimationMixer (MIXERS[]).
+  makeAvatarPed() clones via SkeletonUtils, scales by bone-height, tints, faces +Z (rotation.y=PI).
+  animatePed() crossfades clips for avatars, falls back to procedural if GLB not ready.
+  Player upgraded to avatar in animate() once loaded. VERIFIED iter25: player+31 NPCs all avatars,
+  MIXERS=32, zero JS errors, close-up screenshot shows humanoid (report: NOT a box figure).
+- CINEMATIC RENDERER (Carjack): ACESFilmic tone mapping, sRGB, PCFSoft shadows (moon follows
+  player, 2048 shadow map), wet reflective metallic streets via scene.environment neon cubemap,
+  emissive neon building signs, car headlight SpotLights when driving, storm lightning exposure
+  flashes, radial vignette, saturate/contrast CSS filter. Cinematic pass (tone map + vignette)
+  also added to spaceshooter/racer3d/dungeon3d/maze3d (verified no errors).
+- CAREER PROGRESSION: localStorage 'frasberg-streets-career' accumulates cash/jacked/missions/
+  best/runs; empire rank STREET RAT→CREW LEADER→UNDERBOSS→KINGPIN; #careerStart & #careerOver
+  panels. VERIFIED persists + shows on reload.
+- RIVAL GANGS: 2 turf zones, each a high-value parked car (sports/muscle, +$350 gang bonus) guarded
+  by 3 armed peds who shoot the player on sight (shootT, -5HP), go aggro when their car is stolen.
+  VERIFIED gangs=2, 6 guards, aggro flag + bonus. (guard fire slow to see in headless RAF-throttle;
+  shootT lowered to 0.3 for instant first shot at 60fps.)
+- TAXI DAY JOBS: 3 waving passengers (cyan minimap dots), pick up in a taxi → green destination
+  ring → deliver for +$80-170 clean money, ZERO wanted. VERIFIED full loop, wanted unchanged.
+- iter25 testing agent: 8/8 areas PASS, retest_needed=false, 100% frontend.
