@@ -59,6 +59,13 @@ Awwwards-level cinematic landing page + platform for the "Luchii" multi-tier int
 - /auth defaults to LOGIN mode now (?mode=signup to register) — fixes iter29-32 carry-over
 - Testing: iteration_32 — 100% backend + 100% frontend (provider gateway, docs, marquee, leaderboard); credit metering self-tested (2500→2499 deduct, 402 drain, restore)
 
+## Aug 2026 — Dark-first + Credit UX + Auto Top-Up + OpenRouter
+- Dark theme is now the default on first visit (ThemeContext getInitial → "dark"; stored preference respected)
+- Favicon/browser tab: Frasberg AI emblem circle-cropped (frasberg-mark-circle.png) → all favicon sizes + .ico, cache-bust ?v=5. Luchii mark still used for in-app icons
+- Credit Balance Bar: each Dashboard key row shows credits bar (green/amber/red), "Low — top up" badge <500, wallet chip in Usage header
+- Auto Top-Up: wallet-based (users.credit_balance); PATCH /api/keys/{id}/autotopup {enabled,threshold,amount}; refill fires post-deduction (_maybe_autotopup, logged in credit_transfers); GET /api/wallet; credit packs purchasable INTO wallet via Pricing key-select option value wallet-{userId} (capture handles wallet- prefix). SELF-TESTED: key 100→5099 credits, wallet 10000→5000
+- OpenRouter listing submission prepared: /app/OPENROUTER_SUBMISSION.md (identity, endpoints, models, half-market pricing, verification URLs, sample requests)
+
 
 ## Known Constraints
 - WebGL/Three.js cannot reach Cyberpunk 2077 path-traced fidelity; using ACES tonemapping, env reflections, soft shadows, neon emissives

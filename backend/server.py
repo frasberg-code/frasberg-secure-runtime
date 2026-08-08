@@ -468,6 +468,8 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
                 {"key_id": key_id, "day": datetime.now(timezone.utc).strftime("%Y-%m-%d")},
                 {"$inc": {"requests": 1, "tokens": len(full.split())}}, upsert=True,
             )
+            if deduct_credits:
+                await _maybe_autotopup(key_id)
         yield f"data: {json.dumps({'done': True, 'session_id': session_id, 'mesh': 'frasberg-secure-v1', 'sig': _mesh_sign(full)})}\n\n"
 
     return StreamingResponse(
@@ -1648,7 +1650,10 @@ async def paypal_capture_order(order_id: str, body: OrderCapture):
                     "ts": datetime.now(timezone.utc).isoformat(),
                 })
                 if key_id:
-                    await db.api_keys.update_one({"id": key_id}, {"$inc": {"credits": credited}})
+                    if key_id.startswith("wallet-"):
+                        await db.users.update_one({"id": key_id[7:]}, {"$inc": {"credit_balance": credited}})
+                    else:
+                        await db.api_keys.update_one({"id": key_id}, {"$inc": {"credits": credited}})
                 receipt = await _send_receipt(payer_email, plan, order_id)
         return {"status": status, "credits_added": credited, "upgraded": upgraded, "receipt": receipt}
     except HTTPException:
@@ -1656,6 +1661,32 @@ async def paypal_capture_order(order_id: str, body: OrderCapture):
     except Exception:
         logger.exception("paypal capture error")
         raise HTTPException(status_code=502, detail="PayPal is unavailable")
+
+
+@api_router.get("/wallet")
+async def get_wallet(user: dict = Depends(auth_module.get_current_user)):
+    doc = await db.users.find_one({"id": user["id"]}, {"credit_balance": 1})
+    return {"balance": int((doc or {}).get("credit_balance", 0))}
+
+
+class AutoTopupBody(BaseModel):
+    enabled: bool
+    threshold: int = 500
+    amount: int = 5000
+
+
+@api_router.patch("/keys/{key_id}/autotopup")
+async def set_autotopup(key_id: str, body: AutoTopupBody, user: dict = Depends(auth_module.get_current_user)):
+    q = {"id": key_id}
+    if user.get("role") != "admin":
+        q["user_id"] = user["id"]
+    at = {"enabled": body.enabled,
+          "threshold": max(50, min(body.threshold, 100000)),
+          "amount": max(500, min(body.amount, 200000))}
+    res = await db.api_keys.update_one(q, {"$set": {"autotopup": at}})
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Key not found")
+    return {"ok": True, "autotopup": at}
 
 
 # ---------------- LINQ Live — PayPal Tip Jar ----------------
@@ -1824,6 +1855,28 @@ async def _validate_bearer_key(authorization: Optional[str]) -> dict:
     return key_doc
 
 
+async def _maybe_autotopup(key_id: str):
+    key_doc = await db.api_keys.find_one({"id": key_id}, {"_id": 0})
+    if not key_doc:
+        return
+    at = key_doc.get("autotopup") or {}
+    if not at.get("enabled") or key_doc.get("credits", 0) >= at.get("threshold", 500):
+        return
+    owner_id = key_doc.get("user_id")
+    owner = await db.users.find_one({"id": owner_id}, {"credit_balance": 1})
+    wallet = (owner or {}).get("credit_balance", 0)
+    transfer = min(int(at.get("amount", 5000)), int(wallet))
+    if transfer <= 0:
+        return
+    await db.users.update_one({"id": owner_id}, {"$inc": {"credit_balance": -transfer}})
+    await db.api_keys.update_one({"id": key_id}, {"$inc": {"credits": transfer}})
+    await db.credit_transfers.insert_one({
+        "id": str(uuid.uuid4()), "key_id": key_id, "user_id": owner_id,
+        "amount": transfer, "kind": "autotopup",
+        "ts": datetime.now(timezone.utc).isoformat()})
+    logger.info("auto top-up: %s tokens -> key %s", transfer, key_id)
+
+
 async def _meter_key(key_id: str, tokens: int, deduct: bool = False):
     now = datetime.now(timezone.utc)
     inc = {"request_count": 1, "token_count": tokens}
@@ -1833,6 +1886,8 @@ async def _meter_key(key_id: str, tokens: int, deduct: bool = False):
                                                   "$set": {"last_used": now.isoformat()}})
     await db.api_key_usage.update_one({"key_id": key_id, "day": now.strftime("%Y-%m-%d")},
                                       {"$inc": {"requests": 1, "tokens": tokens}}, upsert=True)
+    if deduct:
+        await _maybe_autotopup(key_id)
 
 
 @api_router.get("/v1/models")

@@ -5,7 +5,7 @@ import { Check, Sparkles } from "lucide-react";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-export default function Pricing({ keys = [], onPurchased }) {
+export default function Pricing({ keys = [], onPurchased, walletId }) {
   const [config, setConfig] = useState(null);
   const [selectedKey, setSelectedKey] = useState("");
   const [activePlan, setActivePlan] = useState(null);
@@ -42,6 +42,7 @@ export default function Pricing({ keys = [], onPurchased }) {
             {keys.map((k) => (
               <option key={k.id} value={k.id}>{k.name} ({k.credits || 0} credits)</option>
             ))}
+            {walletId && <option value={`wallet-${walletId}`}>💰 My wallet (auto top-up pool)</option>}
           </select>
         </div>
       )}

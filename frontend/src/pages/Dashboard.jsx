@@ -37,21 +37,41 @@ export default function Dashboard() {
   const [expiresDays, setExpiresDays] = useState("");
   const [daily, setDaily] = useState([]);
   const [copied, setCopied] = useState(false);
+  const [wallet, setWallet] = useState(0);
 
   const refresh = useCallback(async () => {
     try {
-      const [k, u, d] = await Promise.all([
+      const [k, u, d, w] = await Promise.all([
         fetch(`${API}/keys`, { credentials: "include" }).then((r) => (r.ok ? r.json() : [])),
         fetch(`${API}/usage`, { credentials: "include" }).then((r) => (r.ok ? r.json() : null)),
         fetch(`${API}/keys/usage/daily`, { credentials: "include" }).then((r) => (r.ok ? r.json() : [])),
+        fetch(`${API}/wallet`, { credentials: "include" }).then((r) => (r.ok ? r.json() : null)),
       ]);
       setKeys(Array.isArray(k) ? k : []);
       if (u) setUsage(u);
       setDaily(Array.isArray(d) ? d : []);
+      if (w) setWallet(w.balance);
     } catch {
       toast.error("Failed to load dashboard");
     }
   }, []);
+
+  const toggleAutoTopup = async (k) => {
+    const enabled = !(k.autotopup && k.autotopup.enabled);
+    try {
+      const res = await fetch(`${API}/keys/${k.id}/autotopup`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ enabled, threshold: k.autotopup?.threshold || 500, amount: k.autotopup?.amount || 5000 }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success(enabled ? "Auto top-up enabled — refills +5,000 tokens from your wallet when below 500" : "Auto top-up disabled");
+      refresh();
+    } catch {
+      toast.error("Could not update auto top-up");
+    }
+  };
 
   useEffect(() => { if (user) refresh(); }, [refresh, user]);
 
@@ -166,6 +186,9 @@ export default function Dashboard() {
             <span className="ml-1 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-lux-text2" data-testid="usage-live-badge">
               <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400" /> live
             </span>
+            <span className="ml-auto rounded-full border border-lux-border px-3 py-1 font-mono text-[11px] text-lux-text2" data-testid="wallet-balance">
+              💰 Wallet: {wallet.toLocaleString()} tokens
+            </span>
           </h2>
           <div className="mt-5 rounded-2xl border border-lux-border bg-lux-surface p-5" style={{ height: 240 }} data-testid="key-usage-graph">
             {daily.every((d) => d.requests === 0) ? (
@@ -248,12 +271,18 @@ export default function Dashboard() {
             {keys.length === 0 ? (
               <p className="p-6 text-sm text-lux-text2">No keys yet. Generate your first key above.</p>
             ) : (
-              keys.map((k) => (
+              keys.map((k) => {
+                const credits = k.credits ?? 0;
+                const low = credits < 500;
+                const pct = Math.max(2, Math.min(100, (credits / 5000) * 100));
+                const atOn = k.autotopup && k.autotopup.enabled;
+                return (
                 <div
                   key={k.id}
-                  className="flex items-center justify-between gap-4 border-b border-lux-border px-5 py-4 last:border-0"
+                  className="border-b border-lux-border px-5 py-4 last:border-0"
                   data-testid={`key-row-${k.id}`}
                 >
+                  <div className="flex items-center justify-between gap-4">
                   <div className="min-w-0">
                     <p className="truncate font-500 text-lux-text">{k.name}</p>
                     <code className="font-mono text-xs text-lux-text2">{k.key}</code>
@@ -278,8 +307,31 @@ export default function Dashboard() {
                       <Trash2 size={15} />
                     </button>
                   </div>
+                  </div>
+                  <div className="mt-3 flex flex-wrap items-center gap-3" data-testid={`key-credits-${k.id}`}>
+                    <div className="h-1.5 w-40 overflow-hidden rounded-full bg-lux-surface2">
+                      <div className={`h-full rounded-full transition-all ${low ? "bg-red-500" : credits < 1500 ? "bg-amber-400" : "bg-emerald-400"}`} style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className={`font-mono text-[11px] ${low ? "text-red-400" : "text-lux-text2"}`}>
+                      {credits.toLocaleString()} credits
+                    </span>
+                    {low && (
+                      <span className="rounded-full border border-red-500/50 bg-red-500/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wide text-red-400" data-testid={`key-low-${k.id}`}>
+                        Low — top up
+                      </span>
+                    )}
+                    <button
+                      onClick={() => toggleAutoTopup(k)}
+                      data-testid={`key-autotopup-${k.id}`}
+                      className={`rounded-full border px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-wide transition-colors ${atOn ? "border-emerald-400/60 text-emerald-400" : "border-lux-border text-lux-text2 hover:text-lux-text"}`}
+                    >
+                      Auto top-up {atOn ? "on" : "off"}
+                    </button>
+                    {atOn && <span className="font-mono text-[10px] text-lux-text2">+{(k.autotopup.amount || 5000).toLocaleString()} @ &lt;{k.autotopup.threshold || 500}</span>}
+                  </div>
                 </div>
-              ))
+                );
+              })
             )}
           </div>
         </section>
@@ -330,7 +382,7 @@ export default function Dashboard() {
         </div>
 
         {/* Pricing / Credits */}
-        <Pricing keys={keys} onPurchased={refresh} />
+        <Pricing keys={keys} onPurchased={refresh} walletId={user?.id} />
         </>
         )}
       </div>
