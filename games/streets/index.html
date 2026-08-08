@@ -18,7 +18,7 @@
   #minimap { position:fixed; bottom:14px; right:14px; z-index:9; border:1px solid #6c63ff66; border-radius:8px; background:rgba(13,13,26,.8); }
   #ctrlHint { bottom:14px; left:50%; transform:translateX(-50%); color:#888; font-weight:normal; }
   @media (pointer: coarse), (max-width: 920px) {
-    #minimap { width:76px; height:76px; bottom:auto; top:6px; right:auto; left:50%; transform:translateX(-50%); opacity:.85 }
+    #minimap { width:76px; height:76px; bottom:auto; top:44px; right:auto; left:50%; transform:translateX(-50%); opacity:.85 }
     .pill { font-size:9px; padding:5px 9px }
     #hud { top:8px; left:8px; gap:8px }
     #carPill { top:8px; right:8px } #wantedPill { top:40px; right:8px } #healthPill { top:72px; right:8px }
@@ -90,7 +90,8 @@ scene.fog = new THREE.FogExp2(0x0d0d1a, 0.011);
 const camera = new THREE.PerspectiveCamera(65, innerWidth/innerHeight, 0.1, 600);
 const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
 renderer.setSize(innerWidth, innerHeight);
-renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+const IS_TOUCH = matchMedia("(pointer: coarse)").matches;
+renderer.setPixelRatio(Math.min(devicePixelRatio, IS_TOUCH ? 1.2 : 1.75));
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.18;
@@ -107,7 +108,7 @@ addEventListener("resize", () => {
 scene.add(new THREE.HemisphereLight(0x8888ff, 0x1a1a2e, 0.5));
 const moon = new THREE.DirectionalLight(0xaab4ff, 0.85); moon.position.set(40, 80, 30);
 moon.castShadow = true;
-moon.shadow.mapSize.set(2048, 2048);
+moon.shadow.mapSize.set(IS_TOUCH ? 1024 : 2048, IS_TOUCH ? 1024 : 2048);
 moon.shadow.camera.left = -70; moon.shadow.camera.right = 70;
 moon.shadow.camera.top = 70; moon.shadow.camera.bottom = -70;
 moon.shadow.camera.near = 1; moon.shadow.camera.far = 260;
@@ -705,7 +706,7 @@ document.addEventListener("keyup", e => keys[e.code] = false);
 
 const S = {
   running:false, inCar:false, carType:null,
-  x:4.5, z:4.5, h:0, speed:0,
+  x:0, z:2, h:0, speed:0,
   hp:100, cash:0, jacked:0, dist:0, wanted:0,
   bustT:0, wantedT:0, dmgCd:0,
   hasBat:false, arsenal:{}, weapon:null, mission:null, missionT:6, blockT:0,
@@ -1445,7 +1446,7 @@ function start() {
   police.forEach(p => scene.remove(p.mesh)); police.length = 0;
   npcs.forEach(n => scene.remove(n.mesh)); npcs.length = 0;
   if (playerCar) { scene.remove(playerCar); playerCar = null; }
-  Object.assign(S, { running:true, inCar:false, carType:null, x:4.5, z:4.5, h:0, speed:0,
+  Object.assign(S, { running:true, inCar:false, carType:null, x:0, z:2, h:0, speed:0,
     hp:100, cash:0, jacked:0, dist:0, wanted:0, bustT:0, wantedT:0, dmgCd:0,
     hasBat:false, arsenal:{}, weapon:null, mission:null, missionT:6, blockT:0,
     missionsDone:0, fare:null });
@@ -1520,7 +1521,7 @@ const clock = new THREE.Clock();
 let flashT = 0, lightningT = 5, copVoiceT = 4;
 function animate() {
   requestAnimationFrame(animate);
-  const dt = Math.min(clock.getDelta(), 0.05);
+  const dt = Math.min(clock.getDelta(), 0.1);
   flashT += dt;
   MIXERS.forEach(m => m.update(dt));
   LM_ANIM.forEach(u => u(dt, flashT));
@@ -2125,7 +2126,7 @@ window.Riddim = (function () {
   document.getElementById("ctrlHint").style.display = "none";
   // minimap goes small & top-center on touch — never blocks the action buttons
   const mmEl = document.getElementById("minimap");
-  mmEl.style.cssText += "width:76px;height:76px;bottom:auto;top:6px;right:auto;left:50%;transform:translateX(-50%);opacity:.85";
+  mmEl.style.cssText += "width:76px;height:76px;bottom:auto;top:44px;right:auto;left:50%;transform:translateX(-50%);opacity:.85";
   document.body.insertAdjacentHTML("beforeend", `
     <style>
       .tc{position:fixed;z-index:8;user-select:none;-webkit-user-select:none;touch-action:none}
