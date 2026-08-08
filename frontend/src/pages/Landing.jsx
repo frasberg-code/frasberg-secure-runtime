@@ -13,6 +13,7 @@ import Ecosystem from "../components/site/Ecosystem";
 import Press from "../components/site/Press";
 import ApiDocs from "../components/site/ApiDocs";
 import { GallerySpotlight } from "../components/site/GallerySpotlight";
+import { GalleryMarquee } from "../components/site/GalleryMarquee";
 import { CollapsibleSection } from "../components/site/CollapsibleSection";
 import Footer from "../components/site/Footer";
 
@@ -34,6 +35,7 @@ export default function Landing() {
       <Hero />
       <EditorialMarquee />
       <Models />
+      <GalleryMarquee />
       <CollapsibleSection anchor="gallery-spotlight" title="Builder Gallery Spotlight" subtitle="Community sites, apps and games built with Luchii">
         <GallerySpotlight />
       </CollapsibleSection>
@@ -49,7 +51,7 @@ export default function Landing() {
       <CollapsibleSection anchor="mythos" title="Mythos" subtitle="The Luchii story and constellation lore">
         <MythosTimeline />
       </CollapsibleSection>
-      <CollapsibleSection anchor="ecosystem" title="Frasberg Ecosystem" subtitle="Products and platforms powered by Luchii">
+      <CollapsibleSection anchor="ecosystem" title="Frasberg Ecosystem" subtitle="Products and platforms powered by Frasberg">
         <Ecosystem />
       </CollapsibleSection>
       <CollapsibleSection anchor="safety" title="Safety & Alignment" subtitle="How Luchii stays safe, grounded and governed">

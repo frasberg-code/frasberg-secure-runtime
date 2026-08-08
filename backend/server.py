@@ -1234,7 +1234,9 @@ async def gateway_chat(req: ChatRequest, authorization: Optional[str] = Header(N
 @api_router.post("/keys")
 async def create_key(body: KeyCreate, user: dict = Depends(auth_module.get_current_user)):
     if user.get("role") != "admin" and user.get("plan") not in PAID_PLANS:
-        raise HTTPException(status_code=402, detail="subscription_required")
+        existing = await db.api_keys.count_documents({"user_id": user["id"]})
+        if existing >= 3:
+            raise HTTPException(status_code=402, detail="free_key_limit")
     expires_at = None
     if body.expires_days:
         days = max(1, min(int(body.expires_days), 365))

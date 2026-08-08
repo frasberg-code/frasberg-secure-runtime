@@ -36,6 +36,15 @@ Awwwards-level cinematic landing page + platform for the "Luchii" multi-tier int
 - Navbar Explore dropdown: grouped 2-column mega menu (On this page/Build/Products/Company); mobile menu 2-col grid capped 75vh
 - /linq auth gate now links /auth?mode=login
 - LINQ App tab (LuchiiFlix/cinemazone embed) hidden from public users — admin-only (role check on tab + render)
+- Tip Jar Live: PayPal tips ($1-$500) in LINQ Live with on-screen 💸 burst animation + LiveKit data-channel broadcast (server.py /rooms/tip/orders + capture, linq_tips/linq_events)
+- Engine Scheduler: daily auto threat+compliance scans (asyncio loop, 30-min tick, once/day), alerts on score drops (linq_alerts), bell UI in LINQ header (LinqAlerts.jsx: toggle, run-now, alert list)
+- Purchase History: /api/purchases/my + 🧾 History tab (LinqHistory.jsx: plan summary + PayPal/CashApp rows) — verified 8 rows for admin
+- Luchii Voice Live: TTS playback of Luchii replies via /voice/speak (voice toggle, default ON)
+- Homepage: 9 info sections wrapped in CollapsibleSection accordions (content preserved, #anchor auto-expands); GalleryMarquee — Squarespace-style TWO-ROW gallery with live iframe preview cards, rows sliding in opposite directions (always visible)
+- Ecosystem subtitle: "Products and platforms powered by Frasberg"
+- PUBLIC API keys: free accounts can now mint up to 3 luchii-sk keys (was 402-paywalled); verified e2e with free account: mint → Bearer → /v1/chat inference → usage metering → 4th key 402 upsell
+- Testing: iteration_31 (backend 100%, frontend 95% — LinqLive missing-state crash fixed by test agent patch + my corrections: voiceOn default true, withCredentials on TTS)
+- NOTE: testing agent patched LinqLive.jsx in iter31; audited and kept, matches intended design
 - Testing: iteration_30.json — 100% pass backend + frontend (engine actions, PayPal order creation live-mode, usage daily, Plans tab, quick actions artifact cards, dropdown, regression)
 
 ## Known Constraints

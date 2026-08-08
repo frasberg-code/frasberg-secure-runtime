@@ -19,7 +19,7 @@ export const LinqLive = ({ identity }) => {
   const [luchiiInput, setLuchiiInput] = useState("");
   const [preview, setPreview] = useState(null);
   const [thinking, setThinking] = useState(false);
-  const [voiceOn, setVoiceOn] = useState(false);
+  const [voiceOn, setVoiceOn] = useState(true);
   const [tipOpen, setTipOpen] = useState(false);
   const [tipAmount, setTipAmount] = useState(5);
   const [tipBursts, setTipBursts] = useState([]);
@@ -129,7 +129,7 @@ export const LinqLive = ({ identity }) => {
   const speak = useCallback(async (text) => {
     if (!voiceOn || !text) return;
     try {
-      const { data } = await axios.post(`${API}/voice/speak`, { text, tone: "balanced" });
+      const { data } = await axios.post(`${API}/voice/speak`, { text: text.slice(0, 600), tone: "balanced" }, { withCredentials: true, timeout: 45000 });
       if (data?.audio_base64) {
         const audio = new Audio(`data:${data.mime || "audio/mpeg"};base64,${data.audio_base64}`);
         audio.play().catch(() => {});

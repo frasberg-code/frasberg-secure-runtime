@@ -71,8 +71,8 @@ export default function Dashboard() {
       });
       if (res.status === 401) { toast.error("Please sign in to generate keys"); return; }
       if (res.status === 402) {
-        toast.error("API & LLM keys require a subscription — plans start at $5/mo (or try 7 days for $1)");
-        setTimeout(() => window.location.assign("/pay"), 1200);
+        toast.error("Free accounts include 3 API keys — upgrade from $5/mo for unlimited keys");
+        setTimeout(() => window.location.assign("/pay"), 1500);
         return;
       }
       const data = await res.json();
