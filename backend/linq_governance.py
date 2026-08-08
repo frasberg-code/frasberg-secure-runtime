@@ -207,13 +207,37 @@ async def _run_and_alert(eng: str):
     alerted = False
     if isinstance(prev_score, (int, float)) and isinstance(curr, (int, float)) and curr < prev_score:
         drop = round(prev_score - curr, 1)
+        message = f"{ENGINES[eng]['title']} score dropped {drop} points ({prev_score} → {curr})"
         await db.linq_alerts.insert_one({
             "id": str(uuid.uuid4()), "engine": eng, "prevScore": prev_score, "score": curr,
-            "delta": -drop,
-            "message": f"{ENGINES[eng]['title']} score dropped {drop} points ({prev_score} → {curr})",
+            "delta": -drop, "message": message,
             "read": False, "createdAt": _now()})
         alerted = True
+        await _send_alert_email(eng, message, doc)
     return doc, alerted
+
+
+async def _send_alert_email(eng: str, message: str, doc: dict):
+    api_key = os.environ.get("RESEND_API_KEY", "")
+    to_email = os.environ.get("ALERT_EMAIL") or os.environ.get("ADMIN_EMAIL", "")
+    if not (api_key and to_email):
+        return
+    try:
+        import resend
+        resend.api_key = api_key
+        recs = "".join(f"<li>{r}</li>" for r in (doc.get("recommendations") or [])[:3])
+        html = (f"<div style='font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc;padding:28px;border-radius:14px;'>"
+                f"<p style='color:#ef4444;font-size:12px;letter-spacing:2px;text-transform:uppercase;'>LINQ Engine Alert</p>"
+                f"<h2 style='margin:8px 0;'>{message}</h2>"
+                f"<p style='color:#94a3b8;'>{doc.get('narrative', '')}</p>"
+                f"<ul style='color:#cbd5e1;'>{recs}</ul>"
+                f"<p style='color:#64748b;font-size:12px;'>Open the LINQ Command Center → alerts bell for full details.</p></div>")
+        params = {"from": os.environ.get("SENDER_EMAIL", "onboarding@resend.dev"), "to": [to_email],
+                  "subject": f"⚠️ LINQ alert — {ENGINES[eng]['title']} score dropped", "html": html}
+        await asyncio.to_thread(resend.Emails.send, params)
+        logger.info("alert email sent to %s for %s", to_email, eng)
+    except Exception:
+        logger.exception("alert email failed")
 
 
 async def _scheduler_tick():

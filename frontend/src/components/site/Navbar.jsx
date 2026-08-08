@@ -34,6 +34,7 @@ const EXPLORE_GROUPS = [
   {
     title: "Products",
     items: [
+      { label: "API Docs", to: "/docs" },
       { label: "AI Models", to: "/ai-models" },
       { label: "Frasberg Games", to: "/games" },
       { label: "Visual Studio", to: "/studio" },

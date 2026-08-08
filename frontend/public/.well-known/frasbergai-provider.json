@@ -1,0 +1,17 @@
+{
+  "id": "frasbergai",
+  "name": "FrasbergAI",
+  "base_url": "https://api.frasberg.com/v1",
+  "auth": "bearer",
+  "models": {
+    "luchii-6-plus": "chat",
+    "luchii-6-mini": "chat",
+    "luchii-6-embed": "embed",
+    "luchii-70b": "chat",
+    "luchii-7b": "chat",
+    "luchii-1b": "chat",
+    "luchii-200m": "chat"
+  },
+  "streaming": true,
+  "sse": true
+}

@@ -1,0 +1,28 @@
+{
+  "summary": "Iter32 tested FrasbergAI OpenAI-compatible provider gateway + Docs page + tip leaderboard + gallery marquee thumbnails. Backend: 15/15 pytest passed in 8.3s (see /app/backend/tests/test_iter32_gateway.py). Verified: GET /api/v1/models returns OpenAI list with all 7 luchii ids (luchii-6-plus/mini/embed, luchii-70b/7b/1b/200m) owned_by=frasbergai; GET /api/v1/provider returns registry.id=frasbergai auth=bearer sse=true, manifest.openai_compatible=true, providers list contains 'frasbergai' (strings, not dicts), verified=true; all 3 backend /api/.well-known/* docs return 200 (frasbergai-provider.json, provider-manifest.json, openapi.yaml); frontend static /.well-known/frasbergai-provider.json and /provider-manifest.json 200. Minted luchii-sk key via /api/keys (name TEST_iter32_gateway) and executed chat.completions non-stream (returns object='chat.completion' + choices[0].message.content + usage), multi-turn (system+user+assistant+user, 200 OK), streaming (SSE chat.completion.chunk frames, finish_reason=stop, terminated by 'data: [DONE]'). Invalid model name → 404. No-auth chat → 401. Embeddings: 2 vectors of exactly 384 dims each with usage; no-auth 401. Usage metering: after all calls, GET /api/keys shows request_count>0 on the used key. Tip leaderboard GET /api/rooms/room-linq-001/tips/leaderboard → 200 with {roomId, leaderboard:[]}. Regression native POST /api/v1/chat with Bearer key still streams data. Test key cleaned up. FRONTEND: /docs public page (no login) fully renders [data-testid=docs-page]; language tabs docs-lang-{curl,python,javascript} switch snippets; docs-models-table and docs-discovery both present; copy buttons and 'Get API Key' link present; Navbar Explore dropdown → [data-testid=nav-explore-api-docs] navigates to /docs (must click nav-explore-btn to open menu — not hover). Homepage gallery marquee shows [data-testid=marquee-row-1] and marquee-row-2 each with 14 <img> elements sourced from /gallery-thumbs/*.jpg. /linq LinqLive tab shows '💸 Top tippers' section (empty state). /linq History tab now correctly renders 8 cashapp billing rows (iter31 bug FIXED). /linq Plans tab clicks OK. Console shows a few /api/keys 401s on public homepage — expected (guest mode).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/auth", "issues": ["Still opens in Register mode by default — must click [data-testid=auth-toggle-mode] to sign in (carried from iter29–31)."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_iter32_gateway.py", "/app/test_reports/pytest/iter32.xml"],
+  "action_items": [
+    "(Optional carry-over) Default /auth to Sign-In mode when redirected from a protected route."
+  ],
+  "critical_code_review_comments": [
+    "Provider registry response uses providers:[string] but the /v1/provider endpoint README/task described 'providers list containing frasbergai' — worth documenting whether entries are strings or objects (test had to normalize).",
+    "Gateway auth (_validate_bearer_key) + _meter_key are working end-to-end; consider adding rate-limit headers (X-RateLimit-Remaining) on /v1/chat/completions responses to be more OpenAI-parity.",
+    "Docs page is entirely public which is correct; ensure 'Get API Key' anchor triggers auth gate — currently uses <a href='/dashboard'> which drops to /auth (works).",
+    "No CORS check performed for /v1 endpoints — external SDKs may need Access-Control-Allow-Origin:* on /api/v1/*. Not tested."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter32_gateway.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026! (cookie auth). /auth defaults to Register — click [data-testid=auth-toggle-mode].",
+  "seed_data_creation": "Minted and then DELETED an api key named 'TEST_iter32_gateway' (cleaned up at end of run). No lingering test data.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend gateway tests at /app/backend/tests/test_iter32_gateway.py cover models catalog, provider registry, well-known discovery, chat completions (auth/model-404/nonstream/stream/multi-turn), embeddings, usage metering, tip leaderboard, and native /v1/chat streaming. Runtime ~8s. Note: /v1/provider returns providers as list-of-strings, not list-of-dicts. Iter31 LinqHistory 0-row bug is FIXED — cashapp records now render alongside purchases[]. /auth still defaults to Register (non-critical)."
+}

@@ -135,6 +135,19 @@ async def ingest_summary(body: SummaryBody):
     return {"ok": True}
 
 
+@router.get("/rooms/{room_id}/tips/leaderboard")
+async def tip_leaderboard(room_id: str):
+    pipeline = [
+        {"$match": {"roomId": room_id}},
+        {"$group": {"_id": "$from", "total": {"$sum": "$amount"}, "count": {"$sum": 1}}},
+        {"$sort": {"total": -1}},
+        {"$limit": 10},
+    ]
+    rows = await db.linq_tips.aggregate(pipeline).to_list(10)
+    return {"roomId": room_id,
+            "leaderboard": [{"from": r["_id"], "total": round(r["total"], 2), "tips": r["count"]} for r in rows]}
+
+
 @router.get("/rooms/{room_id}")
 async def get_room(room_id: str):
     room = await db.linq_rooms.find_one({"roomId": room_id}, {"_id": 0})

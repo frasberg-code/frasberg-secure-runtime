@@ -24,6 +24,7 @@ export const LinqLive = ({ identity }) => {
   const [tipAmount, setTipAmount] = useState(5);
   const [tipBursts, setTipBursts] = useState([]);
   const [ppCfg, setPpCfg] = useState(null);
+  const [leaderboard, setLeaderboard] = useState([]);
   const roomRef = useRef(null);
   const videoRef = useRef(null);
 
@@ -39,7 +40,11 @@ export const LinqLive = ({ identity }) => {
       const { data } = await axios.get(`${API}/preview/state`);
       setPreview(data);
     } catch {}
-  }, []);
+    try {
+      const { data } = await axios.get(`${API}/rooms/${roomName}/tips/leaderboard`);
+      setLeaderboard(data.leaderboard);
+    } catch {}
+  }, [roomName]);
 
   useEffect(() => {
     loadRooms();
@@ -367,6 +372,16 @@ export const LinqLive = ({ identity }) => {
               <div key={s.id} className="text-[11px] text-[#cbd5e1] truncate">{s.roomId}: {(s.summary?.topics || []).join(", ")}</div>
             ))}
             {(!preview || preview.summaries.length === 0) && <div className="text-xs text-[#64748b]">None</div>}
+          </div>
+          <div>
+            <div className="text-[10px] text-[#94a3b8] uppercase tracking-widest mb-1">💸 Top tippers — {roomName}</div>
+            {(leaderboard || []).map((t, i) => (
+              <div key={t.from} className="flex items-center justify-between text-[11px]" data-testid={`tip-leader-${i}`}>
+                <span className="text-[#cbd5e1] truncate">{["🥇", "🥈", "🥉"][i] || "·"} {t.from}</span>
+                <span className="font-mono text-[#facc15]">${t.total}</span>
+              </div>
+            ))}
+            {(!leaderboard || leaderboard.length === 0) && <div className="text-xs text-[#64748b]">No tips yet</div>}
           </div>
           <div>
             <div className="text-[10px] text-[#94a3b8] uppercase tracking-widest mb-1">Luchii actions</div>

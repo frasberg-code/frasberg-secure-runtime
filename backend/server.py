@@ -14,7 +14,7 @@ import logging
 from collections import defaultdict
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List, Optional
+from typing import List, Optional, Any
 import uuid
 from datetime import datetime, timezone, timedelta
 
@@ -1735,6 +1735,305 @@ async def my_purchases(user: dict = Depends(auth_module.get_current_user)):
         p["price"] = m.get("price")
     return {"purchases": purchases, "cashapp": cash, "plan": user.get("plan"),
             "plan_started": user.get("plan_started"), "plan_expires": user.get("plan_expires")}
+
+
+# ---------------- OpenAI-Compatible Provider Gateway (FrasbergAI) ----------------
+PROVIDER_BASE_URL = os.environ.get("PROVIDER_BASE_URL", "https://api.frasberg.com/v1")
+
+PROVIDER_REGISTRY = {
+    "id": "frasbergai",
+    "name": "FrasbergAI",
+    "base_url": PROVIDER_BASE_URL,
+    "auth": "bearer",
+    "models": {
+        "luchii-6-plus": "chat",
+        "luchii-6-mini": "chat",
+        "luchii-6-embed": "embed",
+        "luchii-70b": "chat",
+        "luchii-7b": "chat",
+        "luchii-1b": "chat",
+        "luchii-200m": "chat",
+    },
+    "streaming": True,
+    "sse": True,
+}
+
+PROVIDER_MANIFEST = {
+    "provider": "frasbergai",
+    "models": ["luchii-6-plus", "luchii-6-mini", "luchii-6-embed",
+               "luchii-70b", "luchii-7b", "luchii-1b", "luchii-200m"],
+    "endpoints": {
+        "chat": f"{PROVIDER_BASE_URL}/chat/completions",
+        "embed": f"{PROVIDER_BASE_URL}/embeddings",
+        "models": f"{PROVIDER_BASE_URL}/models",
+    },
+    "authentication": {"type": "bearer", "header": "Authorization", "format": "Bearer {FRASBERG_LLM_KEY}"},
+    "streaming": True,
+    "sse": True,
+    "openai_compatible": True,
+    "documentation": "https://frasberg.com/docs",
+    "terms": "Frasberg Public License (FPL)",
+    "operator": "FRASBERG INC",
+}
+
+OAI_MODEL_ALIASES = {
+    "luchii-6-plus": "luchii-70b", "luchii-6-mini": "luchii-1b",
+    "luchii-70b": "luchii-70b", "luchii-7b": "luchii-7b",
+    "luchii-1b": "luchii-1b", "luchii-200m": "luchii-200m",
+}
+
+
+async def _validate_bearer_key(authorization: Optional[str]) -> dict:
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Missing or invalid API key")
+    key = authorization.split(" ", 1)[1].strip()
+    key_doc = await db.api_keys.find_one({"key": key}, {"_id": 0})
+    if not key_doc:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+    exp = key_doc.get("expires_at")
+    if exp and exp < datetime.now(timezone.utc).isoformat():
+        raise HTTPException(status_code=401, detail="API key expired")
+    _rate_check(key)
+    return key_doc
+
+
+async def _meter_key(key_id: str, tokens: int):
+    now = datetime.now(timezone.utc)
+    await db.api_keys.update_one({"id": key_id}, {"$inc": {"request_count": 1, "token_count": tokens},
+                                                  "$set": {"last_used": now.isoformat()}})
+    await db.api_key_usage.update_one({"key_id": key_id, "day": now.strftime("%Y-%m-%d")},
+                                      {"$inc": {"requests": 1, "tokens": tokens}}, upsert=True)
+
+
+@api_router.get("/v1/models")
+async def oai_list_models():
+    created = int(_START_TIME.timestamp())
+    return {"object": "list", "data": [
+        {"id": m, "object": "model", "created": created, "owned_by": "frasbergai",
+         "capabilities": {"chat": kind == "chat", "embeddings": kind == "embed"}}
+        for m, kind in PROVIDER_REGISTRY["models"].items()
+    ]}
+
+
+@api_router.get("/v1/provider")
+async def oai_provider():
+    return {"registry": PROVIDER_REGISTRY, "manifest": PROVIDER_MANIFEST,
+            "providers": ["openai", "anthropic", "google", "cohere", "elevenlabs", "frasbergai"],
+            "verified": True}
+
+
+class OAIChatBody(BaseModel):
+    model: str = "luchii-6-plus"
+    messages: list
+    stream: bool = False
+    max_tokens: Optional[int] = None
+    temperature: Optional[float] = None
+
+
+def _oai_prompt(messages: list):
+    system_parts, convo, last_user = [], [], ""
+    for m in messages:
+        role, content = m.get("role", "user"), m.get("content", "")
+        if isinstance(content, list):
+            content = " ".join(c.get("text", "") for c in content if isinstance(c, dict))
+        if role == "system":
+            system_parts.append(content)
+        elif role == "user":
+            last_user = content
+            convo.append(f"User: {content}")
+        elif role == "assistant":
+            convo.append(f"Assistant: {content}")
+    history = "\n".join(convo[:-1])[-6000:] if len(convo) > 1 else ""
+    return "\n".join(system_parts), history, last_user
+
+
+@api_router.post("/v1/chat/completions")
+async def oai_chat_completions(body: OAIChatBody, authorization: Optional[str] = Header(None)):
+    key_doc = await _validate_bearer_key(authorization)
+    if body.model not in OAI_MODEL_ALIASES:
+        raise HTTPException(status_code=404, detail=f"Model '{body.model}' not found. Use one of: {', '.join(OAI_MODEL_ALIASES)}")
+    if not body.messages:
+        raise HTTPException(status_code=400, detail="messages is required")
+    system_extra, history, last_user = _oai_prompt(body.messages)
+    if not last_user.strip():
+        raise HTTPException(status_code=400, detail="At least one user message is required")
+    if len(last_user) > MAX_MSG_LEN:
+        raise HTTPException(status_code=413, detail=f"Message exceeds {MAX_MSG_LEN} chars")
+    lowered = last_user.lower()
+    refused = any(b in lowered for b in BLOCKED_TERMS)
+    internal_model = OAI_MODEL_ALIASES[body.model]
+    completion_id = f"chatcmpl-{uuid.uuid4().hex[:24]}"
+    created = int(datetime.now(timezone.utc).timestamp())
+    sb = LUCHII_SYSTEM + (f"\n\nDeveloper system instructions:\n{system_extra}" if system_extra else "")
+    if history:
+        sb += f"\n\nConversation so far:\n{history}"
+
+    async def generate_full() -> str:
+        if refused:
+            return "I can't help with that request."
+        llm = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"oai-{completion_id}",
+                      system_message=sb).with_model("anthropic", "claude-sonnet-4-6")
+        resp = await llm.send_message(UserMessage(text=last_user))
+        return resp if isinstance(resp, str) else getattr(resp, "content", str(resp))
+
+    if body.stream:
+        async def sse():
+            def chunk(delta: dict, finish=None):
+                return "data: " + json.dumps({
+                    "id": completion_id, "object": "chat.completion.chunk", "created": created,
+                    "model": body.model,
+                    "choices": [{"index": 0, "delta": delta, "finish_reason": finish}],
+                }) + "\n\n"
+            yield chunk({"role": "assistant", "content": ""})
+            full = ""
+            if refused:
+                full = "I can't help with that request."
+                yield chunk({"content": full})
+            else:
+                llm = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"oai-{completion_id}",
+                              system_message=sb).with_model("anthropic", "claude-sonnet-4-6")
+                try:
+                    async for event in llm.stream_message(UserMessage(text=last_user)):
+                        if isinstance(event, TextDelta):
+                            full += event.content
+                            yield chunk({"content": event.content})
+                        elif isinstance(event, StreamDone):
+                            break
+                except Exception:
+                    logger.exception("oai stream error")
+            yield chunk({}, finish="stop")
+            yield "data: [DONE]\n\n"
+            await _meter_key(key_doc["id"], len(full.split()))
+        return StreamingResponse(sse(), media_type="text/event-stream",
+                                 headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+    full = await generate_full()
+    await _meter_key(key_doc["id"], len(full.split()))
+    p_tok, c_tok = len(last_user.split()), len(full.split())
+    return {
+        "id": completion_id, "object": "chat.completion", "created": created, "model": body.model,
+        "choices": [{"index": 0, "message": {"role": "assistant", "content": full}, "finish_reason": "stop"}],
+        "usage": {"prompt_tokens": p_tok, "completion_tokens": c_tok, "total_tokens": p_tok + c_tok},
+    }
+
+
+class OAIEmbedBody(BaseModel):
+    model: str = "luchii-6-embed"
+    input: Any
+
+
+@api_router.post("/v1/embeddings")
+async def oai_embeddings(body: OAIEmbedBody, authorization: Optional[str] = Header(None)):
+    key_doc = await _validate_bearer_key(authorization)
+    inputs = body.input if isinstance(body.input, list) else [body.input]
+    inputs = [str(t) for t in inputs][:64]
+    if not inputs or not any(t.strip() for t in inputs):
+        raise HTTPException(status_code=400, detail="input is required")
+    data = []
+    total_tok = 0
+    for i, text in enumerate(inputs):
+        vec = await memory_vault.embed(text)
+        if vec is None:
+            raise HTTPException(status_code=503, detail="Embedding engine is warming up — retry in a moment")
+        total_tok += len(text.split())
+        data.append({"object": "embedding", "index": i, "embedding": vec})
+    await _meter_key(key_doc["id"], total_tok)
+    return {"object": "list", "data": data, "model": "luchii-6-embed",
+            "usage": {"prompt_tokens": total_tok, "total_tokens": total_tok}}
+
+
+_WELL_KNOWN_OPENAPI = f"""openapi: 3.1.0
+info:
+  title: FrasbergAI Luchii API
+  version: "1.0"
+  description: Public LLM API for the Luchii model family by FRASBERG INC. Bearer authentication, SSE streaming, OpenAI-compatible.
+  contact:
+    name: FrasbergAI
+    url: https://frasbergai.com
+servers:
+  - url: {PROVIDER_BASE_URL}
+security:
+  - bearerAuth: []
+paths:
+  /chat/completions:
+    post:
+      summary: OpenAI-compatible chat completion (SSE streaming supported)
+      operationId: createChatCompletion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [model, messages]
+              properties:
+                model:
+                  type: string
+                  enum: [luchii-6-plus, luchii-6-mini, luchii-70b, luchii-7b, luchii-1b, luchii-200m]
+                messages:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      role: {{ type: string, enum: [system, user, assistant] }}
+                      content: {{ type: string }}
+                stream: {{ type: boolean, default: false }}
+      responses:
+        "200":
+          description: Chat completion or text/event-stream of chat.completion.chunk
+  /embeddings:
+    post:
+      summary: Create embeddings (luchii-6-embed, 384 dimensions)
+      operationId: createEmbedding
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [input]
+              properties:
+                model: {{ type: string, default: luchii-6-embed }}
+                input:
+                  oneOf: [{{ type: string }}, {{ type: array, items: {{ type: string }} }}]
+      responses:
+        "200": {{ description: Embedding vectors }}
+  /models:
+    get:
+      summary: List available Luchii models
+      operationId: listModels
+      security: []
+      responses:
+        "200": {{ description: Model list }}
+  /chat:
+    post:
+      summary: Native Luchii streaming chat (SSE, delta format)
+      operationId: nativeChat
+      responses:
+        "200": {{ description: text/event-stream }}
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: luchii-sk-*
+"""
+
+
+@api_router.get("/.well-known/frasbergai-provider.json")
+async def well_known_provider():
+    return PROVIDER_REGISTRY
+
+
+@api_router.get("/.well-known/provider-manifest.json")
+async def well_known_manifest():
+    return PROVIDER_MANIFEST
+
+
+@api_router.get("/.well-known/openapi.yaml")
+async def well_known_openapi():
+    from fastapi.responses import PlainTextResponse
+    return PlainTextResponse(_WELL_KNOWN_OPENAPI, media_type="application/yaml")
 
 
 import builder as builder_module

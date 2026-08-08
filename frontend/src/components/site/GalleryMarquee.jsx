@@ -13,12 +13,19 @@ const TYPE_META = {
 const Card = ({ b, testable }) => {
   const meta = TYPE_META[b.type] || TYPE_META.website;
   const Icon = meta.icon;
+  const [imgFailed, setImgFailed] = useState(false);
   return (
     <Link to={b.type === "game" ? `/play/${b.slug}` : "/gallery"}
       className="marquee-card group" data-testid={testable ? `marquee-card-${b.slug}` : undefined}>
       <span className="marquee-shot">
-        <iframe src={`${API}/p/${b.slug}`} title={b.title} sandbox="allow-scripts"
-          scrolling="no" tabIndex={-1} loading="lazy" />
+        {imgFailed ? (
+          <iframe src={`${API}/p/${b.slug}`} title={b.title} sandbox="allow-scripts"
+            scrolling="no" tabIndex={-1} loading="lazy" />
+        ) : (
+          <img src={`/gallery-thumbs/${b.slug}.jpg`} alt={b.title} loading="lazy"
+            onError={() => setImgFailed(true)}
+            className="h-full w-full object-cover object-top" />
+        )}
       </span>
       <span className="flex items-center justify-between px-3.5 pb-3.5 pt-3">
         <span className="min-w-0">
