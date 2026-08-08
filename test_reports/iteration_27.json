@@ -1,0 +1,48 @@
+{
+  "summary": "Full E2E testing of Street Vybz game at /api/games/streets/play covering the 7 requested features (Vegas landmarks, helicopters + Air One, collision fixes, movement, cars, mobile minimap repositioning, procedural dancehall Riddim). All critical functionality verified working on desktop (1440x900) and mobile (390x844 with ?touch). Backend leaderboard endpoints also verified.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Mobile game HUD (390x844)", "issues": ["Minimap (top-center, 76x76 at top=6, left=157) slightly clips the JACKED score pill in top-left area. Screenshot shows 'JA...' truncated. Consider shifting minimap 4-6px lower or reducing HUD pill width on narrow viewports."]}
+    ]
+  },
+  "test_report_links": ["/app/test_reports/iteration_27.json"],
+  "action_items": [
+    "Minor: On mobile viewports <=420px, minimap at top=6px slightly overlaps the SCORE/JACKED HUD pills row. Consider top: 44px or reduce HUD pill sizes on narrow screens.",
+    "Optional: Player spawn is at (4.5, 4.5) which is adjacent to a building wall — after holding W for 2s, movement was only 0.6 units (smooth, no NaN, but appears to collide with a building immediately). The main agent may want to move the spawn point away from building perimeters, or verify this is intentional collision behavior. Movement math itself is correct (dt-clamped, no NaN)."
+  ],
+  "critical_code_review_comments": [
+    "index.html is 2178 lines in a single file — consider splitting into modules (rendering, npcs, vehicles, audio) for maintainability. Not blocking.",
+    "S.arsenal returned undefined after gun-shop tryShop() but S.cash decreased by $80 — weapons are stored under a different key than 'arsenal'. Since the KNIFE HUD pill visibly appeared (screenshot confirms), the purchase logic works, but the review_request assumed S.arsenal. Non-issue for functionality.",
+    "Riddim procedural audio exposes start/stop/setVol on window; AudioContext resumption tied to first user click (startBtn) — verified working."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "N/A - game requires no auth",
+  "seed_data_creation": "Posted 1 leaderboard entry {name:'TESTBOT', score:123} to /api/games/streets/scores during backend verification",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Game globals confirmed available: S, npcs, helis, airOne, LM_ANIM (=10 landmarks), Riddim (start/stop/setVol), tryShop, buildings, traffic, police. Must click #startBtn first before S.running=true. For mobile use ?touch query param. Ped separation verified: 0/465 pairs closer than 0.5u across 31 alive NPCs. Helicopters: 3 ambient + 1 Air One spawns at wanted>=4. Movement: dt-clamped smooth, no NaN. Riddim uses WebAudio; setVol(0.3) works post-start.",
+  "detailed_test_results": {
+    "page_load": "PASS - STREET VYBZ title, #startBtn, MALE/FEMALE buttons all present, 0 JS console errors",
+    "start_game": "PASS - canvas renders, S.running=true, HUD pills (SCORE/CASH/HP) visible",
+    "landmarks_count": "PASS - LM_ANIM.length=10 (>=8 required)",
+    "helicopters_count": "PASS - helis.length=3, all 3 moved over 2s (circling confirmed)",
+    "pedestrian_separation": "PASS - 0 of 465 pairs closer than 0.5u (all 31 NPCs separated)",
+    "player_movement": "PASS (with note) - 2s KeyW hold: (4.5,4.5)->(4.5,5.1), dist=0.6u, no NaN, smooth. Player appears to be against a wall at spawn (see screenshot). No glitching.",
+    "air_one_spawn": "PASS - setting S.wanted=5, after 1.5s airOne is not null",
+    "gun_shop": "PASS - at (-108,-36) with cash=5000, tryShop() reduced cash to 4920 (-$80 knife purchase), KNIFE HUD pill appeared",
+    "clothing_shop": "PASS - at (-36,36) with cash=500, tryShop() reduced cash to 450 (exactly -$50 as spec)",
+    "riddim_music": "PASS - window.Riddim has {start, stop, setVol}; setVol(0.3) does not throw after startBtn click",
+    "mobile_minimap_position": "PASS - top=6px (<100 required), horizontally centered exactly (centerX=195=vw/2), 76x76 size",
+    "mobile_touch_buttons": "PASS - #tJack, #tGun, #tBat, #tShop, #tBrake, #stick all visible, zero overlap with minimap",
+    "backend_leaderboard_GET": "PASS - GET /api/games/streets/scores returns 200 JSON array",
+    "backend_leaderboard_POST": "PASS - POST with {name,score} returns {ok:true, top:[...]}",
+    "homepage_regression": "PASS - Luchii/Frasberg homepage loads with hero, chat widget, models nav (only unrelated Cloudflare RUM CORS log)"
+  }
+}

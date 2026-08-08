@@ -38,6 +38,57 @@
   };
   window.LuchiiAudio = { sfx: sfx, music: music, engine: engine };
 
+  // ── Real voices via browser SpeechSynthesis (male/female), throttled ──
+  var voices = [];
+  function loadVoices() { try { voices = speechSynthesis.getVoices() || []; } catch (_) {} }
+  try { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; } catch (_) {}
+  var lastVoiceAt = 0;
+  function pickVoice(sex) {
+    if (!voices.length) loadVoices();
+    var en = voices.filter(function (v) { return /en(-|_|$)/i.test(v.lang); });
+    var pool = en.length ? en : voices;
+    var femHint = /female|zira|samantha|victoria|karen|moira|tessa|fiona|susan|serena/i;
+    var malHint = /male|david|daniel|alex|fred|thomas|george|arthur|rishi/i;
+    var want = pool.filter(function (v) { return (sex === "female" ? femHint : malHint).test(v.name); });
+    if (want.length) return want[Math.floor(Math.random() * want.length)];
+    return pool[Math.floor(Math.random() * pool.length)] || null;
+  }
+  function voice(text, sex, opts) {
+    try {
+      var now = Date.now();
+      opts = opts || {};
+      if (!opts.force && now - lastVoiceAt < 900) return; // don't overlap chatter
+      if (typeof speechSynthesis === "undefined") return;
+      lastVoiceAt = now;
+      var u = new SpeechSynthesisUtterance(text);
+      var v = pickVoice(sex);
+      if (v) u.voice = v;
+      u.pitch = sex === "female" ? 1.15 + Math.random() * 0.2 : 0.75 + Math.random() * 0.2;
+      u.rate = opts.rate || (0.95 + Math.random() * 0.2);
+      u.volume = opts.volume == null ? 0.9 : opts.volume;
+      if (opts.shout) { u.volume = 1; u.rate = 1.15; }
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+    } catch (_) {}
+  }
+
+  // ── Procedural footstep (WebAudio, no asset needed) ──
+  var AC = null;
+  function footstep(vol) {
+    try {
+      AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+      var o = AC.createOscillator(), g = AC.createGain(), f = AC.createBiquadFilter();
+      f.type = "lowpass"; f.frequency.value = 380;
+      o.type = "triangle"; o.frequency.value = 90 + Math.random() * 40;
+      g.gain.setValueAtTime((vol == null ? 0.18 : vol), AC.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.12);
+      o.connect(f); f.connect(g); g.connect(AC.destination);
+      o.start(); o.stop(AC.currentTime + 0.13);
+    } catch (_) {}
+  }
+  window.LuchiiAudio.voice = voice;
+  window.LuchiiAudio.footstep = footstep;
+
   // ── Environment: rendered backdrop + live day/night + weather shaders ──
   var m = location.pathname.match(/\/api\/games\/([^/]+)\/play/);
   var gid = m ? m[1] : null;
