@@ -44,18 +44,21 @@
 <div class="pill" id="ctrlHint">W/S drive · A/D steer · E jack/exit · F bat · G pistol · SPACE handbrake · SHIFT sprint</div>
 <div class="pill" id="missionPill" style="top:92px;left:24px;display:none;color:#ffd166;border-color:#ffd16666"></div>
 <div class="pill" id="weapPill" style="top:128px;left:24px;display:none;color:#ff9a3c;border-color:#ff9a3c66"></div>
+<div class="pill" id="farePill" style="top:164px;left:24px;display:none;color:#3cff88;border-color:#3cff8866"></div>
 <canvas id="minimap" width="140" height="140"></canvas>
 
 <div class="screen" id="start">
   <h1>⬡ CARJACK CITY</h1>
   <p>Open World</p>
   <p>Walk up to any car and press E to pull the driver out. Every car handles differently.<br>Jacking raises your WANTED level — police cruisers will hunt you down.<br>Don't get busted, don't get wrecked.</p>
+  <p id="careerStart" style="display:none;margin-top:10px;color:#9f9fd0;font-size:13px"></p>
   <button id="startBtn">HIT THE STREETS</button>
 </div>
 
 <div class="screen" id="gameover">
   <h1 id="goTitle">BUSTED</h1>
   <p id="goStats"></p>
+  <p id="careerOver" style="display:none;margin-top:6px;color:#9f9fd0;font-size:13px"></p>
   <button id="restartBtn">BACK ON THE STREETS</button>
   <div id="lbBox">
     <div><input id="lbName" maxlength="20" placeholder="Your name"><button id="lbSubmit">SUBMIT</button></div>
@@ -64,7 +67,10 @@
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+<script src="/api/games/assets/three147.min.js"></script>
+<script src="/api/games/assets/GLTFLoader147.js"></script>
+<script src="/api/games/assets/SkeletonUtils147.js"></script>
+<div style="position:fixed;inset:0;pointer-events:none;z-index:7;background:radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,.55) 100%)"></div>
 <script>
 // ─── FRASBERG STREETS — full 3D open-world carjack game ───
 const scene = new THREE.Scene();
@@ -73,30 +79,64 @@ const camera = new THREE.PerspectiveCamera(65, innerWidth/innerHeight, 0.1, 600)
 const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.18;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.domElement.className = "webgl";
+renderer.domElement.style.filter = "saturate(1.14) contrast(1.05)";
 document.body.appendChild(renderer.domElement);
 addEventListener("resize", () => {
   camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
 });
 
-scene.add(new THREE.HemisphereLight(0x8888ff, 0x1a1a2e, 0.55));
-const moon = new THREE.DirectionalLight(0xaab4ff, 0.9); moon.position.set(40, 80, 30); scene.add(moon);
+scene.add(new THREE.HemisphereLight(0x8888ff, 0x1a1a2e, 0.5));
+const moon = new THREE.DirectionalLight(0xaab4ff, 0.85); moon.position.set(40, 80, 30);
+moon.castShadow = true;
+moon.shadow.mapSize.set(2048, 2048);
+moon.shadow.camera.left = -70; moon.shadow.camera.right = 70;
+moon.shadow.camera.top = 70; moon.shadow.camera.bottom = -70;
+moon.shadow.camera.near = 1; moon.shadow.camera.far = 260;
+moon.shadow.bias = -0.0004;
+scene.add(moon); scene.add(moon.target);
 const warm = new THREE.PointLight(0xf0c040, 1.4, 60); warm.position.set(0, 14, 0); scene.add(warm);
+// ── Neon environment reflections (wet-street look) ──
+const ENV = (() => {
+  const faces = [];
+  for (let i = 0; i < 6; i++) {
+    const c = document.createElement("canvas"); c.width = c.height = 64;
+    const x = c.getContext("2d");
+    const gr = x.createLinearGradient(0, 0, 0, 64);
+    gr.addColorStop(0, "#2b2350"); gr.addColorStop(0.55, "#141430"); gr.addColorStop(1, "#05050c");
+    x.fillStyle = gr; x.fillRect(0, 0, 64, 64);
+    x.globalAlpha = 0.3;
+    for (let j = 0; j < 7; j++) {
+      x.fillStyle = ["#ff2d78", "#22d3ee", "#f0c040", "#9b5cff"][j % 4];
+      x.fillRect(Math.random() * 60, 16 + Math.random() * 44, 8 + Math.random() * 8, 2.5);
+    }
+    x.globalAlpha = 1;
+    faces.push(c);
+  }
+  const t = new THREE.CubeTexture(faces); t.needsUpdate = true;
+  return t;
+})();
+scene.environment = ENV;
 
 // ─── City generation ──────────────────────────────────────
 const B = 36, HALF = 126;                 // road spacing, world half-size
 const ROADS = [-108, -72, -36, 0, 36, 72, 108];
 const ROAD_W = 9;
 const ground = new THREE.Mesh(new THREE.PlaneGeometry(HALF*2+40, HALF*2+40),
-  new THREE.MeshStandardMaterial({ color:0x101020, roughness:1 }));
-ground.rotation.x = -Math.PI/2; scene.add(ground);
+  new THREE.MeshStandardMaterial({ color:0x101020, roughness:0.4, metalness:0.45 }));
+ground.rotation.x = -Math.PI/2; ground.receiveShadow = true; scene.add(ground);
 ROADS.forEach(r => {
-  const mat = new THREE.MeshStandardMaterial({ color:0x1c1c2c, roughness:0.9 });
+  const mat = new THREE.MeshStandardMaterial({ color:0x1c1c2c, roughness:0.26, metalness:0.55 });
   const rx = new THREE.Mesh(new THREE.PlaneGeometry(HALF*2+20, ROAD_W), mat);
-  rx.rotation.x = -Math.PI/2; rx.position.set(0, 0.02, r); scene.add(rx);
+  rx.rotation.x = -Math.PI/2; rx.position.set(0, 0.02, r); rx.receiveShadow = true; scene.add(rx);
   const rz = new THREE.Mesh(new THREE.PlaneGeometry(ROAD_W, HALF*2+20), mat);
-  rz.rotation.x = -Math.PI/2; rz.position.set(r, 0.02, 0); scene.add(rz);
+  rz.rotation.x = -Math.PI/2; rz.position.set(r, 0.02, 0); rz.receiveShadow = true; scene.add(rz);
   for (let i = -HALF; i < HALF; i += 8) {
     const s1 = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 0.22), new THREE.MeshBasicMaterial({ color:0xf0c040 }));
     s1.rotation.x = -Math.PI/2; s1.position.set(i, 0.03, r); scene.add(s1);
@@ -125,7 +165,21 @@ for (let bi = 0; bi < ROADS.length - 1; bi++) for (let bj = 0; bj < ROADS.length
     const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d),
       new THREE.MeshStandardMaterial({ color:bColors[Math.floor(Math.random()*4)], map:winTex,
         emissive:0x8888aa, emissiveMap:winTex, emissiveIntensity:0.55, roughness:0.85 }));
-    mesh.position.set(cx+ox, h/2, cz+oz); scene.add(mesh);
+    mesh.position.set(cx+ox, h/2, cz+oz); mesh.castShadow = true; scene.add(mesh);
+    // neon signage
+    if (Math.random() < 0.55) {
+      const NEON = [0xff2d78, 0x22d3ee, 0xf0c040, 0x9b5cff, 0x3cff88];
+      const sw = 0.7 + Math.random() * 1.2, sh = 2 + Math.random() * Math.min(6, h - 5);
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(sw, sh),
+        new THREE.MeshBasicMaterial({ color: NEON[Math.floor(Math.random() * NEON.length)] }));
+      const side = Math.floor(Math.random() * 4);
+      const sy = 3 + Math.random() * Math.max(1, h - sh - 4);
+      if (side === 0) { sign.position.set(cx+ox, sy, cz+oz + d/2 + 0.06); }
+      else if (side === 1) { sign.position.set(cx+ox, sy, cz+oz - d/2 - 0.06); sign.rotation.y = Math.PI; }
+      else if (side === 2) { sign.position.set(cx+ox + w/2 + 0.06, sy, cz+oz); sign.rotation.y = Math.PI/2; }
+      else { sign.position.set(cx+ox - w/2 - 0.06, sy, cz+oz); sign.rotation.y = -Math.PI/2; }
+      scene.add(sign);
+    }
     buildings.push({ x:cx+ox, z:cz+oz, hw:w/2+0.8, hd:d/2+0.8 });
   }
 }
@@ -182,6 +236,15 @@ function makeCar(type) {
   g.add(driver);
   g.userData.driver = driver;
   g.userData.type = type;
+  g.traverse((o) => {
+    if (o.isMesh) {
+      o.castShadow = true;
+      if (o.material && o.material.isMeshStandardMaterial && !o.material.emissiveMap) {
+        o.material.metalness = Math.min(0.8, (o.material.metalness || 0) + 0.5);
+        o.material.roughness = Math.max(0.22, (o.material.roughness ?? 1) - 0.45);
+      }
+    }
+  });
   return g;
 }
 // Seated human driver — head + torso + arms on the wheel, visible through the cab glass
@@ -207,7 +270,53 @@ function makeDriver(isCop) {
 const SKIN_T = [0x8d5524, 0xc68642, 0xe0ac69, 0xf1c27d, 0xffdbac, 0x5c3317];
 const CLOTH_T = [0xe63946, 0x457b9d, 0x2a9d8f, 0xe9c46a, 0x6d597a, 0x8338ec, 0xf4a261, 0x2b2d42, 0x006d77, 0x9b2226];
 const HAIR_T = [0x0b0b0b, 0x3b2716, 0x5e3b17, 0x8a6d3b, 0xb0b0b0, 0x7a1f1f];
+// ── Real rigged human avatars (GLB, skeletal walk/run animations) ──
+const MIXERS = [];
+const AVATARS = { list: [], ready: false };
+(function loadAvatars() {
+  if (!THREE.GLTFLoader || !THREE.SkeletonUtils) return;
+  const ld = new THREE.GLTFLoader();
+  let done = 0;
+  ["/api/games/assets/char-soldier.glb", "/api/games/assets/char-xbot.glb"].forEach((url) => {
+    ld.load(url, (g) => {
+      AVATARS.list.push(g);
+      if (++done && AVATARS.list.length >= 1) AVATARS.ready = true;
+    }, undefined, () => {});
+  });
+})();
+function makeAvatarPed(tintHue) {
+  const src = AVATARS.list[Math.floor(Math.random() * AVATARS.list.length)];
+  const inner = THREE.SkeletonUtils.clone(src.scene);
+  inner.updateMatrixWorld(true);
+  let minY = Infinity, maxY = -Infinity;
+  const bv = new THREE.Vector3();
+  inner.traverse((o) => {
+    if (o.isBone) { o.getWorldPosition(bv); minY = Math.min(minY, bv.y); maxY = Math.max(maxY, bv.y); }
+  });
+  const mh = (maxY - minY) || 1.6;
+  inner.scale.multiplyScalar(1.62 / mh);
+  inner.rotation.y = Math.PI;
+  const tint = new THREE.Color().setHSL(tintHue !== undefined ? tintHue : Math.random(), 0.55, 0.62);
+  inner.traverse((o) => {
+    if (o.isMesh || o.isSkinnedMesh) {
+      o.castShadow = true;
+      o.material = o.material.clone();
+      o.material.color.multiply(tint);
+      o.frustumCulled = false;
+    }
+  });
+  const wrap = new THREE.Group();
+  wrap.add(inner);
+  const mixer = new THREE.AnimationMixer(inner);
+  const acts = {};
+  src.animations.forEach((c) => { acts[c.name.toLowerCase()] = mixer.clipAction(c); });
+  wrap.userData.avatar = { mixer, acts, cur: null };
+  MIXERS.push(mixer);
+  if (acts.idle) { acts.idle.play(); wrap.userData.avatar.cur = "idle"; }
+  return wrap;
+}
 function makePed() {
+  if (AVATARS.ready) return makeAvatarPed();
   const g = new THREE.Group();
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
   const skinM  = new THREE.MeshStandardMaterial({ color: pick(SKIN_T) });
@@ -259,6 +368,17 @@ function makePed() {
 }
 // ── Human animation — walk, run (arms pumping), panic (hands up), gesture (talk/wave) ──
 function animatePed(g, phase, mode) {
+  const av = g.userData.avatar;
+  if (av) {
+    const want = (mode === "panic" || mode === "run") ? "run" : mode === "walk" ? "walk" : "idle";
+    if (av.cur !== want && av.acts[want]) {
+      if (av.cur && av.acts[av.cur]) av.acts[av.cur].fadeOut(0.22);
+      av.acts[want].reset().fadeIn(0.22).play();
+      av.acts[want].timeScale = mode === "panic" ? 1.35 : 1;
+      av.cur = want;
+    }
+    return;
+  }
   const L = g.userData.limbs; if (!L) return;
   const s = Math.sin(phase);
   if (mode === "panic") {
@@ -317,8 +437,9 @@ const S = {
   hp:100, cash:0, jacked:0, dist:0, wanted:0,
   bustT:0, wantedT:0, dmgCd:0,
   hasBat:false, hasGun:false, ammo:0, mission:null, missionT:6, blockT:0,
+  missionsDone:0, fare:null,
 };
-const player = makePed(); scene.add(player);
+let player = makePed(); scene.add(player);
 let playerCar = null;
 
 // Traffic
@@ -414,6 +535,10 @@ function completeJack(t) {
   S.cash += CAR_TYPES[type].value; S.jacked++;
   playerCar = makeCar(type);
   if (playerCar.userData.driver) playerCar.userData.driver.visible = false; // you drive now
+  // cinematic headlights
+  const head = new THREE.SpotLight(0xfff2cc, 2.4, 48, 0.5, 0.45);
+  head.position.set(0, 1.1, 1.9); head.target.position.set(0, 0.2, 16);
+  playerCar.add(head); playerCar.add(head.target);
   playerCar.position.set(S.x, 0, S.z); playerCar.rotation.y = S.h;
   scene.add(playerCar);
   player.visible = false;
@@ -432,6 +557,12 @@ function completeJack(t) {
   if (S.mission && S.mission.stage === "steal" && type === S.mission.type) {
     S.mission.stage = "deliver";
     toast("📦 THAT'S THE ONE — DELIVER IT TO THE DOCKS ►", "#ffd166");
+  }
+  if (t.gangBonus) {
+    S.cash += t.gangBonus;
+    toast(`💎 GANG CAR STOLEN  +$${t.gangBonus} — THEY WANT BLOOD`, "#ff5555");
+    const zone = gangs.find(z => z.car === t);
+    if (zone) zone.aggro = true;
   }
   toast(`🚗 ${CAR_TYPES[type].name} JACKED  +$${CAR_TYPES[type].value}`, "#4ade80");
   if (S.wanted >= 3) toast(`★ WANTED LEVEL ${S.wanted} — POLICE INBOUND`, "#ff5555");
@@ -597,6 +728,67 @@ function spawnRoadblock() {
   toast("🚧 POLICE ROADBLOCK AHEAD", "#ff8800");
 }
 
+// ─── Rival gangs — armed guards on high-value cars ─────────
+const gangs = [];
+function spawnGangs() {
+  gangs.length = 0;
+  for (let i = 0; i < 2; i++) {
+    const spot = pickupSpot();
+    const type = Math.random() < 0.5 ? "sports" : "muscle";
+    const car = makeCar(type);
+    car.position.set(spot.x, 0, spot.z); car.rotation.y = Math.random() * Math.PI * 2;
+    if (car.userData.driver) car.userData.driver.visible = false;
+    scene.add(car);
+    const entry = { mesh: car, type, alive: true, parked: true, gangBonus: 350 };
+    traffic.push(entry);
+    const zone = { x: spot.x, z: spot.z, car: entry, aggro: false };
+    for (let k = 0; k < 3; k++) {
+      const gm = makePed(); scene.add(gm);
+      if (gm.userData.limbs) {
+        const gw = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.12, 0.3), new THREE.MeshStandardMaterial({ color: 0x111118 }));
+        gw.position.y = -0.6; gm.userData.limbs.rArm.add(gw);
+      }
+      const gn = { mesh: gm, x: spot.x + (Math.random() - 0.5) * 7, z: spot.z + (Math.random() - 0.5) * 7,
+        h: Math.random() * 6.28, flee: 0, down: false, bubble: null, bubbleT: 0,
+        phase: Math.random() * 6.28, gest: 0, gestT: 1e9, gang: zone, shootT: 1 };
+      npcs.push(gn);
+    }
+    gangs.push(zone);
+  }
+}
+
+// ─── Taxi day jobs — legit fares, zero heat ────────────────
+const fareRing = new THREE.Mesh(new THREE.TorusGeometry(4, 0.2, 8, 32), new THREE.MeshBasicMaterial({ color: 0x3cff88 }));
+fareRing.rotation.x = -Math.PI / 2; fareRing.position.y = 0.15; fareRing.visible = false; scene.add(fareRing);
+function spawnFarePassenger() {
+  const s = pickupSpot();
+  const m = makePed(); scene.add(m);
+  const n = { mesh: m, x: s.x, z: s.z, h: Math.random() * 6.28, flee: 0, down: false, bubble: null, bubbleT: 1e9,
+    phase: Math.random() * 6.28, gest: 0, gestT: 1e9, farewait: true };
+  n.bubble = bubble("🚕 TAXI!");
+  m.add(n.bubble);
+  npcs.push(n);
+}
+
+// ─── Career — criminal empire persists across runs ─────────
+function careerData() {
+  try { return JSON.parse(localStorage.getItem("frasberg-streets-career") || "{}"); } catch (_) { return {}; }
+}
+function careerLine() {
+  const c = careerData();
+  if (!c.runs) return "";
+  const total = c.cash || 0;
+  const rank = total >= 30000 ? "KINGPIN" : total >= 10000 ? "UNDERBOSS" : total >= 3000 ? "CREW LEADER" : "STREET RAT";
+  return `🏙 CRIMINAL EMPIRE — $${total} lifetime · ${c.jacked || 0} cars · ${c.missions || 0} missions · best ${c.best || 0}<br><b style="color:#f0c040;letter-spacing:2px">EMPIRE RANK: ${rank}</b>`;
+}
+function refreshCareerPanels() {
+  const html = careerLine();
+  for (const id of ["careerStart", "careerOver"]) {
+    const el = document.getElementById(id);
+    if (el) { el.innerHTML = html; el.style.display = html ? "block" : "none"; }
+  }
+}
+
 // ─── HUD ──────────────────────────────────────────────────
 function toast(msg, color) {
   const el = document.createElement("div");
@@ -630,6 +822,10 @@ function hud() {
     wpill.style.display = "block";
     wpill.textContent = (S.hasBat ? "🏏 BAT" : "") + (S.hasBat && S.hasGun ? " · " : "") + (S.hasGun ? `🔫 ×${S.ammo}` : "");
   } else wpill.style.display = "none";
+  const fp = document.getElementById("farePill");
+  if (S.fare) { fp.style.display = "block"; fp.textContent = `🚕 DROP FARE AT GREEN RING  +$${S.fare.pay}`; }
+  else if (S.inCar && S.carType === "taxi") { fp.style.display = "block"; fp.textContent = "🚕 ON DUTY — find a waving passenger"; }
+  else fp.style.display = "none";
   // minimap
   mm.clearRect(0,0,140,140);
   mm.fillStyle = "rgba(13,13,26,0.85)"; mm.fillRect(0,0,140,140);
@@ -643,6 +839,15 @@ function hud() {
   traffic.forEach(t => { if (t.alive) mm.fillRect(ox + t.mesh.position.x*sc - 1, oz + t.mesh.position.z*sc - 1, 2.5, 2.5); });
   mm.fillStyle = "#ff3344";
   police.forEach(p => mm.fillRect(ox + p.x*sc - 2, oz + p.z*sc - 2, 4, 4));
+  mm.fillStyle = "#7cfc9b";
+  pickups.forEach(p => { if (p.taken <= 0) mm.fillRect(ox + p.mesh.position.x*sc - 1, oz + p.mesh.position.z*sc - 1, 2, 2); });
+  mm.fillStyle = "#22d3ee";
+  npcs.forEach(n => { if (n.farewait && !n.down) mm.fillRect(ox + n.x*sc - 1.5, oz + n.z*sc - 1.5, 3, 3); });
+  if (S.fare) { mm.strokeStyle = "#3cff88"; mm.lineWidth = 1.5; mm.strokeRect(ox + S.fare.dest.x*sc - 3, oz + S.fare.dest.z*sc - 3, 6, 6); }
+  if (!S.mission || S.mission.stage !== "deliver" || Math.floor(flashT * 4) % 2 === 0) {
+    mm.strokeStyle = "#ffd166"; mm.lineWidth = 1.5;
+    mm.strokeRect(ox + DOCK.x*sc - 3.5, oz + DOCK.z*sc - 3.5, 7, 7);
+  }
   mm.fillStyle = "#f0c040";
   mm.beginPath(); mm.arc(ox + S.x*sc, oz + S.z*sc, 3.4, 0, Math.PI*2); mm.fill();
 }
@@ -655,9 +860,13 @@ function start() {
   if (playerCar) { scene.remove(playerCar); playerCar = null; }
   Object.assign(S, { running:true, inCar:false, carType:null, x:4.5, z:4.5, h:0, speed:0,
     hp:100, cash:0, jacked:0, dist:0, wanted:0, bustT:0, wantedT:0, dmgCd:0,
-    hasBat:false, hasGun:false, ammo:0, mission:null, missionT:6, blockT:0 });
+    hasBat:false, hasGun:false, ammo:0, mission:null, missionT:6, blockT:0,
+    missionsDone:0, fare:null });
   roadblocks.forEach(b => scene.remove(b.mesh)); roadblocks.length = 0;
+  fareRing.visible = false;
   spawnPickups();
+  spawnGangs();
+  for (let i = 0; i < 3; i++) spawnFarePassenger();
   player.visible = true;
   spawnTraffic(16); spawnNpcs(22);
   document.getElementById("start").style.display = "none";
@@ -680,11 +889,14 @@ function gameOver(title) {
     localStorage.setItem("frasberg-streets-career", JSON.stringify({
       cash: (c.cash||0) + S.cash, jacked: (c.jacked||0) + S.jacked,
       best: Math.max(c.best||0, sc), runs: (c.runs||0) + 1,
+      missions: (c.missions||0) + (S.missionsDone||0),
     }));
+    refreshCareerPanels();
   } catch(_){}
 }
 document.getElementById("startBtn").onclick = start;
 document.getElementById("restartBtn").onclick = start;
+refreshCareerPanels();
 // Career stats on start screen
 try {
   const c = JSON.parse(localStorage.getItem("frasberg-streets-career") || "{}");
@@ -694,11 +906,32 @@ try {
 
 // ─── Main loop ────────────────────────────────────────────
 const clock = new THREE.Clock();
-let flashT = 0;
+let flashT = 0, lightningT = 5;
 function animate() {
   requestAnimationFrame(animate);
   const dt = Math.min(clock.getDelta(), 0.05);
   flashT += dt;
+  MIXERS.forEach(m => m.update(dt));
+  // upgrade player to real avatar once models are loaded
+  if (AVATARS.ready && !player.userData.avatar) {
+    const np = makeAvatarPed(0.61);
+    np.position.copy(player.position); np.rotation.y = player.rotation.y; np.visible = player.visible;
+    const proxy = new THREE.Group(); proxy.position.set(0.34, 1.02, 0.16);
+    bat.position.set(0, -0.18, 0.1); gun.position.set(0, -0.02, 0.12);
+    proxy.add(bat, gun); np.add(proxy);
+    scene.remove(player); player = np; scene.add(player);
+  }
+  // cinematic moon shadows follow the player
+  moon.position.set(S.x + 40, 80, S.z + 30);
+  moon.target.position.set(S.x, 0, S.z);
+  // storm lightning
+  lightningT -= dt;
+  if (lightningT <= 0) {
+    lightningT = 6 + Math.random() * 12;
+    renderer.toneMappingExposure = 2.6;
+    setTimeout(() => renderer.toneMappingExposure = 1.7, 70);
+    setTimeout(() => renderer.toneMappingExposure = 1.18, 190);
+  }
   if (S.running) {
     const cfg = S.inCar ? CAR_TYPES[S.carType] : null;
     // ── movement
@@ -761,8 +994,9 @@ function animate() {
       pedPhase += dt * (mv > 6 ? 11 : mv > 0.2 ? 6.5 : 1.6);
       animatePed(player, pedPhase, mv > 6 ? "run" : mv > 0.2 ? "walk" : "idle");
       // weapon overrides right arm after the walk animation
-      if (swingT > 0) { swingT -= dt; player.userData.limbs.rArm.rotation.x = -2.4 + (0.38 - swingT) * 6.5; }
-      if (gunFlashT > 0) { gunFlashT -= dt; player.userData.limbs.rArm.rotation.x = -1.5; if (gunFlashT <= 0) muzzle.visible = false; }
+      const L = player.userData.limbs;
+      if (swingT > 0) { swingT -= dt; if (L) L.rArm.rotation.x = -2.4 + (0.38 - swingT) * 6.5; }
+      if (gunFlashT > 0) { gunFlashT -= dt; if (L) L.rArm.rotation.x = -1.5; if (gunFlashT <= 0) muzzle.visible = false; }
       if (holsterT > 0) { holsterT -= dt; if (holsterT <= 0) { bat.visible = false; gun.visible = false; } }
     }
     window.SFX && S.inCar && SFX.setEngine(30 + Math.abs(S.speed) * 3);
@@ -788,6 +1022,46 @@ function animate() {
     for (const n of npcs) {
       if (n.down) continue;
       const dp = Math.hypot(n.x - S.x, n.z - S.z);
+      // gang guard AI — hold turf, shoot intruders
+      if (n.gang) {
+        const range = n.gang.aggro ? 26 : 13;
+        if (dp < range) {
+          n.h = Math.atan2(S.x - n.x, S.z - n.z);
+          n.phase += dt * 5;
+          animatePed(n.mesh, n.phase, "gesture");
+          n.shootT -= dt;
+          if (n.shootT <= 0) {
+            n.shootT = 1.2 + Math.random() * 0.9;
+            if (S.dmgCd <= 0) {
+              S.hp -= 5; S.dmgCd = 0.45; crashFx(0.25);
+              toast(n.gang.aggro ? "🔫 GANG IS HUNTING YOU" : "🔫 GANG TURF — BACK OFF", "#ff5555");
+              window.LuchiiAudio && LuchiiAudio.sfx("hit", 0.4);
+            }
+          }
+        } else { n.phase += dt * 1.6; animatePed(n.mesh, n.phase, "idle"); }
+        if (S.inCar && Math.abs(S.speed) > 8 && dp < 1.7) {
+          n.down = true; n.mesh.rotation.x = Math.PI/2; n.mesh.position.y = 0.3;
+          window.LuchiiAudio && LuchiiAudio.sfx("hit", 0.5);
+        }
+        n.mesh.position.set(n.x, 0, n.z); n.mesh.rotation.y = n.h;
+        continue;
+      }
+      // waiting taxi passenger
+      if (n.farewait) {
+        n.phase += dt * 4;
+        animatePed(n.mesh, n.phase, "gesture");
+        if (dp < 12) n.h = Math.atan2(S.x - n.x, S.z - n.z);
+        n.mesh.position.set(n.x, 0, n.z); n.mesh.rotation.y = n.h;
+        if (S.inCar && S.carType === "taxi" && !S.fare && Math.abs(S.speed) < 2 && dp < 3.6) {
+          scene.remove(n.mesh); n.down = true; n.farewait = false;
+          const dest = { x: ROADS[Math.floor(Math.random()*ROADS.length)], z: ROADS[Math.floor(Math.random()*ROADS.length)] };
+          S.fare = { dest, pay: 80 + Math.floor(Math.random() * 90) };
+          fareRing.position.set(dest.x, 0.15, dest.z); fareRing.visible = true;
+          toast(`🚕 FARE PICKED UP — DROP AT THE GREEN RING  +$${S.fare.pay}`, "#3cff88");
+          window.LuchiiAudio && LuchiiAudio.sfx("win", 0.3);
+        }
+        continue;
+      }
       if (n.flee > 0) {
         n.flee -= dt; n.gest = 0;
         n.h = Math.atan2(n.x - S.x, n.z - S.z);
@@ -876,6 +1150,20 @@ function animate() {
       window.SFX && SFX.engineStop();
       document.getElementById("carPill").textContent = "ON FOOT";
       S.mission = null; S.missionT = 9;
+      S.missionsDone++;
+    }
+    // ── taxi fares
+    if (S.fare) {
+      if (!S.inCar || S.carType !== "taxi") {
+        S.fare = null; fareRing.visible = false;
+        toast("🚕 FARE LOST — you left the taxi", "#888");
+      } else if (Math.hypot(S.x - S.fare.dest.x, S.z - S.fare.dest.z) < 6 && Math.abs(S.speed) < 4) {
+        S.cash += S.fare.pay;
+        toast(`✅ FARE DELIVERED  +$${S.fare.pay} — clean money, zero heat`, "#3cff88");
+        window.LuchiiAudio && LuchiiAudio.sfx("win", 0.4);
+        S.fare = null; fareRing.visible = false;
+        spawnFarePassenger();
+      }
     }
     // ── weapon pickups
     for (const pk of pickups) {
@@ -1103,6 +1391,12 @@ const lbScore = () => scoreVal();
   bindHold("tBrake", "Space");
   document.getElementById("tJack").addEventListener("touchstart", (e) => { e.preventDefault(); tryJack(); });
   document.getElementById("tBat").addEventListener("touchstart", (e) => { e.preventDefault(); swingBat(); });
+  document.getElementById("tGun").addEventListener("touchstart", (e) => { e.preventDefault(); fireGun(); });
+})();
+</script>
+</body>
+</html>
+ddEventListener("touchstart", (e) => { e.preventDefault(); swingBat(); });
   document.getElementById("tGun").addEventListener("touchstart", (e) => { e.preventDefault(); fireGun(); });
 })();
 </script>
