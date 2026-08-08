@@ -1652,6 +1652,10 @@ import asset_pipeline
 api_router.include_router(asset_pipeline.router)
 import studio
 api_router.include_router(studio.router)
+import realtime_core
+api_router.include_router(realtime_core.router)
+import linq_governance
+api_router.include_router(linq_governance.router)
 app.include_router(api_router)
 
 _PLATFORM_HOSTS = ("emergentagent.com", "frasberg", "localhost", "127.0.0.1")

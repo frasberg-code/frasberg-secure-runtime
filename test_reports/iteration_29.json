@@ -1,0 +1,32 @@
+{
+  "summary": "Completed backend + frontend testing of LINQ Command Center & FrasbergAI Realtime Core. Backend: 21/21 pytest tests passed (LiveKit token minting real JWT, room lifecycle upsert/list/get/end, events with viewerCount increment, tip validation, leads, luchii AI viewer_question reply, preview state ObjectId-free, LINQ 45 layers with roman I..XLV & foundation/ascension tiers, overview counts, layer run generating AI artifacts, threat + compliance engine runs with tag/narrative/cognition/score/recommendations, billing engine history, unauthenticated 401 gate). Frontend: /linq unauth gate, login via /auth (had to click auth-toggle-mode to switch from Register->Login), /linq authed showed linq-page, linq-overview-stats, ascension-ladder with 45 layer buttons; run-layer-1 produced layer-artifact-1 with rich narrative; Threat tab run produced engine-threat-latest card (tag + score 62/100); LINQ Live tab exposed linq-live/live-now-strip/preview-panel/ask-luchii-input/ask-luchii-btn/chat-messages; Ask Luchii returned an on-topic 'Frasberg LINQ streaming and workspace platform' reply within ~15s; LINQ App tab embedded iframe with external open link; regression home/dashboard reachable.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/auth", "issues": ["Page opens in 'Create account' (register) mode by default. Users landing here to sign in must click 'Already have an account? Sign in'. Consider defaulting to sign-in when redirected from a protected page (e.g., /linq -> Sign in gate should navigate to /auth?mode=login)."]},
+      {"screen": "global", "issues": ["Hydration warning: <span> cannot be a child of <option> (React dev warning, non-blocking) seen in Hero/Dashboard render trees."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_linq_realtime.py", "/app/test_reports/pytest/linq_realtime.xml"],
+  "action_items": [
+    "(Optional) Default /auth to sign-in mode when the user was redirected from an auth-gated page, or add ?mode=login support so the LINQ Sign in button lands directly on the login form.",
+    "(Optional) Fix hydration warning about <span> inside <option> in Hero component select dropdowns."
+  ],
+  "critical_code_review_comments": [
+    "realtime_core.py: /rooms/tip endpoint accepts raw dict (bypasses Pydantic). Fine but consider a proper model. TipBody is defined but unused.",
+    "realtime_core.py: /agents/luchii/actions expects 'from' at top level (not in AgentActionBody model). Model exists but is unused; endpoint uses raw dict. Consistency issue but works.",
+    "linq_governance.py: _extract_json uses greedy regex \\{.*\\} which can misparse nested JSON with trailing prose. Works for well-behaved LLM output but fragile. Consider using json.JSONDecoder raw_decode.",
+    "linq_governance.py: MongoClient instantiated at module import (also duplicated in realtime_core.py). Consider centralized DB connection to avoid multiple pools.",
+    "Both routers: no rate limiting on expensive AI endpoints (/linq/layers/{n}/run, /engines/{engine}/run, /agents/luchii/actions) — abusable by any authenticated user.",
+    "linq_governance.py: run_layer/run_engine store AI-generated data as-is without validating required fields (tag/narrative/etc). If LLM returns partial JSON, artifacts may be missing fields."
+  ],
+  "updated_files": ["/app/backend/tests/test_linq_realtime.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026! (cookie login, defaults on /auth to register mode)",
+  "seed_data_creation": "TEST_ prefixed rooms/events/leads inserted via API (not cleaned up — safe, TEST_ prefixed).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "LINQ backend + frontend feature is fully working. When testing /auth login flows, remember to click [data-testid=auth-toggle-mode] first — the page opens in register mode. All LINQ AI endpoints take 5-30s; use timeouts >=45s. LiveKit media publishing not testable in headless (no camera) — page tolerates gracefully."
+}

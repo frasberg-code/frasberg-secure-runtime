@@ -30,6 +30,7 @@ import GamePlayerPage from "./pages/GamePlayerPage";
 import VisualStudio from "./pages/VisualStudio";
 import CreatureLibrary from "./pages/CreatureLibrary";
 import CharacterCreator from "./pages/CharacterCreator";
+import Linq from "./pages/Linq";
 
 function ScrollToHash() {
   const { pathname, hash } = useLocation();
@@ -91,6 +92,7 @@ function App() {
               <Route path="/studio" element={<VisualStudio />} />
               <Route path="/studio/creatures" element={<CreatureLibrary />} />
               <Route path="/studio/characters" element={<CharacterCreator />} />
+              <Route path="/linq" element={<Linq />} />
             </Routes>
           </BrowserRouter>
           <Toaster position="top-center" richColors />
