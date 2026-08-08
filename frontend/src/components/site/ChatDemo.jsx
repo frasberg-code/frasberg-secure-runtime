@@ -510,7 +510,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
         <div className="flex min-w-0 items-center gap-2">
           {(!mobileFull || agent) && (
             <>
-              <img src="/luchii-logo.webp" alt="Luchii" className="h-6 w-6 shrink-0 rounded-full ring-1 ring-lux-accent/40" />
+              <img src="/luchii-mark.jpg" alt="Luchii" className="h-6 w-6 shrink-0 rounded-full" />
               <span className="truncate font-display text-sm font-700 tracking-tight text-lux-text">
                 {agent ? `Luchii ${agent.charAt(0).toUpperCase()}${agent.slice(1)}` : "Luchii"}
               </span>

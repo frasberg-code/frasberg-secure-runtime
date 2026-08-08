@@ -144,7 +144,7 @@ export default function Admin() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/" className="flex items-center gap-2.5" data-testid="admin-home-link">
             <ArrowLeft size={16} className="text-lux-text2" />
-            <img src="/luchii-logo.webp" alt="Frasberg" className="h-8 w-8 rounded-full ring-1 ring-lux-accent/40" />
+            <img src="/luchii-mark.jpg" alt="Frasberg" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Admin Console</span>
           </Link>
           <div className="flex items-center gap-2">

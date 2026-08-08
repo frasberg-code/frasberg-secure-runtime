@@ -374,7 +374,7 @@ export default function Builder({ type = "website" }) {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/" className="flex items-center gap-2.5" data-testid="builder-home-link">
             <ArrowLeft size={16} className="text-lux-text2" />
-            <img src="/luchii-logo.webp" alt="Frasberg Luchii" className="h-8 w-8 rounded-full ring-1 ring-lux-accent/40" />
+            <img src="/luchii-mark.jpg" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">{c.title}</span>
           </Link>
           <div className="flex items-center gap-2">
@@ -388,7 +388,7 @@ export default function Builder({ type = "website" }) {
 
       <div className="relative mx-auto max-w-6xl px-5 py-12 sm:px-8">
         <div className="text-center">
-          <img src="/luchii-logo.webp" alt="Luchii" className="mx-auto h-16 w-16 rounded-full ring-1 ring-lux-accent/40" style={{ boxShadow: "0 0 44px var(--lux-glow)" }} />
+          <img src="/luchii-mark.jpg" alt="Luchii" className="mx-auto h-16 w-16 rounded-full" style={{ boxShadow: "0 0 44px var(--lux-glow)" }} />
           <h1 className="mt-6 font-display text-4xl font-700 tracking-tighter sm:text-5xl">{c.title}</h1>
           <p className="mx-auto mt-4 max-w-2xl text-lux-text2">{c.sub}</p>
           <div className="mt-8 flex flex-wrap justify-center gap-2" data-testid="builder-tabs">

@@ -5,7 +5,7 @@ export default function Footer() {
         <div className="flex flex-col justify-between gap-10 md:flex-row">
           <div className="max-w-sm">
             <div className="flex items-center gap-2.5">
-              <img src="/luchii-logo.webp" alt="Frasberg Luchii" className="h-9 w-9 rounded-full ring-1 ring-lux-accent/40" />
+              <img src="/luchii-mark.jpg" alt="Frasberg Luchii" className="h-9 w-9 rounded-full" />
               <span className="font-display text-lg font-700 tracking-tight text-lux-text">Luchii</span>
             </div>
             <p className="mt-4 text-sm text-lux-text2">

@@ -36,7 +36,7 @@ export default function AiModels() {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/" className="flex items-center gap-2.5" data-testid="ai-models-home-link">
             <ArrowLeft size={16} className="text-lux-text2" />
-            <img src="/luchii-logo.webp" alt="Frasberg Luchii" className="h-8 w-8 rounded-full ring-1 ring-lux-accent/40" />
+            <img src="/luchii-mark.jpg" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">AI Models</span>
           </Link>
           <button onClick={toggle} aria-label="Toggle theme" data-testid="ai-models-theme-toggle"
@@ -53,7 +53,7 @@ export default function AiModels() {
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="text-center"
         >
-          <img src="/luchii-logo.webp" alt="Luchii" data-testid="aimodels-spin-logo"
+          <img src="/luchii-mark.jpg" alt="Luchii" data-testid="aimodels-spin-logo"
             className="mx-auto h-16 w-16 rounded-full ring-1 ring-lux-accent/50" style={{ boxShadow: "0 0 44px var(--lux-glow)" }} />
           <h1 className="mt-6 font-display text-4xl font-700 tracking-tighter sm:text-5xl">Luchii Chat Models</h1>
           <p className="mx-auto mt-4 max-w-xl text-lux-text2">

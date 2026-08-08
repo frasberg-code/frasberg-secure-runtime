@@ -60,7 +60,7 @@ export default function Navbar() {
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
         <a href="#top" className="flex items-center gap-2.5" data-testid="brand-logo">
-          <img src="/luchii-logo.webp" alt="Frasberg Luchii" className="h-9 w-9 rounded-full ring-1 ring-lux-accent/40" />
+          <img src="/luchii-mark.jpg" alt="Frasberg Luchii" className="h-9 w-9 rounded-full" />
           <span className="font-display text-lg font-700 tracking-tight text-lux-text">Luchii</span>
           <span className="hidden font-mono text-[10px] uppercase tracking-[0.2em] text-lux-text2 sm:inline">
             by Frasberg

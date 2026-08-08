@@ -73,7 +73,7 @@ export default function Laws() {
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4 sm:px-8">
           <Link to="/court" className="flex items-center gap-2.5" data-testid="laws-back-link">
             <ArrowLeft size={16} className="text-lux-text2" />
-            <img src="/luchii-logo.webp" alt="Frasberg" className="h-8 w-8 rounded-full ring-1 ring-lux-accent/40" />
+            <img src="/luchii-mark.jpg" alt="Frasberg" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Constitution & Laws</span>
           </Link>
           <button onClick={toggle} aria-label="Toggle theme" className="grid h-10 w-10 place-items-center rounded-full border border-lux-border hover:border-lux-accent hover:text-lux-accent">

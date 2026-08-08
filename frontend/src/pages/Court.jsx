@@ -173,7 +173,7 @@ export default function Court() {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/" className="flex items-center gap-2.5" data-testid="court-home-link">
             <ArrowLeft size={16} className="text-lux-text2" />
-            <img src="/luchii-logo.webp" alt="Frasberg Luchii" className="h-8 w-8 rounded-full ring-1 ring-lux-accent/40" />
+            <img src="/luchii-mark.jpg" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">AI World Court</span>
           </Link>
           <button onClick={toggle} aria-label="Toggle theme" data-testid="court-theme-toggle"

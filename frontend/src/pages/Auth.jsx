@@ -58,7 +58,7 @@ export default function Auth() {
 
           <div className="glass rounded-3xl border border-lux-border p-8 shadow-2xl">
             <div className="flex items-center gap-3">
-              <img src="/luchii-logo.webp" alt="Frasberg Luchii" className="h-10 w-10 rounded-full ring-1 ring-lux-accent/40" />
+              <img src="/luchii-mark.jpg" alt="Frasberg Luchii" className="h-10 w-10 rounded-full" />
               <div>
                 <h1 className="font-display text-2xl font-700 tracking-tight">
                   {mode === "signup" ? "Create your account" : "Sign in"}

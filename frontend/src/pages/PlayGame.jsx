@@ -46,7 +46,7 @@ export default function PlayGame() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/gallery" className="flex items-center gap-2.5" data-testid="play-back-link">
             <ArrowLeft size={16} className="text-lux-text2" />
-            <img src="/luchii-logo.webp" alt="Frasberg Luchii" className="h-8 w-8 rounded-full ring-1 ring-lux-accent/40" />
+            <img src="/luchii-mark.jpg" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Built with Luchii</span>
           </Link>
           <button onClick={toggle} aria-label="Toggle theme" data-testid="play-theme-toggle"

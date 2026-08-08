@@ -4,7 +4,7 @@ import { ECOSYSTEM } from "../../data/content";
 
 const LOGOS = [
   { name: "Frasberg AI", slug: "frasberg-ai", src: "/frasberg-emblem.png", spin: true },
-  { name: "Luchii", slug: "luchii", src: "/luchii-logo.webp", spin: true },
+  { name: "Luchii", slug: "luchii", src: "/luchii-mark.jpg", spin: true },
   { name: "Python", slug: "python" },
   { name: "JavaScript", slug: "javascript" },
   { name: "Go", slug: "go" },

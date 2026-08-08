@@ -25,6 +25,11 @@ Awwwards-level cinematic landing page + platform for the "Luchii" multi-tier int
 - Removed corrupt trailing HTML after </html>
 - Testing: iteration_27.json — 100% pass (landmarks, helis, Air One, separation, shops, riddim, mobile layout, leaderboard API, homepage regression)
 
+## Implemented Aug 2026 (fork session)
+- LINQ Governance Command Center at /linq: 45-layer Ascension Ladder, Threat/Compliance/Billing engines, LINQ Live (LiveKit tokens/rooms + Ask Luchii) — iteration_29.json 100% pass backend+frontend
+- Verified Luchii API key provider flow end-to-end: mint luchii-sk-* key → Bearer auth on /api/v1/chat → real LLM streaming (70b & 1b tiers) → usage metering (requests/tokens/last_used) → 401 on fake/missing/revoked keys → revocation works
+- Branding: replaced old FA emblem (/luchii-logo.webp) with new glowing Luchii mark (/luchii-mark.jpg) across all 24 usages (Navbar, Footer, Hero, ChatDemo, all page headers, Ecosystem, Brand page); removed ring borders around all mark icons
+
 ## Known Constraints
 - WebGL/Three.js cannot reach Cyberpunk 2077 path-traced fidelity; using ACES tonemapping, env reflections, soft shadows, neon emissives
 - Production frasberg.com is a SEPARATE deployment — user must redeploy to see preview changes (recurring confusion, Cloudflare 520 history)
