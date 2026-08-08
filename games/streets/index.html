@@ -549,13 +549,15 @@ const AVATARS = { male: null, female: null, clips: {}, ready: false };
 })();
 const OUTFIT_TOP = [0x2b2d42, 0x8d0801, 0x1b4332, 0x14213d, 0x6a040f, 0x264653, 0x3a0ca3, 0x774936, 0xe09f3e, 0x386641, 0x5a189a, 0x9d0208, 0x023047, 0x333333];
 const OUTFIT_BOT = [0x1a1a2e, 0x22223b, 0x2d3142, 0x3d405b, 0x14213d, 0x0b132b, 0x4a4e69, 0x212529];
-function makeAvatarPed(forceSex) {
+function makeAvatarPed(forceSex, outfit) {
   const sex = forceSex || (Math.random() < 0.5 ? "male" : "female");
   const src = AVATARS[sex] || AVATARS.male || AVATARS.female;
   const clips = AVATARS.clips[AVATARS[sex] ? sex : (AVATARS.male ? "male" : "female")];
   const inner = THREE.SkeletonUtils.clone(src.scene);
-  const topC = OUTFIT_TOP[Math.floor(Math.random() * OUTFIT_TOP.length)];
-  const botC = OUTFIT_BOT[Math.floor(Math.random() * OUTFIT_BOT.length)];
+  const topC = outfit && outfit.top != null ? outfit.top : OUTFIT_TOP[Math.floor(Math.random() * OUTFIT_TOP.length)];
+  const botC = outfit && outfit.bottom != null ? outfit.bottom : OUTFIT_BOT[Math.floor(Math.random() * OUTFIT_BOT.length)];
+  const shoeC = outfit && outfit.shoes != null ? outfit.shoes : 0x111111;
+  const hairC = outfit && outfit.hair != null ? outfit.hair : null;
   const bones = {};
   inner.traverse((o) => {
     if (o.isBone) {
@@ -568,11 +570,12 @@ function makeAvatarPed(forceSex) {
       o.castShadow = true; o.frustumCulled = false;
       const n = o.name || "";
       // recolor only clothing so every pedestrian looks unique (skin/face untouched)
-      if (/Outfit_Top|Outfit_Bottom|Outfit_Footwear|Body/.test(n) && o.material) {
+      if (/Outfit_Top|Outfit_Bottom|Outfit_Footwear|Body|Hair/.test(n) && o.material) {
         o.material = o.material.clone();
         if (/Top/.test(n)) o.material.color.setHex(topC);
         else if (/Bottom/.test(n)) o.material.color.setHex(botC);
-        else if (/Footwear/.test(n)) o.material.color.setHex(0x111111);
+        else if (/Footwear/.test(n)) o.material.color.setHex(shoeC);
+        else if (/Hair/.test(n) && hairC != null) o.material.color.setHex(hairC);
       }
     }
   });
@@ -714,6 +717,7 @@ const S = {
 };
 let player = makePed(); scene.add(player);
 let playerCar = null;
+try { S.outfit = JSON.parse(localStorage.getItem("frasberg-streets-outfit")) || null; } catch (_) { S.outfit = null; }
 
 // Traffic
 const traffic = [];
@@ -878,6 +882,16 @@ function meleeAttack() {
   const armed = S.arsenal.hammer ? "hammer" : S.arsenal.knife ? "knife" : null;
   const kind = armed || MELEE_KINDS[meleeIdx++ % MELEE_KINDS.length];
   if (av) { av.melee = MELEE_DUR; av.meleeKind = kind; }
+  // auto-face the nearest target so swings actually connect
+  {
+    let tgt = null, td = 3.2;
+    for (const n of npcs) { if (n.down) continue; const d = Math.hypot(n.x - S.x, n.z - S.z); if (d < td) { td = d; tgt = n; } }
+    if (tgt) {
+      S.h = Math.atan2(tgt.x - S.x, tgt.z - S.z);
+      if (td > 1.3) { S.x += Math.sin(S.h) * 0.5; S.z += Math.cos(S.h) * 0.5; } // step into range
+      player.rotation.y = S.h;
+    }
+  }
   window.LuchiiAudio && LuchiiAudio.sfx("hit", 0.32);
   window.LuchiiAudio && LuchiiAudio.voice(PLAYER_GRUNTS[Math.floor(Math.random()*PLAYER_GRUNTS.length)], S.sex, { force: true, shout: true });
   const reach = kind === "kick" ? 2.6 : 2.2, cone = kind === "grab" ? 0.7 : 1.0;
@@ -982,6 +996,15 @@ function fireGun() {
   const ct = traffic.find(t => t.alive && !t.parked && _inFront(t.mesh.position.x - S.x, t.mesh.position.z - S.z, W.cone + 0.1)
     && Math.hypot(t.mesh.position.x - S.x, t.mesh.position.z - S.z) < W.reach);
   if (ct && (W.explosive || Math.random() < 0.5)) igniteCar(ct.mesh, ct.mesh.position.x, ct.mesh.position.z);
+  // an RPG rocket can bring down AIR ONE
+  if (W.explosive && airOne && !airOne.down) {
+    const dx = airOne.x - S.x, dz = airOne.z - S.z, dd = Math.hypot(dx, dz);
+    if (dd < 50 && _inFront(dx, dz, 0.7)) {
+      airOne.down = true; airOne.vy = 2; airOne.spin = 1;
+      toast("🚀 DIRECT HIT — AIR ONE IS GOING DOWN!", "#ff9a3c");
+      window.LuchiiAudio && LuchiiAudio.sfx("explosion", 0.7);
+    }
+  }
 }
 
 // ─── The Docks — mission delivery zone ─────────────────────
@@ -1007,6 +1030,8 @@ const STORES = [
   { kind: "gun", name: "PAWN & GUNS", x: -108, z: -36, color: 0xff5555 },
   { kind: "gun", name: "DESERT ARMS", x: 36, z: 108, color: 0xff5555 },
   { kind: "clothes", name: "VYBZ THREADS", x: -36, z: 36, color: 0x22d3ee },
+  { kind: "casino", name: "LUCKY 7 CASINO", x: -18, z: -10, color: 0xffd166 },
+  { kind: "casino", name: "ROYAL PALMS CASINO", x: 54, z: 10, color: 0xffd166 },
 ];
 const BUY_ORDER = ["knife", "hammer", "handgun", "smg", "shotgun", "rifle", "rpg"];
 STORES.forEach((st) => {
@@ -1020,20 +1045,8 @@ function tryShop() {
   if (!S.running || S.inCar) return;
   const st = STORES.find(s => Math.hypot(s.x - S.x, s.z - S.z) < 5);
   if (!st) return;
-  if (st.kind === "clothes") {
-    if (S.cash < 50) { toast("👕 NEW OUTFIT COSTS $50", "#888"); return; }
-    S.cash -= 50;
-    if (AVATARS.ready) {
-      const np = makeAvatarPed(S.sex || "male");
-      np.position.copy(player.position); np.rotation.y = player.rotation.y;
-      const proxy = new THREE.Group(); proxy.position.set(0.34, 1.15, 0.16);
-      proxy.add(bat, gun); np.add(proxy);
-      scene.remove(player); player = np; scene.add(player);
-    }
-    toast("👕 FRESH FIT — new jacket, pants & boots  −$50", "#22d3ee");
-    window.LuchiiAudio && LuchiiAudio.voice("Looking sharp!", S.sex === "male" ? "female" : "male", { force: true });
-    return;
-  }
+  if (st.kind === "clothes") { openOutfitMenu(); return; }
+  if (st.kind === "casino") { openSlots(st); return; }
   // gun store: buy next unowned weapon, else refill ammo
   const next = BUY_ORDER.find(w => !S.arsenal[w]);
   if (next) {
@@ -1050,6 +1063,119 @@ function tryShop() {
     S.cash -= cost; S.arsenal[w] += W.ammoPer;
     toast(`🛒 ${W.name} AMMO +${W.ammoPer}  −$${cost}`, "#f0c040");
   }
+}
+
+// ─── Player rebuild + outfit picker + casino slots ─────────
+function rebuildPlayer(outfit) {
+  if (!AVATARS.ready) return;
+  if (outfit) S.outfit = outfit;
+  const np = makeAvatarPed(S.sex || "male", S.outfit);
+  np.position.copy(player.position); np.rotation.y = player.rotation.y; np.visible = player.visible;
+  const proxy = new THREE.Group(); proxy.position.set(0.34, 1.15, 0.16);
+  bat.position.set(0, -0.18, 0.1); gun.position.set(0, -0.02, 0.12);
+  proxy.add(bat, gun); np.add(proxy);
+  scene.remove(player); player = np; scene.add(player);
+}
+const outfitSel = { top: 0x2b2d42, bottom: 0x1a1a2e, shoes: 0x111111, hair: 0x0b0b0b };
+function openOutfitMenu() {
+  let el = document.getElementById("outfitMenu");
+  if (!el) {
+    el = document.createElement("div"); el.id = "outfitMenu";
+    el.setAttribute("data-testid", "outfit-menu");
+    el.style.cssText = "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:30;background:rgba(10,10,20,.97);border:1px solid #22d3ee66;border-radius:14px;padding:18px 22px;color:#fff;font:bold 12px 'Courier New',monospace;letter-spacing:1px;max-width:92vw";
+    const ROWS = [
+      ["JACKET / TOP", "top", OUTFIT_TOP.slice(0, 12)],
+      ["PANTS", "bottom", OUTFIT_BOT],
+      ["BOOTS", "shoes", [0x111111, 0x5c3a1e, 0xf5f5f5, 0x9d0208, 0x14213d, 0xe09f3e]],
+      ["HAIR", "hair", [0x0b0b0b, 0x3b2716, 0x8a6d3b, 0xb0b0b0, 0x7a1f1f, 0x1f3a7a]],
+    ];
+    el.innerHTML = '<div style="color:#22d3ee;font-size:14px;margin-bottom:8px">👕 VYBZ THREADS — PICK YOUR FIT</div>' +
+      ROWS.map(([lbl, key, cols]) =>
+        `<div style="margin:8px 0 4px;color:#9f9fd0;font-size:10px">${lbl}</div>` +
+        `<div data-row="${key}" style="display:flex;gap:6px;flex-wrap:wrap">` +
+        cols.map(c => `<button data-testid="outfit-${key}-swatch" data-c="${c}" style="width:28px;height:28px;border-radius:6px;border:2px solid #333;background:#${c.toString(16).padStart(6, "0")};cursor:pointer"></button>`).join("") +
+        `</div>`).join("") +
+      `<div style="display:flex;gap:10px;margin-top:16px">
+        <button id="outfitApply" data-testid="outfit-apply-btn" style="flex:1;background:#22d3ee;color:#000;border:none;padding:11px;border-radius:20px;font:bold 12px 'Courier New';letter-spacing:1px;cursor:pointer">APPLY FIT — $50</button>
+        <button id="outfitClose" data-testid="outfit-close-btn" style="background:#333;color:#fff;border:none;padding:11px 18px;border-radius:20px;font:bold 12px 'Courier New';cursor:pointer">CLOSE</button>
+      </div>`;
+    document.body.appendChild(el);
+    el.querySelectorAll("[data-row] button").forEach(b => b.addEventListener("click", () => {
+      outfitSel[b.parentElement.dataset.row] = parseInt(b.dataset.c, 10);
+      b.parentElement.querySelectorAll("button").forEach(o => o.style.borderColor = o === b ? "#22d3ee" : "#333");
+    }));
+    document.getElementById("outfitClose").addEventListener("click", () => { el.style.display = "none"; });
+    document.getElementById("outfitApply").addEventListener("click", () => {
+      if (S.cash < 50) { toast("👕 NEW FIT COSTS $50 — jack more cars", "#888"); return; }
+      S.cash -= 50;
+      rebuildPlayer({ ...outfitSel });
+      try { localStorage.setItem("frasberg-streets-outfit", JSON.stringify(S.outfit)); } catch (_) {}
+      el.style.display = "none";
+      toast("👕 FRESH FIT APPLIED  −$50", "#22d3ee");
+      window.LuchiiAudio && LuchiiAudio.voice("Looking sharp!", S.sex === "male" ? "female" : "male", { force: true });
+    });
+  }
+  el.style.display = "block";
+}
+const SLOT_SYMS = ["7️⃣", "💎", "🍒", "🔔", "🍋"];
+let slotSpinning = false;
+function openSlots(st) {
+  let el = document.getElementById("slotsUI");
+  if (!el) {
+    el = document.createElement("div"); el.id = "slotsUI";
+    el.setAttribute("data-testid", "slots-ui");
+    el.style.cssText = "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:30;background:rgba(12,8,4,.97);border:2px solid #ffd166;border-radius:16px;padding:20px 26px;color:#fff;font:bold 13px 'Courier New',monospace;letter-spacing:1px;text-align:center;max-width:92vw";
+    el.innerHTML = `
+      <div id="slotsName" style="color:#ffd166;font-size:15px;letter-spacing:3px"></div>
+      <div style="color:#9f9fd0;font-size:10px;margin-top:4px">3×7️⃣ = 20x · 3×💎 = 10x · any 3 = 5x · pair = 2x</div>
+      <div style="display:flex;gap:12px;justify-content:center;margin:16px 0;background:#000;border-radius:12px;padding:14px 18px;border:1px solid #443311">
+        <span id="reel0" data-testid="slot-reel-0" style="font-size:40px">7️⃣</span>
+        <span id="reel1" data-testid="slot-reel-1" style="font-size:40px">7️⃣</span>
+        <span id="reel2" data-testid="slot-reel-2" style="font-size:40px">7️⃣</span>
+      </div>
+      <div id="slotRes" data-testid="slot-result" style="min-height:18px;color:#ffd166;font-size:12px">PLACE YOUR BET</div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
+        <button class="betBtn" data-testid="slot-bet-50" data-bet="50" style="background:#ffd166;color:#000;border:none;padding:10px 16px;border-radius:18px;font:bold 12px 'Courier New';cursor:pointer">BET $50</button>
+        <button class="betBtn" data-testid="slot-bet-100" data-bet="100" style="background:#ffb020;color:#000;border:none;padding:10px 16px;border-radius:18px;font:bold 12px 'Courier New';cursor:pointer">BET $100</button>
+        <button class="betBtn" data-testid="slot-bet-500" data-bet="500" style="background:#ff7a1a;color:#000;border:none;padding:10px 16px;border-radius:18px;font:bold 12px 'Courier New';cursor:pointer">BET $500</button>
+      </div>
+      <button id="slotsClose" data-testid="slots-close-btn" style="margin-top:12px;background:#333;color:#fff;border:none;padding:9px 22px;border-radius:18px;font:bold 11px 'Courier New';cursor:pointer">WALK AWAY</button>`;
+    document.body.appendChild(el);
+    document.getElementById("slotsClose").addEventListener("click", () => { el.style.display = "none"; });
+    el.querySelectorAll(".betBtn").forEach(b => b.addEventListener("click", () => spinSlots(parseInt(b.dataset.bet, 10))));
+  }
+  document.getElementById("slotsName").textContent = "🎰 " + st.name;
+  el.style.display = "block";
+}
+function spinSlots(bet) {
+  if (slotSpinning) return;
+  const res = document.getElementById("slotRes");
+  if (S.cash < bet) { res.textContent = "NOT ENOUGH CASH — GO JACK SOME CARS"; return; }
+  S.cash -= bet; slotSpinning = true; res.textContent = "SPINNING…";
+  const reels = [0, 1, 2].map(i => document.getElementById("reel" + i));
+  const finals = reels.map(() => SLOT_SYMS[Math.floor(Math.random() * SLOT_SYMS.length)]);
+  let ticks = 0;
+  const iv = setInterval(() => {
+    ticks++;
+    reels.forEach((r, i) => {
+      r.textContent = ticks < 8 + i * 4 ? SLOT_SYMS[Math.floor(Math.random() * SLOT_SYMS.length)] : finals[i];
+    });
+    if (ticks >= 18) {
+      clearInterval(iv); slotSpinning = false;
+      const [a, b, c] = finals;
+      let win = 0;
+      if (a === b && b === c) win = bet * (a === "7️⃣" ? 20 : a === "💎" ? 10 : 5);
+      else if (a === b || b === c || a === c) win = bet * 2;
+      if (win) {
+        S.cash += win;
+        res.textContent = `🎉 WINNER  +$${win}`;
+        window.LuchiiAudio && LuchiiAudio.sfx("win", 0.5);
+      } else {
+        res.textContent = "HOUSE WINS — SPIN AGAIN?";
+        window.LuchiiAudio && LuchiiAudio.sfx("lose", 0.3);
+      }
+    }
+  }, 90);
 }
 
 // ─── LVFR Rescue ambulance — responds to downed pedestrians ──
@@ -1196,7 +1322,7 @@ for (let i = 0; i < 3; i++) {
   helis.push({ mesh, cx: (Math.random() - 0.5) * 120, cz: (Math.random() - 0.5) * 120,
     r: 45 + Math.random() * 40, ang: Math.random() * Math.PI * 2, spd: 0.10 + Math.random() * 0.08, alt: 38 + i * 7 });
 }
-let airOne = null;
+let airOne = null, airOneCd = 0;
 function updateHelis(dt, ft) {
   for (const h of helis) {
     h.ang += h.spd * dt;
@@ -1206,19 +1332,38 @@ function updateHelis(dt, ft) {
     h.mesh.userData.rotor.rotation.y += dt * 22;
     h.mesh.userData.beacon.visible = Math.floor(ft * 3 + h.r) % 2 === 0;
   }
-  if (S.running && S.wanted >= 4) {
-    if (!airOne) {
-      const mesh = makeHeli(0xf2f2f2, true); scene.add(mesh);
-      const light = new THREE.SpotLight(0xfff6d0, 4, 90, 0.24, 0.5);
-      mesh.add(light); light.position.set(0, -0.6, 0);
-      const lt = new THREE.Object3D(); scene.add(lt); light.target = lt;
-      const cone = new THREE.Mesh(new THREE.ConeGeometry(6, 26, 12, 1, true),
-        new THREE.MeshBasicMaterial({ color: 0xfff2c0, transparent: true, opacity: 0.13, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
-      cone.position.y = -13.6; mesh.add(cone);
-      airOne = { mesh, lt, x: S.x + 60, z: S.z + 60 };
-      toast("🚁 LVMPD AIR ONE IS ON YOU", "#ff5555");
-      window.LuchiiAudio && LuchiiAudio.voice("Air One has visual on the suspect.", "male", { shout: true });
+  if (airOneCd > 0) airOneCd -= dt;
+  if (S.running && S.wanted >= 4 && !airOne && airOneCd <= 0) {
+    const mesh = makeHeli(0xf2f2f2, true); scene.add(mesh);
+    const light = new THREE.SpotLight(0xfff6d0, 4, 90, 0.24, 0.5);
+    mesh.add(light); light.position.set(0, -0.6, 0);
+    const lt = new THREE.Object3D(); scene.add(lt); light.target = lt;
+    const cone = new THREE.Mesh(new THREE.ConeGeometry(6, 26, 12, 1, true),
+      new THREE.MeshBasicMaterial({ color: 0xfff2c0, transparent: true, opacity: 0.13, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+    cone.position.y = -13.6; mesh.add(cone);
+    airOne = { mesh, lt, x: S.x + 60, z: S.z + 60, down: false };
+    toast("🚁 LVMPD AIR ONE IS ON YOU — an RPG could bring it down…", "#ff5555");
+    window.LuchiiAudio && LuchiiAudio.voice("Air One has visual on the suspect.", "male", { shout: true });
+  }
+  if (airOne && airOne.down) {
+    // shot down — spiral to the ground and explode
+    airOne.spin += dt * 5;
+    airOne.vy += dt * 9;
+    airOne.mesh.position.y -= airOne.vy * dt;
+    airOne.mesh.position.x = airOne.x; airOne.mesh.position.z = airOne.z;
+    airOne.mesh.rotation.y += airOne.spin * dt;
+    airOne.mesh.rotation.z = Math.min(0.9, airOne.mesh.rotation.z + dt * 0.8);
+    airOne.mesh.userData.rotor.rotation.y += dt * 8;
+    if (airOne.mesh.position.y <= 1.2) {
+      igniteCar(airOne.mesh, airOne.x, airOne.z);
+      S.cash += 2500; S.wanted = 5;
+      toast("💥 AIR ONE DOWN  +$2500 — CITY-WIDE MANHUNT", "#4ade80");
+      window.LuchiiAudio && LuchiiAudio.sfx("explosion", 0.8);
+      crashFx(0.6);
+      scene.remove(airOne.mesh); scene.remove(airOne.lt);
+      airOne = null; airOneCd = 25;
     }
+  } else if (airOne && S.running && S.wanted >= 4) {
     airOne.x += (S.x - airOne.x) * 0.6 * dt;
     airOne.z += (S.z - airOne.z) * 0.6 * dt;
     airOne.mesh.position.set(airOne.x, 27 + Math.sin(ft * 0.9) * 1.2, airOne.z);
@@ -1242,7 +1387,7 @@ function spawnGangs() {
     car.position.set(spot.x, 0, spot.z); car.rotation.y = Math.random() * Math.PI * 2;
     if (car.userData.driver) car.userData.driver.visible = false;
     scene.add(car);
-    const entry = { mesh: car, type, alive: true, parked: true, gangBonus: 350 };
+    const entry = { mesh: car, type, alive: true, parked: true, pos: spot.x, line: spot.z, gangBonus: 350 };
     traffic.push(entry);
     const zone = { x: spot.x, z: spot.z, car: entry, aggro: false };
     for (let k = 0; k < 3; k++) {
@@ -1459,15 +1604,7 @@ function start() {
   spawnGangs();
   for (let i = 0; i < 3; i++) spawnFarePassenger();
   player.visible = true;
-  // (re)build player as the chosen character
-  if (AVATARS.ready) {
-    const np = makeAvatarPed(S.sex || "male");
-    np.position.copy(player.position); np.rotation.y = player.rotation.y;
-    const proxy = new THREE.Group(); proxy.position.set(0.34, 1.15, 0.16);
-    bat.position.set(0, -0.18, 0.1); gun.position.set(0, -0.02, 0.12);
-    proxy.add(bat, gun); np.add(proxy);
-    scene.remove(player); player = np; scene.add(player);
-  }
+  rebuildPlayer();
   spawnTraffic(16); spawnNpcs(22);
   document.getElementById("start").style.display = "none";
   document.getElementById("gameover").style.display = "none";
@@ -1527,14 +1664,7 @@ function animate() {
   LM_ANIM.forEach(u => u(dt, flashT));
   updateHelis(dt, flashT);
   // upgrade player to real avatar once models are loaded
-  if (AVATARS.ready && !player.userData.avatar) {
-    const np = makeAvatarPed(S.sex || "male");
-    np.position.copy(player.position); np.rotation.y = player.rotation.y; np.visible = player.visible;
-    const proxy = new THREE.Group(); proxy.position.set(0.34, 1.15, 0.16);
-    bat.position.set(0, -0.18, 0.1); gun.position.set(0, -0.02, 0.12);
-    proxy.add(bat, gun); np.add(proxy);
-    scene.remove(player); player = np; scene.add(player);
-  }
+  if (AVATARS.ready && !player.userData.avatar) rebuildPlayer();
   // cinematic moon shadows follow the player
   moon.position.set(S.x + 40, 80, S.z + 30);
   moon.target.position.set(S.x, 0, S.z);
@@ -1623,21 +1753,23 @@ function animate() {
       if (swingT > 0) { swingT -= dt; if (L) L.rArm.rotation.x = -2.4 + (0.38 - swingT) * 6.5; }
       if (gunFlashT > 0) { gunFlashT -= dt; if (L) L.rArm.rotation.x = -1.5; if (gunFlashT <= 0) muzzle.visible = false; }
       if (holsterT > 0) { holsterT -= dt; if (holsterT <= 0) { bat.visible = false; gun.visible = false; } }
-      // real bone-driven melee on RPM avatar (punch / kick / grab)
+      // real bone-driven melee on RPM avatar — additive over the animated pose (no more weird arm snapping)
       const av = player.userData.avatar;
       if (av && av.melee > 0 && av.bones) {
         av.melee -= dt;
         const p = 1 - Math.max(0, av.melee) / MELEE_DUR;
         const swing = Math.sin(Math.min(p, 1) * Math.PI);
+        player.rotation.x = swing * 0.14; // lean into the hit
         if (av.meleeKind === "kick" && av.bones.rLeg) {
-          av.bones.rLeg.rotation.x = -swing * 1.5;
+          av.bones.rLeg.rotation.x -= swing * 1.6;
         } else if (av.meleeKind === "grab") {
-          if (av.bones.rArm) av.bones.rArm.rotation.x = -swing * 1.3;
-          if (av.bones.lArm) av.bones.lArm.rotation.x = -swing * 1.3;
+          if (av.bones.rArm) av.bones.rArm.rotation.x -= swing * 1.2;
+          if (av.bones.lArm) av.bones.lArm.rotation.x -= swing * 1.2;
         } else { // punch
-          if (av.bones.rArm) av.bones.rArm.rotation.x = -swing * 1.7;
-          if (av.bones.rFore) av.bones.rFore.rotation.x = -swing * 0.6;
+          if (av.bones.rArm) av.bones.rArm.rotation.x -= swing * 1.5;
+          if (av.bones.rFore) av.bones.rFore.rotation.x -= swing * 0.7;
         }
+        if (av.melee <= 0) player.rotation.x = 0;
       }
     }
     window.SFX && S.inCar && SFX.setEngine(30 + Math.abs(S.speed) * 3);
@@ -1653,10 +1785,14 @@ function animate() {
       else { t.mesh.position.set(t.line, 0, t.pos); t.mesh.rotation.y = t.dir > 0 ? 0 : Math.PI; }
       const d = Math.hypot(t.mesh.position.x - S.x, t.mesh.position.z - S.z);
       if (S.wanted > 0 && d < 25) t.flee = true;
-      if (S.inCar && d < 2.6 && S.dmgCd <= 0) {
-        S.hp -= Math.abs(S.speed) * 0.25 + 3; S.speed *= 0.4; S.dmgCd = 0.6;
-        crashFx(0.25);
-        window.LuchiiAudio && LuchiiAudio.sfx("crash", 0.45);
+      if (S.inCar && d < 2.6) {
+        const ux = (S.x - t.mesh.position.x) / (d || 1), uz = (S.z - t.mesh.position.z) / (d || 1);
+        S.x = t.mesh.position.x + ux * 2.6; S.z = t.mesh.position.z + uz * 2.6;
+        if (S.dmgCd <= 0) {
+          S.hp -= Math.abs(S.speed) * 0.25 + 3; S.speed *= 0.4; S.dmgCd = 0.6;
+          crashFx(0.25);
+          window.LuchiiAudio && LuchiiAudio.sfx("crash", 0.45);
+        }
       }
       // traffic runs over pedestrians — real impact, not pass-through
       for (const n of npcs) {
@@ -1677,14 +1813,41 @@ function animate() {
           n.x += Math.sin(away) * 2.4 * dt; n.z += Math.cos(away) * 2.4 * dt;
         }
       }
-      // traffic hits the player on foot
-      if (!S.inCar && d < 1.7 && S.dmgCd <= 0) {
-        S.hp -= 14; S.dmgCd = 0.8; crashFx(0.5);
+      // traffic hits the player on foot — solid body, no pass-through
+      if (!S.inCar && d < 1.7) {
         const kb = Math.atan2(S.x - t.mesh.position.x, S.z - t.mesh.position.z);
-        S.x += Math.sin(kb) * 2.6; S.z += Math.cos(kb) * 2.6;
-        t.flee = true;
-        toast("🚗 HIT BY A CAR  −14 HP", "#ff5555");
-        window.LuchiiAudio && LuchiiAudio.sfx("crash", 0.55);
+        S.x = t.mesh.position.x + Math.sin(kb) * 1.75; S.z = t.mesh.position.z + Math.cos(kb) * 1.75;
+        if (S.dmgCd <= 0) {
+          S.hp -= 14; S.dmgCd = 0.8; crashFx(0.5);
+          t.flee = true;
+          toast("🚗 HIT BY A CAR  −14 HP", "#ff5555");
+          window.LuchiiAudio && LuchiiAudio.sfx("crash", 0.55);
+        }
+      }
+    }
+    // ── solid parked cars — nobody walks or drives through them
+    for (const t of traffic) {
+      if (!t.alive || !t.parked) continue;
+      const cp = t.mesh.position, chd = t.mesh.rotation.y;
+      for (const off of [-0.95, 0, 0.95]) {
+        const cx = cp.x + Math.sin(chd) * off, cz = cp.z + Math.cos(chd) * off;
+        const min = S.inCar ? 2.2 : 1.3;
+        const dx = S.x - cx, dz = S.z - cz, d2 = Math.hypot(dx, dz);
+        if (d2 < min && d2 > 0.001) {
+          S.x = cx + (dx / d2) * min; S.z = cz + (dz / d2) * min;
+          if (S.inCar) {
+            if (Math.abs(S.speed) > 8 && S.dmgCd <= 0) {
+              S.hp -= 4; S.dmgCd = 0.5; crashFx(0.2);
+              window.LuchiiAudio && LuchiiAudio.sfx("crash", 0.4);
+            }
+            S.speed *= 0.5;
+          }
+        }
+        for (const n of npcs) {
+          if (n.down) continue;
+          const ndx = n.x - cx, ndz = n.z - cz, nd = Math.hypot(ndx, ndz);
+          if (nd < 1.2 && nd > 0.001) { n.x = cx + (ndx / nd) * 1.2; n.z = cz + (ndz / nd) * 1.2; }
+        }
       }
     }
     // ── pedestrian separation — no more walking through each other
@@ -1835,11 +1998,15 @@ function animate() {
       }
       const d = Math.hypot(p.x - S.x, p.z - S.z);
       if (d < 4.5) anyClose = true;
-      if (d < 2.8 && S.dmgCd <= 0) {
-        S.hp -= 9; S.speed *= 0.5; S.dmgCd = 0.7;
-        crashFx(0.35);
-        toast("⚠ POLICE RAM — GET OUT OF THERE", "#ff5555");
-        window.LuchiiAudio && LuchiiAudio.sfx("crash", 0.5);
+      if (d < 2.8) {
+        const ux = (S.x - p.x) / (d || 1), uz = (S.z - p.z) / (d || 1);
+        S.x = p.x + ux * 2.8; S.z = p.z + uz * 2.8;
+        if (S.dmgCd <= 0) {
+          S.hp -= 9; S.speed *= 0.5; S.dmgCd = 0.7;
+          crashFx(0.35);
+          toast("⚠ POLICE RAM — GET OUT OF THERE", "#ff5555");
+          window.LuchiiAudio && LuchiiAudio.sfx("crash", 0.5);
+        }
       }
     }
     if (anyClose && Math.abs(S.speed) < 4) { S.bustT += dt; if (S.bustT > 1.6) gameOver("BUSTED"); }
@@ -1921,6 +2088,12 @@ function animate() {
         window.LuchiiAudio && LuchiiAudio.sfx("crash", 0.6);
       }
     }
+    // final ground-truth — never end a frame inside a wall or with corrupt coords
+    if (!isFinite(S.x) || !isFinite(S.z) || hitsBuilding(S.x, S.z, S.inCar ? 1.2 : 0.35)) {
+      if (S._gx !== undefined) { S.x = S._gx; S.z = S._gz; S.speed = 0; }
+      if (!isFinite(S.x) || !isFinite(S.z)) { S.x = 0; S.z = 2; }
+    } else { S._gx = S.x; S._gz = S.z; }
+    (S.inCar && playerCar ? playerCar : player).position.set(S.x, 0, S.z);
     // prompt
     document.getElementById("prompt").style.display =
       (!S.inCar && nearestJackable()) ? "block" : "none";

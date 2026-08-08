@@ -7,7 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const HISTORY_KEY = "luchii.chat.history.enc";
 
-export default function ChatScreen() {
+export default function ChatScreen({ navigation }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState("connecting");
@@ -87,8 +87,13 @@ export default function ChatScreen() {
     <KeyboardAvoidingView style={s.root} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <View style={s.header}>
         <Text style={s.title}>Luchii</Text>
-        <View style={[s.pill, status === "connected" ? s.pillOk : s.pillBad]}>
-          <Text style={s.pillText}>{pillLabel}</Text>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+          <TouchableOpacity onPress={() => navigation.navigate("Games")} style={s.gamesBtn} testID="open-games-btn">
+            <Text style={s.gamesText}>🎮 GAMES</Text>
+          </TouchableOpacity>
+          <View style={[s.pill, status === "connected" ? s.pillOk : s.pillBad]}>
+            <Text style={s.pillText}>{pillLabel}</Text>
+          </View>
         </View>
       </View>
       <FlatList
@@ -121,6 +126,8 @@ const s = StyleSheet.create({
   pillOk: { borderColor: "#3ddc84" },
   pillBad: { borderColor: "#ffb020" },
   pillText: { color: "#EDEBFF", fontSize: 10, fontWeight: "700" },
+  gamesBtn: { borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1, borderColor: "#f0c040" },
+  gamesText: { color: "#f0c040", fontSize: 10, fontWeight: "700" },
   bubble: { borderRadius: 16, padding: 12, marginBottom: 10, maxWidth: "85%" },
   user: { backgroundColor: "#B9A7FF22", alignSelf: "flex-end", borderWidth: 1, borderColor: "#B9A7FF44" },
   assistant: { backgroundColor: "#121020", alignSelf: "flex-start", borderWidth: 1, borderColor: "#26233a" },
