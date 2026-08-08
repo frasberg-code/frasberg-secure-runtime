@@ -47,7 +47,7 @@ export default function Linq() {
         <div className="text-center space-y-4" data-testid="linq-auth-gate">
           <h1 className="text-3xl text-[#f8fafc]">LINQ Command Center</h1>
           <p className="text-[#94a3b8]">Sign in to access the FrasbergAI governance workspace.</p>
-          <Link to="/auth" data-testid="linq-signin-link" className="inline-block bg-[#ef4444] hover:bg-[#dc2626] text-white rounded-full px-6 py-2.5 text-sm">Sign in</Link>
+          <Link to="/auth?mode=login" data-testid="linq-signin-link" className="inline-block bg-[#ef4444] hover:bg-[#dc2626] text-white rounded-full px-6 py-2.5 text-sm">Sign in</Link>
         </div>
       </div>
     );

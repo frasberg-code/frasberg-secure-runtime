@@ -29,6 +29,13 @@ Awwwards-level cinematic landing page + platform for the "Luchii" multi-tier int
 - LINQ Governance Command Center at /linq: 45-layer Ascension Ladder, Threat/Compliance/Billing engines, LINQ Live (LiveKit tokens/rooms + Ask Luchii) — iteration_29.json 100% pass backend+frontend
 - Verified Luchii API key provider flow end-to-end: mint luchii-sk-* key → Bearer auth on /api/v1/chat → real LLM streaming (70b & 1b tiers) → usage metering (requests/tokens/last_used) → 401 on fake/missing/revoked keys → revocation works
 - Branding: replaced old FA emblem (/luchii-logo.webp) with new glowing Luchii mark (/luchii-mark.jpg) across all 24 usages (Navbar, Footer, Hero, ChatDemo, all page headers, Ecosystem, Brand page); removed ring borders around all mark icons
+- Luchii Live Actions: agent runs real threat/billing/compliance engine scans from live chat (natural language auto-detect + quick action buttons), returns artifact cards (tag/score/recommendations) — realtime_core.py _detect_engine/_run_agent_engine, linq_governance.run_engine_core
+- PayPal LINQ Billing: 3 tiers (linq-operator $15->builder, linq-architect $30->pro, linq-sovereign $60->premium) in UPGRADE_PLANS; /linq Plans tab (LinqBilling.jsx) with live PayPal checkout; capture auto-upgrades user plan. LIVE mode credentials verified (OAuth 200)
+- Key Dashboard live graphs: dual-axis Requests+Tokens bars with legend, live badge, 12s auto-refresh polling
+- Favicon/mark: precision circle-fit crop (Kasa fit, center 510.3/503.2 r 401.7) of glowing ring → transparent luchii-mark-circle.png used for all UI icons + favicons 16-512 + .ico (cache-bust ?v=3)
+- Navbar Explore dropdown: grouped 2-column mega menu (On this page/Build/Products/Company); mobile menu 2-col grid capped 75vh
+- /linq auth gate now links /auth?mode=login
+- Testing: iteration_30.json — 100% pass backend + frontend (engine actions, PayPal order creation live-mode, usage daily, Plans tab, quick actions artifact cards, dropdown, regression)
 
 ## Known Constraints
 - WebGL/Three.js cannot reach Cyberpunk 2077 path-traced fidelity; using ACES tonemapping, env reflections, soft shadows, neon emissives
