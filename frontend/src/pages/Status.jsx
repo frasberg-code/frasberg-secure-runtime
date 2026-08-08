@@ -88,7 +88,7 @@ export default function Status() {
         <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/admin" className="flex items-center gap-2.5" data-testid="status-back-link">
             <ArrowLeft size={16} className="text-lux-text2" />
-            <img src="/luchii-mark.jpg" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
+            <img src="/luchii-mark-circle.png" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">System Status</span>
           </Link>
           <button onClick={toggle} aria-label="Toggle theme" data-testid="status-theme-toggle"

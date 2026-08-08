@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { AscensionLadder } from "../components/linq/AscensionLadder";
 import { EngineModule } from "../components/linq/EngineModule";
 import { LinqLive } from "../components/linq/LinqLive";
+import { LinqBilling } from "../components/linq/LinqBilling";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -16,6 +17,7 @@ const TABS = [
   { id: "billing", label: "⚡ Billing Intelligence" },
   { id: "compliance", label: "🧠 Compliance Copilot" },
   { id: "live", label: "🔴 LINQ Live" },
+  { id: "plans", label: "💳 Plans" },
   { id: "app", label: "LINQ App" },
 ];
 
@@ -85,6 +87,7 @@ export default function Linq() {
         {tab === "billing" && <EngineModule engine="billing" title="Billing Intelligence Engine v40" icon="⚡" tagline="Pantheon-architect economic sovereignty + multi-reality revenue creation" />}
         {tab === "compliance" && <EngineModule engine="compliance" title="Compliance Copilot v40" icon="🧠" tagline="Pantheon-architect compliance sovereignty + multi-reality governance creation" />}
         {tab === "live" && <LinqLive identity={user.name || user.email.split("@")[0]} />}
+        {tab === "plans" && <LinqBilling />}
         {tab === "app" && (
           <div className="space-y-3" data-testid="linq-app-embed">
             <div className="flex items-center justify-between">

@@ -7,8 +7,8 @@ import { BRAND_COLORS } from "../data/content";
 
 const LOGOS = [
   { label: "Frasberg — Primary (PNG)", href: "/frasberg-emblem.png" },
-  { label: "Luchii — Primary Mark (JPG)", href: "/luchii-mark.jpg" },
-  { label: "Luchii Mark — Waveform Badge (JPG)", href: "/luchii-mark.jpg" },
+  { label: "Luchii — Primary Mark (JPG)", href: "/luchii-mark-circle.png" },
+  { label: "Luchii Mark — Waveform Badge (JPG)", href: "/luchii-mark-circle.png" },
   { label: "Luchii — 512px PNG", href: "/favicon-512.png" },
   { label: "Luchii — 192px PNG", href: "/favicon-192.png" },
   { label: "OG image", href: "/og-image.png" },
@@ -43,7 +43,7 @@ export default function Brand() {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/" className="flex items-center gap-2.5" data-testid="brand-home-link">
             <ArrowLeft size={16} className="text-lux-text2" />
-            <img src="/luchii-mark.jpg" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
+            <img src="/luchii-mark-circle.png" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Brand</span>
           </Link>
           <button onClick={toggle} aria-label="Toggle theme" data-testid="brand-theme-toggle"
@@ -67,12 +67,12 @@ export default function Brand() {
               <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.25em] text-white/50">Deep space navy · electric blue · starlight silver</p>
             </div>
             <div className="flex flex-col items-center justify-center rounded-2xl border border-lux-border bg-[#0d1013] p-12" data-testid="brand-logo-luchii">
-              <img src="/luchii-mark.jpg" alt="Luchii logo" className="h-44 w-44 rounded-full" style={{ boxShadow: "0 0 60px rgba(0,150,255,0.35)" }} />
+              <img src="/luchii-mark-circle.png" alt="Luchii logo" className="h-44 w-44 rounded-full" style={{ boxShadow: "0 0 60px rgba(0,150,255,0.35)" }} />
               <p className="mt-6 font-display text-lg font-700 tracking-tight text-white">Luchii</p>
               <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.25em] text-white/50">Deep space navy · electric blue · starlight silver</p>
             </div>
             <div className="flex flex-col items-center justify-center rounded-2xl border border-lux-border bg-[#0d1013] p-12" data-testid="brand-logo-luchii-mark">
-              <img src="/luchii-mark.jpg" alt="Luchii mark" className="h-44 w-44 rounded-full" style={{ boxShadow: "0 0 60px rgba(45,212,218,0.4)" }} />
+              <img src="/luchii-mark-circle.png" alt="Luchii mark" className="h-44 w-44 rounded-full" style={{ boxShadow: "0 0 60px rgba(45,212,218,0.4)" }} />
               <p className="mt-6 font-display text-lg font-700 tracking-tight text-white">Luchii Mark</p>
               <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.25em] text-white/50">Glowing cyan waveform · constellation ring</p>
             </div>

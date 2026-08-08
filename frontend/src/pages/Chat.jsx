@@ -54,7 +54,7 @@ export default function Chat() {
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/" className="flex items-center gap-2.5" data-testid="chat-home-link">
             <ArrowLeft size={16} className="text-lux-text2" />
-            <img src="/luchii-mark.jpg" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" data-testid="chat-header-mark" />
+            <img src="/luchii-mark-circle.png" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" data-testid="chat-header-mark" />
             <span className="font-display text-lg font-700 tracking-tight" data-testid="chat-header-title">Luchii</span>
           </Link>
           <div className="flex items-center gap-2">

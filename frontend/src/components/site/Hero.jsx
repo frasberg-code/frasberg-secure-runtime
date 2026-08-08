@@ -44,7 +44,7 @@ export default function Hero() {
             className="mb-8"
           >
             <img
-              src="/luchii-mark.jpg"
+              src="/luchii-mark-circle.png"
               alt="Luchii"
               data-testid="hero-logo"
               className="h-28 w-28 animate-float rounded-full sm:h-32 sm:w-32"

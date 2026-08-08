@@ -42,7 +42,7 @@ export default function Gallery() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/" className="flex items-center gap-2.5" data-testid="gallery-home-link">
             <ArrowLeft size={16} className="text-lux-text2" />
-            <img src="/luchii-mark.jpg" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
+            <img src="/luchii-mark-circle.png" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Builder Gallery</span>
           </Link>
           <button onClick={toggle} aria-label="Toggle theme" data-testid="gallery-theme-toggle"
@@ -54,7 +54,7 @@ export default function Gallery() {
 
       <div className="relative mx-auto max-w-6xl px-5 py-12 sm:px-8">
         <div className="text-center">
-          <img src="/luchii-mark.jpg" alt="Luchii" className="mx-auto h-16 w-16 rounded-full" style={{ boxShadow: "0 0 44px var(--lux-glow)" }} />
+          <img src="/luchii-mark-circle.png" alt="Luchii" className="mx-auto h-16 w-16 rounded-full" style={{ boxShadow: "0 0 44px var(--lux-glow)" }} />
           <h1 className="mt-6 font-display text-4xl font-700 tracking-tighter sm:text-5xl">Built with Luchii</h1>
           <p className="mx-auto mt-4 max-w-2xl text-lux-text2">
             A public gallery of websites and games created with the Luchii Builders on Frasberg infrastructure.

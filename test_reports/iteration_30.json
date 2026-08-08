@@ -1,0 +1,34 @@
+{
+  "summary": "Iter30 testing PASSED for all new features: (1) Luchii Live Actions run_engine (threat/billing/compliance) returns ok:true + engine-tagged artifact with score+recommendations; auto-detect via viewer_question with 'can you run a threat scan?' triggers threat engine, while plain 'what is LINQ?' does NOT and returns a normal LLM reply (no artifact). (2) PayPal /config exposes 3 LINQ tiers (linq-operator $15->builder, linq-architect $30->pro, linq-sovereign $60->premium, linq:true). PayPal /orders creation for linq-operator returns a valid LIVE order id (NOT captured/approved). (3) /keys/usage/daily (auth) returns 14 day entries with day/requests/tokens; unauth returns 401. FRONTEND: Login via /auth after clicking auth-toggle-mode succeeded (admin@frasberg.com). /linq shows new Plans tab with 3 tier cards, current-plan badge (pro), 3 PayPal button containers. /linq LINQ Live shows luchii-run-threat/billing/compliance-btn quick actions — clicking Run Threat Scan showed luchii-thinking then engine-artifact-threat card with score 61.7/100 + narrative + recommendations, chat-messages populated. /dashboard shows key-usage-graph + usage-live-badge (currently 'No API requests yet' — no traffic, expected). Homepage navbar nav-explore-btn opens nav-explore-menu with 4 sections (On this page / Build / Products / Company) as a 2-column layout. Luchii circle mark image found 6 times on home. Backend pytest: 9/9 passed in 47.76s.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/auth", "issues": ["Still opens in Register mode by default — testers must click [data-testid=auth-toggle-mode] to reach the login form (carried over from iter29)."]},
+      {"screen": "Mobile home (390px)", "issues": ["Landing page on mobile viewport renders the chat interface directly rather than the desktop Navbar with mobile-menu-toggle. The Navbar's [data-testid=mobile-menu-toggle]/[data-testid=mobile-menu] were not present on the home route at 390px — the site appears to swap to a mobile chat shell. Verify whether mobile Explore menu is reachable elsewhere (Navbar mobile menu was not triggerable from /)."]},
+      {"screen": "global", "issues": ["Recurring dev-only hydration warning: '<span> cannot be a child of <option>' (from Hero select). Non-blocking, carried from iter29."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_iter30_luchii_live.py", "/app/test_reports/pytest/iter30.xml", "/app/backend/tests/test_linq_realtime.py"],
+  "action_items": [
+    "(Optional) Investigate mobile home (390px) — desktop Navbar's mobile menu toggle isn't visible; ensure Explore grouped menu is accessible on mobile as advertised.",
+    "(Carried) Default /auth to sign-in mode when redirected from a protected page.",
+    "(Carried) Fix <span> inside <option> hydration warning in Hero select."
+  ],
+  "critical_code_review_comments": [
+    "realtime_core.py: _run_agent_engine catches all Exceptions and falls through to plain LLM reply for viewer_question auto-detect (good UX). But there's a duplicated `if action in (viewer_question, question, cli_message)` block — the second block ALWAYS runs after a successful auto-detect run_engine because the first only returns on success, and on exception it falls through to LLM reply. That's OK behavior but the code is a bit tangled; refactor for clarity.",
+    "server.py /paypal/orders: In LIVE mode this endpoint will actually create real PayPal orders against Frasberg's merchant account for any authenticated user request. Consider rate-limiting or a nonce/CSRF check to prevent abuse (an attacker with a valid session could spam order creation, which may cost API quota and trigger PayPal risk flags).",
+    "server.py /keys/usage/daily: aggregates 3000 usage docs per call with no cache; a user with many keys and heavy traffic could slow the endpoint. Consider a small (30-60s) TTL cache or pre-aggregated daily rollup collection.",
+    "Frontend LinqBilling: PayPal buttons render 3 SDK containers (linq-operator/architect/sovereign). Ensure the SDK is loaded once and buttons are re-rendered/cleaned up on tab switch to avoid duplicate iframes on remount.",
+    "run_engine artifact stored in linq_events with the LIVE room artifact 'lite' dict — good (no ObjectId). Confirmed 'engine' field is present so the frontend engine-artifact-{threat|billing|compliance} selector should key off it.",
+    "No rate limiting on /agents/luchii/actions run_engine — each call triggers an AI generation (5-30s). Authenticated abuse possible; consider per-user throttle."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter30_luchii_live.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026! (cookie login; /auth opens in Register mode — click [data-testid=auth-toggle-mode])",
+  "seed_data_creation": "TEST_prefixed room ids created via /api/agents/luchii/actions. One real LIVE PayPal order was created for plan_id=linq-operator (NOT captured/approved). Order id returned to test; will expire unpaid per PayPal defaults (~3 hours).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All iter30 features (Luchii Live run_engine + auto-detect, PayPal LINQ tiers, daily usage graph, Plans tab, Explore grouped dropdown, circle mark) are working. Backend tests live at /app/backend/tests/test_iter30_luchii_live.py and /app/backend/tests/test_linq_realtime.py (iter29). PayPal is LIVE mode — never approve/capture in tests. AI endpoints take up to 60s. Mobile home at 390px does not expose the desktop Navbar — worth double-checking with main agent whether that's intentional."
+}

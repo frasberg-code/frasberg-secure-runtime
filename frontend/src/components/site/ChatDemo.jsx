@@ -510,7 +510,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
         <div className="flex min-w-0 items-center gap-2">
           {(!mobileFull || agent) && (
             <>
-              <img src="/luchii-mark.jpg" alt="Luchii" className="h-6 w-6 shrink-0 rounded-full" />
+              <img src="/luchii-mark-circle.png" alt="Luchii" className="h-6 w-6 shrink-0 rounded-full" />
               <span className="truncate font-display text-sm font-700 tracking-tight text-lux-text">
                 {agent ? `Luchii ${agent.charAt(0).toUpperCase()}${agent.slice(1)}` : "Luchii"}
               </span>
@@ -654,7 +654,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
                   <div className="w-full text-base leading-relaxed text-lux-text sm:text-[15px]">
                     {m.content ? renderRich(m.content) : (
                       <span className="inline-flex items-center gap-2" data-testid="chat-thinking-indicator">
-                        <img src="/luchii-mark.jpg" alt="Luchii" className="h-5 w-5 rounded-full animate-pulse" />
+                        <img src="/luchii-mark-circle.png" alt="Luchii" className="h-5 w-5 rounded-full animate-pulse" />
                         <span className="text-sm text-lux-text2 animate-pulse">Thinking…</span>
                       </span>
                     )}

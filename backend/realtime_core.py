@@ -152,6 +152,40 @@ class AgentActionBody(BaseModel):
         extra = "allow"
 
 
+ENGINE_LABELS = {"threat": "🔮 Threat Graph", "billing": "⚡ Billing Intelligence", "compliance": "🧠 Compliance Copilot"}
+
+
+def _detect_engine(text: str):
+    t = text.lower()
+    engine = None
+    if "threat" in t:
+        engine = "threat"
+    elif any(k in t for k in ("billing", "revenue", "economic")):
+        engine = "billing"
+    elif any(k in t for k in ("compliance", "regulat", "governance")):
+        engine = "compliance"
+    if not engine:
+        return None
+    verbs = ("run", "scan", "pull", "show", "check", "report", "analyz", "analys", "latest", "status", "data", "give")
+    return engine if any(v in t for v in verbs) else None
+
+
+async def _run_agent_engine(engine: str, room_id: str, sender: str):
+    import linq_governance
+    artifact = await linq_governance.run_engine_core(engine, f"luchii-live:{sender}")
+    recs = artifact.get("recommendations") or []
+    reply = (f"{ENGINE_LABELS[engine]} scan complete — {artifact.get('tag', 'artifact')} "
+             f"(score {artifact.get('score', '?')}/100). {artifact.get('narrative', '')}"
+             + (f" Top recommendation: {recs[0]}" if recs else ""))
+    lite = {"engine": engine, "tag": artifact.get("tag"), "score": artifact.get("score"),
+            "narrative": artifact.get("narrative"), "recommendations": recs[:3], "id": artifact.get("id")}
+    await db.linq_events.insert_one({"id": str(uuid.uuid4()), "roomId": room_id,
+                                     "type": "agent_action", "identity": "luchii",
+                                     "payload": {"reply": reply, "engine": engine, "artifact": lite},
+                                     "timestamp": _now()})
+    return reply, lite
+
+
 @router.post("/agents/luchii/actions")
 async def luchii_action(body: dict):
     room_id, action, sender = body.get("roomId"), body.get("action"), body.get("from")
@@ -162,6 +196,21 @@ async def luchii_action(body: dict):
            "from": sender, "details": details, "timestamp": _now()}
     await db.linq_agent_actions.insert_one(dict(doc))
     reply = None
+    if action == "run_engine" and details.get("engine") in ENGINE_LABELS:
+        try:
+            reply, artifact = await _run_agent_engine(details["engine"], room_id, sender)
+            return {"ok": True, "reply": reply, "artifact": artifact}
+        except Exception:
+            logger.exception("agent engine run failed")
+            return {"ok": False, "reply": "Engine run failed — try again in a moment.", "artifact": None}
+    if action in ("viewer_question", "question", "cli_message") and details.get("text"):
+        engine = _detect_engine(details["text"])
+        if engine:
+            try:
+                reply, artifact = await _run_agent_engine(engine, room_id, sender)
+                return {"ok": True, "reply": reply, "artifact": artifact}
+            except Exception:
+                logger.exception("agent engine run failed")
     if action in ("viewer_question", "question", "cli_message") and details.get("text"):
         try:
             llm = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"luchii-{room_id}",

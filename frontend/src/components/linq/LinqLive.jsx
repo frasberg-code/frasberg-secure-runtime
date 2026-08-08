@@ -17,6 +17,7 @@ export const LinqLive = ({ identity }) => {
   const [chatInput, setChatInput] = useState("");
   const [luchiiInput, setLuchiiInput] = useState("");
   const [preview, setPreview] = useState(null);
+  const [thinking, setThinking] = useState(false);
   const roomRef = useRef(null);
   const videoRef = useRef(null);
 
@@ -106,11 +107,28 @@ export const LinqLive = ({ identity }) => {
     const text = luchiiInput.trim();
     setLuchiiInput("");
     setMessages((prev) => [...prev, { from: identity, text: `@luchii ${text}` }]);
+    setThinking(true);
     try {
       const { data } = await axios.post(`${API}/agents/luchii/actions`, { roomId: roomName, action: "viewer_question", from: identity, details: { text } });
-      if (data.reply) setMessages((prev) => [...prev, { from: "luchii", text: data.reply }]);
+      if (data.reply) setMessages((prev) => [...prev, { from: "luchii", text: data.reply, artifact: data.artifact }]);
     } catch {
       toast.error("Luchii is unavailable");
+    } finally {
+      setThinking(false);
+    }
+  };
+
+  const runEngine = async (engine, label) => {
+    setMessages((prev) => [...prev, { from: identity, text: `@luchii run ${label}` }]);
+    setThinking(true);
+    try {
+      const { data } = await axios.post(`${API}/agents/luchii/actions`, { roomId: roomName, action: "run_engine", from: identity, details: { engine } });
+      if (data.reply) setMessages((prev) => [...prev, { from: "luchii", text: data.reply, artifact: data.artifact }]);
+      loadPreview();
+    } catch {
+      toast.error("Luchii is unavailable");
+    } finally {
+      setThinking(false);
     }
   };
 
@@ -157,10 +175,33 @@ export const LinqLive = ({ identity }) => {
 
           <div className="bg-[#0f172a] border border-[#1e293b] rounded-lg p-3 space-y-2">
             <div className="flex items-center gap-2 text-xs text-[#94a3b8]"><MessageSquare size={12} /> Room chat & Luchii</div>
-            <div className="max-h-40 overflow-y-auto space-y-1 text-sm" data-testid="chat-messages">
-              {messages.length === 0 && <div className="text-[#64748b] text-xs">No messages yet</div>}
+            <div className="flex flex-wrap gap-2">
+              <button data-testid="luchii-run-threat-btn" onClick={() => runEngine("threat", "threat scan")} disabled={thinking}
+                className="text-[11px] rounded-full px-3 py-1 border border-[#a78bfa]/50 text-[#a78bfa] hover:bg-[#a78bfa]/10 disabled:opacity-40">🔮 Run Threat Scan</button>
+              <button data-testid="luchii-run-billing-btn" onClick={() => runEngine("billing", "billing report")} disabled={thinking}
+                className="text-[11px] rounded-full px-3 py-1 border border-[#facc15]/50 text-[#facc15] hover:bg-[#facc15]/10 disabled:opacity-40">⚡ Pull Billing Data</button>
+              <button data-testid="luchii-run-compliance-btn" onClick={() => runEngine("compliance", "compliance check")} disabled={thinking}
+                className="text-[11px] rounded-full px-3 py-1 border border-[#4ade80]/50 text-[#4ade80] hover:bg-[#4ade80]/10 disabled:opacity-40">🧠 Compliance Check</button>
+              {thinking && <span className="text-[11px] text-[#94a3b8] flex items-center gap-1" data-testid="luchii-thinking"><Loader2 size={11} className="animate-spin" /> Luchii is working…</span>}
+            </div>
+            <div className="max-h-60 overflow-y-auto space-y-1 text-sm" data-testid="chat-messages">
+              {messages.length === 0 && <div className="text-[#64748b] text-xs">No messages yet — ask Luchii to "run a threat scan" or "pull billing data"</div>}
               {messages.map((m, i) => (
-                <div key={i}><span className={m.from === "luchii" ? "text-[#4ade80]" : "text-[#f87171]"}>{m.from}</span>: <span className="text-[#e2e8f0]">{m.text}</span></div>
+                <div key={i}>
+                  <span className={m.from === "luchii" ? "text-[#4ade80]" : "text-[#f87171]"}>{m.from}</span>: <span className="text-[#e2e8f0]">{m.text}</span>
+                  {m.artifact && (
+                    <div className="mt-1 mb-2 ml-4 rounded-lg border border-[#1e293b] bg-[#020617] p-2.5 text-xs space-y-1" data-testid={`engine-artifact-${m.artifact.engine}`}>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[#a78bfa] uppercase tracking-widest text-[10px]">{m.artifact.engine} engine</span>
+                        <span className="font-mono text-[#facc15]">{m.artifact.score}/100</span>
+                      </div>
+                      <div className="text-[#f8fafc]">{m.artifact.tag}</div>
+                      {(m.artifact.recommendations || []).map((r, j) => (
+                        <div key={j} className="text-[#94a3b8]">• {r}</div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
             <div className="flex gap-2">

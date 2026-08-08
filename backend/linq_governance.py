@@ -146,11 +146,8 @@ async def layer_artifacts(num: int, user=Depends(get_current_user)):
     return await db.linq_gov_artifacts.find({"layer": num}, {"_id": 0}).sort("createdAt", -1).to_list(20)
 
 
-@router.post("/engines/{engine}/run")
-async def run_engine(engine: str, user=Depends(get_current_user)):
-    cfg = ENGINES.get(engine)
-    if not cfg:
-        raise HTTPException(status_code=404, detail="Engine not found")
+async def run_engine_core(engine: str, created_by: str) -> dict:
+    cfg = ENGINES[engine]
     users_n = await db.users.count_documents({})
     builds_n = await db.builder_projects.count_documents({})
     rooms_n = await db.linq_rooms.count_documents({})
@@ -162,17 +159,24 @@ async def run_engine(engine: str, user=Depends(get_current_user)):
     prompt = (f"Analyze {cfg['focus']} for the Frasberg LINQ platform. "
               f"Live platform stats: {users_n} users, {builds_n} builder projects, {rooms_n} live rooms. "
               f"Produce the latest v40 apex artifact.")
-    try:
-        data = await _ai_json(system, prompt)
-    except Exception:
-        logger.exception("engine run failed")
-        raise HTTPException(status_code=502, detail="Engine run failed. Try again.")
+    data = await _ai_json(system, prompt)
     doc = {"id": str(uuid.uuid4()), "engine": engine, "title": cfg["title"], **data,
            "stats": {"users": users_n, "builds": builds_n, "rooms": rooms_n},
-           "createdBy": user["id"], "createdAt": _now()}
+           "createdBy": created_by, "createdAt": _now()}
     await db.linq_engine_runs.insert_one(dict(doc))
     doc.pop("_id", None)
     return doc
+
+
+@router.post("/engines/{engine}/run")
+async def run_engine(engine: str, user=Depends(get_current_user)):
+    if engine not in ENGINES:
+        raise HTTPException(status_code=404, detail="Engine not found")
+    try:
+        return await run_engine_core(engine, user["id"])
+    except Exception:
+        logger.exception("engine run failed")
+        raise HTTPException(status_code=502, detail="Engine run failed. Try again.")
 
 
 @router.get("/engines/{engine}")

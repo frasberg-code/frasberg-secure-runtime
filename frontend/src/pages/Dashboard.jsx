@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import {
   Key, Plus, Copy, Trash2, Activity, Cpu, Terminal, ArrowLeft, Moon, Sun, Check, BarChart3,
 } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import ChatDemo from "../components/site/ChatDemo";
@@ -55,6 +55,12 @@ export default function Dashboard() {
 
   useEffect(() => { if (user) refresh(); }, [refresh, user]);
 
+  useEffect(() => {
+    if (!user) return;
+    const id = setInterval(refresh, 12000);
+    return () => clearInterval(id);
+  }, [user, refresh]);
+
   const generate = async () => {
     try {
       const res = await fetch(`${API}/keys`, {
@@ -101,7 +107,7 @@ export default function Dashboard() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/" className="flex items-center gap-2.5" data-testid="dashboard-home-link">
             <ArrowLeft size={16} className="text-lux-text2" />
-            <img src="/luchii-mark.jpg" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
+            <img src="/luchii-mark-circle.png" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Luchii</span>
             <span className="hidden font-mono text-[10px] uppercase tracking-[0.2em] text-lux-text2 sm:inline">
               Developer Console
@@ -157,6 +163,9 @@ export default function Dashboard() {
         <section className="mt-10">
           <h2 className="flex items-center gap-2 font-display text-2xl font-600 tracking-tight">
             <BarChart3 size={20} className="text-lux-accent" /> Usage — last 14 days
+            <span className="ml-1 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-lux-text2" data-testid="usage-live-badge">
+              <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400" /> live
+            </span>
           </h2>
           <div className="mt-5 rounded-2xl border border-lux-border bg-lux-surface p-5" style={{ height: 240 }} data-testid="key-usage-graph">
             {daily.every((d) => d.requests === 0) ? (
@@ -168,13 +177,15 @@ export default function Dashboard() {
                 <BarChart data={daily} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(140,140,170,0.15)" />
                   <XAxis dataKey="day" tick={{ fontSize: 10 }} stroke="#8a86a3" />
-                  <YAxis tick={{ fontSize: 10 }} stroke="#8a86a3" allowDecimals={false} width={40} />
+                  <YAxis yAxisId="req" tick={{ fontSize: 10 }} stroke="#8a86a3" allowDecimals={false} width={40} />
+                  <YAxis yAxisId="tok" orientation="right" tick={{ fontSize: 10 }} stroke="#8a86a3" allowDecimals={false} width={44} />
                   <Tooltip
-                    formatter={(v, n, item) => n === "requests" ? [`${v} requests · ${item?.payload?.tokens ?? 0} tokens`, "Usage"] : [v, n]}
                     cursor={{ fill: "rgba(140,140,170,0.08)" }}
                     contentStyle={{ background: "#111018", border: "1px solid #2a2740", borderRadius: 12, fontSize: 12 }}
                   />
-                  <Bar dataKey="requests" fill="#7c6cf0" radius={[5, 5, 0, 0]} maxBarSize={36} />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <Bar yAxisId="req" dataKey="requests" name="Requests" fill="#7c6cf0" radius={[5, 5, 0, 0]} maxBarSize={28} />
+                  <Bar yAxisId="tok" dataKey="tokens" name="Tokens" fill="#22d3ee" radius={[5, 5, 0, 0]} maxBarSize={28} />
                 </BarChart>
               </ResponsiveContainer>
             )}
