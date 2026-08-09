@@ -34,3 +34,7 @@
 - Tech trees/eras: Primitive->Agrarian->Industrial->Digital->Fusion->Quantum->Transcendent from technologyLevel; era advance boosts expansion+military, logged as 'era' events
 - Cultural exchange: POST /api/cloud/exchange {a,b} — civs share rituals/symbols, cooperation boost, myth crosses universes, +50 knowledge each; ops-exchange-btn in multiverse ops bar
 - Detail modal shows civ era chip, wars won, rituals
+
+## June 2026 - Multiverse Star-Map (self-tested: curl + screenshot + node-click)
+- db.cloud_links collection: _link() upserts on trade/exchange/migrate; GET /api/cloud/map returns universes + filtered links
+- MultiverseMap SVG component on /cloud: deterministic hash-positioned glowing nodes (size ~ log pop, color by phase), animated dashed routes colored by kind (trade cyan, exchange gold, migration violet) with count labels, node click opens detail modal, legend + empty-state hint

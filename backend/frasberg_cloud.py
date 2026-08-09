@@ -151,6 +151,14 @@ async def _log(uid, kind, text):
         "id": str(uuid.uuid4()), "universe_id": uid, "kind": kind, "text": text, "ts": _now()})
 
 
+async def _link(a, b, kind):
+    key = "|".join(sorted([a, b])) + "|" + kind
+    await db.cloud_links.update_one(
+        {"_id": key},
+        {"$set": {"a": a, "b": b, "kind": kind, "last": _now()}, "$inc": {"count": 1}},
+        upsert=True)
+
+
 def _clamp(v, lo=0.0, hi=1.0):
     return max(lo, min(hi, v))
 
@@ -494,6 +502,7 @@ async def migrate(body: MigrateBody):
     dst["agents"] = (dst["agents"] + movers)[:60]
     await db.cloud_universes.replace_one({"_id": body.source}, src)
     await db.cloud_universes.replace_one({"_id": body.target}, dst)
+    await _link(body.source, body.target, "migration")
     await _log(body.target, "migration", f"{len(movers)} agents migrated from {src['name']} to {dst['name']}")
     return {"migrated": len(movers), "from": src["name"], "to": dst["name"]}
 
@@ -541,6 +550,7 @@ async def trade(body: TradeBody):
     else:
         dst["energyFlow"] = _clamp(dst["energyFlow"] + amount / 10000)
     await db.cloud_universes.replace_one({"_id": body.target}, dst)
+    await _link(body.source, body.target, "trade")
     await _log(body.target, "trade", f"{src['name']} delivered {amount} {body.commodity} to {dst['name']} (route stability {stability})")
     return {"delivered": amount, "commodity": body.commodity, "routeStability": stability}
 
@@ -575,6 +585,7 @@ async def cultural_exchange(body: ExchangeBody):
     ub["knowledge"] += 50
     await db.cloud_universes.replace_one({"_id": body.a}, ua)
     await db.cloud_universes.replace_one({"_id": body.b}, ub)
+    await _link(body.a, body.b, "exchange")
     text = f"CULTURAL EXCHANGE: {ca['name']} ({ua['name']}) and {cb['name']} ({ub['name']}) shared the '{ritual}' and the {symbol} — impact {impact}"
     await _log(body.a, "exchange", text)
     await _log(body.b, "exchange", text)
@@ -610,6 +621,15 @@ async def vote(rid: str):
     if res.matched_count == 0:
         raise HTTPException(status_code=404, detail="Resolution not found")
     return {"id": rid, "passed": passed, "votes": votes}
+
+
+@router.get("/map")
+async def multiverse_map():
+    docs = await db.cloud_universes.find({}).to_list(60)
+    ids = {d["id"] for d in docs}
+    links = await db.cloud_links.find({}, {"_id": 0}).to_list(500)
+    links = [l for l in links if l["a"] in ids and l["b"] in ids]
+    return {"universes": [_summary(d) for d in docs], "links": links}
 
 
 @router.get("/kernel")

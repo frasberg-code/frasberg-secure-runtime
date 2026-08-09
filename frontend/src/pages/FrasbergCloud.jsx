@@ -18,6 +18,86 @@ const PHASE_COLOR = {
   decay: "#f0c040", collapse: "#ff5555", rebirth: "#f472b6",
 };
 
+const LINK_COLORS = { trade: "#22d3ee", exchange: "#f0c040", migration: "#7c6cf0" };
+
+function MultiverseMap({ data, onOpen }) {
+  if (!data || !data.universes || data.universes.length === 0) return null;
+  const W = 1000, H = 400;
+  const pos = {};
+  data.universes.forEach((u) => {
+    let h1 = 7, h2 = 13;
+    for (let i = 0; i < u.id.length; i++) {
+      h1 = (h1 * 31 + u.id.charCodeAt(i)) % 9973;
+      h2 = (h2 * 37 + u.id.charCodeAt(i)) % 7919;
+    }
+    pos[u.id] = { x: 80 + (h1 / 9973) * (W - 160), y: 64 + (h2 / 7919) * (H - 128) };
+  });
+  const kindOffset = { trade: 0, exchange: 14, migration: -14 };
+  return (
+    <div className="rounded-2xl border border-lux-border bg-lux-surface p-5" data-testid="multiverse-map">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-display text-xl font-600">Multiverse Star-Map</h2>
+        <div className="flex gap-4 font-mono text-[10px] uppercase tracking-wide">
+          {Object.entries(LINK_COLORS).map(([k, c]) => (
+            <span key={k} className="flex items-center gap-1.5 text-lux-text2">
+              <span className="inline-block h-0.5 w-5 rounded" style={{ background: c }} /> {k}
+            </span>
+          ))}
+        </div>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} className="mt-3 w-full" style={{ maxHeight: 420 }} data-testid="multiverse-map-svg">
+        <defs>
+          <filter id="node-glow" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="6" result="b" />
+            <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+        </defs>
+        {(data.links || []).map((l) => {
+          const a = pos[l.a], b = pos[l.b];
+          if (!a || !b) return null;
+          const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2 + (kindOffset[l.kind] ?? 0) * 2;
+          return (
+            <g key={`${l.a}-${l.b}-${l.kind}`}>
+              <path d={`M ${a.x} ${a.y} Q ${mx} ${my} ${b.x} ${b.y}`} fill="none"
+                stroke={LINK_COLORS[l.kind] || "#8a86a3"} strokeOpacity="0.7"
+                strokeWidth={Math.min(1 + l.count * 0.6, 4)} strokeDasharray="6 5">
+                <animate attributeName="stroke-dashoffset" from="22" to="0" dur="1.6s" repeatCount="indefinite" />
+              </path>
+              <text x={mx} y={my - 4} textAnchor="middle" fontSize="8" fill={LINK_COLORS[l.kind] || "#8a86a3"} fontFamily="monospace">
+                {l.kind} ×{l.count}
+              </text>
+            </g>
+          );
+        })}
+        {data.universes.map((u) => {
+          const p = pos[u.id];
+          const r = Math.min(9 + Math.log10(Math.max(u.population, 10)) * 2.4, 22);
+          const color = PHASE_COLOR[u.phase] || "#7c6cf0";
+          return (
+            <g key={u.id} className="cursor-pointer" onClick={() => onOpen(u.id)} data-testid={`map-node-${u.id}`}>
+              <circle cx={p.x} cy={p.y} r={r + 6} fill={color} opacity="0.12">
+                <animate attributeName="opacity" values="0.08;0.22;0.08" dur="3s" repeatCount="indefinite" />
+              </circle>
+              <circle cx={p.x} cy={p.y} r={r} fill={color} opacity="0.85" filter="url(#node-glow)" />
+              <text x={p.x} y={p.y - r - 8} textAnchor="middle" fontSize="11" fill="var(--lux-text, #e8e6f5)" fontFamily="monospace">
+                {u.name.length > 26 ? u.name.slice(0, 24) + "…" : u.name}
+              </text>
+              <text x={p.x} y={p.y + r + 15} textAnchor="middle" fontSize="9.5" fill="#a7a3c2" fontFamily="monospace">
+                {u.phase} · pop {u.population.toLocaleString()}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+      {(data.links || []).length === 0 && (
+        <p className="mt-1 text-center font-mono text-[10px] uppercase tracking-wide text-lux-text2">
+          No routes yet — trade, exchange or migrate between universes to weave the map
+        </p>
+      )}
+    </div>
+  );
+}
+
 function KernelBar({ kernel }) {
   if (!kernel) return null;
   const items = [
@@ -203,11 +283,13 @@ export default function FrasbergCloud() {
   const [congress, setCongress] = useState(null);
   const [resTitle, setResTitle] = useState("");
   const [autoRun, setAutoRun] = useState(false);
+  const [mapData, setMapData] = useState(null);
 
   const refresh = useCallback(() => {
     fetch(`${API}/kernel`).then((r) => r.json()).then(setKernel).catch(() => {});
     fetch(`${API}/universes`).then((r) => r.json()).then((d) => setUniverses(d.universes || [])).catch(() => {});
     fetch(`${API}/congress`).then((r) => r.json()).then(setCongress).catch(() => {});
+    fetch(`${API}/map`).then((r) => r.json()).then(setMapData).catch(() => {});
   }, []);
   useEffect(() => { refresh(); }, [refresh]);
 
@@ -336,6 +418,7 @@ export default function FrasbergCloud() {
 
         <div className="mt-8 space-y-6">
           <KernelBar kernel={kernel} />
+          <MultiverseMap data={mapData} onOpen={setDetail} />
           <GenesisForm onCreated={refresh} />
 
           {merge.length > 0 && (
