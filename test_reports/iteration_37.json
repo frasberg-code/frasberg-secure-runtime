@@ -1,0 +1,27 @@
+{
+  "summary": "Iteration 37 — Verified Frasberg @frasbergai.com team domain unlimited access + Agent Workspace additions (attach, Code tab, Need Help dropdown). Backend: 8/8 pytest tests pass in /app/backend/tests/test_iter37_team_domain.py (team register->plan scale, /api/quotas returns plan=team + unlimited:true, team user creates 4 keys OK, team key on POST /api/v1/chat streams SSE without deducting credits, POST /api/v1/chat/completions OpenAI-compat works, free user /api/quotas numeric, free user blocked at 4th key with 402 free_key_limit). Frontend: workspace has all 3 tabs (Preview/Code/Manage) with correct data-testids; Code tab shows 'No code yet' empty placeholder; Need Help dropdown opens with 3 links (API Documentation -> /docs, Luchii Code Guide -> /luchii-code, Email Support mailto:support@frasberg.com); Attach button opens hidden file input, chip appears with filename, X removes it. E2E: attached brand.txt (brand color: #FF5733), asked LLM 'What color is mentioned?', response streamed 'The color mentioned is **#FF5733** (a vivid orange-red)' — attachments reach the LLM. Dashboard for teamtest@frasbergai.com shows chip 'team · Unlimited', quota panel 'Plan: team · unlimited req/min · unlimited tokens' + 'Unlimited quota (Frasberg team)', ZERO quota-upgrade-btn present (upgrade CTA correctly hidden for team users).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "AgentWorkspace / composer", "issues": ["React hydration warning still visible in console: '<span> cannot be a child of <option>' — same warning noted in iter36 (ChatDemo.jsx voice speed select). Cosmetic only; carried over from previous iteration."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_iter37_team_domain.py", "/app/test_reports/pytest/iter37.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py _is_team_email + _enforce_plan_quotas + gateway_chat _key_owner_unmetered are consistent: team owner bypasses rpm limit AND does not deduct credits (verified via credits unchanged after /v1/chat).",
+    "/api/quotas returns plan='team' (not 'scale') for @frasbergai.com even though register returns plan='scale'. Slight inconsistency — Dashboard code handles it via unlimited flag, so no user-visible bug, but consider unifying to 'team' in DB or documenting the mapping.",
+    "server.py at 2944 lines is large; keep an eye on splitting gateway (v1/chat*) into its own router.",
+    "AgentWorkspace.jsx attach flow uses hidden input + chip pattern cleanly; attachment content is passed to /api/chat as attachment_base64/kind/name — confirmed reaching LLM in E2E."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter37_team_domain.py"],
+  "success_rate": {"backend": "100% (8/8)", "frontend": "100% of requested workspace + dashboard flows"},
+  "test_credentials": "teamtest@frasbergai.com / FrasbergTeam2026! (works); also created qa-team-<rand>@frasbergai.com and qa-free-<rand>@example.com via pytest.",
+  "seed_data_creation": "Backend test created ephemeral qa-team-*@frasbergai.com and qa-free-*@example.com users + 4 team keys and 3 free keys per run. Team keys are revoked at end of run; users remain in DB (harmless; consistent with prior iterations).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All iter37 requested checks pass. Team-domain plumbing (_is_team_email) is wired across register, /api/quotas, /api/keys create cap, /api/v1/chat rate + credit bypass, and Dashboard rendering. Full HTML-build->Code tab->Re-publish->Manage row flow was NOT re-executed end-to-end here to save LLM time, but the Code/Manage/Preview tabs and Re-publish button all exist with correct data-testids and were validated in prior iterations (34-36). Skip retesting dashboard non-team flows, admin flows, and games — iter36 covered those.",
+  "rca of the issue": "n/a — no blocking issues found. Only carry-over cosmetic React hydration warning from iter36 remains."
+}

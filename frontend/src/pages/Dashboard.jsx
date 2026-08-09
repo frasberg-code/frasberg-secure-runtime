@@ -188,7 +188,7 @@ export default function Dashboard() {
     refresh();
   };
 
-  const quotaPct = quota ? Math.min(100, (quota.monthly_tokens_used / Math.max(1, quota.monthly_token_limit)) * 100) : 0;
+  const quotaPct = quota && !quota.unlimited ? Math.min(100, (quota.monthly_tokens_used / Math.max(1, quota.monthly_token_limit)) * 100) : 0;
 
   return (
     <main className="relative z-10 min-h-screen" style={{ background: T.bg, color: T.text }}>
@@ -204,12 +204,12 @@ export default function Dashboard() {
           <div className="flex items-center gap-3">
             {user && quota && (
               <button onClick={() => setShowUpgrade(true)} data-testid="quota-chip"
-                title={`${quota.rpm_limit} req/min · ${quota.monthly_token_limit.toLocaleString()} tokens/month — click to upgrade`}
+                title={quota.unlimited ? "Frasberg team — unlimited access" : `${quota.rpm_limit} req/min · ${quota.monthly_token_limit.toLocaleString()} tokens/month — click to upgrade`}
                 className="hidden items-center gap-2 rounded-sm border px-3 py-1.5 font-mono text-[11px] transition-colors sm:flex"
                 style={{ borderColor: quotaPct > 80 ? "rgba(245,158,11,0.6)" : T.border, color: quotaPct > 80 ? "#F59E0B" : T.text2 }}>
                 <Gauge size={12} />
-                {quota.plan} · {quota.monthly_tokens_used.toLocaleString()}/{quota.monthly_token_limit.toLocaleString()}
-                <span style={{ color: T.accent }}>↑ Upgrade</span>
+                {quota.plan} · {quota.unlimited ? "Unlimited" : `${quota.monthly_tokens_used.toLocaleString()}/${quota.monthly_token_limit.toLocaleString()}`}
+                {!quota.unlimited && <span style={{ color: T.accent }}>↑ Upgrade</span>}
               </button>
             )}
             {user && <span className="hidden font-mono text-[11px] md:inline" style={{ color: T.muted }}>{user.email}</span>}
@@ -264,20 +264,24 @@ export default function Dashboard() {
               <div className="flex items-center gap-2" style={{ color: T.text2 }}>
                 <Zap size={13} style={{ color: T.accent }} />
                 <span className="font-mono text-[10px] uppercase tracking-[0.18em]">
-                  Plan: {quota.plan} · {quota.rpm_limit} req/min · monthly quota
+                  Plan: {quota.plan} · {quota.unlimited ? "unlimited req/min · unlimited tokens" : `${quota.rpm_limit} req/min · monthly quota`}
                 </span>
               </div>
+              {!quota.unlimited && (
               <button onClick={() => setShowUpgrade(true)} data-testid="quota-upgrade-btn"
                 className="rounded-sm px-4 py-1.5 font-mono text-[11px] font-600 transition-opacity hover:opacity-85"
                 style={{ background: T.accent, color: "#08090A" }}>
                 Upgrade plan
               </button>
+              )}
             </div>
             <div className="mt-3 h-1 w-full overflow-hidden rounded-sm" style={{ background: "rgba(255,255,255,0.06)" }}>
               <div className="h-full transition-all" style={{ width: `${Math.max(1, quotaPct)}%`, background: quotaPct > 80 ? "#F59E0B" : T.accent }} />
             </div>
             <p className="mt-2 font-mono text-[11px]" style={{ color: T.text2 }}>
-              {quota.monthly_tokens_used.toLocaleString()} / {quota.monthly_token_limit.toLocaleString()} tokens used ({quotaPct.toFixed(1)}%)
+              {quota.unlimited
+                ? `${quota.monthly_tokens_used.toLocaleString()} tokens used · Unlimited quota (Frasberg team)`
+                : `${quota.monthly_tokens_used.toLocaleString()} / ${quota.monthly_token_limit.toLocaleString()} tokens used (${quotaPct.toFixed(1)}%)`}
             </p>
           </Panel>
         )}

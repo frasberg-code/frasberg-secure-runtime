@@ -82,6 +82,11 @@ export default function AgentWorkspace() {
   );
   const [reviewKind, setReviewKind] = useState("Code Review");
   const [publishId, setPublishId] = useState(saved.publishId || null);
+  const [attach, setAttach] = useState(null);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [listening, setListening] = useState(false);
+  const fileRef = useRef(null);
+  const recRef = useRef(null);
   const bottomRef = useRef(null);
 
   // workspace memory — builds and chats survive refresh
@@ -114,15 +119,25 @@ export default function AgentWorkspace() {
     setInput("");
     setShowSuggest(false);
     setRunning(true);
-    setMessages((m) => [...m, { role: "user", content: msg }, { role: "assistant", content: "" }]);
+    const att = attach;
+    setAttach(null);
+    setMessages((m) => [...m, { role: "user", content: att ? `${msg}\n📎 ${att.name}` : msg }, { role: "assistant", content: "" }]);
     try {
       const res = await fetch(`${API}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ message: msg, session_id: session, model, agent: agentKey }),
+        body: JSON.stringify({
+          message: att?.kind === "text" ? `${msg}\n\nAttached file ${att.name}:\n\`\`\`\n${att.text.slice(0, 20000)}\n\`\`\`` : msg,
+          session_id: session, model, agent: agentKey,
+          ...(att?.kind === "image" ? { attachment_base64: att.data, attachment_kind: "image", attachment_name: att.name } : {}),
+        }),
       });
-      if (!res.ok || !res.body) throw new Error("network");
+      if (!res.ok || !res.body) {
+        let detail = "network";
+        try { detail = (await res.json()).detail || detail; } catch {}
+        throw new Error(typeof detail === "string" ? detail : "network");
+      }
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
@@ -148,16 +163,47 @@ export default function AgentWorkspace() {
           if (data.error) throw new Error(data.error);
         }
       }
-    } catch {
+    } catch (err) {
+      const note = err?.message && err.message !== "network" ? err.message : "Connection hiccup — please try again.";
       setMessages((m) => {
         const next = [...m];
-        if (!next[next.length - 1].content) next[next.length - 1] = { role: "assistant", content: "Connection hiccup — please try again." };
+        if (!next[next.length - 1].content) next[next.length - 1] = { role: "assistant", content: note };
         return next;
       });
     } finally {
       setRunning(false);
     }
-  }, [input, running, session, model, agentKey]);
+  }, [input, running, session, model, agentKey, attach]);
+
+  const onFile = (e) => {
+    const f = e.target.files?.[0];
+    e.target.value = "";
+    if (!f) return;
+    if (f.size > 2_000_000) { toast.error("File too large — 2MB max"); return; }
+    const reader = new FileReader();
+    if (f.type.startsWith("image/")) {
+      reader.onload = () => { setAttach({ kind: "image", name: f.name, data: String(reader.result).split(",")[1] }); toast.success(`${f.name} attached`); };
+      reader.readAsDataURL(f);
+    } else {
+      reader.onload = () => { setAttach({ kind: "text", name: f.name, text: String(reader.result) }); toast.success(`${f.name} attached`); };
+      reader.readAsText(f);
+    }
+  };
+
+  const toggleMic = () => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { toast.error("Voice input isn't supported in this browser"); return; }
+    if (listening) { recRef.current?.stop(); return; }
+    const rec = new SR();
+    rec.lang = "en-US";
+    rec.interimResults = false;
+    rec.onresult = (ev) => setInput((v) => (v ? v + " " : "") + ev.results[0][0].transcript);
+    rec.onend = () => setListening(false);
+    rec.onerror = () => { setListening(false); toast.error("Voice input error — check mic permissions"); };
+    recRef.current = rec;
+    setListening(true);
+    rec.start();
+  };
 
   const isTruncated = (h) => /<html/i.test(h) && !/<\/html>/i.test(h);
 
@@ -299,12 +345,19 @@ export default function AgentWorkspace() {
               </p>
             )}
             <div className="rounded-xl border p-2.5" style={{ borderColor: T.border, background: T.surface }}>
+              {attach && (
+                <div className="mb-1.5 flex w-fit items-center gap-2 rounded-md border px-3 py-1.5 text-[12px]" style={{ borderColor: T.border, background: T.inset, color: T.text2 }} data-testid="workspace-attachment-chip">
+                  <Paperclip size={11} style={{ color: T.accent }} /> {attach.name}
+                  <button onClick={() => setAttach(null)} aria-label="Remove attachment" data-testid="workspace-attachment-remove" style={{ color: T.muted }}><X size={12} /></button>
+                </div>
+              )}
               <textarea value={input} onChange={(e) => setInput(e.target.value)} rows={1}
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
                 placeholder={`Message ${agent.name.split(" ")[1]}`} data-testid="workspace-input"
                 className="w-full resize-none bg-transparent px-1.5 py-1 text-[13.5px] outline-none" style={{ color: T.text }} />
               <div className="mt-1.5 flex items-center gap-1.5">
-                <button className={iconBtn} style={{ borderColor: T.borderSub, color: T.muted }} onClick={() => toast("Attachments live in Luchii Chat")} aria-label="Attach" data-testid="workspace-attach"><Paperclip size={14} /></button>
+                <input ref={fileRef} type="file" hidden accept=".txt,.md,.html,.css,.js,.jsx,.ts,.tsx,.json,.csv,.py,image/*" onChange={onFile} data-testid="workspace-file-input" />
+                <button className={iconBtn} style={{ borderColor: attach ? T.accent : T.borderSub, color: attach ? T.accent : T.muted }} onClick={() => fileRef.current?.click()} aria-label="Attach" data-testid="workspace-attach"><Paperclip size={14} /></button>
                 <button className={iconBtn} style={{ borderColor: T.borderSub, color: T.muted }} onClick={() => { setSession(null); setMessages([]); setPublishes([]); setShowSuggest(true); try { localStorage.removeItem(`luchii-ws-${agentKey}`); } catch {} toast.success("Forked into a fresh session"); }} aria-label="Fork" data-testid="workspace-fork"><GitFork size={14} /></button>
                 <select value={model} onChange={(e) => setModel(e.target.value)} data-testid="workspace-model-select"
                   className="rounded-md border px-3 py-1.5 font-mono text-[11px] outline-none" style={{ borderColor: T.border, background: T.inset, color: T.text }}>
@@ -312,7 +365,7 @@ export default function AgentWorkspace() {
                   <option value="luchii-7b">✳ luchii-7b</option>
                   <option value="luchii-70b">✳ luchii-70b</option>
                 </select>
-                <button className={`${iconBtn} ml-auto`} style={{ borderColor: T.borderSub, color: T.muted }} onClick={() => toast("Voice input lives in Luchii Chat")} aria-label="Mic" data-testid="workspace-mic"><Mic size={14} /></button>
+                <button className={`${iconBtn} ml-auto`} style={{ borderColor: listening ? T.accent : T.borderSub, color: listening ? T.accent : T.muted }} onClick={toggleMic} aria-label="Mic" data-testid="workspace-mic"><Mic size={14} className={listening ? "animate-pulse" : ""} /></button>
                 <button onClick={() => send()} disabled={running || !input.trim()} data-testid="workspace-send"
                   className="grid h-9 w-9 place-items-center rounded-full transition-opacity disabled:opacity-40"
                   style={{ background: T.accent, color: "#08090A" }} aria-label="Send">
@@ -327,7 +380,7 @@ export default function AgentWorkspace() {
         <div className="order-1 flex min-w-0 flex-1 flex-col" data-testid="workspace-right-pane">
           <div className="flex h-12 shrink-0 items-center gap-2 border-b px-4" style={{ borderColor: T.borderSub }}>
             <div className="flex rounded-md border p-0.5" style={{ borderColor: T.border }}>
-              {["preview", "manage"].map((t) => (
+              {["preview", "code", "manage"].map((t) => (
                 <button key={t} onClick={() => setTab(t)} data-testid={`workspace-${t}-tab`}
                   className="rounded px-3.5 py-1 text-[12.5px] capitalize transition-colors"
                   style={tab === t ? { background: "rgba(255,255,255,0.09)", color: T.text } : { color: T.text2 }}>
@@ -336,7 +389,16 @@ export default function AgentWorkspace() {
               ))}
             </div>
             <div className="ml-auto flex items-center gap-2">
-              <button onClick={() => toast("Docs: /luchii-code")} className="rounded-full border px-3.5 py-1.5 text-[11.5px]" style={{ borderColor: T.border, color: T.text2 }} data-testid="workspace-help-btn">Need Help?</button>
+              <div className="relative">
+                <button onClick={() => setHelpOpen((o) => !o)} className="rounded-full border px-3.5 py-1.5 text-[11.5px]" style={{ borderColor: helpOpen ? T.accent : T.border, color: T.text2 }} data-testid="workspace-help-btn">Need Help?</button>
+                {helpOpen && (
+                  <div className="absolute right-0 top-10 z-50 w-56 overflow-hidden rounded-lg border py-1 shadow-2xl" style={{ background: T.surface, borderColor: T.border }} data-testid="workspace-help-menu">
+                    <Link to="/docs" className="block px-4 py-2.5 text-[12.5px] transition-colors hover:bg-white/[0.05]" style={{ color: T.text }} data-testid="help-link-docs">📘 API Documentation</Link>
+                    <Link to="/luchii-code" className="block px-4 py-2.5 text-[12.5px] transition-colors hover:bg-white/[0.05]" style={{ color: T.text }} data-testid="help-link-luchii-code">✳ Luchii Code Guide</Link>
+                    <a href="mailto:support@frasberg.com" className="block px-4 py-2.5 text-[12.5px] transition-colors hover:bg-white/[0.05]" style={{ color: T.text }} data-testid="help-link-support">✉ Email Support</a>
+                  </div>
+                )}
+              </div>
               <button className={iconBtn} style={{ borderColor: T.borderSub, color: T.muted }} onClick={() => { navigator.clipboard.writeText(window.location.href).catch(() => {}); toast.success("Workspace link copied"); }} aria-label="Share" data-testid="workspace-share"><Share2 size={13} /></button>
               <button className={iconBtn} style={{ borderColor: T.borderSub, color: T.muted }} onClick={downloadBuild} aria-label="Download build" data-testid="workspace-download"><Download size={13} /></button>
               <button className={iconBtn} style={{ borderColor: T.borderSub, color: T.muted }} onClick={() => setTab("preview")} aria-label="Reload preview" data-testid="workspace-reload"><RefreshCw size={13} /></button>
@@ -360,6 +422,22 @@ export default function AgentWorkspace() {
                       Your build preview appears here — ask {agent.name} to build a page and it renders live.
                     </p>
                   </div>
+                </div>
+              )}
+            </div>
+          ) : tab === "code" ? (
+            <div className="min-h-0 flex-1 overflow-auto p-4" data-testid="workspace-code">
+              {previewHtml ? (
+                <div className="relative rounded-md border" style={{ borderColor: T.borderSub, background: T.inset }}>
+                  <button onClick={() => { navigator.clipboard.writeText(previewHtml).catch(() => {}); toast.success("Code copied"); }}
+                    className="absolute right-3 top-3 z-10 flex items-center gap-1.5 rounded border px-2.5 py-1 text-[11px]" style={{ borderColor: T.border, color: T.text2, background: T.surface }} data-testid="workspace-code-copy">
+                    <Copy size={11} /> Copy
+                  </button>
+                  <pre className="overflow-x-auto p-4 font-mono text-[11.5px] leading-relaxed" style={{ color: "#c9d1d9" }}>{previewHtml}</pre>
+                </div>
+              ) : (
+                <div className="grid h-full place-items-center">
+                  <p className="max-w-xs text-center text-sm" style={{ color: T.text2 }}>No code yet — ask {agent.name} to build something and the source appears here.</p>
                 </div>
               )}
             </div>

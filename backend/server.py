@@ -133,6 +133,13 @@ def _rate_check(key: str):
     _rate_store[key] = hits
 
 
+TEAM_DOMAIN = "@frasbergai.com"
+
+
+def _is_team_email(email) -> bool:
+    return bool(email) and str(email).lower().strip().endswith(TEAM_DOMAIN)
+
+
 PLAN_QUOTAS = {
     "free": {"rpm": 30, "monthly_tokens": 100_000},
     "pro": {"rpm": 120, "monthly_tokens": 2_000_000},
@@ -142,7 +149,9 @@ PLAN_QUOTAS = {
 
 
 async def _enforce_plan_quotas(key: str, key_doc: dict):
-    owner = await db.users.find_one({"id": key_doc.get("user_id")}, {"plan": 1})
+    owner = await db.users.find_one({"id": key_doc.get("user_id")}, {"plan": 1, "email": 1})
+    if _is_team_email((owner or {}).get("email")):
+        return "team", {"rpm": 10**9, "monthly_tokens": 10**12}, 0
     plan = (owner or {}).get("plan", "free")
     q = PLAN_QUOTAS.get(plan, PLAN_QUOTAS["pro"])
     now = time.time()
@@ -1235,6 +1244,9 @@ async def my_quotas(user: dict = Depends(auth_module.get_current_user)):
             {"$match": {"key_id": {"$in": key_ids}, "day": {"$regex": f"^{month}"}}},
             {"$group": {"_id": None, "tokens": {"$sum": "$tokens"}}}]).to_list(1)
         used = agg[0]["tokens"] if agg else 0
+    if _is_team_email(user.get("email")):
+        return {"plan": "team", "rpm_limit": 0, "monthly_token_limit": 0,
+                "monthly_tokens_used": used, "unlimited": True}
     return {"plan": plan, "rpm_limit": q["rpm"], "monthly_token_limit": q["monthly_tokens"],
             "monthly_tokens_used": used}
 
@@ -1732,8 +1744,9 @@ async def gateway_chat(req: ChatRequest, authorization: Optional[str] = Header(N
         raise HTTPException(status_code=400, detail="Message is required")
     if len(req.message) > MAX_MSG_LEN:
         raise HTTPException(status_code=413, detail=f"Message exceeds {MAX_MSG_LEN} chars")
-    _rate_check(key)
     unmetered = await _key_owner_unmetered(key_doc)
+    if not unmetered:
+        _rate_check(key)
     if not unmetered and key_doc.get("credits", 0) <= 0:
         raise _insufficient_credits()
     lowered = req.message.lower()
@@ -1751,7 +1764,7 @@ async def gateway_chat(req: ChatRequest, authorization: Optional[str] = Header(N
 
 @api_router.post("/keys")
 async def create_key(body: KeyCreate, user: dict = Depends(auth_module.get_current_user)):
-    if user.get("role") != "admin" and user.get("plan") not in PAID_PLANS:
+    if user.get("role") != "admin" and user.get("plan") not in PAID_PLANS and not _is_team_email(user.get("email")):
         existing = await db.api_keys.count_documents({"user_id": user["id"]})
         if existing >= 3:
             raise HTTPException(status_code=402, detail="free_key_limit")
@@ -2376,8 +2389,9 @@ TRIAL_KEY_CREDITS = 2500
 
 
 async def _key_owner_unmetered(key_doc: dict) -> bool:
-    owner = await db.users.find_one({"id": key_doc.get("user_id")}, {"role": 1, "plan": 1})
-    return bool(owner and (owner.get("role") == "admin" or owner.get("plan") in PAID_PLANS))
+    owner = await db.users.find_one({"id": key_doc.get("user_id")}, {"role": 1, "plan": 1, "email": 1})
+    return bool(owner and (owner.get("role") == "admin" or owner.get("plan") in PAID_PLANS
+                           or _is_team_email(owner.get("email"))))
 
 
 def _insufficient_credits():

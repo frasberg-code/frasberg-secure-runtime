@@ -13,6 +13,9 @@ JWT_ALGORITHM = "HS256"
 router = APIRouter(prefix="/auth")
 
 
+TEAM_DOMAIN = "@frasbergai.com"
+
+
 def setup(database):
     global db
     db = database
@@ -170,7 +173,8 @@ async def register(body: RegisterBody, response: Response):
         raise HTTPException(status_code=409, detail="An account with this email already exists")
     user = {
         "id": str(uuid.uuid4()), "email": email, "name": body.name.strip() or email.split("@")[0],
-        "password_hash": hash_password(body.password), "role": "user", "plan": "free",
+        "password_hash": hash_password(body.password), "role": "user",
+        "plan": "scale" if email.endswith(TEAM_DOMAIN) else "free",
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.users.insert_one({**user})
@@ -190,6 +194,9 @@ async def login(body: LoginBody, request: Request, response: Response):
         await _record_failure(identifier)
         raise HTTPException(status_code=401, detail="Invalid email or password")
     await db.login_attempts.delete_one({"identifier": identifier})
+    if email.endswith(TEAM_DOMAIN) and user.get("plan") not in ("scale", "enterprise"):
+        await db.users.update_one({"id": user["id"]}, {"$set": {"plan": "scale"}})
+        user["plan"] = "scale"
     _set_cookies(response, create_access_token(user["id"], email), create_refresh_token(user["id"]))
     return _public(user)
 
