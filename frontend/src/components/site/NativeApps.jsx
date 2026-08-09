@@ -30,6 +30,59 @@ function StatusChip({ s, ios }) {
   );
 }
 
+function StoreListingPreview({ b, title, desc }) {
+  const ios = b.platform === "ios";
+  const shot = `${BASE}/api/workspace/publishes/${b.publish_id}/view`;
+  return (
+    <div className="w-full max-w-md shrink-0 rounded-xl border p-4" style={{ borderColor: T.border, background: "#0C0D10" }} data-testid={`store-preview-${b.id}`}>
+      <p className="mb-3 font-mono text-[9.5px] uppercase tracking-[0.2em]" style={{ color: ios ? "#0A84FF" : "#01B47A" }}>
+        {ios ? " App Store — listing preview" : "▶ Google Play — listing preview"}
+      </p>
+      <div className="flex items-center gap-3">
+        {b.has_icon ? (
+          <img src={`${BASE}/api/native/builds/${b.id}/icon`} alt="" className={`h-16 w-16 border object-cover ${ios ? "rounded-2xl" : "rounded-xl"}`} style={{ borderColor: T.borderSubtle }} />
+        ) : (
+          <span className="grid h-16 w-16 place-items-center rounded-xl border text-2xl" style={{ borderColor: T.border }}>{ios ? "" : "🤖"}</span>
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[15px] font-700" style={{ color: T.text }} data-testid={`store-preview-title-${b.id}`}>{title || b.app_name}</p>
+          <p className="truncate text-[12px]" style={{ color: ios ? T.text2 : "#01B47A" }}>{ios ? (desc || "Frasberg Inc.") : "Frasberg Inc."}</p>
+          <p className="mt-0.5 text-[10.5px]" style={{ color: T.muted }}>{ios ? "Designed for iPhone" : "Contains no ads · Free"}</p>
+        </div>
+        <span className="rounded-full px-5 py-1.5 text-[12.5px] font-700" style={{ background: ios ? "#0A84FF" : "#01875F", color: "#fff" }}>
+          {ios ? "GET" : "Install"}
+        </span>
+      </div>
+      <div className="mt-3 grid grid-cols-3 border-y py-2.5 text-center" style={{ borderColor: T.borderSubtle }}>
+        {[["4.8 ★", `${(123 + b.version * 7)} ratings`], [ios ? "#12" : "10K+", ios ? "Productivity" : "Downloads"], [ios ? "4+" : "E", ios ? "Age" : "Everyone"]].map(([v, l]) => (
+          <div key={l}>
+            <p className="text-[13px] font-700" style={{ color: T.text }}>{v}</p>
+            <p className="font-mono text-[9px] uppercase" style={{ color: T.muted }}>{l}</p>
+          </div>
+        ))}
+      </div>
+      <div className="mt-3 flex gap-2.5">
+        <div className="h-[170px] w-[96px] shrink-0 overflow-hidden rounded-lg border" style={{ borderColor: T.borderSubtle, background: "#fff" }}>
+          <iframe title="screenshot" src={shot} loading="lazy" sandbox="" className="pointer-events-none origin-top-left" style={{ width: 390, height: 690, transform: "scale(0.246)" }} />
+        </div>
+        <div className="grid h-[170px] w-[96px] shrink-0 place-items-center rounded-lg border p-2 text-center" style={{ borderColor: T.borderSubtle, background: "linear-gradient(160deg, #101B2E, #06131F)" }}>
+          <div>
+            {b.has_icon && <img src={`${BASE}/api/native/builds/${b.id}/icon`} alt="" className="mx-auto h-9 w-9 rounded-lg" />}
+            <p className="mt-2 text-[10px] font-700 leading-tight" style={{ color: T.text }}>{title || b.app_name}</p>
+            <p className="mt-1 text-[7.5px] leading-snug" style={{ color: T.text2 }}>{desc || "Built with Luchii"}</p>
+          </div>
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="font-mono text-[9px] uppercase tracking-wide" style={{ color: T.muted }}>About this app</p>
+          <p className="mt-1 text-[11px] leading-relaxed" style={{ color: T.text2 }} data-testid={`store-preview-desc-${b.id}`}>
+            {desc || "Add a short description to see it here — this is exactly how your listing card will read in the store."}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export const NativeApps = () => {
   const [apps, setApps] = useState([]);
   const [builds, setBuilds] = useState(null);
@@ -273,19 +326,23 @@ export const NativeApps = () => {
               </div>
             </div>
             {publishing === b.id && (
-              <div className="mt-4 flex flex-wrap items-end gap-3 border-t pt-4" style={{ borderColor: T.borderSubtle }} data-testid={`native-listing-form-${b.id}`}>
-                <label className="flex flex-col gap-1.5">
-                  <span className="font-mono text-[10px] uppercase" style={{ color: T.muted }}>Store listing title</span>
-                  <input value={listTitle} onChange={(e) => setListTitle(e.target.value)} className={input} style={{ ...inputStyle, minWidth: 220 }} data-testid="native-listing-title" />
-                </label>
-                <label className="flex flex-col gap-1.5">
-                  <span className="font-mono text-[10px] uppercase" style={{ color: T.muted }}>Short description</span>
-                  <input value={listDesc} onChange={(e) => setListDesc(e.target.value)} placeholder="One line about your app" className={input} style={{ ...inputStyle, minWidth: 280 }} data-testid="native-listing-desc" />
-                </label>
-                <button onClick={() => submitPlay(b.id)} data-testid={`native-submit-play-${b.id}`}
-                  className="rounded-sm px-5 py-2 font-mono text-[12px] font-600" style={{ background: T.accent, color: "#08090A" }}>
-                  Submit for review
-                </button>
+              <div className="mt-4 flex flex-wrap gap-5 border-t pt-4" style={{ borderColor: T.borderSubtle }} data-testid={`native-listing-form-${b.id}`}>
+                <StoreListingPreview b={b} title={listTitle} desc={listDesc} />
+                <div className="flex min-w-[240px] flex-1 flex-col justify-center gap-3">
+                  <label className="flex flex-col gap-1.5">
+                    <span className="font-mono text-[10px] uppercase" style={{ color: T.muted }}>Store listing title</span>
+                    <input value={listTitle} onChange={(e) => setListTitle(e.target.value)} className={input} style={inputStyle} data-testid="native-listing-title" />
+                  </label>
+                  <label className="flex flex-col gap-1.5">
+                    <span className="font-mono text-[10px] uppercase" style={{ color: T.muted }}>Short description</span>
+                    <input value={listDesc} onChange={(e) => setListDesc(e.target.value)} placeholder="One line about your app" className={input} style={inputStyle} data-testid="native-listing-desc" />
+                  </label>
+                  <p className="font-mono text-[10px]" style={{ color: T.muted }}>The preview updates live — this is how your card appears {b.platform === "ios" ? "on the App Store" : "on Google Play"}.</p>
+                  <button onClick={() => submitPlay(b.id)} data-testid={`native-submit-play-${b.id}`}
+                    className="rounded-sm px-5 py-2 font-mono text-[12px] font-600" style={{ background: T.accent, color: "#08090A", width: "fit-content" }}>
+                    Submit for review
+                  </button>
+                </div>
               </div>
             )}
           </div>

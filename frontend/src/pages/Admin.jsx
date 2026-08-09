@@ -9,6 +9,8 @@ import { useAuth, formatApiErrorDetail } from "../context/AuthContext";
 import Starfield from "../components/site/Starfield";
 import Seo from "../components/site/Seo";
 
+import { ParallaxSky } from "../components/site/ParallaxSky";
+
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const ax = { withCredentials: true };
 
@@ -268,6 +270,7 @@ export default function Admin() {
   return (
     <main className="relative z-10 min-h-screen bg-lux-bg text-lux-text" data-testid="admin-page">
       <Seo title="Admin Console — Luchii by Frasberg" description="Frasberg admin control panel." />
+      <ParallaxSky />
       <div className="pointer-events-none absolute inset-0 opacity-40"><Starfield /></div>
 
       <header className="glass sticky top-0 z-40 border-b border-lux-border">

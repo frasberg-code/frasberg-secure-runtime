@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Home, Plus, ExternalLink, Download, Trash2, Sparkles } from "lucide-react";
+import { ParallaxSky } from "../components/site/ParallaxSky";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const BASE = process.env.REACT_APP_BACKEND_URL;
@@ -54,6 +55,7 @@ export default function WorkspaceHome() {
 
   return (
     <main className="min-h-screen" style={{ background: T.bg, color: T.text }} data-testid="workspace-home-page">
+      <ParallaxSky />
       {/* Tab bar */}
       <div className="flex h-12 items-center gap-2 border-b px-3" style={{ borderColor: T.borderSub, background: T.inset }}>
         <Link to="/" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors hover:bg-white/[0.05]" style={{ color: T.text2 }} data-testid="apps-site-link">

@@ -13,6 +13,7 @@ import { MODELS } from "../data/content";
 import { TrialBanner } from "../components/site/TrialBanner";
 import UpgradePlanModal from "../components/site/UpgradePlanModal";
 import { NativeApps } from "../components/site/NativeApps";
+import { ParallaxSky } from "../components/site/ParallaxSky";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -193,6 +194,7 @@ export default function Dashboard() {
 
   return (
     <main className="relative z-10 min-h-screen" style={{ background: T.bg, color: T.text }}>
+      <ParallaxSky />
       {/* Top navigation — 64px, minimal */}
       <header className="sticky top-0 z-40 border-b backdrop-blur-md" style={{ borderColor: T.borderSubtle, background: "rgba(8,9,10,0.85)", height: 64 }}>
         <div className="mx-auto flex h-full max-w-[1200px] items-center justify-between px-5 sm:px-8">

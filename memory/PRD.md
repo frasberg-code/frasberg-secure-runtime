@@ -141,3 +141,8 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - iOS builds get the same SIMULATED review flow: submit -> in_review -> published (45s) with apps.apple.com URL (deterministic id from build hash); UI shows "Publish to App Store" / blue "View on the App Store" / "Published · App Store" chip
 - Icon style picker (Minimal/Playful/Gradient -> ICON_STYLES prompt map) + "Re-roll icon" with random seed for distinct results each time
 - Verified: iOS publish lifecycle via API, gradient re-roll produced visibly different icon, UI screenshot confirms picker + store buttons
+
+## 2026-06 (fork, cont. 5) — Store Listing Preview + Parallax Sky
+- StoreListingPreview in NativeApps.jsx: realistic Play Store / App Store card (icon, dev name, Install/GET, ratings row, live app screenshot iframe, feature graphic, About) that live-updates as the listing title/description are typed, shown before Submit for review
+- New ParallaxSky component (/app/frontend/src/components/site/ParallaxSky.jsx): pointer-parallax layered background (drifting star canvas + 3 depth-mapped glow orbs, lerped mouse tracking) — mounted on Dashboard, Admin console, and /apps (WorkspaceHome); reusable for all future pages
+- Verified via dashboard screenshot (preview card + parallax stars live)
