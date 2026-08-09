@@ -64,3 +64,7 @@
 - Left pane: Home/tab bar with agent tab + close, suggestions card (agent-specific starter tasks), streaming chat via existing POST /api/chat (agent personas), "Agent is running…" status, composer with attach/fork/model-chip/mic/send
 - Right pane: Preview | Manage toggle; Preview renders latest (or live-streaming, unclosed fence) HTML code block in sandboxed iframe with Luchii placeholder; Manage = Manage Publishing clone (Overview/Domain/Resources/Database/Secrets tabs, Ask agent to fix, Run a review [NEW] -> real agent review prompt, Publishes list via Re-publish, Run health check -> real /api/health)
 - Verified: suggestion click streams full build, typed message streams (debugger), manage tab + health check toast, plain /chat unaffected
+
+## June 2026 - Workspace layout swap + Workspace Memory (self-tested)
+- AgentWorkspace: chat pane moved to RIGHT (order-2, border-l), preview/manage on LEFT per user request
+- Workspace memory: messages(last 40)/session/publishes(10)/model persisted per-agent in localStorage (luchii-ws-{agent}); restored on load; Fork clears memory. Verified: message survived reload

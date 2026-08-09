@@ -66,17 +66,34 @@ export default function AgentWorkspace() {
   const navigate = useNavigate();
   const agentKey = (params.get("agent") || "builder").toLowerCase();
   const agent = AGENTS[agentKey] || AGENTS.builder;
-  const [model, setModel] = useState(params.get("model") || agent.model);
-  const [messages, setMessages] = useState([]);
+  const saved = (() => {
+    try { return JSON.parse(localStorage.getItem(`luchii-ws-${agentKey}`)) || {}; } catch { return {}; }
+  })();
+  const [model, setModel] = useState(saved.model || params.get("model") || agent.model);
+  const [messages, setMessages] = useState(saved.messages || []);
   const [input, setInput] = useState("");
   const [running, setRunning] = useState(false);
-  const [session, setSession] = useState(null);
+  const [session, setSession] = useState(saved.session || null);
   const [tab, setTab] = useState("preview");
   const [manageTab, setManageTab] = useState("overview");
-  const [showSuggest, setShowSuggest] = useState(true);
-  const [publishes, setPublishes] = useState([]);
+  const [showSuggest, setShowSuggest] = useState((saved.messages || []).length === 0);
+  const [publishes, setPublishes] = useState(
+    (saved.publishes || []).map((p) => ({ ...p, at: new Date(p.at) }))
+  );
   const [reviewKind, setReviewKind] = useState("Code Review");
   const bottomRef = useRef(null);
+
+  // workspace memory — builds and chats survive refresh
+  useEffect(() => {
+    if (running) return;
+    try {
+      localStorage.setItem(`luchii-ws-${agentKey}`, JSON.stringify({
+        model, session,
+        messages: messages.slice(-40),
+        publishes: publishes.slice(0, 10).map((p) => ({ ...p, at: p.at.toISOString() })),
+      }));
+    } catch {}
+  }, [messages, session, publishes, model, agentKey, running]);
 
   const previewHtml = (() => {
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -187,8 +204,8 @@ export default function AgentWorkspace() {
       </div>
 
       <div className="flex min-h-0 flex-1">
-        {/* LEFT — chat */}
-        <div className="flex min-w-0 flex-1 flex-col border-r" style={{ borderColor: T.borderSub, maxWidth: "50%" }} data-testid="workspace-chat-pane">
+        {/* Chat — right side per user request */}
+        <div className="order-2 flex min-w-0 flex-1 flex-col border-l" style={{ borderColor: T.borderSub, maxWidth: "50%" }} data-testid="workspace-chat-pane">
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
             {messages.length === 0 && (
               <div className="mt-14 text-center">
@@ -250,7 +267,7 @@ export default function AgentWorkspace() {
                 className="w-full resize-none bg-transparent px-1.5 py-1 text-[13.5px] outline-none" style={{ color: T.text }} />
               <div className="mt-1.5 flex items-center gap-1.5">
                 <button className={iconBtn} style={{ borderColor: T.borderSub, color: T.muted }} onClick={() => toast("Attachments live in Luchii Chat")} aria-label="Attach" data-testid="workspace-attach"><Paperclip size={14} /></button>
-                <button className={iconBtn} style={{ borderColor: T.borderSub, color: T.muted }} onClick={() => { setSession(null); setMessages([]); setShowSuggest(true); toast.success("Forked into a fresh session"); }} aria-label="Fork" data-testid="workspace-fork"><GitFork size={14} /></button>
+                <button className={iconBtn} style={{ borderColor: T.borderSub, color: T.muted }} onClick={() => { setSession(null); setMessages([]); setPublishes([]); setShowSuggest(true); try { localStorage.removeItem(`luchii-ws-${agentKey}`); } catch {} toast.success("Forked into a fresh session"); }} aria-label="Fork" data-testid="workspace-fork"><GitFork size={14} /></button>
                 <select value={model} onChange={(e) => setModel(e.target.value)} data-testid="workspace-model-select"
                   className="rounded-md border px-3 py-1.5 font-mono text-[11px] outline-none" style={{ borderColor: T.border, background: T.inset, color: T.text }}>
                   <option value="luchii-1b">✳ luchii-1b</option>
@@ -268,8 +285,8 @@ export default function AgentWorkspace() {
           </div>
         </div>
 
-        {/* RIGHT — preview / manage */}
-        <div className="flex min-w-0 flex-1 flex-col" data-testid="workspace-right-pane">
+        {/* Preview / manage — left side */}
+        <div className="order-1 flex min-w-0 flex-1 flex-col" data-testid="workspace-right-pane">
           <div className="flex h-12 shrink-0 items-center gap-2 border-b px-4" style={{ borderColor: T.borderSub }}>
             <div className="flex rounded-md border p-0.5" style={{ borderColor: T.border }}>
               {["preview", "manage"].map((t) => (
