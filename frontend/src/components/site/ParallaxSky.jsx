@@ -47,7 +47,7 @@ export const ParallaxSky = () => {
         if (s.y < 0) s.y = h; if (s.y > h) s.y = 0;
         ctx.beginPath();
         ctx.arc(s.x + cur.x * s.depth * 20 * dpr, s.y + cur.y * s.depth * 12 * dpr, s.r * dpr, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${0.16 + s.depth * 0.22})`;
+        ctx.fillStyle = `rgba(255,255,255,${0.3 + s.depth * 0.35})`;
         ctx.fill();
       }
       raf = requestAnimationFrame(tick);
@@ -68,9 +68,9 @@ export const ParallaxSky = () => {
   return (
     <div ref={rootRef} className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true" data-testid="parallax-sky">
       <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
-      <div data-depth="0.35" className={orb} style={{ top: "-12%", left: "-8%", width: 520, height: 520, background: "radial-gradient(circle, rgba(0,240,255,0.07) 0%, transparent 65%)" }} />
-      <div data-depth="0.7" className={orb} style={{ top: "30%", right: "-10%", width: 620, height: 620, background: "radial-gradient(circle, rgba(37,99,235,0.08) 0%, transparent 65%)" }} />
-      <div data-depth="1.1" className={orb} style={{ bottom: "-18%", left: "22%", width: 480, height: 480, background: "radial-gradient(circle, rgba(0,240,255,0.05) 0%, transparent 65%)" }} />
+      <div data-depth="0.35" className={orb} style={{ top: "-12%", left: "-8%", width: 520, height: 520, background: "radial-gradient(circle, rgba(0,240,255,0.11) 0%, transparent 65%)" }} />
+      <div data-depth="0.7" className={orb} style={{ top: "30%", right: "-10%", width: 620, height: 620, background: "radial-gradient(circle, rgba(37,99,235,0.13) 0%, transparent 65%)" }} />
+      <div data-depth="1.1" className={orb} style={{ bottom: "-18%", left: "22%", width: 480, height: 480, background: "radial-gradient(circle, rgba(0,240,255,0.09) 0%, transparent 65%)" }} />
       <div data-depth="0.5" className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 60%, rgba(0,240,255,0.02) 100%)" }} />
     </div>
   );

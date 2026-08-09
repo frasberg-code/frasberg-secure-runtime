@@ -51,6 +51,10 @@ class PlayListingBody(BaseModel):
     short_desc: str = ""
 
 
+class ScreenshotBody(BaseModel):
+    image_b64: str
+
+
 def _slug(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-") or "app"
 
@@ -62,6 +66,7 @@ def _public(d):
             "created": d["created"], "size_kb": d.get("size_kb", 0),
             "play_status": d.get("play_status"), "play_url": d.get("play_url"),
             "play_title": d.get("play_title"), "review_started": d.get("review_started"),
+            "screenshots": len(d.get("screenshots") or []),
             "download_url": f"/api/native/builds/{d['id']}/download"}
 
 
@@ -191,6 +196,52 @@ async def build_icon(bid: str):
         raise HTTPException(status_code=404, detail="No icon")
     return Response(content=base64.b64decode(d["icon_b64"]), media_type="image/png",
                     headers={"Cache-Control": "public, max-age=86400"})
+
+
+@router.post("/builds/{bid}/screenshots")
+async def add_screenshot(bid: str, body: ScreenshotBody, user: dict = Depends(auth_module.get_current_user)):
+    d = await db.native_builds.find_one({"_id": bid, "user_id": user["id"]}, {"screenshots": 1})
+    if not d:
+        raise HTTPException(status_code=404, detail="Build not found")
+    if len(d.get("screenshots") or []) >= 5:
+        raise HTTPException(status_code=429, detail="Max 5 screenshots per listing")
+    raw = base64.b64decode(body.image_b64.split(",")[-1])
+    if len(raw) > 5_000_000:
+        raise HTTPException(status_code=413, detail="Screenshot too large — 5MB max")
+    try:
+        im = Image.open(io.BytesIO(raw)).convert("RGB")
+    except Exception:
+        raise HTTPException(status_code=400, detail="Screenshot must be a valid image")
+    if im.width > 480:
+        im = im.resize((480, round(im.height * 480 / im.width)), Image.LANCZOS)
+    b = io.BytesIO()
+    im.save(b, "JPEG", quality=82)
+    await db.native_builds.update_one(
+        {"_id": bid}, {"$push": {"screenshots": base64.b64encode(b.getvalue()).decode()}})
+    return {"count": len(d.get("screenshots") or []) + 1}
+
+
+@router.get("/builds/{bid}/screenshots/{idx}")
+async def get_screenshot(bid: str, idx: int):
+    d = await db.native_builds.find_one({"_id": bid}, {"screenshots": 1})
+    shots = (d or {}).get("screenshots") or []
+    if idx < 0 or idx >= len(shots):
+        raise HTTPException(status_code=404, detail="No screenshot")
+    return Response(content=base64.b64decode(shots[idx]), media_type="image/jpeg",
+                    headers={"Cache-Control": "no-cache"})
+
+
+@router.delete("/builds/{bid}/screenshots/{idx}")
+async def delete_screenshot(bid: str, idx: int, user: dict = Depends(auth_module.get_current_user)):
+    d = await db.native_builds.find_one({"_id": bid, "user_id": user["id"]}, {"screenshots": 1})
+    if not d:
+        raise HTTPException(status_code=404, detail="Build not found")
+    shots = d.get("screenshots") or []
+    if idx < 0 or idx >= len(shots):
+        raise HTTPException(status_code=404, detail="No screenshot")
+    shots.pop(idx)
+    await db.native_builds.update_one({"_id": bid}, {"$set": {"screenshots": shots}})
+    return {"count": len(shots)}
 
 
 @router.get("/builds/{bid}/download")

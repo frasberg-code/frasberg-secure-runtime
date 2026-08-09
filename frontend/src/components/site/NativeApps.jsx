@@ -30,9 +30,14 @@ function StatusChip({ s, ios }) {
   );
 }
 
-function StoreListingPreview({ b, title, desc }) {
+function StoreListingPreview({ b, title, desc, onChanged }) {
   const ios = b.platform === "ios";
   const shot = `${BASE}/api/workspace/publishes/${b.publish_id}/view`;
+  const delShot = async (i) => {
+    await fetch(`${API}/native/builds/${b.id}/screenshots/${i}`, { method: "DELETE", credentials: "include" });
+    toast.success("Screenshot removed");
+    onChanged?.();
+  };
   return (
     <div className="w-full max-w-md shrink-0 rounded-xl border p-4" style={{ borderColor: T.border, background: "#0C0D10" }} data-testid={`store-preview-${b.id}`}>
       <p className="mb-3 font-mono text-[9.5px] uppercase tracking-[0.2em]" style={{ color: ios ? "#0A84FF" : "#01B47A" }}>
@@ -61,10 +66,23 @@ function StoreListingPreview({ b, title, desc }) {
           </div>
         ))}
       </div>
-      <div className="mt-3 flex gap-2.5">
-        <div className="h-[170px] w-[96px] shrink-0 overflow-hidden rounded-lg border" style={{ borderColor: T.borderSubtle, background: "#fff" }}>
-          <iframe title="screenshot" src={shot} loading="lazy" sandbox="" className="pointer-events-none origin-top-left" style={{ width: 390, height: 690, transform: "scale(0.246)" }} />
-        </div>
+      <div className="mt-3 flex gap-2.5 overflow-x-auto pb-1" data-testid={`store-preview-gallery-${b.id}`}>
+        {Array.from({ length: b.screenshots || 0 }).map((_, i) => (
+          <div key={`up-${i}`} className="relative h-[170px] w-[96px] shrink-0 overflow-hidden rounded-lg border" style={{ borderColor: T.borderSubtle }}>
+            <img src={`${BASE}/api/native/builds/${b.id}/screenshots/${i}?n=${b.screenshots}`} alt={`Screenshot ${i + 1}`} className="h-full w-full object-cover" data-testid={`store-shot-${b.id}-${i}`} />
+            <button onClick={() => delShot(i)} aria-label="Remove screenshot" data-testid={`store-shot-remove-${b.id}-${i}`}
+              className="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full" style={{ background: "rgba(0,0,0,0.7)", color: "#fff" }}>
+              <X size={10} />
+            </button>
+          </div>
+        ))}
+        {[0, 1, 2].map((i) => (
+          <div key={`auto-${i}`} className="relative h-[170px] w-[96px] shrink-0 overflow-hidden rounded-lg border" style={{ borderColor: T.borderSubtle, background: "#fff" }}>
+            <iframe title={`auto-shot-${i}`} src={shot} loading="lazy" sandbox="" className="pointer-events-none absolute left-0 origin-top-left"
+              style={{ top: -(i * 170), width: 390, height: 2070, transform: "scale(0.246)" }} />
+            <span className="absolute bottom-1 right-1 rounded px-1 font-mono text-[7px] uppercase" style={{ background: "rgba(0,0,0,0.65)", color: "#9aa0a6" }}>live</span>
+          </div>
+        ))}
         <div className="grid h-[170px] w-[96px] shrink-0 place-items-center rounded-lg border p-2 text-center" style={{ borderColor: T.borderSubtle, background: "linear-gradient(160deg, #101B2E, #06131F)" }}>
           <div>
             {b.has_icon && <img src={`${BASE}/api/native/builds/${b.id}/icon`} alt="" className="mx-auto h-9 w-9 rounded-lg" />}
@@ -72,12 +90,12 @@ function StoreListingPreview({ b, title, desc }) {
             <p className="mt-1 text-[7.5px] leading-snug" style={{ color: T.text2 }}>{desc || "Built with Luchii"}</p>
           </div>
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="font-mono text-[9px] uppercase tracking-wide" style={{ color: T.muted }}>About this app</p>
-          <p className="mt-1 text-[11px] leading-relaxed" style={{ color: T.text2 }} data-testid={`store-preview-desc-${b.id}`}>
-            {desc || "Add a short description to see it here — this is exactly how your listing card will read in the store."}
-          </p>
-        </div>
+      </div>
+      <div className="mt-3">
+        <p className="font-mono text-[9px] uppercase tracking-wide" style={{ color: T.muted }}>About this app</p>
+        <p className="mt-1 text-[11px] leading-relaxed" style={{ color: T.text2 }} data-testid={`store-preview-desc-${b.id}`}>
+          {desc || "Add a short description to see it here — this is exactly how your listing card will read in the store."}
+        </p>
       </div>
     </div>
   );
@@ -95,6 +113,7 @@ export const NativeApps = () => {
   const [iconStyle, setIconStyle] = useState("minimal");
   const [genBusy, setGenBusy] = useState(false);
   const iconRef = useRef(null);
+  const shotRef = useRef(null);
   const [publishing, setPublishing] = useState(null); // build id with open listing form
   const [listTitle, setListTitle] = useState("");
   const [listDesc, setListDesc] = useState("");
@@ -181,6 +200,23 @@ export const NativeApps = () => {
       setPublishing(null);
       load();
     } catch { toast.error("Submission failed"); }
+  };
+
+  const onShotFiles = async (e) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = "";
+    if (!files.length || !publishing) return;
+    for (const f of files.slice(0, 5)) {
+      if (!f.type.startsWith("image/")) { toast.error(`${f.name} is not an image`); continue; }
+      const b64 = await new Promise((res) => { const r = new FileReader(); r.onload = () => res(String(r.result)); r.readAsDataURL(f); });
+      const r = await fetch(`${API}/native/builds/${publishing}/screenshots`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+        body: JSON.stringify({ image_b64: b64 }),
+      });
+      if (!r.ok) { toast.error((await r.json()).detail || "Upload failed"); break; }
+    }
+    toast.success("Screenshots added to the listing");
+    load();
   };
 
   const del = async (bid) => {
@@ -327,7 +363,7 @@ export const NativeApps = () => {
             </div>
             {publishing === b.id && (
               <div className="mt-4 flex flex-wrap gap-5 border-t pt-4" style={{ borderColor: T.borderSubtle }} data-testid={`native-listing-form-${b.id}`}>
-                <StoreListingPreview b={b} title={listTitle} desc={listDesc} />
+                <StoreListingPreview b={b} title={listTitle} desc={listDesc} onChanged={load} />
                 <div className="flex min-w-[240px] flex-1 flex-col justify-center gap-3">
                   <label className="flex flex-col gap-1.5">
                     <span className="font-mono text-[10px] uppercase" style={{ color: T.muted }}>Store listing title</span>
@@ -337,6 +373,15 @@ export const NativeApps = () => {
                     <span className="font-mono text-[10px] uppercase" style={{ color: T.muted }}>Short description</span>
                     <input value={listDesc} onChange={(e) => setListDesc(e.target.value)} placeholder="One line about your app" className={input} style={inputStyle} data-testid="native-listing-desc" />
                   </label>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <input ref={shotRef} type="file" hidden multiple accept="image/*" onChange={onShotFiles} data-testid="native-shot-file-input" />
+                    <button onClick={() => shotRef.current?.click()} data-testid={`native-add-shots-${b.id}`}
+                      className="flex items-center gap-1.5 rounded-sm border px-3.5 py-1.5 font-mono text-[11px]"
+                      style={{ borderColor: T.border, color: T.text2 }}>
+                      <Upload size={11} /> Add screenshots ({b.screenshots || 0}/5)
+                    </button>
+                    <span className="font-mono text-[9.5px]" style={{ color: T.muted }}>The live frames are captured from your running app automatically</span>
+                  </div>
                   <p className="font-mono text-[10px]" style={{ color: T.muted }}>The preview updates live — this is how your card appears {b.platform === "ios" ? "on the App Store" : "on Google Play"}.</p>
                   <button onClick={() => submitPlay(b.id)} data-testid={`native-submit-play-${b.id}`}
                     className="rounded-sm px-5 py-2 font-mono text-[12px] font-600" style={{ background: T.accent, color: "#08090A", width: "fit-content" }}>

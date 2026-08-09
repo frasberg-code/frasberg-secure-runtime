@@ -4,6 +4,7 @@ import { ArrowLeft, Building2, User, Skull, Loader2, Sparkles, ExternalLink } fr
 import { toast } from "sonner";
 import { WeatherOverlay } from "../components/WeatherOverlay";
 import { DayNightOverlay } from "../components/DayNightOverlay";
+import { ParallaxSky } from "../components/site/ParallaxSky";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const B = process.env.REACT_APP_BACKEND_URL;
@@ -182,6 +183,7 @@ export default function VisualStudio() {
   const active = TABS.find((t) => t.id === tab);
   return (
     <div className="min-h-screen bg-[#08080f] px-5 py-10 font-mono text-white sm:px-10" data-testid="visual-studio-page">
+      <ParallaxSky />
       <Link to="/" className="inline-flex items-center gap-2 text-sm text-[#888] hover:text-white" data-testid="studio-back-link">
         <ArrowLeft size={15} /> Back to Luchii
       </Link>

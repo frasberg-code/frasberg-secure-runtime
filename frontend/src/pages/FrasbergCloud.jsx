@@ -8,6 +8,7 @@ import {
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { useTheme } from "../context/ThemeContext";
 import Starfield from "../components/site/Starfield";
+import { ParallaxSky } from "../components/site/ParallaxSky";
 import Footer from "../components/site/Footer";
 import Seo from "../components/site/Seo";
 
@@ -449,7 +450,7 @@ export default function FrasbergCloud() {
   return (
     <main className="relative z-10 min-h-screen bg-lux-bg text-lux-text" data-testid="frasberg-cloud-page">
       <Seo title="Frasberg Cloud — Multiverse Simulation Console" description="Create universes, evolve agents with souls and psychology, govern the multiverse. Frasberg Cloud V1." />
-      <div className="pointer-events-none absolute inset-0 opacity-50"><Starfield /></div>
+      <ParallaxSky />
 
       <header className="glass sticky top-0 z-40 border-b border-lux-border">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">

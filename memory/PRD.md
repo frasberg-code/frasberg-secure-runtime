@@ -146,3 +146,8 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - StoreListingPreview in NativeApps.jsx: realistic Play Store / App Store card (icon, dev name, Install/GET, ratings row, live app screenshot iframe, feature graphic, About) that live-updates as the listing title/description are typed, shown before Submit for review
 - New ParallaxSky component (/app/frontend/src/components/site/ParallaxSky.jsx): pointer-parallax layered background (drifting star canvas + 3 depth-mapped glow orbs, lerped mouse tracking) — mounted on Dashboard, Admin console, and /apps (WorkspaceHome); reusable for all future pages
 - Verified via dashboard screenshot (preview card + parallax stars live)
+
+## 2026-06 (fork, cont. 6) — Screenshot Gallery + Parallax rollout
+- Screenshot gallery: POST/GET/DELETE /api/native/builds/{id}/screenshots (max 5, resized 480w JPEG, stored b64 in build doc); listing preview shows uploaded shots (with remove X) + 3 auto "live" phone frames (top/middle/bottom of running app via offset iframes) + feature graphic; "Add screenshots (n/5)" multi-upload in listing form
+- ParallaxSky added to Frasberg Cloud (/cloud, replaced blurry Starfield layer) and Visual Studio pages; star brightness/orb intensity boosted for visibility (was too subtle on /apps)
+- Verified: backend upload/fetch/delete via script; UI screenshots of gallery + crisp /cloud stars
