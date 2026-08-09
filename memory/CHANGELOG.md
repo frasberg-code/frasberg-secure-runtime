@@ -48,3 +48,9 @@
 - Chronicle panel: "Read aloud" button (narrate-chronicle-btn) with loading/playing/stop states; cleanup on modal close
 - Admin console: "Frasberg Cloud — Universes" panel (admin-cloud-panel) with full universe table + Tick x10 / Dissolve actions + Open Cloud Console link; verified Tick advanced 22->32 live
 - Created 3 permanent test universes per user request: Frasberg (standard), Luchii (quantum), LINQ Universe (exotic) — all ticked to 20, chronicled, linked via trade/exchange/migration on the star-map
+
+## June 2026 - Emergent-style Dashboard + Universe Snapshots + LINQ rename (iteration 36 — frontend 100%)
+- Dashboard.jsx FULL REWRITE per /app/design_guidelines.json: obsidian #08090A, sharp rounded-sm panels, JetBrains Mono metrics, cyan #00F0FF accent, 64px top nav, bento overview (requests/tokens/keys/wallet), quota progress bar + upgrade, usage chart w/ empty state, keys table rows, Playground/Quickstart/Models 2-col, email history, Pricing. All testids + functionality preserved
+- Universe Snapshots: POST/GET /api/cloud/universes/{id}/snapshots (cap 10), POST /api/cloud/snapshots/{sid}/restore, DELETE; admin cloud table has Snapshot / Restore… (chips row) / Dissolve; restore verified tick 30->20
+- 'LINQ Universe' renamed to 'LINQ' in db.cloud_universes
+- Fixed long-standing hydration warning: ChatDemo.jsx voice-speed option now uses label attr (visual-editor span injection workaround)

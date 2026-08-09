@@ -544,7 +544,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
                 className="h-8 cursor-pointer rounded-full border border-lux-border bg-transparent px-2 font-mono text-[10px] text-lux-text2 outline-none transition-colors hover:border-lux-accent"
               >
                 {[0.75, 1, 1.25, 1.5].map((s) => (
-                  <option key={s} value={s}>{s}x</option>
+                  <option key={s} value={s} label={`${s}x`} />
                 ))}
               </select>
             )}
