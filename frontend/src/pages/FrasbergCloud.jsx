@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -187,6 +187,8 @@ function GenesisForm({ onCreated }) {
 function UniverseDetail({ uid, onClose, refresh }) {
   const [d, setD] = useState(null);
   const [writing, setWriting] = useState(false);
+  const [narrating, setNarrating] = useState(false);
+  const audioRef = useRef(null);
   const load = useCallback(() => {
     fetch(`${API}/universes/${uid}`).then((r) => (r.ok ? r.json() : null)).then(setD).catch(() => {});
   }, [uid]);
@@ -202,6 +204,23 @@ function UniverseDetail({ uid, onClose, refresh }) {
       load();
     } catch (e) { toast.error(e.message); } finally { setWriting(false); }
   };
+
+  const narrate = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+      setNarrating(false);
+      return;
+    }
+    setNarrating("loading");
+    const a = new Audio(`${API}/universes/${uid}/chronicle/audio`);
+    audioRef.current = a;
+    a.onplaying = () => setNarrating(true);
+    a.onended = () => { audioRef.current = null; setNarrating(false); };
+    a.onerror = () => { toast.error("Narration unavailable — try again"); audioRef.current = null; setNarrating(false); };
+    a.play().catch(() => {});
+  };
+  useEffect(() => () => { if (audioRef.current) audioRef.current.pause(); }, []);
 
   if (!d) return null;
   const s = d.summary;
@@ -239,10 +258,18 @@ function UniverseDetail({ uid, onClose, refresh }) {
         <div className="mt-6 rounded-2xl border border-lux-gold/30 bg-lux-surface p-5" data-testid="chronicle-panel">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h3 className="font-display text-lg font-600 text-lux-gold">📜 The Universe Chronicle</h3>
-            <button onClick={writeChronicle} disabled={writing} data-testid="write-chronicle-btn"
-              className="rounded-full border border-lux-gold/50 px-5 py-1.5 text-xs text-lux-gold transition-colors hover:bg-lux-gold hover:text-lux-bg disabled:opacity-50">
-              {writing ? "The Chronicle-Keeper writes…" : d.chronicle ? "Rewrite Chronicle" : "Write Chronicle"}
-            </button>
+            <div className="flex gap-2">
+              {d.chronicle && (
+                <button onClick={narrate} data-testid="narrate-chronicle-btn"
+                  className={`rounded-full border px-5 py-1.5 text-xs transition-colors ${narrating ? "border-emerald-400/60 text-emerald-400" : "border-lux-gold/50 text-lux-gold hover:bg-lux-gold hover:text-lux-bg"}`}>
+                  {narrating === "loading" ? "Summoning voice…" : narrating ? "◼ Stop narration" : "🔊 Read aloud"}
+                </button>
+              )}
+              <button onClick={writeChronicle} disabled={writing} data-testid="write-chronicle-btn"
+                className="rounded-full border border-lux-gold/50 px-5 py-1.5 text-xs text-lux-gold transition-colors hover:bg-lux-gold hover:text-lux-bg disabled:opacity-50">
+                {writing ? "The Chronicle-Keeper writes…" : d.chronicle ? "Rewrite Chronicle" : "Write Chronicle"}
+              </button>
+            </div>
           </div>
           {d.chronicle ? (
             <div className="mt-4" data-testid="chronicle-text">

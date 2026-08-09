@@ -42,3 +42,9 @@
 ## June 2026 - Universe Chronicle (self-tested: curl + screenshot)
 - POST /api/cloud/universes/{id}/chronicle: gathers universe facts (phase, civs/eras/wars, myths, legendary agents, recent events) -> Claude Sonnet 4.6 via Emergent LLM key writes a <=420-word mythic history scroll in 3-4 chapters; cached in universe doc as chronicle{text,tick,created}; detail response includes it
 - Detail modal: Chronicle panel (chronicle-panel) with Write/Rewrite button (write-chronicle-btn), italic scroll typography, "Inscribed at tick N" footer
+
+## June 2026 - Chronicle Narration + Admin Universe Management (self-tested: curl + live UI both pages)
+- GET /api/cloud/universes/{id}/chronicle/audio: chronicle text -> OpenAI tts-1 'onyx' via Emergent key -> mp3 (2.5MB verified), cached in db.cloud_narrations by text hash
+- Chronicle panel: "Read aloud" button (narrate-chronicle-btn) with loading/playing/stop states; cleanup on modal close
+- Admin console: "Frasberg Cloud — Universes" panel (admin-cloud-panel) with full universe table + Tick x10 / Dissolve actions + Open Cloud Console link; verified Tick advanced 22->32 live
+- Created 3 permanent test universes per user request: Frasberg (standard), Luchii (quantum), LINQ Universe (exotic) — all ticked to 20, chronicled, linked via trade/exchange/migration on the star-map

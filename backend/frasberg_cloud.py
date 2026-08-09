@@ -1,13 +1,17 @@
 import os
 import uuid
+import base64
+import hashlib
 import random
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import Response
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel
 from typing import Optional
 from emergentintegrations.llm.chat import LlmChat, UserMessage
+from emergentintegrations.llm.openai import OpenAITextToSpeech
 
 router = APIRouter(prefix="/cloud")
 
@@ -671,6 +675,31 @@ async def write_chronicle(uid: str):
     await db.cloud_universes.update_one({"_id": uid}, {"$set": {"chronicle": chronicle}})
     await _log(uid, "chronicle", f"The Chronicle of {u['name']} was inscribed at tick {u['tick']}")
     return chronicle
+
+
+@router.get("/universes/{uid}/chronicle/audio")
+async def chronicle_audio(uid: str):
+    u = await db.cloud_universes.find_one({"_id": uid})
+    if not u:
+        raise HTTPException(status_code=404, detail="Universe not found")
+    chronicle = u.get("chronicle")
+    if not chronicle:
+        raise HTTPException(status_code=404, detail="No chronicle inscribed yet")
+    text = chronicle["text"][:4000]
+    h = hashlib.sha1(text.encode()).hexdigest()
+    cached = await db.cloud_narrations.find_one({"_id": h})
+    if cached:
+        return Response(content=base64.b64decode(cached["b64"]), media_type="audio/mpeg",
+                        headers={"Cache-Control": "public, max-age=604800"})
+    try:
+        tts = OpenAITextToSpeech(api_key=EMERGENT_LLM_KEY)
+        b64 = await tts.generate_speech_base64(text=text, model="tts-1", voice="onyx")
+    except Exception:
+        raise HTTPException(status_code=502, detail="The Chronicle-Keeper has lost his voice — try again")
+    await db.cloud_narrations.update_one(
+        {"_id": h}, {"$set": {"b64": b64, "universe_id": uid, "created": _now()}}, upsert=True)
+    return Response(content=base64.b64decode(b64), media_type="audio/mpeg",
+                    headers={"Cache-Control": "public, max-age=604800"})
 
 
 @router.get("/map")

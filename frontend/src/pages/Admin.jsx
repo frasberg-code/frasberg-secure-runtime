@@ -25,6 +25,7 @@ export default function Admin() {
   const [ops, setOps] = useState(null);
   const [tenants, setTenants] = useState(null);
   const [tenantAnalytics, setTenantAnalytics] = useState(null);
+  const [cloudUniverses, setCloudUniverses] = useState([]);
   const [health, setHealth] = useState(null);
   const [audit, setAudit] = useState([]);
   const [tenantDetail, setTenantDetail] = useState(null); // {id, loading, data}
@@ -147,6 +148,7 @@ export default function Admin() {
       axios.get(`${API}/admin/tenants/analytics`, ax).then((r) => setTenantAnalytics(r.data)).catch(() => {});
       axios.get(`${API}/admin/health`, ax).then((r) => setHealth(r.data)).catch(() => {});
       axios.get(`${API}/admin/audit`, ax).then((r) => setAudit(r.data)).catch(() => {});
+      axios.get(`${API}/cloud/universes`).then((r) => setCloudUniverses(r.data.universes || [])).catch(() => {});
     } catch (err) {
       toast.error(formatApiErrorDetail(err.response?.data?.detail));
     }
@@ -566,6 +568,62 @@ export default function Admin() {
                         </tr>
                       )}
                       </Fragment>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section className="mt-12" data-testid="admin-cloud-panel">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2 className="font-display text-2xl font-700 tracking-tight">Frasberg Cloud — Universes</h2>
+                <a href="/cloud" target="_blank" rel="noreferrer" data-testid="admin-open-cloud-link"
+                  className="rounded-full border border-lux-border px-4 py-1.5 font-mono text-xs text-lux-text2 hover:border-lux-accent hover:text-lux-text">
+                  Open Cloud Console →
+                </a>
+              </div>
+              <div className="mt-4 overflow-x-auto rounded-2xl border border-lux-border" data-testid="admin-cloud-table">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-lux-border font-mono text-[10px] uppercase tracking-wide text-lux-text2">
+                      <th className="px-4 py-3">Universe</th><th className="px-4 py-3">Phase</th>
+                      <th className="px-4 py-3">Tick</th><th className="px-4 py-3">Entropy</th>
+                      <th className="px-4 py-3">Stability</th><th className="px-4 py-3">Population</th>
+                      <th className="px-4 py-3">Civs</th><th className="px-4 py-3">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cloudUniverses.length === 0 && (
+                      <tr><td colSpan="8" className="px-4 py-5 text-center font-mono text-xs text-lux-text2">No universes yet</td></tr>
+                    )}
+                    {cloudUniverses.map((u) => (
+                      <tr key={u.id} className="border-b border-lux-border/50" data-testid={`admin-universe-row-${u.id}`}>
+                        <td className="px-4 py-3 text-lux-text">{u.name}</td>
+                        <td className="px-4 py-3 font-mono text-xs text-lux-accent">{u.phase}</td>
+                        <td className="px-4 py-3 font-mono text-xs">{u.tick}</td>
+                        <td className="px-4 py-3 font-mono text-xs">{u.entropy}</td>
+                        <td className="px-4 py-3 font-mono text-xs">{u.stability}</td>
+                        <td className="px-4 py-3 font-mono text-xs">{u.population.toLocaleString()}</td>
+                        <td className="px-4 py-3 font-mono text-xs">{u.civilizations}</td>
+                        <td className="px-4 py-3">
+                          <div className="flex gap-2">
+                            <button data-testid={`admin-universe-tick-${u.id}`}
+                              onClick={async () => {
+                                await axios.post(`${API}/cloud/universes/${u.id}/tick`, { steps: 10 });
+                                toast.success(`${u.name} advanced 10 ticks`);
+                                axios.get(`${API}/cloud/universes`).then((r) => setCloudUniverses(r.data.universes || []));
+                              }}
+                              className="rounded-full border border-lux-border px-3 py-1 font-mono text-[10px] hover:border-lux-accent">Tick ×10</button>
+                            <button data-testid={`admin-universe-delete-${u.id}`}
+                              onClick={async () => {
+                                await axios.delete(`${API}/cloud/universes/${u.id}`);
+                                toast.success(`${u.name} dissolved`);
+                                axios.get(`${API}/cloud/universes`).then((r) => setCloudUniverses(r.data.universes || []));
+                              }}
+                              className="rounded-full border border-lux-border px-3 py-1 font-mono text-[10px] text-red-400 hover:border-red-500/60">Dissolve</button>
+                          </div>
+                        </td>
+                      </tr>
                     ))}
                   </tbody>
                 </table>
