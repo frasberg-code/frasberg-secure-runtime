@@ -110,3 +110,11 @@ Awwwards-level cinematic landing page + platform for the "Luchii" multi-tier int
 
 ## Credentials
 See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doctester1@frasberg.com / DocTester2026!)
+
+## 2026-06 (fork) — Workspace controls + Team access
+- Fixed truncated LLM builds: max_tokens 4096→16384 (server.py _luchii_stream); workspace blocks publishing incomplete HTML and auto-asks agent to finish
+- Agent Workspace: real file attachments (text inline / images base64, chip UI), Code tab (view+copy generated source), Need Help dropdown (Docs / Luchii Code / support), mic dictation (webkitSpeechRecognition)
+- Pause/Resume: Stop square replaces Send while streaming (AbortController); Resume pill re-prompts agent with partial tail to continue seamlessly
+- @frasbergai.com team domain: register/login auto-assigns plan "scale" (auth.py TEAM_DOMAIN); unlimited tokens/credits/rate across /api/quotas, /v1/chat, /v1/chat/completions, key creation (server.py _is_team_email); Dashboard shows "Unlimited"
+- Verified by testing agent iteration_37.json (100% backend 8/8, 100% frontend) + manual pause/resume browser test
+- Pending user actions: redeploy to frasberg.com (live domain runs old build, /api/workspace/publishes 404 there); Resend DNS on Squarespace

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
-  Home, X, Plus, Paperclip, GitFork, Mic, ArrowUp, Share2, RefreshCw, ExternalLink, Copy, Sparkles, Download,
+  Home, X, Plus, Paperclip, GitFork, Mic, ArrowUp, Share2, RefreshCw, ExternalLink, Copy, Sparkles, Download, Square, Play,
 } from "lucide-react";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -85,6 +85,8 @@ export default function AgentWorkspace() {
   const [attach, setAttach] = useState(null);
   const [helpOpen, setHelpOpen] = useState(false);
   const [listening, setListening] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const abortRef = useRef(null);
   const fileRef = useRef(null);
   const recRef = useRef(null);
   const bottomRef = useRef(null);
@@ -113,20 +115,25 @@ export default function AgentWorkspace() {
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
-  const send = useCallback(async (text) => {
+  const send = useCallback(async (text, display) => {
     const msg = (text || input).trim();
     if (!msg || running) return;
     setInput("");
     setShowSuggest(false);
     setRunning(true);
+    setPaused(false);
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
     const att = attach;
     setAttach(null);
-    setMessages((m) => [...m, { role: "user", content: att ? `${msg}\n📎 ${att.name}` : msg }, { role: "assistant", content: "" }]);
+    const shownMsg = display ?? (att ? `${msg}\n📎 ${att.name}` : msg);
+    setMessages((m) => [...m, { role: "user", content: shownMsg }, { role: "assistant", content: "" }]);
     try {
       const res = await fetch(`${API}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
+        signal: ctrl.signal,
         body: JSON.stringify({
           message: att?.kind === "text" ? `${msg}\n\nAttached file ${att.name}:\n\`\`\`\n${att.text.slice(0, 20000)}\n\`\`\`` : msg,
           session_id: session, model, agent: agentKey,
@@ -164,16 +171,42 @@ export default function AgentWorkspace() {
         }
       }
     } catch (err) {
-      const note = err?.message && err.message !== "network" ? err.message : "Connection hiccup — please try again.";
-      setMessages((m) => {
-        const next = [...m];
-        if (!next[next.length - 1].content) next[next.length - 1] = { role: "assistant", content: note };
-        return next;
-      });
+      if (err?.name === "AbortError") {
+        setMessages((m) => {
+          const next = [...m];
+          if (!next[next.length - 1].content) next[next.length - 1] = { role: "assistant", content: "⏸ Paused." };
+          return next;
+        });
+      } else {
+        const note = err?.message && err.message !== "network" ? err.message : "Connection hiccup — please try again.";
+        setMessages((m) => {
+          const next = [...m];
+          if (!next[next.length - 1].content) next[next.length - 1] = { role: "assistant", content: note };
+          return next;
+        });
+      }
     } finally {
       setRunning(false);
     }
   }, [input, running, session, model, agentKey, attach]);
+
+  const stopAgent = () => {
+    abortRef.current?.abort();
+    setPaused(true);
+    toast("Agent paused — hit Resume to continue", { duration: 4000 });
+  };
+
+  const resumeAgent = () => {
+    const last = [...messages].reverse().find((m) => m.role === "assistant" && m.content && m.content !== "⏸ Paused.");
+    const tail = last ? last.content.slice(-3000) : "";
+    setPaused(false);
+    send(
+      tail
+        ? `You were paused mid-response. Here is the end of what you had written so far:\n---\n${tail}\n---\nContinue from EXACTLY where this leaves off. Do not repeat anything already written. If you were inside a code block, continue the code seamlessly.`
+        : "Continue where you left off.",
+      "▶ Resume",
+    );
+  };
 
   const onFile = (e) => {
     const f = e.target.files?.[0];
@@ -344,6 +377,15 @@ export default function AgentWorkspace() {
                 <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full" style={{ background: "#10B981" }} /> Agent is running…
               </p>
             )}
+            {paused && !running && (
+              <div className="mb-1.5">
+                <button onClick={resumeAgent} data-testid="workspace-resume"
+                  className="flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 font-mono text-[11px] transition-colors hover:bg-white/[0.05]"
+                  style={{ borderColor: T.accent, color: T.accent }}>
+                  <Play size={10} fill="currentColor" /> Resume agent
+                </button>
+              </div>
+            )}
             <div className="rounded-xl border p-2.5" style={{ borderColor: T.border, background: T.surface }}>
               {attach && (
                 <div className="mb-1.5 flex w-fit items-center gap-2 rounded-md border px-3 py-1.5 text-[12px]" style={{ borderColor: T.border, background: T.inset, color: T.text2 }} data-testid="workspace-attachment-chip">
@@ -366,11 +408,19 @@ export default function AgentWorkspace() {
                   <option value="luchii-70b">✳ luchii-70b</option>
                 </select>
                 <button className={`${iconBtn} ml-auto`} style={{ borderColor: listening ? T.accent : T.borderSub, color: listening ? T.accent : T.muted }} onClick={toggleMic} aria-label="Mic" data-testid="workspace-mic"><Mic size={14} className={listening ? "animate-pulse" : ""} /></button>
-                <button onClick={() => send()} disabled={running || !input.trim()} data-testid="workspace-send"
-                  className="grid h-9 w-9 place-items-center rounded-full transition-opacity disabled:opacity-40"
-                  style={{ background: T.accent, color: "#08090A" }} aria-label="Send">
-                  <ArrowUp size={15} />
-                </button>
+                {running ? (
+                  <button onClick={stopAgent} data-testid="workspace-stop"
+                    className="grid h-9 w-9 place-items-center rounded-full transition-opacity hover:opacity-85"
+                    style={{ background: T.text, color: T.bg }} aria-label="Pause agent">
+                    <Square size={12} fill="currentColor" />
+                  </button>
+                ) : (
+                  <button onClick={() => send()} disabled={!input.trim()} data-testid="workspace-send"
+                    className="grid h-9 w-9 place-items-center rounded-full transition-opacity disabled:opacity-40"
+                    style={{ background: T.accent, color: "#08090A" }} aria-label="Send">
+                    <ArrowUp size={15} />
+                  </button>
+                )}
               </div>
             </div>
           </div>
