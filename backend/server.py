@@ -2941,7 +2941,19 @@ async def workspace_slug_check(name: str = ""):
     n = name.strip().lower()
     valid = bool(WS_SLUG_RE.match(n)) and n not in WS_RESERVED_SLUGS
     taken = bool(valid and await db.workspace_publishes.count_documents({"slug": n}))
-    return {"name": n, "valid": valid, "available": valid and not taken}
+    suggestions = []
+    if valid and taken:
+        candidates = [f"{n}-app", f"{n}-hq", f"{n}-live", f"get-{n}", f"try-{n}",
+                      f"{n}-{secrets.token_hex(1)}", f"{n}-{secrets.token_hex(1)}"]
+        for c in candidates:
+            c = c[:30].rstrip("-")
+            if len(suggestions) >= 3:
+                break
+            if c in suggestions or not WS_SLUG_RE.match(c) or c in WS_RESERVED_SLUGS:
+                continue
+            if await db.workspace_publishes.count_documents({"slug": c}) == 0:
+                suggestions.append(c)
+    return {"name": n, "valid": valid, "available": valid and not taken, "suggestions": suggestions}
 
 
 @api_router.post("/workspace/publishes/{pid}/slug")

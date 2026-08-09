@@ -85,6 +85,7 @@ export default function AgentWorkspace() {
   const [slugName, setSlugName] = useState(saved.savedSlug || "");
   const [savedSlug, setSavedSlug] = useState(saved.savedSlug || null);
   const [slugStatus, setSlugStatus] = useState(null);
+  const [slugSuggestions, setSlugSuggestions] = useState([]);
   const [attach, setAttach] = useState(null);
   const [helpOpen, setHelpOpen] = useState(false);
   const [listening, setListening] = useState(false);
@@ -112,7 +113,10 @@ export default function AgentWorkspace() {
     setSlugStatus("checking");
     const t = setTimeout(() => {
       fetch(`${API}/workspace/slug-check?name=${encodeURIComponent(n)}`).then((r) => r.json())
-        .then((d) => setSlugStatus(!d.valid ? "invalid" : d.available ? "available" : "taken"))
+        .then((d) => {
+          setSlugStatus(!d.valid ? "invalid" : d.available ? "available" : "taken");
+          setSlugSuggestions(d.suggestions || []);
+        })
         .catch(() => setSlugStatus(null));
     }, 350);
     return () => clearTimeout(t);
@@ -580,6 +584,18 @@ export default function AgentWorkspace() {
                       {slugStatus === "invalid" && "✗ 3–30 chars: lowercase letters, numbers and hyphens"}
                       {!slugStatus && !savedSlug && "Your app keeps working at its standard link either way"}
                     </p>
+                    {slugStatus === "taken" && slugSuggestions.length > 0 && (
+                      <div className="mt-2 flex flex-wrap items-center gap-2" data-testid="custom-url-suggestions">
+                        <span className="font-mono text-[11px]" style={{ color: T.text2 }}>Available instead:</span>
+                        {slugSuggestions.map((s) => (
+                          <button key={s} onClick={() => setSlugName(s)} data-testid={`slug-suggestion-${s}`}
+                            className="rounded-full border px-3 py-1 font-mono text-[11px] transition-colors hover:bg-white/[0.05]"
+                            style={{ borderColor: T.accent, color: T.accent }}>
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     {savedSlug && (
                       <div className="mt-2 flex flex-wrap items-center gap-3 rounded-md border px-3 py-2" style={{ borderColor: "rgba(16,185,129,0.35)" }} data-testid="custom-url-active">
                         <span className="font-mono text-[12px]" style={{ color: "#10B981" }}>● https://{savedSlug}.preview.frasberg.com</span>

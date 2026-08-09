@@ -163,3 +163,7 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Manage tab "Custom preview URL" card: input with live green/red availability, Claim button, active URL row with Open/Copy
 - Fixed: missing `import re` in server.py (caused brief 502)
 - Verified: claim flow via curl (check->claim->taken->served 200 + host-header serving), UI screenshot
+
+## 2026-06 (fork, cont. 9) — URL Suggestions
+- slug-check now returns 3 available alternatives (name-app/-hq/-live/get-/try-/rand) when a name is taken; Manage tab shows clickable cyan suggestion chips that fill the input and re-check
+- Verified via curl + browser (taken -> chips -> click -> available -> Claim enabled)
