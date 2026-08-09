@@ -1,0 +1,35 @@
+{
+  "summary": "Frontend-only smoke of the redesigned /dashboard (Emergent style) and /admin universe snapshot flows. All requested flows pass: overview metrics, quota panel, upgrade modal (3 tiers) from both quota-upgrade-btn and quota-chip, key create/revoke, new-key-banner + copy, autotopup toggle, alert threshold change (toast), email-statement graceful toast (backend 503 -> UI toast), key-usage-graph empty state, ChatDemo/Playground, Quickstart CodeTabs, Models list, Email history, Pricing section. Admin: LINQ renamed correctly (row text 'LINQ' — no 'LINQ Universe' anywhere), snapshot save shows toast 'Snapshot saved: LINQ @ tick 20', Tick x10 advances tick 20->30, snapshot-restore reverts tick 30->20 exactly (verified in table), snapshot-delete works (chips row clears to 'No snapshots yet'), Dissolve on 'Kess Verdant' succeeds without touching Frasberg/Luchii/LINQ.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/receipts/send-now", "issue": "Returns 503 (email sending domain not verified). This is expected/graceful — UI shows toast 'Email delivery is currently restricted until our sending domain is verified. Your statement attempt was logged.' No action required unless production emails are meant to send."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Dashboard (ChatDemo)", "issues": ["React DOM hydration warning: '<span> cannot be a child of <option>' at /app/frontend/src/components/site/ChatDemo.jsx line ~547 (voice speed select). Cosmetic dev-console warning caused by wrapping option text in a data-ve-dynamic <span>; does not break UI but should be cleaned up."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "(Optional) Wrap the voice-speed <option> label in ChatDemo.jsx line ~547 so the <option> child is a plain text node instead of a <span>, to remove the React hydration warning.",
+    "(Optional) If production email statements are expected to actually send, verify the sender domain so /api/receipts/send-now stops returning 503."
+  ],
+  "critical_code_review_comments": [
+    "Dashboard.jsx (~505 lines) is at the upper end but still single-file manageable; consider splitting KeysPanel, QuotaPanel, and OverviewMetrics into subcomponents if it grows further.",
+    "In generate() the 402 branch redirects to /pay via setTimeout — good UX, but no cleanup of the timer if the component unmounts. Minor.",
+    "refresh() uses Promise.all with individual .then((r)=> r.ok ? r.json() : []) — swallows errors silently. Consider surfacing per-endpoint failures in dev.",
+    "Admin cloud panel correctly guards Frasberg/Luchii/LINQ from delete via UI list (verified during dissolve test)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only run)", "frontend": "100% of requested flows"},
+  "test_credentials": "Admin admin@frasberg.com / LuchiiAdmin2026!; User doctester1@frasberg.com / DocTester2026! (both worked, cookie session)",
+  "seed_data_creation": "Created and revoked two TEST_ API keys for doctester1; created and deleted one snapshot on LINQ universe; dissolved 'Kess Verdant' universe as instructed (safe target).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All requested flows verified visually + programmatically. Snapshot save->tick->restore->delete cycle confirmed by tick value reverting from 30 to 20 in the LINQ row. Universes list post-run: Aurora Prime, Nhaxis Quantum, Frasberg, Luchii, LINQ, Universe-939 (Kess Verdant was dissolved as part of this test — reseed if needed).",
+  "rca of the issue": "n/a — no blocking issues found."
+}

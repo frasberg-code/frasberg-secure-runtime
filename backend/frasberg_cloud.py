@@ -427,6 +427,10 @@ class ResolutionBody(BaseModel):
     content: str = ""
 
 
+class SnapshotBody(BaseModel):
+    label: Optional[str] = None
+
+
 def _summary(u):
     return {k: u[k] for k in ["id", "name", "created", "tick", "phase", "stability", "population",
                               "territory", "posture", "collapses", "paradoxesResolved", "knowledge", "fractalLayers"]} | {
@@ -700,6 +704,56 @@ async def chronicle_audio(uid: str):
         {"_id": h}, {"$set": {"b64": b64, "universe_id": uid, "created": _now()}}, upsert=True)
     return Response(content=base64.b64decode(b64), media_type="audio/mpeg",
                     headers={"Cache-Control": "public, max-age=604800"})
+
+
+@router.post("/universes/{uid}/snapshots")
+async def save_snapshot(uid: str, body: SnapshotBody):
+    u = await db.cloud_universes.find_one({"_id": uid})
+    if not u:
+        raise HTTPException(status_code=404, detail="Universe not found")
+    u.pop("_id", None)
+    snap = {
+        "_id": str(uuid.uuid4())[:12],
+        "universe_id": uid,
+        "label": (body.label or f"{u['name']} @ tick {u['tick']}")[:80],
+        "tick": u["tick"],
+        "phase": u["phase"],
+        "created": _now(),
+        "state": u,
+    }
+    await db.cloud_snapshots.insert_one(snap)
+    # keep only the 10 most recent per universe
+    old = await db.cloud_snapshots.find({"universe_id": uid}, {"_id": 1, "created": 1}).sort("created", -1).to_list(100)
+    for doc in old[10:]:
+        await db.cloud_snapshots.delete_one({"_id": doc["_id"]})
+    await _log(uid, "snapshot", f"Snapshot saved: {snap['label']}")
+    return {"id": snap["_id"], "label": snap["label"], "tick": snap["tick"], "created": snap["created"]}
+
+
+@router.get("/universes/{uid}/snapshots")
+async def list_snapshots(uid: str):
+    docs = await db.cloud_snapshots.find({"universe_id": uid}, {"state": 0}).sort("created", -1).to_list(10)
+    return {"snapshots": [{"id": d["_id"], "label": d["label"], "tick": d["tick"],
+                           "phase": d.get("phase"), "created": d["created"]} for d in docs]}
+
+
+@router.post("/snapshots/{sid}/restore")
+async def restore_snapshot(sid: str):
+    snap = await db.cloud_snapshots.find_one({"_id": sid})
+    if not snap:
+        raise HTTPException(status_code=404, detail="Snapshot not found")
+    state = snap["state"]
+    await db.cloud_universes.replace_one({"_id": snap["universe_id"]}, {**state, "_id": snap["universe_id"]}, upsert=True)
+    await _log(snap["universe_id"], "restore", f"Universe restored from snapshot: {snap['label']}")
+    return {"restored": snap["universe_id"], "label": snap["label"], "tick": snap["tick"]}
+
+
+@router.delete("/snapshots/{sid}")
+async def delete_snapshot(sid: str):
+    res = await db.cloud_snapshots.delete_one({"_id": sid})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Snapshot not found")
+    return {"deleted": sid}
 
 
 @router.get("/map")

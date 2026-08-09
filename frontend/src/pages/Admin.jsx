@@ -26,6 +26,11 @@ export default function Admin() {
   const [tenants, setTenants] = useState(null);
   const [tenantAnalytics, setTenantAnalytics] = useState(null);
   const [cloudUniverses, setCloudUniverses] = useState([]);
+  const [snapUniverse, setSnapUniverse] = useState(null);
+  const [snapshots, setSnapshots] = useState([]);
+
+  const reloadCloud = () => axios.get(`${API}/cloud/universes`).then((r) => setCloudUniverses(r.data.universes || [])).catch(() => {});
+  const loadSnapshots = (uid) => axios.get(`${API}/cloud/universes/${uid}/snapshots`).then((r) => setSnapshots(r.data.snapshots || [])).catch(() => {});
   const [health, setHealth] = useState(null);
   const [audit, setAudit] = useState([]);
   const [tenantDetail, setTenantDetail] = useState(null); // {id, loading, data}
@@ -597,7 +602,8 @@ export default function Admin() {
                       <tr><td colSpan="8" className="px-4 py-5 text-center font-mono text-xs text-lux-text2">No universes yet</td></tr>
                     )}
                     {cloudUniverses.map((u) => (
-                      <tr key={u.id} className="border-b border-lux-border/50" data-testid={`admin-universe-row-${u.id}`}>
+                      <Fragment key={u.id}>
+                      <tr className="border-b border-lux-border/50" data-testid={`admin-universe-row-${u.id}`}>
                         <td className="px-4 py-3 text-lux-text">{u.name}</td>
                         <td className="px-4 py-3 font-mono text-xs text-lux-accent">{u.phase}</td>
                         <td className="px-4 py-3 font-mono text-xs">{u.tick}</td>
@@ -614,16 +620,57 @@ export default function Admin() {
                                 axios.get(`${API}/cloud/universes`).then((r) => setCloudUniverses(r.data.universes || []));
                               }}
                               className="rounded-full border border-lux-border px-3 py-1 font-mono text-[10px] hover:border-lux-accent">Tick ×10</button>
+                            <button data-testid={`admin-universe-snapshot-${u.id}`}
+                              onClick={async () => {
+                                const r = await axios.post(`${API}/cloud/universes/${u.id}/snapshots`, {});
+                                toast.success(`Snapshot saved: ${r.data.label}`);
+                                if (snapUniverse === u.id) loadSnapshots(u.id);
+                              }}
+                              className="rounded-full border border-lux-border px-3 py-1 font-mono text-[10px] hover:border-lux-accent">Snapshot</button>
+                            <button data-testid={`admin-universe-snapshots-${u.id}`}
+                              onClick={() => {
+                                if (snapUniverse === u.id) { setSnapUniverse(null); return; }
+                                setSnapUniverse(u.id); loadSnapshots(u.id);
+                              }}
+                              className={`rounded-full border px-3 py-1 font-mono text-[10px] ${snapUniverse === u.id ? "border-lux-accent text-lux-accent" : "border-lux-border hover:border-lux-accent"}`}>Restore…</button>
                             <button data-testid={`admin-universe-delete-${u.id}`}
                               onClick={async () => {
                                 await axios.delete(`${API}/cloud/universes/${u.id}`);
                                 toast.success(`${u.name} dissolved`);
-                                axios.get(`${API}/cloud/universes`).then((r) => setCloudUniverses(r.data.universes || []));
+                                reloadCloud();
                               }}
                               className="rounded-full border border-lux-border px-3 py-1 font-mono text-[10px] text-red-400 hover:border-red-500/60">Dissolve</button>
                           </div>
                         </td>
                       </tr>
+                      {snapUniverse === u.id && (
+                        <tr className="border-b border-lux-border/50 bg-lux-surface" data-testid={`admin-snapshots-row-${u.id}`}>
+                          <td colSpan="8" className="px-4 py-3">
+                            {snapshots.length === 0 ? (
+                              <p className="font-mono text-xs text-lux-text2">No snapshots yet — click Snapshot to save this universe's exact state.</p>
+                            ) : (
+                              <div className="flex flex-wrap gap-2">
+                                {snapshots.map((s) => (
+                                  <div key={s.id} className="flex items-center gap-2 rounded-full border border-lux-border px-3 py-1.5" data-testid={`snapshot-chip-${s.id}`}>
+                                    <span className="font-mono text-[10px] text-lux-text2">{s.label} · {s.created.slice(0, 16).replace("T", " ")}</span>
+                                    <button data-testid={`snapshot-restore-${s.id}`}
+                                      onClick={async () => {
+                                        await axios.post(`${API}/cloud/snapshots/${s.id}/restore`);
+                                        toast.success(`Restored to "${s.label}"`);
+                                        reloadCloud();
+                                      }}
+                                      className="rounded-full border border-emerald-400/50 px-2.5 py-0.5 font-mono text-[9px] uppercase text-emerald-400 hover:bg-emerald-400/10">Restore</button>
+                                    <button data-testid={`snapshot-delete-${s.id}`}
+                                      onClick={async () => { await axios.delete(`${API}/cloud/snapshots/${s.id}`); loadSnapshots(u.id); }}
+                                      className="font-mono text-[10px] text-lux-text2 hover:text-red-400">✕</button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      )}
+                      </Fragment>
                     ))}
                   </tbody>
                 </table>
