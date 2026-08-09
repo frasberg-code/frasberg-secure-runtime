@@ -123,3 +123,9 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - GET /api/admin/team: all @frasbergai.com members with keys, monthly tokens/requests, last active; "Frasberg Team" section added to Admin console (admin-team-panel)
 - Quota alerts: _maybe_quota_alert fires after each metered gateway call — emails developer at >=80% of monthly plan quota via Resend, once per month (quota_alerts collection dedup), skips team/admin/unlimited accounts. Verified real delivery (delivered@resend.dev, ok:true in email_log)
 - Text edits: workspace empty states say "ask Luchii", Dashboard subtitle "Frasberg gateway ... 60 requests/min"
+
+## 2026-06 (fork, cont. 2) — Native App Packaging
+- New /app/backend/native_packaging.py: POST/GET/DELETE /api/native/builds, GET .../download (real Android Studio project ZIP: gradle files, manifest, WebView MainActivity, app HTML in assets), POST .../publish (Google Play SIMULATION: in_review -> published after 45s with play.google.com URL)
+- New NativeApps component in Dashboard (/app/frontend/src/components/site/NativeApps.jsx): app picker, name/package inputs, build button, builds list with status chips, APK project download, Play listing form
+- Self-tested full lifecycle via curl (zip validated w/ unzip -l, 9 files) + dashboard screenshot
+- NOTE: Google Play publish is MOCKED (no real Play Console API); APK requires user to run ./gradlew assembleDebug on the downloaded project

@@ -12,6 +12,7 @@ import Pricing from "../components/site/Pricing";
 import { MODELS } from "../data/content";
 import { TrialBanner } from "../components/site/TrialBanner";
 import UpgradePlanModal from "../components/site/UpgradePlanModal";
+import { NativeApps } from "../components/site/NativeApps";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -285,6 +286,8 @@ export default function Dashboard() {
             </p>
           </Panel>
         )}
+
+        <NativeApps />
 
         {/* Usage chart */}
         <section className="mt-10">

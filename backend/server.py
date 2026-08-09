@@ -2923,6 +2923,8 @@ async def delete_workspace_publish(pid: str):
     return {"deleted": pid}
 
 
+import native_packaging
+api_router.include_router(native_packaging.router)
 import games_portal
 api_router.include_router(games_portal.router)
 import frasberg_cloud
