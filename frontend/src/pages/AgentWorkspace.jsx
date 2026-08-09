@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
-  Home, X, Plus, Paperclip, GitFork, Mic, ArrowUp, Share2, RefreshCw, ExternalLink, Copy, Sparkles,
+  Home, X, Plus, Paperclip, GitFork, Mic, ArrowUp, Share2, RefreshCw, ExternalLink, Copy, Sparkles, Download,
 } from "lucide-react";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -81,6 +81,7 @@ export default function AgentWorkspace() {
     (saved.publishes || []).map((p) => ({ ...p, at: new Date(p.at) }))
   );
   const [reviewKind, setReviewKind] = useState("Code Review");
+  const [publishId, setPublishId] = useState(saved.publishId || null);
   const bottomRef = useRef(null);
 
   // workspace memory — builds and chats survive refresh
@@ -88,12 +89,12 @@ export default function AgentWorkspace() {
     if (running) return;
     try {
       localStorage.setItem(`luchii-ws-${agentKey}`, JSON.stringify({
-        model, session,
+        model, session, publishId,
         messages: messages.slice(-40),
         publishes: publishes.slice(0, 10).map((p) => ({ ...p, at: p.at.toISOString() })),
       }));
     } catch {}
-  }, [messages, session, publishes, model, agentKey, running]);
+  }, [messages, session, publishes, model, agentKey, running, publishId]);
 
   const previewHtml = (() => {
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -158,12 +159,49 @@ export default function AgentWorkspace() {
     }
   }, [input, running, session, model, agentKey]);
 
-  const republish = () => {
+  const isTruncated = (h) => /<html/i.test(h) && !/<\/html>/i.test(h);
+
+  const republish = async () => {
     if (!previewHtml) { toast.error("Nothing to publish yet — ask the agent to build something first"); return; }
-    const n = publishes.length + 1;
-    const hash = Math.random().toString(16).slice(2, 9);
-    setPublishes((p) => [{ n, hash, at: new Date(), html: previewHtml }, ...p]);
-    toast.success(`Publish ${n} deployed — ${hash}`);
+    if (isTruncated(previewHtml)) {
+      toast.warning("Build looks incomplete — asking the agent to finish it", { duration: 5000 });
+      send("The HTML you generated was cut off before the closing </html> tag. Regenerate the COMPLETE file from <!DOCTYPE html> to </html> in one code block, keeping it compact enough to fit.");
+      return;
+    }
+    try {
+      let d = null;
+      if (publishId) {
+        const r = await fetch(`${API}/workspace/publishes/${publishId}`, {
+          method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ html: previewHtml }),
+        });
+        if (r.ok) d = await r.json();
+      }
+      if (!d) {
+        const r = await fetch(`${API}/workspace/publishes`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ agent: agentKey, title: `${agent.name} build`, html: previewHtml }),
+        });
+        if (!r.ok) throw new Error();
+        d = await r.json();
+        setPublishId(d.id);
+      }
+      setPublishes((p) => [{ n: d.version, hash: d.hash, at: new Date(), url: d.url }, ...p]);
+      toast.success(`Publish ${d.version} deployed — ${d.hash}`, {
+        action: { label: "Open", onClick: () => window.open(`${process.env.REACT_APP_BACKEND_URL}${d.url}`, "_blank") },
+      });
+    } catch { toast.error("Publish failed — try again"); }
+  };
+
+  const downloadBuild = () => {
+    if (!previewHtml) { toast.error("Nothing to download yet — ask the agent to build something first"); return; }
+    if (isTruncated(previewHtml)) toast.warning("Heads up — this build looks incomplete (missing </html>)");
+    const blob = new Blob([previewHtml], { type: "text/html" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `luchii-${agentKey}-build.html`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast.success("Build downloaded");
   };
 
   const healthCheck = async () => {
@@ -187,7 +225,7 @@ export default function AgentWorkspace() {
     <main className="flex h-screen flex-col overflow-hidden" style={{ background: T.bg, color: T.text }} data-testid="agent-workspace-page">
       {/* Tab bar */}
       <div className="flex h-12 shrink-0 items-center gap-2 border-b px-3" style={{ borderColor: T.borderSub, background: T.inset }}>
-        <Link to="/" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors hover:bg-white/[0.05]" style={{ color: T.text2 }} data-testid="workspace-home-btn">
+        <Link to="/apps" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors hover:bg-white/[0.05]" style={{ color: T.text2 }} data-testid="workspace-home-btn">
           <Home size={14} /> Home
         </Link>
         <div className="flex items-center gap-2 rounded-t-md border border-b-0 px-3.5 py-2 text-[13px]" style={{ borderColor: T.border, background: T.surface }} data-testid="workspace-tab">
@@ -300,6 +338,7 @@ export default function AgentWorkspace() {
             <div className="ml-auto flex items-center gap-2">
               <button onClick={() => toast("Docs: /luchii-code")} className="rounded-full border px-3.5 py-1.5 text-[11.5px]" style={{ borderColor: T.border, color: T.text2 }} data-testid="workspace-help-btn">Need Help?</button>
               <button className={iconBtn} style={{ borderColor: T.borderSub, color: T.muted }} onClick={() => { navigator.clipboard.writeText(window.location.href).catch(() => {}); toast.success("Workspace link copied"); }} aria-label="Share" data-testid="workspace-share"><Share2 size={13} /></button>
+              <button className={iconBtn} style={{ borderColor: T.borderSub, color: T.muted }} onClick={downloadBuild} aria-label="Download build" data-testid="workspace-download"><Download size={13} /></button>
               <button className={iconBtn} style={{ borderColor: T.borderSub, color: T.muted }} onClick={() => setTab("preview")} aria-label="Reload preview" data-testid="workspace-reload"><RefreshCw size={13} /></button>
               <button onClick={republish} data-testid="workspace-republish"
                 className="flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[12px] font-600" style={{ background: T.text, color: T.bg }}>
@@ -373,7 +412,10 @@ export default function AgentWorkspace() {
                             <span className="inline-block h-2 w-2 rounded-full" style={{ background: "#10B981" }} />
                             Publish {p.n} · {p.at.toLocaleTimeString()} <code className="font-mono text-[10px]" style={{ color: T.muted }}>{p.hash}</code>
                           </span>
-                          <button className="text-[12px] underline" style={{ color: T.text2 }} onClick={() => toast(`Logs for publish ${p.n}: build OK · deploy OK · healthy`)}>View Logs</button>
+                          <span className="flex gap-3">
+                            {p.url && <a className="text-[12px] underline" style={{ color: T.accent }} href={`${process.env.REACT_APP_BACKEND_URL}${p.url}`} target="_blank" rel="noreferrer" data-testid={`publish-open-${p.n}`}>Open ↗</a>}
+                            <button className="text-[12px] underline" style={{ color: T.text2 }} onClick={() => toast(`Logs for publish ${p.n}: build OK · deploy OK · healthy`)}>View Logs</button>
+                          </span>
                         </div>
                       ))
                     )}

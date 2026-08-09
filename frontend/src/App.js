@@ -18,6 +18,7 @@ import CodingAgents from "./pages/CodingAgents";
 import Auth from "./pages/Auth";
 import Chat from "./pages/Chat";
 import AgentWorkspace from "./pages/AgentWorkspace";
+import WorkspaceHome from "./pages/WorkspaceHome";
 
 function ChatRoute() {
   const [params] = useSearchParams();
@@ -88,6 +89,7 @@ function App() {
               <Route path="/about" element={<About />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/chat" element={<ChatRoute />} />
+              <Route path="/apps" element={<WorkspaceHome />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin/mesh" element={<MeshControlCenter />} />

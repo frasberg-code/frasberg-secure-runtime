@@ -110,7 +110,7 @@ async def _try_upstream(message: str, system_base: str, model: str):
                         {"role": "system", "content": system_base},
                         {"role": "user", "content": message},
                     ],
-                    "max_tokens": 1024,
+                    "max_tokens": 8192,
                     "temperature": 0.7,
                 },
             )
@@ -466,7 +466,7 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
             llm = LlmChat(
                 api_key=EMERGENT_LLM_KEY, session_id=session_id,
                 system_message=sb + history,
-            ).with_model("anthropic", "claude-sonnet-4-6")
+            ).with_model("anthropic", "claude-sonnet-4-6").with_params(max_tokens=16384)
             try:
                 user_msg = UserMessage(text=llm_text, file_contents=image_contents) if image_contents else UserMessage(text=llm_text)
                 async for event in llm.stream_message(user_msg):
@@ -2758,6 +2758,74 @@ import builder as builder_module
 api_router.include_router(auth_module.router)
 api_router.include_router(builder_module.router)
 api_router.include_router(mesh_ws.router)
+# ── Workspace publishes — real deployments from the agent workspace ──
+class WorkspacePublishBody(BaseModel):
+    agent: str = "builder"
+    title: str = "Untitled build"
+    html: str
+
+
+class WorkspaceUpdateBody(BaseModel):
+    html: str
+
+
+def _wp_public(d):
+    return {"id": d["id"], "agent": d["agent"], "title": d["title"], "hash": d["hash"],
+            "version": d.get("version", 1), "created": d["created"], "updated": d["updated"],
+            "published": True, "url": f"/api/workspace/publishes/{d['id']}/view"}
+
+
+@api_router.post("/workspace/publishes")
+async def create_workspace_publish(body: WorkspacePublishBody):
+    if len(body.html) > 400_000:
+        raise HTTPException(status_code=413, detail="Build too large")
+    if await db.workspace_publishes.count_documents({}) >= 100:
+        raise HTTPException(status_code=429, detail="Publish limit reached")
+    now = datetime.now(timezone.utc).isoformat()
+    pid = uuid.uuid4().hex[:10]
+    doc = {"_id": pid, "id": pid, "agent": body.agent[:20], "title": body.title[:80],
+           "html": body.html, "hash": uuid.uuid4().hex[:7], "version": 1,
+           "created": now, "updated": now}
+    await db.workspace_publishes.insert_one(doc)
+    return _wp_public(doc)
+
+
+@api_router.put("/workspace/publishes/{pid}")
+async def update_workspace_publish(pid: str, body: WorkspaceUpdateBody):
+    doc = await db.workspace_publishes.find_one({"_id": pid})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Publish not found")
+    doc["html"] = body.html
+    doc["hash"] = uuid.uuid4().hex[:7]
+    doc["version"] = doc.get("version", 1) + 1
+    doc["updated"] = datetime.now(timezone.utc).isoformat()
+    await db.workspace_publishes.replace_one({"_id": pid}, doc)
+    return _wp_public(doc)
+
+
+@api_router.get("/workspace/publishes")
+async def list_workspace_publishes():
+    docs = await db.workspace_publishes.find({}, {"html": 0}).sort("updated", -1).to_list(100)
+    return {"publishes": [_wp_public(d) for d in docs]}
+
+
+@api_router.get("/workspace/publishes/{pid}/view")
+async def view_workspace_publish(pid: str):
+    from fastapi.responses import HTMLResponse
+    doc = await db.workspace_publishes.find_one({"_id": pid})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Publish not found")
+    return HTMLResponse(content=doc["html"])
+
+
+@api_router.delete("/workspace/publishes/{pid}")
+async def delete_workspace_publish(pid: str):
+    res = await db.workspace_publishes.delete_one({"_id": pid})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Publish not found")
+    return {"deleted": pid}
+
+
 import games_portal
 api_router.include_router(games_portal.router)
 import frasberg_cloud
