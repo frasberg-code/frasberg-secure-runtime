@@ -39,6 +39,7 @@ export default function Footer() {
                 <li><a href="/#benchmarks" className="hover:text-lux-text">Benchmarks</a></li>
                 <li><a href="/#safety" className="hover:text-lux-text">Safety</a></li>
                 <li><a href="/software" className="hover:text-lux-text" data-testid="footer-software-link">Software</a></li>
+                <li><a href="/cloud" className="hover:text-lux-text" data-testid="footer-cloud-link">Frasberg Cloud</a></li>
                 <li><a href="/brand" className="hover:text-lux-text">Brand Kit</a></li>
               </ul>
             </div>

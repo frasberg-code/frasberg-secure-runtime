@@ -2760,6 +2760,8 @@ api_router.include_router(builder_module.router)
 api_router.include_router(mesh_ws.router)
 import games_portal
 api_router.include_router(games_portal.router)
+import frasberg_cloud
+api_router.include_router(frasberg_cloud.router)
 import asset_pipeline
 api_router.include_router(asset_pipeline.router)
 import studio
