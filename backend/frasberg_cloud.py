@@ -22,6 +22,12 @@ MORALS = ["unity endures beyond collapse", "power without empathy ruptures world
           "knowledge shared is a universe reborn", "even entropy carries a seed of genesis",
           "trust is the only stable dimension", "ascension begins with a single kindness"]
 COMMODITIES = ["energy", "matter", "knowledge", "warp_stabilizer"]
+TECH_ERAS = [(0, "Primitive"), (15, "Agrarian"), (30, "Industrial"), (50, "Digital"),
+             (65, "Fusion"), (80, "Quantum"), (95, "Transcendent")]
+RITUALS = ["Festival of First Light", "The Entropy Vigil", "Rite of the Twin Moons",
+           "The Singularity Feast", "Warp-Calming Ceremony", "The Ascension Procession"]
+SYMBOLS = ["spiral of genesis", "fractured crown", "twin serpents", "silver helix",
+           "burning lattice", "the still flame", "woven starfield"]
 ABSOLUTE_LAWS = [
     {"id": "existence_continuity", "domain": "existence", "axiom": "existence cannot be nullified across all timelines"},
     {"id": "entropy_floor", "domain": "entropy", "axiom": "entropy cannot fall below zero in any universe"},
@@ -67,16 +73,30 @@ def _new_agent():
     }
 
 
+def _era_of(tech):
+    era = "Primitive"
+    for threshold, name in TECH_ERAS:
+        if tech >= threshold:
+            era = name
+    return era
+
+
 def _new_civilization():
+    tech = round(random.uniform(5, 25), 1)
     return {
         "id": str(uuid.uuid4())[:8],
         "name": random.choice(["Solane", "Vethari", "Ondra", "Kirith", "Halcyon", "Umbra", "Tessel"]) + " " +
                 random.choice(["Dominion", "Collective", "Concord", "Ascendancy", "Enclave"]),
-        "technologyLevel": round(random.uniform(5, 25), 1),
+        "technologyLevel": tech,
+        "era": _era_of(tech),
         "governance": "democracy",
         "expansionRate": round(random.random() * 0.6 + 0.1, 2),
         "population": random.randint(2000, 20000),
         "culture": {"cooperation": round(random.random(), 2), "hierarchy": round(random.random(), 2)},
+        "military": round(random.uniform(0.2, 0.8), 2),
+        "warsWon": 0,
+        "rituals": random.sample(RITUALS, 1),
+        "symbols": random.sample(SYMBOLS, 2),
     }
 
 
@@ -243,14 +263,37 @@ def tick_universe(u, events_out):
         for a in u["agents"]:
             if a["alive"]:
                 _psych_step(a, events_out, u["name"])
-    # civilizations
+    # civilizations — culture, tech trees, era progression, governance, expansion
     for c in u["civilizations"]:
         c["culture"]["cooperation"] = round(_clamp(c["culture"]["cooperation"] + random.random() * 0.05), 3)
         c["culture"]["hierarchy"] = round(_clamp(c["culture"]["hierarchy"] + random.random() * 0.03), 3)
         c["technologyLevel"] = round(min(100, c["technologyLevel"] + c["expansionRate"] * 2 + random.random()), 1)
+        new_era = _era_of(c["technologyLevel"])
+        if new_era != c.get("era", "Primitive"):
+            c["era"] = new_era
+            c["expansionRate"] = round(min(1.0, c["expansionRate"] + 0.05), 2)
+            c["military"] = round(_clamp(c.get("military", 0.5) + 0.05), 2)
+            events_out.append(("era", f"{c['name']} advanced to the {new_era.upper()} era in {u['name']}"))
         c["governance"] = "technocracy" if c["technologyLevel"] > 80 else ("autocracy" if c["culture"]["hierarchy"] > 0.7 else "democracy")
         c["population"] += int(c["expansionRate"] * 1000)
         u["territory"] = round(u["territory"] + c["expansionRate"] * 0.1, 2)
+    # civilization wars — tension breaks into open conflict
+    civs = u["civilizations"]
+    if len(civs) >= 2 and random.random() < 0.12:
+        a, b = random.sample(civs, 2)
+        tension = (a["culture"]["hierarchy"] + b["culture"]["hierarchy"]) / 2 - (a["culture"]["cooperation"] + b["culture"]["cooperation"]) / 2
+        if tension > -0.1:
+            sa = a.get("military", 0.5) * 0.5 + a["technologyLevel"] / 200 + random.random() * 0.3
+            sb = b.get("military", 0.5) * 0.5 + b["technologyLevel"] / 200 + random.random() * 0.3
+            winner, loser = (a, b) if sa >= sb else (b, a)
+            losses = int(loser["population"] * random.uniform(0.05, 0.2))
+            loser["population"] = max(500, loser["population"] - losses)
+            loser["technologyLevel"] = round(max(1, loser["technologyLevel"] - random.uniform(1, 4)), 1)
+            winner["warsWon"] = winner.get("warsWon", 0) + 1
+            winner["military"] = round(_clamp(winner.get("military", 0.5) + 0.04), 2)
+            u["violations"] += 1
+            ph["entropy"] = round(_clamp(ph["entropy"] + 0.02, 0.01, 0.99), 4)
+            events_out.append(("war", f"WAR in {u['name']}: {winner['name']} defeated {loser['name']} — {losses:,} lost, entropy rising"))
     u["population"] = sum(c["population"] for c in u["civilizations"]) + sum(1 for a in u["agents"] if a["alive"])
     # mythology
     if random.random() < 0.25 and u["civilizations"]:
@@ -357,6 +400,11 @@ class TradeBody(BaseModel):
     target: str
     commodity: str = "energy"
     amount: int = 100
+
+
+class ExchangeBody(BaseModel):
+    a: str
+    b: str
 
 
 class ResolutionBody(BaseModel):
@@ -495,6 +543,43 @@ async def trade(body: TradeBody):
     await db.cloud_universes.replace_one({"_id": body.target}, dst)
     await _log(body.target, "trade", f"{src['name']} delivered {amount} {body.commodity} to {dst['name']} (route stability {stability})")
     return {"delivered": amount, "commodity": body.commodity, "routeStability": stability}
+
+
+@router.post("/exchange")
+async def cultural_exchange(body: ExchangeBody):
+    ua = await db.cloud_universes.find_one({"_id": body.a})
+    ub = await db.cloud_universes.find_one({"_id": body.b})
+    if not ua or not ub:
+        raise HTTPException(status_code=404, detail="Universe not found")
+    if not ua["civilizations"] or not ub["civilizations"]:
+        raise HTTPException(status_code=409, detail="Both universes need at least one civilization")
+    ca, cb = random.choice(ua["civilizations"]), random.choice(ub["civilizations"])
+    impact = round(
+        (1 - abs(ca["culture"]["cooperation"] - cb["culture"]["cooperation"])) * 0.4 +
+        (1 - abs(ca["culture"]["hierarchy"] - cb["culture"]["hierarchy"])) * 0.3 +
+        random.random() * 0.3, 3)
+    ritual = random.choice(RITUALS)
+    symbol = random.choice(SYMBOLS)
+    for c, other in ((ca, cb), (cb, ca)):
+        c["culture"]["cooperation"] = round(_clamp(c["culture"]["cooperation"] + impact * 0.1), 3)
+        if ritual not in c.setdefault("rituals", []):
+            c["rituals"] = (c["rituals"] + [ritual])[-5:]
+        if symbol not in c.setdefault("symbols", []):
+            c["symbols"] = (c["symbols"] + [symbol])[-6:]
+    # a myth crosses universes
+    if ua["myths"]:
+        crossed = dict(random.choice(ua["myths"]))
+        crossed["id"] = str(uuid.uuid4())[:8]
+        ub["myths"] = ([crossed] + ub["myths"])[:20]
+    ua["knowledge"] += 50
+    ub["knowledge"] += 50
+    await db.cloud_universes.replace_one({"_id": body.a}, ua)
+    await db.cloud_universes.replace_one({"_id": body.b}, ub)
+    text = f"CULTURAL EXCHANGE: {ca['name']} ({ua['name']}) and {cb['name']} ({ub['name']}) shared the '{ritual}' and the {symbol} — impact {impact}"
+    await _log(body.a, "exchange", text)
+    await _log(body.b, "exchange", text)
+    return {"impactScore": impact, "ritual": ritual, "symbol": symbol,
+            "civilizations": [ca["name"], cb["name"]]}
 
 
 @router.get("/congress")

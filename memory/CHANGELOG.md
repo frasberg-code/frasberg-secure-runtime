@@ -27,3 +27,10 @@
   (synthesis/migrate/trade on 2 selected), congress panel, absolute laws panel. Footer link footer-cloud-link
 - Endpoints are public (no auth). Simulation is stochastic
 - Known cosmetic: Recharts -1 width warning on detail modal first mount (optional fix)
+
+## June 2026 - Cloud Auto-Run + Phase 2 (self-tested: curl + local sim + screenshot)
+- Auto-Run Mode: global toggle on /cloud (data-testid auto-run-toggle) ticks every universe each 5s; quiet mode only toasts important events (war/era/singularity/collapse/ascension/exchange)
+- Civilization wars: 12% chance/tick when 2+ civs and tension >= -0.1; loser loses pop/tech, winner gains warsWon/military, entropy +0.02 (verified 6 wars in 80-tick local sim)
+- Tech trees/eras: Primitive->Agrarian->Industrial->Digital->Fusion->Quantum->Transcendent from technologyLevel; era advance boosts expansion+military, logged as 'era' events
+- Cultural exchange: POST /api/cloud/exchange {a,b} — civs share rituals/symbols, cooperation boost, myth crosses universes, +50 knowledge each; ops-exchange-btn in multiverse ops bar
+- Detail modal shows civ era chip, wars won, rituals

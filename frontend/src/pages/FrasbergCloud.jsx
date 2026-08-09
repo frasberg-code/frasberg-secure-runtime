@@ -161,9 +161,11 @@ function UniverseDetail({ uid, onClose, refresh }) {
               {d.civilizations.map((c) => (
                 <div key={c.id} className="rounded-xl border border-lux-border px-3 py-2 text-xs">
                   <span className="text-lux-text">{c.name}</span>
+                  {c.era && <span className="ml-2 rounded-full border border-lux-gold/40 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wide text-lux-gold">{c.era}</span>}
                   <span className="ml-2 font-mono text-[10px] text-lux-text2">
-                    {c.governance} · tech {c.technologyLevel} · pop {c.population.toLocaleString()}
+                    {c.governance} · tech {c.technologyLevel} · pop {c.population.toLocaleString()}{c.warsWon > 0 ? ` · ⚔ ${c.warsWon} wars won` : ""}
                   </span>
+                  {c.rituals?.length > 0 && <p className="mt-0.5 font-mono text-[9px] text-lux-text2">rituals: {c.rituals.join(", ")}</p>}
                 </div>
               ))}
             </div>
@@ -200,6 +202,7 @@ export default function FrasbergCloud() {
   const [merge, setMerge] = useState([]);
   const [congress, setCongress] = useState(null);
   const [resTitle, setResTitle] = useState("");
+  const [autoRun, setAutoRun] = useState(false);
 
   const refresh = useCallback(() => {
     fetch(`${API}/kernel`).then((r) => r.json()).then(setKernel).catch(() => {});
@@ -208,16 +211,29 @@ export default function FrasbergCloud() {
   }, []);
   useEffect(() => { refresh(); }, [refresh]);
 
-  const tick = async (id, steps) => {
+  const tick = async (id, steps, quiet = false) => {
     const r = await fetch(`${API}/universes/${id}/tick`, {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ steps }),
     });
     const d = await r.json();
     if (r.ok) {
-      (d.events || []).slice(-3).forEach((e) => toast(e.text, { description: e.kind }));
+      const events = d.events || [];
+      const important = ["singularity", "collapse", "war", "era", "ascension", "exchange"];
+      (quiet ? events.filter((e) => important.includes(e.kind)) : events.slice(-3))
+        .slice(-3).forEach((e) => toast(e.text, { description: e.kind }));
       refresh();
     }
   };
+
+  // Auto-Run Mode — the multiverse evolves live while you watch
+  useEffect(() => {
+    if (!autoRun) return;
+    const id = setInterval(() => {
+      universes.forEach((u) => tick(u.id, 1, true));
+    }, 5000);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoRun, universes.map((u) => u.id).join(",")]);
 
   const del = async (id) => {
     await fetch(`${API}/universes/${id}`, { method: "DELETE" });
@@ -259,6 +275,16 @@ export default function FrasbergCloud() {
     const d = await r.json();
     if (r.ok) { toast.success(`Trade complete — ${d.delivered} knowledge delivered`); setMerge([]); refresh(); }
     else toast.error(d.detail || "Trade failed");
+  };
+
+  const exchange = async () => {
+    if (merge.length !== 2) { toast.error("Select 2 universes for a cultural exchange"); return; }
+    const r = await fetch(`${API}/exchange`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ a: merge[0], b: merge[1] }),
+    });
+    const d = await r.json();
+    if (r.ok) { toast.success(`Cultural exchange — ${d.civilizations.join(" ↔ ")} shared "${d.ritual}" (impact ${d.impactScore})`); setMerge([]); refresh(); }
+    else toast.error(d.detail || "Exchange failed");
   };
 
   const propose = async () => {
@@ -303,6 +329,10 @@ export default function FrasbergCloud() {
           The multiverse simulation console. Birth universes, evolve agents with psychology and souls,
           watch civilizations rise, myths spread, singularities ignite — and govern it all.
         </p>
+        <button onClick={() => setAutoRun((v) => !v)} data-testid="auto-run-toggle"
+          className={`mt-5 flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-600 transition-transform hover:-translate-y-0.5 ${autoRun ? "bg-emerald-400 text-lux-bg" : "border border-lux-border text-lux-text2 hover:border-lux-accent hover:text-lux-text"}`}>
+          <Play size={14} /> {autoRun ? "Auto-Run: LIVE — evolving every 5s (click to pause)" : "Auto-Run Mode: start live evolution"}
+        </button>
 
         <div className="mt-8 space-y-6">
           <KernelBar kernel={kernel} />
@@ -314,6 +344,7 @@ export default function FrasbergCloud() {
               <button onClick={synthesize} data-testid="ops-synthesize-btn" className="flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-1.5 text-xs hover:border-lux-accent"><GitMerge size={13} /> Omni-Synthesis (fuse)</button>
               <button onClick={migrate} data-testid="ops-migrate-btn" className="flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-1.5 text-xs hover:border-lux-accent"><ArrowRightLeft size={13} /> Migrate 5 agents</button>
               <button onClick={tradeKnowledge} data-testid="ops-trade-btn" className="flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-1.5 text-xs hover:border-lux-accent"><Zap size={13} /> Trade knowledge</button>
+              <button onClick={exchange} data-testid="ops-exchange-btn" className="flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-1.5 text-xs hover:border-lux-accent"><Landmark size={13} /> Cultural exchange</button>
               <button onClick={() => setMerge([])} className="font-mono text-xs text-lux-text2 hover:text-lux-text">clear</button>
             </div>
           )}
