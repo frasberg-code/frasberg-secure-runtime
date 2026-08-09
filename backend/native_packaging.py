@@ -13,6 +13,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel
 from PIL import Image
 from emergentintegrations.llm.openai.image_generation import OpenAIImageGeneration
+from emergentintegrations.llm.chat import LlmChat, UserMessage
 
 import auth as auth_module
 
@@ -179,6 +180,37 @@ async def publish_to_play(bid: str, body: PlayListingBody, user: dict = Depends(
     await db.native_builds.update_one({"_id": bid}, {"$set": upd})
     d.update(upd)
     return _public(d)
+
+
+@router.post("/builds/{bid}/autowrite")
+async def autowrite_listing(bid: str, user: dict = Depends(auth_module.get_current_user)):
+    d = await db.native_builds.find_one({"_id": bid, "user_id": user["id"]})
+    if not d:
+        raise HTTPException(status_code=404, detail="Build not found")
+    pub = await db.workspace_publishes.find_one({"_id": d["publish_id"]}, {"html": 1})
+    html = (pub or {}).get("html", "")[:12000]
+    store = "Apple App Store" if d.get("platform") == "ios" else "Google Play Store"
+    chat = LlmChat(
+        api_key=EMERGENT_LLM_KEY, session_id=f"autowrite-{bid}-{uuid.uuid4().hex[:6]}",
+        system_message="You are a world-class app store copywriter. You reply ONLY with minified JSON, no markdown, no explanations.",
+    ).with_model("anthropic", "claude-sonnet-4-6").with_params(max_tokens=300)
+    msg = (f"App name: {d['app_name']}. Target store: {store}.\n"
+           f"Here is the app's full HTML source code:\n{html}\n\n"
+           f"Study what the app actually does from the code, then write its store listing. "
+           f'Reply ONLY with JSON exactly like: {{"title": "catchy listing title, max 30 chars", '
+           f'"short_desc": "compelling benefit-led one-liner, max 80 chars"}}')
+    try:
+        raw = await chat.send_message(UserMessage(text=msg))
+        import json as _json
+        txt = str(raw).strip()
+        if "```" in txt:
+            txt = txt.split("```")[1].lstrip("json").strip()
+        start, end = txt.find("{"), txt.rfind("}")
+        data = _json.loads(txt[start:end + 1])
+        return {"title": str(data.get("title", d["app_name"]))[:60],
+                "short_desc": str(data.get("short_desc", ""))[:120]}
+    except Exception:
+        raise HTTPException(status_code=502, detail="Luchii couldn't write the listing — try again")
 
 
 @router.delete("/builds/{bid}")

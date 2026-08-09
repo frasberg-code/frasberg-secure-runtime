@@ -151,3 +151,8 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Screenshot gallery: POST/GET/DELETE /api/native/builds/{id}/screenshots (max 5, resized 480w JPEG, stored b64 in build doc); listing preview shows uploaded shots (with remove X) + 3 auto "live" phone frames (top/middle/bottom of running app via offset iframes) + feature graphic; "Add screenshots (n/5)" multi-upload in listing form
 - ParallaxSky added to Frasberg Cloud (/cloud, replaced blurry Starfield layer) and Visual Studio pages; star brightness/orb intensity boosted for visibility (was too subtle on /apps)
 - Verified: backend upload/fetch/delete via script; UI screenshots of gallery + crisp /cloud stars
+
+## 2026-06 (fork, cont. 7) — Listing Autowrite + Starfield consistency
+- POST /api/native/builds/{id}/autowrite: Luchii (claude-sonnet-4-6) reads the published app's HTML and returns {title, short_desc}; "Autowrite with Luchii" button fills the listing form live
+- ParallaxSky rewritten: now just the homepage Starfield (mouse-linked constellation) in a fixed wrapper — removed glow orbs/gradient tints per user feedback ("did not change background colors, keep features consistent")
+- Verified: autowrite via curl + browser (title/desc filled, preview updated), constellation lines follow cursor on dashboard

@@ -114,6 +114,7 @@ export const NativeApps = () => {
   const [genBusy, setGenBusy] = useState(false);
   const iconRef = useRef(null);
   const shotRef = useRef(null);
+  const [autoBusy, setAutoBusy] = useState(false);
   const [publishing, setPublishing] = useState(null); // build id with open listing form
   const [listTitle, setListTitle] = useState("");
   const [listDesc, setListDesc] = useState("");
@@ -217,6 +218,20 @@ export const NativeApps = () => {
     }
     toast.success("Screenshots added to the listing");
     load();
+  };
+
+  const autowrite = async (bid) => {
+    setAutoBusy(true);
+    toast("Luchii is reading your app's code…", { duration: 8000 });
+    try {
+      const r = await fetch(`${API}/native/builds/${bid}/autowrite`, { method: "POST", credentials: "include" });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || "Autowrite failed");
+      setListTitle(d.title);
+      setListDesc(d.short_desc);
+      toast.success("Listing written by Luchii — tweak it or submit");
+    } catch (e) { toast.error(String(e.message || e)); }
+    setAutoBusy(false);
   };
 
   const del = async (bid) => {
@@ -365,6 +380,11 @@ export const NativeApps = () => {
               <div className="mt-4 flex flex-wrap gap-5 border-t pt-4" style={{ borderColor: T.borderSubtle }} data-testid={`native-listing-form-${b.id}`}>
                 <StoreListingPreview b={b} title={listTitle} desc={listDesc} onChanged={load} />
                 <div className="flex min-w-[240px] flex-1 flex-col justify-center gap-3">
+                  <button onClick={() => autowrite(b.id)} disabled={autoBusy} data-testid={`native-autowrite-${b.id}`}
+                    className="flex w-fit items-center gap-1.5 rounded-sm border px-3.5 py-1.5 font-mono text-[11px] transition-colors hover:border-[#00F0FF] disabled:opacity-50"
+                    style={{ borderColor: T.border, color: T.accent }}>
+                    <Sparkles size={11} /> {autoBusy ? "Luchii is writing…" : "Autowrite with Luchii"}
+                  </button>
                   <label className="flex flex-col gap-1.5">
                     <span className="font-mono text-[10px] uppercase" style={{ color: T.muted }}>Store listing title</span>
                     <input value={listTitle} onChange={(e) => setListTitle(e.target.value)} className={input} style={inputStyle} data-testid="native-listing-title" />
