@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Cloud, Cpu, Maximize2, Wifi } from "lucide-react";
+import confetti from "canvas-confetti";
 import StreamPlayer from "../components/games/StreamPlayer";
 
 const API = process.env.REACT_APP_BACKEND_URL;
@@ -11,7 +12,49 @@ export default function GamePlayerPage() {
   const [mode, setMode] = useState("checking"); // checking | stream | local
   const [streamCfg, setStreamCfg] = useState(null);
   const [latency, setLatency] = useState(null);
+  const [celebration, setCelebration] = useState(null);
   const frameRef = useRef(null);
+  const bestRef = useRef(null);
+
+  // Playtime heartbeat + personal-best celebration (signed-in players)
+  useEffect(() => {
+    let alive = true;
+    fetch(`${API}/api/games/player/best-scores`, { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!alive || !Array.isArray(d)) return;
+        const mine = d.find((s) => s.game_id === gameId);
+        bestRef.current = mine ? mine.score : 0;
+      }).catch(() => {});
+
+    const checkBest = async () => {
+      if (bestRef.current === null) return;
+      try {
+        const r = await fetch(`${API}/api/games/player/best-scores`, { credentials: "include" });
+        if (!r.ok) return;
+        const d = await r.json();
+        const mine = d.find((s) => s.game_id === gameId);
+        if (mine && mine.score > bestRef.current) {
+          bestRef.current = mine.score;
+          setCelebration(mine.score);
+          confetti({ particleCount: 160, spread: 90, origin: { y: 0.35 }, colors: ["#6c63ff", "#8b84ff", "#ff5c8a", "#ffd166"] });
+          setTimeout(() => confetti({ particleCount: 90, spread: 120, origin: { y: 0.5 } }), 400);
+          setTimeout(() => setCelebration(null), 4500);
+        }
+      } catch { /* ignore */ }
+    };
+    const beat = () => {
+      fetch(`${API}/api/games/player/playtime`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ game_id: gameId, seconds: 30 }),
+      }).catch(() => {});
+    };
+    const iv = setInterval(() => { beat(); checkBest(); }, 30000);
+    const scoreIv = setInterval(checkBest, 10000);
+    return () => { alive = false; clearInterval(iv); clearInterval(scoreIv); };
+  }, [gameId]);
 
   useEffect(() => {
     fetch(`${API}/api/games/${gameId}`).then((r) => (r.ok ? r.json() : null)).then(setGame).catch(() => {});
@@ -70,6 +113,14 @@ export default function GamePlayerPage() {
       </div>
 
       <div ref={frameRef} className="relative flex-1 bg-black">
+        {celebration !== null && (
+          <div className="pointer-events-none absolute inset-x-0 top-8 z-50 flex justify-center" data-testid="personal-best-banner">
+            <div className="animate-bounce rounded-2xl border border-[#ffd166]/60 bg-[#111122]/95 px-8 py-4 text-center shadow-[0_8px_40px_rgba(255,209,102,0.25)] backdrop-blur">
+              <p className="text-lg font-bold text-[#ffd166]">🏆 New personal best!</p>
+              <p className="mt-1 text-sm text-[#ccc]">{celebration.toLocaleString()} points</p>
+            </div>
+          </div>
+        )}
         {mode === "checking" && (
           <div className="absolute inset-0 grid place-items-center text-sm text-[#666]">
             Connecting to Frasberg stream node…

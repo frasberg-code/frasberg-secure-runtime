@@ -29,6 +29,7 @@ import Status from "./pages/Status";
 import Software from "./pages/Software";
 import GamesLibrary from "./pages/GamesLibrary";
 import GamePlayerPage from "./pages/GamePlayerPage";
+import PlayerProfile from "./pages/PlayerProfile";
 import VisualStudio from "./pages/VisualStudio";
 import CreatureLibrary from "./pages/CreatureLibrary";
 import CharacterCreator from "./pages/CharacterCreator";
@@ -92,6 +93,7 @@ function App() {
               <Route path="/status" element={<Status />} />
               <Route path="/software" element={<Software />} />
               <Route path="/games" element={<GamesLibrary />} />
+              <Route path="/games/profile" element={<PlayerProfile />} />
               <Route path="/games/play/:gameId" element={<GamePlayerPage />} />
               <Route path="/studio" element={<VisualStudio />} />
               <Route path="/studio/creatures" element={<CreatureLibrary />} />

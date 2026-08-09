@@ -155,6 +155,39 @@ async def toggle_favorite(game_id: str, request: Request):
     return {"ok": True, "favorited": not fav}
 
 
+@router.post("/player/playtime")
+async def record_playtime(request: Request, body: dict):
+    uid = _require_user_id(request)
+    game_id = str(body.get("game_id", ""))[:80]
+    seconds = max(1, min(int(body.get("seconds", 0)), 120))
+    if not game_id:
+        raise HTTPException(status_code=400, detail="game_id required")
+    await db.game_playtime.update_one({"user_id": uid, "game_id": game_id},
+                                      {"$inc": {"seconds": seconds}}, upsert=True)
+    return {"ok": True}
+
+
+@router.get("/player/profile")
+async def player_profile(request: Request):
+    uid = _require_user_id(request)
+    titles = {g["id"]: g["title"] for g in GAME_REGISTRY}
+    fav_doc = await db.game_favorites.find_one({"user_id": uid}, {"_id": 0, "game_ids": 1})
+    favorites = [{"game_id": gid, "title": titles.get(gid, gid)}
+                 for gid in (fav_doc or {}).get("game_ids", [])]
+    docs = await db.game_scores.find({"user_id": uid}, {"_id": 0, "game_id": 1, "score": 1,
+                                                        "ts": 1}).sort("score", -1).to_list(500)
+    best = {}
+    for d in docs:
+        if d["game_id"] not in best:
+            best[d["game_id"]] = {**d, "title": titles.get(d["game_id"], d["game_id"])}
+    playtime = [{"game_id": d["game_id"], "title": titles.get(d["game_id"], d["game_id"]),
+                 "seconds": int(d.get("seconds", 0))}
+                async for d in db.game_playtime.find({"user_id": uid}, {"_id": 0})]
+    playtime.sort(key=lambda p: p["seconds"], reverse=True)
+    return {"favorites": favorites, "best_scores": list(best.values()),
+            "playtime": playtime, "total_seconds": sum(p["seconds"] for p in playtime)}
+
+
 @router.get("/player/best-scores")
 async def my_best_scores(request: Request):
     uid = _require_user_id(request)
@@ -183,15 +216,21 @@ async def get_scores(game_id: str, period: str = "all"):
 async def post_score(game_id: str, body: ScoreIn, request: Request):
     _valid_game(game_id)
     name = body.name.strip()[:20] or "PLAYER"
+    uid = _optional_user_id(request)
+    personal_best = False
+    if uid:
+        prev = await db.game_scores.find_one({"game_id": game_id, "user_id": uid},
+                                             {"score": 1}, sort=[("score", -1)])
+        personal_best = prev is None or body.score > prev.get("score", 0)
     await db.game_scores.insert_one({
         "id": str(uuid.uuid4()), "game_id": game_id, "name": name,
         "score": body.score, "week": _week_key(),
-        "user_id": _optional_user_id(request),
+        "user_id": uid,
         "ts": datetime.now(timezone.utc).isoformat(),
     })
     docs = await db.game_scores.find({"game_id": game_id}, {"_id": 0, "name": 1, "score": 1}) \
         .sort("score", -1).to_list(10)
-    return {"ok": True, "top": docs}
+    return {"ok": True, "top": docs, "personal_best": personal_best}
 
 
 GAME_WS_UPSTREAM = os.environ.get("GAME_WS_UPSTREAM", "ws://localhost:3001/ws")

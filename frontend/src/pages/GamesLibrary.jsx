@@ -76,6 +76,9 @@ export default function GamesLibrary() {
           <Link to="/" className="inline-flex items-center gap-2 text-sm text-[#888] transition-colors hover:text-white" data-testid="games-back-link">
             <ArrowLeft size={15} /> Back to Luchii
           </Link>
+          <Link to="/games/profile" className="inline-flex items-center gap-2 rounded-full border border-[#2a2a44] px-4 py-1.5 text-sm text-[#888] transition-colors hover:border-[#6c63ff] hover:text-white" data-testid="games-profile-link">
+            <Trophy size={13} className="text-[#8b84ff]" /> My Profile
+          </Link>
         </div>
 
         <div className="mt-10 text-center">
