@@ -3,7 +3,7 @@ import { Link, Navigate } from "react-router-dom";
 import axios from "axios";
 import { Moon, Sun, ArrowLeft, Loader2, Users, MessagesSquare, KeyRound, BookOpen, Gavel, Activity, Trash2, Plus, Pencil, Star, EyeOff, Eye, Globe, Gamepad2, AppWindow, Brain, Hammer, Crown, Timer, Radio, ShieldAlert, RefreshCcw, Lock } from "lucide-react";
 import { toast } from "sonner";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, LineChart, Line, Legend } from "recharts";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth, formatApiErrorDetail } from "../context/AuthContext";
 import Starfield from "../components/site/Starfield";
@@ -24,6 +24,7 @@ export default function Admin() {
   const [editing, setEditing] = useState(null); // null | {id?, title, content, tags}
   const [ops, setOps] = useState(null);
   const [tenants, setTenants] = useState(null);
+  const [tenantAnalytics, setTenantAnalytics] = useState(null);
   const [health, setHealth] = useState(null);
   const [audit, setAudit] = useState([]);
   const [tenantDetail, setTenantDetail] = useState(null); // {id, loading, data}
@@ -143,6 +144,7 @@ export default function Admin() {
       ]);
       setStats(s.data); setUsers(u.data); setConvos(c.data); setKb(k.data); setPayments(p.data.payments || []); setBuilds(b.data);
       axios.get(`${API}/admin/tenants`, ax).then((r) => setTenants(r.data)).catch(() => {});
+      axios.get(`${API}/admin/tenants/analytics`, ax).then((r) => setTenantAnalytics(r.data)).catch(() => {});
       axios.get(`${API}/admin/health`, ax).then((r) => setHealth(r.data)).catch(() => {});
       axios.get(`${API}/admin/audit`, ax).then((r) => setAudit(r.data)).catch(() => {});
     } catch (err) {
@@ -426,6 +428,35 @@ export default function Admin() {
                         dangerouslySetInnerHTML={{ __html: digest.data.html }} />
                     </>
                   )}
+                </div>
+              )}
+              {tenantAnalytics && tenantAnalytics.top.length > 0 && (
+                <div className="mt-4 rounded-2xl border border-lux-border bg-lux-surface p-5" data-testid="tenant-analytics-panel">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">Tenant analytics — token usage trend, top {tenantAnalytics.top.length} tenants (14 days)</p>
+                    <div className="flex flex-wrap gap-2">
+                      {tenantAnalytics.top.map((t, i) => (
+                        <span key={t.email} className="rounded-full border border-lux-border px-2.5 py-0.5 font-mono text-[9px] text-lux-text2" data-testid={`analytics-top-${i}`}>
+                          {t.email} · {t.tokens.toLocaleString()} tok
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="mt-4" style={{ height: 220 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={tenantAnalytics.days} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(140,140,170,0.12)" />
+                        <XAxis dataKey="day" tick={{ fontSize: 9 }} stroke="#8a86a3" />
+                        <YAxis tick={{ fontSize: 9 }} stroke="#8a86a3" width={44} allowDecimals={false} />
+                        <Tooltip contentStyle={{ background: "#111018", border: "1px solid #2a2740", borderRadius: 10, fontSize: 11 }} />
+                        <Legend wrapperStyle={{ fontSize: 10 }} />
+                        {tenantAnalytics.top.map((t, i) => (
+                          <Line key={t.email} type="monotone" dataKey={t.email} stroke={["#22d3ee", "#7c6cf0", "#f0c040", "#4ade80", "#f472b6", "#fb923c"][i % 6]}
+                            strokeWidth={2} dot={false} />
+                        ))}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               )}
               <div className="mt-4 overflow-x-auto rounded-2xl border border-lux-border" data-testid="admin-tenants-table">

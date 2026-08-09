@@ -57,34 +57,17 @@ export default function LuchiiCode() {
         </motion.div>
 
         <Reveal delay={0.1}>
-          <div className="mx-auto mt-16 max-w-3xl">
+          <div className="mx-auto mt-16 max-w-3xl rounded-2xl border border-lux-border bg-lux-surface p-6" data-testid="coding-agents-teaser">
             <Overline>Luchii Coder</Overline>
             <h2 className="mt-3 font-display text-2xl font-700 tracking-tight sm:text-3xl">Agents that build with you</h2>
             <p className="mt-3 text-sm leading-relaxed text-lux-text2">
-              Specialized coding modes of the Luchii family. Launch any agent in chat and it will
-              plan, write, review and debug code with you.
+              Architect, Builder, Reviewer and Debugger — specialized coding modes of the Luchii family
+              that plan, write, review and debug code with you.
             </p>
-            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2" id="agents" data-testid="coding-agents-grid">
-              {[
-                { name: "Luchii Architect", slug: "architect", tier: "luchii-70b", role: "System design & architecture", desc: "Plans services, data models and APIs before a single line is written." },
-                { name: "Luchii Builder", slug: "builder", tier: "luchii-7b", role: "Code generation", desc: "Writes production-ready TypeScript, Python and Go from plain instructions." },
-                { name: "Luchii Reviewer", slug: "reviewer", tier: "luchii-7b", role: "Code review & refactor", desc: "Audits diffs, flags risks and proposes cleaner, safer implementations." },
-                { name: "Luchii Debugger", slug: "debugger", tier: "luchii-1b", role: "Bug hunting & fixes", desc: "Traces stack traces to root cause and drafts the minimal fix, fast." },
-              ].map((a) => (
-                <div key={a.name} className="rounded-2xl border border-lux-border bg-lux-surface p-6" data-testid={`coding-agent-${a.slug}`}>
-                  <div className="flex items-baseline justify-between">
-                    <h3 className="font-display text-lg font-600 tracking-tight">{a.name}</h3>
-                    <span className="font-mono text-[10px] text-lux-accent">{a.tier}</span>
-                  </div>
-                  <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.15em] text-lux-text2">{a.role}</p>
-                  <p className="mt-3 text-sm leading-relaxed text-lux-text2">{a.desc}</p>
-                  <Link to={`/chat?model=${a.tier}&agent=${a.slug}`} data-testid={`launch-${a.slug}`}
-                    className="mt-4 inline-block rounded-full border border-lux-border px-5 py-2 text-xs text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
-                    Launch in Chat →
-                  </Link>
-                </div>
-              ))}
-            </div>
+            <Link to="/coding-agents" data-testid="luchii-code-agents-link"
+              className="mt-5 inline-block rounded-full border border-lux-border px-6 py-2.5 text-sm text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
+              Explore AI Coding Agents →
+            </Link>
           </div>
         </Reveal>
 

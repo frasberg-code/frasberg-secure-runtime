@@ -353,27 +353,72 @@ CASINOS.forEach((c, i) => {
     j.scale.y = s; j.position.y = 3 * s;
   }));
 })();
-// Palm trees lining the Strip & main cross street
+// Urban street furniture — hydrants, traffic signals, trash cans, bus shelters (proper city streets, no beach vibes)
 (function () {
-  const trunkM = new THREE.MeshStandardMaterial({ color: 0x6b4a2b, roughness: 0.9 });
-  const frondM = new THREE.MeshStandardMaterial({ color: 0x1e7a3c, roughness: 0.85, side: THREE.DoubleSide });
-  function palm(x, z) {
+  const steelM = new THREE.MeshStandardMaterial({ color: 0x3a3f4a, metalness: 0.7, roughness: 0.4 });
+  const darkM = new THREE.MeshStandardMaterial({ color: 0x14161c, roughness: 0.8 });
+  function hydrant(x, z) {
     const g = new THREE.Group();
-    const h = 4.5 + Math.random() * 2.5;
-    const tg = new THREE.CylinderGeometry(0.1, 0.2, h, 6); tg.translate(0, h / 2, 0);
-    const trunk = new THREE.Mesh(tg, trunkM); trunk.rotation.z = (Math.random() - 0.5) * 0.14; g.add(trunk);
-    for (let i = 0; i < 6; i++) {
-      const fg = new THREE.PlaneGeometry(2.6, 0.55); fg.translate(1.3, 0, 0);
-      const f = new THREE.Mesh(fg, frondM);
-      f.position.y = h; f.rotation.y = (i / 6) * Math.PI * 2; f.rotation.z = -0.55 - Math.random() * 0.25;
-      g.add(f);
+    const bodyM = new THREE.MeshStandardMaterial({ color: 0xc22b1e, roughness: 0.5, metalness: 0.3 });
+    const b = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.2, 0.62, 8), bodyM); b.position.y = 0.31;
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 6), bodyM); cap.position.y = 0.64;
+    const nub = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.14, 6), bodyM);
+    nub.rotation.z = Math.PI / 2; nub.position.y = 0.42;
+    g.add(b, cap, nub); g.position.set(x, 0, z); scene.add(g);
+  }
+  function trashcan(x, z) {
+    const c = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.22, 0.72, 10), steelM);
+    c.position.set(x, 0.36, z); scene.add(c);
+  }
+  function streetSign(x, z, rot) {
+    const g = new THREE.Group();
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 2.6, 6), steelM); pole.position.y = 1.3;
+    const board = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.22, 0.03),
+      new THREE.MeshStandardMaterial({ color: 0x1a7a3c, roughness: 0.4 }));
+    board.position.y = 2.5; g.add(pole, board);
+    g.position.set(x, 0, z); g.rotation.y = rot || 0; scene.add(g);
+  }
+  function trafficLight(x, z, rot) {
+    const g = new THREE.Group();
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.09, 5.6, 8), darkM); pole.position.y = 2.8;
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 3.4, 6), darkM);
+    arm.rotation.z = Math.PI / 2; arm.position.set(1.7, 5.4, 0);
+    const box = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.86, 0.3), darkM); box.position.set(3.2, 5.0, 0);
+    g.add(pole, arm, box);
+    const cols = [0xff3b30, 0xffcc00, 0x34c759];
+    const lights = [];
+    cols.forEach((c, i) => {
+      const l = new THREE.Mesh(new THREE.CircleGeometry(0.09, 8), new THREE.MeshBasicMaterial({ color: c }));
+      l.position.set(3.2, 5.28 - i * 0.27, 0.16); g.add(l); lights.push(l);
+    });
+    g.position.set(x, 0, z); g.rotation.y = rot || 0; scene.add(g);
+    LM_ANIM.push((dt, ft) => {
+      const phase = Math.floor(ft / 4) % 3;
+      lights.forEach((l, i) => l.material.color.setHex(i === phase ? cols[i] : 0x1c1f24));
+    });
+  }
+  function busShelter(x, z, rot) {
+    const g = new THREE.Group();
+    const glassM = new THREE.MeshStandardMaterial({ color: 0x9fc4d8, transparent: true, opacity: 0.35, metalness: 0.6, roughness: 0.1 });
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.12, 1.4), steelM); roof.position.y = 2.5;
+    const back = new THREE.Mesh(new THREE.BoxGeometry(3.4, 2.3, 0.06), glassM); back.position.set(0, 1.28, -0.65);
+    const bench = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.09, 0.42), darkM); bench.position.set(0, 0.5, -0.3);
+    for (const px of [-1.6, 1.6]) {
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.5, 6), steelM);
+      leg.position.set(px, 1.25, -0.6); g.add(leg);
     }
-    g.position.set(x, 0, z); scene.add(g);
+    g.add(roof, back, bench);
+    g.position.set(x, 0, z); g.rotation.y = rot || 0; scene.add(g);
   }
-  for (let a = -HALF + 10; a < HALF; a += 22) {
-    palm(a, ROAD_W / 2 + 1.6); palm(a + 11, -ROAD_W / 2 - 1.6);
-    palm(ROAD_W / 2 + 1.6, a + 5); palm(-ROAD_W / 2 - 1.6, a + 16);
+  for (let a = -HALF + 12; a < HALF; a += 26) {
+    hydrant(a, ROAD_W / 2 + 1.4); trashcan(a + 9, -ROAD_W / 2 - 1.4);
+    trashcan(ROAD_W / 2 + 1.4, a + 4); hydrant(-ROAD_W / 2 - 1.4, a + 15);
+    if (a % 52 === 0) { streetSign(a + 4, ROAD_W / 2 + 1.5, 0); streetSign(-ROAD_W / 2 - 1.5, a + 8, Math.PI / 2); }
   }
+  trafficLight(ROAD_W / 2 + 1.2, ROAD_W / 2 + 1.2, Math.PI);
+  trafficLight(-ROAD_W / 2 - 1.2, -ROAD_W / 2 - 1.2, 0);
+  busShelter(24, ROAD_W / 2 + 2.6, 0);
+  busShelter(-40, -ROAD_W / 2 - 2.6, Math.PI);
 })();
 
 // ─── Car factory ──────────────────────────────────────────
@@ -564,7 +609,9 @@ function makeAvatarPed(forceSex, outfit) {
       if (o.name === "RightArm") bones.rArm = o;
       else if (o.name === "RightForeArm") bones.rFore = o;
       else if (o.name === "RightUpLeg") bones.rLeg = o;
+      else if (o.name === "RightLeg") bones.rShin = o;
       else if (o.name === "LeftArm") bones.lArm = o;
+      else if (o.name === "Spine1" || o.name === "Spine2") bones.spine = o;
     }
     if (o.isMesh || o.isSkinnedMesh) {
       o.castShadow = true; o.frustumCulled = false;
@@ -871,9 +918,16 @@ function exitCar() {
 
 // ─── Weapons — baseball bat (F) & pistol (G) ───────────────
 let swingT = 0, gunFlashT = 0, holsterT = 0, stepT = 1;
-const MELEE_DUR = 0.34, MELEE_KINDS = ["punch", "kick", "grab"];
+const MELEE_DUR = 0.52, MELEE_KINDS = ["punch", "punch", "kick"];
 let meleeIdx = 0;
-const PLAYER_GRUNTS = ["Hah!", "Take that!", "Get over here!", "Come on!", "Yeah!"];
+const PLAYER_GRUNTS = ["Hah!", "Come on!", "Get over here!", "Yeah!"];
+function knockDown(n, fromX, fromZ) {
+  if (n.down) return;
+  n.down = true; n.fallT = 0.45;
+  n.fallDir = Math.atan2(n.x - (fromX == null ? S.x : fromX), n.z - (fromZ == null ? S.z : fromZ));
+  const av = n.mesh.userData.avatar;
+  if (av && av.cur && av.acts[av.cur]) { av.acts[av.cur].stop(); av.cur = null; }
+}
 function meleeAttack() {
   if (!S.running || S.inCar || S.struggle) return;
   if (S.hasBat && !S.arsenal.knife && !S.arsenal.hammer) { swingBat(); return; }
@@ -892,8 +946,13 @@ function meleeAttack() {
       player.rotation.y = S.h;
     }
   }
-  window.LuchiiAudio && LuchiiAudio.sfx("hit", 0.32);
-  window.LuchiiAudio && LuchiiAudio.voice(PLAYER_GRUNTS[Math.floor(Math.random()*PLAYER_GRUNTS.length)], S.sex, { force: true, shout: true });
+  window.LuchiiAudio && LuchiiAudio.whoosh && LuchiiAudio.whoosh(0.4);
+  window.LuchiiAudio && LuchiiAudio.grunt && LuchiiAudio.grunt(0.45, S.sex);
+  // damage lands when the strike actually connects — not on key-press
+  setTimeout(() => resolveMelee(kind), 180);
+}
+function resolveMelee(kind) {
+  if (!S.running || S.inCar) return;
   const reach = kind === "kick" ? 2.6 : 2.2, cone = kind === "grab" ? 0.7 : 1.0;
   let hit = false;
   for (const n of npcs) {
@@ -903,22 +962,57 @@ function meleeAttack() {
       hit = true;
       if (kind === "grab") { n.flee = 6; n.h = Math.atan2(n.x - S.x, n.z - S.z);
         toast("✊ GRABBED & TOSSED", "#f0c040"); n.x += Math.sin(n.h) * 2.5; n.z += Math.cos(n.h) * 2.5; }
-      else { n.down = true; n.mesh.rotation.x = Math.PI/2; n.mesh.position.y = 0.3; S.cash += 15; S.wanted = Math.min(5, S.wanted + 1);
+      else { knockDown(n, S.x, S.z); S.cash += 15; S.wanted = Math.min(5, S.wanted + 1);
+        crashFx(0.12);
         toast(kind === "kick" ? "🦵 KO KICK  +$15" : "👊 KO PUNCH  +$15", "#f0c040");
+        window.LuchiiAudio && LuchiiAudio.thwack && LuchiiAudio.thwack(0.65);
+        window.LuchiiAudio && LuchiiAudio.grunt && LuchiiAudio.grunt(0.55, (n.mesh.userData.avatar||{}).sex);
         window.LuchiiAudio && LuchiiAudio.voice(sayPain(n.mesh.userData.avatar), (n.mesh.userData.avatar||{}).sex); }
     }
   }
   if (!hit) toast(kind === "kick" ? "🦵 KICK" : kind === "grab" ? "✊ GRAB" : "👊 PUNCH", "#888");
 }
 function sayPain(av) { const m = ["Argh!", "Ow!", "Help!", "Aah!", "No!"]; return m[Math.floor(Math.random()*m.length)]; }
-const bat = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 0.8, 7),
-  new THREE.MeshStandardMaterial({ color: 0x9a6b3f }));
+// ── Weapon models — proper pistol & taped bat ──
+const bat = new THREE.Group();
+{
+  const woodM = new THREE.MeshStandardMaterial({ color: 0x9a6b3f, roughness: 0.55 });
+  const barrelB = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.034, 0.62, 10), woodM);
+  barrelB.position.y = -0.5;
+  const handleB = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.03, 0.26, 8), woodM);
+  handleB.position.y = -0.13;
+  const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.042, 0.03, 8), new THREE.MeshStandardMaterial({ color: 0x6b4426 }));
+  const tape = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.1, 8), new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 }));
+  tape.position.y = -0.24;
+  bat.add(barrelB, handleB, knob, tape);
+}
 bat.position.set(0, -0.75, 0.12); bat.rotation.x = 0.4; bat.visible = false;
-const gun = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.14, 0.26),
-  new THREE.MeshStandardMaterial({ color: 0x14141c, metalness: 0.7, roughness: 0.3 }));
+const gun = new THREE.Group();
+{
+  const steelM2 = new THREE.MeshStandardMaterial({ color: 0x1c1f2b, metalness: 0.85, roughness: 0.25 });
+  const gripM = new THREE.MeshStandardMaterial({ color: 0x2e2620, roughness: 0.8 });
+  const slide = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.07, 0.24), steelM2); slide.position.set(0, 0.02, 0.06);
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(0.046, 0.05, 0.2), steelM2); frame.position.set(0, -0.03, 0.05);
+  const barrelG = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.07, 8), steelM2);
+  barrelG.rotation.x = Math.PI / 2; barrelG.position.set(0, 0.025, 0.21);
+  const grip = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.14, 0.07), gripM);
+  grip.position.set(0, -0.1, -0.03); grip.rotation.x = -0.22;
+  const guard = new THREE.Mesh(new THREE.TorusGeometry(0.028, 0.007, 6, 10), steelM2);
+  guard.position.set(0, -0.055, 0.06);
+  const sight = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.016, 0.02), steelM2); sight.position.set(0, 0.065, 0.14);
+  gun.add(slide, frame, barrelG, grip, guard, sight);
+}
 gun.position.set(0, -0.62, 0.14); gun.visible = false;
 player.userData.limbs.rArm.add(bat, gun);
-const muzzle = new THREE.Mesh(new THREE.SphereGeometry(0.09, 6, 6), new THREE.MeshBasicMaterial({ color: 0xffe27a }));
+const muzzle = new THREE.Group();
+{
+  const core = new THREE.Mesh(new THREE.SphereGeometry(0.07, 6, 6), new THREE.MeshBasicMaterial({ color: 0xfff4c8 }));
+  const flameCone = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.34, 7),
+    new THREE.MeshBasicMaterial({ color: 0xffc85e, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false }));
+  flameCone.rotation.x = Math.PI / 2; flameCone.position.z = 0.17;
+  const flashLight = new THREE.PointLight(0xffc85e, 2.4, 9);
+  muzzle.add(core, flameCone, flashLight);
+}
 muzzle.visible = false; scene.add(muzzle);
 function _inFront(dx, dz, cone) {
   const ang = Math.atan2(dx, dz);
@@ -935,7 +1029,8 @@ function swingBat() {
     if (n.down) continue;
     const dx = n.x - S.x, dz = n.z - S.z;
     if (Math.hypot(dx, dz) < 2.3 && _inFront(dx, dz, 1.1)) {
-      n.down = true; n.mesh.rotation.x = Math.PI / 2; n.mesh.position.y = 0.3;
+      knockDown(n, S.x, S.z);
+      window.LuchiiAudio && LuchiiAudio.thwack && LuchiiAudio.thwack(0.7);
       S.cash += 25; S.wanted = Math.min(5, S.wanted + 1);
       toast("🏏 KNOCKED OUT  +$25", "#f0c040");
     }
@@ -975,6 +1070,7 @@ function fireGun() {
   gunFlashT = Math.max(0.1, W.rate); holsterT = 2; gun.visible = true; bat.visible = false;
   muzzle.visible = true;
   muzzle.position.set(S.x + Math.sin(S.h) * 1.1, 1.15, S.z + Math.cos(S.h) * 1.1);
+  muzzle.rotation.y = S.h;
   window.LuchiiAudio && LuchiiAudio.sfx(W.explosive ? "crash" : "crash", W.explosive ? 0.6 : 0.35);
   S.wanted = Math.min(5, S.wanted + W.wanted);
   const shots = W.pellets || 1;
@@ -986,7 +1082,7 @@ function fireGun() {
       const dx = n.x - S.x, dz = n.z - S.z, d = Math.hypot(dx, dz);
       if (d < bd && _inFront(dx, dz, W.cone)) { bd = d; best = n; }
     }
-    if (best) { best.down = true; best.mesh.rotation.x = Math.PI/2; best.mesh.position.y = 0.3; downed++;
+    if (best) { knockDown(best, S.x, S.z); downed++;
       window.LuchiiAudio && LuchiiAudio.voice(sayPain(), (best.mesh.userData.avatar||{}).sex); }
   }
   if (downed) { S.cash += 40 * downed; toast(`🔫 ${downed} DOWN  +$${40*downed}`, "#ff9a3c"); }
@@ -1690,8 +1786,10 @@ function animate() {
       if (left) S.h += cfg.steer * dt * sf;
       if (right) S.h -= cfg.steer * dt * sf;
     } else {
-      const ms = keys["ShiftLeft"] || keys["ShiftRight"] ? 10 : 6;
-      S.speed = fwd ? ms : back ? -ms*0.6 : 0;
+      const ms = keys["ShiftLeft"] || keys["ShiftRight"] ? 7 : 3.4;
+      const wantSp = fwd ? ms : back ? -ms * 0.6 : 0;
+      S.speed += (wantSp - S.speed) * Math.min(1, dt * 9); // human acceleration — no instant glide
+      if (!fwd && !back && Math.abs(S.speed) < 0.08) S.speed = 0;
       if (left) S.h += 2.6 * dt;
       if (right) S.h -= 2.6 * dt;
     }
@@ -1737,37 +1835,47 @@ function animate() {
     pm.position.set(S.x, 0, S.z); pm.rotation.y = S.h;
     if (!S.inCar) {
       const mv = Math.abs(S.speed);
-      pedPhase += dt * (mv > 6 ? 11 : mv > 0.2 ? 6.5 : 1.6);
-      animatePed(player, pedPhase, mv > 6 ? "run" : mv > 0.2 ? "walk" : "idle");
-      // stride matched to actual ground speed — no more foot-sliding glitch
+      pedPhase += dt * (mv > 4.5 ? 9 : mv > 0.2 ? 7 : 1.6);
+      animatePed(player, pedPhase, mv > 4.5 ? "run" : mv > 0.25 ? "walk" : "idle");
+      // stride locked to true ground speed — feet plant, no skipping or sliding
       const pav = player.userData.avatar;
-      if (pav && pav.cur && pav.cur !== "idle" && pav.acts[pav.cur])
-        pav.acts[pav.cur].timeScale = mv > 6 ? Math.max(0.9, mv / 9) : Math.max(0.8, mv / 5.5);
+      if (pav && pav.cur && pav.cur !== "idle" && pav.acts[pav.cur]) {
+        const clipSpeed = pav.cur === "run" ? 5.2 : 2.5;
+        pav.acts[pav.cur].timeScale = Math.max(0.65, Math.min(1.75, mv / clipSpeed));
+      }
       // procedural footsteps synced to stride
-      if (mv > 0.2) {
-        stepT -= dt * (mv > 6 ? 3.4 : 2.1);
-        if (stepT <= 0) { stepT = 1; window.LuchiiAudio && LuchiiAudio.footstep(mv > 6 ? 0.22 : 0.15); }
+      if (mv > 0.25) {
+        stepT -= dt * (mv > 4.5 ? 3.3 : 2.4);
+        if (stepT <= 0) { stepT = 1; window.LuchiiAudio && LuchiiAudio.footstep(mv > 4.5 ? 0.22 : 0.15); }
       }
       // weapon overrides right arm after the walk animation (procedural-ped fallback)
       const L = player.userData.limbs;
       if (swingT > 0) { swingT -= dt; if (L) L.rArm.rotation.x = -2.4 + (0.38 - swingT) * 6.5; }
       if (gunFlashT > 0) { gunFlashT -= dt; if (L) L.rArm.rotation.x = -1.5; if (gunFlashT <= 0) muzzle.visible = false; }
       if (holsterT > 0) { holsterT -= dt; if (holsterT <= 0) { bat.visible = false; gun.visible = false; } }
-      // real bone-driven melee on RPM avatar — additive over the animated pose (no more weird arm snapping)
+      // real body-mechanics melee — wind-up → explosive strike → follow-through (no robot arms)
       const av = player.userData.avatar;
       if (av && av.melee > 0 && av.bones) {
         av.melee -= dt;
         const p = 1 - Math.max(0, av.melee) / MELEE_DUR;
-        const swing = Math.sin(Math.min(p, 1) * Math.PI);
-        player.rotation.x = swing * 0.14; // lean into the hit
-        if (av.meleeKind === "kick" && av.bones.rLeg) {
-          av.bones.rLeg.rotation.x -= swing * 1.6;
+        let sw;
+        if (p < 0.3) sw = -(p / 0.3) * 0.5;                       // pull back / chamber
+        else if (p < 0.55) sw = -0.5 + ((p - 0.3) / 0.25) * 1.9;  // explosive strike
+        else sw = 1.4 * (1 - (p - 0.55) / 0.45);                  // follow-through & recover
+        const lean = Math.sin(Math.min(p, 1) * Math.PI);
+        player.rotation.x = lean * 0.1;                            // weight shifts into the hit
+        if (av.bones.spine) av.bones.spine.rotation.y -= sw * 0.4; // shoulders rotate through
+        if (av.meleeKind === "kick") {
+          if (av.bones.rLeg) av.bones.rLeg.rotation.x -= Math.max(0, sw) * 1.35;
+          if (av.bones.rShin) av.bones.rShin.rotation.x += (p < 0.3 ? (p / 0.3) * 1.1 : Math.max(0, 1.1 - ((p - 0.3) / 0.25) * 1.1)); // knee chambers then snaps
+          if (av.bones.lArm) av.bones.lArm.rotation.x -= lean * 0.5; // balance arm
         } else if (av.meleeKind === "grab") {
-          if (av.bones.rArm) av.bones.rArm.rotation.x -= swing * 1.2;
-          if (av.bones.lArm) av.bones.lArm.rotation.x -= swing * 1.2;
-        } else { // punch
-          if (av.bones.rArm) av.bones.rArm.rotation.x -= swing * 1.5;
-          if (av.bones.rFore) av.bones.rFore.rotation.x -= swing * 0.7;
+          if (av.bones.rArm) av.bones.rArm.rotation.x -= Math.max(0, sw) * 1.15;
+          if (av.bones.lArm) av.bones.lArm.rotation.x -= Math.max(0, sw) * 1.15;
+        } else { // punch — shoulder-driven straight, elbow cocks then extends
+          if (av.bones.rArm) av.bones.rArm.rotation.x -= sw * 1.35;
+          if (av.bones.rFore) av.bones.rFore.rotation.x -= (p < 0.3 ? (p / 0.3) * 0.9 : Math.max(0, 0.9 - ((p - 0.3) / 0.25) * 0.9));
+          if (av.bones.lArm) av.bones.lArm.rotation.x -= lean * 0.55; // guard hand up
         }
         if (av.melee <= 0) player.rotation.x = 0;
       }
@@ -1799,10 +1907,9 @@ function animate() {
         if (n.down) continue;
         const pd = Math.hypot(t.mesh.position.x - n.x, t.mesh.position.z - n.z);
         if (pd < 1.6) {
-          n.down = true; n.mesh.rotation.x = Math.PI / 2; n.mesh.position.y = 0.3;
+          knockDown(n, t.mesh.position.x, t.mesh.position.z);
           const kb = Math.atan2(n.x - t.mesh.position.x, n.z - t.mesh.position.z);
           n.x += Math.sin(kb) * 2.2; n.z += Math.cos(kb) * 2.2;
-          n.mesh.position.set(n.x, 0.3, n.z);
           t.flee = true;
           window.LuchiiAudio && LuchiiAudio.sfx("hit", 0.5);
           window.LuchiiAudio && LuchiiAudio.voice(sayPain(), (n.mesh.userData.avatar || {}).sex);
@@ -1877,7 +1984,18 @@ function animate() {
     }
     // ── NPCs — living humans: walk, panic-flee, stop & chat, gesture
     for (const n of npcs) {
-      if (n.down) continue;
+      if (n.down) {
+        // real fall — body tips over with momentum instead of snapping flat
+        if (n.fallT > 0) {
+          n.fallT -= dt;
+          const q = 1 - Math.max(0, n.fallT) / 0.45, e = 1 - (1 - q) * (1 - q);
+          n.mesh.rotation.x = e * (Math.PI / 2);
+          n.x += Math.sin(n.fallDir || 0) * 3.4 * dt * (1 - e);
+          n.z += Math.cos(n.fallDir || 0) * 3.4 * dt * (1 - e);
+          n.mesh.position.set(n.x, 0.05 + e * 0.25, n.z);
+        }
+        continue;
+      }
       const dp = Math.hypot(n.x - S.x, n.z - S.z);
       // gang guard AI — hold turf, shoot intruders
       if (n.gang) {
@@ -1897,7 +2015,7 @@ function animate() {
           }
         } else { n.phase += dt * 1.6; animatePed(n.mesh, n.phase, "idle"); }
         if (S.inCar && Math.abs(S.speed) > 8 && dp < 1.7) {
-          n.down = true; n.mesh.rotation.x = Math.PI/2; n.mesh.position.y = 0.3;
+          knockDown(n, S.x, S.z);
           window.LuchiiAudio && LuchiiAudio.sfx("hit", 0.5);
         }
         n.mesh.position.set(n.x, 0, n.z); n.mesh.rotation.y = n.h;
@@ -1958,10 +2076,9 @@ function animate() {
       if (S.inCar && Math.hypot(n.x - S.x, n.z - S.z) < 1.8) {
         if (Math.abs(S.speed) > 5) {
           // full hit — ped goes down with knockback, scream, heat
-          n.down = true; n.mesh.rotation.x = Math.PI/2;
+          knockDown(n, S.x, S.z);
           const kb = Math.atan2(n.x - S.x, n.z - S.z);
           n.x += Math.sin(kb) * 2.5; n.z += Math.cos(kb) * 2.5;
-          n.mesh.position.set(n.x, 0.3, n.z);
           S.wanted = Math.min(5, S.wanted + 1);
           S.speed *= 0.85; crashFx(0.2);
           window.LuchiiAudio && LuchiiAudio.sfx("hit", 0.5);

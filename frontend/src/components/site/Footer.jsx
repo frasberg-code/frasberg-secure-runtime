@@ -30,8 +30,8 @@ export default function Footer() {
                 <li><a href="/dashboard" className="hover:text-lux-text">API</a></li>
                 <li><a href="/ai-models" className="hover:text-lux-text" data-testid="footer-ai-models-link">AI Models</a></li>
                 <li><a href="/chat" className="hover:text-lux-text" data-testid="footer-luchii-chat-link">Chat</a></li>
-                <li><a href="/luchii-code" className="hover:text-lux-text" data-testid="footer-luchii-code-link">Code</a></li>
-                <li><a href="/luchii-code#agents" className="hover:text-lux-text" data-testid="footer-coding-agents-link">AI Coding Agents</a></li>
+                <li><a href="/luchii-code" className="hover:text-lux-text" data-testid="footer-luchii-code-link">Luchii Code</a></li>
+                <li><a href="/coding-agents" className="hover:text-lux-text" data-testid="footer-coding-agents-link">AI Coding Agents</a></li>
                 <li><a href="/website-builder" className="hover:text-lux-text" data-testid="footer-website-builder-link">Website Builder</a></li>
                 <li><a href="/app-builder" className="hover:text-lux-text" data-testid="footer-app-builder-link">App Builder</a></li>
                 <li><a href="/game-builder" className="hover:text-lux-text" data-testid="footer-game-builder-link">Game Builder</a></li>

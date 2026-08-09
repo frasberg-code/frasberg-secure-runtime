@@ -14,6 +14,7 @@ import Brand from "./pages/Brand";
 import About from "./pages/About";
 import AiModels from "./pages/AiModels";
 import LuchiiCode from "./pages/LuchiiCode";
+import CodingAgents from "./pages/CodingAgents";
 import Auth from "./pages/Auth";
 import Chat from "./pages/Chat";
 import Profile from "./pages/Profile";
@@ -69,6 +70,7 @@ function App() {
               <Route path="/luchii" element={<Landing />} />
               <Route path="/ai-models" element={<AiModels />} />
               <Route path="/luchii-code" element={<LuchiiCode />} />
+              <Route path="/coding-agents" element={<CodingAgents />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/docs" element={<Docs />} />
               <Route path="/legal" element={<Legal />} />

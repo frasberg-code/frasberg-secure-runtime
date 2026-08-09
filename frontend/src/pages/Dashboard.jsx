@@ -12,6 +12,7 @@ import CodeTabs from "../components/site/CodeTabs";
 import Pricing from "../components/site/Pricing";
 import { MODELS } from "../data/content";
 import { TrialBanner } from "../components/site/TrialBanner";
+import UpgradePlanModal from "../components/site/UpgradePlanModal";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -40,6 +41,7 @@ export default function Dashboard() {
   const [wallet, setWallet] = useState(0);
   const [emails, setEmails] = useState([]);
   const [quota, setQuota] = useState(null);
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const [sendingStatement, setSendingStatement] = useState(false);
 
   const emailStatement = async () => {
@@ -163,7 +165,7 @@ export default function Dashboard() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/" className="flex items-center gap-2.5" data-testid="dashboard-home-link">
             <ArrowLeft size={16} className="text-lux-text2" />
-            <img src="/luchii-mark-circle.png" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
+            <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Frasberg</span>
             <span className="hidden font-mono text-[10px] uppercase tracking-[0.2em] text-lux-text2 sm:inline">
               Developer Console
@@ -180,6 +182,7 @@ export default function Dashboard() {
         </div>
       </header>
       <TrialBanner />
+      <UpgradePlanModal open={showUpgrade} onClose={() => setShowUpgrade(false)} quota={quota} onUpgraded={refresh} />
 
       <div className="mx-auto max-w-[1600px] px-5 py-10 sm:px-8">
         <h1 className="font-display text-4xl font-700 tracking-tighter sm:text-5xl">Developer Dashboard</h1>
@@ -226,10 +229,12 @@ export default function Dashboard() {
               💰 Wallet: {wallet.toLocaleString()} tokens
             </span>
             {quota && (
-              <span className="rounded-full border border-lux-border px-3 py-1 font-mono text-[11px] text-lux-text2" data-testid="quota-chip"
-                title={`${quota.rpm_limit} req/min · ${quota.monthly_token_limit.toLocaleString()} tokens/month`}>
+              <button onClick={() => setShowUpgrade(true)} data-testid="quota-chip"
+                title={`${quota.rpm_limit} req/min · ${quota.monthly_token_limit.toLocaleString()} tokens/month — click to upgrade`}
+                className="rounded-full border border-lux-border px-3 py-1 font-mono text-[11px] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
                 📊 {quota.plan}: {quota.monthly_tokens_used.toLocaleString()}/{quota.monthly_token_limit.toLocaleString()} monthly tokens
-              </span>
+                <span className="ml-1.5 text-lux-accent">↑ Upgrade</span>
+              </button>
             )}
             <button
               onClick={emailStatement}

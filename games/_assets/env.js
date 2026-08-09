@@ -38,37 +38,28 @@
   };
   window.LuchiiAudio = { sfx: sfx, music: music, engine: engine };
 
-  // ── Real voices via browser SpeechSynthesis (male/female), throttled ──
-  var voices = [];
-  function loadVoices() { try { voices = speechSynthesis.getVoices() || []; } catch (_) {} }
-  try { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; } catch (_) {}
+  // ── Real human voices — Frasberg voice API (server-cached), zero robot speech ──
   var lastVoiceAt = 0;
-  function pickVoice(sex) {
-    if (!voices.length) loadVoices();
-    var en = voices.filter(function (v) { return /en(-|_|$)/i.test(v.lang); });
-    var pool = en.length ? en : voices;
-    var femHint = /female|zira|samantha|victoria|karen|moira|tessa|fiona|susan|serena/i;
-    var malHint = /male|david|daniel|alex|fred|thomas|george|arthur|rishi/i;
-    var want = pool.filter(function (v) { return (sex === "female" ? femHint : malHint).test(v.name); });
-    if (want.length) return want[Math.floor(Math.random() * want.length)];
-    return pool[Math.floor(Math.random() * pool.length)] || null;
-  }
+  var voiceCache = {};
   function voice(text, sex, opts) {
     try {
       var now = Date.now();
       opts = opts || {};
       if (!opts.force && now - lastVoiceAt < 900) return; // don't overlap chatter
-      if (typeof speechSynthesis === "undefined") return;
       lastVoiceAt = now;
-      var u = new SpeechSynthesisUtterance(text);
-      var v = pickVoice(sex);
-      if (v) u.voice = v;
-      u.pitch = sex === "female" ? 1.15 + Math.random() * 0.2 : 0.75 + Math.random() * 0.2;
-      u.rate = opts.rate || (0.95 + Math.random() * 0.2);
-      u.volume = opts.volume == null ? 0.9 : opts.volume;
-      if (opts.shout) { u.volume = 1; u.rate = 1.15; }
-      speechSynthesis.cancel();
-      speechSynthesis.speak(u);
+      text = String(text || "").replace(/[^A-Za-z0-9 ,.!?'\-]/g, "").slice(0, 60).trim();
+      if (!text) return;
+      var s = sex === "female" ? "female" : "male";
+      var key = s + "|" + text.toLowerCase();
+      var base = voiceCache[key];
+      if (!base) {
+        base = new Audio("/api/games/voice?sex=" + s + "&text=" + encodeURIComponent(text));
+        base.preload = "auto";
+        voiceCache[key] = base;
+      }
+      var a = base.cloneNode();
+      a.volume = opts.shout ? 1 : opts.volume == null ? 0.85 : opts.volume;
+      a.play().catch(function () {});
     } catch (_) {}
   }
 
@@ -86,8 +77,70 @@
       o.start(); o.stop(AC.currentTime + 0.13);
     } catch (_) {}
   }
+  // ── Punchy non-verbal combat audio (WebAudio) — grunts, swings, impacts ──
+  function grunt(vol, sex) {
+    try {
+      AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+      var t = AC.currentTime;
+      var o = AC.createOscillator(), g = AC.createGain(), f = AC.createBiquadFilter();
+      f.type = "bandpass"; f.frequency.value = sex === "female" ? 420 : 230; f.Q.value = 1.3;
+      o.type = "sawtooth";
+      o.frequency.setValueAtTime(sex === "female" ? 250 : 135, t);
+      o.frequency.exponentialRampToValueAtTime(sex === "female" ? 150 : 78, t + 0.16);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol == null ? 0.45 : vol, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+      o.connect(f); f.connect(g); g.connect(AC.destination);
+      o.start(t); o.stop(t + 0.24);
+    } catch (_) {}
+  }
+  function whoosh(vol) {
+    try {
+      AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+      var t = AC.currentTime, dur = 0.22;
+      var buf = AC.createBuffer(1, AC.sampleRate * dur, AC.sampleRate);
+      var d = buf.getChannelData(0);
+      for (var i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+      var src = AC.createBufferSource(); src.buffer = buf;
+      var f = AC.createBiquadFilter(); f.type = "bandpass"; f.Q.value = 1.8;
+      f.frequency.setValueAtTime(320, t);
+      f.frequency.exponentialRampToValueAtTime(1900, t + dur * 0.8);
+      var g = AC.createGain();
+      g.gain.setValueAtTime(vol == null ? 0.35 : vol, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      src.connect(f); f.connect(g); g.connect(AC.destination);
+      src.start(t);
+    } catch (_) {}
+  }
+  function thwack(vol) {
+    try {
+      AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+      var t = AC.currentTime;
+      var o = AC.createOscillator(), g = AC.createGain();
+      o.type = "sine";
+      o.frequency.setValueAtTime(160, t);
+      o.frequency.exponentialRampToValueAtTime(48, t + 0.11);
+      g.gain.setValueAtTime(vol == null ? 0.6 : vol, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+      o.connect(g); g.connect(AC.destination);
+      o.start(t); o.stop(t + 0.15);
+      var buf = AC.createBuffer(1, AC.sampleRate * 0.06, AC.sampleRate);
+      var d = buf.getChannelData(0);
+      for (var i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+      var src = AC.createBufferSource(); src.buffer = buf;
+      var f = AC.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 1400;
+      var g2 = AC.createGain();
+      g2.gain.setValueAtTime((vol == null ? 0.6 : vol) * 0.7, t);
+      g2.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+      src.connect(f); f.connect(g2); g2.connect(AC.destination);
+      src.start(t);
+    } catch (_) {}
+  }
   window.LuchiiAudio.voice = voice;
   window.LuchiiAudio.footstep = footstep;
+  window.LuchiiAudio.grunt = grunt;
+  window.LuchiiAudio.whoosh = whoosh;
+  window.LuchiiAudio.thwack = thwack;
 
   // ── Environment: rendered backdrop + live day/night + weather shaders ──
   var m = location.pathname.match(/\/api\/games\/([^/]+)\/play/);

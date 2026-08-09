@@ -928,7 +928,7 @@ async def generate_image(req: ImageGenRequest, user: dict = Depends(auth_module.
         "user_id": user["id"], "model": "luchii-image", "role": "user",
         "ts": {"$gte": today_start},
     })
-    limit = IMAGE_LIMIT_PRO if user.get("plan") in ("pro", "premium") or user.get("role") == "admin" else IMAGE_LIMIT_FREE
+    limit = IMAGE_LIMIT_PRO if user.get("plan") in ("pro", "premium", "scale") or user.get("role") == "admin" else IMAGE_LIMIT_FREE
     if used >= limit:
         raise HTTPException(status_code=429,
                             detail=f"Daily image limit reached ({limit}/day on your plan). Upgrade to Luchii Pro for {IMAGE_LIMIT_PRO}/day.")
@@ -1283,6 +1283,32 @@ async def admin_tenants(admin: dict = Depends(require_admin)):
         "tokens": sum(t["tokens"] for t in tenants),
         "requests": sum(t["requests"] for t in tenants),
     }}
+
+
+@api_router.get("/admin/tenants/analytics")
+async def admin_tenant_analytics(admin: dict = Depends(require_admin)):
+    now = datetime.now(timezone.utc)
+    days = [(now - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(13, -1, -1)]
+    usage = await db.api_key_usage.find({"day": {"$gte": days[0]}}, {"_id": 0}).to_list(20000)
+    key_ids = list({u["key_id"] for u in usage if u.get("key_id")})
+    keys = await db.api_keys.find({"id": {"$in": key_ids}}, {"_id": 0, "id": 1, "user_id": 1}).to_list(5000)
+    key_owner = {k["id"]: k.get("user_id") for k in keys}
+    owner_ids = list({v for v in key_owner.values() if v})
+    users = await db.users.find({"id": {"$in": owner_ids}}, {"_id": 0, "id": 1, "email": 1}).to_list(5000)
+    email_of = {u["id"]: (u.get("email") or "unknown") for u in users}
+    totals, series = {}, {}
+    for u in usage:
+        uid = key_owner.get(u.get("key_id"))
+        if not uid:
+            continue
+        em = email_of.get(uid, "unknown")
+        totals[em] = totals.get(em, 0) + u.get("tokens", 0)
+        series.setdefault(em, {d: 0 for d in days})
+        if u.get("day") in series[em]:
+            series[em][u["day"]] += u.get("tokens", 0)
+    top = sorted(totals.items(), key=lambda x: -x[1])[:6]
+    data = [{"day": d[5:], **{em: series[em][d] for em, _ in top}} for d in days]
+    return {"top": [{"email": em, "tokens": t} for em, t in top], "days": data}
 
 
 @api_router.get("/admin/tenants/{user_id}")
@@ -1816,6 +1842,10 @@ UPGRADE_PLANS = {
                        "blurb": "200 images/day · priority Video Creator · Premium badge · top limits"},
     "annual": {"id": "annual", "name": "Premium Annual", "price": "120.00", "kind": "upgrade", "plan": "premium", "period": "per year — $10/mo",
                "blurb": "Everything in Luchii Premium, billed yearly"},
+    "api-pro": {"id": "api-pro", "name": "API Pro", "price": "12.50", "kind": "upgrade", "plan": "pro", "period": "per month",
+                "blurb": "120 req/min · 2M tokens/month · unlimited API keys"},
+    "api-scale": {"id": "api-scale", "name": "API Scale", "price": "50.00", "kind": "upgrade", "plan": "scale", "period": "per month",
+                  "blurb": "600 req/min · 20M tokens/month · unlimited API keys · priority"},
     "linq-operator": {"id": "linq-operator", "name": "LINQ Operator", "price": "15.00", "kind": "upgrade", "plan": "builder", "period": "per month", "linq": True,
                       "blurb": "Governance engines · Ascension Ladder · API & LLM keys unlocked"},
     "linq-architect": {"id": "linq-architect", "name": "LINQ Architect", "price": "30.00", "kind": "upgrade", "plan": "pro", "period": "per month", "linq": True,
@@ -1828,7 +1858,7 @@ UPGRADE_PLANS = {
                  "doc_credits": 10, "blurb": "10 certified PDF downloads from the docket & laws library"},
 }
 
-PAID_PLANS = {"trial", "builder", "pro", "premium"}
+PAID_PLANS = {"trial", "builder", "pro", "premium", "scale"}
 
 CASHAPP_TAG = os.environ.get("CASHAPP_TAG", "$jccnvja")
 CASHAPP_PAYEE = os.environ.get("CASHAPP_PAYEE", "FRASBERG INC")

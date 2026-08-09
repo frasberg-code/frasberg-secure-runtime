@@ -1,0 +1,34 @@
+{
+  "summary": "Iter34 regression across new features (footer/coding-agents, upgrade modal, auto Free Starter Key, admin tenant analytics, game voice, streets smoke). Backend 6/8 pytest passed. Frontend flows all verified. CRITICAL FINDING: GET /api/keys does NOT auto-create the 'Free Starter Key' — the feature described in the review request is not implemented in /app/backend/server.py:list_keys (line 1778-1783); function only does a find+return. Registered a brand-new user via /api/auth/register, first GET /api/keys returned [] (expected [{name:'Free Starter Key', credits:2500}]). Everything else works: /api/games/voice returns 200 audio/mpeg (~30KB) with cache hit <0.5s on 2nd call; invalid HTML text -> 400; /api/paypal/config exposes upgrade_plans with api-pro ($12.50) and api-scale ($50.00); admin /api/admin/tenants/analytics returns {top:[...], days:[14]} and /api/admin/tenants/{id} still works (no route shadow); /api/games/streets/play HTML loads with STREET VYBZ + HIT THE STREETS. FRONTEND E2E: landing footer shows footer-luchii-code-link + footer-coding-agents-link (both present); /coding-agents shows coding-agents-grid with 4 cards; /luchii-code shows luchii-code-agents-link teaser. Dashboard as doctester1: header shows Frasberg + Developer Console, quota-chip is a BUTTON (clickable); clicking opens upgrade-plan-modal with all 3 tiers (upgrade-tier-free/api-pro/api-scale) + upgrade-btn-api-pro/api-scale; clicking Upgrade to Pro reveals PayPal smart-button iframe (https://www.paypal.com/smart/buttons?…); modal close works. Admin as admin@frasberg.com: tenant-analytics-panel renders with SVG line chart + analytics-top-* chips; existing admin-tenants-panel with 36 tenant-row-* entries, tenant-detail-* expansion still works. Streets game 3D scene rendered on-screen (player, buildings, cones, HP 100, no page/console fatal errors — only benign 401s from a background /api call).",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "GET /api/keys", "issue": "Auto-create 'Free Starter Key' (2500 credits) for users with zero keys is NOT implemented. list_keys in server.py:1778 only finds+returns; missing insert-if-empty logic. Two tests fail.", "priority": "HIGH"}
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/dashboard", "issues": ["Carry-over hydration warning: '<span>' cannot be a child of '<option>' (Dashboard select). Non-blocking."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_iter34_regression.py", "/app/test_reports/pytest/iter34.xml"],
+  "action_items": [
+    "Implement auto-create 'Free Starter Key' in list_keys (GET /api/keys): if user has 0 keys, insert one with name='Free Starter Key', credits=2500 (matching PromptSpec), then return the list. Ensure idempotent on 2nd call (guard by count)."
+  ],
+  "critical_code_review_comments": [
+    "list_keys is the wrong place to write data — GET should be idempotent-read. Consider inserting the Free Starter Key on registration in /api/auth/register instead (single write, avoids race on parallel GET /api/keys calls that would each insert). Or use an atomic upsert keyed on {user_id, name:'Free Starter Key'} inside list_keys.",
+    "games_portal._VOICE_RL is an in-process dict — will not enforce rate limits behind multiple workers; move to Redis or Mongo if scaled.",
+    "games_portal.game_voice: cached response and fresh response both decode base64 on the server; consider streaming raw bytes or storing binary in GridFS to save CPU.",
+    "Admin.jsx uses hardcoded 6-color palette for up-to-6 tenants; if top>6 they'll cycle — fine but document."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter34_regression.py"],
+  "success_rate": {"backend": "75%", "frontend": "100%"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026! and doctester1@frasberg.com / DocTester2026!",
+  "seed_data_creation": "Registered ephemeral user TEST_iter34_<uuid>@frasberg.com (test kept it since deletion endpoint isn't exposed; harmless free-plan account with no keys).",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iter34 test at /app/backend/tests/test_iter34_regression.py — 8 tests. Auto-Free-Starter-Key tests will fail until main agent implements the feature in list_keys or /register. Voice endpoint uses OpenAI TTS via Emergent LLM key — first call for new text is slow (~5s), cached calls return <500ms. Do NOT complete real PayPal payments (live mode). Admin analytics chips are data-testid=analytics-top-{i}.",
+  "rca of the issue": "GET /api/keys is a pure read (`db.api_keys.find(...).to_list(...)`). No branch checks `count == 0` and inserts a starter key. To reproduce: register any brand-new user via POST /api/auth/register, then GET /api/keys -> returns []. Fix in /app/backend/server.py near line 1780: `docs = await db.api_keys.find({...}); if not docs and user.get('role')!='admin': insert {name:'Free Starter Key', credits:2500,...}; re-fetch docs`. Guard with `count_documents({user_id})==0` to remain idempotent."
+}

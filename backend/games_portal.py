@@ -1,20 +1,61 @@
 import os
+import re
 import uuid
+import base64
+import hashlib
 import asyncio
+import time as _time
 from datetime import datetime, timezone
 from pathlib import Path
 
 import httpx
 import websockets as ws_client
 from fastapi import APIRouter, HTTPException, WebSocket, Request
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, Response
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field
+from emergentintegrations.llm.openai import OpenAITextToSpeech
 
 router = APIRouter(prefix="/games")
 
 client = AsyncIOMotorClient(os.environ["MONGO_URL"])
 db = client[os.environ["DB_NAME"]]
+
+EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY", "")
+_VOICE_RL = {}
+_VOICE_OK = re.compile(r"^[A-Za-z0-9 ,.!?'\u2019\-]{1,60}$")
+
+
+@router.get("/voice")
+async def game_voice(request: Request, text: str, sex: str = "male"):
+    """Natural human voice lines for games — generated once via the Frasberg voice API, cached forever."""
+    text = (text or "").strip()[:60]
+    if not text or not _VOICE_OK.match(text):
+        raise HTTPException(status_code=400, detail="invalid line")
+    voice = "nova" if sex == "female" else "onyx"
+    h = hashlib.sha1(f"{voice}|{text.lower()}".encode()).hexdigest()
+    cached = await db.game_voice_cache.find_one({"_id": h})
+    if cached:
+        return Response(content=base64.b64decode(cached["b64"]), media_type="audio/mpeg",
+                        headers={"Cache-Control": "public, max-age=604800"})
+    ip = request.client.host if request.client else "?"
+    now = _time.time()
+    hits = [t for t in _VOICE_RL.get(ip, []) if now - t < 60]
+    if len(hits) >= 40:
+        raise HTTPException(status_code=429, detail="voice rate limit")
+    hits.append(now)
+    _VOICE_RL[ip] = hits
+    try:
+        tts = OpenAITextToSpeech(api_key=EMERGENT_LLM_KEY)
+        b64 = await tts.generate_speech_base64(text=text, model="tts-1", voice=voice)
+    except Exception:
+        raise HTTPException(status_code=502, detail="voice engine unavailable")
+    await db.game_voice_cache.update_one(
+        {"_id": h}, {"$set": {"b64": b64, "text": text, "voice": voice,
+                              "created": datetime.now(timezone.utc).isoformat()}}, upsert=True)
+    return Response(content=base64.b64decode(b64), media_type="audio/mpeg",
+                    headers={"Cache-Control": "public, max-age=604800"})
+
 
 GAMES_DIR = Path(__file__).parent.parent / "games"
 
