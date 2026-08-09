@@ -36,7 +36,7 @@ const EXPLORE_GROUPS = [
     items: [
       { label: "API Docs", to: "/docs" },
       { label: "AI Models", to: "/ai-models" },
-      { label: "Frasberg Games", to: "/games" },
+      { label: "Games", to: "/games" },
       { label: "Visual Studio", to: "/studio" },
       { label: "Luchii Code", to: "/luchii-code" },
       { label: "Frasberg Software", to: "/software" },
@@ -201,7 +201,7 @@ export default function Navbar() {
               <Link to="/app-builder" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">App Builder</Link>
               <Link to="/game-builder" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Game Builder</Link>
               <Link to="/gallery" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Builder Gallery</Link>
-              <Link to="/games" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Frasberg Games</Link>
+              <Link to="/games" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Games</Link>
             </div>
             {user ? (
               <button onClick={() => { logout(); setOpen(false); }} className="py-2 text-left text-sm text-lux-text2 hover:text-lux-text">Sign out</button>

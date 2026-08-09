@@ -164,7 +164,7 @@ export default function Dashboard() {
           <Link to="/" className="flex items-center gap-2.5" data-testid="dashboard-home-link">
             <ArrowLeft size={16} className="text-lux-text2" />
             <img src="/luchii-mark-circle.png" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
-            <span className="font-display text-lg font-700 tracking-tight">Luchii</span>
+            <span className="font-display text-lg font-700 tracking-tight">Frasberg</span>
             <span className="hidden font-mono text-[10px] uppercase tracking-[0.2em] text-lux-text2 sm:inline">
               Developer Console
             </span>
