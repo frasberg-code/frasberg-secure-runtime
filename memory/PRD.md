@@ -136,3 +136,8 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - UI: Android/iOS toggle, icon upload + AI-generate row with preview, per-row platform badges + icon thumbs; Play publish restricted to Android
 - PROVED via /tmp/native_proof.py: 14 automated checks all passed (valid PNGs at exact densities, XML/plist/pbxproj/asset-JSON validity, bundled HTML byte-identical to published source) + dashboard UI screenshot
 - Note: compile-level build (gradle/xcodebuild) impossible in Linux container — structural validation only
+
+## 2026-06 (fork, cont. 4) — App Store Publish + Icon Re-roll
+- iOS builds get the same SIMULATED review flow: submit -> in_review -> published (45s) with apps.apple.com URL (deterministic id from build hash); UI shows "Publish to App Store" / blue "View on the App Store" / "Published · App Store" chip
+- Icon style picker (Minimal/Playful/Gradient -> ICON_STYLES prompt map) + "Re-roll icon" with random seed for distinct results each time
+- Verified: iOS publish lifecycle via API, gradient re-roll produced visibly different icon, UI screenshot confirms picker + store buttons

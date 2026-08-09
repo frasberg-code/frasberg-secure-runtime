@@ -39,6 +39,13 @@ class IconGenBody(BaseModel):
     style: str = "modern flat"
 
 
+ICON_STYLES = {
+    "minimal": "ultra-minimal flat design, one simple geometric symbol, two colors maximum, generous negative space",
+    "playful": "playful rounded cartoon style, bright cheerful colors, friendly and fun character",
+    "gradient": "smooth vibrant multi-color gradient background, glossy modern depth, luminous",
+}
+
+
 class PlayListingBody(BaseModel):
     title: str
     short_desc: str = ""
@@ -82,9 +89,12 @@ def _icon_sizes(icon_png: bytes, sizes):
 @router.post("/icons/generate")
 async def generate_icon(body: IconGenBody, user: dict = Depends(auth_module.get_current_user)):
     name = body.app_name.strip()[:60] or "App"
-    prompt = (f"App launcher icon for an app called '{name}'. {body.style} design, single bold centered symbol, "
-              f"vibrant colors, rounded-square friendly composition, no text, no letters, clean solid background, "
-              f"crisp vector style, high contrast")
+    style = ICON_STYLES.get(body.style.lower().strip(), body.style.strip()[:80] or "modern flat")
+    seed = uuid.uuid4().hex[:6]
+    prompt = (f"App launcher icon for an app called '{name}'. {style} design, single bold centered symbol, "
+              f"rounded-square friendly composition, no text, no letters, clean solid background, "
+              f"crisp vector style, high contrast. Unique take (seed {seed}): distinctly different "
+              f"composition and symbol from any previous attempt.")
     try:
         gen = OpenAIImageGeneration(api_key=EMERGENT_LLM_KEY)
         images = await gen.generate_images(prompt=prompt, model="gpt-image-1", number_of_images=1)
@@ -141,8 +151,12 @@ async def list_builds(user: dict = Depends(auth_module.get_current_user)):
         if d.get("play_status") == "in_review" and d.get("review_started"):
             started = datetime.fromisoformat(d["review_started"])
             if now - started > timedelta(seconds=REVIEW_SECONDS):
+                if d.get("platform") == "ios":
+                    store_num = 6440000000 + int(d["_id"][:6], 16) % 99999999
+                    d["play_url"] = f"https://apps.apple.com/app/{_slug(d['app_name'])}/id{store_num}"
+                else:
+                    d["play_url"] = f"https://play.google.com/store/apps/details?id={d['package_id']}"
                 d["play_status"] = "published"
-                d["play_url"] = f"https://play.google.com/store/apps/details?id={d['package_id']}"
                 await db.native_builds.update_one(
                     {"_id": d["_id"]},
                     {"$set": {"play_status": "published", "play_url": d["play_url"]}})

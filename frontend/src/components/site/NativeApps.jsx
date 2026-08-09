@@ -14,11 +14,12 @@ const T = {
 const input = "rounded-sm border px-3 py-2 font-mono text-[12px] outline-none";
 const inputStyle = { borderColor: T.border, background: T.inset, color: T.text };
 
-function StatusChip({ s }) {
+function StatusChip({ s, ios }) {
+  const store = ios ? "App Store" : "Google Play";
   const map = {
     built: { c: "#00F0FF", label: "Built" },
-    in_review: { c: "#F59E0B", label: "In review · Google Play" },
-    published: { c: "#10B981", label: "Published · Google Play" },
+    in_review: { c: "#F59E0B", label: `In review · ${store}` },
+    published: { c: "#10B981", label: `Published · ${store}` },
   };
   const m = map[s] || map.built;
   return (
@@ -38,6 +39,7 @@ export const NativeApps = () => {
   const [building, setBuilding] = useState(false);
   const [platform, setPlatform] = useState("android");
   const [icon, setIcon] = useState(null);
+  const [iconStyle, setIconStyle] = useState("minimal");
   const [genBusy, setGenBusy] = useState(false);
   const iconRef = useRef(null);
   const [publishing, setPublishing] = useState(null); // build id with open listing form
@@ -85,11 +87,11 @@ export const NativeApps = () => {
   const generateIcon = async () => {
     if (!name.trim()) { toast.error("Enter an app name first — the icon is designed around it"); return; }
     setGenBusy(true);
-    toast("Designing your launcher icon…", { duration: 8000 });
+    toast(icon ? "Re-rolling a fresh icon…" : "Designing your launcher icon…", { duration: 8000 });
     try {
       const r = await fetch(`${API}/native/icons/generate`, {
         method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
-        body: JSON.stringify({ app_name: name }),
+        body: JSON.stringify({ app_name: name, style: iconStyle }),
       });
       const d = await r.json();
       if (!r.ok) throw new Error(d.detail || "Generation failed");
@@ -202,10 +204,16 @@ export const NativeApps = () => {
             style={{ borderColor: T.border, color: T.text2 }}>
             <Upload size={11} /> Upload
           </button>
+          <select value={iconStyle} onChange={(e) => setIconStyle(e.target.value)} data-testid="native-icon-style-select"
+            className={input} style={inputStyle}>
+            <option value="minimal">Minimal</option>
+            <option value="playful">Playful</option>
+            <option value="gradient">Gradient</option>
+          </select>
           <button onClick={generateIcon} disabled={genBusy} data-testid="native-icon-generate-btn"
             className="flex items-center gap-1.5 rounded-sm border px-3.5 py-1.5 font-mono text-[11px] transition-colors hover:border-[#00F0FF] disabled:opacity-50"
             style={{ borderColor: T.border, color: T.accent }}>
-            <Sparkles size={11} /> {genBusy ? "Designing…" : "Auto-generate with AI"}
+            <Sparkles size={11} /> {genBusy ? "Designing…" : icon ? "Re-roll icon" : "Auto-generate with AI"}
           </button>
           <span className="font-mono text-[10.5px]" style={{ color: T.muted }}>Bundled at every density (Android mipmaps / iOS AppIcon 1024)</span>
         </div>
@@ -236,27 +244,27 @@ export const NativeApps = () => {
                 <p className="text-[13.5px] font-600" style={{ color: T.text }}>{b.app_name} <span className="font-mono text-[11px]" style={{ color: T.muted }}>v{b.version}</span></p>
                 <p className="mt-0.5 font-mono text-[11px]" style={{ color: T.muted }}>{b.platform === "ios" ? " iOS" : "🤖 Android"} · {b.package_id} · {b.size_kb} KB · {new Date(b.created).toLocaleString()}</p>
               </div>
-              <StatusChip s={b.play_status || b.status} />
+              <StatusChip s={b.play_status || b.status} ios={b.platform === "ios"} />
               <div className="flex items-center gap-2">
                 <a href={`${BASE}${b.download_url}`} data-testid={`native-download-${b.id}`}
                   className="flex items-center gap-1.5 rounded-sm border px-3.5 py-1.5 font-mono text-[11px] transition-colors hover:border-[#00F0FF]"
                   style={{ borderColor: T.border, color: T.text }}>
                   <Download size={12} /> {b.platform === "ios" ? "Xcode project (.zip)" : "APK project (.zip)"}
                 </a>
-                {b.platform !== "ios" && (b.play_status === "published" ? (
+                {b.play_status === "published" ? (
                   <a href={b.play_url} target="_blank" rel="noreferrer" data-testid={`native-play-link-${b.id}`}
                     className="flex items-center gap-1.5 rounded-sm px-3.5 py-1.5 font-mono text-[11px] font-600"
-                    style={{ background: "#10B981", color: "#08090A" }}>
-                    <Play size={11} fill="currentColor" /> View on Google Play
+                    style={{ background: b.platform === "ios" ? "#3B82F6" : "#10B981", color: "#08090A" }}>
+                    <Play size={11} fill="currentColor" /> {b.platform === "ios" ? "View on the App Store" : "View on Google Play"}
                   </a>
                 ) : b.play_status !== "in_review" && (
                   <button onClick={() => { setPublishing(publishing === b.id ? null : b.id); setListTitle(b.app_name); setListDesc(""); }}
                     data-testid={`native-publish-${b.id}`}
                     className="flex items-center gap-1.5 rounded-sm px-3.5 py-1.5 font-mono text-[11px] font-600 transition-opacity hover:opacity-85"
                     style={{ background: T.text, color: "#08090A" }}>
-                    ▶ Publish to Google Play
+                    ▶ {b.platform === "ios" ? "Publish to App Store" : "Publish to Google Play"}
                   </button>
-                ))}
+                )}
                 <button onClick={() => del(b.id)} aria-label="Delete build" data-testid={`native-delete-${b.id}`}
                   className="grid h-8 w-8 place-items-center rounded-sm border transition-colors hover:border-[#EF4444] hover:text-[#EF4444]"
                   style={{ borderColor: T.border, color: T.text2 }}>
