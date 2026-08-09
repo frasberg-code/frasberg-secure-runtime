@@ -1778,6 +1778,23 @@ async def create_key(body: KeyCreate, user: dict = Depends(auth_module.get_curre
 @api_router.get("/keys")
 async def list_keys(user: dict = Depends(auth_module.get_current_user)):
     docs = await db.api_keys.find({"user_id": user["id"]}, {"_id": 0}).sort("created", -1).to_list(200)
+    if not docs and await db.api_keys.count_documents({"user_id": user["id"]}) == 0:
+        # every account gets a free starter key instantly — no request or approval needed
+        starter = {
+            "id": str(uuid.uuid4()),
+            "name": "Free Starter Key",
+            "key": "luchii-sk-" + secrets.token_hex(20),
+            "user_id": user["id"],
+            "created": datetime.now(timezone.utc).isoformat(),
+            "expires_at": None,
+            "request_count": 0,
+            "token_count": 0,
+            "credits": TRIAL_KEY_CREDITS,
+            "last_used": None,
+            "auto_created": True,
+        }
+        await db.api_keys.insert_one({**starter})
+        docs = [dict(starter)]
     for d in docs:
         d["key"] = _mask_key(d["key"])
     return docs
