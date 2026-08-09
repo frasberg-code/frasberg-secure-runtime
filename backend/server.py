@@ -563,14 +563,14 @@ async def _log_email(kind: str, to: str, subject: str, ok: bool, user_id: str = 
         pass
 
 
-async def _send_usage_receipt(user_doc: dict, period_label: str, days_prefix: str) -> bool:
+async def _send_usage_receipt(user_doc: dict, period_label: str, days_prefix: str) -> str:
     api_key_env = os.environ.get("RESEND_API_KEY", "")
     email = user_doc.get("email")
     if not (api_key_env and email):
-        return False
+        return "unavailable"
     keys = await db.api_keys.find({"user_id": user_doc["id"]}, {"_id": 0}).to_list(50)
     if not keys:
-        return False
+        return "no_keys"
     rows, total_req, total_tok = [], 0, 0
     for k in keys:
         usage = await db.api_key_usage.find({"key_id": k["id"], "day": {"$regex": f"^{days_prefix}"}}).to_list(40)
@@ -601,11 +601,11 @@ async def _send_usage_receipt(user_doc: dict, period_label: str, days_prefix: st
                   "subject": f"Your FrasbergAI usage statement — {period_label}", "html": html}
         await asyncio.to_thread(resend.Emails.send, params)
         await _log_email("usage_receipt", email, params["subject"], True, user_doc.get("id"))
-        return True
+        return "sent"
     except Exception:
         logger.exception("usage receipt email failed")
         await _log_email("usage_receipt", email, f"Your FrasbergAI usage statement — {period_label}", False, user_doc.get("id"))
-        return False
+        return "send_failed"
 
 
 async def _receipts_loop():
@@ -625,7 +625,7 @@ async def _receipts_loop():
                         if not uid:
                             continue
                         u = await db.users.find_one({"id": uid}, {"_id": 0, "id": 1, "email": 1})
-                        if u and await _send_usage_receipt(u, prev.strftime("%B %Y"), month):
+                        if u and await _send_usage_receipt(u, prev.strftime("%B %Y"), month) == "sent":
                             sent += 1
                     logger.info("monthly receipts sent: %s for %s", sent, month)
         except Exception:
@@ -654,9 +654,14 @@ async def system_uptime():
 @api_router.post("/receipts/send-now")
 async def send_receipt_now(user: dict = Depends(auth_module.get_current_user)):
     now = datetime.now(timezone.utc)
-    ok = await _send_usage_receipt(user, now.strftime("%B %Y (month to date)"), now.strftime("%Y-%m"))
-    if not ok:
-        raise HTTPException(status_code=400, detail="No keys with usage, or email service unavailable")
+    result = await _send_usage_receipt(user, now.strftime("%B %Y (month to date)"), now.strftime("%Y-%m"))
+    if result == "no_keys":
+        raise HTTPException(status_code=400, detail="No API keys on your account yet — create one first")
+    if result == "send_failed":
+        raise HTTPException(status_code=503,
+                            detail="Email delivery is currently restricted until our sending domain is verified. Your statement attempt was logged.")
+    if result != "sent":
+        raise HTTPException(status_code=503, detail="Email service unavailable")
     return {"ok": True, "sent_to": user.get("email")}
 
 
