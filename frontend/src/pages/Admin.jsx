@@ -24,6 +24,7 @@ export default function Admin() {
   const [editing, setEditing] = useState(null); // null | {id?, title, content, tags}
   const [ops, setOps] = useState(null);
   const [tenants, setTenants] = useState(null);
+  const [team, setTeam] = useState(null);
   const [tenantAnalytics, setTenantAnalytics] = useState(null);
   const [cloudUniverses, setCloudUniverses] = useState([]);
   const [snapUniverse, setSnapUniverse] = useState(null);
@@ -187,6 +188,7 @@ export default function Admin() {
       ]);
       setStats(s.data); setUsers(u.data); setConvos(c.data); setKb(k.data); setPayments(p.data.payments || []); setBuilds(b.data);
       axios.get(`${API}/admin/tenants`, ax).then((r) => setTenants(r.data)).catch(() => {});
+      axios.get(`${API}/admin/team`, ax).then((r) => setTeam(r.data)).catch(() => {});
       axios.get(`${API}/admin/tenants/analytics`, ax).then((r) => setTenantAnalytics(r.data)).catch(() => {});
       axios.get(`${API}/admin/health`, ax).then((r) => setHealth(r.data)).catch(() => {});
       axios.get(`${API}/admin/audit`, ax).then((r) => setAudit(r.data)).catch(() => {});
@@ -610,6 +612,56 @@ export default function Admin() {
                         </tr>
                       )}
                       </Fragment>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section className="mt-12" data-testid="admin-team-panel">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2 className="font-display text-2xl font-700 tracking-tight">Frasberg Team</h2>
+                {team && (
+                  <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
+                    <span className="rounded-full border border-lux-accent/40 px-3 py-1 text-lux-accent" data-testid="team-unlimited-badge">@frasbergai.com · unlimited access</span>
+                    <span className="rounded-full border border-lux-border px-3 py-1" data-testid="team-total-members">{team.totals.members} members</span>
+                    <span className="rounded-full border border-lux-border px-3 py-1" data-testid="team-total-tokens">{team.totals.tokens.toLocaleString()} tok · {team.month}</span>
+                  </div>
+                )}
+              </div>
+              <div className="mt-4 overflow-x-auto rounded-2xl border border-lux-border" data-testid="admin-team-table">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-lux-border font-mono text-[10px] uppercase tracking-wide text-lux-text2">
+                      <th className="p-3.5">Member</th>
+                      <th className="p-3.5">Plan</th>
+                      <th className="p-3.5">Keys</th>
+                      <th className="p-3.5">Tokens · month</th>
+                      <th className="p-3.5">Requests · month</th>
+                      <th className="p-3.5">Last active</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {!team && (
+                      <tr><td colSpan={6} className="p-5 font-mono text-xs text-lux-text2">Loading team…</td></tr>
+                    )}
+                    {team && team.members.length === 0 && (
+                      <tr><td colSpan={6} className="p-5 font-mono text-xs text-lux-text2">No @frasbergai.com accounts yet — team members get unlimited access the moment they sign up.</td></tr>
+                    )}
+                    {team && team.members.map((m) => (
+                      <tr key={m.id} className="border-b border-lux-border/50 transition-colors hover:bg-white/[0.02]" data-testid={`team-row-${m.id}`}>
+                        <td className="p-3.5">
+                          <span className="font-600">{m.name || m.email.split("@")[0]}</span>
+                          <span className="ml-2 font-mono text-[11px] text-lux-text2">{m.email}</span>
+                        </td>
+                        <td className="p-3.5">
+                          <span className="rounded-full border border-lux-accent/40 px-2.5 py-0.5 font-mono text-[10px] uppercase text-lux-accent">{m.plan} · ∞</span>
+                        </td>
+                        <td className="p-3.5 font-mono text-xs">{m.keys}</td>
+                        <td className="p-3.5 font-mono text-xs">{m.monthly_tokens.toLocaleString()}</td>
+                        <td className="p-3.5 font-mono text-xs">{m.monthly_requests.toLocaleString()}</td>
+                        <td className="p-3.5 font-mono text-[11px] text-lux-text2">{m.last_active ? new Date(m.last_active).toLocaleString() : "—"}</td>
+                      </tr>
                     ))}
                   </tbody>
                 </table>

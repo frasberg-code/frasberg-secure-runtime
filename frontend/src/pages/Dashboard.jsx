@@ -222,7 +222,7 @@ export default function Dashboard() {
       <div className="mx-auto max-w-[1200px] px-5 pt-12 pb-16 sm:px-8">
         <h1 className="text-2xl font-700 tracking-tighter sm:text-3xl">Overview</h1>
         <p className="mt-1.5 text-sm" style={{ color: T.text2 }}>
-          Keys, usage and billing for the Frasberg AI gateway. Public tier is capped at {usage.rate_limit} requests/min.
+          Keys, usage and billing for the Frasberg gateway. Public tier is capped at 60 requests/min.
         </p>
 
         {!user && (

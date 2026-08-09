@@ -520,6 +520,7 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
             if deduct_credits:
                 await _maybe_autotopup(key_id)
                 await _maybe_low_credit_alert(key_id)
+            asyncio.create_task(_maybe_quota_alert(key_id))
         yield f"data: {json.dumps({'done': True, 'session_id': session_id, 'mesh': 'frasberg-secure-v1', 'sig': _mesh_sign(full)})}\n\n"
 
     return StreamingResponse(
@@ -1249,6 +1250,34 @@ async def my_quotas(user: dict = Depends(auth_module.get_current_user)):
                 "monthly_tokens_used": used, "unlimited": True}
     return {"plan": plan, "rpm_limit": q["rpm"], "monthly_token_limit": q["monthly_tokens"],
             "monthly_tokens_used": used}
+
+
+@api_router.get("/admin/team")
+async def admin_team(admin: dict = Depends(require_admin)):
+    month = datetime.now(timezone.utc).strftime("%Y-%m")
+    users = await db.users.find(
+        {"email": {"$regex": "@frasbergai\\.com$", "$options": "i"}},
+        {"_id": 0, "id": 1, "email": 1, "name": 1, "plan": 1, "created_at": 1}).to_list(200)
+    members = []
+    for u in users:
+        keys = await db.api_keys.find({"user_id": u["id"]}, {"id": 1, "last_used": 1}).to_list(100)
+        kids = [k["id"] for k in keys]
+        tokens = reqs = 0
+        if kids:
+            agg = await db.api_key_usage.aggregate([
+                {"$match": {"key_id": {"$in": kids}, "day": {"$regex": f"^{month}"}}},
+                {"$group": {"_id": None, "tokens": {"$sum": "$tokens"}, "requests": {"$sum": "$requests"}}}]).to_list(1)
+            if agg:
+                tokens, reqs = agg[0]["tokens"], agg[0]["requests"]
+        last = max([k.get("last_used") or "" for k in keys], default="") or None
+        members.append({"id": u["id"], "name": u.get("name"), "email": u["email"], "plan": u.get("plan", "scale"),
+                        "created_at": u.get("created_at"), "keys": len(kids),
+                        "monthly_tokens": tokens, "monthly_requests": reqs, "last_active": last})
+    members.sort(key=lambda m: -m["monthly_tokens"])
+    return {"month": month, "members": members,
+            "totals": {"members": len(members),
+                       "tokens": sum(m["monthly_tokens"] for m in members),
+                       "requests": sum(m["monthly_requests"] for m in members)}}
 
 
 @api_router.get("/admin/tenants")
@@ -2443,6 +2472,60 @@ async def _maybe_autotopup(key_id: str):
 
 
 LOW_CREDIT_THRESHOLD = 500
+
+QUOTA_ALERT_PCT = 0.8
+
+
+async def _maybe_quota_alert(key_id: str):
+    key_doc = await db.api_keys.find_one({"id": key_id}, {"user_id": 1})
+    if not key_doc:
+        return
+    owner = await db.users.find_one({"id": key_doc["user_id"]}, {"id": 1, "email": 1, "plan": 1, "name": 1, "role": 1})
+    if not owner or owner.get("role") == "admin" or _is_team_email(owner.get("email")):
+        return
+    plan = owner.get("plan", "free")
+    cap = PLAN_QUOTAS.get(plan, PLAN_QUOTAS["pro"])["monthly_tokens"]
+    month = datetime.now(timezone.utc).strftime("%Y-%m")
+    key_ids = [k["id"] async for k in db.api_keys.find({"user_id": owner["id"]}, {"id": 1})]
+    if not key_ids:
+        return
+    agg = await db.api_key_usage.aggregate([
+        {"$match": {"key_id": {"$in": key_ids}, "day": {"$regex": f"^{month}"}}},
+        {"$group": {"_id": None, "tokens": {"$sum": "$tokens"}}}]).to_list(1)
+    used = agg[0]["tokens"] if agg else 0
+    if used < QUOTA_ALERT_PCT * cap:
+        return
+    res = await db.quota_alerts.update_one(
+        {"user_id": owner["id"], "month": month},
+        {"$setOnInsert": {"sent_at": datetime.now(timezone.utc).isoformat(), "used": used, "cap": cap}},
+        upsert=True)
+    if res.upserted_id is None:
+        return
+    api_key_env = os.environ.get("RESEND_API_KEY", "")
+    email = owner.get("email")
+    if not (api_key_env and email):
+        return
+    pct = min(100, round(used / cap * 100))
+    html = (f"<div style='font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc;padding:28px;border-radius:14px;'>"
+            f"<p style='color:#f59e0b;font-size:12px;letter-spacing:2px;text-transform:uppercase;'>FrasbergAI Quota Alert</p>"
+            f"<h2 style='margin:8px 0;'>You've used {pct}% of your monthly token quota</h2>"
+            f"<p style='color:#94a3b8;'><b style='color:#f8fafc'>{used:,}</b> of <b style='color:#f8fafc'>{cap:,}</b> tokens used this month on your "
+            f"<b style='color:#f8fafc'>{plan}</b> plan. Requests are blocked once the quota is reached.</p>"
+            f"<div style='background:#1e293b;border-radius:8px;height:10px;margin:16px 0;overflow:hidden;'>"
+            f"<div style='background:#f59e0b;height:10px;width:{pct}%;'></div></div>"
+            f"<p style='margin-top:16px;'><a href='https://frasberg.com/dashboard' style='color:#1A4FFF;'>Upgrade your plan \u2192</a> "
+            f"<span style='color:#64748b;font-size:12px;'>for a higher monthly quota and faster rate limits.</span></p></div>")
+    try:
+        import resend as _resend
+        _resend.api_key = api_key_env
+        params = {"from": os.environ.get("SENDER_EMAIL", "onboarding@resend.dev"), "to": [email],
+                  "subject": f"\u26a0\ufe0f {pct}% of your monthly Luchii quota used \u2014 {used:,}/{cap:,} tokens", "html": html}
+        await asyncio.to_thread(_resend.Emails.send, params)
+        await _log_email("quota_alert", email, params["subject"], True, owner["id"])
+        logger.info("quota alert sent to %s (%s%%)", email, pct)
+    except Exception:
+        await _log_email("quota_alert", email, "quota alert", False, owner["id"])
+        logger.exception("quota alert email failed")
 
 
 async def _maybe_low_credit_alert(key_id: str):

@@ -118,3 +118,8 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - @frasbergai.com team domain: register/login auto-assigns plan "scale" (auth.py TEAM_DOMAIN); unlimited tokens/credits/rate across /api/quotas, /v1/chat, /v1/chat/completions, key creation (server.py _is_team_email); Dashboard shows "Unlimited"
 - Verified by testing agent iteration_37.json (100% backend 8/8, 100% frontend) + manual pause/resume browser test
 - Pending user actions: redeploy to frasberg.com (live domain runs old build, /api/workspace/publishes 404 there); Resend DNS on Squarespace
+
+## 2026-06 (fork, cont.) — Team Admin Panel + Quota Alerts
+- GET /api/admin/team: all @frasbergai.com members with keys, monthly tokens/requests, last active; "Frasberg Team" section added to Admin console (admin-team-panel)
+- Quota alerts: _maybe_quota_alert fires after each metered gateway call — emails developer at >=80% of monthly plan quota via Resend, once per month (quota_alerts collection dedup), skips team/admin/unlimited accounts. Verified real delivery (delivered@resend.dev, ok:true in email_log)
+- Text edits: workspace empty states say "ask Luchii", Dashboard subtitle "Frasberg gateway ... 60 requests/min"

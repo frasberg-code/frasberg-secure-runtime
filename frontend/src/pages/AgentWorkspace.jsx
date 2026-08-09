@@ -469,7 +469,7 @@ export default function AgentWorkspace() {
                     <img src="/luchii-mark-circle.png" alt="" className="mx-auto h-16 w-16 rounded-full opacity-80" style={{ boxShadow: "0 0 50px rgba(0,240,255,0.25)" }} />
                     <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.25em]" style={{ color: T.accent }}>● Luchii V12 · Constellation layer live</p>
                     <p className="mt-3 max-w-xs text-sm" style={{ color: T.text2 }}>
-                      Your build preview appears here — ask {agent.name} to build a page and it renders live.
+                      Your build preview appears here — ask Luchii to build a page and it renders live.
                     </p>
                   </div>
                 </div>
@@ -487,7 +487,7 @@ export default function AgentWorkspace() {
                 </div>
               ) : (
                 <div className="grid h-full place-items-center">
-                  <p className="max-w-xs text-center text-sm" style={{ color: T.text2 }}>No code yet — ask {agent.name} to build something and the source appears here.</p>
+                  <p className="max-w-xs text-center text-sm" style={{ color: T.text2 }}>No code yet — ask Luchii to build something and the source appears here.</p>
                 </div>
               )}
             </div>
