@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { toast } from "sonner";
-import { Smartphone, Download, Trash2, RefreshCw, Play } from "lucide-react";
+import { Smartphone, Download, Trash2, RefreshCw, Play, Sparkles, Upload, X } from "lucide-react";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const BASE = process.env.REACT_APP_BACKEND_URL;
@@ -36,6 +36,10 @@ export const NativeApps = () => {
   const [name, setName] = useState("");
   const [pkg, setPkg] = useState("");
   const [building, setBuilding] = useState(false);
+  const [platform, setPlatform] = useState("android");
+  const [icon, setIcon] = useState(null);
+  const [genBusy, setGenBusy] = useState(false);
+  const iconRef = useRef(null);
   const [publishing, setPublishing] = useState(null); // build id with open listing form
   const [listTitle, setListTitle] = useState("");
   const [listDesc, setListDesc] = useState("");
@@ -67,17 +71,45 @@ export const NativeApps = () => {
     }
   };
 
+  const onIconFile = (e) => {
+    const f = e.target.files?.[0];
+    e.target.value = "";
+    if (!f) return;
+    if (!f.type.startsWith("image/")) { toast.error("Icon must be an image (PNG/JPG)"); return; }
+    if (f.size > 4_000_000) { toast.error("Icon too large — 4MB max"); return; }
+    const reader = new FileReader();
+    reader.onload = () => { setIcon(String(reader.result)); toast.success("Icon attached"); };
+    reader.readAsDataURL(f);
+  };
+
+  const generateIcon = async () => {
+    if (!name.trim()) { toast.error("Enter an app name first — the icon is designed around it"); return; }
+    setGenBusy(true);
+    toast("Designing your launcher icon…", { duration: 8000 });
+    try {
+      const r = await fetch(`${API}/native/icons/generate`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+        body: JSON.stringify({ app_name: name }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || "Generation failed");
+      setIcon(`data:image/png;base64,${d.icon_b64}`);
+      toast.success("Launcher icon generated");
+    } catch (e) { toast.error(String(e.message || e)); }
+    setGenBusy(false);
+  };
+
   const build = async () => {
     if (!sel) { toast.error("Pick a published app first"); return; }
     setBuilding(true);
     try {
       const r = await fetch(`${API}/native/builds`, {
         method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
-        body: JSON.stringify({ publish_id: sel, app_name: name, package_id: pkg }),
+        body: JSON.stringify({ publish_id: sel, app_name: name, package_id: pkg, platform, icon_b64: icon || undefined }),
       });
       const d = await r.json();
       if (!r.ok) throw new Error(d.detail || "Build failed");
-      toast.success(`Android package built — ${d.app_name} v${d.version}`);
+      toast.success(`${platform === "ios" ? "Xcode" : "Android"} package built — ${d.app_name} v${d.version}`);
       load();
     } catch (e) { toast.error(String(e.message || e)); }
     setBuilding(false);
@@ -106,7 +138,7 @@ export const NativeApps = () => {
     <section className="mt-10" data-testid="native-apps-section">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b pb-3" style={{ borderColor: T.borderSubtle }}>
         <h2 className="flex items-center gap-2 text-[15px] font-700 tracking-tight" style={{ color: T.text }}>
-          <Smartphone size={14} style={{ color: T.accent }} /> Native apps · Android
+          <Smartphone size={14} style={{ color: T.accent }} /> Native apps · Android & iOS
         </h2>
         <button onClick={load} className="flex items-center gap-1.5 rounded-sm border px-3 py-1.5 font-mono text-[11px]"
           style={{ borderColor: T.border, color: T.text2 }} data-testid="native-refresh-btn">
@@ -117,6 +149,16 @@ export const NativeApps = () => {
       {/* Build form */}
       <div className="rounded-sm border p-5" style={{ borderColor: T.border, background: T.surface }} data-testid="native-build-form">
         <p className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: T.text2 }}>Package a published app</p>
+        <div className="mt-3 flex rounded-sm border p-0.5" style={{ borderColor: T.border, width: "fit-content" }} data-testid="native-platform-toggle">
+          {[["android", "🤖 Android"], ["ios", " iOS"]].map(([k, label]) => (
+            <button key={k} onClick={() => { setPlatform(k); if (sel) { const a = apps.find((x) => x.id === sel); if (a) setPkg((p) => p); } }}
+              data-testid={`native-platform-${k}`}
+              className="rounded-sm px-4 py-1.5 font-mono text-[11px] transition-colors"
+              style={platform === k ? { background: "rgba(255,255,255,0.1)", color: T.text } : { color: T.text2 }}>
+              {label}
+            </button>
+          ))}
+        </div>
         <div className="mt-3 flex flex-wrap items-end gap-3">
           <label className="flex flex-col gap-1.5">
             <span className="font-mono text-[10px] uppercase" style={{ color: T.muted }}>Published app</span>
@@ -130,17 +172,47 @@ export const NativeApps = () => {
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder="My App" className={input} style={inputStyle} data-testid="native-name-input" />
           </label>
           <label className="flex flex-col gap-1.5">
-            <span className="font-mono text-[10px] uppercase" style={{ color: T.muted }}>Package ID</span>
+            <span className="font-mono text-[10px] uppercase" style={{ color: T.muted }}>{platform === "ios" ? "Bundle ID" : "Package ID"}</span>
             <input value={pkg} onChange={(e) => setPkg(e.target.value)} placeholder="com.frasberg.myapp" className={input} style={{ ...inputStyle, minWidth: 220 }} data-testid="native-package-input" />
           </label>
           <button onClick={build} disabled={building} data-testid="native-build-btn"
             className="rounded-sm px-5 py-2 font-mono text-[12px] font-600 transition-opacity hover:opacity-85 disabled:opacity-50"
             style={{ background: T.accent, color: "#08090A" }}>
-            {building ? "Building…" : "⚒ Build Android package"}
+            {building ? "Building…" : platform === "ios" ? "⚒ Build iOS package" : "⚒ Build Android package"}
           </button>
         </div>
+        {/* Launcher icon */}
+        <div className="mt-4 flex flex-wrap items-center gap-3 border-t pt-4" style={{ borderColor: T.borderSubtle }} data-testid="native-icon-row">
+          <span className="font-mono text-[10px] uppercase" style={{ color: T.muted }}>Launcher icon</span>
+          {icon ? (
+            <span className="relative inline-block">
+              <img src={icon} alt="App icon" className="h-12 w-12 rounded-xl border object-cover" style={{ borderColor: T.border }} data-testid="native-icon-preview" />
+              <button onClick={() => setIcon(null)} aria-label="Remove icon" data-testid="native-icon-remove"
+                className="absolute -right-2 -top-2 grid h-5 w-5 place-items-center rounded-full border"
+                style={{ background: T.inset, borderColor: T.border, color: T.text2 }}>
+                <X size={10} />
+              </button>
+            </span>
+          ) : (
+            <span className="grid h-12 w-12 place-items-center rounded-xl border font-mono text-[9px]" style={{ borderColor: T.border, color: T.muted }}>none</span>
+          )}
+          <input ref={iconRef} type="file" hidden accept="image/*" onChange={onIconFile} data-testid="native-icon-file-input" />
+          <button onClick={() => iconRef.current?.click()} data-testid="native-icon-upload-btn"
+            className="flex items-center gap-1.5 rounded-sm border px-3.5 py-1.5 font-mono text-[11px]"
+            style={{ borderColor: T.border, color: T.text2 }}>
+            <Upload size={11} /> Upload
+          </button>
+          <button onClick={generateIcon} disabled={genBusy} data-testid="native-icon-generate-btn"
+            className="flex items-center gap-1.5 rounded-sm border px-3.5 py-1.5 font-mono text-[11px] transition-colors hover:border-[#00F0FF] disabled:opacity-50"
+            style={{ borderColor: T.border, color: T.accent }}>
+            <Sparkles size={11} /> {genBusy ? "Designing…" : "Auto-generate with AI"}
+          </button>
+          <span className="font-mono text-[10.5px]" style={{ color: T.muted }}>Bundled at every density (Android mipmaps / iOS AppIcon 1024)</span>
+        </div>
         <p className="mt-3 font-mono text-[10.5px]" style={{ color: T.muted }}>
-          Produces a complete Android Studio project (WebView shell + your app bundled) — run <code style={{ color: T.text2 }}>./gradlew assembleDebug</code> to get the installable APK.
+          {platform === "ios"
+            ? <>Produces a complete Xcode project (WKWebView shell + your app bundled) — open in Xcode 15+ and press Run.</>
+            : <>Produces a complete Android Studio project (WebView shell + your app bundled) — run <code style={{ color: T.text2 }}>./gradlew assembleDebug</code> to get the installable APK.</>}
         </p>
       </div>
 
@@ -155,18 +227,23 @@ export const NativeApps = () => {
         {(builds || []).map((b) => (
           <div key={b.id} className="rounded-sm border p-4" style={{ borderColor: T.border, background: T.surface }} data-testid={`native-build-${b.id}`}>
             <div className="flex flex-wrap items-center gap-3">
+              {b.has_icon ? (
+                <img src={`${BASE}/api/native/builds/${b.id}/icon`} alt="" className="h-10 w-10 rounded-lg border object-cover" style={{ borderColor: T.border }} data-testid={`native-build-icon-${b.id}`} />
+              ) : (
+                <span className="grid h-10 w-10 place-items-center rounded-lg border text-[15px]" style={{ borderColor: T.border }}>{b.platform === "ios" ? "" : "🤖"}</span>
+              )}
               <div className="min-w-0 flex-1">
                 <p className="text-[13.5px] font-600" style={{ color: T.text }}>{b.app_name} <span className="font-mono text-[11px]" style={{ color: T.muted }}>v{b.version}</span></p>
-                <p className="mt-0.5 font-mono text-[11px]" style={{ color: T.muted }}>{b.package_id} · {b.size_kb} KB · {new Date(b.created).toLocaleString()}</p>
+                <p className="mt-0.5 font-mono text-[11px]" style={{ color: T.muted }}>{b.platform === "ios" ? " iOS" : "🤖 Android"} · {b.package_id} · {b.size_kb} KB · {new Date(b.created).toLocaleString()}</p>
               </div>
               <StatusChip s={b.play_status || b.status} />
               <div className="flex items-center gap-2">
                 <a href={`${BASE}${b.download_url}`} data-testid={`native-download-${b.id}`}
                   className="flex items-center gap-1.5 rounded-sm border px-3.5 py-1.5 font-mono text-[11px] transition-colors hover:border-[#00F0FF]"
                   style={{ borderColor: T.border, color: T.text }}>
-                  <Download size={12} /> APK project (.zip)
+                  <Download size={12} /> {b.platform === "ios" ? "Xcode project (.zip)" : "APK project (.zip)"}
                 </a>
-                {b.play_status === "published" ? (
+                {b.platform !== "ios" && (b.play_status === "published" ? (
                   <a href={b.play_url} target="_blank" rel="noreferrer" data-testid={`native-play-link-${b.id}`}
                     className="flex items-center gap-1.5 rounded-sm px-3.5 py-1.5 font-mono text-[11px] font-600"
                     style={{ background: "#10B981", color: "#08090A" }}>
@@ -179,7 +256,7 @@ export const NativeApps = () => {
                     style={{ background: T.text, color: "#08090A" }}>
                     ▶ Publish to Google Play
                   </button>
-                )}
+                ))}
                 <button onClick={() => del(b.id)} aria-label="Delete build" data-testid={`native-delete-${b.id}`}
                   className="grid h-8 w-8 place-items-center rounded-sm border transition-colors hover:border-[#EF4444] hover:text-[#EF4444]"
                   style={{ borderColor: T.border, color: T.text2 }}>

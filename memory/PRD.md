@@ -129,3 +129,10 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - New NativeApps component in Dashboard (/app/frontend/src/components/site/NativeApps.jsx): app picker, name/package inputs, build button, builds list with status chips, APK project download, Play listing form
 - Self-tested full lifecycle via curl (zip validated w/ unzip -l, 9 files) + dashboard screenshot
 - NOTE: Google Play publish is MOCKED (no real Play Console API); APK requires user to run ./gradlew assembleDebug on the downloaded project
+
+## 2026-06 (fork, cont. 3) — App Icons + iOS Packaging
+- Icons: POST /api/native/icons/generate (gpt-image-1 via Emergent key, normalized 512px PNG), upload supported via icon_b64 on build; bundled as Android mipmaps (48-192px, manifest android:icon) and iOS AppIcon 1024 asset catalog; GET /builds/{id}/icon serves thumbnail
+- iOS: platform=ios builds produce complete Xcode project ZIP (project.pbxproj w/ fixed UUIDs, AppDelegate/ViewController Swift WKWebView shell, Info.plist, bundled index.html, Assets.xcassets)
+- UI: Android/iOS toggle, icon upload + AI-generate row with preview, per-row platform badges + icon thumbs; Play publish restricted to Android
+- PROVED via /tmp/native_proof.py: 14 automated checks all passed (valid PNGs at exact densities, XML/plist/pbxproj/asset-JSON validity, bundled HTML byte-identical to published source) + dashboard UI screenshot
+- Note: compile-level build (gradle/xcodebuild) impossible in Linux container — structural validation only
