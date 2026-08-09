@@ -71,12 +71,16 @@ GAME_REGISTRY = [
 async def list_games():
     counts = {d["game_id"]: int(d.get("plays", 0))
               async for d in db.game_plays.find({}, {"_id": 0, "game_id": 1, "plays": 1})}
+    week = _week_key()
     out = []
     for g in GAME_REGISTRY:
         top = await db.game_scores.find_one(
             {"game_id": g["id"]}, {"_id": 0, "name": 1, "score": 1}, sort=[("score", -1)]
         )
-        out.append({**g, "champion": top, "plays": counts.get(g["id"], 0)})
+        weekly = await db.game_scores.find_one(
+            {"game_id": g["id"], "week": week}, {"_id": 0, "name": 1, "score": 1}, sort=[("score", -1)]
+        )
+        out.append({**g, "champion": top, "weekly_champion": weekly, "plays": counts.get(g["id"], 0)})
     community = await db.builder_projects.find(
         {"type": "game", "published": True, "featured": True, "hidden": {"$ne": True}},
         {"_id": 0, "slug": 1, "title": 1, "plays": 1},
@@ -186,6 +190,40 @@ async def player_profile(request: Request):
     playtime.sort(key=lambda p: p["seconds"], reverse=True)
     return {"favorites": favorites, "best_scores": list(best.values()),
             "playtime": playtime, "total_seconds": sum(p["seconds"] for p in playtime)}
+
+
+@router.get("/player/achievements")
+async def player_achievements(request: Request):
+    uid = _require_user_id(request)
+    scores = await db.game_scores.find({"user_id": uid}, {"_id": 0, "game_id": 1, "score": 1,
+                                                          "week": 1}).to_list(1000)
+    fav_doc = await db.game_favorites.find_one({"user_id": uid}, {"game_ids": 1})
+    favorites = (fav_doc or {}).get("game_ids", [])
+    playtime = [d async for d in db.game_playtime.find({"user_id": uid}, {"_id": 0})]
+    total_seconds = sum(int(p.get("seconds", 0)) for p in playtime)
+    week = _week_key()
+    weekly_king = False
+    for gid in {s["game_id"] for s in scores if s.get("week") == week}:
+        top = await db.game_scores.find_one({"game_id": gid, "week": week},
+                                            {"user_id": 1}, sort=[("score", -1)])
+        if top and top.get("user_id") == uid:
+            weekly_king = True
+            break
+    badges = [
+        {"id": "first_score", "title": "First Blood", "desc": "Post your first score",
+         "icon": "🎯", "earned": len(scores) > 0},
+        {"id": "high_roller", "title": "High Roller", "desc": "Score 5,000+ in any game",
+         "icon": "🎰", "earned": any(s["score"] >= 5000 for s in scores)},
+        {"id": "hour_played", "title": "Marathon", "desc": "Play for 1 hour total",
+         "icon": "⏱️", "earned": total_seconds >= 3600},
+        {"id": "collector", "title": "Collector", "desc": "Favorite 3+ games",
+         "icon": "❤️", "earned": len(favorites) >= 3},
+        {"id": "explorer", "title": "Explorer", "desc": "Play 3 different games",
+         "icon": "🧭", "earned": len({p["game_id"] for p in playtime}) >= 3},
+        {"id": "weekly_king", "title": "Weekly King", "desc": "Hold a #1 weekly score",
+         "icon": "👑", "earned": weekly_king},
+    ]
+    return {"badges": badges, "earned": sum(1 for b in badges if b["earned"])}
 
 
 @router.get("/player/best-scores")

@@ -24,6 +24,8 @@ export default function Admin() {
   const [editing, setEditing] = useState(null); // null | {id?, title, content, tags}
   const [ops, setOps] = useState(null);
   const [tenants, setTenants] = useState(null);
+  const [health, setHealth] = useState(null);
+  const [audit, setAudit] = useState([]);
   const [tenantDetail, setTenantDetail] = useState(null); // {id, loading, data}
   const [grantAmount, setGrantAmount] = useState("");
   const [digest, setDigest] = useState(null); // {loading, data}
@@ -141,6 +143,8 @@ export default function Admin() {
       ]);
       setStats(s.data); setUsers(u.data); setConvos(c.data); setKb(k.data); setPayments(p.data.payments || []); setBuilds(b.data);
       axios.get(`${API}/admin/tenants`, ax).then((r) => setTenants(r.data)).catch(() => {});
+      axios.get(`${API}/admin/health`, ax).then((r) => setHealth(r.data)).catch(() => {});
+      axios.get(`${API}/admin/audit`, ax).then((r) => setAudit(r.data)).catch(() => {});
     } catch (err) {
       toast.error(formatApiErrorDetail(err.response?.data?.detail));
     }
@@ -356,6 +360,29 @@ export default function Admin() {
               </div>
             </section>
 
+            <section className="mt-12" data-testid="admin-health-panel">
+              <h2 className="font-display text-2xl font-700 tracking-tight">Service health</h2>
+              {health ? (
+                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                  {[
+                    ["Requests (5m)", health.requests, "health-requests"],
+                    ["Avg latency", `${health.avg_latency_ms}ms`, "health-avg-latency"],
+                    ["P95 latency", `${health.p95_latency_ms}ms`, "health-p95-latency"],
+                    ["Error rate", `${health.error_rate}%`, "health-error-rate"],
+                    ["DB ping", `${health.db_ping_ms}ms`, "health-db-ping"],
+                    ["Uptime", `${Math.floor(health.uptime_seconds / 3600)}h ${Math.floor((health.uptime_seconds % 3600) / 60)}m`, "health-uptime"],
+                  ].map(([label, value, tid]) => (
+                    <div key={tid} className="rounded-2xl border border-lux-border bg-lux-surface p-4" data-testid={tid}>
+                      <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">{label}</p>
+                      <p className={`mt-1 font-display text-xl font-700 ${tid === "health-error-rate" && health.error_rate > 1 ? "text-red-400" : "text-lux-text"}`}>{value}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-4 font-mono text-xs text-lux-text2">Loading health metrics…</p>
+              )}
+            </section>
+
             <section className="mt-12" data-testid="admin-tenants-panel">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="font-display text-2xl font-700 tracking-tight">Tenants &amp; revenue</h2>
@@ -511,6 +538,28 @@ export default function Admin() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </section>
+
+            <section className="mt-12" data-testid="admin-audit-panel">
+              <h2 className="font-display text-2xl font-700 tracking-tight">Admin audit log</h2>
+              <div className="mt-4 overflow-hidden rounded-2xl border border-lux-border">
+                {audit.length === 0 ? (
+                  <p className="p-5 font-mono text-xs text-lux-text2">No admin actions recorded yet.</p>
+                ) : (
+                  audit.slice(0, 25).map((a) => (
+                    <div key={a.id} className="flex flex-wrap items-center justify-between gap-2 border-b border-lux-border px-5 py-2.5 last:border-0" data-testid={`audit-row-${a.id}`}>
+                      <div className="flex items-center gap-3">
+                        <span className="rounded-full border border-lux-accent/40 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wide text-lux-accent">{a.action.replace(/_/g, " ")}</span>
+                        <span className="font-mono text-xs text-lux-text2">{a.admin_email}</span>
+                        {a.detail && Object.keys(a.detail).length > 0 && (
+                          <span className="font-mono text-[10px] text-lux-text2">{JSON.stringify(a.detail).slice(0, 80)}</span>
+                        )}
+                      </div>
+                      <span className="font-mono text-[10px] text-lux-text2">{(a.ts || "").slice(0, 16).replace("T", " ")}</span>
+                    </div>
+                  ))
+                )}
               </div>
             </section>
 

@@ -66,6 +66,11 @@ export default function GameCard({ game, onPlay, favorited, onToggleFavorite }) 
             </span>
           </p>
         )}
+        {game.weekly_champion && (
+          <p className="mt-1 flex items-center gap-1.5 text-[11px] text-[#7dd3fc]" data-testid={`game-weekly-champion-${game.id}`}>
+            <Crown size={11} /> This week: {game.weekly_champion.name} · {game.weekly_champion.score.toLocaleString()}
+          </p>
+        )}
         <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.15em] text-[#555]">{game.engine}</p>
         <button
           data-testid={`game-play-btn-${game.id}`}

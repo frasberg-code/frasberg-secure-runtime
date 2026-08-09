@@ -39,6 +39,7 @@ export default function Dashboard() {
   const [copied, setCopied] = useState(false);
   const [wallet, setWallet] = useState(0);
   const [emails, setEmails] = useState([]);
+  const [quota, setQuota] = useState(null);
   const [sendingStatement, setSendingStatement] = useState(false);
 
   const emailStatement = async () => {
@@ -69,6 +70,7 @@ export default function Dashboard() {
       setDaily(Array.isArray(d) ? d : []);
       if (w) setWallet(w.balance);
       setEmails(Array.isArray(e) ? e : []);
+      fetch(`${API}/quotas`, { credentials: "include" }).then((r) => (r.ok ? r.json() : null)).then((q) => q && setQuota(q)).catch(() => {});
     } catch {
       toast.error("Failed to load dashboard");
     }
@@ -223,6 +225,12 @@ export default function Dashboard() {
             <span className="ml-auto rounded-full border border-lux-border px-3 py-1 font-mono text-[11px] text-lux-text2" data-testid="wallet-balance">
               💰 Wallet: {wallet.toLocaleString()} tokens
             </span>
+            {quota && (
+              <span className="rounded-full border border-lux-border px-3 py-1 font-mono text-[11px] text-lux-text2" data-testid="quota-chip"
+                title={`${quota.rpm_limit} req/min · ${quota.monthly_token_limit.toLocaleString()} tokens/month`}>
+                📊 {quota.plan}: {quota.monthly_tokens_used.toLocaleString()}/{quota.monthly_token_limit.toLocaleString()} monthly tokens
+              </span>
+            )}
             <button
               onClick={emailStatement}
               disabled={sendingStatement}

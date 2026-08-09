@@ -14,6 +14,7 @@ function fmtTime(seconds) {
 
 export default function PlayerProfile() {
   const [profile, setProfile] = useState(null);
+  const [achievements, setAchievements] = useState(null);
   const [status, setStatus] = useState("loading"); // loading | ok | unauth | error
   const navigate = useNavigate();
 
@@ -27,6 +28,9 @@ export default function PlayerProfile() {
       })
       .then((d) => { if (d) { setProfile(d); setStatus("ok"); } })
       .catch(() => setStatus("error"));
+    fetch(`${API}/api/games/player/achievements`, { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => d && setAchievements(d)).catch(() => {});
   }, []);
 
   return (
@@ -69,6 +73,23 @@ export default function PlayerProfile() {
 
         {status === "ok" && (
           <div className="mt-10 grid gap-6 pb-20 md:grid-cols-2">
+            {achievements && (
+              <section className="rounded-2xl border border-[#1a1a2e] bg-[#111122] p-6 md:col-span-2" data-testid="profile-achievements">
+                <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.15em] text-[#ffd166]">
+                  🏅 Achievements <span className="text-[#666]">({achievements.earned}/{achievements.badges.length})</span>
+                </h2>
+                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                  {achievements.badges.map((b) => (
+                    <div key={b.id} data-testid={`badge-${b.id}`}
+                      className={`rounded-xl border p-3 text-center transition-opacity ${b.earned ? "border-[#ffd166]/50 bg-[#ffd166]/5" : "border-[#1a1a2e] opacity-40"}`}>
+                      <p className="text-2xl">{b.icon}</p>
+                      <p className={`mt-1 text-xs font-bold ${b.earned ? "text-[#ffd166]" : "text-[#666]"}`}>{b.title}</p>
+                      <p className="mt-0.5 text-[10px] text-[#666]">{b.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
             <section className="rounded-2xl border border-[#1a1a2e] bg-[#111122] p-6" data-testid="profile-best-scores">
               <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.15em] text-amber-400">
                 <Trophy size={14} /> Best scores

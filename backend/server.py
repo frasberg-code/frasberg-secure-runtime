@@ -11,7 +11,7 @@ import time
 import secrets
 import asyncio
 import logging
-from collections import defaultdict
+from collections import defaultdict, deque
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Any
@@ -133,12 +133,52 @@ def _rate_check(key: str):
     _rate_store[key] = hits
 
 
+PLAN_QUOTAS = {
+    "free": {"rpm": 30, "monthly_tokens": 100_000},
+    "pro": {"rpm": 120, "monthly_tokens": 2_000_000},
+    "scale": {"rpm": 600, "monthly_tokens": 20_000_000},
+    "enterprise": {"rpm": 1200, "monthly_tokens": 200_000_000},
+}
+
+
+async def _enforce_plan_quotas(key: str, key_doc: dict):
+    owner = await db.users.find_one({"id": key_doc.get("user_id")}, {"plan": 1})
+    plan = (owner or {}).get("plan", "free")
+    q = PLAN_QUOTAS.get(plan, PLAN_QUOTAS["pro"])
+    now = time.time()
+    hits = [t for t in _rate_store[key] if now - t < RATE_WINDOW]
+    if len(hits) >= q["rpm"]:
+        raise HTTPException(status_code=429, detail=f"Rate limit exceeded ({q['rpm']} req/min on {plan} plan)")
+    hits.append(now)
+    _rate_store[key] = hits
+    month = datetime.now(timezone.utc).strftime("%Y-%m")
+    agg = await db.api_key_usage.aggregate([
+        {"$match": {"key_id": key_doc["id"], "day": {"$regex": f"^{month}"}}},
+        {"$group": {"_id": None, "tokens": {"$sum": "$tokens"}}}]).to_list(1)
+    used = agg[0]["tokens"] if agg else 0
+    if used >= q["monthly_tokens"]:
+        raise HTTPException(status_code=429,
+                            detail=f"Monthly token quota reached ({q['monthly_tokens']:,} on {plan} plan). Upgrade to continue.")
+    return plan, q, used
+
+
 def _mask_key(k: str) -> str:
     return k[:12] + "•" * 8 + k[-4:] if len(k) > 20 else k
 
 SERVER_STARTED_AT = time.time()
 
 app = FastAPI()
+
+_REQ_METRICS = deque(maxlen=3000)  # (ts, duration_ms, status_code)
+
+
+@app.middleware("http")
+async def _metrics_middleware(request, call_next):
+    t0 = time.time()
+    response = await call_next(request)
+    if request.url.path.startswith("/api"):
+        _REQ_METRICS.append((t0, (time.time() - t0) * 1000, response.status_code))
+    return response
 api_router = APIRouter(prefix="/api")
 
 LUCHII_SYSTEM = """You are Luchii, the sovereign multi-tier intelligence of Frasberg.
@@ -712,6 +752,7 @@ async def _digest_loop():
 @api_router.post("/admin/digest/send-now")
 async def digest_send_now(admin: dict = Depends(_status_admin)):
     sent = await _send_weekly_digest()
+    await _audit(admin, "digest_send_now", {"sent_to_admins": sent})
     return {"ok": True, "sent_to_admins": sent}
 
 
@@ -1141,6 +1182,58 @@ async def admin_stats(admin: dict = Depends(require_admin)):
     }
 
 
+async def _audit(admin: dict, action: str, detail: dict = None):
+    try:
+        await db.admin_audit.insert_one({"id": str(uuid.uuid4()), "admin_id": admin.get("id"),
+                                         "admin_email": admin.get("email"), "action": action,
+                                         "detail": detail or {},
+                                         "ts": datetime.now(timezone.utc).isoformat()})
+    except Exception:
+        pass
+
+
+@api_router.get("/admin/audit")
+async def admin_audit_log(admin: dict = Depends(require_admin)):
+    return await db.admin_audit.find({}, {"_id": 0}).sort("ts", -1).to_list(100)
+
+
+@api_router.get("/admin/health")
+async def admin_health(admin: dict = Depends(require_admin)):
+    now = time.time()
+    recent = [m for m in _REQ_METRICS if now - m[0] < 300]
+    lat = sorted(m[1] for m in recent)
+    errors = sum(1 for m in recent if m[2] >= 500)
+    t0 = time.time()
+    await db.command("ping")
+    db_ms = round((time.time() - t0) * 1000, 1)
+    return {
+        "window_seconds": 300,
+        "requests": len(recent),
+        "avg_latency_ms": round(sum(lat) / len(lat), 1) if lat else 0,
+        "p95_latency_ms": round(lat[int(len(lat) * 0.95) - 1], 1) if lat else 0,
+        "error_count": errors,
+        "error_rate": round(errors / len(recent) * 100, 2) if recent else 0.0,
+        "db_ping_ms": db_ms,
+        "uptime_seconds": int((datetime.now(timezone.utc) - _START_TIME).total_seconds()),
+    }
+
+
+@api_router.get("/quotas")
+async def my_quotas(user: dict = Depends(auth_module.get_current_user)):
+    plan = user.get("plan", "free")
+    q = PLAN_QUOTAS.get(plan, PLAN_QUOTAS["pro"])
+    month = datetime.now(timezone.utc).strftime("%Y-%m")
+    key_ids = [k["id"] async for k in db.api_keys.find({"user_id": user["id"]}, {"id": 1})]
+    used = 0
+    if key_ids:
+        agg = await db.api_key_usage.aggregate([
+            {"$match": {"key_id": {"$in": key_ids}, "day": {"$regex": f"^{month}"}}},
+            {"$group": {"_id": None, "tokens": {"$sum": "$tokens"}}}]).to_list(1)
+        used = agg[0]["tokens"] if agg else 0
+    return {"plan": plan, "rpm_limit": q["rpm"], "monthly_token_limit": q["monthly_tokens"],
+            "monthly_tokens_used": used}
+
+
 @api_router.get("/admin/tenants")
 async def admin_tenants(admin: dict = Depends(require_admin)):
     users = await db.users.find({}, {"_id": 0, "id": 1, "email": 1, "name": 1, "plan": 1, "role": 1,
@@ -1222,6 +1315,7 @@ async def admin_grant_credits(user_id: str, body: dict, admin: dict = Depends(re
     await db.credit_transfers.insert_one({
         "id": str(uuid.uuid4()), "user_id": user_id, "amount": amount, "kind": "admin_grant",
         "granted_by": admin["id"], "ts": datetime.now(timezone.utc).isoformat()})
+    await _audit(admin, "grant_credits", {"tenant_id": user_id, "amount": amount})
     doc = await db.users.find_one({"id": user_id}, {"credit_balance": 1})
     return {"ok": True, "granted": amount, "wallet": int((doc or {}).get("credit_balance", 0))}
 
@@ -1277,6 +1371,8 @@ async def admin_suspend_tenant(user_id: str, body: dict, admin: dict = Depends(r
                               {"$set": {"suspended": False}, "$unset": {"suspend_reason": ""}})
     await db.api_keys.update_many({"user_id": user_id}, {"$set": {"suspended": suspended}})
     asyncio.create_task(_send_suspension_notice(target.get("email"), target.get("name"), suspended, reason))
+    await _audit(admin, "suspend_tenant" if suspended else "reinstate_tenant",
+                 {"tenant_id": user_id, "reason": reason})
     return {"ok": True, "suspended": suspended}
 
 
@@ -2251,7 +2347,7 @@ async def _validate_bearer_key(authorization: Optional[str]) -> dict:
     exp = key_doc.get("expires_at")
     if exp and exp < datetime.now(timezone.utc).isoformat():
         raise HTTPException(status_code=401, detail="API key expired")
-    _rate_check(key)
+    await _enforce_plan_quotas(key, key_doc)
     key_doc["_unmetered"] = await _key_owner_unmetered(key_doc)
     if not key_doc["_unmetered"] and key_doc.get("credits", 0) <= 0:
         raise _insufficient_credits()
