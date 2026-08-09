@@ -76,9 +76,14 @@ export default function Admin() {
   };
 
   const suspendTenant = async (id, suspended) => {
+    let reason = "";
+    if (suspended) {
+      reason = window.prompt("Reason for suspension (included in the email to the tenant):", "") ?? null;
+      if (reason === null) return;
+    }
     try {
-      await axios.post(`${API}/admin/tenants/${id}/suspend`, { suspended }, ax);
-      toast.success(suspended ? "Tenant suspended — API keys blocked" : "Tenant reinstated");
+      await axios.post(`${API}/admin/tenants/${id}/suspend`, { suspended, reason }, ax);
+      toast.success(suspended ? "Tenant suspended — API keys blocked, notice emailed" : "Tenant reinstated");
       setTenantDetail(null);
       load();
     } catch (err) { toast.error(formatApiErrorDetail(err.response?.data?.detail)); }

@@ -1226,7 +1226,7 @@ async def admin_grant_credits(user_id: str, body: dict, admin: dict = Depends(re
     return {"ok": True, "granted": amount, "wallet": int((doc or {}).get("credit_balance", 0))}
 
 
-async def _send_suspension_notice(email: str, name: str, suspended: bool):
+async def _send_suspension_notice(email: str, name: str, suspended: bool, reason: str = ""):
     api_key_env = os.environ.get("RESEND_API_KEY", "")
     if not (api_key_env and email):
         return
@@ -1239,11 +1239,14 @@ async def _send_suspension_notice(email: str, name: str, suspended: bool):
         title, color, body = ("Your FrasbergAI account has been reinstated", "#34d399",
                               "Good news — your account has been reinstated. All API keys are active again "
                               "and requests will resume immediately.")
+    reason_html = (f"<p style='color:#f8fafc;background:#1e293b;border-radius:10px;padding:12px 16px;"
+                   f"font-size:13px;'><b>Reason from the admin team:</b><br/>{reason}</p>") if reason else ""
     html = (f"<div style='font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc;padding:28px;border-radius:14px;'>"
             f"<p style='color:{color};font-size:12px;letter-spacing:2px;text-transform:uppercase;'>FrasbergAI Account Notice</p>"
             f"<h2 style='margin:8px 0;'>{title}</h2>"
             f"<p style='color:#94a3b8;'>Hi {name or 'there'},</p>"
             f"<p style='color:#94a3b8;'>{body}</p>"
+            f"{reason_html}"
             f"<p style='color:#64748b;font-size:12px;margin-top:16px;'>support@frasberg.com · https://frasberg.com/legal</p></div>")
     subject = title
     try:
@@ -1261,14 +1264,19 @@ async def _send_suspension_notice(email: str, name: str, suspended: bool):
 @api_router.post("/admin/tenants/{user_id}/suspend")
 async def admin_suspend_tenant(user_id: str, body: dict, admin: dict = Depends(require_admin)):
     suspended = bool(body.get("suspended", True))
+    reason = str(body.get("reason", "") or "").strip()[:500]
     target = await db.users.find_one({"id": user_id}, {"role": 1, "email": 1, "name": 1})
     if not target:
         raise HTTPException(status_code=404, detail="Tenant not found")
     if target.get("role") == "admin":
         raise HTTPException(status_code=400, detail="Cannot suspend an admin account")
-    await db.users.update_one({"id": user_id}, {"$set": {"suspended": suspended}})
+    update = {"suspended": suspended}
+    if suspended and reason:
+        update["suspend_reason"] = reason
+    await db.users.update_one({"id": user_id}, {"$set": update} if suspended else
+                              {"$set": {"suspended": False}, "$unset": {"suspend_reason": ""}})
     await db.api_keys.update_many({"user_id": user_id}, {"$set": {"suspended": suspended}})
-    asyncio.create_task(_send_suspension_notice(target.get("email"), target.get("name"), suspended))
+    asyncio.create_task(_send_suspension_notice(target.get("email"), target.get("name"), suspended, reason))
     return {"ok": True, "suspended": suspended}
 
 

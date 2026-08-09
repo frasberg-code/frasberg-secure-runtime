@@ -69,12 +69,14 @@ GAME_REGISTRY = [
 
 @router.get("")
 async def list_games():
+    counts = {d["game_id"]: int(d.get("plays", 0))
+              async for d in db.game_plays.find({}, {"_id": 0, "game_id": 1, "plays": 1})}
     out = []
     for g in GAME_REGISTRY:
         top = await db.game_scores.find_one(
             {"game_id": g["id"]}, {"_id": 0, "name": 1, "score": 1}, sort=[("score", -1)]
         )
-        out.append({**g, "champion": top})
+        out.append({**g, "champion": top, "plays": counts.get(g["id"], 0)})
     community = await db.builder_projects.find(
         {"type": "game", "published": True, "featured": True, "hidden": {"$ne": True}},
         {"_id": 0, "slug": 1, "title": 1, "plays": 1},
@@ -86,7 +88,15 @@ async def list_games():
             "thumbnail": None, "controls": "", "engine": "Built with Luchii Builder",
             "community": True, "slug": d["slug"], "plays": int(d.get("plays", 0)), "champion": None,
         })
+    out.sort(key=lambda g: g.get("plays", 0), reverse=True)
     return out
+
+
+@router.post("/{game_id}/play-count")
+async def count_play(game_id: str):
+    await db.game_plays.update_one({"game_id": game_id}, {"$inc": {"plays": 1}}, upsert=True)
+    doc = await db.game_plays.find_one({"game_id": game_id}, {"_id": 0})
+    return {"ok": True, "plays": int((doc or {}).get("plays", 0))}
 
 
 class ScoreIn(BaseModel):

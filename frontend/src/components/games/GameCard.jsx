@@ -44,10 +44,16 @@ export default function GameCard({ game, onPlay }) {
         ) : game.champion ? (
           <p className="mt-2 flex items-center gap-1.5 text-[12px] text-amber-400" data-testid={`game-champion-${game.id}`}>
             <Crown size={12} /> {game.champion.name} · {game.champion.score.toLocaleString()}
+            <span className="ml-auto flex items-center gap-1 text-[#8b84ff]" data-testid={`game-plays-${game.id}`}>
+              <Gamepad2 size={12} /> {(game.plays || 0).toLocaleString()}
+            </span>
           </p>
         ) : (
           <p className="mt-2 flex items-center gap-1.5 text-[12px] text-[#555]" data-testid={`game-champion-${game.id}`}>
             <Crown size={12} /> Throne unclaimed — be the first
+            <span className="ml-auto flex items-center gap-1 text-[#8b84ff]" data-testid={`game-plays-${game.id}`}>
+              <Gamepad2 size={12} /> {(game.plays || 0).toLocaleString()}
+            </span>
           </p>
         )}
         <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.15em] text-[#555]">{game.engine}</p>

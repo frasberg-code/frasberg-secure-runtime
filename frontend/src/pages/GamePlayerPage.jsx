@@ -15,6 +15,7 @@ export default function GamePlayerPage() {
 
   useEffect(() => {
     fetch(`${API}/api/games/${gameId}`).then((r) => (r.ok ? r.json() : null)).then(setGame).catch(() => {});
+    fetch(`${API}/api/games/${gameId}/play-count`, { method: "POST" }).catch(() => {});
     fetch(`${API}/api/games/stream/health`)
       .then((r) => r.json())
       .then((h) => {
