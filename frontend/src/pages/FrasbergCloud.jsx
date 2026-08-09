@@ -186,10 +186,23 @@ function GenesisForm({ onCreated }) {
 
 function UniverseDetail({ uid, onClose, refresh }) {
   const [d, setD] = useState(null);
+  const [writing, setWriting] = useState(false);
   const load = useCallback(() => {
     fetch(`${API}/universes/${uid}`).then((r) => (r.ok ? r.json() : null)).then(setD).catch(() => {});
   }, [uid]);
   useEffect(() => { load(); }, [load]);
+
+  const writeChronicle = async () => {
+    setWriting(true);
+    try {
+      const r = await fetch(`${API}/universes/${uid}/chronicle`, { method: "POST" });
+      const res = await r.json();
+      if (!r.ok) throw new Error(res.detail || "Chronicle failed");
+      toast.success("The Chronicle has been inscribed");
+      load();
+    } catch (e) { toast.error(e.message); } finally { setWriting(false); }
+  };
+
   if (!d) return null;
   const s = d.summary;
   return (
@@ -222,6 +235,27 @@ function UniverseDetail({ uid, onClose, refresh }) {
               <Line type="monotone" dataKey="instability" stroke="#ff5555" strokeWidth={1.5} dot={false} />
             </LineChart>
           </ResponsiveContainer>
+        </div>
+        <div className="mt-6 rounded-2xl border border-lux-gold/30 bg-lux-surface p-5" data-testid="chronicle-panel">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h3 className="font-display text-lg font-600 text-lux-gold">📜 The Universe Chronicle</h3>
+            <button onClick={writeChronicle} disabled={writing} data-testid="write-chronicle-btn"
+              className="rounded-full border border-lux-gold/50 px-5 py-1.5 text-xs text-lux-gold transition-colors hover:bg-lux-gold hover:text-lux-bg disabled:opacity-50">
+              {writing ? "The Chronicle-Keeper writes…" : d.chronicle ? "Rewrite Chronicle" : "Write Chronicle"}
+            </button>
+          </div>
+          {d.chronicle ? (
+            <div className="mt-4" data-testid="chronicle-text">
+              <p className="whitespace-pre-wrap font-display text-sm italic leading-relaxed text-lux-text2">{d.chronicle.text}</p>
+              <p className="mt-3 font-mono text-[9px] uppercase tracking-[0.2em] text-lux-text2">
+                Inscribed at tick {d.chronicle.tick}
+              </p>
+            </div>
+          ) : (
+            <p className="mt-3 text-xs text-lux-text2" data-testid="chronicle-empty">
+              No chronicle inscribed yet — let the Chronicle-Keeper turn this universe's myths, wars and legends into a history scroll.
+            </p>
+          )}
         </div>
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <div>

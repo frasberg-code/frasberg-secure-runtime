@@ -38,3 +38,7 @@
 ## June 2026 - Multiverse Star-Map (self-tested: curl + screenshot + node-click)
 - db.cloud_links collection: _link() upserts on trade/exchange/migrate; GET /api/cloud/map returns universes + filtered links
 - MultiverseMap SVG component on /cloud: deterministic hash-positioned glowing nodes (size ~ log pop, color by phase), animated dashed routes colored by kind (trade cyan, exchange gold, migration violet) with count labels, node click opens detail modal, legend + empty-state hint
+
+## June 2026 - Universe Chronicle (self-tested: curl + screenshot)
+- POST /api/cloud/universes/{id}/chronicle: gathers universe facts (phase, civs/eras/wars, myths, legendary agents, recent events) -> Claude Sonnet 4.6 via Emergent LLM key writes a <=420-word mythic history scroll in 3-4 chapters; cached in universe doc as chronicle{text,tick,created}; detail response includes it
+- Detail modal: Chronicle panel (chronicle-panel) with Write/Rewrite button (write-chronicle-btn), italic scroll typography, "Inscribed at tick N" footer

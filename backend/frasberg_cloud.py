@@ -7,11 +7,14 @@ from fastapi import APIRouter, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel
 from typing import Optional
+from emergentintegrations.llm.chat import LlmChat, UserMessage
 
 router = APIRouter(prefix="/cloud")
 
 client = AsyncIOMotorClient(os.environ["MONGO_URL"])
 db = client[os.environ["DB_NAME"]]
+
+EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY", "")
 
 ROLES = ["leader", "worker", "explorer", "healer", "scholar", "artisan", "guardian", "mystic"]
 NAMES = ["Aeon", "Vex", "Lyra", "Orin", "Sable", "Nyx", "Kael", "Mira", "Thane", "Zephyr",
@@ -459,7 +462,8 @@ async def universe_detail(uid: str):
     return {"summary": _summary(u), "physics": u["physics"], "environment": u["environment"],
             "dimensions": u["dimensions"], "agents": agents, "civilizations": u["civilizations"],
             "myths": u["myths"][:8], "metrics": u["metrics"], "events": events,
-            "singularities": u["singularities"], "flags": {"auditMode": u["auditMode"], "evolutionFrozen": u["evolutionFrozen"]}}
+            "singularities": u["singularities"], "chronicle": u.get("chronicle"),
+            "flags": {"auditMode": u["auditMode"], "evolutionFrozen": u["evolutionFrozen"]}}
 
 
 @router.post("/universes/{uid}/tick")
@@ -621,6 +625,52 @@ async def vote(rid: str):
     if res.matched_count == 0:
         raise HTTPException(status_code=404, detail="Resolution not found")
     return {"id": rid, "passed": passed, "votes": votes}
+
+
+@router.post("/universes/{uid}/chronicle")
+async def write_chronicle(uid: str):
+    u = await db.cloud_universes.find_one({"_id": uid})
+    if not u:
+        raise HTTPException(status_code=404, detail="Universe not found")
+    events = await db.cloud_events.find({"universe_id": uid}, {"_id": 0}).sort("ts", -1).to_list(25)
+    top_agents = sorted([a for a in u["agents"] if a["alive"]], key=lambda a: -a["reputation"])[:5]
+    facts = {
+        "name": u["name"],
+        "age_ticks": u["tick"],
+        "current_phase": u["phase"],
+        "physics": u["physics"]["model"],
+        "entropy": u["physics"]["entropy"],
+        "dimensions": len(u["dimensions"]),
+        "collapses_survived": u["collapses"],
+        "paradoxes_resolved": u["paradoxesResolved"],
+        "singularities": [s["type"] for s in u["singularities"]],
+        "civilizations": [
+            {"name": c["name"], "era": c.get("era", "Primitive"), "governance": c["governance"],
+             "population": c["population"], "wars_won": c.get("warsWon", 0), "rituals": c.get("rituals", [])}
+            for c in u["civilizations"]],
+        "myths": [{"title": m["title"], "moral": m["moral"]} for m in u["myths"][:6]],
+        "legendary_agents": [
+            {"name": a["name"], "role": a["role"], "reputation": a["reputation"],
+             "alignment": a["soul"]["alignment"], "ascension_tier": a["ascension"]["tier"],
+             "reincarnations": a["reincarnations"]} for a in top_agents],
+        "recent_events": [e["text"] for e in events[:15]],
+    }
+    system = ("You are the Chronicle-Keeper of the Frasberg Cloud multiverse. You write the official history "
+              "scrolls of simulated universes in the voice of an ancient cosmic historian: vivid, mythic, and "
+              "readable. Weave the provided facts into a flowing narrative. Use 3-4 short chapters with headers "
+              "like 'I. The Genesis Era'. Mention civilizations, wars, myths and legendary agents by name. "
+              "Keep it under 420 words. Output plain text only, no markdown symbols besides chapter headers.")
+    try:
+        llm = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"chronicle-{uid}-{uuid.uuid4()}",
+                      system_message=system).with_model("anthropic", "claude-sonnet-4-6")
+        resp = await llm.send_message(UserMessage(text=f"Write the chronicle of this universe:\n{facts}"))
+        text = resp if isinstance(resp, str) else getattr(resp, "content", str(resp))
+    except Exception:
+        raise HTTPException(status_code=502, detail="The Chronicle-Keeper is unreachable — try again")
+    chronicle = {"text": text.strip(), "tick": u["tick"], "created": _now()}
+    await db.cloud_universes.update_one({"_id": uid}, {"$set": {"chronicle": chronicle}})
+    await _log(uid, "chronicle", f"The Chronicle of {u['name']} was inscribed at tick {u['tick']}")
+    return chronicle
 
 
 @router.get("/map")
