@@ -12,7 +12,7 @@ export default function LuchiiCode() {
   const { theme, toggle } = useTheme();
 
   return (
-    <main className="relative z-10 min-h-screen bg-lux-bg text-lux-text" data-testid="luchii-code-page">
+    <main className="console-dark relative z-10 min-h-screen bg-lux-bg text-lux-text" data-testid="luchii-code-page">
       <Seo
         title="Luchii Code — Developer Quickstart by Frasberg, Inc."
         description="Luchii developer quickstarts and SDK snippets by Frasberg, Inc. Start building with the Luchii model family."

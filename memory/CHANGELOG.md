@@ -54,3 +54,13 @@
 - Universe Snapshots: POST/GET /api/cloud/universes/{id}/snapshots (cap 10), POST /api/cloud/snapshots/{sid}/restore, DELETE; admin cloud table has Snapshot / Restore… (chips row) / Dissolve; restore verified tick 30->20
 - 'LINQ Universe' renamed to 'LINQ' in db.cloud_universes
 - Fixed long-standing hydration warning: ChatDemo.jsx voice-speed option now uses label attr (visual-editor span injection workaround)
+
+## June 2026 - Console theme rollout + Admin Chronicle View (self-tested: screenshots)
+- New scoped .console-dark theme in index.css (overrides lux CSS vars: obsidian #08090A, #121316 surfaces, white/8 borders, #00F0FF accent, sharp radii on rounded-* and button/a pills) — applied to Builder.jsx (all 4 builder types), CodingAgents.jsx, LuchiiCode.jsx. /chat untouched per user request
+- Admin Chronicle View: Chronicle button per universe row (admin-universe-chronicle-{id}) opens modal (admin-chronicle-modal) with chronicle text, Write/Rewrite (admin-chronicle-write-btn) and Read aloud (admin-chronicle-narrate-btn) using existing /api/cloud chronicle + audio endpoints; audio cleanup on close
+
+## June 2026 - Emergent-clone Agent Workspace (self-tested: 4 screenshot flows)
+- New /app/frontend/src/pages/AgentWorkspace.jsx: split-screen Emergent IDE clone for /chat?agent=architect|builder|reviewer|debugger (ChatRoute in App.js routes by agent param; plain /chat = Luchii Chat UNTOUCHED, verified)
+- Left pane: Home/tab bar with agent tab + close, suggestions card (agent-specific starter tasks), streaming chat via existing POST /api/chat (agent personas), "Agent is running…" status, composer with attach/fork/model-chip/mic/send
+- Right pane: Preview | Manage toggle; Preview renders latest (or live-streaming, unclosed fence) HTML code block in sandboxed iframe with Luchii placeholder; Manage = Manage Publishing clone (Overview/Domain/Resources/Database/Secrets tabs, Ask agent to fix, Run a review [NEW] -> real agent review prompt, Publishes list via Re-publish, Run health check -> real /api/health)
+- Verified: suggestion click streams full build, typed message streams (debugger), manage tab + health check toast, plain /chat unaffected

@@ -1,6 +1,6 @@
 import "./App.css";
 import { ReactLenis } from "lenis/react";
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate, useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -17,6 +17,14 @@ import LuchiiCode from "./pages/LuchiiCode";
 import CodingAgents from "./pages/CodingAgents";
 import Auth from "./pages/Auth";
 import Chat from "./pages/Chat";
+import AgentWorkspace from "./pages/AgentWorkspace";
+
+function ChatRoute() {
+  const [params] = useSearchParams();
+  const agent = (params.get("agent") || "").toLowerCase();
+  const workspaceAgents = ["architect", "builder", "reviewer", "debugger"];
+  return workspaceAgents.includes(agent) ? <AgentWorkspace /> : <Chat />;
+}
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import MeshControlCenter from "./pages/MeshControlCenter";
@@ -79,7 +87,7 @@ function App() {
               <Route path="/brand" element={<Brand />} />
               <Route path="/about" element={<About />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/chat" element={<Chat />} />
+              <Route path="/chat" element={<ChatRoute />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin/mesh" element={<MeshControlCenter />} />

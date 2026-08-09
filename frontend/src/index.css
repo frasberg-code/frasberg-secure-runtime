@@ -161,3 +161,32 @@ body {
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
+
+/* Emergent-style console theme — scoped override (Dashboard-family pages) */
+.console-dark {
+  --lux-bg: #08090A;
+  --lux-surface: #121316;
+  --lux-surface-2: #050505;
+  --lux-text: #EDEDED;
+  --lux-text-2: #8A8F98;
+  --lux-border: rgba(255, 255, 255, 0.08);
+  --lux-accent: #00F0FF;
+  --lux-accent-2: #7c9cff;
+  --lux-glow: rgba(0, 240, 255, 0.22);
+  background-color: #08090A;
+  color: #EDEDED;
+}
+.console-dark .rounded-3xl { border-radius: 4px; }
+.console-dark .rounded-2xl { border-radius: 3px; }
+.console-dark .rounded-xl { border-radius: 2px; }
+.console-dark button.rounded-full,
+.console-dark a.rounded-full,
+.console-dark select.rounded-full,
+.console-dark input.rounded-full { border-radius: 2px; }
+.console-dark span.rounded-full:not(.h-1):not(.h-1\.5) { border-radius: 2px; }
+.console-dark .glass {
+  background: rgba(8, 9, 10, 0.85);
+  backdrop-filter: blur(12px);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+.console-dark > .pointer-events-none canvas { opacity: 0.3; }

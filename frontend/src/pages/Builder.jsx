@@ -366,7 +366,7 @@ export default function Builder({ type = "website" }) {
   const liveUrl = current?.published && current?.slug ? `${process.env.REACT_APP_BACKEND_URL}/api/p/${current.slug}` : null;
 
   return (
-    <main className="relative z-10 min-h-screen bg-lux-bg text-lux-text" data-testid={`${type}-builder-page`}>
+    <main className="console-dark relative z-10 min-h-screen bg-lux-bg text-lux-text" data-testid={`${type}-builder-page`}>
       <Seo title={`${c.title} — Frasberg, Inc.`} description={c.sub} />
       <div className="pointer-events-none absolute inset-0 opacity-40"><Starfield /></div>
 

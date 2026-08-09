@@ -18,7 +18,7 @@ export default function CodingAgents() {
   const { theme, toggle } = useTheme();
 
   return (
-    <main className="relative z-10 min-h-screen bg-lux-bg text-lux-text" data-testid="coding-agents-page">
+    <main className="console-dark relative z-10 min-h-screen bg-lux-bg text-lux-text" data-testid="coding-agents-page">
       <Seo
         title="AI Coding Agents — Luchii by Frasberg, Inc."
         description="Specialized Luchii coding agents that plan, write, review and debug code with you."

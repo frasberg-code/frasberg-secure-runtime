@@ -28,6 +28,43 @@ export default function Admin() {
   const [cloudUniverses, setCloudUniverses] = useState([]);
   const [snapUniverse, setSnapUniverse] = useState(null);
   const [snapshots, setSnapshots] = useState([]);
+  const [chronicleU, setChronicleU] = useState(null); // {id, name, loading, data}
+  const [chronWriting, setChronWriting] = useState(false);
+  const chronAudioRef = useRef(null);
+  const [chronPlaying, setChronPlaying] = useState(false);
+
+  const openChronicle = async (u) => {
+    setChronicleU({ id: u.id, name: u.name, loading: true, data: null });
+    try {
+      const r = await axios.get(`${API}/cloud/universes/${u.id}`);
+      setChronicleU({ id: u.id, name: u.name, loading: false, data: r.data.chronicle });
+    } catch { setChronicleU(null); toast.error("Could not load universe"); }
+  };
+  const writeChronicleAdmin = async () => {
+    if (!chronicleU) return;
+    setChronWriting(true);
+    try {
+      const r = await axios.post(`${API}/cloud/universes/${chronicleU.id}/chronicle`);
+      setChronicleU((c) => ({ ...c, data: r.data }));
+      toast.success("Chronicle inscribed");
+    } catch { toast.error("The Chronicle-Keeper is unreachable — try again"); }
+    finally { setChronWriting(false); }
+  };
+  const narrateChronicleAdmin = () => {
+    if (chronAudioRef.current) { chronAudioRef.current.pause(); chronAudioRef.current = null; setChronPlaying(false); return; }
+    const a = new Audio(`${API}/cloud/universes/${chronicleU.id}/chronicle/audio`);
+    chronAudioRef.current = a;
+    setChronPlaying("loading");
+    a.onplaying = () => setChronPlaying(true);
+    a.onended = () => { chronAudioRef.current = null; setChronPlaying(false); };
+    a.onerror = () => { toast.error("Narration unavailable"); chronAudioRef.current = null; setChronPlaying(false); };
+    a.play().catch(() => {});
+  };
+  const closeChronicle = () => {
+    if (chronAudioRef.current) { chronAudioRef.current.pause(); chronAudioRef.current = null; }
+    setChronPlaying(false);
+    setChronicleU(null);
+  };
 
   const reloadCloud = () => axios.get(`${API}/cloud/universes`).then((r) => setCloudUniverses(r.data.universes || [])).catch(() => {});
   const loadSnapshots = (uid) => axios.get(`${API}/cloud/universes/${uid}/snapshots`).then((r) => setSnapshots(r.data.snapshots || [])).catch(() => {});
@@ -620,6 +657,9 @@ export default function Admin() {
                                 axios.get(`${API}/cloud/universes`).then((r) => setCloudUniverses(r.data.universes || []));
                               }}
                               className="rounded-full border border-lux-border px-3 py-1 font-mono text-[10px] hover:border-lux-accent">Tick ×10</button>
+                            <button data-testid={`admin-universe-chronicle-${u.id}`}
+                              onClick={() => openChronicle(u)}
+                              className="rounded-full border border-lux-gold/40 px-3 py-1 font-mono text-[10px] text-lux-gold hover:bg-lux-gold/10">Chronicle</button>
                             <button data-testid={`admin-universe-snapshot-${u.id}`}
                               onClick={async () => {
                                 const r = await axios.post(`${API}/cloud/universes/${u.id}/snapshots`, {});
@@ -676,6 +716,42 @@ export default function Admin() {
                 </table>
               </div>
             </section>
+
+            {chronicleU && (
+              <div className="fixed inset-0 z-[70] grid place-items-center bg-black/70 p-4 backdrop-blur-sm" onClick={closeChronicle} data-testid="admin-chronicle-modal">
+                <div className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-lux-gold/30 bg-lux-bg p-7" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <h3 className="font-display text-xl font-700 text-lux-gold">📜 Chronicle of {chronicleU.name}</h3>
+                    <div className="flex gap-2">
+                      {chronicleU.data && (
+                        <button onClick={narrateChronicleAdmin} data-testid="admin-chronicle-narrate-btn"
+                          className={`rounded-full border px-4 py-1.5 font-mono text-[11px] ${chronPlaying ? "border-emerald-400/60 text-emerald-400" : "border-lux-gold/50 text-lux-gold hover:bg-lux-gold/10"}`}>
+                          {chronPlaying === "loading" ? "Summoning voice…" : chronPlaying ? "◼ Stop" : "🔊 Read aloud"}
+                        </button>
+                      )}
+                      <button onClick={writeChronicleAdmin} disabled={chronWriting} data-testid="admin-chronicle-write-btn"
+                        className="rounded-full border border-lux-gold/50 px-4 py-1.5 font-mono text-[11px] text-lux-gold hover:bg-lux-gold/10 disabled:opacity-50">
+                        {chronWriting ? "Writing…" : chronicleU.data ? "Rewrite" : "Write Chronicle"}
+                      </button>
+                      <button onClick={closeChronicle} data-testid="admin-chronicle-close" aria-label="Close"
+                        className="rounded-full border border-lux-border px-3 py-1.5 font-mono text-[11px] text-lux-text2 hover:border-lux-accent">✕</button>
+                    </div>
+                  </div>
+                  <div className="mt-4" data-testid="admin-chronicle-body">
+                    {chronicleU.loading ? (
+                      <p className="font-mono text-xs text-lux-text2">Loading…</p>
+                    ) : chronicleU.data ? (
+                      <>
+                        <p className="whitespace-pre-wrap font-display text-sm italic leading-relaxed text-lux-text2">{chronicleU.data.text}</p>
+                        <p className="mt-3 font-mono text-[9px] uppercase tracking-[0.2em] text-lux-text2">Inscribed at tick {chronicleU.data.tick}</p>
+                      </>
+                    ) : (
+                      <p className="text-xs text-lux-text2">No chronicle yet — click "Write Chronicle" and the Chronicle-Keeper will inscribe this universe's history.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             <section className="mt-12" data-testid="admin-audit-panel">
               <h2 className="font-display text-2xl font-700 tracking-tight">Admin audit log</h2>
