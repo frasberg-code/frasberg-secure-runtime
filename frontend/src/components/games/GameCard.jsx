@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Crown, Gamepad2 } from "lucide-react";
+import { Crown, Gamepad2, Heart } from "lucide-react";
 
 const BACKEND = process.env.REACT_APP_BACKEND_URL;
 
-export default function GameCard({ game, onPlay }) {
+export default function GameCard({ game, onPlay, favorited, onToggleFavorite }) {
   const [hovered, setHovered] = useState(false);
   return (
     <div
@@ -33,6 +33,16 @@ export default function GameCard({ game, onPlay }) {
         <span className="absolute right-3 top-3 rounded-full bg-[#6c63ff] px-2.5 py-1 text-[11px] font-bold text-white">
           {game.genre}
         </span>
+        {onToggleFavorite && (
+          <button
+            data-testid={`game-favorite-btn-${game.id}`}
+            onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
+            aria-label={favorited ? "Remove from favorites" : "Add to favorites"}
+            className="absolute left-3 top-3 rounded-full bg-black/50 p-2 backdrop-blur transition-transform hover:scale-110"
+          >
+            <Heart size={15} className={favorited ? "fill-[#ff5c8a] text-[#ff5c8a]" : "text-white/70"} />
+          </button>
+        )}
       </div>
       <div className="p-5">
         <h3 className="text-lg font-bold text-white">{game.title}</h3>

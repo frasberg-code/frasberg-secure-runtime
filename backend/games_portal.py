@@ -6,7 +6,7 @@ from pathlib import Path
 
 import httpx
 import websockets as ws_client
-from fastapi import APIRouter, HTTPException, WebSocket
+from fastapi import APIRouter, HTTPException, WebSocket, Request
 from fastapi.responses import FileResponse, HTMLResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field
@@ -115,6 +115,59 @@ def _week_key():
     return datetime.now(timezone.utc).strftime("%G-W%V")
 
 
+def _optional_user_id(request) -> str:
+    token = request.cookies.get("access_token", "")
+    if not token:
+        auth_hdr = request.headers.get("Authorization", "")
+        if auth_hdr.lower().startswith("bearer "):
+            token = auth_hdr[7:]
+    if not token:
+        return None
+    try:
+        import jwt as _jwt
+        payload = _jwt.decode(token, os.environ["JWT_SECRET"], algorithms=["HS256"])
+        return payload.get("sub")
+    except Exception:
+        return None
+
+
+def _require_user_id(request) -> str:
+    uid = _optional_user_id(request)
+    if not uid:
+        raise HTTPException(status_code=401, detail="Sign in to use player features")
+    return uid
+
+
+@router.get("/player/favorites")
+async def get_favorites(request: Request):
+    uid = _require_user_id(request)
+    doc = await db.game_favorites.find_one({"user_id": uid}, {"_id": 0, "game_ids": 1})
+    return {"favorites": (doc or {}).get("game_ids", [])}
+
+
+@router.post("/player/favorites/{game_id}")
+async def toggle_favorite(game_id: str, request: Request):
+    uid = _require_user_id(request)
+    doc = await db.game_favorites.find_one({"user_id": uid}, {"game_ids": 1})
+    fav = game_id in (doc or {}).get("game_ids", [])
+    op = {"$pull": {"game_ids": game_id}} if fav else {"$addToSet": {"game_ids": game_id}}
+    await db.game_favorites.update_one({"user_id": uid}, op, upsert=True)
+    return {"ok": True, "favorited": not fav}
+
+
+@router.get("/player/best-scores")
+async def my_best_scores(request: Request):
+    uid = _require_user_id(request)
+    docs = await db.game_scores.find({"user_id": uid}, {"_id": 0, "game_id": 1, "name": 1,
+                                                        "score": 1, "ts": 1}).sort("score", -1).to_list(500)
+    best = {}
+    for d in docs:
+        if d["game_id"] not in best:
+            best[d["game_id"]] = d
+    titles = {g["id"]: g["title"] for g in GAME_REGISTRY}
+    return [{**d, "title": titles.get(d["game_id"], d["game_id"])} for d in best.values()]
+
+
 @router.get("/{game_id}/scores")
 async def get_scores(game_id: str, period: str = "all"):
     _valid_game(game_id)
@@ -127,12 +180,13 @@ async def get_scores(game_id: str, period: str = "all"):
 
 
 @router.post("/{game_id}/scores")
-async def post_score(game_id: str, body: ScoreIn):
+async def post_score(game_id: str, body: ScoreIn, request: Request):
     _valid_game(game_id)
     name = body.name.strip()[:20] or "PLAYER"
     await db.game_scores.insert_one({
         "id": str(uuid.uuid4()), "game_id": game_id, "name": name,
         "score": body.score, "week": _week_key(),
+        "user_id": _optional_user_id(request),
         "ts": datetime.now(timezone.utc).isoformat(),
     })
     docs = await db.game_scores.find({"game_id": game_id}, {"_id": 0, "name": 1, "score": 1}) \

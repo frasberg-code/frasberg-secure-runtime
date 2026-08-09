@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Gamepad2, Radio, Search } from "lucide-react";
+import { ArrowLeft, Gamepad2, Radio, Search, Heart, Trophy } from "lucide-react";
+import { toast } from "sonner";
 import GameCard from "../components/games/GameCard";
 
 const API = process.env.REACT_APP_BACKEND_URL;
@@ -12,7 +13,20 @@ export default function GamesLibrary() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [stream, setStream] = useState(null);
+  const [favorites, setFavorites] = useState([]);
+  const [signedIn, setSignedIn] = useState(false);
+  const [myScores, setMyScores] = useState([]);
   const navigate = useNavigate();
+
+  const toggleFavorite = async (gameId) => {
+    try {
+      const r = await fetch(`${API}/api/games/player/favorites/${gameId}`, { method: "POST", credentials: "include" });
+      if (r.status === 401) { toast.error("Sign in to save favorite games"); return; }
+      const d = await r.json();
+      setFavorites((prev) => (d.favorited ? [...prev, gameId] : prev.filter((id) => id !== gameId)));
+      toast.success(d.favorited ? "Added to favorites" : "Removed from favorites");
+    } catch { toast.error("Could not update favorites"); }
+  };
 
   const loadGames = async (attempt = 0) => {
     setLoading(true);
@@ -38,13 +52,19 @@ export default function GamesLibrary() {
     document.title = "Frasberg Game Platform";
     loadGames();
     fetch(`${API}/api/games/stream/health`).then((r) => r.json()).then(setStream).catch(() => setStream({ online: false }));
+    fetch(`${API}/api/games/player/favorites`, { credentials: "include" })
+      .then((r) => { if (r.ok) { setSignedIn(true); return r.json(); } return null; })
+      .then((d) => d && setFavorites(d.favorites)).catch(() => {});
+    fetch(`${API}/api/games/player/best-scores`, { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => Array.isArray(d) && setMyScores(d)).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const genres = ["All", ...Array.from(new Set(games.map((g) => g.genre).filter(Boolean)))];
+  const genres = ["All", ...(signedIn ? ["Favorites"] : []), ...Array.from(new Set(games.map((g) => g.genre).filter(Boolean)))];
 
   const filtered = games.filter((g) => {
-    const matchGenre = filter === "All" || g.genre === filter;
+    const matchGenre = filter === "All" || (filter === "Favorites" ? favorites.includes(g.id) : g.genre === filter);
     const matchSearch = (g.title || "").toLowerCase().includes(search.toLowerCase());
     return matchGenre && matchSearch;
   });
@@ -93,6 +113,21 @@ export default function GamesLibrary() {
           </div>
         </div>
 
+        {myScores.length > 0 && (
+          <div className="mx-auto mt-8 max-w-3xl rounded-2xl border border-[#6c63ff]/25 bg-[#111122] p-4" data-testid="my-best-scores">
+            <p className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.15em] text-[#8b84ff]">
+              <Trophy size={13} /> My best scores
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {myScores.map((s) => (
+                <span key={s.game_id} className="rounded-full border border-[#2a2a44] px-3 py-1 text-[12px] text-[#aaa]" data-testid={`my-score-${s.game_id}`}>
+                  {s.title}: <b className="text-white">{s.score.toLocaleString()}</b>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {loading ? (
           <div className="mt-10 grid gap-6 pb-20 sm:grid-cols-2 lg:grid-cols-3" data-testid="games-loading">
             {[...Array(6)].map((_, i) => (
@@ -113,7 +148,8 @@ export default function GamesLibrary() {
         ) : (
           <div className="mt-10 grid gap-6 pb-20 sm:grid-cols-2 lg:grid-cols-3" data-testid="games-grid">
             {filtered.map((game) => (
-              <GameCard key={game.id} game={game} onPlay={() => navigate(`/games/play/${game.id}`)} />
+              <GameCard key={game.id} game={game} onPlay={() => navigate(`/games/play/${game.id}`)}
+                favorited={favorites.includes(game.id)} onToggleFavorite={() => toggleFavorite(game.id)} />
             ))}
             {filtered.length === 0 && (
               <div className="col-span-full py-16 text-center" data-testid="games-empty">
