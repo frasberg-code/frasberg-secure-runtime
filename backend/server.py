@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
+import re
 import json
 import threading
 import time
@@ -2867,9 +2868,13 @@ class WorkspaceUpdateBody(BaseModel):
 
 
 def _wp_public(d):
+    slug = d.get("slug")
     return {"id": d["id"], "agent": d["agent"], "title": d["title"], "hash": d["hash"],
             "version": d.get("version", 1), "created": d["created"], "updated": d["updated"],
-            "published": True, "url": f"/api/workspace/publishes/{d['id']}/view"}
+            "published": True, "url": f"/api/workspace/publishes/{d['id']}/view",
+            "slug": slug,
+            "slug_url": f"/api/workspace/app/{slug}" if slug else None,
+            "custom_url": f"https://{slug}.preview.frasberg.com" if slug else None}
 
 
 @api_router.post("/workspace/publishes")
@@ -2923,6 +2928,47 @@ async def delete_workspace_publish(pid: str):
     return {"deleted": pid}
 
 
+WS_SLUG_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])$")
+WS_RESERVED_SLUGS = {"www", "api", "app", "apps", "admin", "mail", "demo", "docs", "chat", "cloud", "status", "dashboard"}
+
+
+class WorkspaceSlugBody(BaseModel):
+    name: str
+
+
+@api_router.get("/workspace/slug-check")
+async def workspace_slug_check(name: str = ""):
+    n = name.strip().lower()
+    valid = bool(WS_SLUG_RE.match(n)) and n not in WS_RESERVED_SLUGS
+    taken = bool(valid and await db.workspace_publishes.count_documents({"slug": n}))
+    return {"name": n, "valid": valid, "available": valid and not taken}
+
+
+@api_router.post("/workspace/publishes/{pid}/slug")
+async def set_workspace_slug(pid: str, body: WorkspaceSlugBody):
+    n = body.name.strip().lower()
+    if not WS_SLUG_RE.match(n) or n in WS_RESERVED_SLUGS:
+        raise HTTPException(status_code=400, detail="Name must be 3-30 chars: lowercase letters, numbers and hyphens (like a GitHub username)")
+    existing = await db.workspace_publishes.find_one({"slug": n})
+    if existing and existing["_id"] != pid:
+        raise HTTPException(status_code=409, detail=f"'{n}' is already taken — try another name")
+    doc = await db.workspace_publishes.find_one({"_id": pid})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Publish not found")
+    await db.workspace_publishes.update_one({"_id": pid}, {"$set": {"slug": n}})
+    doc["slug"] = n
+    return _wp_public(doc)
+
+
+@api_router.get("/workspace/app/{slug}")
+async def view_workspace_app(slug: str):
+    from fastapi.responses import HTMLResponse
+    doc = await db.workspace_publishes.find_one({"slug": slug.strip().lower()})
+    if not doc:
+        raise HTTPException(status_code=404, detail="App not found")
+    return HTMLResponse(content=doc["html"])
+
+
 import native_packaging
 api_router.include_router(native_packaging.router)
 import games_portal
@@ -2953,6 +2999,14 @@ class _CustomDomainASGI:
                 if k == b"host":
                     host = v.decode("latin-1").split(":")[0].lower()
                     break
+            if host and host.endswith(".preview.frasberg.com"):
+                slug = host[: -len(".preview.frasberg.com")]
+                pub = await db.workspace_publishes.find_one({"slug": slug})
+                if pub:
+                    from fastapi.responses import HTMLResponse
+                    resp = HTMLResponse(content=pub["html"])
+                    await resp(scope, receive, send)
+                    return
             if host and not any(p in host for p in _PLATFORM_HOSTS):
                 site = await db.builder_projects.find_one({"custom_domain": host, "published": True, "domain_verified": True})
                 if site:

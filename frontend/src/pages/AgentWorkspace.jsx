@@ -8,7 +8,7 @@ import {
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const AGENTS = {
-  architect: { name: "Luchii Architect", model: "luchii-70b", role: "System design & architecture",
+  architect: { name: "Luchii", model: "luchii-70b", role: "FRASBERG",
     suggestions: ["Design a REST API + data model for a multi-tenant invoicing SaaS", "Plan the architecture for a realtime chat app with 1M users", "Draft a microservices split for an e-commerce monolith", "Design an event-driven pipeline for analytics ingestion"] },
   builder: { name: "Luchii Builder", model: "luchii-7b", role: "Code generation",
     suggestions: ["Build a responsive pricing page in a single HTML file", "Build a landing page for a coffee brand with a hero and testimonials", "Write a FastAPI endpoint with JWT auth and tests", "Build an HTML dashboard with a sidebar and stat cards"] },
@@ -82,6 +82,9 @@ export default function AgentWorkspace() {
   );
   const [reviewKind, setReviewKind] = useState("Code Review");
   const [publishId, setPublishId] = useState(saved.publishId || null);
+  const [slugName, setSlugName] = useState(saved.savedSlug || "");
+  const [savedSlug, setSavedSlug] = useState(saved.savedSlug || null);
+  const [slugStatus, setSlugStatus] = useState(null);
   const [attach, setAttach] = useState(null);
   const [helpOpen, setHelpOpen] = useState(false);
   const [listening, setListening] = useState(false);
@@ -96,12 +99,40 @@ export default function AgentWorkspace() {
     if (running) return;
     try {
       localStorage.setItem(`luchii-ws-${agentKey}`, JSON.stringify({
-        model, session, publishId,
+        model, session, publishId, savedSlug,
         messages: messages.slice(-40),
         publishes: publishes.slice(0, 10).map((p) => ({ ...p, at: p.at.toISOString() })),
       }));
     } catch {}
-  }, [messages, session, publishes, model, agentKey, running, publishId]);
+  }, [messages, session, publishes, model, agentKey, running, publishId, savedSlug]);
+
+  useEffect(() => {
+    const n = slugName.trim().toLowerCase();
+    if (!n || n === savedSlug) { setSlugStatus(null); return; }
+    setSlugStatus("checking");
+    const t = setTimeout(() => {
+      fetch(`${API}/workspace/slug-check?name=${encodeURIComponent(n)}`).then((r) => r.json())
+        .then((d) => setSlugStatus(!d.valid ? "invalid" : d.available ? "available" : "taken"))
+        .catch(() => setSlugStatus(null));
+    }, 350);
+    return () => clearTimeout(t);
+  }, [slugName, savedSlug]);
+
+  const claimSlug = async () => {
+    const n = slugName.trim().toLowerCase();
+    if (!publishId) { toast.error("Publish your app first, then claim a name"); return; }
+    try {
+      const r = await fetch(`${API}/workspace/publishes/${publishId}/slug`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: n }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || "Claim failed");
+      setSavedSlug(d.slug);
+      setSlugStatus(null);
+      toast.success(`Claimed — your app now lives at ${d.slug}.preview.frasberg.com`);
+    } catch (e) { toast.error(String(e.message || e)); }
+  };
 
   const previewHtml = (() => {
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -395,7 +426,7 @@ export default function AgentWorkspace() {
               )}
               <textarea value={input} onChange={(e) => setInput(e.target.value)} rows={1}
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-                placeholder={`Message ${agent.name.split(" ")[1]}`} data-testid="workspace-input"
+                placeholder="" data-testid="workspace-input"
                 className="w-full resize-none bg-transparent px-1.5 py-1 text-[13.5px] outline-none" style={{ color: T.text }} />
               <div className="mt-1.5 flex items-center gap-1.5">
                 <input ref={fileRef} type="file" hidden accept=".txt,.md,.html,.css,.js,.jsx,.ts,.tsx,.json,.csv,.py,image/*" onChange={onFile} data-testid="workspace-file-input" />
@@ -527,6 +558,35 @@ export default function AgentWorkspace() {
                       <button onClick={runReview} data-testid="manage-run-review"
                         className="rounded-md border px-4 py-2 text-[12.5px]" style={{ borderColor: T.border, color: T.text }}>✦ Run review</button>
                     </div>
+                  </div>
+                  <div className="mt-4 rounded-lg border p-4" style={{ borderColor: T.border, background: T.surface }} data-testid="manage-custom-url">
+                    <p className="text-[13.5px] font-600">Custom preview URL</p>
+                    <p className="mt-0.5 text-[12px]" style={{ color: T.text2 }}>Pick a name — like a GitHub username — and your app gets its own address</p>
+                    <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                      <span className="font-mono text-[12px]" style={{ color: T.muted }}>https://</span>
+                      <input value={slugName} onChange={(e) => setSlugName(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+                        placeholder="my-app-name" maxLength={30} data-testid="custom-url-input"
+                        className="w-44 rounded-md border px-3 py-1.5 font-mono text-[12.5px] outline-none"
+                        style={{ borderColor: slugStatus === "taken" || slugStatus === "invalid" ? "#EF4444" : slugStatus === "available" ? "#10B981" : T.border, background: T.inset, color: T.text }} />
+                      <span className="font-mono text-[12px]" style={{ color: T.muted }}>.preview.frasberg.com</span>
+                      <button onClick={claimSlug} disabled={slugStatus !== "available"} data-testid="custom-url-claim"
+                        className="rounded-md px-4 py-1.5 text-[12px] font-600 transition-opacity disabled:opacity-40"
+                        style={{ background: T.accent, color: "#08090A" }}>Claim</button>
+                    </div>
+                    <p className="mt-2 font-mono text-[11px]" data-testid="custom-url-status" style={{ color: slugStatus === "available" ? "#10B981" : slugStatus ? "#EF4444" : T.muted }}>
+                      {slugStatus === "checking" && "Checking availability…"}
+                      {slugStatus === "available" && `✓ ${slugName} is available`}
+                      {slugStatus === "taken" && `✗ ${slugName} is taken — try another`}
+                      {slugStatus === "invalid" && "✗ 3–30 chars: lowercase letters, numbers and hyphens"}
+                      {!slugStatus && !savedSlug && "Your app keeps working at its standard link either way"}
+                    </p>
+                    {savedSlug && (
+                      <div className="mt-2 flex flex-wrap items-center gap-3 rounded-md border px-3 py-2" style={{ borderColor: "rgba(16,185,129,0.35)" }} data-testid="custom-url-active">
+                        <span className="font-mono text-[12px]" style={{ color: "#10B981" }}>● https://{savedSlug}.preview.frasberg.com</span>
+                        <a className="text-[12px] underline" style={{ color: T.accent }} href={`${process.env.REACT_APP_BACKEND_URL}/api/workspace/app/${savedSlug}`} target="_blank" rel="noreferrer" data-testid="custom-url-open">Open app ↗</a>
+                        <button className="text-[12px] underline" style={{ color: T.text2 }} onClick={() => { navigator.clipboard.writeText(`https://${savedSlug}.preview.frasberg.com`).catch(() => {}); toast.success("Custom URL copied"); }}>Copy</button>
+                      </div>
+                    )}
                   </div>
                   <div className="mt-4 rounded-lg border p-4" style={{ borderColor: T.border, background: T.surface }} data-testid="manage-publishes">
                     <p className="text-[13.5px] font-600">Publishes</p>

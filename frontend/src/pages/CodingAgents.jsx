@@ -8,7 +8,7 @@ import Seo from "../components/site/Seo";
 import Reveal, { Overline } from "../components/site/Reveal";
 
 const AGENTS = [
-  { name: "Luchii Architect", slug: "architect", tier: "luchii-70b", role: "System design & architecture", desc: "Plans services, data models and APIs before a single line is written." },
+  { name: "Luchii", slug: "architect", tier: "luchii-70b", role: "FRASBERG", desc: "Plans services, data models and APIs before a single line is written." },
   { name: "Luchii Builder", slug: "builder", tier: "luchii-7b", role: "Code generation", desc: "Writes production-ready TypeScript, Python and Go from plain instructions." },
   { name: "Luchii Reviewer", slug: "reviewer", tier: "luchii-7b", role: "Code review & refactor", desc: "Audits diffs, flags risks and proposes cleaner, safer implementations." },
   { name: "Luchii Debugger", slug: "debugger", tier: "luchii-1b", role: "Bug hunting & fixes", desc: "Traces stack traces to root cause and drafts the minimal fix, fast." },

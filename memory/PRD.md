@@ -156,3 +156,10 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - POST /api/native/builds/{id}/autowrite: Luchii (claude-sonnet-4-6) reads the published app's HTML and returns {title, short_desc}; "Autowrite with Luchii" button fills the listing form live
 - ParallaxSky rewritten: now just the homepage Starfield (mouse-linked constellation) in a fixed wrapper — removed glow orbs/gradient tints per user feedback ("did not change background colors, keep features consistent")
 - Verified: autowrite via curl + browser (title/desc filled, preview updated), constellation lines follow cursor on dashboard
+
+## 2026-06 (fork, cont. 8) — Text fixes + Custom preview URLs
+- Text: architect agent renamed "Luchii" with role "FRASBERG" (AgentWorkspace + CodingAgents), chat input placeholder removed
+- Custom URLs (GitHub-style): GET /api/workspace/slug-check (live availability), POST /api/workspace/publishes/{id}/slug (claim, unique + reserved list), GET /api/workspace/app/{slug} serves the app; _CustomDomainASGI extended — Host header {slug}.preview.frasberg.com serves the publish HTML (works for real once user adds wildcard *.preview.frasberg.com DNS to deployment)
+- Manage tab "Custom preview URL" card: input with live green/red availability, Claim button, active URL row with Open/Copy
+- Fixed: missing `import re` in server.py (caused brief 502)
+- Verified: claim flow via curl (check->claim->taken->served 200 + host-header serving), UI screenshot
