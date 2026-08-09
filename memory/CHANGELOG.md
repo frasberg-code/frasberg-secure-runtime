@@ -13,3 +13,17 @@
 - Street Vybz overhaul: palm trees replaced with urban props (hydrants, traffic lights, bus shelters, street signs); walk/run speeds humanized (3.4/7 m/s) with acceleration + stride timeScale sync (no foot skipping); melee reworked (wind-up -> strike -> follow-through, spine rotation, delayed hit resolution, thwack/whoosh/grunt WebAudio); NPCs fall with tween instead of snapping flat (knockDown helper); proper pistol/bat models + muzzle flash cone/light; env.js speechSynthesis robot voice REMOVED -> server TTS with client cache
 - Testing: iteration_34.json — backend issue (Free Starter Key edit lost in file corruption) re-applied and curl-verified; frontend 100% pass
 - NOTE: server.py had a corrupted duplicate tail after parallel edits (unmatched paren line ~2843) — removed; watch for this on large parallel search_replace batches
+
+## June 2026 - Frasberg Cloud V1 (iteration 35 — 100% pass backend + frontend)
+- New backend module /app/backend/frasberg_cloud.py (router /api/cloud) implementing ALL user-spec engines pragmatically:
+  Genesis, agent Psychology/Soul/Reputation/Education/Ascension/Dreams/Reincarnation, Eternal-Cycle phases,
+  Collapse Recovery, Paradox Resolver, Predictive Safety (posture/audit/evolution-freeze), Hyper-Stability,
+  Singularity Birth, Civilizations, Mythology, Dimensional + Fractal Expansion, Migration, Trade,
+  Omni-Synthesis (universe fusion), Diplomatic Congress (resolutions + probabilistic voting),
+  Kernel Omni-Intelligence status + 5 Absolute Laws
+- Collections: cloud_universes, cloud_events, cloud_congress. Caps: 50 universes, 60 agents each, 25 ticks/call
+- New console page /cloud (FrasbergCloud.jsx): kernel status bar, genesis form, universe cards w/ tick buttons,
+  detail modal (entropy/stability charts, agents, civs, myths, event stream), multiverse ops bar
+  (synthesis/migrate/trade on 2 selected), congress panel, absolute laws panel. Footer link footer-cloud-link
+- Endpoints are public (no auth). Simulation is stochastic
+- Known cosmetic: Recharts -1 width warning on detail modal first mount (optional fix)
