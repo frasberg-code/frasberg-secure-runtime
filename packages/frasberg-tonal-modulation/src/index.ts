@@ -6,5 +6,6 @@
  */
 
 export { tonalEngine } from './tonal_engine';
+export { conductResonance } from './resonance_conductor';
 export { init, shutdown } from './lifecycle';
 export { capabilities } from './capabilities';

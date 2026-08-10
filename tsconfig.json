@@ -19,7 +19,8 @@
 
     "outDir": "./dist",
     "rootDir": ".",
-    "types": ["jest", "node"]
+    "types": ["jest", "node"],
+    "jsx": "react"
   },
 
   "include": [
