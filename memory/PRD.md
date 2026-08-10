@@ -201,3 +201,13 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Model picker: Frasberg AI + Luchii Vision "coming soon" disabled slots added
 - Contact + Data Manager: back-arrow home header added and click-through verified
 - STILL BLOCKED: GitHub OAuth — user has not provided Client ID/Secret yet
+
+## 2026-06 (cont. 3): Full batch — TESTED 100% (iteration_38)
+- Removed "Chats may be reviewed..." disclaimer text; removed "Constellation layer live" from workspace placeholder
+- Model picker: "Frasberg — coming soon" / "Luchii Earth 7 — coming soon"
+- Tablet preview added (desktop→tablet→mobile cycle); Edit Undo (toolbar + code tab) reverts to agent build
+- Composer: Enter = newline, Ctrl+Enter = send
+- New build buttons → /chat?model=luchii-70b&agent=architect
+- Hero headline now uses Clash Display (font-hero)
+- GitHub OAuth FULLY BUILT in /app/backend/github_auth.py (login/callback/status/fork routes, Fernet-encrypted tokens, same JWT cookies as normal auth) + "Continue with GitHub" on /auth + "Fork from GitHub" card in workspace manage tab
+- AWAITING: user's real GITHUB_CLIENT_ID + GITHUB_CLIENT_SECRET in /app/backend/.env (currently empty → login returns 503 by design). Callback URL: {preview-url}/api/auth/github/callback
