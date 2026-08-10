@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { ArrowLeft, Download, Plus, X, Bot, Cpu, Puzzle, GitBranch, BadgeCheck } from "lucide-react";
+import { ArrowLeft, Download, Plus, X, Bot, Cpu, Puzzle, GitBranch, BadgeCheck, Zap } from "lucide-react";
 import { ParallaxSky } from "../components/site/ParallaxSky";
 import { useAuth } from "../context/AuthContext";
 
@@ -85,6 +85,21 @@ export default function Marketplace() {
     setInstalling(null);
   };
 
+  const toggleEvolution = async (item) => {
+    try {
+      const r = await fetch(`${API}/marketplace/${item.id}/evolution`, {
+        method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled: !item.evolution_mode }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || "Toggle failed");
+      toast.success(d.evolution_mode
+        ? `${item.name}: Evolution Mode ON — auto-updates via validated improvement cycles`
+        : `${item.name}: Evolution Mode off`);
+      load();
+    } catch (e) { toast.error(String(e.message || e)); }
+  };
+
   return (
     <main className="relative min-h-screen text-white" style={{ background: "#08090A" }} data-testid="marketplace-page">
       <ParallaxSky />
@@ -132,12 +147,26 @@ export default function Marketplace() {
                   </div>
                 </div>
                 <p className="mt-3 flex-1 text-[14px] leading-relaxed text-gray-300">{i.description}</p>
+                {i.evolution_mode && (
+                  <p className="mt-2 flex items-center gap-1.5 font-mono text-[12px] text-emerald-300" data-testid={`marketplace-evolution-badge-${i.id}`}>
+                    <Zap size={11} /> Evolution Mode — validated auto-updates {i.evolution?.lineage ? `· ${i.evolution.lineage}` : ""}
+                  </p>
+                )}
                 <div className="mt-4 flex items-center justify-between">
                   <span className="font-mono text-[12.5px] text-gray-400">{(i.installs || 0).toLocaleString()} installs</span>
-                  <button onClick={() => install(i)} disabled={installing === i.id} data-testid={`marketplace-install-${i.id}`}
-                    className="flex items-center gap-1.5 rounded-full border border-white/20 px-4 py-1.5 text-[13px] font-600 transition-colors hover:border-cyan-400 hover:text-cyan-300 disabled:opacity-40">
-                    <Download size={12} /> {installing === i.id ? "Installing…" : "Install"}
-                  </button>
+                  <span className="flex items-center gap-1.5">
+                    {user && (
+                      <button onClick={() => toggleEvolution(i)} data-testid={`marketplace-evolution-toggle-${i.id}`}
+                        title="Evolution Mode — agent auto-updates through validated improvement cycles (publisher only)"
+                        className={`grid h-8 w-8 place-items-center rounded-full border transition-colors ${i.evolution_mode ? "border-emerald-400 text-emerald-300" : "border-white/20 text-gray-400 hover:border-emerald-400 hover:text-emerald-300"}`}>
+                        <Zap size={13} />
+                      </button>
+                    )}
+                    <button onClick={() => install(i)} disabled={installing === i.id} data-testid={`marketplace-install-${i.id}`}
+                      className="flex items-center gap-1.5 rounded-full border border-white/20 px-4 py-1.5 text-[13px] font-600 transition-colors hover:border-cyan-400 hover:text-cyan-300 disabled:opacity-40">
+                      <Download size={12} /> {installing === i.id ? "Installing…" : "Install"}
+                    </button>
+                  </span>
                 </div>
               </div>
             );

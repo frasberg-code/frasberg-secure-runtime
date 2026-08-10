@@ -43,6 +43,39 @@ const DOCS = {
       ["6. Governance Controls", "Policy enforcement · Safety filters · Model access controls · Tenant isolation · LINQ Governance Command Center (45-layer engine)"],
     ],
   },
+  license: {
+    title: "MIT License",
+    icon: Scale,
+    sections: [
+      ["Copyright", "Copyright (c) 2023 Mr. Clayton-M. Bernard-Ex., AKA, Frasberg Selassie · Copyright (c) 2026 Frasberg, Inc."],
+      ["Grant of Permission", "Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: the above copyright notice, this permission notice, and the trademark notice below shall be included in all copies or substantial portions of the Software."],
+      ["Trademark Notice", "FRASBERG™, FRASBERGAI™, FRASBERGOS™, LUCHII™, EMERALD ESTATES™, ORBIT™, and associated logos are trademarks of Frasberg, Inc. This license does not grant permission to use Frasberg trademarks except as reasonably necessary to describe the origin of the Software."],
+      ["Warranty Disclaimer", "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."],
+      ["Dual-License Model", "Open source (MIT with trademark notice): FrasbergOS Kernel, Luchii RLM client libraries, LINQ frontend, SDK, CLI, runtime scaffolds. Commercial Enterprise License: Luchii RLM model weights, FrasbergOS multi-region runtime, AEE, MAOE, Marketplace backend, and enterprise governance modules."],
+    ],
+  },
+  trademarks: {
+    title: "Trademark Guidelines",
+    icon: FileText,
+    sections: [
+      ["Protected Marks", "FRASBERG™ · FRASBERGAI™ · FRASBERGOS™ · LUCHII™ · EMERALD ESTATES™ · ORBIT™ · and all associated logos are trademarks of Frasberg, Inc."],
+      ["Permitted Use", "You may refer to Frasberg products by name, state compatibility (\"Works with FrasbergOS\", \"Built for FrasbergAI\"), and use trademarks in documentation describing the origin of software."],
+      ["Prohibited Use", "You may not use Frasberg trademarks in product names, use Frasberg logos without permission, imply partnership or endorsement, or create confusingly similar branding."],
+      ["Marketplace Rules", "Agents may state \"Built for FrasbergAI\" or \"Compatible with Luchii RLM\". Agents may not use Frasberg trademarks in agent names or Frasberg logos in agent icons."],
+    ],
+  },
+  safety: {
+    title: "Safety Charter",
+    icon: ShieldCheck,
+    sections: [
+      ["Safety Principles", "Identity-preserving conversational governance · behavioral safety modules (hinge logic, membrane protocol) · tool permission boundaries · memory isolation · region-aware safety routing."],
+      ["Transparency Commitments", "Clear documentation · public safety reports · disclosure of model capabilities · marketplace agent safety labels."],
+      ["Governance", "Mandatory safety modules for all agents. Autonomous improvements must pass validation, security scans and test suites before deployment. Multi-agent collaboration is governed by ACP; evolution is bounded by AEE safety constraints."],
+      ["Prohibited Uses", "Frasberg prohibits: surveillance, discrimination, harmful autonomous actions, unauthorized data extraction, model weight extraction, and safety bypass attempts."],
+      ["User Rights", "Control over your data · transparent agent behavior · ability to disable Evolution Mode · ability to restrict collaboration."],
+      ["Public Policy Engagement", "Frasberg commits to working with regulators, supporting open standards, publishing safety research, and participating in AI governance forums."],
+    ],
+  },
 };
 
 export default function Legal() {

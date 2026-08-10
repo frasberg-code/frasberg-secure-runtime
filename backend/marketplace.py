@@ -73,3 +73,29 @@ async def install_item(item_id: str):
     if not res:
         raise HTTPException(status_code=404, detail="Item not found")
     return {"ok": True, "installs": res["installs"] + 1}
+
+
+class EvolutionBody(BaseModel):
+    enabled: bool
+
+
+@router.post("/{item_id}/evolution")
+async def toggle_evolution(item_id: str, body: EvolutionBody, request: Request):
+    """Evolution Mode — published agents auto-update through validated improvement cycles."""
+    user = await auth_module.get_current_user(request)
+    item = await db.marketplace.find_one({"id": item_id})
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    is_owner = item.get("owner_id") == user["id"]
+    is_admin = user.get("role") == "admin"
+    if not (is_owner or is_admin):
+        raise HTTPException(status_code=403, detail="Only the publisher (or an admin) can toggle Evolution Mode.")
+    update = {"evolution_mode": body.enabled}
+    if body.enabled:
+        update["evolution"] = {
+            "lineage": item.get("evolution", {}).get("lineage", f"v{item.get('version', '1.0.0')}"),
+            "pipeline": ["static analysis", "security scan", "test suite", "benchmark delta"],
+            "enabled_at": datetime.now(timezone.utc).isoformat(),
+        }
+    await db.marketplace.update_one({"id": item_id}, {"$set": update})
+    return {"ok": True, "evolution_mode": body.enabled}

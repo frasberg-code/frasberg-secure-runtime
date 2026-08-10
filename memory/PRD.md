@@ -232,3 +232,9 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Agent File Sync: /api/github/import now also parses agent.json / luchii.yaml (json+yaml paths unit-verified), returns agent {name, model, entrypoint, capabilities, tools, env_keys}; workspace shows agent details card (github-agent-details) with capability badges after import
 - User pasted V2 vision docs (FrasbergOS kernel, AEE, ACP, MAOE, licenses, compliance) — reference material for future phases
 - STILL AWAITING: GITHUB_CLIENT_SECRET
+
+## 2026-06 (cont. 7): Legal Pages + Evolution Mode — TESTED
+- Legal: merged MIT License (with trademark notice + dual-license), Trademark Guidelines, Safety Charter into existing /legal page (?doc=license|trademarks|safety tabs); footer links added under Company (footer-license/trademarks/safety-link) — verified via screenshot
+- Evolution Mode: POST /api/marketplace/{id}/evolution (publisher/admin only — verified admin 200, non-owner 403); Zap toggle button on marketplace cards for signed-in users + green "Evolution Mode — validated auto-updates · lineage" badge (verified on Luchii-7b)
+- NOTE: Legal.jsx already existed (Partner API/SLA/Compliance docs) — new docs merged in, no duplicate routes
+- STILL AWAITING: GITHUB_CLIENT_SECRET
