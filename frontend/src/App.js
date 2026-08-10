@@ -6,6 +6,8 @@ import { Toaster } from "sonner";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Landing from "./pages/Landing";
+import Contact from "./pages/Contact";
+import DatabaseManager from "./pages/DatabaseManager";
 import Dashboard from "./pages/Dashboard";
 import Docs from "./pages/Docs";
 import Legal from "./pages/Legal";
@@ -90,6 +92,8 @@ function App() {
               <Route path="/auth" element={<Auth />} />
               <Route path="/chat" element={<ChatRoute />} />
               <Route path="/apps" element={<WorkspaceHome />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/database" element={<DatabaseManager />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin/mesh" element={<MeshControlCenter />} />

@@ -112,13 +112,20 @@ export default function WorkspaceHome() {
                 <p className="mt-0.5 font-mono text-[11px]" style={{ color: T.muted }}>
                   Updated {timeAgo(a.updated)} · v{a.version} · {a.hash} · {a.agent}
                 </p>
+                {a.custom_url && (
+                  <a href={`${BASE}${a.slug_url}`} target="_blank" rel="noreferrer" data-testid={`app-custom-url-${a.id}`}
+                    className="mt-1 inline-flex items-center gap-1.5 font-mono text-[11px] hover:underline" style={{ color: T.accent }}>
+                    <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: T.accent }} />
+                    {a.custom_url.replace("https://", "")}
+                  </a>
+                )}
               </div>
               <span className="flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[10px] uppercase tracking-wide"
                 style={{ borderColor: "rgba(16,185,129,0.5)", color: "#10B981" }}>
                 <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#10B981" }} /> Published
               </span>
               <div className="flex shrink-0 gap-1.5">
-                <a href={`${BASE}${a.url}`} target="_blank" rel="noreferrer" aria-label="Open app" data-testid={`app-open-${a.id}`}
+                <a href={`${BASE}${a.slug_url || a.url}`} target="_blank" rel="noreferrer" aria-label="Open app" data-testid={`app-open-${a.id}`}
                   className="grid h-8 w-8 place-items-center rounded-md border transition-colors hover:border-[#00F0FF]" style={{ borderColor: T.border, color: T.text2 }}>
                   <ExternalLink size={13} />
                 </a>

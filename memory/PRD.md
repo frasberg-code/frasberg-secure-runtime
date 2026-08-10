@@ -167,3 +167,10 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 ## 2026-06 (fork, cont. 9) — URL Suggestions
 - slug-check now returns 3 available alternatives (name-app/-hq/-live/get-/try-/rand) when a name is taken; Manage tab shows clickable cyan suggestion chips that fill the input and re-check
 - Verified via curl + browser (taken -> chips -> click -> available -> Claim enabled)
+
+## 2026-06 (fork, cont. 10) — Apps Directory URLs + Database Manager + Contact/Live Chat
+- /apps: claimed custom URLs shown as cyan branded badge per app; Open uses slug route
+- Database Manager (/database, new db_manager.py router /api/dbm): connect by App Name (db name) or any MongoDB URL, list collections+counts, browse docs (paginated JSON), delete + update doc, auth-walled (401 w/o login). Emergent-clone light UI (violet icon, eye toggle, secure access button)
+- PROVED end-to-end: 401 wall, connected to real test_database (46 collections), browsed real docs, live-edited a real doc + verified + cleanup, clean 502 on bad Mongo URL, UI browse screenshot. frasberg.com still 520 on /api/dbm (old build — user must redeploy)
+- Contact Us (/contact): Squarespace-clone page (serif heading, Frasberg.com / support@frasberg.com, form -> contact_messages collection) + Live Chat widget: "Maya" AI persona (claude-sonnet, human-like, Frasberg knowledge, multi-turn via client history) streaming SSE at /api/support/chat
+- Fixed: TextDelta .content (not .text) in support stream

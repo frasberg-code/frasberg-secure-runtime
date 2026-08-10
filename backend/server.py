@@ -2809,6 +2809,73 @@ LUCHII_MODELS_DOC = {
 }
 
 
+class ContactBody(BaseModel):
+    name: str
+    email: str
+    message: str
+
+
+class SupportChatBody(BaseModel):
+    message: str
+    session_id: str = ""
+    history: list = []
+
+
+SUPPORT_PERSONA = (
+    "You are Maya, a warm, upbeat human support specialist on the Frasberg live chat. You chat like a real person: "
+    "short conversational replies (1-3 sentences), contractions, occasional light warmth. Never mention being an AI, a "
+    "model, or a bot unless the user directly asks — if they do, be honest but brief. Never use markdown headers or bullet walls.\n\n"
+    "What you know about Frasberg (frasberg.com):\n"
+    "- Luchii: Frasberg's intelligence model family — luchii-1b (fast), luchii-7b (builder), luchii-70b (deep reasoning), Luchii V12 flagship.\n"
+    "- LINQ Developer Console at /dashboard: API keys, usage, billing. Free starter key, paid plans (builder, pro, premium, scale) via PayPal.\n"
+    "- API: https://api.frasberg.com/v1 — OpenAI-compatible, Bearer auth, SSE streaming, 60 req/min public tier. Works with any OpenAI SDK, Vercel AI SDK, LangChain.\n"
+    "- Agent Workspace at /chat: build apps with Luchii, publish them, claim custom URLs (name.preview.frasberg.com), download Android/iOS packages.\n"
+    "- Frasberg Games: 3D games portal incl. Street Vybz. Frasberg Cloud at /cloud: multiverse simulation console.\n"
+    "- Team accounts on @frasbergai.com get unlimited access.\n"
+    "- Contact: support@frasberg.com · frasberg.com\n"
+    "If you truly can't help, offer to connect them with the team at support@frasberg.com."
+)
+
+
+@api_router.post("/support/contact")
+async def support_contact(body: ContactBody):
+    doc = {"id": str(uuid.uuid4()), "name": body.name.strip()[:80], "email": body.email.strip()[:120],
+           "message": body.message.strip()[:4000], "created": datetime.now(timezone.utc).isoformat()}
+    if not (doc["name"] and doc["email"] and doc["message"]):
+        raise HTTPException(status_code=400, detail="All fields are required")
+    await db.contact_messages.insert_one(doc)
+    return {"ok": True}
+
+
+@api_router.post("/support/chat")
+async def support_chat(body: SupportChatBody):
+    sid = body.session_id or str(uuid.uuid4())
+    history = ""
+    for m in (body.history or [])[-10:]:
+        role = "Visitor" if m.get("role") == "user" else "Maya"
+        history += f"{role}: {str(m.get('content', ''))[:600]}\n"
+    prompt = (f"Conversation so far:\n{history}\nVisitor: {body.message.strip()[:2000]}\n\nReply as Maya."
+              if history else f"Visitor: {body.message.strip()[:2000]}\n\nReply as Maya.")
+
+    async def gen():
+        yield ": stream-start\n\n"
+        try:
+            chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"support-{sid}",
+                           system_message=SUPPORT_PERSONA).with_model("anthropic", "claude-sonnet-4-6").with_params(max_tokens=600)
+            async for chunk in chat.stream_message(UserMessage(text=prompt)):
+                if isinstance(chunk, TextDelta) and chunk.content:
+                    yield f"data: {json.dumps({'delta': chunk.content})}\n\n"
+                elif isinstance(chunk, StreamDone):
+                    break
+        except Exception:
+            logger.exception("support chat stream failed")
+            yield f"data: {json.dumps({'delta': 'Sorry — our chat hit a snag. You can always reach the team at support@frasberg.com.'})}\n\n"
+        yield f"data: {json.dumps({'done': True, 'session_id': sid})}\n\n"
+
+    return StreamingResponse(gen(), media_type="text/event-stream",
+                             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
 @api_router.get("/.well-known/frasbergai-provider.json")
 async def well_known_provider():
     return PROVIDER_REGISTRY
@@ -2983,6 +3050,8 @@ async def view_workspace_app(slug: str):
 
 import native_packaging
 api_router.include_router(native_packaging.router)
+import db_manager
+api_router.include_router(db_manager.router)
 import games_portal
 api_router.include_router(games_portal.router)
 import frasberg_cloud
