@@ -37,7 +37,7 @@ class Memory(Base):
     content = Column(Text, nullable=False)
     memory_type = Column(String(50), index=True)  # preference, interaction, context
     importance = Column(Float, default=0.5, index=True)
-    metadata = Column(JSON)
+    extra_data = Column(JSON)
     embedding = Column(JSON)  # For vector search
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     last_accessed = Column(DateTime, default=datetime.utcnow)
@@ -93,7 +93,7 @@ class AuditLog(Base):
     action = Column(String(100), nullable=False, index=True)
     resource_type = Column(String(50), index=True)
     resource_id = Column(String(100))
-    metadata = Column(JSON)
+    extra_data = Column(JSON)
     ip_address = Column(String(50))
     user_agent = Column(String(255))
     timestamp = Column(DateTime, default=datetime.utcnow, index=True)
@@ -109,7 +109,7 @@ class Conversation(Base):
     session_id = Column(String(100), index=True)
     role = Column(String(20), nullable=False)  # user, assistant, system
     content = Column(Text, nullable=False)
-    metadata = Column(JSON)
+    extra_data = Column(JSON)
     timestamp = Column(DateTime, default=datetime.utcnow, index=True)
     tokens_used = Column(Integer)
     model_used = Column(String(50))
