@@ -11,7 +11,7 @@ Institution-grade operational intelligence system with:
 ✅ Real-time monitoring
 ✅ Multi-cloud deployment
 
-Download: https://github.com/frasberg/frasberg-ai-backend/releases/tag/v1.0.0
+Download: https://github.com/FrasbergAI/frasberg/releases/tag/v1.0.0
 
 #OpenSource #OperationalIntelligence #Docker #Kubernetes #FrasbergAI
 ```
@@ -40,7 +40,7 @@ Built on a 45-layer sovereign design with enforced fork isolation and multi-juri
 • Healthcare training (non-clinical)
 • Research and development
 
-**Download:** https://github.com/frasberg/frasberg-ai-backend/releases/tag/v1.0.0
+**Download:** https://github.com/FrasbergAI/frasberg/releases/tag/v1.0.0
 
 **License:** MIT (free and open source)
 
@@ -70,7 +70,7 @@ Frasberg AI v1.0.0 is a complete institutional-grade operational intelligence sy
 • Kubernetes-ready manifests
 
 **Download:**
-https://github.com/frasberg/frasberg-ai-backend/releases/tag/v1.0.0
+https://github.com/FrasbergAI/frasberg/releases/tag/v1.0.0
 
 **Documentation:**
 Complete documentation, deployment guides, and quick start instructions are included in the release package.
@@ -83,7 +83,7 @@ Complete documentation, deployment guides, and quick start instructions are incl
 
 **Support:**
 For questions, issues, or discussions:
-https://github.com/frasberg/frasberg-ai-backend/issues
+https://github.com/FrasbergAI/frasberg/issues
 
 Thank you for your continued support.
 
@@ -109,12 +109,12 @@ I'm thrilled to announce that **Frasberg AI v1.0.0 is now publicly available**!
 
 ## 📦 Download
 
-**Release:** https://github.com/frasberg/frasberg-ai-backend/releases/tag/v1.0.0
+**Release:** https://github.com/FrasbergAI/frasberg/releases/tag/v1.0.0
 
 ## 🧪 Quick Test
 
 \`\`\`bash
-wget https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
+wget https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
 unzip frasberg-ai-v1.0.0-public-final.zip
 cd frasberg-ai-v1.0.0-public-final
 # Follow README.md

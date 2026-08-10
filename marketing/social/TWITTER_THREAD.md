@@ -59,7 +59,7 @@ MIT licensed. Forever free.
 ✓ Community-governed
 ✓ Commercial use allowed
 
-Star on GitHub: github.com/frasberg/frasberg-ai-backend
+Star on GitHub: github.com/FrasbergAI/frasberg
 
 **Tweet 7** (Research):
 Backed by real research:
@@ -92,7 +92,7 @@ The future of AI isn't bigger silicon.
 
 It's smarter systems.
 
-Start building today: github.com/frasberg/frasberg-ai-backend
+Start building today: github.com/FrasbergAI/frasberg
 
 ---
 

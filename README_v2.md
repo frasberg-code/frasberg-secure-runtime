@@ -1,6 +1,6 @@
 # 🚀 Frasberg AI v2.0.0
 
-[![Release](https://img.shields.io/badge/release-v2.0.0-blue?style=for-the-badge)](https://github.com/frasberg/frasberg-ai-backend/releases/tag/v2.0.0)
+[![Release](https://img.shields.io/badge/release-v2.0.0-blue?style=for-the-badge)](https://github.com/FrasbergAI/frasberg/releases/tag/v2.0.0)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Production-success?style=for-the-badge)]()
 
@@ -28,7 +28,7 @@
 
 ```bash
 # Download v2.0.0
-wget https://github.com/frasberg/frasberg-ai-backend/releases/download/v2.0.0/frasberg-ai-v2.0.0-complete.zip
+wget https://github.com/FrasbergAI/frasberg/releases/download/v2.0.0/frasberg-ai-v2.0.0-complete.zip
 
 # Extract and deploy
 unzip frasberg-ai-v2.0.0-complete.zip

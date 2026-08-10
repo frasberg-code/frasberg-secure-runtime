@@ -13,8 +13,8 @@ Thank you for your interest in contributing to Frasberg AI v4.0.1!
 
 ```bash
 # Clone repository
-git clone https://github.com/frasberg/frasberg-ai-backend.git
-cd frasberg-ai-backend
+git clone https://github.com/FrasbergAI/frasberg.git
+cd frasberg
 
 # Install dependencies
 pip install -r backend/requirements.txt

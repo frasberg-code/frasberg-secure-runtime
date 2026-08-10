@@ -61,8 +61,8 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 
 ```bash
 # Clone your fork
-git clone https://github.com/your-username/frasberg-ai-backend.git
-cd frasberg-ai-backend/frasberg-ai-sdk
+git clone https://github.com/your-username/frasberg.git
+cd frasberg/frasberg-ai-sdk
 
 # Install dependencies
 npm install

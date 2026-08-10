@@ -54,8 +54,8 @@ aws ec2 run-instances \
 
 # SSH and deploy
 ssh -i your-key.pem ec2-user@<instance-ip>
-git clone https://github.com/frasberg/frasberg-ai-backend
-cd frasberg-ai-backend
+git clone https://github.com/FrasbergAI/frasberg
+cd frasberg
 cd deploy/canonical-core && docker-compose up -d
 cd ../forks/education && docker-compose up -d
 cd ../healthcare-nonclinical && docker-compose up -d

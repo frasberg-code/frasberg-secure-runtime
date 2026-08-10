@@ -66,18 +66,18 @@ python server.py
 
 ```bash
 # 1. Fork on GitHub
-# https://github.com/frasberg/frasberg-ai-backend
+# https://github.com/FrasbergAI/frasberg
 
 # 2. Clone your fork
-git clone https://github.com/YOUR_USERNAME/frasberg-ai-backend
-cd frasberg-ai-backend
+git clone https://github.com/YOUR_USERNAME/frasberg
+cd frasberg
 
 # 3. Install
 pip install -r backend/requirements.txt
 pip install -r requirements-test.txt
 
 # 4. Find an issue
-# https://github.com/frasberg/frasberg-ai-backend/labels/good-first-issue
+# https://github.com/FrasbergAI/frasberg/labels/good-first-issue
 
 # 5. Create branch
 git checkout -b feature/your-feature
@@ -188,7 +188,7 @@ pip install -r backend/requirements-v5.1.txt
 ## 📊 File Structure (Key Files)
 
 ```
-frasberg-ai-backend/
+frasberg/
 ├── execute-month-1-now.sh          # 👈 START HERE
 ├── MONTH_1_COMPLETE.md             # 👈 READ THIS
 ├── CONTRIBUTING-ENHANCED.md        # 👈 CONTRIBUTORS READ
@@ -248,7 +248,7 @@ Earn money for contributions!
 ## 📞 Get Help
 
 - **Documentation**: Start with [MONTH_1_COMPLETE.md](MONTH_1_COMPLETE.md)
-- **GitHub Issues**: https://github.com/frasberg/frasberg-ai-backend/issues
+- **GitHub Issues**: https://github.com/FrasbergAI/frasberg/issues
 - **Email**: hello@frasberg-ai.ai
 - **Discord**: Coming soon (see community/DISCORD_SETUP.md)
 

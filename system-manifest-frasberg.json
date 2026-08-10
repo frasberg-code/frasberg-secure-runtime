@@ -2,11 +2,11 @@
 
 ## Identity
 
-**System Name**: Frasberg AI  
-**Creator**: Frasberg Selassie (Clayton-M. Bernard-Ex.)  
-**Version**: 6.5.0  
-**License**: UNLICENSED (Proprietary)  
-**Status**: Production Ready  
+**System Name**: Frasberg AI
+**Creator**: Frasberg Selassie (Clayton-M. Bernard-Ex.)
+**Version**: 6.5.0
+**License**: UNLICENSED (Proprietary)
+**Status**: Production Ready
 
 ## Architecture
 
@@ -67,20 +67,20 @@
 
 ## Capabilities
 
-✅ Text generation  
-✅ Voice synthesis  
-✅ Emotion modeling (non-diagnostic)  
-✅ Multi-context operation  
-✅ Governance enforcement  
-✅ Audit logging  
+✅ Text generation
+✅ Voice synthesis
+✅ Emotion modeling (non-diagnostic)
+✅ Multi-context operation
+✅ Governance enforcement
+✅ Audit logging
 
 ## Limitations
 
-❌ No intent or agency attribution  
-❌ No legal conclusions  
-❌ No medical diagnosis  
-❌ No biometric identification  
-❌ No clinical decision-making  
+❌ No intent or agency attribution
+❌ No legal conclusions
+❌ No medical diagnosis
+❌ No biometric identification
+❌ No clinical decision-making
 
 ## Deployment
 
@@ -106,19 +106,19 @@
 
 ## Compliance
 
-✅ Multi-jurisdiction support  
-✅ GDPR-compatible (no PII by design)  
-✅ SOC2 compliance helpers  
-✅ Audit logging with hash chaining  
-✅ Fork isolation enforcement  
+✅ Multi-jurisdiction support
+✅ GDPR-compatible (no PII by design)
+✅ SOC2 compliance helpers
+✅ Audit logging with hash chaining
+✅ Fork isolation enforcement
 
 ## Support
 
-**Repository**: https://github.com/frasberg/frasberg-ai-backend  
-**License**: Proprietary (UNLICENSED)  
-**Creator**: Frasberg Selassie  
+**Repository**: https://github.com/FrasbergAI/frasberg
+**License**: Proprietary (UNLICENSED)
+**Creator**: Frasberg Selassie
 
 ---
 
-**Frasberg AI** - Institution-Grade Intelligence System  
+**Frasberg AI** - Institution-Grade Intelligence System
 *Manifested in code. Ready for deployment.*

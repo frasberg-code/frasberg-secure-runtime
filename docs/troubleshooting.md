@@ -31,8 +31,8 @@ pip install --upgrade pip
 pip install frasberg-ai==6.5.0
 
 # Or install from source
-git clone https://github.com/frasberg/frasberg-ai-backend.git
-cd frasberg-ai-backend
+git clone https://github.com/FrasbergAI/frasberg.git
+cd frasberg
 pip install -e .
 ```
 
@@ -454,7 +454,7 @@ docker logs frasberg-ai
 ### Community Support
 
 - **Discord:** https://discord.gg/frasberg-ai
-- **GitHub Issues:** https://github.com/frasberg/frasberg-ai-backend/issues
+- **GitHub Issues:** https://github.com/FrasbergAI/frasberg/issues
 - **Email:** support@frasberg-ai.dev
 
 ### Report a Bug

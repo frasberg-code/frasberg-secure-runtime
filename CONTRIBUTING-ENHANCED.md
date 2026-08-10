@@ -5,10 +5,10 @@ Welcome to Frasberg AI! We're building the future of distributed AI systems toge
 ## Quick Links
 
 - 💬 **[Discord Community](https://discord.gg/frasberg-ai)** - Join the conversation
-- 🐛 **[Report a Bug](https://github.com/frasberg/frasberg-ai-backend/issues/new?template=bug_report.md)**
-- ✨ **[Request a Feature](https://github.com/frasberg/frasberg-ai-backend/issues/new?template=feature_request.md)**
-- 📖 **[Documentation](https://github.com/frasberg/frasberg-ai-backend/blob/main/README.md)**
-- 🎯 **[Good First Issues](https://github.com/frasberg/frasberg-ai-backend/labels/good-first-issue)**
+- 🐛 **[Report a Bug](https://github.com/FrasbergAI/frasberg/issues/new?template=bug_report.md)**
+- ✨ **[Request a Feature](https://github.com/FrasbergAI/frasberg/issues/new?template=feature_request.md)**
+- 📖 **[Documentation](https://github.com/FrasbergAI/frasberg/blob/main/README.md)**
+- 🎯 **[Good First Issues](https://github.com/FrasbergAI/frasberg/labels/good-first-issue)**
 
 ---
 
@@ -60,11 +60,11 @@ Welcome to Frasberg AI! We're building the future of distributed AI systems toge
 
 ```bash
 # 1. Fork the repository on GitHub
-# Click "Fork" at https://github.com/frasberg/frasberg-ai-backend
+# Click "Fork" at https://github.com/FrasbergAI/frasberg
 
 # 2. Clone your fork
-git clone https://github.com/YOUR_USERNAME/frasberg-ai-backend
-cd frasberg-ai-backend
+git clone https://github.com/YOUR_USERNAME/frasberg
+cd frasberg
 
 # 3. Install dependencies
 pip install -r backend/requirements.txt
@@ -105,7 +105,7 @@ git push origin feature/your-feature-name
 
 ## 🟢 Good First Issues
 
-New to the project? Look for issues labeled **[good-first-issue](https://github.com/frasberg/frasberg-ai-backend/labels/good-first-issue)**:
+New to the project? Look for issues labeled **[good-first-issue](https://github.com/FrasbergAI/frasberg/labels/good-first-issue)**:
 
 - **🟢 Easy**: 1-2 hours, clear scope, great for first-timers
 - **🟡 Medium**: Half day, some complexity, requires understanding of system
@@ -298,7 +298,7 @@ If you experience harassment or violations, contact:
 Understanding the codebase:
 
 ```
-frasberg-ai-backend/
+frasberg/
 ├── backend/              # Python backend (FastAPI)
 │   ├── app/              # Application code
 │   │   ├── v5/           # v5 API endpoints
@@ -326,7 +326,7 @@ frasberg-ai-backend/
 ## FAQ
 
 ### Q: I'm new to open source. Where should I start?
-A: Start with **[good-first-issue](https://github.com/frasberg/frasberg-ai-backend/labels/good-first-issue)** labels! These are specifically chosen to be beginner-friendly.
+A: Start with **[good-first-issue](https://github.com/FrasbergAI/frasberg/labels/good-first-issue)** labels! These are specifically chosen to be beginner-friendly.
 
 ### Q: How long does PR review take?
 A: We aim to provide initial feedback within 48 hours. Complete review may take 3-7 days depending on complexity.
