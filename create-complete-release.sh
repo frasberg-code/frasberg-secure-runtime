@@ -194,8 +194,8 @@ frasberg-ai-v1.0.0-public-final/
 
 ## 🤝 Support
 
-- **Repository:** https://github.com/frasberg/frasberg-ai-backend
-- **Issues:** https://github.com/frasberg/frasberg-ai-backend/issues
+- **Repository:** https://github.com/FrasbergAI/frasberg
+- **Issues:** https://github.com/FrasbergAI/frasberg/issues
 - **License:** MIT
 
 ## 🎊 Acknowledgments

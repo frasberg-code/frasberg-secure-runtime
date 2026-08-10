@@ -392,7 +392,7 @@ release/
 ```bash
 # 1. Clone repository
 git clone https://github.com/FrasbergAI/frasberg.git
-cd frasberg-ai-backend
+cd frasberg
 
 # 2. Start all services
 ./quick-start.sh

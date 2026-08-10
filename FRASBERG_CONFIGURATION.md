@@ -9,30 +9,32 @@
 
 The FRASBERG custom model endpoint has been successfully configured with the following environment variables:
 
+> Note: the Supabase function path currently remains `/functions/v1/frasberg-ai-backend` for compatibility with the deployed runtime. That endpoint identifier is infrastructure-specific and separate from the repository's Frasberg branding.
+
 ### Environment Variables Set
 
 #### FRASBERG Model Configuration
 ```bash
 FRASBERG_MODEL_ENDPOINT=https://sdtilgpppwhwtbxlbmik.supabase.co/functions/v1/frasberg-ai-backend
-FRASBERG_MODEL_API_KEY=432b7dc816f959da644b66c1afe14993300d3e1f839b2b6235ea75552c9082ce
+FRASBERG_MODEL_API_KEY=your_frasberg_model_api_key_here
 ```
 
 #### Generic Model Configuration (for Edge Functions)
 ```bash
 MODEL_ENDPOINT=https://sdtilgpppwhwtbxlbmik.supabase.co/functions/v1/frasberg-ai-backend
-MODEL_API_KEY=432b7dc816f959da644b66c1afe14993300d3e1f839b2b6235ea75552c9082ce
+MODEL_API_KEY=your_model_api_key_here
 ```
 
 #### Project Configuration
 ```bash
 PROJECT_URL=https://sdtilgpppwhwtbxlbmik.supabase.co
-SERVICE_ROLE_KEY=5a99fb8b9bdb01d466a9184a1e66cf36c2441513026d4efde3f8d2595633c393
+SERVICE_ROLE_KEY=your_service_role_key_here
 ```
 
 #### GitHub Integration
 ```bash
 GITHUB_TOKEN=your_github_token_here
-GITHUB_REPO_URL=https://github.com/frasberg/frasberg-ai-backend
+GITHUB_REPO_URL=https://github.com/FrasbergAI/frasberg
 ```
 
 ---
@@ -102,8 +104,8 @@ supabase functions deploy
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                   FRASBERG Core Backend                    │
-│         https://github.com/frasberg/frasberg-ai      │
+│                       FRASBERG Repository                  │
+│         https://github.com/FrasbergAI/frasberg            │
 └─────────────────────────────────────────────────────────┘
                            │
                            ▼
@@ -180,7 +182,7 @@ supabase functions deploy
 ## 📞 Support
 
 For issues or questions:
-- **Repository:** https://github.com/frasberg/frasberg-ai-backend
+- **Repository:** https://github.com/FrasbergAI/frasberg
 - **Documentation:** See [SECRETS_SETUP.md](SECRETS_SETUP.md)
 - **Supabase Dashboard:** https://app.supabase.com/project/sdtilgpppwhwtbxlbmik
 

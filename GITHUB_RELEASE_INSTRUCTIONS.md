@@ -42,7 +42,7 @@ gh release create v1.0.0 \
 ```
 
 **Option B: Using GitHub Web Interface**
-1. Go to: https://github.com/frasberg/frasberg-ai-backend/releases/new
+1. Go to: https://github.com/FrasbergAI/frasberg/releases/new
 2. Tag version: `v1.0.0`
 3. Release title: `Frasberg AI v1.0.0 - Public Release`
 4. Copy content from RELEASE_NOTES.md into description
@@ -60,6 +60,10 @@ After publishing, verify:
 - [ ] SHA256 checksum is available
 - [ ] Release notes are formatted correctly
 - [ ] Tag points to correct commit
+
+### 6. Clean Up Existing Published Releases
+
+If earlier GitHub releases still show `Sofia` or `Sofia Core` in the title or body, edit them manually in the GitHub Releases UI after publishing the corrected Frasberg release content.
 
 ---
 
@@ -87,5 +91,4 @@ After publishing, announce on:
 - Social media (if applicable)
 
 Share the download link:
-`https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip`
-
+`https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip`

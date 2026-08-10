@@ -126,7 +126,7 @@ Frasberg AI 6.0.0 is our biggest release yet, combining three major feature sets
 
    Thread with all features 👇
 
-   https://github.com/frasberg/frasberg-ai-backend
+   https://github.com/FrasbergAI/frasberg
    
    [Continue with full thread from launch script]
    ```
@@ -288,7 +288,7 @@ Benchmark suite included - run `frasberg-cli benchmark` to test on your hardware
 ## 📞 Support Channels
 
 ### Community Support
-- **GitHub Issues:** https://github.com/frasberg/frasberg-ai-backend/issues
+- **GitHub Issues:** https://github.com/FrasbergAI/frasberg/issues
 - **Discord:** #support channel
 - **Product Hunt:** Comments section
 - **Email:** support@frasberg-ai.io
@@ -354,13 +354,13 @@ Benchmark suite included - run `frasberg-cli benchmark` to test on your hardware
 ## 🔗 Important Links
 
 ### Documentation
-- **Main Docs:** https://github.com/frasberg/frasberg-ai-backend
+- **Main Docs:** https://github.com/FrasbergAI/frasberg
 - **Enterprise Guide:** [docs/enterprise/README.md](docs/enterprise/README.md)
 - **Advanced AI Guide:** [docs/advanced-ai/README.md](docs/advanced-ai/README.md)
 - **Migration Guide:** [docs/migration/v5-to-v6.md](docs/migration/v5-to-v6.md)
 
 ### Release
-- **GitHub Release:** https://github.com/frasberg/frasberg-ai-backend/releases/tag/v6.0.0
+- **GitHub Release:** https://github.com/FrasbergAI/frasberg/releases/tag/v6.0.0
 - **CHANGELOG:** [CHANGELOG_v6.0.0.md](CHANGELOG_v6.0.0.md)
 - **PyPI:** https://pypi.org/project/frasberg-ai/6.0.0/
 

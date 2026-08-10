@@ -80,7 +80,7 @@ curl http://localhost:8000/openapi.json
 
 **When PR Completes, Run:**
 ```bash
-cd /workspaces/frasberg-ai-backend/deploy
+cd /workspaces/frasberg/deploy
 ./post-pr-activation.sh
 ```
 
@@ -146,7 +146,7 @@ npm start
 
 ### Health Check All Services
 ```bash
-cd /workspaces/frasberg-ai-backend/deploy
+cd /workspaces/frasberg/deploy
 ./full-health-check.sh
 ```
 
@@ -168,7 +168,7 @@ Checking Frontend Admin UI   (port 3000)... ✅ HEALTHY
 
 **When All Services Are Operational, Run:**
 ```bash
-cd /workspaces/frasberg-ai-backend/deploy
+cd /workspaces/frasberg/deploy
 ./create-release-package.sh
 ```
 
@@ -200,7 +200,7 @@ gh release create v1.0.0-public-final \
 ```
 
 **Option 2: GitHub Web UI**
-1. Go to https://github.com/frasberg/frasberg-ai-backend/releases/new
+1. Go to https://github.com/FrasbergAI/frasberg/releases/new
 2. Tag: `v1.0.0-public-final`
 3. Title: "Frasberg AI v1.0.0 - Public Release"
 4. Upload ZIP and SHA256 files
@@ -314,7 +314,7 @@ Total Time from Now: 50-75 minutes
 
 5. **🚀 Run Post-PR Activation**
    ```bash
-   cd /workspaces/frasberg-ai-backend/deploy
+   cd /workspaces/frasberg/deploy
    ./post-pr-activation.sh
    ```
 

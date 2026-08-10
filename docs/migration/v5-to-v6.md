@@ -451,7 +451,7 @@ If you need help with migration:
 
 - **Documentation:** https://docs.frasberg-ai.io/migration/v5-to-v6
 - **Discord:** https://discord.gg/frasberg-ai
-- **GitHub Issues:** https://github.com/frasberg/frasberg-ai-backend/issues
+- **GitHub Issues:** https://github.com/FrasbergAI/frasberg/issues
 - **Email:** support@frasberg-ai.io
 - **Enterprise Support:** enterprise@frasberg-ai.io
 

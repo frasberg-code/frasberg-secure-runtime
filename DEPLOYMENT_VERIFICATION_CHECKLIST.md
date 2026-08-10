@@ -13,9 +13,9 @@
 
 ### Phase 1: Code Verification (✅ COMPLETE)
 
-- [x] All Frasberg AI references renamed to Frasberg AI
-- [x] All @frasberg/* packages renamed to @frasberg-*
-- [x] All FRASBERG_* environment variables renamed to FRASBERG_*
+- [x] All active tracked-file branding uses Frasberg naming
+- [x] All @frasberg/* packages use the current scope
+- [x] All FRASBERG_* environment variables use the current names
 - [x] All source code files updated and verified
 - [x] No broken imports or references
 - [x] TypeScript compilation verified
@@ -40,8 +40,8 @@
 ### Phase 3: Infrastructure Verification (✅ COMPLETE)
 
 - [x] Docker Compose files updated
-- [x] Container names changed (frasberg_* → frasberg_*)
-- [x] Network names updated (frasberg-network → frasberg-network)
+- [x] Container names use the `frasberg_*` prefix
+- [x] Network names use the `frasberg-network` convention
 - [x] AWS deployment script created
 - [x] GCP deployment script created
 - [x] Azure deployment script created
@@ -67,10 +67,15 @@
 ### ⏳ Pending (Manual Steps Required)
 
 - [ ] **Repository Description Updated**
-  - Change: Frasberg AI → Frasberg AI
+  - Change: `Sofia Core` branding → `Frasberg` branding
   - Instructions: See GITHUB_SETTINGS_WEB_UI_GUIDE.md
   - CLI: bash GITHUB_SETTINGS_AUTOMATION.sh
   - Time: 2 minutes
+
+- [ ] **Existing Release Titles Updated**
+  - Change: replace any remaining `Sofia` / `Sofia Core` release titles or bodies with `Frasberg`
+  - Instructions: Edit existing GitHub releases manually from the Releases UI
+  - Time: 5-10 minutes
 
 - [ ] **Repository Made Private**
   - Visibility: public → private
@@ -87,8 +92,8 @@
   - Time: 2 minutes
 
 - [ ] **Repository Renamed (Optional)**
-  - Old name: frasberg-ai-backend
-  - New name: frasberg-ai-backend
+  - Old name: frasberg
+  - New name: frasberg
   - Impact: Changes repository URL
   - Action required: Update local git remotes
   - Time: 5 minutes
@@ -118,8 +123,8 @@
 
 - [ ] Clone/pull latest code
   ```bash
-  git clone https://github.com/frasberg/frasberg-ai-backend.git
-  cd frasberg-ai-backend
+  git clone https://github.com/FrasbergAI/frasberg.git
+  cd frasberg
   ```
 
 - [ ] Install dependencies
@@ -464,7 +469,7 @@
   ```
 
 - [ ] Create GitHub Release
-  - See: https://github.com/frasberg/frasberg-ai-backend/releases/new
+  - See: https://github.com/FrasbergAI/frasberg/releases/new
   - Tag: v6.5.0
   - Title: "Frasberg AI v6.5.0"
   - Description: Complete rebranding and system integration

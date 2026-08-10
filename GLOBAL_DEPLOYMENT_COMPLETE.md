@@ -16,7 +16,7 @@
 
 ### Release Status: **PUBLIC AND LIVE**
 
-**Release URL:** https://github.com/frasberg/frasberg-ai-backend/releases/tag/v1.0.0
+**Release URL:** https://github.com/FrasbergAI/frasberg/releases/tag/v1.0.0
 
 **Verification Results:**
 - ✅ Release v1.0.0 exists on GitHub
@@ -34,8 +34,8 @@
    - Checksum verification file
 
 **Download URLs:**
-- ZIP: https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
-- SHA256: https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip.sha256
+- ZIP: https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
+- SHA256: https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip.sha256
 
 ---
 
@@ -243,12 +243,12 @@ open http://localhost:3000
 
 1. **Download:**
    ```bash
-   wget https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
+   wget https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
    ```
 
 2. **Verify:**
    ```bash
-   wget https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip.sha256
+   wget https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip.sha256
    sha256sum -c frasberg-ai-v1.0.0-public-final.zip.sha256
    ```
 
@@ -283,14 +283,14 @@ open http://localhost:3000
 ## 🔗 IMPORTANT URLS
 
 **Primary:**
-- Release: https://github.com/frasberg/frasberg-ai-backend/releases/tag/v1.0.0
-- Repository: https://github.com/frasberg/frasberg-ai-backend
-- Issues: https://github.com/frasberg/frasberg-ai-backend/issues
-- Discussions: https://github.com/frasberg/frasberg-ai-backend/discussions
+- Release: https://github.com/FrasbergAI/frasberg/releases/tag/v1.0.0
+- Repository: https://github.com/FrasbergAI/frasberg
+- Issues: https://github.com/FrasbergAI/frasberg/issues
+- Discussions: https://github.com/FrasbergAI/frasberg/discussions
 
 **Download:**
-- ZIP: https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
-- SHA256: https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip.sha256
+- ZIP: https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
+- SHA256: https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip.sha256
 
 **Documentation:**
 - API Docs (local): http://localhost:8000/docs

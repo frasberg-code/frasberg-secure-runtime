@@ -343,7 +343,7 @@ gh issue create --title "[GOOD FIRST ISSUE] ..." --label "good-first-issue"
 ## 📞 Contact & Support
 
 - **GitHub**: https://github.com/FrasbergAI/frasberg
-- **Issues**: https://github.com/frasberg/frasberg/issues
+- **Issues**: https://github.com/FrasbergAI/frasberg/issues
 - **Email**: hello@frasberg-ai.ai
 - **Research**: research@frasberg-ai.ai
 - **Bounties**: bounties@frasberg-ai.ai

@@ -1,9 +1,9 @@
 # DNA Computing Integration in Distributed Intelligence Systems: The Frasberg AI Approach
 
-**Authors:** Frasberg AI Research Team  
-**Affiliation:** Frasberg AI Project  
-**Contact:** research@frasberg-ai.ai  
-**Code:** https://github.com/frasberg/frasberg-ai-backend
+**Authors:** Frasberg AI Research Team
+**Affiliation:** Frasberg AI Project
+**Contact:** research@frasberg-ai.ai
+**Code:** https://github.com/FrasbergAI/frasberg
 
 ---
 
@@ -36,7 +36,7 @@ Traditional distributed systems face three critical challenges:
 
 DNA computing addresses these through:
 - **Ultra-Density**: 1 exabyte/gram vs. 1 terabyte/gram (10⁶× improvement)
-- **Massive Parallelism**: 10¹⁵ molecules vs. 10³ cores (10¹²× improvement)  
+- **Massive Parallelism**: 10¹⁵ molecules vs. 10³ cores (10¹²× improvement)
 - **Energy Efficiency**: 0.01 picojoules vs. 1 nanojoule per operation (10⁵× improvement)
 
 ---
@@ -110,22 +110,22 @@ Key innovation: System works in multiple modes
 async def generate(request: GenerateRequest):
     """
     Generate using DNA-inspired parallelism
-    
+
     Instead of sequential search, we simulate
     massive parallel operations similar to
     DNA molecular computing.
     """
-    
+
     # Simulate parallel operations
     parallel_ops = len(request.prompt) * 4  # 4 bases
-    
+
     # Energy calculation (conservative)
     energy_pj = parallel_ops * 0.01
-    
+
     # Compare to silicon
     silicon_energy_nj = parallel_ops * 1.0
     efficiency = silicon_energy_nj / (energy_pj / 1000)
-    
+
     return {
         "parallel_operations": parallel_ops,
         "energy_efficiency": f"{efficiency:.0f}x silicon"
@@ -240,15 +240,15 @@ Frasberg AI demonstrates that DNA computing principles can be practically integr
 
 ## 8. Availability
 
-**Code:** https://github.com/frasberg/frasberg-ai-backend  
-**License:** MIT (fully open)  
-**Documentation:** https://docs.frasberg-ai.ai  
+**Code:** https://github.com/FrasbergAI/frasberg
+**License:** MIT (fully open)
+**Documentation:** https://docs.frasberg-ai.ai
 
 **To Reproduce:**
 
 ```bash
-git clone https://github.com/frasberg/frasberg-ai-backend
-cd frasberg-ai-backend
+git clone https://github.com/FrasbergAI/frasberg
+cd frasberg
 pip install -r backend/requirements-v5.1.txt
 cd backend/app
 python -m uvicorn main:app --reload
@@ -302,5 +302,5 @@ See `V5.1_QUICK_START.md` for complete API documentation.
 
 ---
 
-*Submitted to arXiv (cs.DC, cs.ET)  
+*Submitted to arXiv (cs.DC, cs.ET)
 Target Conference: NeurIPS 2026 (May deadline)*

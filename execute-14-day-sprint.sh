@@ -8,7 +8,7 @@ echo "║                                                        ║"
 echo "╚════════════════════════════════════════════════════════╝"
 echo ""
 
-cd /workspaces/frasberg-ai-backend
+cd /workspaces/frasberg
 
 # ============================================================
 # WEEK 1: FOUNDATION & LAUNCH
@@ -57,8 +57,8 @@ Frasberg AI is the first **open-source AI infrastructure** that combines:
 
 \`\`\`bash
 # Clone and run
-git clone https://github.com/frasberg/frasberg-ai-backend
-cd frasberg-ai-backend
+git clone https://github.com/FrasbergAI/frasberg
+cd frasberg
 ./quick-start.sh
 
 # Access at http://localhost:8000
@@ -160,8 +160,8 @@ Frasberg AI is built on rigorous research:
 
 ### 2. Install Locally (5 minutes)
 \`\`\`bash
-git clone https://github.com/frasberg/frasberg-ai-backend
-cd frasberg-ai-backend
+git clone https://github.com/FrasbergAI/frasberg
+cd frasberg
 ./quick-start.sh
 \`\`\`
 
@@ -211,7 +211,7 @@ print(response['response'])
 ## 🤝 Community
 
 - **Discord**: https://discord.gg/frasberg-ai
-- **GitHub**: https://github.com/frasberg/frasberg-ai-backend
+- **GitHub**: https://github.com/FrasbergAI/frasberg
 - **Twitter**: @frasberg_ai_ai
 - **Email**: hello@frasberg-ai.ai
 
@@ -264,8 +264,8 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING_V2.md)
 ## 🎯 Ready to Build?
 
 \`\`\`bash
-git clone https://github.com/frasberg/frasberg-ai-backend
-cd frasberg-ai-backend
+git clone https://github.com/FrasbergAI/frasberg
+cd frasberg
 ./quick-start.sh
 \`\`\`
 
@@ -313,8 +313,8 @@ cat > marketing/video/DEMO_SCRIPT.md << 'VIDEO'
 
 ### Demo 1 - Quick Start (30 seconds)
 \`\`\`bash
-git clone https://github.com/frasberg/frasberg-ai-backend
-cd frasberg-ai-backend
+git clone https://github.com/FrasbergAI/frasberg
+cd frasberg
 ./quick-start.sh
 # Show services starting
 curl http://localhost:8000/health
@@ -366,7 +366,7 @@ print(response['response'])
 **Narration**: "Frasberg AI is MIT licensed, fully open source, and available now. Join 1,000+ developers building the future of AI."
 
 **Text on screen**:
-- GitHub: github.com/frasberg/frasberg-ai-backend
+- GitHub: github.com/FrasbergAI/frasberg
 - Discord: discord.gg/frasberg-ai
 - Docs: docs.frasberg-ai.ai
 
@@ -495,8 +495,8 @@ Frasberg AI is **MIT licensed**. Forever.
 
 \`\`\`bash
 # Clone and run
-git clone https://github.com/frasberg/frasberg-ai-backend
-cd frasberg-ai-backend
+git clone https://github.com/FrasbergAI/frasberg
+cd frasberg
 ./quick-start.sh
 
 # Or install SDK
@@ -546,7 +546,7 @@ pip install frasberg-sdk
 We're building this together:
 
 - **Discord**: https://discord.gg/frasberg-ai
-- **GitHub**: https://github.com/frasberg/frasberg-ai-backend
+- **GitHub**: https://github.com/FrasbergAI/frasberg
 - **Twitter**: @frasberg_ai_ai
 
 ### Contributing
@@ -573,8 +573,8 @@ Frasberg AI represents the **post-silicon era**:
 ## Try It Today
 
 \`\`\`bash
-git clone https://github.com/frasberg/frasberg-ai-backend
-cd frasberg-ai-backend
+git clone https://github.com/FrasbergAI/frasberg
+cd frasberg
 ./quick-start.sh
 \`\`\`
 
@@ -594,7 +594,7 @@ Tomorrow, we're building the future of AI—**together**.
 
 *Frasberg AI - Planetary-Scale Intelligence for Everyone*
 
-[Get Started](#) | [Read Docs](../docs/) | [Join Discord](https://discord.gg/frasberg-ai) | [Star on GitHub](https://github.com/frasberg/frasberg-ai-backend)
+[Get Started](#) | [Read Docs](../docs/) | [Join Discord](https://discord.gg/frasberg-ai) | [Star on GitHub](https://github.com/FrasbergAI/frasberg)
 BLOG
 
 echo "  ✅ Launch blog post created (3,000+ words)"
@@ -662,7 +662,7 @@ MIT licensed. Forever free.
 ✓ Community-governed
 ✓ Commercial use allowed
 
-Star on GitHub: github.com/frasberg/frasberg-ai-backend
+Star on GitHub: github.com/FrasbergAI/frasberg
 
 **Tweet 7** (Research):
 Backed by real research:
@@ -695,7 +695,7 @@ The future of AI isn't bigger silicon.
 
 It's smarter systems.
 
-Start building today: github.com/frasberg/frasberg-ai-backend
+Start building today: github.com/FrasbergAI/frasberg
 
 ---
 

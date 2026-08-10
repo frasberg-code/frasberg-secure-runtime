@@ -8,7 +8,7 @@ echo "║                                                        ║"
 echo "╚════════════════════════════════════════════════════════╝"
 echo ""
 
-cd /workspaces/frasberg-ai-backend
+cd /workspaces/frasberg
 
 # ============================================================
 # TRACK 1: WEEK 3 - RESEARCH PAPER (Background)
@@ -22,10 +22,10 @@ echo "  → Creating research paper..."
     cat > research/papers/dna-computing/PAPER.md << 'PAPER'
 # DNA Computing Integration in Distributed Intelligence Systems: The Frasberg AI Approach
 
-**Authors:** Frasberg AI Research Team  
-**Affiliation:** Frasberg AI Project  
-**Contact:** research@frasberg-ai.ai  
-**Code:** https://github.com/frasberg/frasberg-ai-backend
+**Authors:** Frasberg AI Research Team
+**Affiliation:** Frasberg AI Project
+**Contact:** research@frasberg-ai.ai
+**Code:** https://github.com/FrasbergAI/frasberg
 
 ---
 
@@ -58,7 +58,7 @@ Traditional distributed systems face three critical challenges:
 
 DNA computing addresses these through:
 - **Ultra-Density**: 1 exabyte/gram vs. 1 terabyte/gram (10⁶× improvement)
-- **Massive Parallelism**: 10¹⁵ molecules vs. 10³ cores (10¹²× improvement)  
+- **Massive Parallelism**: 10¹⁵ molecules vs. 10³ cores (10¹²× improvement)
 - **Energy Efficiency**: 0.01 picojoules vs. 1 nanojoule per operation (10⁵× improvement)
 
 ---
@@ -132,22 +132,22 @@ Key innovation: System works in multiple modes
 async def generate(request: GenerateRequest):
     """
     Generate using DNA-inspired parallelism
-    
+
     Instead of sequential search, we simulate
     massive parallel operations similar to
     DNA molecular computing.
     """
-    
+
     # Simulate parallel operations
     parallel_ops = len(request.prompt) * 4  # 4 bases
-    
+
     # Energy calculation (conservative)
     energy_pj = parallel_ops * 0.01
-    
+
     # Compare to silicon
     silicon_energy_nj = parallel_ops * 1.0
     efficiency = silicon_energy_nj / (energy_pj / 1000)
-    
+
     return {
         "parallel_operations": parallel_ops,
         "energy_efficiency": f"{efficiency:.0f}x silicon"
@@ -262,15 +262,15 @@ Frasberg AI demonstrates that DNA computing principles can be practically integr
 
 ## 8. Availability
 
-**Code:** https://github.com/frasberg/frasberg-ai-backend  
-**License:** MIT (fully open)  
-**Documentation:** https://docs.frasberg-ai.ai  
+**Code:** https://github.com/FrasbergAI/frasberg
+**License:** MIT (fully open)
+**Documentation:** https://docs.frasberg-ai.ai
 
 **To Reproduce:**
 
 ```bash
-git clone https://github.com/frasberg/frasberg-ai-backend
-cd frasberg-ai-backend
+git clone https://github.com/FrasbergAI/frasberg
+cd frasberg
 pip install -r backend/requirements-v5.1.txt
 cd backend/app
 python -m uvicorn main:app --reload
@@ -324,7 +324,7 @@ See `V5.1_QUICK_START.md` for complete API documentation.
 
 ---
 
-*Submitted to arXiv (cs.DC, cs.ET)  
+*Submitted to arXiv (cs.DC, cs.ET)
 Target Conference: NeurIPS 2026 (May deadline)*
 PAPER
 
@@ -372,7 +372,7 @@ Welcome! We're building the future of AI together.
 ## 🌟 Quick Start
 
 1. **Fork** the repository
-2. **Clone**: `git clone https://github.com/YOUR_USERNAME/frasberg-ai-backend`
+2. **Clone**: `git clone https://github.com/YOUR_USERNAME/frasberg`
 3. **Branch**: `git checkout -b feature/amazing-feature`
 4. **Commit**: `git commit -m "Add amazing feature"`
 5. **Push**: `git push origin feature/amazing-feature`
@@ -381,7 +381,7 @@ Welcome! We're building the future of AI together.
 ## 💬 Community
 
 - **Discord**: https://discord.gg/frasberg-ai
-- **GitHub Discussions**: For long-form conversations  
+- **GitHub Discussions**: For long-form conversations
 - **Twitter**: @frasberg_ai_ai
 - **Email**: hello@frasberg-ai.ai
 
@@ -419,7 +419,7 @@ New to the project? Look for `good-first-issue` labels:
 - 🟡 **Medium** (half day): Some experience needed
 - 🔴 **Hard** (multiple days): Significant expertise
 
-[View Good First Issues →](https://github.com/frasberg/frasberg-ai-backend/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+[View Good First Issues →](https://github.com/FrasbergAI/frasberg/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 
 ## 📝 Pull Request Guidelines
 
@@ -462,11 +462,11 @@ How has this been tested?
 ```python
 def example_function(param: str, count: int = 10) -> dict:
     """Brief description.
-    
+
     Args:
         param: Description
         count: Description
-        
+
     Returns:
         Description of return value
     """
@@ -785,7 +785,7 @@ Welcome to Frasberg AI! 👋
 Building planetary-scale AI infrastructure, open source and accessible.
 
 🔗 **Quick Links:**
-- GitHub: https://github.com/frasberg/frasberg-ai-backend
+- GitHub: https://github.com/FrasbergAI/frasberg
 - Docs: https://docs.frasberg-ai.ai
 
 🎯 **Get Started:**

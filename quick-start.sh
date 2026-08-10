@@ -28,7 +28,7 @@ echo ""
 echo "Deploying Canonical Core..."
 cd deploy/canonical-core 2>/dev/null || {
     echo "⚠️  Deploy directory not found, starting development mode..."
-    cd /workspaces/frasberg-ai-backend 2>/dev/null || cd .
+    cd /workspaces/frasberg 2>/dev/null || cd .
     python -m pip install -q -r backend/requirements.txt 2>/dev/null
     echo ""
     echo "Starting development server..."

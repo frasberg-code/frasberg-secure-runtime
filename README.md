@@ -1,13 +1,13 @@
-# Frasberg AI
+# Frasberg
 
-**Behavioral governance engine for Frasberg AI. Includes tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules. Used across Emerald Estates® and Orbit systems for identity-preserving conversational output.**
+**Behavioral governance engine for Frasberg. Includes tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules. Used across Emerald Estates® and Orbit systems for identity-preserving conversational output.**
 
 ## 🚀 Quick Start
 
 ```bash
 # Clone repository
-git clone https://github.com/frasberg/frasberg-ai-backend
-cd frasberg-ai-backend
+git clone https://github.com/FrasbergAI/frasberg
+cd frasberg
 
 # Install dependencies
 pnpm install
@@ -57,9 +57,9 @@ MIT License - See [LICENSE](LICENSE) file
 
 ## 🤝 Support
 
-- **Repository**: https://github.com/frasberg/frasberg-ai-backend
-- **Issues**: https://github.com/frasberg/frasberg-ai-backend/issues
+- **Repository**: https://github.com/FrasbergAI/frasberg
+- **Issues**: https://github.com/FrasbergAI/frasberg/issues
 
 ---
 
-**Frasberg AI** - Institution-Grade Intelligence
+**Frasberg** - Institution-Grade Intelligence

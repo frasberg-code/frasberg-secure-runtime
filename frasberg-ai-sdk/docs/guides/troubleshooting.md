@@ -393,7 +393,7 @@ If you can't resolve your issue:
    - [Best Practices](best-practices.md)
 
 2. **Search Existing Issues:**
-   - Visit: https://github.com/frasberg/frasberg-ai-backend/issues
+   - Visit: https://github.com/FrasbergAI/frasberg/issues
 
 3. **Create New Issue:**
    - Use bug report template

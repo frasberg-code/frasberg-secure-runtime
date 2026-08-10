@@ -2,7 +2,7 @@
 
 ## 📋 Overview
 
-This document summarizes the complete rebranding from **Frasberg AI** to **Frasberg AI**.
+This document summarizes the tracked-file cleanup that completed the **Sofia / Sofia Core → Frasberg** rebrand and aligned active repository links with the current `FrasbergAI/frasberg` repository.
 
 **Status**: ✅ 99% Complete (45 files updated across 6 commits)
 
@@ -13,7 +13,7 @@ This document summarizes the complete rebranding from **Frasberg AI** to **Frasb
 ## 🎯 What's Been Done
 
 ### ✨ Code & Modules (15 files)
-- ✅ All package names: `@frasberg/*` → `@frasberg/*`
+- ✅ All package names use the `@frasberg/*` scope
 - ✅ All imports updated throughout codebase
 - ✅ All references in source files updated
 - ✅ TypeScript compilation verified
@@ -24,7 +24,7 @@ This document summarizes the complete rebranding from **Frasberg AI** to **Frasb
   - `aws-deploy-frasberg-ai.sh`
   - `gcp-deploy-frasberg-ai.sh`
   - `azure-deploy-frasberg-ai.sh`
-- ✅ Container names: `frasberg_*` → `frasberg_*`
+- ✅ Container names use the `frasberg_*` prefix
 - ✅ Service endpoints updated
 
 ### 📚 Documentation (8 files)
@@ -53,9 +53,9 @@ This document summarizes the complete rebranding from **Frasberg AI** to **Frasb
 | Old Name | New Name | Purpose |
 |----------|----------|----------|
 | FRASBERG_AI_MODEL | FRASBERG_CORE_MODEL | Default LLM model |
-| FRASBERG_MODEL_ENDPOINT | FRASBERG_MODEL_ENDPOINT | Model API endpoint |
-| FRASBERG_MODEL_API_KEY | FRASBERG_MODEL_API_KEY | Model API credentials |
-| FRASBERG_* (all) | FRASBERG_* | All variables renamed |
+| FRASBERG_MODEL_ENDPOINT | FRASBERG_MODEL_ENDPOINT | Model API endpoint (verified current) |
+| FRASBERG_MODEL_API_KEY | FRASBERG_MODEL_API_KEY | Model API credentials (verified current) |
+| Other `FRASBERG_*` variables | Other `FRASBERG_*` variables | Audited to confirm current naming |
 
 ---
 
@@ -64,8 +64,7 @@ This document summarizes the complete rebranding from **Frasberg AI** to **Frasb
 All packages follow the pattern:
 
 ```
-OLD: @frasberg/{MODULE}
-NEW: @frasberg/{MODULE}
+CURRENT: @frasberg/{MODULE}
 ```
 
 **Modules:**
@@ -82,23 +81,15 @@ NEW: @frasberg/{MODULE}
 
 **Container Names:**
 ```
-OLD: frasberg_canonical_core
-NEW: frasberg_canonical_core
-
-OLD: frasberg_education_fork
-NEW: frasberg_education_fork
-
-OLD: frasberg_healthcare_fork
-NEW: frasberg_healthcare_fork
-
-OLD: frasberg_analytics
-NEW: frasberg_analytics
+frasberg_canonical_core
+frasberg_education_fork
+frasberg_healthcare_fork
+frasberg_analytics
 ```
 
 **Networks:**
 ```
-OLD: frasberg-network
-NEW: frasberg-network
+frasberg-network
 ```
 
 ---
@@ -128,9 +119,9 @@ Go to: https://github.com/FrasbergAI/frasberg/settings
 
 #### 1. **Update Repository Description**
 ```
-OLD: "Behavioral governance engine for Frasberg AI. Includes tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules. Used across Emerald Estates® and Orbit systems for identity-preserving conversational output."
+OLD: "Behavioral governance engine for Sofia Core. Includes tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules. Used across Emerald Estates® and Orbit systems for identity-preserving conversational output."
 
-NEW: "Behavioral governance engine for Frasberg AI. Includes tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules. Used across Emerald Estates® and Orbit systems for identity-preserving conversational output."
+NEW: "Behavioral governance engine for Frasberg. Includes tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules. Used across Emerald Estates® and Orbit systems for identity-preserving conversational output."
 ```
 
 **Steps:**
@@ -138,7 +129,17 @@ NEW: "Behavioral governance engine for Frasberg AI. Includes tonal modulation, h
 2. Update text
 3. Save
 
-#### 2. **Make Repository Private**
+#### 2. **Update Existing GitHub Releases**
+
+Existing published releases are GitHub-side metadata and do not change automatically when tracked files are updated.
+
+**Update manually in GitHub:**
+1. Open the repository Releases page
+2. Edit any release title or body that still says `Sofia` or `Sofia Core`
+3. Replace active branding with `Frasberg`
+4. Keep historical references only when explicitly labeled as historical context
+
+#### 3. **Make Repository Private**
 
 **Steps:**
 1. Scroll to **Danger Zone** section
@@ -147,17 +148,17 @@ NEW: "Behavioral governance engine for Frasberg AI. Includes tonal modulation, h
 4. Type repository name to confirm
 5. Click **"I understand, change repository visibility"**
 
-#### 3. **Disable Forking**
+#### 4. **Disable Forking**
 
 **Steps:**
 1. Go to **Features** section
 2. Uncheck **"Allow forking"** checkbox
 3. Save
 
-#### 4. **Optional: Rename Repository**
+#### 5. **Optional: Rename Repository**
 
 **If desired, rename:**
-- `frasberg-ai-backend` → `frasberg`
+- `frasberg` → `frasberg` (no rename needed if the current repository name is already correct)
 
 **Steps:**
 1. Scroll to **Danger Zone**
@@ -176,12 +177,12 @@ NEW: "Behavioral governance engine for Frasberg AI. Includes tonal modulation, h
 All changes are organized in 7 logical commits:
 
 ```
-1️⃣  refactor: rename metadata files - Frasberg to Frasberg
-2️⃣  refactor: rename package.json files - Frasberg to Frasberg
-3️⃣  refactor: rename TypeScript sources - Frasberg to Frasberg
-4️⃣  docs: rename README files - Frasberg to Frasberg
-5️⃣  refactor: rename Docker configs and cloud deployment scripts - Frasberg to Frasberg
-6️⃣  refactor: rename core files - Frasberg to Frasberg (package.json, README, CLI, SDK, env)
+1️⃣  refactor: rename metadata files for Frasberg branding
+2️⃣  refactor: align package metadata with current Frasberg naming
+3️⃣  refactor: update TypeScript sources for Frasberg branding
+4️⃣  docs: rename README files for Frasberg branding
+5️⃣  refactor: align Docker configs and cloud deployment scripts with Frasberg naming
+6️⃣  refactor: update core files for Frasberg naming (package.json, README, CLI, SDK, env)
 7️⃣  docs: add rebranding completion guide and Frasberg system manifest
 ```
 
@@ -207,6 +208,7 @@ Each commit is atomic and can be reviewed individually.
 - [ ] Repository made private (MANUAL)
 - [ ] Forking disabled (MANUAL)
 - [ ] Repository description updated (MANUAL)
+- [ ] Existing GitHub release titles/bodies updated (MANUAL)
 - [ ] Repository renamed (OPTIONAL - MANUAL)
 
 ---
@@ -218,7 +220,9 @@ Each commit is atomic and can be reviewed individually.
 **Status**: Ready for production deployment
 
 **What's Left**: 
-- 3-4 manual GitHub settings changes (2 minutes)
+- GitHub About text update
+- Existing GitHub release title/body cleanup
+- Any optional repository settings changes
 
 **Result After Completion**:
 - ✅ Frasberg AI is fully rebranded

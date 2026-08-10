@@ -69,6 +69,8 @@ Edit each `.env` file and replace the placeholder values with your actual API ke
 
 **Configuration:** These are automatically configured to point to your Supabase Functions endpoint
 
+> Note: the deployed Supabase function path may still use `frasberg-ai-backend` as a compatibility identifier. Treat that as infrastructure naming, not active repository branding.
+
 ### Other Services (Optional)
 - **MONGO_API_KEY**: MongoDB Atlas API key
 - **DAILY_API_KEY**: Daily.co WebRTC API key
@@ -138,7 +140,7 @@ const apiKey = Deno.env.get("ELEVENLABS_FRASBERG_API_KEY");
 ## 🗂️ File Structure
 
 ```
-frasberg-ai-backend/
+frasberg/
 ├── .env.example              # Root environment template
 ├── .env                      # Root environment (DO NOT COMMIT)
 ├── .gitignore                # Protects .env files

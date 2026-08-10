@@ -6,11 +6,11 @@
 
 ## 🔗 Essential URLs
 
-**GitHub Release:** https://github.com/frasberg/frasberg-ai-backend/releases/tag/v1.0.0
+**GitHub Release:** https://github.com/FrasbergAI/frasberg/releases/tag/v1.0.0
 
-**Download ZIP:** https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
+**Download ZIP:** https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
 
-**SHA256 Checksum:** https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip.sha256
+**SHA256 Checksum:** https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip.sha256
 
 ---
 
@@ -19,10 +19,10 @@
 ### Download and Verify
 ```bash
 # Download
-wget https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
+wget https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
 
 # Verify checksum
-wget https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip.sha256
+wget https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip.sha256
 sha256sum -c frasberg-ai-v1.0.0-public-final.zip.sha256
 
 # Extract
@@ -139,19 +139,19 @@ npm start
 
 ## 🔒 Package Details
 
-**File:** frasberg-ai-v1.0.0-public-final.zip  
-**Size:** 217.23 MB  
-**SHA256:** `29115fc23aa29f0db250bc183790f2b63d2913c51065de00830185ffb9f44aa7`  
-**License:** MIT  
+**File:** frasberg-ai-v1.0.0-public-final.zip
+**Size:** 217.23 MB
+**SHA256:** `29115fc23aa29f0db250bc183790f2b63d2913c51065de00830185ffb9f44aa7`
+**License:** MIT
 **Status:** Production Ready
 
 ---
 
 ## 📧 Support
 
-**Issues:** https://github.com/frasberg/frasberg-ai-backend/issues  
-**Discussions:** https://github.com/frasberg/frasberg-ai-backend/discussions  
-**Repository:** https://github.com/frasberg/frasberg-ai-backend
+**Issues:** https://github.com/FrasbergAI/frasberg/issues
+**Discussions:** https://github.com/FrasbergAI/frasberg/discussions
+**Repository:** https://github.com/FrasbergAI/frasberg
 
 ---
 

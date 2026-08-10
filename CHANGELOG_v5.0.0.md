@@ -430,8 +430,8 @@ The `/api/v5/consciousness` endpoints are **educational** and **philosophical to
 ## 📞 Support & Community
 
 - **Documentation:** [docs/README.md](docs/README.md)
-- **Issues:** https://github.com/frasberg/frasberg/issues
-- **Discussions:** https://github.com/frasberg/frasberg/discussions
+- **Issues:** https://github.com/FrasbergAI/frasberg/issues
+- **Discussions:** https://github.com/FrasbergAI/frasberg/discussions
 - **Email:** contact@168emeraldestatesllc.com
 
 ---

@@ -5,7 +5,7 @@ Welcome! We're building the future of AI together.
 ## 🌟 Quick Start
 
 1. **Fork** the repository
-2. **Clone**: `git clone https://github.com/YOUR_USERNAME/frasberg-ai-backend`
+2. **Clone**: `git clone https://github.com/YOUR_USERNAME/frasberg`
 3. **Branch**: `git checkout -b feature/amazing-feature`
 4. **Commit**: `git commit -m "Add amazing feature"`
 5. **Push**: `git push origin feature/amazing-feature`
@@ -52,7 +52,7 @@ New to the project? Look for `good-first-issue` labels:
 - 🟡 **Medium** (half day): Some experience needed
 - 🔴 **Hard** (multiple days): Significant expertise
 
-[View Good First Issues →](https://github.com/frasberg/frasberg-ai-backend/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+[View Good First Issues →](https://github.com/FrasbergAI/frasberg/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 
 ## 📝 Pull Request Guidelines
 

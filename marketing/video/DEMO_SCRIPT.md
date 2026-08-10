@@ -27,8 +27,8 @@
 
 ### Demo 1 - Quick Start (30 seconds)
 \`\`\`bash
-git clone https://github.com/frasberg/frasberg-ai-backend
-cd frasberg-ai-backend
+git clone https://github.com/FrasbergAI/frasberg
+cd frasberg
 ./quick-start.sh
 # Show services starting
 curl http://localhost:8000/health
@@ -80,7 +80,7 @@ print(response['response'])
 **Narration**: "Frasberg AI is MIT licensed, fully open source, and available now. Join 1,000+ developers building the future of AI."
 
 **Text on screen**:
-- GitHub: github.com/frasberg/frasberg-ai-backend
+- GitHub: github.com/FrasbergAI/frasberg
 - Discord: discord.gg/frasberg-ai
 - Docs: docs.frasberg-ai.ai
 

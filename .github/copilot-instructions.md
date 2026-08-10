@@ -1,8 +1,8 @@
-# Copilot Instructions for frasberg-ai-backend
+# Copilot Instructions for frasberg
 
 ## Repository Overview
 
-Frasberg AI Backend is a **behavioral governance engine** for the Frasberg/Frasberg platform. It is a **monorepo** combining:
+Frasberg is a **behavioral governance engine** for the Frasberg platform. It is a **monorepo** combining:
 
 - A **Python FastAPI backend** (`backend/`) with MongoDB for the Frasberg API.
 - **TypeScript packages** (`packages/`, `supabase/frasberg_ai/`, `src/`) implementing tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules.

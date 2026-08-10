@@ -2,7 +2,7 @@
 
 ## 📋 Complete Step-by-Step Instructions for Web Browser
 
-This guide provides detailed instructions for updating Frasberg AI repository settings using the GitHub web interface (no CLI required).
+This guide provides detailed instructions for updating GitHub-side Frasberg repository metadata using the GitHub web interface (no CLI required).
 
 **Estimated Time: 5-10 minutes**
 
@@ -37,7 +37,7 @@ This guide provides detailed instructions for updating Frasberg AI repository se
    - Clear the existing text
    - Paste the new description:
    ```
-   Behavioral governance engine for Frasberg AI. Includes tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules. Used across Emerald Estates® and Orbit systems for identity-preserving conversational output.
+   Behavioral governance engine for Frasberg. Includes tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules. Used across Emerald Estates® and Orbit systems for identity-preserving conversational output.
    ```
 
 4. **Save Changes**
@@ -137,13 +137,13 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 2. **Check Settings Page**
    - Go to Settings: https://github.com/FrasbergAI/frasberg/settings
    - Verify:
-     - ✅ Description shows new Frasberg AI text
+     - ✅ Description shows the current Frasberg text
      - ✅ Repository visibility is **Private**
      - ✅ "Allow forking" checkbox is **unchecked**
 
 ### ✅ Final Verification Checklist
 
-- [ ] Description updated to Frasberg AI version
+- [ ] Description updated to Frasberg version
 - [ ] Repository is PRIVATE (lock icon visible)
 - [ ] Fork button is hidden (forking disabled)
 - [ ] Only collaborators can access the repository
@@ -151,7 +151,26 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 
 ---
 
-## Step 5: Rename Repository (OPTIONAL - 2 minutes)
+## Step 5: Update Existing Release Metadata (2-5 minutes)
+
+### Why this is manual
+- Existing release titles and descriptions are GitHub metadata, not repository files
+- A pull request cannot retroactively rename releases that are already published
+
+### Instructions
+1. Go to https://github.com/FrasbergAI/frasberg/releases
+2. Open each published release that still shows `Sofia` or `Sofia Core`
+3. Click **Edit**
+4. Update the title and any active branding in the release body to `Frasberg`
+5. Keep historical context only if it is clearly labeled as historical
+
+### ✅ Verification
+- The Releases page shows `Frasberg` branding for active release titles
+- No release title on the repository homepage still shows `Sofia` or `Sofia Core`
+
+---
+
+## Step 6: Rename Repository (OPTIONAL - 2 minutes)
 
 ### ⚠️ Important Notes
 - This will change the repository URL
@@ -178,12 +197,12 @@ This guide provides detailed instructions for updating Frasberg AI repository se
    - GitHub will process the rename
 
 5. **Update Local Git Remote** (on your computer)
-   
+
    Open terminal/command prompt and run:
    ```bash
    git remote set-url origin https://github.com/FrasbergAI/frasberg.git
    ```
-   
+
    Verify the change:
    ```bash
    git remote -v
@@ -200,20 +219,24 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 ## 📋 Summary Checklist
 
 ### Required Steps
-- [ ] Step 1: Description updated to Frasberg AI text
+- [ ] Step 1: Description updated to Frasberg text
 - [ ] Step 2: Repository is now PRIVATE
 - [ ] Step 3: Forking is DISABLED
 - [ ] Step 4: All changes verified
 
+### Required Manual Branding Steps
+- [ ] Step 1: Description updated to Frasberg text
+- [ ] Step 5: Existing release metadata updated
+
 ### Optional Steps
-- [ ] Step 5: Repository renamed to `frasberg`
+- [ ] Step 6: Repository renamed to `frasberg`
 
 ---
 
 ## 🚨 Troubleshooting
 
 ### "Change repository visibility" button is grayed out
-**Solution:** 
+**Solution:**
 - You may not have admin permissions
 - Contact repository owner for access
 - Or use the GitHub CLI method with proper authentication
@@ -242,10 +265,10 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 ## 🎯 After Configuration Complete
 
 ### What Changed
-✅ Repository is now **PRIVATE** - only invited users can access  
-✅ Forking is **DISABLED** - prevents external copies  
-✅ Description updated to **Frasberg AI** branding  
-✅ (Optional) Repository renamed to **frasberg**  
+✅ Repository is now **PRIVATE** - only invited users can access
+✅ Forking is **DISABLED** - prevents external copies
+✅ Description updated to **Frasberg** branding
+✅ (Optional) Repository renamed to **frasberg**
 
 ### Next Steps
 1. Update project documentation linking to new repository

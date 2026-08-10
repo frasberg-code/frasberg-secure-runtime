@@ -19,7 +19,7 @@ NC='\033[0m' # No Color
 
 # Check if we're in the right directory
 if [ ! -f "backend/server.py" ]; then
-    echo -e "${RED}❌ Error: Must run from frasberg-ai-backend root directory${NC}"
+    echo -e "${RED}❌ Error: Must run from frasberg root directory${NC}"
     exit 1
 fi
 

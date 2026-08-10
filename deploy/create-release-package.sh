@@ -88,11 +88,11 @@ chmod +x deploy/post-pr-activation.sh
 ## Documentation
 
 - API Docs: http://localhost:8000/docs (after deployment)
-- Repository: https://github.com/frasberg/frasberg-ai-backend
+- Repository: https://github.com/FrasbergAI/frasberg
 
 ## Support
 
-- Issues: https://github.com/frasberg/frasberg-ai-backend/issues
+- Issues: https://github.com/FrasbergAI/frasberg/issues
 
 ---
 
