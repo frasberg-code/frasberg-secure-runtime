@@ -62,4 +62,4 @@ MIT License - See [LICENSE](LICENSE) file
 
 ---
 
-**Frasberg AI** - Institution-Grade Intelligence
+**Frasberg** - Institution-Grade Intelligence
