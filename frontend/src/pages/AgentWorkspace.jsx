@@ -155,6 +155,35 @@ export default function AgentWorkspace() {
     } catch (e) { toast.error(String(e.message || e)); }
     setGhBusy(false);
   };
+  const [ghSynced, setGhSynced] = useState(null);
+  const [ghSyncBusy, setGhSyncBusy] = useState(false);
+  const syncAgents = async () => {
+    setGhSyncBusy(true);
+    try {
+      const res = await fetch(`${API}/github/agent-sync`, { method: "POST", credentials: "include" });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.detail || "Sync failed");
+      const list = await fetch(`${API}/github/synced-agents`, { credentials: "include" }).then((r) => r.json());
+      setGhSynced(list.agents || []);
+      toast.success(`Scanned ${d.scanned} repos — ${d.synced.length} agent file${d.synced.length === 1 ? "" : "s"} synced`);
+    } catch (e) { toast.error(String(e.message || e)); }
+    setGhSyncBusy(false);
+  };
+  const exportGithub = async (o = ghOwner, r = ghRepo) => {
+    if (!previewHtml) { toast.error("Nothing to push yet — build something with Luchii first"); return; }
+    setGhBusy(true);
+    try {
+      const res = await fetch(`${API}/github/export`, {
+        method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ owner: o, repo: r, html: previewHtml }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.detail || "Push failed");
+      setGhResult(d.repo_url);
+      toast.success(`${d.created_repo ? "Created repo and pushed" : "Pushed"} index.html to ${o}/${r}`);
+    } catch (e) { toast.error(String(e.message || e)); }
+    setGhBusy(false);
+  };
   const snapSplit = () => {
     if (!fullPreview && split === 50) setFullPreview(true);
     else { setFullPreview(false); setSplit(50); try { localStorage.setItem("ws-split", "50"); } catch {} }
@@ -818,6 +847,18 @@ export default function AgentWorkspace() {
                         style={{ borderColor: T.border, color: T.text2 }}>
                         <Github size={12} /> {ghListBusy ? "Loading…" : ghRepos ? "Hide repos" : "My repos"}
                       </button>
+                      <button onClick={() => exportGithub()} disabled={!ghOwner || !ghRepo || ghBusy} data-testid="github-push-btn"
+                        title="Commit this app's HTML to the repo (creates the repo if it's yours and missing)"
+                        className="flex items-center gap-1.5 rounded-md border px-4 py-1.5 text-[13.5px] font-600 transition-opacity disabled:opacity-40"
+                        style={{ borderColor: "#10B981", color: "#10B981" }}>
+                        <ArrowUp size={12} /> Push
+                      </button>
+                      <button onClick={syncAgents} disabled={ghSyncBusy} data-testid="github-agent-sync-btn"
+                        title="Scan all your repos for agent.json / luchii.yaml and sync them into your agent registry"
+                        className="flex items-center gap-1.5 rounded-md border px-4 py-1.5 text-[13.5px] font-600 transition-opacity disabled:opacity-40"
+                        style={{ borderColor: T.border, color: T.text2 }}>
+                        <RefreshCw size={12} className={ghSyncBusy ? "animate-spin" : ""} /> {ghSyncBusy ? "Scanning…" : "Sync agents"}
+                      </button>
                     </div>
                     {ghResult && (
                       <p className="mt-2 font-mono text-[13px]" style={{ color: "#10B981" }} data-testid="github-fork-result">
@@ -860,6 +901,20 @@ export default function AgentWorkspace() {
                             <button onClick={() => forkGithub(r.owner, r.name)} disabled={ghBusy} className="rounded border px-2.5 py-1 text-[12.5px] disabled:opacity-40" style={{ borderColor: T.border, color: T.text2 }} data-testid={`repo-fork-${r.name}`}>Fork</button>
                             <button onClick={() => importGithub(r.owner, r.name)} disabled={ghBusy} className="rounded border px-2.5 py-1 text-[12.5px] disabled:opacity-40" style={{ borderColor: T.accent, color: T.accent }} data-testid={`repo-import-${r.name}`}>Import</button>
                             <button onClick={() => scaffoldGithub(r.owner, r.name)} disabled={ghBusy} className="rounded border px-2.5 py-1 text-[12.5px] disabled:opacity-40" style={{ borderColor: T.border, color: T.text2 }} data-testid={`repo-scaffold-${r.name}`}>Scaffold</button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {ghSynced && (
+                      <div className="mt-3 rounded-md border p-3" style={{ borderColor: T.borderSub }} data-testid="github-synced-agents">
+                        <p className="font-mono text-[12px] uppercase tracking-wide" style={{ color: T.muted }}>Synced agents ({ghSynced.length})</p>
+                        {ghSynced.length === 0 && <p className="mt-1.5 text-[13px]" style={{ color: T.text2 }}>No agent.json or luchii.yaml found in your repos — add one and re-sync.</p>}
+                        {ghSynced.map((s) => (
+                          <div key={s.repo} className="mt-2 flex flex-wrap items-center gap-2" data-testid={`synced-agent-${s.repo.replace("/", "-")}`}>
+                            <Bot size={13} style={{ color: T.accent }} />
+                            <span className="text-[13px] font-600" style={{ color: T.text }}>{s.agent?.name || s.agent?.id || "Agent"}</span>
+                            <span className="font-mono text-[12px]" style={{ color: T.text2 }}>{s.repo} · {s.agent?.file}{s.agent?.model ? ` · ${s.agent.model}` : ""}</span>
+                            <span className="rounded-full border px-2 py-0.5 font-mono text-[11px]" style={{ borderColor: T.border, color: T.muted }}>{s.source === "webhook_push" ? "auto · push" : "manual"}</span>
                           </div>
                         ))}
                       </div>

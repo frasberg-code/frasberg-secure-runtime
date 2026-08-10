@@ -3119,6 +3119,9 @@ api_router.include_router(github_auth.router)
 import marketplace as marketplace_module
 marketplace_module.setup(db)
 api_router.include_router(marketplace_module.router)
+import frasbergos
+frasbergos.setup(db)
+api_router.include_router(frasbergos.router)
 import db_manager
 api_router.include_router(db_manager.router)
 import games_portal

@@ -238,3 +238,16 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Evolution Mode: POST /api/marketplace/{id}/evolution (publisher/admin only — verified admin 200, non-owner 403); Zap toggle button on marketplace cards for signed-in users + green "Evolution Mode — validated auto-updates · lineage" badge (verified on Luchii-7b)
 - NOTE: Legal.jsx already existed (Partner API/SLA/Compliance docs) — new docs merged in, no duplicate routes
 - STILL AWAITING: GITHUB_CLIENT_SECRET
+
+## 2026-06 (cont. 8): Safety Scores + Lineage VERIFIED · FrasbergOS Simulator · Real GitHub Sync
+- Marketplace Safety Scores (0-100 GSS-2 badges) + Evolution History lineage timeline modal — UI VERIFIED via screenshots (badges on all 7 cards, modal opens via item name click, timeline with safety deltas renders)
+- FrasbergOS AIM v2 Simulator at /os (FrasbergOS.jsx + backend frasbergos.py, router /api/os): Kernel v4 status chips (tick/scheduler/GSS-2 membrane/region/load/uptime), Cognition Graph v2 SVG visualizer (10 nodes w/ live activation %, 13 edges, animated pulse particles), 6 agent processes table (state chips running/waiting/evolving/sandboxed, cpu bars, mem, msgs), kernel event stream, Run(2s auto-tick)/Step/Reset controls. Sim state persisted in db.os_sim (global doc). Nav links added (Explore>Products + mobile). Verified: curl state/tick/reset + interactive screenshot (3 steps)
+- Real GitHub syncing expansion (github_auth.py, all real GitHub API calls):
+  - POST /api/github/agent-sync — scans all user repos for agent.json/luchii.yaml (parallel asyncio.gather), upserts db.synced_agents
+  - GET /api/github/synced-agents — user's registry
+  - POST /api/github/export {owner,repo,html} — commits index.html to repo (sha-aware update, auto-creates repo if user's own and missing)
+  - Webhook push events now auto re-sync agent files for linked users (source=webhook_push)
+  - _parse_agent/_fetch_agent_file helpers factored out of import
+- Workspace GitHub card: green "Push" btn (commits previewHtml, data-testid=github-push-btn) + "Sync agents" btn (github-agent-sync-btn) + synced agents list (github-synced-agents, manual/auto·push source chips)
+- Verified: auth gating (403 unlinked, 401 unauth, 200 empty list), UI buttons render. LIMITATION: live GitHub e2e untestable until GITHUB_CLIENT_SECRET provided (no account can link)
+- STILL AWAITING: GITHUB_CLIENT_SECRET

@@ -194,6 +194,42 @@ async def _user_gh_token(request: Request) -> tuple[dict, str]:
     return full, _cipher().decrypt(full["github_token_encrypted"].encode()).decode()
 
 
+def _parse_agent(file_name: str, raw: str):
+    try:
+        if file_name.lower().endswith(".json"):
+            import json as json_mod
+            parsed = json_mod.loads(raw)
+        else:
+            import yaml as yaml_mod
+            parsed = yaml_mod.safe_load(raw)
+        if isinstance(parsed, dict):
+            return {
+                "file": file_name,
+                "id": parsed.get("id"), "name": parsed.get("name"),
+                "model": parsed.get("model"), "description": parsed.get("description"),
+                "entrypoint": parsed.get("entrypoint"),
+                "capabilities": parsed.get("capabilities") or {},
+                "env_keys": sorted((parsed.get("env") or {}).keys()),
+                "tools": sorted((parsed.get("tools") or {}).keys()),
+            }
+    except Exception:
+        pass
+    return {"file": file_name, "error": "Could not parse agent file"}
+
+
+AGENT_FILES = ("agent.json", "luchii.yaml", "luchii.yml")
+
+
+async def _fetch_agent_file(client, gh: dict, full_name: str):
+    """Fetch and parse the first agent file found at a repo root. Returns agent dict or None."""
+    for path in AGENT_FILES:
+        res = await client.get(f"https://api.github.com/repos/{full_name}/contents/{path}", headers=gh)
+        if res.status_code == 200:
+            raw = base64.b64decode(res.json().get("content", "")).decode("utf-8", errors="replace")
+            return _parse_agent(path, raw)
+    return None
+
+
 class ImportBody(BaseModel):
     owner: str = Field(min_length=1, max_length=100, pattern=r"^[A-Za-z0-9_.-]+$")
     repo: str = Field(min_length=1, max_length=100, pattern=r"^[A-Za-z0-9_.-]+$")
@@ -225,25 +261,7 @@ async def import_repo(body: ImportBody, request: Request):
         if agent_file:
             raw = await fetch_text(agent_file)
             if raw:
-                try:
-                    if agent_file["name"].lower().endswith(".json"):
-                        import json as json_mod
-                        parsed = json_mod.loads(raw)
-                    else:
-                        import yaml as yaml_mod
-                        parsed = yaml_mod.safe_load(raw)
-                    if isinstance(parsed, dict):
-                        agent = {
-                            "file": agent_file["name"],
-                            "id": parsed.get("id"), "name": parsed.get("name"),
-                            "model": parsed.get("model"), "description": parsed.get("description"),
-                            "entrypoint": parsed.get("entrypoint"),
-                            "capabilities": parsed.get("capabilities") or {},
-                            "env_keys": sorted((parsed.get("env") or {}).keys()),
-                            "tools": sorted((parsed.get("tools") or {}).keys()),
-                        }
-                except Exception:
-                    agent = {"file": agent_file["name"], "error": "Could not parse agent file"}
+                agent = _parse_agent(agent_file["name"], raw)
 
         target = names.get("index.html") \
             or next((f for n, f in names.items() if n.endswith(".html")), None) \
@@ -318,6 +336,84 @@ async def list_repos(request: Request):
     ]}
 
 
+@router.post("/github/agent-sync")
+async def agent_sync(request: Request):
+    """Scan the user's repos for agent.json / luchii.yaml (real GitHub API) and sync them into the registry."""
+    import asyncio
+    full, token = await _user_gh_token(request)
+    gh = {**GITHUB_HEADERS, "Authorization": f"Bearer {token}"}
+    async with httpx.AsyncClient(timeout=45) as client:
+        res = await client.get(
+            "https://api.github.com/user/repos?sort=updated&per_page=30&affiliation=owner", headers=gh)
+        if res.status_code in (401, 403):
+            raise HTTPException(status_code=403, detail="GitHub token invalid — re-login with GitHub.")
+        if res.status_code != 200:
+            raise HTTPException(status_code=502, detail=f"GitHub repos listing failed ({res.status_code})")
+        repos = res.json()
+        results = await asyncio.gather(*[_fetch_agent_file(client, gh, r["full_name"]) for r in repos])
+    synced, now = [], datetime.now(timezone.utc).isoformat()
+    for repo, agent in zip(repos, results):
+        if not agent or agent.get("error"):
+            continue
+        doc = {"user_id": full["id"], "repo": repo["full_name"], "agent": agent,
+               "default_branch": repo.get("default_branch", "main"),
+               "synced_at": now, "source": "manual_sync"}
+        await db.synced_agents.update_one(
+            {"user_id": full["id"], "repo": repo["full_name"]}, {"$set": doc}, upsert=True)
+        synced.append({"repo": repo["full_name"], "agent": agent})
+    return {"ok": True, "scanned": len(repos), "synced": synced}
+
+
+@router.get("/github/synced-agents")
+async def list_synced_agents(request: Request):
+    user = await auth_module.get_current_user(request)
+    rows = await db.synced_agents.find({"user_id": user["id"]}, {"_id": 0, "user_id": 0}).sort("synced_at", -1).to_list(100)
+    return {"agents": rows}
+
+
+class ExportBody(BaseModel):
+    owner: str = Field(min_length=1, max_length=100, pattern=r"^[A-Za-z0-9_.-]+$")
+    repo: str = Field(min_length=1, max_length=100, pattern=r"^[A-Za-z0-9_.-]+$")
+    html: str = Field(min_length=10, max_length=800000)
+    path: str = Field(default="index.html", max_length=200)
+    message: str = Field(default="Publish from Frasberg Workspace", max_length=200)
+
+
+@router.post("/github/export")
+async def export_to_repo(body: ExportBody, request: Request):
+    """Commit the workspace app to a GitHub repo (real API) — creates the repo if it's the user's own and missing."""
+    full, token = await _user_gh_token(request)
+    gh = {**GITHUB_HEADERS, "Authorization": f"Bearer {token}"}
+    created = False
+    async with httpx.AsyncClient(timeout=45) as client:
+        check = await client.get(f"https://api.github.com/repos/{body.owner}/{body.repo}", headers=gh)
+        if check.status_code == 404:
+            if body.owner.lower() != (full.get("github_login") or "").lower():
+                raise HTTPException(status_code=404, detail=f"Repository {body.owner}/{body.repo} not found.")
+            create = await client.post("https://api.github.com/user/repos", headers=gh,
+                                       json={"name": body.repo, "description": "Built with Luchii — Frasberg Agent Workspace", "auto_init": False})
+            if create.status_code not in (201, 202):
+                raise HTTPException(status_code=502, detail=f"Could not create repository ({create.status_code})")
+            created = True
+        elif check.status_code in (401, 403):
+            raise HTTPException(status_code=403, detail="GitHub token invalid or lacks permission — re-login with GitHub.")
+        existing = await client.get(f"https://api.github.com/repos/{body.owner}/{body.repo}/contents/{body.path}", headers=gh)
+        payload = {"message": body.message, "content": base64.b64encode(body.html.encode()).decode()}
+        if existing.status_code == 200:
+            payload["sha"] = existing.json().get("sha")
+        put = await client.put(f"https://api.github.com/repos/{body.owner}/{body.repo}/contents/{body.path}",
+                               headers=gh, json=payload)
+    if put.status_code in (401, 403):
+        raise HTTPException(status_code=403, detail="Your GitHub token can't write to this repo.")
+    if put.status_code not in (200, 201):
+        raise HTTPException(status_code=502, detail=f"GitHub commit failed ({put.status_code})")
+    data = put.json()
+    return {"ok": True, "created_repo": created,
+            "repo_url": f"https://github.com/{body.owner}/{body.repo}",
+            "commit_url": (data.get("commit") or {}).get("html_url"),
+            "file_url": (data.get("content") or {}).get("html_url")}
+
+
 @router.post("/github/webhook")
 async def github_webhook(request: Request):
     """GitHub App webhook ingestion with HMAC SHA-256 signature verification."""
@@ -343,4 +439,24 @@ async def github_webhook(request: Request):
         "action": payload.get("action"),
         "received_at": datetime.now(timezone.utc).isoformat(),
     })
-    return {"ok": True, "event": event}
+    synced_agent = None
+    if event == "push" and (payload.get("repository") or {}).get("full_name"):
+        try:
+            repo_full = payload["repository"]["full_name"]
+            owner_login = (payload["repository"].get("owner") or {}).get("login") or (payload["repository"].get("owner") or {}).get("name")
+            user = await db.users.find_one({"github_login": owner_login}) if owner_login else None
+            if user and user.get("github_token_encrypted"):
+                token = _cipher().decrypt(user["github_token_encrypted"].encode()).decode()
+                gh = {**GITHUB_HEADERS, "Authorization": f"Bearer {token}"}
+                async with httpx.AsyncClient(timeout=30) as client:
+                    agent = await _fetch_agent_file(client, gh, repo_full)
+                if agent and not agent.get("error"):
+                    await db.synced_agents.update_one(
+                        {"user_id": user["id"], "repo": repo_full},
+                        {"$set": {"user_id": user["id"], "repo": repo_full, "agent": agent,
+                                  "synced_at": datetime.now(timezone.utc).isoformat(), "source": "webhook_push"}},
+                        upsert=True)
+                    synced_agent = agent.get("name") or agent.get("id")
+        except Exception:
+            pass
+    return {"ok": True, "event": event, "synced_agent": synced_agent}
