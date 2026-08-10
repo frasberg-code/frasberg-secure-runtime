@@ -185,3 +185,11 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Global readability sweep across all pages/components: font sizes bumped (9-12px → 12-13.5px, text-xs → 13px), low-contrast colors brightened (text-white/40-60 → /70-75, #555/#666/#888 → lighter on dark game pages), dashTheme + lux-text-2 tokens improved for both light/dark
 - Logo: regenerated /luchii-mark-circle.png — LUCHII bottom arc now perfectly symmetric (0.1px L/R delta), mark optically centered, corners alpha-masked
 - PENDING (blocked): GitHub OAuth login/fork — awaiting user's GitHub Client ID + Secret
+
+## 2026-06 (cont.): Workspace slider, New build, dark pages, font toggle, logo re-crop
+- Logo: re-cropped from source with true circle center detection — bottom "LUCHII" no longer cut off
+- AgentWorkspace: draggable split divider between preview and chat (25–75%, persisted in localStorage, tested via automated drag)
+- Builder page "New build" button now opens /coding-agents (coding agent page)
+- Contact + Database Manager restyled to dark starfield theme matching homepage (ParallaxSky, glass cards, cyan accents)
+- Global FontSizeToggle (bottom-left AA button): cycles 100/115/130% text size, persisted
+- STILL PENDING: GitHub OAuth (awaiting user's Client ID + Secret); "dashboard slide screen" clarified as workspace split slider — now fixed

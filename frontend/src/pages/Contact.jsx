@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { MessageCircle, X, Send } from "lucide-react";
+import { ParallaxSky } from "../components/site/ParallaxSky";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -57,9 +58,9 @@ function LiveChat() {
             <span className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-[15px] font-700 text-white">Z</span>
             <div>
               <p className="text-[13.5px] font-600 text-white">Zion · Frasberg Support</p>
-              <p className="flex items-center gap-1.5 text-[13px] text-emerald-400"><span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" /> Online now</p>
+              <p className="flex items-center gap-1.5 text-[12px] text-emerald-400"><span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" /> Online now</p>
             </div>
-            <button onClick={() => setOpen(false)} className="ml-auto text-white/75 hover:text-white" aria-label="Close chat" data-testid="live-chat-close"><X size={16} /></button>
+            <button onClick={() => setOpen(false)} className="ml-auto text-white/60 hover:text-white" aria-label="Close chat" data-testid="live-chat-close"><X size={16} /></button>
           </div>
           <div className="flex-1 space-y-3 overflow-y-auto bg-gray-50 p-4" data-testid="live-chat-messages">
             {msgs.map((m, i) => (
@@ -81,7 +82,7 @@ function LiveChat() {
         </div>
       )}
       <button onClick={() => setOpen((o) => !o)} data-testid="live-chat-bubble" aria-label="Live chat"
-        className="fixed bottom-6 right-5 z-50 grid h-14 w-14 place-items-center rounded-full bg-black text-white shadow-xl transition-transform hover:scale-105">
+        className="fixed bottom-6 right-5 z-50 grid h-14 w-14 place-items-center rounded-full bg-cyan-400 text-black shadow-xl transition-transform hover:scale-105">
         {open ? <X size={20} /> : <MessageCircle size={22} />}
       </button>
     </>
@@ -103,58 +104,59 @@ export default function Contact() {
     } catch (err) { toast.error(String(err.message || err)); }
   };
 
-  const field = "w-full border border-gray-400 bg-white px-4 py-3 text-[16px] text-gray-900 outline-none transition-colors focus:border-black";
+  const field = "w-full rounded-lg border border-white/20 bg-white/[0.06] px-4 py-3 text-[16px] text-white outline-none transition-colors focus:border-cyan-400";
 
   return (
-    <main className="min-h-screen bg-white text-gray-900" data-testid="contact-page">
-      <div className="mx-auto max-w-xl px-6 py-20 sm:py-28">
-        <h1 className="text-center font-serif text-4xl sm:text-5xl" style={{ fontFamily: "Georgia, 'Times New Roman', serif", letterSpacing: "0.01em" }}>
+    <main className="relative min-h-screen text-white" style={{ background: "#08090A" }} data-testid="contact-page">
+      <ParallaxSky />
+      <div className="relative z-10 mx-auto max-w-xl px-6 py-20 sm:py-28">
+        <h1 className="text-center font-display text-4xl font-700 tracking-tight sm:text-5xl">
           Contact Us
         </h1>
-        <p className="mx-auto mt-6 max-w-md text-center text-[17px] leading-relaxed text-gray-700">
+        <p className="mx-auto mt-6 max-w-md text-center text-[17px] leading-relaxed text-gray-300">
           Questions about Luchii, the API, or your account? Send us a note — we usually reply within one business day.
         </p>
-        <div className="mt-8 space-y-1 text-center font-mono text-[15px] text-gray-800" data-testid="contact-info">
+        <div className="mt-8 space-y-1 text-center font-mono text-[15px] text-gray-300" data-testid="contact-info">
           <p>Frasberg.com</p>
-          <p><a href="mailto:support@frasberg.com" className="underline decoration-gray-300 underline-offset-4 hover:decoration-black">support@frasberg.com</a></p>
+          <p><a href="mailto:support@frasberg.com" className="underline decoration-cyan-400/40 underline-offset-4 hover:decoration-cyan-400">support@frasberg.com</a></p>
         </div>
 
         {sent ? (
-          <div className="mt-14 border border-gray-200 bg-gray-50 p-10 text-center" data-testid="contact-success">
-            <p className="font-serif text-2xl" style={{ fontFamily: "Georgia, serif" }}>Thank you.</p>
-            <p className="mt-3 text-[14px] text-gray-500">Your message is on its way — we'll get back to you at {form.email}.</p>
+          <div className="mt-14 rounded-2xl border border-white/15 bg-white/[0.05] p-10 text-center backdrop-blur" data-testid="contact-success">
+            <p className="font-display text-2xl font-700">Thank you.</p>
+            <p className="mt-3 text-[16px] text-gray-300">Your message is on its way — we'll get back to you at {form.email}.</p>
           </div>
         ) : (
-          <form onSubmit={submit} className="mt-14 space-y-6" data-testid="contact-form">
+          <form onSubmit={submit} className="mt-14 space-y-6 rounded-2xl border border-white/10 bg-black/30 p-7 backdrop-blur-md sm:p-8" data-testid="contact-form">
             <label className="block">
-              <span className="mb-2 block text-[14px] font-700 uppercase tracking-[0.14em] text-gray-900">Name <span className="text-gray-600">(required)</span></span>
+              <span className="mb-2 block text-[14px] font-700 uppercase tracking-[0.14em] text-gray-200">Name <span className="text-gray-400">(required)</span></span>
               <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={field} data-testid="contact-name" />
             </label>
             <label className="block">
-              <span className="mb-2 block text-[14px] font-700 uppercase tracking-[0.14em] text-gray-900">Email <span className="text-gray-600">(required)</span></span>
+              <span className="mb-2 block text-[14px] font-700 uppercase tracking-[0.14em] text-gray-200">Email <span className="text-gray-400">(required)</span></span>
               <input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={field} data-testid="contact-email" />
             </label>
             <label className="block">
-              <span className="mb-2 block text-[14px] font-700 uppercase tracking-[0.14em] text-gray-900">Message <span className="text-gray-600">(required)</span></span>
+              <span className="mb-2 block text-[14px] font-700 uppercase tracking-[0.14em] text-gray-200">Message <span className="text-gray-400">(required)</span></span>
               <textarea required rows={6} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} className={field} data-testid="contact-message" />
             </label>
             <button type="submit" data-testid="contact-submit"
-              className="bg-black px-10 py-3.5 text-[15px] font-700 uppercase tracking-[0.16em] text-white transition-opacity hover:opacity-80">
+              className="rounded-full bg-cyan-400 px-10 py-3.5 text-[15px] font-700 uppercase tracking-[0.16em] text-black transition-opacity hover:opacity-85">
               Send
             </button>
           </form>
         )}
-        <div className="mt-20 border-t border-gray-200 pt-12" data-testid="contact-about">
-          <h2 className="text-center font-serif text-2xl" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>About the company</h2>
-          <p className="mt-2 text-center text-[15px] font-700 uppercase tracking-[0.14em] text-gray-900">Frasberg, Inc.</p>
-          <p className="mt-5 text-[16px] leading-relaxed text-gray-800">
+        <div className="mt-20 border-t border-white/10 pt-12" data-testid="contact-about">
+          <h2 className="text-center font-display text-2xl font-700">About the company</h2>
+          <p className="mt-2 text-center text-[15px] font-700 uppercase tracking-[0.14em] text-cyan-300">Frasberg, Inc.</p>
+          <p className="mt-5 text-[16px] leading-relaxed text-gray-300">
             Frasberg, Inc. is an American multinational technology company dedicated to advancing the future of artificial
             intelligence, intelligent computing, and digital transformation. Founded with the vision of making advanced
             technology accessible, practical, and beneficial for everyone, Frasberg develops innovative AI platforms,
             intelligent software, cloud technologies, and enterprise solutions that help organizations, governments,
             developers, creators, researchers, and individuals solve complex problems and unlock new opportunities.
           </p>
-          <p className="mt-10 text-center font-mono text-[13px] text-gray-600" data-testid="contact-copyright">
+          <p className="mt-10 text-center font-mono text-[13px] text-gray-400" data-testid="contact-copyright">
             Copyright © 2003-2026 FRASBERG, INC., All Rights Reserved.
           </p>
         </div>

@@ -3,6 +3,7 @@ import { ReactLenis } from "lenis/react";
 import { BrowserRouter, Routes, Route, useLocation, Navigate, useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 import { Toaster } from "sonner";
+import { FontSizeToggle } from "./components/site/FontSizeToggle";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Landing from "./pages/Landing";
@@ -120,6 +121,7 @@ function App() {
             </Routes>
           </BrowserRouter>
           <Toaster position="top-center" richColors />
+          <FontSizeToggle />
         </div>
       </ReactLenis>
       </AuthProvider>

@@ -76,6 +76,30 @@ export default function AgentWorkspace() {
   const [session, setSession] = useState(saved.session || null);
   const [tab, setTab] = useState("preview");
   const [manageTab, setManageTab] = useState("overview");
+  const splitRef = useRef(null);
+  const [split, setSplit] = useState(() => { try { const v = Number(localStorage.getItem("ws-split")); return v >= 25 && v <= 75 ? v : 50; } catch { return 50; } });
+  const [dragging, setDragging] = useState(false);
+  const startDrag = (e) => {
+    e.preventDefault();
+    const el = splitRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setDragging(true);
+    document.body.style.userSelect = "none";
+    const move = (ev) => {
+      const pct = Math.min(75, Math.max(25, ((rect.right - ev.clientX) / rect.width) * 100));
+      setSplit(pct);
+      try { localStorage.setItem("ws-split", String(Math.round(pct))); } catch {}
+    };
+    const up = () => {
+      setDragging(false);
+      document.body.style.userSelect = "";
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+  };
   const [showSuggest, setShowSuggest] = useState((saved.messages || []).length === 0);
   const [publishes, setPublishes] = useState(
     (saved.publishes || []).map((p) => ({ ...p, at: new Date(p.at) }))
@@ -355,9 +379,15 @@ export default function AgentWorkspace() {
         <span className="ml-auto font-mono text-[13.5px] uppercase tracking-wide" style={{ color: T.muted }}>{agent.role}</span>
       </div>
 
-      <div className="flex min-h-0 flex-1">
+      <div ref={splitRef} className="flex min-h-0 flex-1">
+        {/* Split divider — drag to resize */}
+        <div onPointerDown={startDrag} data-testid="workspace-split-divider" aria-label="Resize panels"
+          className="order-2 flex w-2.5 shrink-0 cursor-col-resize items-center justify-center transition-colors hover:bg-white/[0.06]"
+          style={{ background: dragging ? "rgba(0,240,255,0.1)" : "transparent", touchAction: "none" }}>
+          <span className="h-16 w-1 rounded-full" style={{ background: dragging ? T.accent : "rgba(255,255,255,0.2)" }} />
+        </div>
         {/* Chat — right side per user request */}
-        <div className="order-2 flex min-w-0 flex-1 flex-col border-l" style={{ borderColor: T.borderSub, maxWidth: "50%" }} data-testid="workspace-chat-pane">
+        <div className="order-3 flex min-w-0 flex-col border-l" style={{ borderColor: T.borderSub, width: `${split}%` }} data-testid="workspace-chat-pane">
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
             {messages.length === 0 && (
               <div className="mt-14 text-center">
@@ -497,7 +527,7 @@ export default function AgentWorkspace() {
           {tab === "preview" ? (
             <div className="min-h-0 flex-1" data-testid="workspace-preview">
               {previewHtml ? (
-                <iframe title="preview" srcDoc={previewHtml} sandbox="allow-scripts" className="h-full w-full bg-white" />
+                <iframe title="preview" srcDoc={previewHtml} sandbox="allow-scripts" className="h-full w-full bg-white" style={{ pointerEvents: dragging ? "none" : "auto" }} />
               ) : (
                 <div className="grid h-full place-items-center">
                   <div className="text-center">

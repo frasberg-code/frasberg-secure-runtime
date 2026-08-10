@@ -414,10 +414,10 @@ export default function Builder({ type = "website" }) {
           <aside data-testid="builder-projects-sidebar">
             {user ? (
               <>
-                <button onClick={() => { setCurrent(null); setHtml(""); setPrompt(""); setDns(null); }} data-testid="builder-new-project-btn"
+                <Link to="/coding-agents" data-testid="builder-new-project-btn"
                   className="flex w-full items-center justify-center gap-2 rounded-full bg-lux-text px-5 py-2.5 text-sm font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
                   <Sparkles size={15} /> New build
-                </button>
+                </Link>
                 <p className="mt-6 px-1 font-mono text-[13px] uppercase tracking-[0.2em] text-lux-text2">My {type === "website" ? "websites" : type === "game" ? "games" : type === "landing" ? "landing pages" : "apps"}</p>
                 <div className="mt-3 max-h-[55vh] space-y-1.5 overflow-y-auto pr-1" data-testid="builder-projects-list">
                   {projects.length === 0 && <p className="px-1 text-[13px] text-lux-text2">Nothing built yet — describe your first {type} above.</p>}
