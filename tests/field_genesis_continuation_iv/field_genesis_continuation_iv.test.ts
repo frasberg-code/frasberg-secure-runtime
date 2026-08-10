@@ -1,4 +1,4 @@
-import { continueGenesisStateIV } from '../../supabase/sofia_core/field_genesis_continuation_iv/field_genesis_continuation_iv';
+import { continueGenesisStateIV } from '../../supabase/frasberg/field_genesis_continuation_iv/field_genesis_continuation_iv';
 
 describe('field_genesis_continuation_iv', () => {
   test('continues fourth-order genesis numerically', () => {

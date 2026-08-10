@@ -8,7 +8,7 @@ echo "║                                                        ║"
 echo "╚════════════════════════════════════════════════════════╝"
 echo ""
 
-cd /workspaces/sofia-core-backend
+cd /workspaces/frasberg-backend
 
 # ============================================================
 # TRACK 1: WEEK 3 - RESEARCH PAPER (Background)
@@ -20,18 +20,18 @@ echo "  → Creating research paper..."
     mkdir -p research/papers/dna-computing
 
     cat > research/papers/dna-computing/PAPER.md << 'PAPER'
-# DNA Computing Integration in Distributed Intelligence Systems: The Sofia Core Approach
+# DNA Computing Integration in Distributed Intelligence Systems: The Frasberg Approach
 
-**Authors:** Sofia Core Research Team  
-**Affiliation:** Sofia Core Project  
-**Contact:** research@sofia-core.ai  
-**Code:** https://github.com/emeraldorbit/sofia-core-backend
+**Authors:** Frasberg Research Team  
+**Affiliation:** Frasberg Project  
+**Contact:** research@frasberg.ai  
+**Code:** https://github.com/emeraldorbit/frasberg-backend
 
 ---
 
 ## Abstract
 
-We present Sofia Core, a production distributed intelligence system integrating DNA computing paradigms into a planetary-scale architecture. Our approach demonstrates practical application of biological computing principles—massive parallelism, ultra-high density storage, and energy-efficient computation—within traditional silicon-based distributed systems. We provide an open-source implementation and performance analysis comparing DNA-inspired algorithms against conventional approaches.
+We present Frasberg, a production distributed intelligence system integrating DNA computing paradigms into a planetary-scale architecture. Our approach demonstrates practical application of biological computing principles—massive parallelism, ultra-high density storage, and energy-efficient computation—within traditional silicon-based distributed systems. We provide an open-source implementation and performance analysis comparing DNA-inspired algorithms against conventional approaches.
 
 **Keywords:** DNA Computing, Distributed Systems, Biological Computing, Hybrid Architecture, Open Source
 
@@ -39,7 +39,7 @@ We present Sofia Core, a production distributed intelligence system integrating 
 
 ## 1. Introduction
 
-DNA computing, since Adleman's seminal 1994 work, has remained largely theoretical. Sofia Core bridges this gap by providing a production-ready framework that incorporates DNA computing principles into distributed systems architecture.
+DNA computing, since Adleman's seminal 1994 work, has remained largely theoretical. Frasberg bridges this gap by providing a production-ready framework that incorporates DNA computing principles into distributed systems architecture.
 
 ### 1.1 Contributions
 
@@ -87,7 +87,7 @@ DNA molecules store information in sequences of nucleotides (A, T, G, C). Key pr
 
 ### 2.2 System Architecture
 
-Sofia Core implements a hybrid silicon-DNA architecture with graceful degradation:
+Frasberg implements a hybrid silicon-DNA architecture with graceful degradation:
 
 ```
 ┌─────────────────────────────────────────┐
@@ -249,7 +249,7 @@ async def generate(request: GenerateRequest):
 
 ## 7. Conclusion
 
-Sofia Core demonstrates that DNA computing principles can be practically integrated into production distributed systems. Our open-source implementation provides:
+Frasberg demonstrates that DNA computing principles can be practically integrated into production distributed systems. Our open-source implementation provides:
 
 - **Immediate Value**: 300× speedup in parallel tasks
 - **Future Path**: Clear roadmap to real DNA integration
@@ -262,15 +262,15 @@ Sofia Core demonstrates that DNA computing principles can be practically integra
 
 ## 8. Availability
 
-**Code:** https://github.com/emeraldorbit/sofia-core-backend  
+**Code:** https://github.com/emeraldorbit/frasberg-backend  
 **License:** MIT (fully open)  
-**Documentation:** https://docs.sofia-core.ai  
+**Documentation:** https://docs.frasberg.ai  
 
 **To Reproduce:**
 
 ```bash
-git clone https://github.com/emeraldorbit/sofia-core-backend
-cd sofia-core-backend
+git clone https://github.com/emeraldorbit/frasberg-backend
+cd frasberg-backend
 pip install -r backend/requirements-v5.1.txt
 cd backend/app
 python -m uvicorn main:app --reload
@@ -365,14 +365,14 @@ echo "  → Creating community infrastructure..."
 
     # CONTRIBUTING.md already exists from previous work, enhance it
     cat > CONTRIBUTING_V2.md << 'CONTRIB'
-# Contributing to Sofia Core 🚀
+# Contributing to Frasberg 🚀
 
 Welcome! We're building the future of AI together.
 
 ## 🌟 Quick Start
 
 1. **Fork** the repository
-2. **Clone**: `git clone https://github.com/YOUR_USERNAME/sofia-core-backend`
+2. **Clone**: `git clone https://github.com/YOUR_USERNAME/frasberg-backend`
 3. **Branch**: `git checkout -b feature/amazing-feature`
 4. **Commit**: `git commit -m "Add amazing feature"`
 5. **Push**: `git push origin feature/amazing-feature`
@@ -380,10 +380,10 @@ Welcome! We're building the future of AI together.
 
 ## 💬 Community
 
-- **Discord**: https://discord.gg/sofia-core
+- **Discord**: https://discord.gg/frasberg
 - **GitHub Discussions**: For long-form conversations  
-- **Twitter**: @sofia_core_ai
-- **Email**: hello@sofia-core.ai
+- **Twitter**: @frasberg_ai
+- **Email**: hello@frasberg.ai
 
 ## 🎯 Ways to Contribute
 
@@ -406,7 +406,7 @@ Welcome! We're building the future of AI together.
 - Write blog posts
 
 ### 4. Research
-- Use Sofia in research
+- Use Frasberg in research
 - Share benchmarks
 - Propose algorithms
 - Write papers
@@ -419,7 +419,7 @@ New to the project? Look for `good-first-issue` labels:
 - 🟡 **Medium** (half day): Some experience needed
 - 🔴 **Hard** (multiple days): Significant expertise
 
-[View Good First Issues →](https://github.com/emeraldorbit/sofia-core-backend/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+[View Good First Issues →](https://github.com/emeraldorbit/frasberg-backend/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 
 ## 📝 Pull Request Guidelines
 
@@ -502,7 +502,7 @@ We reward significant contributions!
 | Major feature | $500-$2,000 |
 | Research paper | $1,000-$5,000 |
 
-Email bounties@sofia-core.ai for details.
+Email bounties@frasberg.ai for details.
 
 ## 🏆 Recognition
 
@@ -558,13 +558,13 @@ We pledge to make participation harassment-free for everyone.
 
 ### Enforcement
 
-Report violations to conduct@sofia-core.ai.
+Report violations to conduct@frasberg.ai.
 
 ## 📞 Getting Help
 
 - **Discord #help**: Real-time support
 - **GitHub Discussions**: Longer conversations
-- **Stack Overflow**: Tag with `sofia-core`
+- **Stack Overflow**: Tag with `frasberg`
 
 ## 📄 License
 
@@ -572,13 +572,13 @@ By contributing, you agree contributions will be licensed under MIT License.
 
 ---
 
-**Thank you for contributing to Sofia Core!** 🙏
+**Thank you for contributing to Frasberg!** 🙏
 
 Every contribution helps build the future of AI. Let's build something amazing together! ✨
 CONTRIB
 
     cat > CONTRIBUTORS.md << 'CONTRIBUTORS'
-# Sofia Core Contributors 🌟
+# Frasberg Contributors 🌟
 
 Thank you to everyone who has contributed!
 
@@ -616,7 +616,7 @@ Make a contribution and appear here automatically:
 - **Code**: Submit merged PR
 - **Docs**: Improve documentation
 - **Community**: Help on Discord
-- **Research**: Publish using Sofia
+- **Research**: Publish using Frasberg
 
 ## Recognition Program
 
@@ -715,10 +715,10 @@ Perfect for first-time contributors!
 ISSUES
 
     cat > community/discord/SETUP_GUIDE.md << 'DISCORD'
-# Sofia Core Discord Server Setup Guide
+# Frasberg Discord Server Setup Guide
 
 ## Server Name
-**Sofia Core - Building the Future of AI**
+**Frasberg - Building the Future of AI**
 
 ## Categories & Channels
 
@@ -735,7 +735,7 @@ ISSUES
 ### 💬 COMMUNITY
 - **#general** - General chat
 - **#showcase** - Share projects
-- **#off-topic** - Non-Sofia chat
+- **#off-topic** - Non-Frasberg chat
 - **#ideas** - Brainstorm
 
 ### 🛠️ DEVELOPMENT
@@ -780,13 +780,13 @@ ISSUES
 ## Welcome Message
 
 ```
-Welcome to Sofia Core! 👋
+Welcome to Frasberg! 👋
 
 Building planetary-scale AI infrastructure, open source and accessible.
 
 🔗 **Quick Links:**
-- GitHub: https://github.com/emeraldorbit/sofia-core-backend
-- Docs: https://docs.sofia-core.ai
+- GitHub: https://github.com/emeraldorbit/frasberg-backend
+- Docs: https://docs.frasberg.ai
 
 🎯 **Get Started:**
 1. Read rules in #welcome
@@ -802,7 +802,7 @@ Let's build the future together! 🚀
 ## Rules
 
 ```
-**Sofia Core Community Rules** 📜
+**Frasberg Community Rules** 📜
 
 1️⃣ **Be Respectful** - No harassment or hate speech
 2️⃣ **Stay On Topic** - Keep discussions relevant
@@ -838,7 +838,7 @@ Let's build the future together! 🚀
 
 ## Invite Link
 
-`discord.gg/sofia-core` (custom URL after verification)
+`discord.gg/frasberg` (custom URL after verification)
 
 **Ready to launch!** 🚀
 DISCORD
@@ -914,7 +914,7 @@ echo "╚═══════════════════════�
 echo ""
 
 git add -A 2>/dev/null
-git commit -m "Sofia Core v5.1.0 - Month 1 Complete (All Tracks)
+git commit -m "Frasberg v5.1.0 - Month 1 Complete (All Tracks)
 
 ✅ WEEK 1-2: Real Integrations
 - OpenAI + Anthropic LLM integration
@@ -943,7 +943,7 @@ Next: Month 2 - Growth Phase" 2>/dev/null || echo "  (Commit prepared)"
 echo ""
 echo "═══════════════════════════════════════════════════════"
 echo ""
-echo "🎊 SOFIA CORE MONTH 1 - COMPLETE SUCCESS! 🎊"
+echo "🎊 FRASBERG CORE MONTH 1 - COMPLETE SUCCESS! 🎊"
 echo ""
 echo "═══════════════════════════════════════════════════════"
 echo ""

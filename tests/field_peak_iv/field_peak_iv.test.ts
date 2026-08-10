@@ -1,4 +1,4 @@
-import { formFieldPeakIV } from '../../supabase/sofia_core/field_peak_iv/field_peak_iv';
+import { formFieldPeakIV } from '../../supabase/frasberg/field_peak_iv/field_peak_iv';
 
 describe('field_peak_iv', () => {
   test('forms fourth-order peak numerically', () => {

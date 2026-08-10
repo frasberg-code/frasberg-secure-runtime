@@ -1,6 +1,6 @@
-# 🚀 Sofia Core v4.0.0
+# 🚀 Frasberg v4.0.0
 
-[![Release](https://img.shields.io/badge/release-v4.0.0-blue?style=for-the-badge)](https://github.com/emeraldorbit/sofia-core-backend/releases/tag/v4.0.0)
+[![Release](https://img.shields.io/badge/release-v4.0.0-blue?style=for-the-badge)](https://github.com/emeraldorbit/frasberg-backend/releases/tag/v4.0.0)
 [![Quantum Safe](https://img.shields.io/badge/Quantum-Safe-purple?style=for-the-badge)]()
 [![Distributed](https://img.shields.io/badge/Architecture-Distributed-green?style=for-the-badge)]()
 
@@ -42,11 +42,11 @@
 
 ```bash
 # Download release
-wget https://github.com/emeraldorbit/sofia-core-backend/releases/download/v4.0.0/sofia-core-v4.0.0-distributed.zip
+wget https://github.com/emeraldorbit/frasberg-backend/releases/download/v4.0.0/frasberg-v4.0.0-distributed.zip
 
 # Extract
-unzip sofia-core-v4.0.0-distributed.zip
-cd sofia-core-v4.0.0-distributed
+unzip frasberg-v4.0.0-distributed.zip
+cd frasberg-v4.0.0-distributed
 
 # Deploy all services
 ./deploy-all-v4.sh
@@ -217,8 +217,8 @@ docker-compose -f deploy/docker-compose-v4.yml up -d
 
 ## 🔗 Resources
 
-- **GitHub**: https://github.com/emeraldorbit/sofia-core-backend
-- **Release**: https://github.com/emeraldorbit/sofia-core-backend/releases/tag/v4.0.0
+- **GitHub**: https://github.com/emeraldorbit/frasberg-backend
+- **Release**: https://github.com/emeraldorbit/frasberg-backend/releases/tag/v4.0.0
 - **Changelog**: [CHANGELOG_v4.md](CHANGELOG_v4.md)
 - **License**: MIT
 
@@ -230,6 +230,6 @@ MIT License - See [LICENSE](LICENSE) for details
 
 ---
 
-**Sofia Core v4.0.0 - Distributed. Quantum-Ready. Unstoppable.**
+**Frasberg v4.0.0 - Distributed. Quantum-Ready. Unstoppable.**
 
 **Scale. Secure. Verify. Distribute.** 🌐🔐🧩🌟

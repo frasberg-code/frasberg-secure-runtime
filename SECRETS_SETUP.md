@@ -1,6 +1,6 @@
 # 🔐 Secrets Management Guide
 
-This guide explains how to securely configure API keys and secrets for the Sofia Core Backend.
+This guide explains how to securely configure API keys and secrets for the Frasberg Backend.
 
 ## ⚠️ Security Best Practices
 
@@ -43,12 +43,12 @@ Edit each `.env` file and replace the placeholder values with your actual API ke
 **Get these from:** Supabase Dashboard → Settings → API
 
 ### ElevenLabs (Required for Voice Features)
-- **ELEVENLABS_SOFIA_API_KEY**: Main Sofia API key
+- **ELEVENLABS_FRASBERG_API_KEY**: Main Frasberg API key
 - **ELEVENLABS_VOICEGATEWAY_STT_KEY**: Speech-to-Text key
 - **ELEVENLABS_VOICEGATEWAY_TTS_KEY**: Text-to-Speech key
-- **ELEVENLABS_SOFIA_LIVE_CONVERSATION_KEY**: Live conversation API
-- **ELEVENLABS_SOFIA_MUSIC_ENGINE_KEY**: Music generation
-- **ELEVENLABS_SOFIA_AUDIO_TOOLS_KEY**: Audio processing tools
+- **ELEVENLABS_FRASBERG_LIVE_CONVERSATION_KEY**: Live conversation API
+- **ELEVENLABS_FRASBERG_MUSIC_ENGINE_KEY**: Music generation
+- **ELEVENLABS_FRASBERG_AUDIO_TOOLS_KEY**: Audio processing tools
 
 **Get these from:** ElevenLabs Dashboard → API Keys
 
@@ -61,9 +61,9 @@ Edit each `.env` file and replace the placeholder values with your actual API ke
 
 **Get these from:** Runway ML Dashboard → API Settings
 
-### SOFIA Custom Model Endpoint (Required)
-- **SOFIA_MODEL_ENDPOINT**: SOFIA Core backend API endpoint
-- **SOFIA_MODEL_API_KEY**: API key for SOFIA model authentication
+### FRASBERG Custom Model Endpoint (Required)
+- **FRASBERG_MODEL_ENDPOINT**: FRASBERG Core backend API endpoint
+- **FRASBERG_MODEL_API_KEY**: API key for FRASBERG model authentication
 - **MODEL_ENDPOINT**: Generic model endpoint (used by Edge Functions)
 - **MODEL_API_KEY**: Generic model API key (used by Edge Functions)
 
@@ -94,7 +94,7 @@ Click **"New Secret"** and add each key:
 
 ```env
 # ElevenLabs Keys
-ELEVENLABS_SOFIA_API_KEY=sk_xxxxxxxxxxxxx
+ELEVENLABS_FRASBERG_API_KEY=sk_xxxxxxxxxxxxx
 ELEVENLABS_VOICEGATEWAY_STT_KEY=sk_xxxxxxxxxxxxx
 ELEVENLABS_VOICEGATEWAY_TTS_KEY=sk_xxxxxxxxxxxxx
 
@@ -108,10 +108,10 @@ CHAT_MODEL_ENDPOINT=https://api.runwayml.com/v1/chat
 IMAGE_MODEL_ENDPOINT=https://api.runwayml.com/v1/images
 VIDEO_MODEL_ENDPOINT=https://api.runwayml.com/v1/videos
 
-# SOFIA Model Configuration
-SOFIA_MODEL_ENDPOINT=https://YOUR_PROJECT.supabase.co/functions/v1/sofia-core-backend
-SOFIA_MODEL_API_KEY=your_sofia_api_key_here
-MODEL_ENDPOINT=https://YOUR_PROJECT.supabase.co/functions/v1/sofia-core-backend
+# FRASBERG Model Configuration
+FRASBERG_MODEL_ENDPOINT=https://YOUR_PROJECT.supabase.co/functions/v1/frasberg-backend
+FRASBERG_MODEL_API_KEY=your_frasberg_api_key_here
+MODEL_ENDPOINT=https://YOUR_PROJECT.supabase.co/functions/v1/frasberg-backend
 MODEL_API_KEY=your_model_api_key_here
 
 # GitHub Integration
@@ -130,7 +130,7 @@ ALERT_WEBHOOK=https://your-webhook-url.com/alerts
 Supabase Edge Functions automatically load secrets from Vault using `Deno.env.get()`:
 
 ```typescript
-const apiKey = Deno.env.get("ELEVENLABS_SOFIA_API_KEY");
+const apiKey = Deno.env.get("ELEVENLABS_FRASBERG_API_KEY");
 ```
 
 ---
@@ -138,7 +138,7 @@ const apiKey = Deno.env.get("ELEVENLABS_SOFIA_API_KEY");
 ## 🗂️ File Structure
 
 ```
-sofia-core-backend/
+frasberg-backend/
 ├── .env.example              # Root environment template
 ├── .env                      # Root environment (DO NOT COMMIT)
 ├── .gitignore                # Protects .env files

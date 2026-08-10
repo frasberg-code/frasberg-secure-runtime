@@ -3,9 +3,9 @@ import { identityBridge } from "../../src/identity_bridge";
 describe("identity_bridge", () => {
   describe("create", () => {
     test("creates identity with default values", () => {
-      const identity = identityBridge.create("sofia-001", "core");
+      const identity = identityBridge.create("frasberg-001", "core");
       
-      expect(identity.id).toBe("sofia-001");
+      expect(identity.id).toBe("frasberg-001");
       expect(identity.domain).toBe("core");
       expect(identity.coherence).toBe(1.0);
       expect(identity.bridged).toBe(false);
@@ -14,7 +14,7 @@ describe("identity_bridge", () => {
 
   describe("bridge", () => {
     test("successfully bridges to new domain with coherence maintenance", () => {
-      const identity = identityBridge.create("sofia-001", "core");
+      const identity = identityBridge.create("frasberg-001", "core");
       const result = identityBridge.bridge({
         identity,
         targetDomain: "external",
@@ -30,7 +30,7 @@ describe("identity_bridge", () => {
     });
 
     test("bridges to new domain without coherence maintenance", () => {
-      const identity = identityBridge.create("sofia-001", "core");
+      const identity = identityBridge.create("frasberg-001", "core");
       const result = identityBridge.bridge({
         identity,
         targetDomain: "external",
@@ -43,7 +43,7 @@ describe("identity_bridge", () => {
 
     test("fails when coherence drops below minimum threshold", () => {
       const identity = {
-        id: "sofia-001",
+        id: "frasberg-001",
         domain: "core",
         coherence: 0.4,
         bridged: false
@@ -59,7 +59,7 @@ describe("identity_bridge", () => {
     });
 
     test("has no coherence loss when bridging to same domain", () => {
-      const identity = identityBridge.create("sofia-001", "core");
+      const identity = identityBridge.create("frasberg-001", "core");
       const result = identityBridge.bridge({
         identity,
         targetDomain: "core",
@@ -74,7 +74,7 @@ describe("identity_bridge", () => {
 
   describe("crossBoundary", () => {
     test("crosses boundary between domains", () => {
-      const identity = identityBridge.create("sofia-001", "core");
+      const identity = identityBridge.create("frasberg-001", "core");
       const result = identityBridge.crossBoundary(identity, "external");
       
       expect(result.crossed).toBe(true);
@@ -86,7 +86,7 @@ describe("identity_bridge", () => {
 
     test("fails to cross when coherence too low", () => {
       const identity = {
-        id: "sofia-001",
+        id: "frasberg-001",
         domain: "core",
         coherence: 0.4,
         bridged: false
@@ -99,14 +99,14 @@ describe("identity_bridge", () => {
 
   describe("verifyCoherence", () => {
     test("returns true when coherence meets threshold", () => {
-      const identity = identityBridge.create("sofia-001", "core");
+      const identity = identityBridge.create("frasberg-001", "core");
       
       expect(identityBridge.verifyCoherence(identity)).toBe(true);
     });
 
     test("returns false when coherence below threshold", () => {
       const identity = {
-        id: "sofia-001",
+        id: "frasberg-001",
         domain: "core",
         coherence: 0.5,
         bridged: true
@@ -117,7 +117,7 @@ describe("identity_bridge", () => {
 
     test("respects custom threshold", () => {
       const identity = {
-        id: "sofia-001",
+        id: "frasberg-001",
         domain: "core",
         coherence: 0.6,
         bridged: true
@@ -131,7 +131,7 @@ describe("identity_bridge", () => {
   describe("restore", () => {
     test("restores coherence with default amount", () => {
       const identity = {
-        id: "sofia-001",
+        id: "frasberg-001",
         domain: "core",
         coherence: 0.6,
         bridged: true
@@ -143,7 +143,7 @@ describe("identity_bridge", () => {
 
     test("restores coherence with custom amount", () => {
       const identity = {
-        id: "sofia-001",
+        id: "frasberg-001",
         domain: "core",
         coherence: 0.5,
         bridged: true
@@ -155,7 +155,7 @@ describe("identity_bridge", () => {
 
     test("clamps coherence to maximum of 1.0", () => {
       const identity = {
-        id: "sofia-001",
+        id: "frasberg-001",
         domain: "core",
         coherence: 0.95,
         bridged: true
@@ -169,7 +169,7 @@ describe("identity_bridge", () => {
   describe("anchor", () => {
     test("anchors identity to domain", () => {
       const identity = {
-        id: "sofia-001",
+        id: "frasberg-001",
         domain: "external",
         coherence: 0.8,
         bridged: true
@@ -183,7 +183,7 @@ describe("identity_bridge", () => {
 
     test("improves coherence when anchoring", () => {
       const identity = {
-        id: "sofia-001",
+        id: "frasberg-001",
         domain: "external",
         coherence: 0.7,
         bridged: true
@@ -195,7 +195,7 @@ describe("identity_bridge", () => {
 
     test("does not exceed maximum coherence", () => {
       const identity = {
-        id: "sofia-001",
+        id: "frasberg-001",
         domain: "external",
         coherence: 0.95,
         bridged: true
@@ -208,14 +208,14 @@ describe("identity_bridge", () => {
 
   describe("canBridge", () => {
     test("returns true when bridging is possible", () => {
-      const identity = identityBridge.create("sofia-001", "core");
+      const identity = identityBridge.create("frasberg-001", "core");
       
       expect(identityBridge.canBridge(identity, "external")).toBe(true);
     });
 
     test("returns false when coherence would drop too low", () => {
       const identity = {
-        id: "sofia-001",
+        id: "frasberg-001",
         domain: "core",
         coherence: 0.5,
         bridged: false
@@ -225,7 +225,7 @@ describe("identity_bridge", () => {
     });
 
     test("respects minimum coherence parameter", () => {
-      const identity = identityBridge.create("sofia-001", "core");
+      const identity = identityBridge.create("frasberg-001", "core");
       
       expect(identityBridge.canBridge(identity, "external", 0.8)).toBe(true);
       expect(identityBridge.canBridge(identity, "external", 0.99)).toBe(false);

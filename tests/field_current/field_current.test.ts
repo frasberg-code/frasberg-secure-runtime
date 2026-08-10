@@ -1,4 +1,4 @@
-import { stabilizeCurrent } from '../../supabase/sofia_core/field_current/field_current';
+import { stabilizeCurrent } from '../../supabase/frasberg/field_current/field_current';
 
 describe('field_current', () => {
   test('stabilizes current with anchor', () => {

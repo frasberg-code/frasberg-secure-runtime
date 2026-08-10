@@ -4,7 +4,7 @@ from functools import wraps
 from typing import Callable, Any
 import logging
 
-logger = logging.getLogger("sofia-core.resilience")
+logger = logging.getLogger("frasberg.resilience")
 
 class CircuitBreaker:
     """Circuit breaker pattern for service calls"""

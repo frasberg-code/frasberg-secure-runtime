@@ -1,6 +1,6 @@
 # MLflow Integration
 
-Sofia Core integrates with MLflow for complete model lifecycle management, experiment tracking, and model registry.
+Frasberg integrates with MLflow for complete model lifecycle management, experiment tracking, and model registry.
 
 ## Installation
 
@@ -17,7 +17,7 @@ from backend.app.integrations import MLflowTracker
 
 # Initialize tracker
 tracker = MLflowTracker(
-    experiment_name="sofia-dna-compute"
+    experiment_name="frasberg-dna-compute"
 )
 
 # Start run
@@ -44,7 +44,7 @@ tracker.end_run()
 ```python
 from backend.app.integrations import MLflowTracker
 
-tracker = MLflowTracker(experiment_name="sofia-models")
+tracker = MLflowTracker(experiment_name="frasberg-models")
 tracker.start_run()
 
 # Train model
@@ -66,14 +66,14 @@ tracker.end_run()
 ```python
 tracker = MLflowTracker(
     tracking_uri="http://mlflow-server:5000",
-    experiment_name="sofia-experiments"
+    experiment_name="frasberg-experiments"
 )
 ```
 
 ### Nested Runs
 
 ```python
-tracker = MLflowTracker(experiment_name="sofia-pipeline")
+tracker = MLflowTracker(experiment_name="frasberg-pipeline")
 
 # Parent run
 with tracker.start_run(run_name="pipeline-run"):
@@ -88,7 +88,7 @@ with tracker.start_run(run_name="pipeline-run"):
         tracker.log_metrics({"training_accuracy": 0.95})
 ```
 
-## Integration with Sofia Core
+## Integration with Frasberg
 
 ### DNA Computing Experiments
 
@@ -211,7 +211,7 @@ Access at: http://localhost:5000
 ```python
 # Use hierarchical experiment names
 tracker = MLflowTracker(
-    experiment_name="sofia-core/dna-compute/optimization"
+    experiment_name="frasberg/dna-compute/optimization"
 )
 ```
 
@@ -285,7 +285,7 @@ from backend.app.integrations import MLflowTracker
 import time
 
 # Initialize
-tracker = MLflowTracker(experiment_name="sofia-training")
+tracker = MLflowTracker(experiment_name="frasberg-training")
 tracker.start_run(run_name="neural-dna-training")
 
 # Log configuration
@@ -383,5 +383,5 @@ export MLFLOW_ARTIFACT_ROOT=/path/to/artifacts
 ## Learn More
 
 - [MLflow Documentation](https://mlflow.org/docs/latest/index.html)
-- [Sofia Core Integration Guide](../README.md)
+- [Frasberg Integration Guide](../README.md)
 - [Model Registry Guide](https://mlflow.org/docs/latest/model-registry.html)

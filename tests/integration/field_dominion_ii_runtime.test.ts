@@ -1,4 +1,4 @@
-import { fieldDominionII } from '../../supabase/sofia_core/sofia_core_runtime';
+import { fieldDominionII } from '../../supabase/frasberg/frasberg_runtime';
 
 describe('Field Dominion-II Runtime Integration', () => {
   test('fieldDominionII exports all three functions', () => {

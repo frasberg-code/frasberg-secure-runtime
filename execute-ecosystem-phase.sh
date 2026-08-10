@@ -5,11 +5,11 @@ echo "  PHASE 3: ECOSYSTEM & TOOLING - ALL TRACKS"
 echo "════════════════════════════════════════════════"
 echo ""
 
-# TRACK D: Sofia CLI
-mkdir -p cli/sofia
-cat > cli/sofia/main.py << 'EOF'
+# TRACK D: Frasberg CLI
+mkdir -p cli/frasberg
+cat > cli/frasberg/main.py << 'EOF'
 #!/usr/bin/env python3
-"""Sofia Core CLI - Command-line interface for Sofia Core"""
+"""Frasberg CLI - Command-line interface for Frasberg"""
 
 import click
 import requests
@@ -25,7 +25,7 @@ BASE_URL = "http://localhost:8000"
 @click.group()
 @click.version_option(version='5.0.0')
 def cli():
-    """Sofia Core CLI - Manage your Sofia Core instance"""
+    """Frasberg CLI - Manage your Frasberg instance"""
     pass
 
 @cli.command()
@@ -36,13 +36,13 @@ def health():
         data = response.json()
         
         if response.status_code == 200:
-            rprint(f"[green]✓[/green] Sofia Core is healthy")
+            rprint(f"[green]✓[/green] Frasberg is healthy")
             rprint(f"Version: {data.get('version')}")
             rprint(f"Status: {data.get('status')}")
         else:
             rprint(f"[red]✗[/red] Health check failed")
     except Exception as e:
-        rprint(f"[red]✗[/red] Cannot connect to Sofia Core: {e}")
+        rprint(f"[red]✗[/red] Cannot connect to Frasberg: {e}")
 
 @cli.command()
 def status():
@@ -51,7 +51,7 @@ def status():
         response = requests.get(f"{BASE_URL}/health/detailed")
         data = response.json()
         
-        table = Table(title="Sofia Core System Status")
+        table = Table(title="Frasberg System Status")
         table.add_column("Metric", style="cyan")
         table.add_column("Value", style="green")
         
@@ -134,7 +134,7 @@ def services():
         ("Admin UI", "3000", "Web dashboard")
     ]
     
-    table = Table(title="Sofia Core Services")
+    table = Table(title="Frasberg Services")
     table.add_column("Service", style="cyan")
     table.add_column("Port", style="yellow")
     table.add_column("Description", style="green")
@@ -198,6 +198,6 @@ if __name__ == '__main__':
     cli()
 EOF
 
-chmod +x cli/sofia/main.py
+chmod +x cli/frasberg/main.py
 
-echo "✅ Sofia CLI created"
+echo "✅ Frasberg CLI created"

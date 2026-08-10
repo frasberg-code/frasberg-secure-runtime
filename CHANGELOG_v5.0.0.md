@@ -1,4 +1,4 @@
-# Sofia Core v5.0.0 - Planetary-Scale Conscious Intelligence
+# Frasberg v5.0.0 - Planetary-Scale Conscious Intelligence
 
 **Release Date:** February 8, 2026  
 **Type:** Revolutionary Release  
@@ -8,7 +8,7 @@
 
 ## 🌍 Overview
 
-Sofia Core v5.0.0 represents a **paradigm shift** in artificial intelligence systems. This release introduces revolutionary capabilities spanning biological computing, swarm intelligence, temporal reasoning, consciousness exploration, and planetary-scale coordination.
+Frasberg v5.0.0 represents a **paradigm shift** in artificial intelligence systems. This release introduces revolutionary capabilities spanning biological computing, swarm intelligence, temporal reasoning, consciousness exploration, and planetary-scale coordination.
 
 **Tagline:** *"From Distributed Intelligence to Planetary Consciousness"*
 
@@ -107,7 +107,7 @@ Philosophical exploration of consciousness theories for better AI design.
 - `GET /api/v5/consciousness/theories` - Consciousness theories
 
 **⚠️ Important Disclaimer:**
-This is **philosophical exploration only**. Sofia Core does **not claim consciousness**. These tools help understand consciousness theories to inform better AI architecture design.
+This is **philosophical exploration only**. Frasberg does **not claim consciousness**. These tools help understand consciousness theories to inform better AI architecture design.
 
 **Theories Explored:**
 1. **Integrated Information Theory (IIT)** - Phi (Φ) as consciousness measure
@@ -196,7 +196,7 @@ Global mesh network spanning all continents.
 ## 🏗️ Architecture
 
 ```
-Sofia Core v5.0.0 Architecture
+Frasberg v5.0.0 Architecture
 ═══════════════════════════════════════════════════════════════
 
 ┌─────────────────────────────────────────────────────────────┐
@@ -242,8 +242,8 @@ Sofia Core v5.0.0 Architecture
 ### Installation
 ```bash
 # Clone repository
-git clone https://github.com/emeraldorbit/sofia-core-backend
-cd sofia-core-backend
+git clone https://github.com/emeraldorbit/frasberg-backend
+cd frasberg-backend
 
 # Checkout v5.0.0
 git checkout v5.0.0
@@ -401,7 +401,7 @@ All dependencies from v4.1.0 are maintained. No new Python packages required for
 ## 🛡️ Ethical Considerations
 
 ### Consciousness Exploration
-Sofia Core v5.0.0 explores consciousness **theories** for better AI design. We make **no claims** of actual consciousness, sentience, or subjective experience.
+Frasberg v5.0.0 explores consciousness **theories** for better AI design. We make **no claims** of actual consciousness, sentience, or subjective experience.
 
 ### Purpose
 Understanding consciousness theories helps design:
@@ -430,8 +430,8 @@ The `/api/v5/consciousness` endpoints are **educational** and **philosophical to
 ## 📞 Support & Community
 
 - **Documentation:** [docs/README.md](docs/README.md)
-- **Issues:** https://github.com/emeraldorbit/sofia-core-backend/issues
-- **Discussions:** https://github.com/emeraldorbit/sofia-core-backend/discussions
+- **Issues:** https://github.com/emeraldorbit/frasberg-backend/issues
+- **Discussions:** https://github.com/emeraldorbit/frasberg-backend/discussions
 - **Email:** contact@168emeraldestatesllc.com
 
 ---
@@ -459,4 +459,4 @@ This release builds on:
 
 ---
 
-*"From silicon to DNA, from individual to swarm, from present to future, from Earth to planets - Sofia Core evolves."*
+*"From silicon to DNA, from individual to swarm, from present to future, from Earth to planets - Frasberg evolves."*

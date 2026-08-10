@@ -1,4 +1,4 @@
-import { mapHorizonStateIV } from '../../supabase/sofia_core/field_horizon_mapping_iv/field_horizon_mapping_iv';
+import { mapHorizonStateIV } from '../../supabase/frasberg/field_horizon_mapping_iv/field_horizon_mapping_iv';
 
 describe('field_horizon_mapping_iv', () => {
   test('maps fourth-order horizon numerically', () => {

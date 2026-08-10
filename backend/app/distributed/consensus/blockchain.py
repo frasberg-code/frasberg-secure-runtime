@@ -20,7 +20,7 @@ class Blockchain(BaseModel):
     difficulty: int
 
 # Global blockchain
-sofia_chain = Blockchain(
+frasberg_chain = Blockchain(
     chain=[],
     pending_data=[],
     difficulty=4
@@ -39,25 +39,25 @@ def create_genesis_block():
     genesis = Block(
         block_number=0,
         timestamp=timestamp,
-        data={"type": "genesis", "message": "Sofia Core v4.0.0 Blockchain Initialized"},
+        data={"type": "genesis", "message": "Frasberg v4.0.0 Blockchain Initialized"},
         previous_hash="0",
         current_hash=genesis_hash,
         nonce=0
     )
     
-    sofia_chain.chain.append(genesis)
+    frasberg_chain.chain.append(genesis)
 
 # Initialize blockchain
-if not sofia_chain.chain:
+if not frasberg_chain.chain:
     create_genesis_block()
 
 @router.get("/chain")
 def get_blockchain():
     """Get complete blockchain"""
     return {
-        "chain_length": len(sofia_chain.chain),
-        "blocks": sofia_chain.chain,
-        "pending_count": len(sofia_chain.pending_data)
+        "chain_length": len(frasberg_chain.chain),
+        "blocks": frasberg_chain.chain,
+        "pending_count": len(frasberg_chain.pending_data)
     }
 
 @router.post("/transaction")
@@ -65,28 +65,28 @@ def add_transaction(transaction_data: Dict[str, Any]):
     """Add transaction to pending pool"""
     
     transaction_data["timestamp"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    sofia_chain.pending_data.append(transaction_data)
+    frasberg_chain.pending_data.append(transaction_data)
     
     return {
         "status": "pending",
         "transaction": transaction_data,
-        "pending_count": len(sofia_chain.pending_data)
+        "pending_count": len(frasberg_chain.pending_data)
     }
 
 @router.post("/mine")
 def mine_block(miner_id: str):
     """Mine a new block (proof of work)"""
     
-    if not sofia_chain.pending_data:
+    if not frasberg_chain.pending_data:
         raise HTTPException(400, "No pending transactions to mine")
     
-    last_block = sofia_chain.chain[-1]
+    last_block = frasberg_chain.chain[-1]
     new_block_number = last_block.block_number + 1
     timestamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     
     # Combine pending data
     block_data = {
-        "transactions": sofia_chain.pending_data,
+        "transactions": frasberg_chain.pending_data,
         "miner": miner_id
     }
     
@@ -104,7 +104,7 @@ def mine_block(miner_id: str):
         )
         
         # Check if hash meets difficulty (starts with N zeros)
-        if hash_attempt.startswith('0' * sofia_chain.difficulty):
+        if hash_attempt.startswith('0' * frasberg_chain.difficulty):
             break
         
         nonce += 1
@@ -122,22 +122,22 @@ def mine_block(miner_id: str):
         nonce=nonce
     )
     
-    sofia_chain.chain.append(new_block)
-    sofia_chain.pending_data = []
+    frasberg_chain.chain.append(new_block)
+    frasberg_chain.pending_data = []
     
     return {
         "status": "mined",
         "block": new_block,
-        "chain_length": len(sofia_chain.chain)
+        "chain_length": len(frasberg_chain.chain)
     }
 
 @router.get("/verify")
 def verify_blockchain():
     """Verify blockchain integrity"""
     
-    for i in range(1, len(sofia_chain.chain)):
-        current = sofia_chain.chain[i]
-        previous = sofia_chain.chain[i-1]
+    for i in range(1, len(frasberg_chain.chain)):
+        current = frasberg_chain.chain[i]
+        previous = frasberg_chain.chain[i-1]
         
         # Verify hash chain
         if current.previous_hash != previous.current_hash:
@@ -163,6 +163,6 @@ def verify_blockchain():
     
     return {
         "valid": True,
-        "chain_length": len(sofia_chain.chain),
+        "chain_length": len(frasberg_chain.chain),
         "message": "Blockchain integrity verified"
     }

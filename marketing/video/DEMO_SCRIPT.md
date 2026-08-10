@@ -1,19 +1,19 @@
-# Sofia Core - 5-Minute Demo Video Script
+# Frasberg - 5-Minute Demo Video Script
 
 ## Scene 1: Hook (0:00-0:30)
 **Visual**: Terminal with fast commands executing  
 **Narration**: "What if you could run AI computations 1 million times more efficiently than traditional systems? What if you could coordinate 1,000 agents simultaneously? What if all of this was open source and available today?"
 
-**Visual**: Sofia Core logo reveal  
-**Text on screen**: "Sofia Core - Planetary-Scale AI Infrastructure"
+**Visual**: Frasberg logo reveal  
+**Text on screen**: "Frasberg - Planetary-Scale AI Infrastructure"
 
 ## Scene 2: The Problem (0:30-1:00)
 **Visual**: Graphs showing AI energy consumption, cost, complexity  
-**Narration**: "AI infrastructure today faces three critical challenges: massive energy consumption, limited scalability, and vendor lock-in. Sofia Core solves all three."
+**Narration**: "AI infrastructure today faces three critical challenges: massive energy consumption, limited scalability, and vendor lock-in. Frasberg solves all three."
 
 ## Scene 3: The Solution (1:00-2:00)
 **Visual**: Architecture diagram  
-**Narration**: "Sofia Core is the first open-source AI infrastructure combining biological computing, swarm intelligence, and temporal reasoning. Built on 20+ hours of development and backed by academic research."
+**Narration**: "Frasberg is the first open-source AI infrastructure combining biological computing, swarm intelligence, and temporal reasoning. Built on 20+ hours of development and backed by academic research."
 
 **Show features scrolling**:
 - DNA Computing (1M× efficiency)
@@ -27,8 +27,8 @@
 
 ### Demo 1 - Quick Start (30 seconds)
 \`\`\`bash
-git clone https://github.com/emeraldorbit/sofia-core-backend
-cd sofia-core-backend
+git clone https://github.com/emeraldorbit/frasberg-backend
+cd frasberg-backend
 ./quick-start.sh
 # Show services starting
 curl http://localhost:8000/health
@@ -36,8 +36,8 @@ curl http://localhost:8000/health
 
 ### Demo 2 - DNA Computing (30 seconds)
 \`\`\`python
-from sofia_sdk import SofiaClient
-client = SofiaClient()
+from frasberg_sdk import FrasbergClient
+client = FrasbergClient()
 
 result = client.dna_compute(
     sequence="ATCGATCG",
@@ -77,12 +77,12 @@ print(response['response'])
 ## Scene 6: Call to Action (4:30-5:00)
 **Visual**: GitHub repo, Discord invite, website
 
-**Narration**: "Sofia Core is MIT licensed, fully open source, and available now. Join 1,000+ developers building the future of AI."
+**Narration**: "Frasberg is MIT licensed, fully open source, and available now. Join 1,000+ developers building the future of AI."
 
 **Text on screen**:
-- GitHub: github.com/emeraldorbit/sofia-core-backend
-- Discord: discord.gg/sofia-core
-- Docs: docs.sofia-core.ai
+- GitHub: github.com/emeraldorbit/frasberg-backend
+- Discord: discord.gg/frasberg
+- Docs: docs.frasberg.ai
 
 **Final frame**: "Start building in 5 minutes"
 

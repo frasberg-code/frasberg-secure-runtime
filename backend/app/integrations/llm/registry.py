@@ -1,4 +1,4 @@
-"""Sovereign provider registry for Sofia Core.
+"""Sovereign provider registry for Frasberg.
 
 Governance rules:
 - Default provider is ``local`` (Ollama).

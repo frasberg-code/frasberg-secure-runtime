@@ -1,4 +1,4 @@
-import { originateFieldStateIV } from '../../supabase/sofia_core/field_origin_iv/field_origin_iv';
+import { originateFieldStateIV } from '../../supabase/frasberg/field_origin_iv/field_origin_iv';
 
 describe('field_origin_iv', () => {
   test('originates fourth-order state numerically', () => {

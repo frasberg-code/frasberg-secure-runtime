@@ -1,4 +1,4 @@
-import { continueHorizonState } from '../../supabase/sofia_core/field_horizon_continuity/field_horizon_continuity';
+import { continueHorizonState } from '../../supabase/frasberg/field_horizon_continuity/field_horizon_continuity';
 
 test('continues horizon using continuer', () => {
   const continuer = (x: number[]) => [...x, x.length];

@@ -45,7 +45,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise credentials_exception
     
-    return User(username=username, email=f"{username}@sofia.ai", full_name=username)
+    return User(username=username, email=f"{username}@frasberg.ai", full_name=username)
 
 @router.post("/token", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):

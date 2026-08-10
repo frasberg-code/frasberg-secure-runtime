@@ -1,4 +1,4 @@
-import { filterSignature } from '../../supabase/sofia_core/signature_filter/signature_filter';
+import { filterSignature } from '../../supabase/frasberg/signature_filter/signature_filter';
 
 describe('signature_filter', () => {
   test('filters and shapes signature', () => {
@@ -6,7 +6,7 @@ describe('signature_filter', () => {
   });
 
   test('trims whitespace', () => {
-    expect(filterSignature('  sofia  ')).toBe('SOFIA');
+    expect(filterSignature('  frasberg  ')).toBe('FRASBERG');
   });
 
   test('converts to uppercase', () => {

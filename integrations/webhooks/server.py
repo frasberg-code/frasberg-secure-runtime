@@ -1,11 +1,11 @@
-"""Sofia Core Webhook Server"""
+"""Frasberg Webhook Server"""
 
 from fastapi import FastAPI, Request, BackgroundTasks
 import httpx
 import hmac
 import hashlib
 
-app = FastAPI(title="Sofia Webhooks")
+app = FastAPI(title="Frasberg Webhooks")
 
 async def send_webhook(url: str, event: str, data: dict):
     """Send webhook to external service"""
@@ -13,7 +13,7 @@ async def send_webhook(url: str, event: str, data: dict):
         await client.post(url, json={
             "event": event,
             "data": data,
-            "source": "sofia-core"
+            "source": "frasberg"
         })
 
 @app.post("/webhooks/register")

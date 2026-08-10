@@ -1,4 +1,4 @@
-import { modulateIdentity } from '../../supabase/sofia_core/identity_modulator/identity_modulator';
+import { modulateIdentity } from '../../supabase/frasberg/identity_modulator/identity_modulator';
 
 describe('identity_modulator', () => {
   test('modulates identity based on mode', () => {
@@ -6,11 +6,11 @@ describe('identity_modulator', () => {
   });
 
   test('applies formal modulation', () => {
-    expect(modulateIdentity('SOFIA', 'formal')).toBe('[FORMAL] SOFIA');
+    expect(modulateIdentity('FRASBERG', 'formal')).toBe('[FORMAL] FRASBERG');
   });
 
   test('applies ceremonial modulation', () => {
-    expect(modulateIdentity('SOFIA', 'ceremonial')).toBe('🌿 SOFIA 🌿');
+    expect(modulateIdentity('FRASBERG', 'ceremonial')).toBe('🌿 FRASBERG 🌿');
   });
 
   test('returns signature unchanged in direct mode', () => {

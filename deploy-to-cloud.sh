@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "════════════════════════════════════════════════"
-echo "  SOFIA CORE v1.0.0 - CLOUD DEPLOYMENT"
+echo "  FRASBERG CORE v1.0.0 - CLOUD DEPLOYMENT"
 echo "════════════════════════════════════════════════"
 echo ""
 
@@ -19,27 +19,27 @@ case $choice in
         echo ""
         echo "═══ AWS DEPLOYMENT ═══"
         echo ""
-        ./cloud-deploy/aws-deploy-sofia-core.sh
+        ./cloud-deploy/aws-deploy-frasberg.sh
         ;;
     2)
         echo ""
         echo "═══ GCP DEPLOYMENT ═══"
         echo ""
-        ./cloud-deploy/gcp-deploy-sofia-core.sh
+        ./cloud-deploy/gcp-deploy-frasberg.sh
         ;;
     3)
         echo ""
         echo "═══ AZURE DEPLOYMENT ═══"
         echo ""
-        ./cloud-deploy/azure-deploy-sofia-core.sh
+        ./cloud-deploy/azure-deploy-frasberg.sh
         ;;
     4)
         echo ""
         echo "═══ MULTI-CLOUD DEPLOYMENT ═══"
         echo ""
-        ./cloud-deploy/aws-deploy-sofia-core.sh
-        ./cloud-deploy/gcp-deploy-sofia-core.sh
-        ./cloud-deploy/azure-deploy-sofia-core.sh
+        ./cloud-deploy/aws-deploy-frasberg.sh
+        ./cloud-deploy/gcp-deploy-frasberg.sh
+        ./cloud-deploy/azure-deploy-frasberg.sh
         ;;
     5)
         echo ""

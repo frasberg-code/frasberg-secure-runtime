@@ -1,4 +1,4 @@
-import { integrativeResonance } from '../supabase/sofia_core/sofia_core_runtime';
+import { integrativeResonance } from '../supabase/frasberg/frasberg_runtime';
 
 describe('Runtime Integration - Integrative Resonance Triad', () => {
   test('integrativeResonance exports all three functions', () => {

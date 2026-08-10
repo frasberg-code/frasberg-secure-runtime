@@ -1,4 +1,4 @@
-import { expressFieldIdentity } from '../../supabase/sofia_core/field_expression/field_expression';
+import { expressFieldIdentity } from '../../supabase/frasberg/field_expression/field_expression';
 
 describe('field_expression', () => {
   test('expresses identity using expressor', () => {
@@ -17,9 +17,9 @@ describe('field_expression', () => {
 
   test('handles object identity expression', () => {
     const expressor = (x: { name: string }) => ({ name: x.name.toUpperCase() });
-    const result = expressFieldIdentity({ name: 'sofia' }, expressor);
+    const result = expressFieldIdentity({ name: 'frasberg' }, expressor);
     expect(result.expressed).toBe(true);
-    expect(result.output).toEqual({ name: 'SOFIA' });
+    expect(result.output).toEqual({ name: 'FRASBERG' });
   });
 
   test('handles array identity expression', () => {

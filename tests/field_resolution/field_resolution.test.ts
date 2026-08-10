@@ -1,4 +1,4 @@
-import { resolveFieldConflict } from '../../supabase/sofia_core/field_resolution/field_resolution';
+import { resolveFieldConflict } from '../../supabase/frasberg/field_resolution/field_resolution';
 
 describe('field_resolution', () => {
   test('resolves to highest-weight intent', () => {

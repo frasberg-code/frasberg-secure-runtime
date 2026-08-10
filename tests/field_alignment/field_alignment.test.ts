@@ -1,4 +1,4 @@
-import { alignFieldContinuity } from '../../supabase/sofia_core/field_alignment/field_alignment';
+import { alignFieldContinuity } from '../../supabase/frasberg/field_alignment/field_alignment';
 
 describe('field_alignment', () => {
   test('aligns continuity inputs using aligner', () => {

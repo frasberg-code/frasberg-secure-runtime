@@ -1,12 +1,12 @@
 #!/bin/bash
-# Sofia Core - Month 1 Week 1-2: v5.1.0 Real Integrations
+# Frasberg - Month 1 Week 1-2: v5.1.0 Real Integrations
 # Execute real production-ready integrations
 
 set -e
 
 echo "════════════════════════════════════════════════════════════════"
-echo "  SOFIA CORE - WEEK 1-2: v5.1.0 REAL INTEGRATIONS"
-echo "  Making Sofia Core Production-Ready"
+echo "  FRASBERG CORE - WEEK 1-2: v5.1.0 REAL INTEGRATIONS"
+echo "  Making Frasberg Production-Ready"
 echo "════════════════════════════════════════════════════════════════"
 echo ""
 
@@ -19,7 +19,7 @@ NC='\033[0m' # No Color
 
 # Check if we're in the right directory
 if [ ! -f "backend/server.py" ]; then
-    echo -e "${RED}❌ Error: Must run from sofia-core-backend root directory${NC}"
+    echo -e "${RED}❌ Error: Must run from frasberg-backend root directory${NC}"
     exit 1
 fi
 
@@ -84,7 +84,7 @@ OPENAI_API_KEY=sk-...your-key-here
 ANTHROPIC_API_KEY=sk-ant-...your-key-here
 
 # Database Configuration
-DATABASE_URL=postgresql://sofia:sofia@localhost:5432/sofia_core
+DATABASE_URL=postgresql://frasberg:frasberg@localhost:5432/frasberg
 # Or for SQLite (development only):
 # USE_SQLITE=true
 
@@ -113,18 +113,18 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 echo "Option A: Use Docker (easiest):"
 echo "  docker run -d \\"
-echo "    --name sofia-postgres \\"
-echo "    -e POSTGRES_USER=sofia \\"
-echo "    -e POSTGRES_PASSWORD=sofia \\"
-echo "    -e POSTGRES_DB=sofia_core \\"
+echo "    --name frasberg-postgres \\"
+echo "    -e POSTGRES_USER=frasberg \\"
+echo "    -e POSTGRES_PASSWORD=frasberg \\"
+echo "    -e POSTGRES_DB=frasberg \\"
 echo "    -p 5432:5432 \\"
 echo "    postgres:15"
 echo ""
 echo "Option B: Install PostgreSQL locally:"
 echo "  # Ubuntu/Debian"
 echo "  sudo apt-get install postgresql postgresql-contrib"
-echo "  sudo -u postgres createuser sofia"
-echo "  sudo -u postgres createdb sofia_core"
+echo "  sudo -u postgres createuser frasberg"
+echo "  sudo -u postgres createdb frasberg"
 echo ""
 echo "Option C: Use SQLite (development only):"
 echo "  Set USE_SQLITE=true in .env"
@@ -136,7 +136,7 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 echo "Option A: Use Docker (easiest):"
 echo "  docker run -d \\"
-echo "    --name sofia-redis \\"
+echo "    --name frasberg-redis \\"
 echo "    -p 6379:6379 \\"
 echo "    redis:7-alpine"
 echo ""
@@ -154,11 +154,11 @@ echo "Create database initialization script..."
 echo ""
 
 cat > backend/init_db.py << 'EOF'
-"""Initialize Sofia Core database"""
+"""Initialize Frasberg database"""
 from app.database import init_db, check_db_connection
 import sys
 
-print("Initializing Sofia Core database...")
+print("Initializing Frasberg database...")
 
 if not check_db_connection():
     print("❌ Cannot connect to database. Check DATABASE_URL in .env")
@@ -195,7 +195,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-print("Testing Sofia Core v5.1.0 Integrations")
+print("Testing Frasberg v5.1.0 Integrations")
 print("=" * 50)
 print("")
 
@@ -291,7 +291,7 @@ echo "  cd backend && python test_integrations.py"
 echo ""
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  STEP 7: Start Sofia Core Server"
+echo "  STEP 7: Start Frasberg Server"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 echo "Start the server:"

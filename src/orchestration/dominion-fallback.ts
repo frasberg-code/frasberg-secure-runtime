@@ -12,14 +12,14 @@
  * **Migration Path:**
  * Replace with `ContinuumIdentity` operations from the post_structural runtime:
  * ```typescript
- * import { getPostStructuralRuntime } from '../supabase/sofia_core/post_structural';
+ * import { getPostStructuralRuntime } from '../supabase/frasberg/post_structural';
  * const runtime = getPostStructuralRuntime();
  * const identity = runtime.getIdentity();
  * // Use identity.stabilize() or identity.handlePressure() instead of fallback chains
  * ```
  * 
  * Provides authoritative fallback mechanisms when primary execution fails.
- * Part of the Codex Architecture for Sofia Core.
+ * Part of the Codex Architecture for Frasberg.
  */
 
 export interface FallbackStrategy {

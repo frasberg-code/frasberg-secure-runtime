@@ -1,4 +1,4 @@
-"""Sofia Core v5.1.0 - Production-Ready with Real Integrations"""
+"""Frasberg v5.1.0 - Production-Ready with Real Integrations"""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -22,7 +22,7 @@ from backend.app.cache import cache
 async def lifespan(app: FastAPI):
     """Startup and shutdown events"""
     # Startup
-    logger.info("🚀 Sofia Core v5.1.0 starting up...")
+    logger.info("🚀 Frasberg v5.1.0 starting up...")
     
     try:
         init_db()
@@ -48,15 +48,15 @@ async def lifespan(app: FastAPI):
     anthropic = get_anthropic_client()
     logger.info(f"✅ Anthropic: {'Ready' if not anthropic.mock_mode else 'Mock mode (set ANTHROPIC_API_KEY)'}")
     
-    logger.info("🎯 Sofia Core v5.1.0 ready!")
+    logger.info("🎯 Frasberg v5.1.0 ready!")
     
     yield
     
     # Shutdown
-    logger.info("👋 Sofia Core v5.1.0 shutting down...")
+    logger.info("👋 Frasberg v5.1.0 shutting down...")
 
 app = FastAPI(
-    title="Sofia Core v5.1.0",
+    title="Frasberg v5.1.0",
     description="Production-Ready Planetary-Scale Intelligence with Real Integrations",
     version="5.1.0",
     lifespan=lifespan
@@ -80,7 +80,7 @@ app.include_router(auth_router)
 def root():
     """Root endpoint"""
     return {
-        "name": "Sofia Core",
+        "name": "Frasberg",
         "version": "5.1.0",
         "tagline": "Production-Ready Planetary-Scale Intelligence",
         "status": "operational",
@@ -113,7 +113,7 @@ def health():
     return {
         "status": "healthy",
         "version": "5.1.0",
-        "service": "sofia-core",
+        "service": "frasberg",
         "integrations": {
             "database": db_status,
             "cache": cache_stats.get("mode"),

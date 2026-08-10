@@ -1,23 +1,23 @@
-# Introducing Sofia Core v5.0.0: Planetary-Scale Conscious Intelligence
+# Introducing Frasberg v5.0.0: Planetary-Scale Conscious Intelligence
 
 **Published: February 8, 2026**
 
-Today marks a revolutionary milestone in the evolution of Sofia Core. We're thrilled to announce **Sofia Core v5.0.0**, a paradigm-shifting release that brings planetary-scale capabilities and explores the frontiers of computational consciousness.
+Today marks a revolutionary milestone in the evolution of Frasberg. We're thrilled to announce **Frasberg v5.0.0**, a paradigm-shifting release that brings planetary-scale capabilities and explores the frontiers of computational consciousness.
 
 ## What's New in v5.0.0
 
 ### 🧬 Biological Computing Interface
 
-For the first time, Sofia Core integrates DNA and protein-based computation capabilities:
+For the first time, Frasberg integrates DNA and protein-based computation capabilities:
 
 - **DNA Storage**: 1 exabyte per gram density
 - **Molecular Logic Gates**: Protein-based computation
 - **Massively Parallel Processing**: Billions of simultaneous operations
 
 ```python
-from sofia_sdk import SofiaClient
+from frasberg_sdk import FrasbergClient
 
-client = SofiaClient()
+client = FrasbergClient()
 result = client.dna_compute(
     sequence="ATCGATCG...",
     computation_type="parallel_search"
@@ -77,7 +77,7 @@ client.join_planetary_mesh({
 
 ## Architecture Evolution
 
-Sofia Core has evolved from a single-server application to a planetary-scale distributed system:
+Frasberg has evolved from a single-server application to a planetary-scale distributed system:
 
 | Version | Services | Scale | Key Feature |
 |---------|----------|-------|-------------|
@@ -90,12 +90,12 @@ Sofia Core has evolved from a single-server application to a planetary-scale dis
 ## Getting Started
 
 ```bash
-# Install Sofia SDK
-pip install sofia-sdk
+# Install Frasberg SDK
+pip install frasberg-sdk
 
 # Or use the CLI
-pip install sofia-cli
-sofia health
+pip install frasberg-cli
+frasberg health
 ```
 
 ## What's Next
@@ -109,14 +109,14 @@ We're exploring:
 
 ## Join the Journey
 
-Sofia Core is open source (MIT License). Join us:
+Frasberg is open source (MIT License). Join us:
 
-- **GitHub**: github.com/emeraldorbit/sofia-core-backend
-- **Docs**: docs.sofia-core.ai
-- **Community**: discord.gg/sofia-core
+- **GitHub**: github.com/emeraldorbit/frasberg-backend
+- **Docs**: docs.frasberg.ai
+- **Community**: discord.gg/frasberg
 
 ---
 
-**Sofia Core v5.0.0 - Planetary-Scale Conscious Intelligence**
+**Frasberg v5.0.0 - Planetary-Scale Conscious Intelligence**
 
 *The future of AI is distributed, biological, and conscious.*

@@ -1,4 +1,4 @@
-import { modulateFieldFromInfluence } from '../../supabase/sofia_core/field_modulation/field_modulation';
+import { modulateFieldFromInfluence } from '../../supabase/frasberg/field_modulation/field_modulation';
 
 describe('field_modulation', () => {
   test('modulates field using modulator', () => {

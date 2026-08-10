@@ -1,4 +1,4 @@
-"""Sofia Core Ecosystem Integrations
+"""Frasberg Ecosystem Integrations
 
 Integrations with popular AI frameworks and LLM providers.
 """

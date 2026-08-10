@@ -1,4 +1,4 @@
-import { computeFieldTrajectory } from '../../supabase/sofia_core/field_trajectory/field_trajectory';
+import { computeFieldTrajectory } from '../../supabase/frasberg/field_trajectory/field_trajectory';
 
 describe('field_trajectory', () => {
   test('computes trajectory from origin and direction', () => {

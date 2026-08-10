@@ -1,4 +1,4 @@
-import { fieldContinuity } from '../supabase/sofia_core/sofia_core_runtime';
+import { fieldContinuity } from '../supabase/frasberg/frasberg_runtime';
 
 describe('fieldContinuity runtime integration', () => {
   test('exports maintainFieldContinuity', () => {

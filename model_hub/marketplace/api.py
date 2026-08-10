@@ -36,7 +36,7 @@ def list_models(category: Optional[str] = None, sort_by: str = "downloads"):
             {
                 "model_id": "model_002",
                 "name": "Creative Writing Model",
-                "author": "sofia-team",
+                "author": "frasberg-team",
                 "downloads": 5000,
                 "rating": 4.6,
                 "tags": ["creative", "writing"]
@@ -65,7 +65,7 @@ async def upload_model(
 
 @router.post("/models/{model_id}/deploy")
 def deploy_model(model_id: str):
-    """Deploy model to Sofia Core"""
+    """Deploy model to Frasberg"""
     return {
         "model_id": model_id,
         "status": "deployed",

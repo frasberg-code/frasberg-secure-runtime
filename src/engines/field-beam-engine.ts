@@ -2,7 +2,7 @@
  * FieldBeamEngine - Anchored Execution with Retry Envelope
  * 
  * An anchored execution engine with built-in retry logic and field stabilization.
- * Part of the Codex Architecture for Sofia Core.
+ * Part of the Codex Architecture for Frasberg.
  */
 
 export interface FieldBeamConfig {

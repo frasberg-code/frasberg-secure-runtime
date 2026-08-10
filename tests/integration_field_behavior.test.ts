@@ -1,4 +1,4 @@
-import { fieldBehavior } from '../supabase/sofia_core/sofia_core_runtime';
+import { fieldBehavior } from '../supabase/frasberg/frasberg_runtime';
 
 describe('Runtime Integration - Field Behavior Triad', () => {
   test('fieldBehavior exports all three functions', () => {

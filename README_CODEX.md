@@ -1,6 +1,6 @@
 # Codex Architecture
 
-The Codex Architecture represents the next major architectural layer of the Sofia Core system, providing a multi-engine execution model with environmental routing, fallback authority, and self-renewing pipelines.
+The Codex Architecture represents the next major architectural layer of the Frasberg system, providing a multi-engine execution model with environmental routing, fallback authority, and self-renewing pipelines.
 
 ## Architecture Overview
 
@@ -298,7 +298,7 @@ npx tsc                  # Build TypeScript
 
 ### Project Structure
 ```
-sofia-core-backend/
+frasberg-backend/
 ├── src/
 │   ├── engines/
 │   │   ├── beam-engine.ts
@@ -407,8 +407,8 @@ const result = await pipeline.execute({
 ## Version
 
 **Version**: 1.0.0  
-**Part of**: Sofia Core Backend - Codex Architecture PR #8
+**Part of**: Frasberg Backend - Codex Architecture PR #8
 
 ## License
 
-Part of Sofia Core Backend project.
+Part of Frasberg Backend project.

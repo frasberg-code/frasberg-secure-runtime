@@ -1,4 +1,4 @@
-"""JWT Authentication for Sofia Core v5.1"""
+"""JWT Authentication for Frasberg v5.1"""
 from datetime import datetime, timedelta
 from typing import Optional
 import os

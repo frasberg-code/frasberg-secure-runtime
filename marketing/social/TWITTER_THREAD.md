@@ -1,7 +1,7 @@
 # Twitter Launch Thread
 
 **Tweet 1** (Hook):
-🚀 Launching Sofia Core - the first open-source AI infrastructure built for the post-silicon era
+🚀 Launching Frasberg - the first open-source AI infrastructure built for the post-silicon era
 
 Biological computing + Swarm intelligence + Temporal reasoning
 
@@ -14,7 +14,7 @@ AI infrastructure hasn't evolved since the 1940s.
 
 We're still using von Neumann architecture while trying to build AGI.
 
-Sofia Core changes that with biological algorithms that are 1,000,000× more efficient.
+Frasberg changes that with biological algorithms that are 1,000,000× more efficient.
 
 **Tweet 3** (DNA Computing):
 DNA Computing in production:
@@ -59,7 +59,7 @@ MIT licensed. Forever free.
 ✓ Community-governed
 ✓ Commercial use allowed
 
-Star on GitHub: github.com/emeraldorbit/sofia-core-backend
+Star on GitHub: github.com/emeraldorbit/frasberg-backend
 
 **Tweet 7** (Research):
 Backed by real research:
@@ -78,12 +78,12 @@ git clone [repo]
 ./quick-start.sh
 \`\`\`
 
-Or: `pip install sofia-sdk`
+Or: `pip install frasberg-sdk`
 
 **Tweet 9** (Community):
 Join 1,000+ developers building the future:
 
-💬 Discord: discord.gg/sofia-core
+💬 Discord: discord.gg/frasberg
 🐙 GitHub: [link]
 📖 Docs: [link]
 
@@ -92,16 +92,16 @@ The future of AI isn't bigger silicon.
 
 It's smarter systems.
 
-Start building today: github.com/emeraldorbit/sofia-core-backend
+Start building today: github.com/emeraldorbit/frasberg-backend
 
 ---
 
 # Other Platform Posts
 
 ## LinkedIn (Professional)
-🚀 Introducing Sofia Core: Enterprise-Grade AI Infrastructure
+🚀 Introducing Frasberg: Enterprise-Grade AI Infrastructure
 
-After 20+ hours of development, we're excited to launch Sofia Core - the first open-source AI infrastructure combining biological computing, swarm intelligence, and temporal reasoning.
+After 20+ hours of development, we're excited to launch Frasberg - the first open-source AI infrastructure combining biological computing, swarm intelligence, and temporal reasoning.
 
 **Why This Matters for Enterprises**:
 
@@ -114,11 +114,11 @@ After 20+ hours of development, we're excited to launch Sofia Core - the first o
 [Full post in file...]
 
 ## Reddit (r/programming)
-**Title**: [Open Source] Sofia Core - AI infrastructure with DNA computing, swarm intelligence
+**Title**: [Open Source] Frasberg - AI infrastructure with DNA computing, swarm intelligence
 
 [Full post in file...]
 
 ## Hacker News (Show HN)
-**Title**: Show HN: Sofia Core – Open-source AI infrastructure with biological computing
+**Title**: Show HN: Frasberg – Open-source AI infrastructure with biological computing
 
 [Full post in file...]

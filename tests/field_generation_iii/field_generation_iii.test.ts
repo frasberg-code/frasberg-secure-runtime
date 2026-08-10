@@ -1,4 +1,4 @@
-import { generateFieldStateIII } from '../../supabase/sofia_core/field_generation_iii/field_generation_iii';
+import { generateFieldStateIII } from '../../supabase/frasberg/field_generation_iii/field_generation_iii';
 
 describe('field_generation_iii', () => {
   test('generates third-order field state', () => {

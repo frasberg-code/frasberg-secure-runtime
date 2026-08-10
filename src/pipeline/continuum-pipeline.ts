@@ -2,7 +2,7 @@
  * ContinuumPipeline - Self-Renewing Execution Pipeline
  * 
  * A self-renewing execution pipeline that maintains continuous execution flow.
- * Part of the Codex Architecture for Sofia Core.
+ * Part of the Codex Architecture for Frasberg.
  */
 
 export interface PipelineStage {

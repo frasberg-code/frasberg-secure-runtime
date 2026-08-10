@@ -1,4 +1,4 @@
-import { returnToOrigin } from '../../supabase/sofia_core/field_origin/field_origin';
+import { returnToOrigin } from '../../supabase/frasberg/field_origin/field_origin';
 
 describe('field_origin', () => {
   test('returns field to origin using originator', () => {

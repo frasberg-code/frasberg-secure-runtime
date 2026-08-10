@@ -1,4 +1,4 @@
-import { expressApexStateIV } from '../../supabase/sofia_core/field_apex_expression_iv/field_apex_expression_iv';
+import { expressApexStateIV } from '../../supabase/frasberg/field_apex_expression_iv/field_apex_expression_iv';
 
 describe('field_apex_expression_iv', () => {
   test('expresses fourth-order apex numerically', () => {

@@ -1,4 +1,4 @@
-import { conductResonance } from '../../supabase/sofia_core/resonance_conductor/resonance_conductor';
+import { conductResonance } from '../../supabase/frasberg/resonance_conductor/resonance_conductor';
 
 describe('resonance_conductor', () => {
   test('conducts resonance using average strategy', () => {

@@ -1,6 +1,6 @@
 /**
  * Identity Bridge - Cross-Boundary Identity Coherence
- * Part of the Bridge Triad for Sofia Core
+ * Part of the Bridge Triad for Frasberg
  * 
  * Provides cross-boundary identity coherence, enabling identity
  * to traverse different domains while maintaining integrity.
@@ -10,7 +10,7 @@
  * Continuum Identity from the post_structural runtime:
  * 
  * ```typescript
- * import { getContinuumIdentity } from '../supabase/sofia_core/sofia_core_runtime';
+ * import { getContinuumIdentity } from '../supabase/frasberg/frasberg_runtime';
  * const identity = getContinuumIdentity();
  * // Use identity.decide(), identity.act(), identity.stabilize(), etc.
  * ```

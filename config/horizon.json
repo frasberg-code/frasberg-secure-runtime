@@ -2,7 +2,7 @@
   "metadata": {
     "name": "Horizon Configuration",
     "version": "1.0.0",
-    "description": "World-level routing and profiling configuration for Sofia Core Codex Architecture"
+    "description": "World-level routing and profiling configuration for Frasberg Codex Architecture"
   },
   "worlds": [
     {

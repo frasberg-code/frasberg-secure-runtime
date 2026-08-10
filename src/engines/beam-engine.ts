@@ -2,7 +2,7 @@
  * BeamEngine - Directional Execution Engine
  * 
  * A directional execution engine that processes context with a specific capability focus.
- * Part of the Codex Architecture for Sofia Core.
+ * Part of the Codex Architecture for Frasberg.
  */
 
 export interface BeamExecutionResult {

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Stopping all Sofia Core services..."
+echo "Stopping all Frasberg services..."
 
 # Stop Docker services if they exist
 if [ -d "deploy/canonical-core" ]; then

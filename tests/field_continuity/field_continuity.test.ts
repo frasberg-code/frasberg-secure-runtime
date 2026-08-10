@@ -1,4 +1,4 @@
-import { maintainFieldContinuity } from '../../supabase/sofia_core/field_continuity/field_continuity';
+import { maintainFieldContinuity } from '../../supabase/frasberg/field_continuity/field_continuity';
 
 describe('field_continuity', () => {
   test('maintains continuity between previous and current', () => {

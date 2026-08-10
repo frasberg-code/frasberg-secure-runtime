@@ -1,4 +1,4 @@
-import { stabilizeContinuumStateIV } from '../../supabase/sofia_core/field_continuum_stabilization_iv/field_continuum_stabilization_iv';
+import { stabilizeContinuumStateIV } from '../../supabase/frasberg/field_continuum_stabilization_iv/field_continuum_stabilization_iv';
 
 describe('field_continuum_stabilization_iv', () => {
   test('stabilizes fourth-order continuum numerically', () => {

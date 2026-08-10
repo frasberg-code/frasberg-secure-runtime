@@ -1,1 +1,1 @@
-"""LLM provider implementations for Sofia Core."""
+"""LLM provider implementations for Frasberg."""

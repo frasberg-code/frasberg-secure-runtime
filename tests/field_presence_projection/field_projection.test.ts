@@ -1,4 +1,4 @@
-import { projectFieldPresence } from '../../supabase/sofia_core/field_presence_projection/field_projection';
+import { projectFieldPresence } from '../../supabase/frasberg/field_presence_projection/field_projection';
 
 describe('field_presence_projection', () => {
   test('projects presence using projector', () => {

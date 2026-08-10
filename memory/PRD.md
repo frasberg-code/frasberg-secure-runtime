@@ -1,7 +1,7 @@
 # EmeraldOrbit - Product Requirements Document
 
 ## Project Overview
-EmeraldOrbit is a comprehensive enterprise platform combining AI assistance (Sofia), real estate management, crypto trading, communications, and creative tools in one unified experience.
+EmeraldOrbit is a comprehensive enterprise platform combining AI assistance (Frasberg), real estate management, crypto trading, communications, and creative tools in one unified experience.
 
 ## Tech Stack
 - **Backend**: FastAPI + MongoDB (primary) + Supabase (hybrid for realtime)
@@ -43,7 +43,7 @@ EmeraldOrbit is a comprehensive enterprise platform combining AI assistance (Sof
 
 ### Phase 1 - Core Infrastructure ✅ (Completed Jan 21, 2026)
 - Authentication System (JWT + Supabase ready)
-- Landing Page, Dashboard, Sofia AI Chat
+- Landing Page, Dashboard, Frasberg AI Chat
 - Properties, Contacts, Crypto Hub
 - User Messaging, Profile, Subscription Plans
 
@@ -96,7 +96,7 @@ REACT_APP_SUPABASE_ANON_KEY=<anon_key>
 - [ ] Run Supabase SQL schema
 - [ ] Enable RLS policies
 - [ ] Implement calling UI
-- [ ] Integrate LLM for Sofia AI
+- [ ] Integrate LLM for Frasberg AI
 
 ## Backlog (P2)
 - Live streaming module

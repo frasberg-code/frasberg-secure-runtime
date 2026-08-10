@@ -1,4 +1,4 @@
-# 🚀 Sofia Core - Feature Enhancement Guide
+# 🚀 Frasberg - Feature Enhancement Guide
 
 This guide shows how to add the new middleware and endpoints to your services.
 
@@ -55,7 +55,7 @@ import os
 from middleware.logging_middleware import RequestLoggingMiddleware
 from middleware.metrics_collector import MetricsMiddleware, metrics
 
-app = FastAPI(title="Sofia Core - Canonical", version="v1.0.0")
+app = FastAPI(title="Frasberg - Canonical", version="v1.0.0")
 
 # Add CORS (existing)
 app.add_middleware(
@@ -74,7 +74,7 @@ app.add_middleware(MetricsMiddleware)
 @app.get("/")
 async def root():
     return {
-        "name": "Sofia Core",
+        "name": "Frasberg",
         "version": "v1.0.0",
         "status": "operational",
         "timestamp": datetime.now().isoformat(),
@@ -332,4 +332,4 @@ After implementing these enhancements:
 
 ---
 
-**🌟 These enhancements make Sofia Core production-ready for enterprise deployment!**
+**🌟 These enhancements make Frasberg production-ready for enterprise deployment!**

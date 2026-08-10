@@ -1,4 +1,4 @@
-import { projectDominionIII } from '../../supabase/sofia_core/field_dominion_projection_iii/field_dominion_projection_iii';
+import { projectDominionIII } from '../../supabase/frasberg/field_dominion_projection_iii/field_dominion_projection_iii';
 
 describe('field_dominion_projection_iii', () => {
   test('projects third-order dominion numerically', () => {

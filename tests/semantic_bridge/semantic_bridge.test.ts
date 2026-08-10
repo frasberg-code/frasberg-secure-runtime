@@ -1,4 +1,4 @@
-import { bridgeSemantics } from '../../supabase/sofia_core/semantic_bridge/semantic_bridge';
+import { bridgeSemantics } from '../../supabase/frasberg/semantic_bridge/semantic_bridge';
 
 describe('semantic_bridge', () => {
   test('bridges semantics with context', () => {

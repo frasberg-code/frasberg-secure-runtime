@@ -1,4 +1,4 @@
-import { directFieldStateIV } from '../../supabase/sofia_core/field_directive_iv/field_directive_iv';
+import { directFieldStateIV } from '../../supabase/frasberg/field_directive_iv/field_directive_iv';
 
 describe('field_directive_iv', () => {
   test('directs fourth-order state numerically', () => {

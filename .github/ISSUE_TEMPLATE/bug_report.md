@@ -35,7 +35,7 @@ Paste error logs here
 
 ## 💻 Environment
 
-- **Sofia Core Version**: [e.g., v5.0.0]
+- **Frasberg Version**: [e.g., v5.0.0]
 - **OS**: [e.g., Ubuntu 22.04, macOS 13, Windows 11]
 - **Python Version**: [e.g., 3.11]
 - **Installation Method**: [pip, git clone, docker]

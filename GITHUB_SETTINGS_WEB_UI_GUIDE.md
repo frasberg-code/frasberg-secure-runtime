@@ -19,12 +19,12 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 ## Step 1: Update Repository Description (2 minutes)
 
 ### Location
-**URL:** https://github.com/emeraldorbit/sofia-core-backend/settings/general
+**URL:** https://github.com/emeraldorbit/frasberg-backend/settings/general
 
 ### Instructions
 
 1. **Navigate to Settings**
-   - Go to https://github.com/emeraldorbit/sofia-core-backend
+   - Go to https://github.com/emeraldorbit/frasberg-backend
    - Click the **Settings** tab (near the top right)
    - You'll be on the **General** settings page
 
@@ -46,14 +46,14 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 
 ### ✅ Verification
 - The description on the main repository page updates immediately
-- Check: https://github.com/emeraldorbit/sofia-core-backend (should show new description)
+- Check: https://github.com/emeraldorbit/frasberg-backend (should show new description)
 
 ---
 
 ## Step 2: Make Repository Private (3 minutes)
 
 ### Location
-**URL:** https://github.com/emeraldorbit/sofia-core-backend/settings/danger
+**URL:** https://github.com/emeraldorbit/frasberg-backend/settings/danger
 
 ### ⚠️ Important Notes
 - This change is **irreversible** without GitHub support
@@ -63,7 +63,7 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 ### Instructions
 
 1. **Navigate to Danger Zone**
-   - Go to https://github.com/emeraldorbit/sofia-core-backend/settings
+   - Go to https://github.com/emeraldorbit/frasberg-backend/settings
    - Scroll down to the bottom to find the **Danger Zone** section (red/pink background)
 
 2. **Click "Change repository visibility"**
@@ -78,7 +78,7 @@ This guide provides detailed instructions for updating Frasberg AI repository se
    - A text field will appear asking you to confirm
 
 4. **Confirm by Typing Repository Name**
-   - Type exactly: `sofia-core-backend`
+   - Type exactly: `frasberg-backend`
    - This is a safety measure to prevent accidental changes
 
 5. **Click "I understand, change repository visibility"**
@@ -90,19 +90,19 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 - Repository URL will no longer be searchable
 - The lock icon 🔒 will appear next to the repository name
 - The visibility badge changes from "Public" to "Private"
-- Only collaborators can access: https://github.com/emeraldorbit/sofia-core-backend
+- Only collaborators can access: https://github.com/emeraldorbit/frasberg-backend
 
 ---
 
 ## Step 3: Disable Forking (2 minutes)
 
 ### Location
-**URL:** https://github.com/emeraldorbit/sofia-core-backend/settings/general
+**URL:** https://github.com/emeraldorbit/frasberg-backend/settings/general
 
 ### Instructions
 
 1. **Navigate to Features Section**
-   - Go to https://github.com/emeraldorbit/sofia-core-backend/settings/general
+   - Go to https://github.com/emeraldorbit/frasberg-backend/settings/general
    - Scroll down to find the **Features** section (below the About section)
 
 2. **Locate the Forking Checkbox**
@@ -129,13 +129,13 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 ### Check Repository Settings
 
 1. **View Repository Main Page**
-   - Go to https://github.com/emeraldorbit/sofia-core-backend
+   - Go to https://github.com/emeraldorbit/frasberg-backend
    - Verify the new description is displayed
    - Confirm the **lock icon** 🔒 is visible (private indicator)
    - Confirm there's **no "Fork" button** in the top toolbar
 
 2. **Check Settings Page**
-   - Go to Settings: https://github.com/emeraldorbit/sofia-core-backend/settings
+   - Go to Settings: https://github.com/emeraldorbit/frasberg-backend/settings
    - Verify:
      - ✅ Description shows new Frasberg AI text
      - ✅ Repository visibility is **Private**
@@ -162,11 +162,11 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 ### Instructions
 
 1. **Navigate to Settings**
-   - Go to https://github.com/emeraldorbit/sofia-core-backend/settings/general
+   - Go to https://github.com/emeraldorbit/frasberg-backend/settings/general
    - Scroll to the top
 
 2. **Find Repository Name Field**
-   - You'll see a text field with the current repository name: `sofia-core-backend`
+   - You'll see a text field with the current repository name: `frasberg-backend`
 
 3. **Change the Name**
    - Clear the field

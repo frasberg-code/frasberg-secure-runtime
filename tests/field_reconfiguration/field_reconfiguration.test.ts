@@ -1,4 +1,4 @@
-import { reconfigureFieldState } from '../../supabase/sofia_core/field_reconfiguration/field_reconfiguration';
+import { reconfigureFieldState } from '../../supabase/frasberg/field_reconfiguration/field_reconfiguration';
 
 describe('field_reconfiguration', () => {
   test('reconfigures field using reconfigurer', () => {

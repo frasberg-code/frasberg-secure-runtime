@@ -1,4 +1,4 @@
-import { synthesizeSignature } from '../../supabase/sofia_core/signature_synthesizer/signature_synthesizer';
+import { synthesizeSignature } from '../../supabase/frasberg/signature_synthesizer/signature_synthesizer';
 
 describe('signature_synthesizer', () => {
   test('synthesizes signature with mode', () => {
@@ -6,7 +6,7 @@ describe('signature_synthesizer', () => {
   });
 
   test('synthesizes with different base', () => {
-    expect(synthesizeSignature('SOFIA', 'adaptive')).toBe('SOFIA::adaptive');
+    expect(synthesizeSignature('FRASBERG', 'adaptive')).toBe('FRASBERG::adaptive');
   });
 
   test('synthesizes with numeric mode', () => {

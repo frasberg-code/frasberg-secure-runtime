@@ -1,4 +1,4 @@
-# Sofia Core 6.0.0 "Enterprise Evolution"
+# Frasberg 6.0.0 "Enterprise Evolution"
 Release Date: February 9, 2026
 
 ## 🚨 Breaking Changes
@@ -95,7 +95,7 @@ Release Date: February 9, 2026
 - Query optimization (5× faster temporal queries)
 
 **Developer Experience:**
-- CLI tool: `sofia-cli`
+- CLI tool: `frasberg-cli`
 - TypeScript SDK (full type safety)
 - Rust SDK (high-performance)
 - Go SDK (cloud-native)
@@ -128,14 +128,14 @@ Release Date: February 9, 2026
 
 ## 📦 New Packages
 
-- `sofia-core-enterprise` - Enterprise features
-- `sofia-core-hybrid` - Neural-DNA hybrid models
-- `sofia-core-distributed` - Cross-datacenter capabilities
-- `sofia-core-temporal-advanced` - Quantum temporal logic
-- `sofia-core-integrations` - Framework integrations
-- `sofia-sdk-typescript` - TypeScript SDK
-- `sofia-sdk-rust` - Rust SDK
-- `sofia-sdk-go` - Go SDK
+- `frasberg-enterprise` - Enterprise features
+- `frasberg-hybrid` - Neural-DNA hybrid models
+- `frasberg-distributed` - Cross-datacenter capabilities
+- `frasberg-temporal-advanced` - Quantum temporal logic
+- `frasberg-integrations` - Framework integrations
+- `frasberg-sdk-typescript` - TypeScript SDK
+- `frasberg-sdk-rust` - Rust SDK
+- `frasberg-sdk-go` - Go SDK
 
 ## 🔒 Security
 
@@ -175,12 +175,12 @@ See: docs/migration/v5-to-v6.md
 
 Quick upgrade:
 ```bash
-pip install --upgrade sofia-core==6.0.0
-sofia-cli migrate --from=5.x --to=6.0.0
+pip install --upgrade frasberg==6.0.0
+frasberg-cli migrate --from=5.x --to=6.0.0
 ```
 
 ## 🙏 Credits
 
 Thanks to our 50+ contributors and 1,000+ community members!
 
-Full release notes: https://github.com/emeraldorbit/sofia-core-backend/releases/tag/v6.0.0
+Full release notes: https://github.com/emeraldorbit/frasberg-backend/releases/tag/v6.0.0

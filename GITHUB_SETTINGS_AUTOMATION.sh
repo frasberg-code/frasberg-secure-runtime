@@ -22,7 +22,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 OWNER="emeraldorbit"
-OLD_REPO="sofia-core-backend"
+OLD_REPO="frasberg-backend"
 NEW_REPO="frasberg-ai-backend"
 DESCRIPTION="Behavioral governance engine for Frasberg AI. Includes tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules. Used across Emerald Estates® and Orbit systems for identity-preserving conversational output."
 

@@ -1,13 +1,13 @@
 # Interactive CLI Tutorial
 
-Sofia Core 6.5.0 introduces an interactive CLI for guided setup and configuration.
+Frasberg 6.5.0 introduces an interactive CLI for guided setup and configuration.
 
 ## Installation
 
-The CLI is included with Sofia Core 6.5.0:
+The CLI is included with Frasberg 6.5.0:
 
 ```bash
-pip install sofia-core==6.5.0
+pip install frasberg==6.5.0
 ```
 
 ## Quick Start
@@ -15,7 +15,7 @@ pip install sofia-core==6.5.0
 Launch the interactive CLI:
 
 ```bash
-sofia-cli interactive
+frasberg-cli interactive
 ```
 
 ## Features
@@ -34,7 +34,7 @@ The interactive CLI walks you through:
 The CLI automatically detects configuration issues and offers fixes:
 
 ```bash
-sofia-cli interactive --auto-migrate
+frasberg-cli interactive --auto-migrate
 ```
 
 ### Hot Reload
@@ -42,12 +42,12 @@ sofia-cli interactive --auto-migrate
 Enable development mode with automatic reload:
 
 ```bash
-sofia-cli dev --hot-reload
+frasberg-cli dev --hot-reload
 ```
 
 ## Commands
 
-### `sofia-cli interactive`
+### `frasberg-cli interactive`
 
 Launch interactive setup wizard.
 
@@ -56,49 +56,49 @@ Launch interactive setup wizard.
 - `--expert-mode` - Show advanced options
 - `--config PATH` - Use custom configuration file
 
-### `sofia-cli config`
+### `frasberg-cli config`
 
 Manage configuration:
 
 ```bash
 # Validate configuration
-sofia-cli config validate
+frasberg-cli config validate
 
 # Show current configuration
-sofia-cli config show
+frasberg-cli config show
 
 # Edit configuration
-sofia-cli config edit
+frasberg-cli config edit
 ```
 
-### `sofia-cli dev`
+### `frasberg-cli dev`
 
 Development tools:
 
 ```bash
 # Start with hot reload
-sofia-cli dev --hot-reload
+frasberg-cli dev --hot-reload
 
 # Enable debug logging
-sofia-cli dev --debug
+frasberg-cli dev --debug
 
 # Run with profiling
-sofia-cli dev --profile
+frasberg-cli dev --profile
 ```
 
-### `sofia-cli test`
+### `frasberg-cli test`
 
 Run tests and health checks:
 
 ```bash
 # Run all tests
-sofia-cli test
+frasberg-cli test
 
 # Test specific integration
-sofia-cli test --integration huggingface
+frasberg-cli test --integration huggingface
 
 # Run health check
-sofia-cli test --health-check
+frasberg-cli test --health-check
 ```
 
 ## Configuration Validation
@@ -106,7 +106,7 @@ sofia-cli test --health-check
 The CLI validates your configuration and provides helpful suggestions:
 
 ```bash
-sofia-cli config validate
+frasberg-cli config validate
 ```
 
 Example output:
@@ -120,7 +120,7 @@ Suggestions:
 1. Set OPENAI_API_KEY in .env for LLM features
 2. Change PORT to a valid value (e.g., 8000)
 
-Run 'sofia-cli config edit' to fix issues.
+Run 'frasberg-cli config edit' to fix issues.
 ```
 
 ## Examples
@@ -128,9 +128,9 @@ Run 'sofia-cli config edit' to fix issues.
 ### Initial Setup
 
 ```bash
-$ sofia-cli interactive
+$ frasberg-cli interactive
 
-Welcome to Sofia Core 6.5.0 Interactive Setup!
+Welcome to Frasberg 6.5.0 Interactive Setup!
 
 ? Select deployment type: (Use arrow keys)
 ❯ Local Development
@@ -145,15 +145,15 @@ Welcome to Sofia Core 6.5.0 Interactive Setup!
   ◯ Dagster
 
 Configuration saved to config.yaml
-✓ Setup complete! Run 'sofia-cli dev' to start.
+✓ Setup complete! Run 'frasberg-cli dev' to start.
 ```
 
 ### Development Mode
 
 ```bash
-$ sofia-cli dev --hot-reload
+$ frasberg-cli dev --hot-reload
 
-[2026-02-09 18:20:00] Sofia Core 6.5.0 starting...
+[2026-02-09 18:20:00] Frasberg 6.5.0 starting...
 [2026-02-09 18:20:01] ✓ Database connected
 [2026-02-09 18:20:01] ✓ Redis connected
 [2026-02-09 18:20:02] ✓ Hot reload enabled
@@ -165,7 +165,7 @@ Watching for file changes...
 ### Troubleshooting
 
 ```bash
-$ sofia-cli test --health-check
+$ frasberg-cli test --health-check
 
 Running health checks...
 
@@ -190,7 +190,7 @@ All critical systems operational.
 Store configuration in files instead of environment variables:
 
 ```bash
-sofia-cli config export > config.yaml
+frasberg-cli config export > config.yaml
 ```
 
 ### 2. Enable Auto-Migration
@@ -198,20 +198,20 @@ sofia-cli config export > config.yaml
 Always use auto-migration for upgrades:
 
 ```bash
-sofia-cli interactive --auto-migrate
+frasberg-cli interactive --auto-migrate
 ```
 
 ### 3. Validate Before Deployment
 
 ```bash
-sofia-cli config validate
-sofia-cli test --health-check
+frasberg-cli config validate
+frasberg-cli test --health-check
 ```
 
 ### 4. Use Hot Reload in Development
 
 ```bash
-sofia-cli dev --hot-reload --debug
+frasberg-cli dev --hot-reload --debug
 ```
 
 ## Keyboard Shortcuts
@@ -236,7 +236,7 @@ server:
   workers: 4
 
 database:
-  url: "postgresql://localhost/sofia"
+  url: "postgresql://localhost/frasberg"
   pool_size: 10
 
 redis:
@@ -248,7 +248,7 @@ integrations:
     cache: true
   wandb:
     enabled: true
-    project: "sofia-experiments"
+    project: "frasberg-experiments"
   mlflow:
     enabled: true
     tracking_uri: "http://localhost:5000"
@@ -263,25 +263,25 @@ logging:
 ### CLI Not Found
 
 ```bash
-# Reinstall Sofia Core
-pip install --upgrade --force-reinstall sofia-core==6.5.0
+# Reinstall Frasberg
+pip install --upgrade --force-reinstall frasberg==6.5.0
 ```
 
 ### Permission Issues
 
 ```bash
 # Run with sudo (if needed)
-sudo sofia-cli interactive
+sudo frasberg-cli interactive
 ```
 
 ### Configuration Errors
 
 ```bash
 # Reset to defaults
-sofia-cli config reset
+frasberg-cli config reset
 
 # Validate configuration
-sofia-cli config validate
+frasberg-cli config validate
 ```
 
 ## Learn More

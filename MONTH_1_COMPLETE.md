@@ -1,4 +1,4 @@
-# 🎉 SOFIA CORE v5.1.0 - MONTH 1 FOUNDATION COMPLETE
+# 🎉 FRASBERG CORE v5.1.0 - MONTH 1 FOUNDATION COMPLETE
 
 **Date**: February 2026  
 **Phase**: Month 1 of 90-Day Hybrid Roadmap  
@@ -8,9 +8,9 @@
 
 ## Executive Summary
 
-Sofia Core Month 1 Foundation Phase is complete! We've successfully built production-ready integrations, drafted a groundbreaking research paper, and established comprehensive community infrastructure.
+Frasberg Month 1 Foundation Phase is complete! We've successfully built production-ready integrations, drafted a groundbreaking research paper, and established comprehensive community infrastructure.
 
-**What Changed**: Sofia Core evolved from v5.0.0 (simulation-focused) to v5.1.0 (production-ready) with real API integrations, database management, caching, and authentication.
+**What Changed**: Frasberg evolved from v5.0.0 (simulation-focused) to v5.1.0 (production-ready) with real API integrations, database management, caching, and authentication.
 
 ---
 
@@ -79,7 +79,7 @@ Sofia Core Month 1 Foundation Phase is complete! We've successfully built produc
 #### Main Paper
 **File**: [research/papers/dna-computing/paper.md](research/papers/dna-computing/paper.md)
 
-**Title**: DNA Computing Integration in Distributed Intelligence Systems: The Sofia Core Approach
+**Title**: DNA Computing Integration in Distributed Intelligence Systems: The Frasberg Approach
 
 **Sections**:
 1. Introduction & Contributions
@@ -132,7 +132,7 @@ Sofia Core Month 1 Foundation Phase is complete! We've successfully built produc
 **Structure**:
 - 8 categories, 25+ channels
 - Role hierarchy (Founder → Core Team → Contributors → Community)
-- Bot setup (Sofia Bot, GitHub Bot, Welcome Bot)
+- Bot setup (Frasberg Bot, GitHub Bot, Welcome Bot)
 - Weekly events (Office Hours, Contributor Sync)
 - Monthly events (Community Showcase, Research Paper Club)
 - Growth strategy (100 → 500 → 1000 → 5000 members)
@@ -205,8 +205,8 @@ Sofia Core Month 1 Foundation Phase is complete! We've successfully built produc
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/emeraldorbit/sofia-core-backend
-cd sofia-core-backend
+git clone https://github.com/emeraldorbit/frasberg-backend
+cd frasberg-backend
 
 # 2. Execute Month 1
 ./execute-month-1-now.sh
@@ -225,13 +225,13 @@ cp backend/.env.example backend/.env
 # Edit .env with your API keys
 
 # Start services
-docker run -d --name sofia-postgres \
-  -e POSTGRES_USER=sofia \
-  -e POSTGRES_PASSWORD=sofia \
-  -e POSTGRES_DB=sofia_core \
+docker run -d --name frasberg-postgres \
+  -e POSTGRES_USER=frasberg \
+  -e POSTGRES_PASSWORD=frasberg \
+  -e POSTGRES_DB=frasberg \
   -p 5432:5432 postgres:15
 
-docker run -d --name sofia-redis \
+docker run -d --name frasberg-redis \
   -p 6379:6379 redis:7-alpine
 
 # Initialize database
@@ -342,11 +342,11 @@ gh issue create --title "[GOOD FIRST ISSUE] ..." --label "good-first-issue"
 
 ## 📞 Contact & Support
 
-- **GitHub**: https://github.com/emeraldorbit/sofia-core-backend
-- **Issues**: https://github.com/emeraldorbit/sofia-core-backend/issues
-- **Email**: hello@sofia-core.ai
-- **Research**: research@sofia-core.ai
-- **Bounties**: bounties@sofia-core.ai
+- **GitHub**: https://github.com/emeraldorbit/frasberg-backend
+- **Issues**: https://github.com/emeraldorbit/frasberg-backend/issues
+- **Email**: hello@frasberg.ai
+- **Research**: research@frasberg.ai
+- **Bounties**: bounties@frasberg.ai
 - **Discord**: Coming soon (create with instructions in community/)
 
 ---
@@ -416,4 +416,4 @@ You've completed Month 1 of building a groundbreaking distributed AI system!
 
 ---
 
-*This document was generated as part of the Sofia Core Month 1 execution. For questions, see CONTRIBUTING-ENHANCED.md or contact hello@sofia-core.ai*
+*This document was generated as part of the Frasberg Month 1 execution. For questions, see CONTRIBUTING-ENHANCED.md or contact hello@frasberg.ai*

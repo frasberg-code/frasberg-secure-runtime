@@ -1,4 +1,4 @@
-import { modulateContinuity } from '../../supabase/sofia_core/continuum_modulator/continuum_modulator';
+import { modulateContinuity } from '../../supabase/frasberg/continuum_modulator/continuum_modulator';
 
 describe('continuum_modulator', () => {
   test('modulates continuity with context', () => {

@@ -1,4 +1,4 @@
-"""SQLAlchemy Database Models for Sofia Core v5.1"""
+"""SQLAlchemy Database Models for Frasberg v5.1"""
 from sqlalchemy import Column, Integer, String, Float, DateTime, JSON, Boolean, ForeignKey, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship

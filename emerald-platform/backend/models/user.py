@@ -13,9 +13,9 @@ class User(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     
-    # Sofia personalization
-    sofia_settings: Optional[dict] = Field(default_factory=dict)
-    sofia_memory: Optional[dict] = Field(default_factory=dict)
+    # Frasberg personalization
+    frasberg_settings: Optional[dict] = Field(default_factory=dict)
+    frasberg_memory: Optional[dict] = Field(default_factory=dict)
     
     class Config:
         json_schema_extra = {

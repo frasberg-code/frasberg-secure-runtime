@@ -1,4 +1,4 @@
-import { continueGenesis } from '../../supabase/sofia_core/field_genesis_continuum/field_genesis_continuum';
+import { continueGenesis } from '../../supabase/frasberg/field_genesis_continuum/field_genesis_continuum';
 
 describe('field_genesis_continuum', () => {
   test('continues genesis using continuer', () => {

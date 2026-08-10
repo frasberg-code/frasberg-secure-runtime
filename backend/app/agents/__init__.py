@@ -1,4 +1,4 @@
-"""Agent wrappers for Sofia Core.
+"""Agent wrappers for Frasberg.
 
 Thin wrappers around the canonical LLM endpoint that implement the
 Planner → Architect → Code Writer pipeline.  All three call
@@ -19,12 +19,12 @@ async def run_planner(user_request: str) -> Dict[str, Any]:
     Returns a dict with ``plan`` (str) and ``raw_output`` (str).
     """
     request = GenerateRequest(
-        model="sofia-core",
+        model="frasberg",
         messages=[
             Message(
                 role="system",
                 content=(
-                    "You are the Sofia Core Planner. "
+                    "You are the Frasberg Planner. "
                     "Given a user request, produce a concise, numbered execution plan. "
                     "Respond with JSON: {\"plan\": [\"step 1\", \"step 2\", ...]}."
                 ),
@@ -42,12 +42,12 @@ async def run_architect(plan: str) -> Dict[str, Any]:
     Returns a dict with ``design`` (str) and ``raw_output`` (str).
     """
     request = GenerateRequest(
-        model="sofia-core",
+        model="frasberg",
         messages=[
             Message(
                 role="system",
                 content=(
-                    "You are the Sofia Core Architect. "
+                    "You are the Frasberg Architect. "
                     "Given an execution plan, produce a system design and file map. "
                     "Respond with JSON: {\"design\": \"...\", \"files\": [\"path/to/file\", ...]}."
                 ),
@@ -65,12 +65,12 @@ async def run_code_writer(file_map: str) -> Dict[str, Any]:
     Returns a dict with ``code`` (str) and ``raw_output`` (str).
     """
     request = GenerateRequest(
-        model="sofia-core",
+        model="frasberg",
         messages=[
             Message(
                 role="system",
                 content=(
-                    "You are the Sofia Core Code Writer. "
+                    "You are the Frasberg Code Writer. "
                     "Given a file map and system design, produce the implementation "
                     "for each file as a JSON object: {\"files\": {\"path\": \"content\", ...}}."
                 ),

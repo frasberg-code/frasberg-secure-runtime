@@ -10,17 +10,17 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger("sofia-core")
+logger = logging.getLogger("frasberg")
 
-class SofiaException(Exception):
-    """Base exception for Sofia Core"""
+class FrasbergException(Exception):
+    """Base exception for Frasberg"""
     def __init__(self, message: str, status_code: int = 500, details: dict = None):
         self.message = message
         self.status_code = status_code
         self.details = details or {}
         super().__init__(self.message)
 
-class ServiceUnavailableError(SofiaException):
+class ServiceUnavailableError(FrasbergException):
     """Service temporarily unavailable"""
     def __init__(self, service: str, details: dict = None):
         super().__init__(
@@ -29,7 +29,7 @@ class ServiceUnavailableError(SofiaException):
             details=details
         )
 
-class ResourceNotFoundError(SofiaException):
+class ResourceNotFoundError(FrasbergException):
     """Resource not found"""
     def __init__(self, resource: str, resource_id: str):
         super().__init__(
@@ -38,13 +38,13 @@ class ResourceNotFoundError(SofiaException):
             details={"resource": resource, "id": resource_id}
         )
 
-class ValidationError(SofiaException):
+class ValidationError(FrasbergException):
     """Validation error"""
     def __init__(self, message: str, field: str = None):
         details = {"field": field} if field else {}
         super().__init__(message, status_code=400, details=details)
 
-class RateLimitError(SofiaException):
+class RateLimitError(FrasbergException):
     """Rate limit exceeded"""
     def __init__(self, limit: int, window: str):
         super().__init__(
@@ -53,9 +53,9 @@ class RateLimitError(SofiaException):
             details={"limit": limit, "window": window}
         )
 
-async def sofia_exception_handler(request: Request, exc: SofiaException):
-    """Handle Sofia Core exceptions"""
-    logger.error(f"SofiaException: {exc.message}", extra={
+async def frasberg_exception_handler(request: Request, exc: FrasbergException):
+    """Handle Frasberg exceptions"""
+    logger.error(f"FrasbergException: {exc.message}", extra={
         "status_code": exc.status_code,
         "details": exc.details,
         "path": request.url.path

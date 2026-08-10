@@ -1,4 +1,4 @@
-import { extendFieldContinuumIII } from '../../supabase/sofia_core/field_continuum_extension_iii/field_continuum_extension_iii';
+import { extendFieldContinuumIII } from '../../supabase/frasberg/field_continuum_extension_iii/field_continuum_extension_iii';
 
 describe('field_continuum_extension_iii', () => {
   test('extends third-order continuum numerically', () => {

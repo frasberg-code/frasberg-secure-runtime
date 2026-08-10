@@ -1,4 +1,4 @@
-import { executeFieldDecision } from '../../supabase/sofia_core/field_execution/field_execution';
+import { executeFieldDecision } from '../../supabase/frasberg/field_execution/field_execution';
 
 describe('field_execution', () => {
   test('executes decision using executor', () => {

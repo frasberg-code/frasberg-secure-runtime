@@ -1,4 +1,4 @@
-import { upliftFieldState } from '../../supabase/sofia_core/field_uplift/field_uplift';
+import { upliftFieldState } from '../../supabase/frasberg/field_uplift/field_uplift';
 
 describe('field_uplift', () => {
   test('uplifts field using uplifter', () => {

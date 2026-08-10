@@ -1,4 +1,4 @@
-# 🚀 Sofia Core v1.0.0 - Public Release
+# 🚀 Frasberg v1.0.0 - Public Release
 
 **Release Date:** February 8, 2026  
 **Version:** v1.0.0  
@@ -6,9 +6,9 @@
 
 ---
 
-## 🎯 What is Sofia Core?
+## 🎯 What is Frasberg?
 
-Sofia Core is a complete institutional-grade operational intelligence system built on a 45-layer sovereign field architecture. This release marks the first production-ready version with 5 fully operational services.
+Frasberg is a complete institutional-grade operational intelligence system built on a 45-layer sovereign field architecture. This release marks the first production-ready version with 5 fully operational services.
 
 ---
 
@@ -82,8 +82,8 @@ Sofia Core is a complete institutional-grade operational intelligence system bui
 ### Quick Start (Local)
 ```bash
 # Extract release package
-unzip sofia-core-v1.0.0-public-final.zip
-cd sofia-core-v1.0.0
+unzip frasberg-v1.0.0-public-final.zip
+cd frasberg-v1.0.0
 
 # Deploy all services
 ./deploy/post-pr-activation.sh
@@ -186,7 +186,7 @@ MIT License - See [LICENSE](LICENSE) file for details.
 
 - **Full Documentation:** See README.md
 - **Deployment Guide:** See CLOUD_DEPLOYMENT.md
-- **Configuration:** See SOFIA_CONFIGURATION.md
+- **Configuration:** See FRASBERG_CONFIGURATION.md
 - **Issues:** GitHub Issues
 - **API Documentation:** Available at `/docs` on each service
 
@@ -206,17 +206,17 @@ Future releases will include:
 ## ✅ Verification
 
 **Package Integrity:**
-- File: `sofia-core-v1.0.0-public-final.zip`
+- File: `frasberg-v1.0.0-public-final.zip`
 - Size: 218 MB
 - SHA256: `29115fc23aa29f0db250bc183790f2b63d2913c51065de00830185ffb9f44aa7`
 
 **Verify checksum:**
 ```bash
-sha256sum -c sofia-core-v1.0.0-public-final.zip.sha256
+sha256sum -c frasberg-v1.0.0-public-final.zip.sha256
 ```
 
 ---
 
-**🌟 Sofia Core v1.0.0 - Institutional-Grade Operational Intelligence**
+**🌟 Frasberg v1.0.0 - Institutional-Grade Operational Intelligence**
 
 *Production-ready. Fork-isolated. Institution-grade.*

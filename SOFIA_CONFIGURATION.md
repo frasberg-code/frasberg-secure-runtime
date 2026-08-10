@@ -1,4 +1,4 @@
-# 🎯 SOFIA Custom Model Endpoint Configuration
+# 🎯 FRASBERG Custom Model Endpoint Configuration
 
 **Status:** ✅ **CONFIGURED AND ACTIVE**  
 **Date:** February 7, 2026
@@ -7,19 +7,19 @@
 
 ## 📝 Configuration Summary
 
-The SOFIA custom model endpoint has been successfully configured with the following environment variables:
+The FRASBERG custom model endpoint has been successfully configured with the following environment variables:
 
 ### Environment Variables Set
 
-#### SOFIA Model Configuration
+#### FRASBERG Model Configuration
 ```bash
-SOFIA_MODEL_ENDPOINT=https://sdtilgpppwhwtbxlbmik.supabase.co/functions/v1/sofia-core-backend
-SOFIA_MODEL_API_KEY=432b7dc816f959da644b66c1afe14993300d3e1f839b2b6235ea75552c9082ce
+FRASBERG_MODEL_ENDPOINT=https://sdtilgpppwhwtbxlbmik.supabase.co/functions/v1/frasberg-backend
+FRASBERG_MODEL_API_KEY=432b7dc816f959da644b66c1afe14993300d3e1f839b2b6235ea75552c9082ce
 ```
 
 #### Generic Model Configuration (for Edge Functions)
 ```bash
-MODEL_ENDPOINT=https://sdtilgpppwhwtbxlbmik.supabase.co/functions/v1/sofia-core-backend
+MODEL_ENDPOINT=https://sdtilgpppwhwtbxlbmik.supabase.co/functions/v1/frasberg-backend
 MODEL_API_KEY=432b7dc816f959da644b66c1afe14993300d3e1f839b2b6235ea75552c9082ce
 ```
 
@@ -32,7 +32,7 @@ SERVICE_ROLE_KEY=5a99fb8b9bdb01d466a9184a1e66cf36c2441513026d4efde3f8d2595633c39
 #### GitHub Integration
 ```bash
 GITHUB_TOKEN=your_github_token_here
-GITHUB_REPO_URL=https://github.com/emeraldorbit/sofia-core-backend
+GITHUB_REPO_URL=https://github.com/emeraldorbit/frasberg-backend
 ```
 
 ---
@@ -40,14 +40,14 @@ GITHUB_REPO_URL=https://github.com/emeraldorbit/sofia-core-backend
 ## 📁 Files Modified/Created
 
 ### Modified Files
-1. **`.env`** - Added SOFIA model configuration
-2. **`.env.example`** - Updated template with SOFIA variables
-3. **`SECRETS_SETUP.md`** - Added SOFIA documentation
+1. **`.env`** - Added FRASBERG model configuration
+2. **`.env.example`** - Updated template with FRASBERG variables
+3. **`SECRETS_SETUP.md`** - Added FRASBERG documentation
 
 ### Created Files
-1. **`activate-sofia-core.sh`** - Activation and verification script
-2. **`setup-sofia-secrets.sh`** - Supabase Vault configuration script
-3. **`SOFIA_CONFIGURATION.md`** - This summary document
+1. **`activate-frasberg.sh`** - Activation and verification script
+2. **`setup-frasberg-secrets.sh`** - Supabase Vault configuration script
+3. **`FRASBERG_CONFIGURATION.md`** - This summary document
 
 ---
 
@@ -55,20 +55,20 @@ GITHUB_REPO_URL=https://github.com/emeraldorbit/sofia-core-backend
 
 ### Verify Configuration
 ```bash
-./activate-sofia-core.sh
+./activate-frasberg.sh
 ```
 
 ### Configure Supabase Vault (Production)
 ```bash
-./setup-sofia-secrets.sh
+./setup-frasberg-secrets.sh
 ```
 
 ### Test the Endpoint
 ```bash
-curl -X POST https://sdtilgpppwhwtbxlbmik.supabase.co/functions/v1/sofia-core-backend \
+curl -X POST https://sdtilgpppwhwtbxlbmik.supabase.co/functions/v1/frasberg-backend \
   -H "Authorization: Bearer 432b7dc816f959da644b66c1afe14993300d3e1f839b2b6235ea75552c9082ce" \
   -H "Content-Type: application/json" \
-  -d '{"message": "Hello SOFIA"}'
+  -d '{"message": "Hello FRASBERG"}'
 ```
 
 ### Deploy Supabase Functions
@@ -102,8 +102,8 @@ supabase functions deploy
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                   SOFIA Core Backend                    │
-│         https://github.com/emeraldorbit/sofia-core      │
+│                   FRASBERG Core Backend                    │
+│         https://github.com/emeraldorbit/frasberg      │
 └─────────────────────────────────────────────────────────┘
                            │
                            ▼
@@ -111,7 +111,7 @@ supabase functions deploy
 │              Supabase Edge Functions                    │
 │      https://sdtilgpppwhwtbxlbmik.supabase.co          │
 │                                                         │
-│  • /functions/v1/sofia-core-backend (Main Endpoint)    │
+│  • /functions/v1/frasberg-backend (Main Endpoint)    │
 │  • /functions/v1/chat/completions                      │
 │  • /functions/v1/images/generate                       │
 │  • /functions/v1/videos/generate                       │
@@ -121,8 +121,8 @@ supabase functions deploy
 ┌─────────────────────────────────────────────────────────┐
 │            Environment Variables                        │
 │                                                         │
-│  • SOFIA_MODEL_ENDPOINT (configured ✅)                │
-│  • SOFIA_MODEL_API_KEY (configured ✅)                 │
+│  • FRASBERG_MODEL_ENDPOINT (configured ✅)                │
+│  • FRASBERG_MODEL_API_KEY (configured ✅)                 │
 │  • MODEL_ENDPOINT (configured ✅)                      │
 │  • MODEL_API_KEY (configured ✅)                       │
 └─────────────────────────────────────────────────────────┘
@@ -133,8 +133,8 @@ supabase functions deploy
 ## 🧪 Testing Checklist
 
 - [x] Environment variables set in `.env`
-- [x] Configuration verified with `activate-sofia-core.sh`
-- [ ] Supabase secrets deployed (run `./setup-sofia-secrets.sh`)
+- [x] Configuration verified with `activate-frasberg.sh`
+- [ ] Supabase secrets deployed (run `./setup-frasberg-secrets.sh`)
 - [ ] Edge functions deployed (run `supabase functions deploy`)
 - [ ] Endpoint tested with curl
 - [ ] Integration tests passed
@@ -157,7 +157,7 @@ supabase functions deploy
 
 **Solution:**
 1. Verify `.env` file exists: `ls -la .env`
-2. Check environment variables are set: `./activate-sofia-core.sh`
+2. Check environment variables are set: `./activate-frasberg.sh`
 3. Reload environment: `source .env`
 
 ### Issue: "403 Forbidden" when calling endpoint
@@ -171,7 +171,7 @@ supabase functions deploy
 
 **Solution:**
 1. Link project: `supabase link --project-ref sdtilgpppwhwtbxlbmik`
-2. Set secrets: `./setup-sofia-secrets.sh`
+2. Set secrets: `./setup-frasberg-secrets.sh`
 3. Verify: `supabase secrets list`
 4. Redeploy functions: `supabase functions deploy`
 
@@ -180,7 +180,7 @@ supabase functions deploy
 ## 📞 Support
 
 For issues or questions:
-- **Repository:** https://github.com/emeraldorbit/sofia-core-backend
+- **Repository:** https://github.com/emeraldorbit/frasberg-backend
 - **Documentation:** See [SECRETS_SETUP.md](SECRETS_SETUP.md)
 - **Supabase Dashboard:** https://app.supabase.com/project/sdtilgpppwhwtbxlbmik
 

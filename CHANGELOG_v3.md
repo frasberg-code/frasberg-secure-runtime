@@ -1,4 +1,4 @@
-# Changelog - Sofia Core v3.0.0
+# Changelog - Frasberg v3.0.0
 
 ## [3.0.0] - 2026-02-08
 

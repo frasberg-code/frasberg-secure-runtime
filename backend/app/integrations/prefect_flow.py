@@ -1,4 +1,4 @@
-"""Prefect Workflow Integration for Sofia Core"""
+"""Prefect Workflow Integration for Frasberg"""
 
 from typing import Any, Callable, Optional
 import logging
@@ -10,7 +10,7 @@ class PrefectFlow:
     """
     Prefect workflow orchestration integration
     
-    Orchestrate Sofia Core operations with Prefect workflows.
+    Orchestrate Frasberg operations with Prefect workflows.
     """
     
     def __init__(self, flow_name: str, **kwargs):
@@ -22,7 +22,7 @@ class PrefectFlow:
             **kwargs: Additional Prefect flow configuration
         
         Examples:
-            >>> flow = PrefectFlow("sofia-dna-pipeline")
+            >>> flow = PrefectFlow("frasberg-dna-pipeline")
             >>> 
             >>> @flow.task
             >>> def compute_dna(sequence):

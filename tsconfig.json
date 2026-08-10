@@ -14,7 +14,7 @@
 
     "baseUrl": ".",
     "paths": {
-      "*": ["supabase/sofia_core/*"]
+      "*": ["supabase/frasberg/*"]
     },
 
     "outDir": "./dist",
@@ -26,22 +26,22 @@
     "src/**/*",
     "tests/**/*",
     "config/**/*",
-    "supabase/sofia_core",
-    "supabase/sofia_core/sofia_core_application_shell/**/*",
-    "supabase/sofia_core/sofia_core_bootstrap.ts"
+    "supabase/frasberg",
+    "supabase/frasberg/frasberg_application_shell/**/*",
+    "supabase/frasberg/frasberg_bootstrap.ts"
   ],
 
   "exclude": [
     "node_modules",
     "dist",
 
-    "tests/sofia_core_application_shell/execution",
-    "tests/sofia_core_application_shell/pipeline",
+    "tests/frasberg_application_shell/execution",
+    "tests/frasberg_application_shell/pipeline",
 
-    "supabase/sofia_core/deviation_engine/index.ts",
-    "supabase/sofia_core/identity_filter/identity_filter.test.ts",
-    "supabase/sofia_core/membrane_engine/membrane_engine.test.ts",
+    "supabase/frasberg/deviation_engine/index.ts",
+    "supabase/frasberg/identity_filter/identity_filter.test.ts",
+    "supabase/frasberg/membrane_engine/membrane_engine.test.ts",
 
-    "**/supabase/sofia_core/**/supabase/**"
+    "**/supabase/frasberg/**/supabase/**"
   ]
 }

@@ -15,7 +15,7 @@ export function startTTSStream(text) {
 
   (async () => {
     try {
-      const response = await fetch(`${ELEVEN_TTS_URL}/sofia`, {
+      const response = await fetch(`${ELEVEN_TTS_URL}/frasberg`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${process.env.ELEVENLABS_TTS_KEY}`,

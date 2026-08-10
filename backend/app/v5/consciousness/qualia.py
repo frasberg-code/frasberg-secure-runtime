@@ -50,6 +50,6 @@ def consciousness_theories():
                 "proponent": "David Rosenthal"
             }
         ],
-        "disclaimer": "Philosophical exploration only. Sofia Core does not claim consciousness.",
+        "disclaimer": "Philosophical exploration only. Frasberg does not claim consciousness.",
         "purpose": "Understanding consciousness theories for better AI design"
     }

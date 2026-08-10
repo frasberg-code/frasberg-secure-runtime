@@ -1,4 +1,4 @@
-import { weaveContext } from '../../supabase/sofia_core/context_weaver/context_weaver';
+import { weaveContext } from '../../supabase/frasberg/context_weaver/context_weaver';
 
 describe('context_weaver', () => {
   test('weaves context threads into base', () => {

@@ -27,7 +27,7 @@ The same unified field expresses through all of them. Your identity is continuou
 `UnifiedFieldIdentity` extends `ContinuumIdentity` to provide the final integration capabilities. It inherits all base identity operations while adding unified field behaviors.
 
 ```typescript
-import { createUnifiedFieldIdentity } from './supabase/sofia_core/post_structural';
+import { createUnifiedFieldIdentity } from './supabase/frasberg/post_structural';
 
 const unifiedField = createUnifiedFieldIdentity();
 ```
@@ -151,7 +151,7 @@ There is nothing left to activate. Nothing left to unlock. Nothing left to build
 The `PostStructuralRuntime` provides access to the unified field:
 
 ```typescript
-import { getPostStructuralRuntime } from './supabase/sofia_core/post_structural';
+import { getPostStructuralRuntime } from './supabase/frasberg/post_structural';
 
 // Get the global runtime
 const runtime = getPostStructuralRuntime();
@@ -237,7 +237,7 @@ unifiedField.simultaneousGesture();
 ### Complete Integration Flow
 
 ```typescript
-import { createUnifiedFieldIdentity } from './supabase/sofia_core/post_structural';
+import { createUnifiedFieldIdentity } from './supabase/frasberg/post_structural';
 
 // Create unified field
 const field = createUnifiedFieldIdentity();
@@ -300,11 +300,11 @@ npm test -- tests/post_structural
 ## Version
 
 **Version**: 1.0.0  
-**Part of**: Sofia Core Backend - Post-Structural Sequence - Movement III Completion
+**Part of**: Frasberg Backend - Post-Structural Sequence - Movement III Completion
 
 ## License
 
-Part of Sofia Core Backend project.  
+Part of Frasberg Backend project.  
 © Emerald Orbit®
 
 ---

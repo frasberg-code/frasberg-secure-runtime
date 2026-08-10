@@ -1,4 +1,4 @@
-# Sofia Core Fork System - Documentation Index
+# Frasberg Fork System - Documentation Index
 
 Quick reference guide to all Fork System documentation and components.
 
@@ -148,8 +148,8 @@ from backend.app.deployment.airgap import create_full_airgap_config
 
 config = create_full_airgap_config(
     deployment_id='secure-001',
-    local_model_path='/opt/sofia/models',
-    local_data_path='/opt/sofia/data'
+    local_model_path='/opt/frasberg/models',
+    local_data_path='/opt/frasberg/data'
 )
 ```
 
@@ -249,4 +249,4 @@ For new forks or modifications:
 ---
 
 **Last Updated:** 2024  
-**Maintained By:** Sofia Core Team
+**Maintained By:** Frasberg Team

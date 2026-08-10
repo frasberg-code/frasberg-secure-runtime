@@ -3,7 +3,7 @@ import time
 from typing import Dict, Any
 import logging
 
-logger = logging.getLogger("sofia-core.metrics")
+logger = logging.getLogger("frasberg.metrics")
 
 class MetricsCollector:
     """Collect and expose system metrics"""

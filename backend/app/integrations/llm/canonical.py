@@ -1,7 +1,7 @@
-"""Canonical LLM endpoint for Sofia Core.
+"""Canonical LLM endpoint for Frasberg.
 
-Reads LLM_PROVIDER (default: local), SOFIA_CORE_MODEL,
-SOFIA_CORE_TEMPERATURE, and SOFIA_CORE_MAX_TOKENS to route requests to
+Reads LLM_PROVIDER (default: local), FRASBERG_MODEL,
+FRASBERG_TEMPERATURE, and FRASBERG_MAX_TOKENS to route requests to
 the appropriate provider and return a normalised response.
 
 Provider selection is env-driven; there is no automatic cloud failover.
@@ -42,8 +42,8 @@ class GenerateRequest(BaseModel):
     model: Optional[str] = Field(
         default=None,
         description=(
-            "Model to use for generation. Pass ``'sofia-core'`` or omit to use "
-            "the ``SOFIA_CORE_MODEL`` environment variable (default: ``gpt-4.1``). "
+            "Model to use for generation. Pass ``'frasberg'`` or omit to use "
+            "the ``FRASBERG_MODEL`` environment variable (default: ``gpt-4.1``). "
             "Any other value is forwarded verbatim to the provider."
         ),
     )
@@ -66,11 +66,11 @@ class GenerateResponse(BaseModel):
 def _resolve_model(requested: Optional[str]) -> str:
     """Return the concrete model name.
 
-    Uses SOFIA_CORE_MODEL env var when the request model is ``"sofia-core"``
+    Uses FRASBERG_MODEL env var when the request model is ``"frasberg"``
     or omitted.
     """
-    if not requested or requested == "sofia-core":
-        return os.getenv("SOFIA_CORE_MODEL", _DEFAULT_MODEL)
+    if not requested or requested == "frasberg":
+        return os.getenv("FRASBERG_MODEL", _DEFAULT_MODEL)
     return requested
 
 
@@ -116,22 +116,22 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
     model = _resolve_model(request.model)
 
     try:
-        temperature = float(os.getenv("SOFIA_CORE_TEMPERATURE", str(_DEFAULT_TEMPERATURE)))
+        temperature = float(os.getenv("FRASBERG_TEMPERATURE", str(_DEFAULT_TEMPERATURE)))
         if not 0.0 <= temperature <= 2.0:
             raise ValueError
     except ValueError:
         logger.warning(
-            "SOFIA_CORE_TEMPERATURE is invalid; falling back to %.1f", _DEFAULT_TEMPERATURE
+            "FRASBERG_TEMPERATURE is invalid; falling back to %.1f", _DEFAULT_TEMPERATURE
         )
         temperature = _DEFAULT_TEMPERATURE
 
     try:
-        max_tokens = int(os.getenv("SOFIA_CORE_MAX_TOKENS", str(_DEFAULT_MAX_TOKENS)))
+        max_tokens = int(os.getenv("FRASBERG_MAX_TOKENS", str(_DEFAULT_MAX_TOKENS)))
         if max_tokens < 1:
             raise ValueError
     except ValueError:
         logger.warning(
-            "SOFIA_CORE_MAX_TOKENS is invalid; falling back to %d", _DEFAULT_MAX_TOKENS
+            "FRASBERG_MAX_TOKENS is invalid; falling back to %d", _DEFAULT_MAX_TOKENS
         )
         max_tokens = _DEFAULT_MAX_TOKENS
 
@@ -161,7 +161,7 @@ async def canonical_generate(request: GenerateRequest) -> GenerateResponse:
     routes the request to the appropriate provider via the registry.  Cloud
     providers are disabled unless the corresponding governance flag is set
     (``ENABLE_OPENAI``, ``ENABLE_ANTHROPIC``).  When ``model`` is
-    ``"sofia-core"`` or omitted the defaults from ``SOFIA_CORE_MODEL``,
-    ``SOFIA_CORE_TEMPERATURE``, and ``SOFIA_CORE_MAX_TOKENS`` are applied.
+    ``"frasberg"`` or omitted the defaults from ``FRASBERG_MODEL``,
+    ``FRASBERG_TEMPERATURE``, and ``FRASBERG_MAX_TOKENS`` are applied.
     """
     return await generate(request)

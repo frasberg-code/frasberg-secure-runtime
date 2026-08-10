@@ -1,4 +1,4 @@
-import { applyFieldInfluence } from '../../supabase/sofia_core/field_influence/field_influence';
+import { applyFieldInfluence } from '../../supabase/frasberg/field_influence/field_influence';
 
 describe('field_influence', () => {
   test('applies influence using influencer', () => {

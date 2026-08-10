@@ -1,4 +1,4 @@
-import { filterIdentity } from '../../supabase/sofia_core/identity_filter/identity_filter';
+import { filterIdentity } from '../../supabase/frasberg/identity_filter/identity_filter';
 
 describe('identity_filter - filterIdentity function', () => {
   test('filters identity input removing special characters', () => {
@@ -6,7 +6,7 @@ describe('identity_filter - filterIdentity function', () => {
   });
 
   test('removes noise and keeps alphanumeric and dashes', () => {
-    expect(filterIdentity('sofia-123')).toBe('SOFIA-123');
+    expect(filterIdentity('frasberg-123')).toBe('FRASBERG-123');
   });
 
   test('converts to uppercase', () => {

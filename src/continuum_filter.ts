@@ -1,6 +1,6 @@
 /**
  * Continuum Filter - Refined State Gating
- * Part of the Bridge Triad for Sofia Core
+ * Part of the Bridge Triad for Frasberg
  * 
  * Provides refined state gating to control continuity flow
  * and ensure stable state transitions across the system.

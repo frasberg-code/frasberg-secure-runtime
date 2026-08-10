@@ -1,4 +1,4 @@
-import { fieldIntegration } from '../supabase/sofia_core/sofia_core_runtime';
+import { fieldIntegration } from '../supabase/frasberg/frasberg_runtime';
 
 describe('Runtime Integration - Field Integration Triad', () => {
   test('fieldIntegration exports all three functions', () => {

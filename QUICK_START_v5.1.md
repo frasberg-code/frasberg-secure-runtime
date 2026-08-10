@@ -1,4 +1,4 @@
-# 🚀 SOFIA CORE v5.1.0 - QUICK START GUIDE
+# 🚀 FRASBERG CORE v5.1.0 - QUICK START GUIDE
 
 **Version**: v5.1.0  
 **Phase**: Month 1 Foundation Complete  
@@ -30,7 +30,7 @@
 
 ## 🎯 Immediate Actions (Pick Your Path)
 
-### Path A: Developer (Want to Use Sofia Core)
+### Path A: Developer (Want to Use Frasberg)
 
 ```bash
 # 1. Install dependencies
@@ -41,11 +41,11 @@ cp backend/.env.example backend/.env
 # Add your API keys to .env
 
 # 3. Start services
-docker run -d --name sofia-postgres \
-  -e POSTGRES_USER=sofia -e POSTGRES_PASSWORD=sofia \
-  -e POSTGRES_DB=sofia_core -p 5432:5432 postgres:15
+docker run -d --name frasberg-postgres \
+  -e POSTGRES_USER=frasberg -e POSTGRES_PASSWORD=frasberg \
+  -e POSTGRES_DB=frasberg -p 5432:5432 postgres:15
 
-docker run -d --name sofia-redis \
+docker run -d --name frasberg-redis \
   -p 6379:6379 redis:7-alpine
 
 # 4. Initialize
@@ -66,18 +66,18 @@ python server.py
 
 ```bash
 # 1. Fork on GitHub
-# https://github.com/emeraldorbit/sofia-core-backend
+# https://github.com/emeraldorbit/frasberg-backend
 
 # 2. Clone your fork
-git clone https://github.com/YOUR_USERNAME/sofia-core-backend
-cd sofia-core-backend
+git clone https://github.com/YOUR_USERNAME/frasberg-backend
+cd frasberg-backend
 
 # 3. Install
 pip install -r backend/requirements.txt
 pip install -r requirements-test.txt
 
 # 4. Find an issue
-# https://github.com/emeraldorbit/sofia-core-backend/labels/good-first-issue
+# https://github.com/emeraldorbit/frasberg-backend/labels/good-first-issue
 
 # 5. Create branch
 git checkout -b feature/your-feature
@@ -117,7 +117,7 @@ cd backend && python server.py
 # 1. Join/create Discord
 cat community/DISCORD_SETUP.md
 
-# 2. Share Sofia Core
+# 2. Share Frasberg
 cat community/launch-announcement.md
 
 # 3. Create good first issues
@@ -172,7 +172,7 @@ pip install -r backend/requirements-v5.1.txt
 ### "Redis connection failed"
 ```bash
 # Redis is optional, system will work without it
-# Or install: docker run -d --name sofia-redis -p 6379:6379 redis:7-alpine
+# Or install: docker run -d --name frasberg-redis -p 6379:6379 redis:7-alpine
 ```
 
 ### "No API key"
@@ -188,7 +188,7 @@ pip install -r backend/requirements-v5.1.txt
 ## 📊 File Structure (Key Files)
 
 ```
-sofia-core-backend/
+frasberg-backend/
 ├── execute-month-1-now.sh          # 👈 START HERE
 ├── MONTH_1_COMPLETE.md             # 👈 READ THIS
 ├── CONTRIBUTING-ENHANCED.md        # 👈 CONTRIBUTORS READ
@@ -241,15 +241,15 @@ Earn money for contributions!
 | Research | $1000-$5000 | Published papers |
 | Integration | $200-$1000 | AWS/Azure/GCP integrations |
 
-**Contact**: bounties@sofia-core.ai
+**Contact**: bounties@frasberg.ai
 
 ---
 
 ## 📞 Get Help
 
 - **Documentation**: Start with [MONTH_1_COMPLETE.md](MONTH_1_COMPLETE.md)
-- **GitHub Issues**: https://github.com/emeraldorbit/sofia-core-backend/issues
-- **Email**: hello@sofia-core.ai
+- **GitHub Issues**: https://github.com/emeraldorbit/frasberg-backend/issues
+- **Email**: hello@frasberg.ai
 - **Discord**: Coming soon (see community/DISCORD_SETUP.md)
 
 ---
@@ -288,7 +288,7 @@ Earn money for contributions!
 
 ## 🎉 You're Ready!
 
-Pick your path above and start building with Sofia Core v5.1.0!
+Pick your path above and start building with Frasberg v5.1.0!
 
 **Questions?** See [MONTH_1_COMPLETE.md](MONTH_1_COMPLETE.md) for full details.
 

@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 # Database URL from environment or default to SQLite for development
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "sqlite:///./sofia_core.db"  # Fallback to SQLite for easy development
+    "sqlite:///./frasberg.db"  # Fallback to SQLite for easy development
 )
 
 # Create engine

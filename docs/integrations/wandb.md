@@ -1,6 +1,6 @@
 # Weights & Biases (W&B) Integration
 
-Sofia Core integrates with Weights & Biases for comprehensive experiment tracking, model monitoring, and collaboration.
+Frasberg integrates with Weights & Biases for comprehensive experiment tracking, model monitoring, and collaboration.
 
 ## Installation
 
@@ -18,7 +18,7 @@ from backend.app.integrations import WandBLogger
 
 # Initialize W&B logger
 logger = WandBLogger(
-    project="sofia-experiments",
+    project="frasberg-experiments",
     name="dna-compute-experiment-1"
 )
 
@@ -33,14 +33,14 @@ logger.log_metrics({
 logger.finish()
 ```
 
-### Track Sofia Core Operations
+### Track Frasberg Operations
 
 ```python
 from backend.app.integrations import WandBLogger
 from backend.app.v5.biological import DNACompute
 
 # Initialize
-logger = WandBLogger(project="sofia-dna-experiments")
+logger = WandBLogger(project="frasberg-dna-experiments")
 dna_compute = DNACompute()
 
 # Run experiments
@@ -62,7 +62,7 @@ logger.finish()
 
 ```python
 logger = WandBLogger(
-    project="sofia-core",
+    project="frasberg",
     name="experiment-1",
     config={
         "model": "neural-dna-v1",
@@ -77,7 +77,7 @@ logger = WandBLogger(
 
 ```python
 logger = WandBLogger(
-    project="sofia-experiments",
+    project="frasberg-experiments",
     entity="my-team",  # Team name
     name="shared-experiment"
 )
@@ -93,12 +93,12 @@ logger.log_model(
     metadata={
         "architecture": "transformer",
         "parameters": "175M",
-        "training_data": "sofia-dataset-v2"
+        "training_data": "frasberg-dataset-v2"
     }
 )
 ```
 
-## Integration with Sofia Core Features
+## Integration with Frasberg Features
 
 ### DNA Computing Experiments
 
@@ -173,11 +173,11 @@ sweep_config = {
 }
 
 # Create sweep
-sweep_id = wandb.sweep(sweep_config, project="sofia-optimization")
+sweep_id = wandb.sweep(sweep_config, project="frasberg-optimization")
 
 # Run sweep
 def train():
-    logger = WandBLogger(project="sofia-optimization")
+    logger = WandBLogger(project="frasberg-optimization")
     config = logger.run.config
     
     # Train with config
@@ -232,7 +232,7 @@ Finish the W&B run.
 ```python
 # Use descriptive project names
 logger = WandBLogger(
-    project="sofia-dna-compute-optimization",
+    project="frasberg-dna-compute-optimization",
     name=f"experiment-{timestamp}"
 )
 ```
@@ -258,12 +258,12 @@ logger.log_metrics({
 
 ```python
 logger = WandBLogger(
-    project="sofia-experiments",
+    project="frasberg-experiments",
     config={
         "model_version": "6.5.0",
         "learning_rate": 0.001,
         "optimizer": "adam",
-        "dataset": "sofia-v2"
+        "dataset": "frasberg-v2"
     }
 )
 ```
@@ -298,7 +298,7 @@ export WANDB_API_KEY=your_key_here
 import os
 os.environ["WANDB_MODE"] = "offline"
 
-logger = WandBLogger(project="sofia-experiments")
+logger = WandBLogger(project="frasberg-experiments")
 ```
 
 ### Disable Logging
@@ -323,7 +323,7 @@ config = {
 }
 
 logger = WandBLogger(
-    project="sofia-training",
+    project="frasberg-training",
     name="neural-dna-v1",
     config=config
 )
@@ -347,5 +347,5 @@ logger.finish()
 ## Learn More
 
 - [Weights & Biases Documentation](https://docs.wandb.ai/)
-- [Sofia Core Integration Guide](../README.md)
+- [Frasberg Integration Guide](../README.md)
 - [Experiment Tracking Best Practices](https://docs.wandb.ai/guides/track)

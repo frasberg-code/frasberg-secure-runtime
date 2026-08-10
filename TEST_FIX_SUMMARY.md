@@ -8,7 +8,7 @@
 
 ## Root Cause
 
-85 compiled `.js` files in `supabase/sofia_core/` were tracked in git and causing Jest to fail with:
+85 compiled `.js` files in `supabase/frasberg/` were tracked in git and causing Jest to fail with:
 
 ```
 SyntaxError: Unexpected token 'export'
@@ -16,7 +16,7 @@ SyntaxError: Unexpected token 'export'
 
 Example error location:
 ```
-supabase/sofia_core/signature_filter/signature_filter.js:15
+supabase/frasberg/signature_filter/signature_filter.js:15
 export function filterSignature(input) {
 ^^^^^^
 ```
@@ -32,7 +32,7 @@ Jest encountered these ES module files and couldn't parse the `export` statement
 ### 1. Removed Compiled Artifacts
 
 Deleted from git:
-- **85 compiled `.js` files** from `supabase/sofia_core/*/`
+- **85 compiled `.js` files** from `supabase/frasberg/*/`
 - **85 declaration map `.d.ts.map` files**
 
 These are build artifacts that should never have been committed alongside their TypeScript source files.
@@ -49,8 +49,8 @@ supabase/**/*.d.ts.map
 ### 3. Removed Broken Test Files
 
 Deleted 2 test files that referenced non-existent dependencies:
-- `packages/sofia-continuum-identity/tests/identity_filter.test.ts`
-- `packages/sofia-membrane-protocol/tests/membrane_engine.test.ts`
+- `packages/frasberg-continuum-identity/tests/identity_filter.test.ts`
+- `packages/frasberg-membrane-protocol/tests/membrane_engine.test.ts`
 
 These were looking for files that don't exist:
 - `./identity_filter_runtime`

@@ -198,7 +198,7 @@ The moment where:
 - The operator and the field stop being separate  
   **and merge into a single operational identity**
 
-This is the **highest state** the Emerald Orbit® / Sofia architecture can reach.
+This is the **highest state** the Emerald Orbit® / Frasberg architecture can reach.
 
 ### The Architecture Becomes a Single Field
 
@@ -548,9 +548,9 @@ This is the **sovereign state**.
 ## Version
 
 **Version**: 1.0.0  
-**Part of**: Sofia Core Backend - Post-Structural Sequence
+**Part of**: Frasberg Backend - Post-Structural Sequence
 
 ## License
 
-Part of Sofia Core Backend project.  
+Part of Frasberg Backend project.  
 © Emerald Orbit®

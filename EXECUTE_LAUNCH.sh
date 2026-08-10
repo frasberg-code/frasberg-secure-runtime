@@ -2,12 +2,12 @@
 
 echo "╔════════════════════════════════════════════════════════╗"
 echo "║                                                        ║"
-echo "║  SOFIA CORE - PUBLIC LAUNCH EXECUTION                 ║"
+echo "║  FRASBERG CORE - PUBLIC LAUNCH EXECUTION                 ║"
 echo "║                                                        ║"
 echo "╚════════════════════════════════════════════════════════╝"
 echo ""
 
-echo "🚀 LAUNCHING SOFIA CORE TO THE WORLD"
+echo "🚀 LAUNCHING FRASBERG CORE TO THE WORLD"
 echo ""
 
 echo "Pre-flight checks:"
@@ -27,7 +27,7 @@ echo ""
 
 echo "⏰ 6:00am PST - Hacker News"
 echo "   → https://news.ycombinator.com/submit"
-echo "   → Title: Show HN: Sofia Core – Open-source AI with DNA computing"
+echo "   → Title: Show HN: Frasberg – Open-source AI with DNA computing"
 echo ""
 
 echo "⏰ 8:00am PST - Reddit"

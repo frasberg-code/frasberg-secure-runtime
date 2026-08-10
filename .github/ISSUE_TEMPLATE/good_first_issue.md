@@ -48,7 +48,7 @@ pytest tests/test_specific.py
 ## 💬 Need Help?
 
 Ask questions in:
-- Discord `#contributors` channel: https://discord.gg/sofia-core
+- Discord `#contributors` channel: https://discord.gg/frasberg
 - Comment on this issue
 
 ---

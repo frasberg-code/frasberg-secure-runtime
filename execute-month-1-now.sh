@@ -1,5 +1,5 @@
 #!/bin/bash
-# Sofia Core - Month 1 Complete Execution Script
+# Frasberg - Month 1 Complete Execution Script
 # Path F: Hybrid Approach - Foundation Phase
 
 set -e
@@ -43,9 +43,9 @@ echo ""
 
 # Check if we're in the right directory
 if [ ! -f "backend/server.py" ]; then
-    echo -e "${RED}❌ Error: Must run from sofia-core-backend root directory${NC}"
+    echo -e "${RED}❌ Error: Must run from frasberg-backend root directory${NC}"
     echo "   Current directory: $(pwd)"
-    echo "   Expected: /path/to/sofia-core-backend"
+    echo "   Expected: /path/to/frasberg-backend"
     exit 1
 fi
 
@@ -243,7 +243,7 @@ echo ""
 
 echo "2. 💾 Initialize Database:"
 echo "   # Start PostgreSQL (or use SQLite)"
-echo "   docker run -d --name sofia-postgres -e POSTGRES_USER=sofia -e POSTGRES_PASSWORD=sofia -e POSTGRES_DB=sofia_core -p 5432:5432 postgres:15"
+echo "   docker run -d --name frasberg-postgres -e POSTGRES_USER=frasberg -e POSTGRES_PASSWORD=frasberg -e POSTGRES_DB=frasberg -p 5432:5432 postgres:15"
 echo "   # Initialize schema"
 echo "   cd backend && python init_db.py"
 echo ""
@@ -352,13 +352,13 @@ echo ""
 echo "Support:"
 echo "  • GitHub Issues: Report bugs, request features"
 echo "  • Discord: Live chat and support (coming soon)"
-echo "  • Email: hello@sofia-core.ai"
+echo "  • Email: hello@frasberg.ai"
 echo ""
 
 echo ""
 echo -e "${PURPLE}╔════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${PURPLE}║                                                            ║${NC}"
-echo -e "${PURPLE}║  Thank you for building Sofia Core! 🙏                    ║${NC}"
+echo -e "${PURPLE}║  Thank you for building Frasberg! 🙏                    ║${NC}"
 echo -e "${PURPLE}║                                                            ║${NC}"
 echo -e "${PURPLE}║  Together, we're creating the future of distributed AI.   ║${NC}"
 echo -e "${PURPLE}║                                                            ║${NC}"

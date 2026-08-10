@@ -1,6 +1,6 @@
 # Deployment Guide
 
-This document describes how to deploy `sofia-core-backend` to Supabase.
+This document describes how to deploy `frasberg-backend` to Supabase.
 
 ## Prerequisites
 

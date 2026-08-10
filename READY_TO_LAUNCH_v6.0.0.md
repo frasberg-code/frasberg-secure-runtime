@@ -1,15 +1,15 @@
-# 🚀 Sofia Core 6.0.0 - Ready to Launch!
+# 🚀 Frasberg 6.0.0 - Ready to Launch!
 
 ## ✅ Completed Tasks
 
-All preparation work for Sofia Core 6.0.0 is complete:
+All preparation work for Frasberg 6.0.0 is complete:
 
 ### 1. Version Updates ✅
 - [x] VERSION file created (6.0.0)
 - [x] package.json updated (6.0.0)
 - [x] sdk/python/setup.py updated (6.0.0)
 - [x] cli/setup.py updated (6.0.0)
-- [x] sdk/python/sofia_sdk/__init__.py updated (6.0.0)
+- [x] sdk/python/frasberg_sdk/__init__.py updated (6.0.0)
 
 ### 2. Documentation Created ✅
 - [x] CHANGELOG_v6.0.0.md - Complete changelog with all features
@@ -28,9 +28,9 @@ All preparation work for Sofia Core 6.0.0 is complete:
 
 1. **Stage and Commit Changes:**
    ```bash
-   cd /workspaces/sofia-core-backend
+   cd /workspaces/frasberg-backend
    git add .
-   git commit -m "Release Sofia Core 6.0.0 - Enterprise Evolution"
+   git commit -m "Release Frasberg 6.0.0 - Enterprise Evolution"
    ```
 
 2. **Run Release Script:**
@@ -44,8 +44,8 @@ All preparation work for Sofia Core 6.0.0 is complete:
    - Guide you through creating GitHub release
 
 3. **Create GitHub Release:**
-   - Go to: https://github.com/emeraldorbit/sofia-core-backend/releases/new?tag=v6.0.0
-   - Title: "Sofia Core 6.0.0 - Enterprise Evolution"
+   - Go to: https://github.com/emeraldorbit/frasberg-backend/releases/new?tag=v6.0.0
+   - Title: "Frasberg 6.0.0 - Enterprise Evolution"
    - Description: Copy from CHANGELOG_v6.0.0.md
    - Publish release
 
@@ -116,7 +116,7 @@ All preparation work for Sofia Core 6.0.0 is complete:
 - New authentication system (RBAC-based)
 - Configuration format updated
 
-Migration tool available: `sofia-cli migrate --from=5.x --to=6.0.0`
+Migration tool available: `frasberg-cli migrate --from=5.x --to=6.0.0`
 
 ### Key Messages
 
@@ -124,7 +124,7 @@ Migration tool available: `sofia-cli migrate --from=5.x --to=6.0.0`
 "Production-ready AI infrastructure: Enterprise security + Advanced AI + 10+ integrations"
 
 **Elevator Pitch:**
-"Sofia Core 6.0.0 combines enterprise-grade security with cutting-edge AI capabilities. Deploy DNA computing, swarm intelligence, and temporal reasoning at scale with RBAC, Kubernetes auto-scaling, and seamless integrations with Gemini, Claude, LangChain, and more."
+"Frasberg 6.0.0 combines enterprise-grade security with cutting-edge AI capabilities. Deploy DNA computing, swarm intelligence, and temporal reasoning at scale with RBAC, Kubernetes auto-scaling, and seamless integrations with Gemini, Claude, LangChain, and more."
 
 **For Enterprise Users:**
 "Production-ready with RBAC, audit logging, OpenTelemetry observability, Kubernetes operator, multi-region support, and SOC2 compliance helpers."
@@ -152,7 +152,7 @@ Migration tool available: `sofia-cli migrate --from=5.x --to=6.0.0`
 
 ## 🔗 Important Links
 
-- **GitHub Release:** https://github.com/emeraldorbit/sofia-core-backend/releases/tag/v6.0.0
+- **GitHub Release:** https://github.com/emeraldorbit/frasberg-backend/releases/tag/v6.0.0
 - **CHANGELOG:** [CHANGELOG_v6.0.0.md](CHANGELOG_v6.0.0.md)
 - **Enterprise Guide:** [docs/enterprise/README.md](docs/enterprise/README.md)
 - **Advanced AI Guide:** [docs/advanced-ai/README.md](docs/advanced-ai/README.md)
@@ -161,7 +161,7 @@ Migration tool available: `sofia-cli migrate --from=5.x --to=6.0.0`
 
 ## 🎉 You're Ready!
 
-Everything is prepared for Sofia Core 6.0.0 launch. Follow the steps above to:
+Everything is prepared for Frasberg 6.0.0 launch. Follow the steps above to:
 
 1. ✅ Commit and tag the release
 2. ✅ Create GitHub release
@@ -181,7 +181,7 @@ Everything is prepared for Sofia Core 6.0.0 launch. Follow the steps above to:
 git add .
 
 # Commit the release
-git commit -m "Release Sofia Core 6.0.0 - Enterprise Evolution"
+git commit -m "Release Frasberg 6.0.0 - Enterprise Evolution"
 
 # Run release script (creates branch, tags, pushes)
 ./release-v6.0.0.sh

@@ -1,4 +1,4 @@
-import { captureFieldFeedback } from '../../supabase/sofia_core/field_feedback/field_feedback';
+import { captureFieldFeedback } from '../../supabase/frasberg/field_feedback/field_feedback';
 
 describe('field_feedback', () => {
   test('captures feedback using translator', () => {

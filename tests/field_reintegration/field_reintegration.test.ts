@@ -1,4 +1,4 @@
-import { reintegrateFieldState } from '../../supabase/sofia_core/field_reintegration/field_reintegration';
+import { reintegrateFieldState } from '../../supabase/frasberg/field_reintegration/field_reintegration';
 
 describe('field_reintegration', () => {
   test('reintegrates field using reintegrator', () => {
