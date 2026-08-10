@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Play, Pause, StepForward, RotateCcw, Cpu, Activity } from "lucide-react";
+import { ArrowLeft, Play, Pause, StepForward, RotateCcw, Cpu, Activity, Globe } from "lucide-react";
 import { ParallaxSky } from "../components/site/ParallaxSky";
+import { RegionMap, RegionCards } from "../components/site/RegionMesh";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -214,6 +215,12 @@ export default function FrasbergOS() {
                 {selected && <NodeDetail id={selected} state={state} onClose={() => setSelected(null)} />}
               </div>
               <AgentTable agents={state.agents} />
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-white/10 bg-black/30 p-5 backdrop-blur" data-testid="os-mesh-panel">
+              <p className="flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400"><Globe size={12} /> AIM v2 — global mesh</p>
+              <RegionMap regions={state.regions || []} />
+              <div className="mt-2"><RegionCards regions={state.regions || []} /></div>
             </div>
 
             <div className="mt-5 rounded-2xl border border-white/10 bg-black/30 p-5 backdrop-blur" data-testid="os-event-log">

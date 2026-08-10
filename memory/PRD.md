@@ -260,3 +260,15 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Verified: curl (scenario lifecycle, 422 bad name, deploy new/update/trademark-400/404, publish trademark-400) + browser screenshots (scenario banner + node panel on /os; login → synced list → live deploy toast)
 - TEST DATA: doctester1 has 2 seeded synced_agents (doctester/summarizer-bot, doctester/luchii-helper) + "Summarizer Bot" marketplace item — for demoing deploy flow until GitHub secret arrives
 - NOTE: user posted a screenshot of a GitHub App PRIVATE KEY (SHA256 fingerprint) — that is NOT the OAuth client secret; login still awaits GITHUB_CLIENT_SECRET from GitHub App settings → "Client secrets" → Generate
+
+## 2026-06 (cont. 10): Marketplace v3 Pages + Region Map + Cognition Previews — TESTED 100% (iteration_39)
+- Region mesh in frasbergos.py: REGION_SEED 4 regions (us-west/us-east/eu-central/ap-south) w/ status/load/safety/agents in sim state; region_failover scenario sets us-west=degraded + us-east=failover (restores on completion); regions in /api/os/state
+- Shared components: RegionMesh.jsx (RegionMap SVG — graticule, federation arcs w/ traveling pulses, status-colored region nodes; RegionCards grid) + CognitionPreview.jsx (deterministic P→I→R→D→A mini-graph seeded from item id)
+- Marketplace v3 pages at /marketplace/:page (MarketplaceV3.jsx, gradient #4A6CF7→#00D1FF headlines per spec):
+  - /marketplace/deploy — agent select, region selector (live loads), cognition inspector, 5-step animated safety validator → deploy summary → deploy button w/ toast
+  - /marketplace/evolution — lineage selector + full timeline w/ safety deltas + Mutations/Benchmark/Band stat boxes
+  - /marketplace/safety — Membrane/Hinge/Classifier v3/Safety Graph cards + GSS-2 bands legend
+  - /marketplace/regions — live region map (auto-ticks sim every 3s) + Simulate failover button + failover-active indicator
+- Marketplace base page: mini cognition previews on agent cards + "How this agent thinks" in detail modal (agent type only); Deploy/Evolution/Safety/Regions nav pills added
+- /os page: "AIM v2 — global mesh" panel (RegionMap + RegionCards) added below graph
+- iteration_39.json: 100% backend (7/7 pytest at /app/backend/tests/test_iter39_os_marketplace.py) + 100% frontend; no action items. Non-blocking notes: guest 401 console noise from /api/auth/me polling; validator steps could use data-state attr

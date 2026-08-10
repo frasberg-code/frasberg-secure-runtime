@@ -21,6 +21,12 @@ AGENT_SEED = [
     {"pid": 105, "name": "mutation-classifier", "role": "Evolution"},
     {"pid": 106, "name": "kernel-scheduler", "role": "Kernel"},
 ]
+REGION_SEED = [
+    {"id": "us-west", "name": "US West", "x": 130, "y": 158},
+    {"id": "us-east", "name": "US East", "x": 225, "y": 148},
+    {"id": "eu-central", "name": "EU Central", "x": 415, "y": 108},
+    {"id": "ap-south", "name": "AP South", "x": 590, "y": 215},
+]
 STATES = ["running", "running", "running", "waiting", "evolving", "sandboxed"]
 EVENT_TEMPLATES = [
     "reason→safety: plan #{n} cleared (score 0.{s})",
@@ -75,6 +81,11 @@ def setup(database):
     db = database
 
 
+def _fresh_regions():
+    return [{**r, "status": "healthy", "load": round(random.uniform(0.2, 0.5), 2),
+             "safety": random.randint(88, 98), "agents": random.randint(40, 220)} for r in REGION_SEED]
+
+
 def _fresh_state():
     return {
         "id": "global",
@@ -87,6 +98,7 @@ def _fresh_state():
         "events": [],
         "scenario": None,
         "node_stats": {n: {"traffic": 0, "safety": random.randint(82, 98), "last_pulse_tick": None} for n in NODES},
+        "regions": _fresh_regions(),
     }
 
 
@@ -96,6 +108,24 @@ def _tick(state):
     sc = state.get("scenario")
     spec = SCENARIOS.get(sc["name"]) if sc else None
     stats = state.setdefault("node_stats", {n: {"traffic": 0, "safety": random.randint(82, 98), "last_pulse_tick": None} for n in NODES})
+    regions = state.setdefault("regions", _fresh_regions())
+    failover_active = bool(spec and sc["name"] == "region_failover")
+    for r in regions:
+        bias = 0
+        if failover_active:
+            if r["id"] == "us-west":
+                r["status"] = "degraded"
+                bias = 0.12
+            elif r["id"] == "us-east":
+                r["status"] = "failover"
+                bias = 0.18
+            else:
+                r["status"] = "healthy"
+        else:
+            r["status"] = "healthy"
+        r["load"] = round(min(0.97, max(0.08, r["load"] + random.uniform(-0.06, 0.06) + bias * 0.4)), 2)
+        r["safety"] = min(99, max(60, r["safety"] + (-random.randint(0, 2) if r["status"] == "degraded" else random.choice([-1, 0, 1]))))
+        r["agents"] = max(10, r["agents"] + random.randint(-6, 8))
     load_bias = spec["load"] if spec else 0
     k["load"] = round(min(0.95, max(0.05, k["load"] + random.uniform(-0.08, 0.08) + load_bias * 0.4)), 2)
     if spec and sc["name"] == "region_failover":
@@ -162,7 +192,8 @@ def _public(state):
     return {"kernel": k, "nodes": state["nodes"], "pulses": state["pulses"],
             "edges": EDGES, "agents": state["agents"], "events": state["events"],
             "scenario": scenario,
-            "node_stats": state.get("node_stats", {})}
+            "node_stats": state.get("node_stats", {}),
+            "regions": state.get("regions", _fresh_regions())}
 
 
 @router.get("/state")

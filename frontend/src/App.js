@@ -49,6 +49,7 @@ import CharacterCreator from "./pages/CharacterCreator";
 import Linq from "./pages/Linq";
 import FrasbergCloud from "./pages/FrasbergCloud";
 import Marketplace from "./pages/Marketplace";
+import MarketplaceV3 from "./pages/MarketplaceV3";
 import FrasbergOS from "./pages/FrasbergOS";
 import DocsHub from "./pages/DocsHub";
 
@@ -122,6 +123,7 @@ function App() {
               <Route path="/linq" element={<Linq />} />
               <Route path="/cloud" element={<FrasbergCloud />} />
               <Route path="/marketplace" element={<Marketplace />} />
+              <Route path="/marketplace/:page" element={<MarketplaceV3 />} />
               <Route path="/os" element={<FrasbergOS />} />
               <Route path="/developers/docs" element={<DocsHub />} />
               <Route path="/developers/docs/:doc" element={<DocsHub />} />

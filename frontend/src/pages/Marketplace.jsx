@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { ArrowLeft, Download, Plus, X, Bot, Cpu, Puzzle, GitBranch, BadgeCheck, Zap, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Download, Plus, X, Bot, Cpu, Puzzle, GitBranch, BadgeCheck, Zap, ShieldCheck, Rocket, Globe } from "lucide-react";
 import { ParallaxSky } from "../components/site/ParallaxSky";
+import { CognitionPreview } from "../components/site/CognitionPreview";
 import { useAuth } from "../context/AuthContext";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -51,6 +52,12 @@ function DetailModal({ item, onClose, onInstall }) {
           </a>
         )}
 
+        {item.type === "agent" && (
+          <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-3">
+            <p className="font-mono text-[11.5px] uppercase tracking-wide text-gray-500">How this agent thinks</p>
+            <CognitionPreview seed={item.id} labels />
+          </div>
+        )}
         <p className="mt-6 font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400">Evolution history</p>
         <div className="mt-3 space-y-0" data-testid="evolution-timeline">
           {hist.length === 0 && <p className="text-[13.5px] text-gray-400">No lineage recorded yet.</p>}
@@ -200,12 +207,19 @@ export default function Marketplace() {
         <h1 className="font-display text-3xl font-700 tracking-tight sm:text-4xl">Agents, Models & Extensions</h1>
         <p className="mt-3 max-w-xl text-[16px] text-gray-300">Publish and install agents, models, extensions and pipelines built for the Frasberg platform.</p>
 
-        <div className="mt-8 flex flex-wrap gap-2" data-testid="marketplace-filters">
+        <div className="mt-8 flex flex-wrap items-center gap-2" data-testid="marketplace-filters">
           {TYPES.map(([k, label]) => (
             <button key={k} onClick={() => setType(k)} data-testid={`marketplace-filter-${k}`}
               className={`rounded-full border px-4 py-1.5 text-[13.5px] transition-colors ${type === k ? "border-cyan-400 bg-cyan-400/10 text-cyan-300" : "border-white/15 text-gray-300 hover:border-white/40"}`}>
               {label}
             </button>
+          ))}
+          <span className="mx-1 hidden h-5 w-px bg-white/15 sm:block" />
+          {[["deploy", "Deploy", Rocket], ["evolution", "Evolution", GitBranch], ["safety", "Safety", ShieldCheck], ["regions", "Regions", Globe]].map(([k, label, Icon]) => (
+            <Link key={k} to={`/marketplace/${k}`} data-testid={`marketplace-nav-${k}`}
+              className="flex items-center gap-1.5 rounded-full border border-white/15 px-4 py-1.5 text-[13.5px] text-gray-300 transition-colors hover:border-cyan-400 hover:text-cyan-300">
+              <Icon size={12} /> {label}
+            </Link>
           ))}
         </div>
 
@@ -228,6 +242,11 @@ export default function Marketplace() {
                   <SafetyBadge score={i.safety_score ?? 75} />
                 </div>
                 <p className="mt-3 flex-1 text-[14px] leading-relaxed text-gray-300">{i.description}</p>
+                {i.type === "agent" && (
+                  <div className="mt-3 rounded-lg border border-white/[0.07] bg-white/[0.02] px-3 py-1" data-testid={`cognition-preview-${i.id}`}>
+                    <CognitionPreview seed={i.id} height={44} />
+                  </div>
+                )}
                 {i.evolution_mode && (
                   <p className="mt-2 flex items-center gap-1.5 font-mono text-[12px] text-emerald-300" data-testid={`marketplace-evolution-badge-${i.id}`}>
                     <Zap size={11} /> Evolution Mode — validated auto-updates {i.evolution?.lineage ? `· ${i.evolution.lineage}` : ""}
