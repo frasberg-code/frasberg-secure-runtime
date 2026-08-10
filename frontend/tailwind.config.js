@@ -6,6 +6,7 @@ module.exports = {
     extend: {
       fontFamily: {
         display: ['Unbounded', 'sans-serif'],
+        hero: ['"Clash Display"', 'Satoshi', 'sans-serif'],
         sans: ['Satoshi', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
       },

@@ -3,7 +3,7 @@ import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
   Home, X, Plus, Paperclip, GitFork, Mic, ArrowUp, Share2, RefreshCw, ExternalLink, Copy, Sparkles, Download, Square, Play,
-  MousePointerClick, Monitor, Smartphone, Maximize2, Minimize2, ChevronDown, ChevronUp,
+  MousePointerClick, Monitor, Smartphone, Tablet, Maximize2, Minimize2, ChevronDown, ChevronUp, Undo2, Github,
 } from "lucide-react";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -85,6 +85,25 @@ export default function AgentWorkspace() {
   const [toolbarOpen, setToolbarOpen] = useState(true);
   const [editing, setEditing] = useState(false);
   const [htmlOverride, setHtmlOverride] = useState(null);
+  const [ghOwner, setGhOwner] = useState("");
+  const [ghRepo, setGhRepo] = useState("");
+  const [ghBusy, setGhBusy] = useState(false);
+  const [ghResult, setGhResult] = useState(null);
+  const forkGithub = async () => {
+    setGhBusy(true);
+    setGhResult(null);
+    try {
+      const r = await fetch(`${API}/github/fork`, {
+        method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ owner: ghOwner, repo: ghRepo }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || "Fork failed");
+      setGhResult(d.html_url);
+      toast.success(`Forked ${d.full_name}`);
+    } catch (e) { toast.error(String(e.message || e)); }
+    setGhBusy(false);
+  };
   const snapSplit = () => {
     if (!fullPreview && split === 50) setFullPreview(true);
     else { setFullPreview(false); setSplit(50); try { localStorage.setItem("ws-split", "50"); } catch {} }
@@ -470,9 +489,9 @@ export default function AgentWorkspace() {
                   <button onClick={() => setAttach(null)} aria-label="Remove attachment" data-testid="workspace-attachment-remove" style={{ color: T.muted }}><X size={12} /></button>
                 </div>
               )}
-              <textarea value={input} onChange={(e) => setInput(e.target.value)} rows={1}
-                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-                placeholder="" data-testid="workspace-input"
+              <textarea value={input} onChange={(e) => setInput(e.target.value)} rows={2}
+                onKeyDown={(e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); send(); } }}
+                placeholder="Type your build request — Enter for a new line, Ctrl+Enter to send" data-testid="workspace-input"
                 className="w-full resize-none bg-transparent px-1.5 py-1 text-[13.5px] outline-none" style={{ color: T.text }} />
               <div className="mt-1.5 flex items-center gap-1.5">
                 <input ref={fileRef} type="file" hidden accept=".txt,.md,.html,.css,.js,.jsx,.ts,.tsx,.json,.csv,.py,image/*" onChange={onFile} data-testid="workspace-file-input" />
@@ -484,8 +503,8 @@ export default function AgentWorkspace() {
                   <option value="luchii-7b">✳ Luchii-7b</option>
                   <option value="luchii-70b">✳ Luchii-70b</option>
                   <option disabled>──────────</option>
-                  <option value="frasberg-ai" disabled>◈ Frasberg AI — coming soon</option>
-                  <option value="luchii-vision" disabled>✳ Luchii Vision — coming soon</option>
+                  <option value="frasberg-ai" disabled>◈ Frasberg — coming soon</option>
+                  <option value="luchii-vision" disabled>✳ Luchii Earth 7 — coming soon</option>
                 </select>
                 <button className={`${iconBtn} ml-auto`} style={{ borderColor: listening ? T.accent : T.borderSub, color: listening ? T.accent : T.muted }} onClick={toggleMic} aria-label="Mic" data-testid="workspace-mic"><Mic size={14} className={listening ? "animate-pulse" : ""} /></button>
                 {running ? (
@@ -542,9 +561,9 @@ export default function AgentWorkspace() {
           {tab === "preview" ? (
             <div className="relative min-h-0 flex-1" data-testid="workspace-preview">
               {previewHtml ? (
-                device === "mobile" ? (
+                device !== "desktop" ? (
                   <div className="flex h-full items-center justify-center p-4" style={{ background: T.inset }}>
-                    <div className="h-full max-h-[700px] w-[390px] overflow-hidden rounded-[28px] border-4 shadow-2xl" style={{ borderColor: "#26282c" }} data-testid="preview-mobile-frame">
+                    <div className={`h-full overflow-hidden border-4 shadow-2xl ${device === "mobile" ? "max-h-[700px] w-[390px] rounded-[28px]" : "max-h-[740px] w-[768px] rounded-[20px]"}`} style={{ borderColor: "#26282c" }} data-testid={`preview-${device}-frame`}>
                       <iframe title="preview" srcDoc={previewHtml} sandbox="allow-scripts" className="h-full w-full bg-white" style={{ pointerEvents: dragging ? "none" : "auto" }} />
                     </div>
                   </div>
@@ -555,8 +574,7 @@ export default function AgentWorkspace() {
                 <div className="grid h-full place-items-center">
                   <div className="text-center">
                     <img src="/luchii-mark-circle.png" alt="" className="mx-auto h-16 w-16 rounded-full opacity-80" style={{ boxShadow: "0 0 50px rgba(0,240,255,0.25)" }} />
-                    <p className="mt-5 font-mono text-[13.5px] uppercase tracking-[0.25em]" style={{ color: T.accent }}>● Luchii V12 · Constellation layer live</p>
-                    <p className="mt-3 max-w-xs text-sm" style={{ color: T.text2 }}>
+                    <p className="mt-5 max-w-xs text-sm" style={{ color: T.text2 }}>
                       Your build preview appears here — ask Luchii to build a page and it renders live.
                     </p>
                   </div>
@@ -571,10 +589,16 @@ export default function AgentWorkspace() {
                         className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] transition-colors hover:bg-white/[0.08]" style={{ color: T.text }}>
                         <MousePointerClick size={13} /> Edit
                       </button>
-                      <button onClick={() => setDevice((d) => (d === "desktop" ? "mobile" : "desktop"))} data-testid="preview-device-btn" aria-label="Toggle device preview" title="Desktop / mobile preview"
-                        className="grid h-8 w-8 place-items-center rounded-full transition-colors hover:bg-white/[0.08]" style={{ color: device === "mobile" ? T.accent : T.text2 }}>
-                        {device === "mobile" ? <Smartphone size={14} /> : <Monitor size={14} />}
+                      <button onClick={() => setDevice((d) => (d === "desktop" ? "tablet" : d === "tablet" ? "mobile" : "desktop"))} data-testid="preview-device-btn" aria-label="Toggle device preview" title="Desktop / tablet / mobile preview"
+                        className="grid h-8 w-8 place-items-center rounded-full transition-colors hover:bg-white/[0.08]" style={{ color: device !== "desktop" ? T.accent : T.text2 }}>
+                        {device === "mobile" ? <Smartphone size={14} /> : device === "tablet" ? <Tablet size={14} /> : <Monitor size={14} />}
                       </button>
+                      {htmlOverride !== null && (
+                        <button onClick={() => { setHtmlOverride(null); toast.success("Edits reverted — back to the agent's original build"); }} data-testid="preview-undo-btn" aria-label="Undo edits" title="Revert to agent's original build"
+                          className="grid h-8 w-8 place-items-center rounded-full transition-colors hover:bg-white/[0.08]" style={{ color: "#FBBF24" }}>
+                          <Undo2 size={14} />
+                        </button>
+                      )}
                       <button onClick={() => setFullPreview((f) => !f)} data-testid="preview-fullscreen-btn" aria-label="Toggle full preview" title="Full-screen preview"
                         className="grid h-8 w-8 place-items-center rounded-full transition-colors hover:bg-white/[0.08]" style={{ color: fullPreview ? T.accent : T.text2 }}>
                         {fullPreview ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
@@ -601,6 +625,12 @@ export default function AgentWorkspace() {
                         className="flex items-center gap-1.5 rounded border px-2.5 py-1 text-[13px]" style={{ borderColor: T.border, color: T.text2, background: T.surface }} data-testid="workspace-code-copy">
                         <Copy size={11} /> Copy
                       </button>
+                      {htmlOverride !== null && (
+                        <button onClick={() => { setHtmlOverride(null); toast.success("Edits reverted — back to the agent's original build"); }}
+                          className="flex items-center gap-1.5 rounded border px-2.5 py-1 text-[13px]" style={{ borderColor: "#FBBF24", color: "#FBBF24" }} data-testid="workspace-code-undo">
+                          <Undo2 size={11} /> Undo edits
+                        </button>
+                      )}
                       {editing ? (
                         <button onClick={() => { setEditing(false); setTab("preview"); toast.success("Edits applied to preview"); }}
                           className="rounded border px-2.5 py-1 text-[13px] font-600" style={{ borderColor: T.accent, color: T.accent }} data-testid="workspace-code-done">
@@ -703,6 +733,27 @@ export default function AgentWorkspace() {
                         <a className="text-[13.5px] underline" style={{ color: T.accent }} href={`${process.env.REACT_APP_BACKEND_URL}/api/workspace/app/${savedSlug}`} target="_blank" rel="noreferrer" data-testid="custom-url-open">Open app ↗</a>
                         <button className="text-[13.5px] underline" style={{ color: T.text2 }} onClick={() => { navigator.clipboard.writeText(`https://${savedSlug}.preview.frasberg.com`).catch(() => {}); toast.success("Custom URL copied"); }}>Copy</button>
                       </div>
+                    )}
+                  </div>
+                  <div className="mt-4 rounded-lg border p-4" style={{ borderColor: T.border, background: T.surface }} data-testid="manage-github">
+                    <p className="flex items-center gap-2 text-[13.5px] font-600"><Github size={14} /> Fork from GitHub</p>
+                    <p className="mt-0.5 text-[13.5px]" style={{ color: T.text2 }}>Fork any repository into your GitHub account — sign in with GitHub first</p>
+                    <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                      <input value={ghOwner} onChange={(e) => setGhOwner(e.target.value.trim())} placeholder="owner" maxLength={100} data-testid="github-fork-owner"
+                        className="w-36 rounded-md border px-3 py-1.5 font-mono text-[13.5px] outline-none" style={{ borderColor: T.border, background: T.inset, color: T.text }} />
+                      <span className="font-mono text-[14px]" style={{ color: T.muted }}>/</span>
+                      <input value={ghRepo} onChange={(e) => setGhRepo(e.target.value.trim())} placeholder="repository" maxLength={100} data-testid="github-fork-repo"
+                        className="w-44 rounded-md border px-3 py-1.5 font-mono text-[13.5px] outline-none" style={{ borderColor: T.border, background: T.inset, color: T.text }} />
+                      <button onClick={forkGithub} disabled={!ghOwner || !ghRepo || ghBusy} data-testid="github-fork-btn"
+                        className="flex items-center gap-1.5 rounded-md px-4 py-1.5 text-[13.5px] font-600 transition-opacity disabled:opacity-40"
+                        style={{ background: T.text, color: T.bg }}>
+                        <GitFork size={12} /> {ghBusy ? "Forking…" : "Fork"}
+                      </button>
+                    </div>
+                    {ghResult && (
+                      <p className="mt-2 font-mono text-[13px]" style={{ color: "#10B981" }} data-testid="github-fork-result">
+                        ✓ Forked — <a className="underline" href={ghResult} target="_blank" rel="noreferrer">{ghResult}</a>
+                      </p>
                     )}
                   </div>
                   <div className="mt-4 rounded-lg border p-4" style={{ borderColor: T.border, background: T.surface }} data-testid="manage-publishes">

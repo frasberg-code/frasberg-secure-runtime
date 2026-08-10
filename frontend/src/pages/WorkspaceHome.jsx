@@ -64,7 +64,7 @@ export default function WorkspaceHome() {
         <div className="flex items-center gap-2 rounded-t-md border border-b-0 px-3.5 py-2 text-[13px]" style={{ borderColor: T.border, background: T.surface }}>
           <Sparkles size={12} style={{ color: T.accent }} /> My Apps
         </div>
-        <Link to="/coding-agents" className="rounded-md p-1.5 transition-colors hover:bg-white/[0.05]" style={{ color: T.text2 }} aria-label="New build" data-testid="apps-new-tab">
+        <Link to="/chat?model=luchii-70b&agent=architect" className="rounded-md p-1.5 transition-colors hover:bg-white/[0.05]" style={{ color: T.text2 }} aria-label="New build" data-testid="apps-new-tab">
           <Plus size={15} />
         </Link>
       </div>
@@ -72,7 +72,7 @@ export default function WorkspaceHome() {
       <div className="mx-auto max-w-3xl px-5 py-10">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-2xl font-700 tracking-tight">Your builds</h1>
-          <Link to="/coding-agents" data-testid="apps-new-build-btn"
+          <Link to="/chat?model=luchii-70b&agent=architect" data-testid="apps-new-build-btn"
             className="flex items-center gap-1.5 rounded-full px-5 py-2 text-[13px] font-600" style={{ background: T.text, color: T.bg }}>
             <Plus size={14} /> New build
           </Link>

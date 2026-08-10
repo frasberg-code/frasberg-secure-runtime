@@ -3113,6 +3113,9 @@ async def view_workspace_app(slug: str):
 
 import native_packaging
 api_router.include_router(native_packaging.router)
+import github_auth
+github_auth.setup(db)
+api_router.include_router(github_auth.router)
 import db_manager
 api_router.include_router(db_manager.router)
 import games_portal

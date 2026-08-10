@@ -1,0 +1,25 @@
+{
+  "summary": "Iteration 38 — Verified full Luchii batch (hero font Clash Display, chat disclaimer trim, workspace preview text removal, model picker coming-soon slots, tablet in device cycle, Edit->Undo, Enter=newline / Ctrl+Enter=send, /apps New build routing, GitHub OAuth 503 backend + Continue with GitHub button + Fork from GitHub card). Backend: 3/3 pytest tests pass in /app/backend/tests/test_iter38_batch.py (github/status returns configured:false linked:false, github/login returns 503 with GITHUB_CLIENT_ID mention, POST /api/github/fork unauth returns 401). Frontend: Playwright E2E confirmed - homepage h1 uses class 'font-hero' with computed fontFamily 'Clash Display, Satoshi, sans-serif'; body innerText no longer contains 'Chats may be reviewed' or 'Learn more'; /chat?model=luchii-7b&agent=builder body has no 'Constellation layer live' text; workspace-model-select options include '◈ Frasberg — coming soon' and '✳ Luchii Earth 7 — coming soon'; workspace-input Enter produced 'line1\\n' (newline inserted, message NOT sent), Ctrl+Enter cleared composer and Luchii replied 'Hey! Good to have you here...'; Edit flow injects TEST_CUSTOM_MARKER via workspace-code-editor+workspace-code-done; preview-device-btn cycle desktop->tablet(preview-tablet-frame present)->mobile(preview-mobile-frame present)->desktop(both 0); preview-undo-btn present and after click iframe srcdoc no longer contains TEST_CUSTOM_MARKER (revert works); /apps apps-new-build-btn and apps-new-tab both href='/chat?model=luchii-70b&agent=architect'; /auth auth-github-btn present as <button> with text 'Continue with GitHub' and onClick — clicking issued GET /api/auth/github/login returning 503 with body {'detail':'GitHub login is not configured yet — add GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET.'}; workspace Manage tab shows manage-github card with heading 'Fork from GitHub', owner/repo inputs, and Fork button. Regressions: workspace-split-divider (1) and font-size-toggle (1) present.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_iter38_batch.py", "/app/test_reports/pytest/iter38.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "workspace-code-undo data-testid was NOT observed in DOM during this run (count=0). preview-undo-btn (in toolbar) is present and works correctly, so functional coverage is met. If the code-tab-side workspace-code-undo is intended to also render whenever revertibleHtml exists, verify it renders when the Code tab is opened while a custom edit is active — during this test the Code tab had already been closed via workspace-code-done before we checked. Not blocking.",
+    "auth-github-btn is a <button> (no href attribute). It uses onClick to window.location the /api/auth/github/login endpoint — works fine (503 hit confirmed). Consider making it an <a href=...> for progressive enhancement, but not required.",
+    "iframe sandboxed script-execution console warnings for /api/workspace/publishes/*/view are expected (sandbox='') — cosmetic.",
+    "server.py continues to grow (>3100 lines) — recommend splitting gateway/github into modules; github_auth already extracted which is good."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter38_batch.py", "/app/test_reports/iteration_38.json"],
+  "success_rate": {"backend": "100% (3/3)", "frontend": "100% of requested batch flows"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026!; doctester1@frasberg.com / DocTester2026! — not exercised this iteration (guest-mode workspace flow sufficient).",
+  "seed_data_creation": "None (guest workspace publishes created ephemerally by prior iterations)",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All 12 requested checks in iter38 batch pass. GitHub OAuth is intentionally unconfigured => /api/auth/github/login returns 503 with GITHUB_CLIENT_ID mention, /api/auth/github/status returns configured:false, /api/github/fork requires auth (401). Frontend has auth-github-btn on /auth, manage-github card on workspace Manage tab. Preview device cycle now has 3 states: desktop -> tablet (preview-tablet-frame) -> mobile (preview-mobile-frame) -> desktop. preview-undo-btn appears after Edit flow and correctly reverts previewHtml. Composer Enter=newline, Ctrl+Enter=send (verified with actual send producing Luchii reply). /apps New build entries route to /chat?model=luchii-70b&agent=architect. Hero uses font-hero -> Clash Display, Satoshi. ChatDemo disclaimer trimmed (no 'Chats may be reviewed' / 'Learn more'). workspace-code-undo (code-tab variant) not observed in this run — non-blocking since toolbar undo works.",
+  "rca of the issue": "n/a — no blocking issues found."
+}

@@ -18,3 +18,4 @@ starlette==0.37.2
 uvicorn==0.25.0
 redis==8.1.0
 pynacl==1.6.2
+cryptography==49.0.0

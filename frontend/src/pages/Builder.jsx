@@ -414,7 +414,7 @@ export default function Builder({ type = "website" }) {
           <aside data-testid="builder-projects-sidebar">
             {user ? (
               <>
-                <Link to="/coding-agents" data-testid="builder-new-project-btn"
+                <Link to="/chat?model=luchii-70b&agent=architect" data-testid="builder-new-project-btn"
                   className="flex w-full items-center justify-center gap-2 rounded-full bg-lux-text px-5 py-2.5 text-sm font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
                   <Sparkles size={15} /> New build
                 </Link>
