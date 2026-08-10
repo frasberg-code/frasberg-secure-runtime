@@ -160,7 +160,7 @@ export default function About() {
       <header className="glass sticky top-0 z-40 border-b border-lux-border">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/" className="flex items-baseline gap-4" data-testid="about-home-link">
-            <span className="font-mono text-xs uppercase tracking-[0.2em] text-lux-text2 transition-colors hover:text-lux-text">Back</span>
+            <span className="font-mono text-[13px] uppercase tracking-[0.2em] text-lux-text2 transition-colors hover:text-lux-text">Back</span>
             <span className="font-display text-lg font-700 tracking-tight">Frasberg Inc.</span>
           </Link>
         </div>
@@ -190,7 +190,7 @@ export default function About() {
             <Reveal key={s.title} delay={Math.min(i * 0.02, 0.1)}>
               <div data-testid={`about-section-${s.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>
                 <div className="flex items-baseline gap-4">
-                  <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-accent">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="font-mono text-[13px] uppercase tracking-[0.2em] text-lux-accent">{String(i + 1).padStart(2, "0")}</span>
                   <h2 className="font-display text-2xl font-700 tracking-tight sm:text-3xl">{s.title}</h2>
                 </div>
                 <div className="mt-5 space-y-4 border-l border-lux-border pl-6">
@@ -200,7 +200,7 @@ export default function About() {
                   {s.list && (
                     <div className="flex flex-wrap gap-2.5 pt-2">
                       {s.list.map((item) => (
-                        <span key={item} className="rounded-full border border-lux-border bg-lux-surface px-4 py-2 font-mono text-xs text-lux-text2 transition-colors duration-200 hover:border-lux-accent hover:text-lux-text">
+                        <span key={item} className="rounded-full border border-lux-border bg-lux-surface px-4 py-2 font-mono text-[13px] text-lux-text2 transition-colors duration-200 hover:border-lux-accent hover:text-lux-text">
                           {item}
                         </span>
                       ))}
@@ -229,7 +229,7 @@ export default function About() {
       </section>
 
       <footer className="border-t border-lux-border py-10 text-center">
-        <p className="font-mono text-xs text-lux-text2">Copyright © 2026 FRASBERG, INC. All rights reserved.</p>
+        <p className="font-mono text-[13px] text-lux-text2">Copyright © 2026 FRASBERG, INC. All rights reserved.</p>
       </footer>
     </main>
   );

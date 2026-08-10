@@ -31,7 +31,7 @@ async function post(path, body) {
 }
 
 const sel = "w-full rounded-lg border border-[#2d2d4a] bg-[#1a1a2e] px-3 py-2.5 text-sm text-white outline-none focus:border-[#7c3aed]";
-const label = "mb-1.5 block text-[11px] uppercase tracking-[0.15em] text-[#9ca3af]";
+const label = "mb-1.5 block text-[13px] uppercase tracking-[0.15em] text-[#9ca3af]";
 const genBtn = "inline-flex items-center justify-center gap-2 rounded-lg bg-[#7c3aed] px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-[#8f5cf7] disabled:opacity-50";
 
 function Result({ r }) {
@@ -39,7 +39,7 @@ function Result({ r }) {
   return (
     <div className="mt-6" data-testid="studio-result">
       <img src={`${B}${r.image_url}`} alt="Generated" className="w-full max-w-2xl rounded-xl border border-[#1f1f3a]" />
-      <p className="mt-2 text-xs text-[#6b7280]">Generated in {(r.generation_time_ms / 1000).toFixed(1)}s · gpt-image-1</p>
+      <p className="mt-2 text-[13px] text-[#6b7280]">Generated in {(r.generation_time_ms / 1000).toFixed(1)}s · gpt-image-1</p>
     </div>
   );
 }
@@ -89,7 +89,7 @@ function CityTab() {
           <img src={`${B}${r.image_url}`} alt="Environment" className="w-full rounded-xl border border-[#1f1f3a]" />
           <DayNightOverlay hour={f.hour} />
           <WeatherOverlay weather={f.weather} />
-          <p className="mt-2 text-xs text-[#6b7280]">
+          <p className="mt-2 text-[13px] text-[#6b7280]">
             {r.time_of_day} · {r.weather} · crowd {r.crowd_density} · neon {Math.round(r.neon_intensity * 100)}% · {(r.generation_time_ms / 1000).toFixed(1)}s
           </p>
         </div>
@@ -146,19 +146,19 @@ function CreatureTab() {
       {creatures.map((c) => (
         <div key={c.id} className="rounded-2xl border border-[#1f1f3a] bg-[#12121e] p-5" data-testid={`studio-creature-${c.id}`}>
           <div className="flex items-center justify-between">
-            <span className="rounded-full px-2.5 py-1 text-[11px] font-bold text-white" style={{ background: TIER_COLORS[c.tier] }}>
+            <span className="rounded-full px-2.5 py-1 text-[13px] font-bold text-white" style={{ background: TIER_COLORS[c.tier] }}>
               Tier {c.tier} — {TIER_LABELS[c.tier]}</span>
-            <span className="rounded-full bg-[#1f1f3a] px-2.5 py-1 text-[11px] capitalize text-[#a78bfa]">{c.creature_class}</span>
+            <span className="rounded-full bg-[#1f1f3a] px-2.5 py-1 text-[13px] capitalize text-[#a78bfa]">{c.creature_class}</span>
           </div>
           {c.generated_image_url ? (
             <img src={`${B}${c.generated_image_url}`} alt={c.name} className="mt-3 h-44 w-full rounded-xl object-cover" />
           ) : (
-            <div className="mt-3 grid h-44 place-items-center rounded-xl bg-[#1a1a2e] text-xs text-[#4b5563]">No render yet</div>
+            <div className="mt-3 grid h-44 place-items-center rounded-xl bg-[#1a1a2e] text-[13px] text-[#4b5563]">No render yet</div>
           )}
           <h3 className="mt-3 text-lg font-bold text-white">{c.name}</h3>
           <p className="mt-1 text-[13px] text-[#9ca3af]">{c.description}</p>
           <div className="mt-2 flex flex-wrap gap-1.5">
-            {(c.behavior_tags || []).map((t) => <span key={t} className="rounded-lg bg-[#1e1e3a] px-2 py-0.5 text-[11px] text-[#c4b5fd]">{t.replace(/_/g, " ")}</span>)}
+            {(c.behavior_tags || []).map((t) => <span key={t} className="rounded-lg bg-[#1e1e3a] px-2 py-0.5 text-[13px] text-[#c4b5fd]">{t.replace(/_/g, " ")}</span>)}
           </div>
           <button onClick={() => go(c)} disabled={busy === c.id} data-testid={`studio-creature-gen-${c.id}`}
             className="mt-4 w-full rounded-lg border border-[#7c3aed] bg-[#1f1f3a] py-2.5 text-sm font-semibold text-[#a78bfa] transition-colors hover:bg-[#7c3aed] hover:text-white disabled:opacity-50">
@@ -184,7 +184,7 @@ export default function VisualStudio() {
   return (
     <div className="min-h-screen bg-[#08080f] px-5 py-10 font-mono text-white sm:px-10" data-testid="visual-studio-page">
       <ParallaxSky />
-      <Link to="/" className="inline-flex items-center gap-2 text-sm text-[#888] hover:text-white" data-testid="studio-back-link">
+      <Link to="/" className="inline-flex items-center gap-2 text-sm text-[#b3bac7] hover:text-white" data-testid="studio-back-link">
         <ArrowLeft size={15} /> Back to Luchii
       </Link>
       <h1 className="mt-8 text-4xl font-bold tracking-tight text-[#a78bfa] sm:text-5xl">Visual Realism Studio</h1>
@@ -199,7 +199,7 @@ export default function VisualStudio() {
       </div>
       {active?.href && (
         <button onClick={() => navigate(active.href)} data-testid={`studio-fullpage-${active.id}`}
-          className="mt-5 inline-flex items-center gap-2 rounded-lg border border-[#2d2d4a] bg-[#12121e] px-4 py-2 text-xs text-[#a78bfa] transition-colors hover:border-[#7c3aed] hover:text-white">
+          className="mt-5 inline-flex items-center gap-2 rounded-lg border border-[#2d2d4a] bg-[#12121e] px-4 py-2 text-[13px] text-[#a78bfa] transition-colors hover:border-[#7c3aed] hover:text-white">
           <ExternalLink size={13} /> Open full {active.label} studio
         </button>
       )}

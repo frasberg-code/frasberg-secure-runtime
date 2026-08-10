@@ -91,21 +91,21 @@ export default function GamePlayerPage() {
   return (
     <div className="flex min-h-screen flex-col bg-[#0d0d1a] font-mono text-white" data-testid="game-player-page">
       <div className="flex items-center justify-between border-b border-[#1a1a2e] px-5 py-3">
-        <Link to="/games" className="inline-flex items-center gap-2 text-sm text-[#888] transition-colors hover:text-white" data-testid="game-player-exit">
+        <Link to="/games" className="inline-flex items-center gap-2 text-sm text-[#b3bac7] transition-colors hover:text-white" data-testid="game-player-exit">
           <ArrowLeft size={15} /> Library
         </Link>
         <div className="min-w-0 px-3 text-center">
           <span className="block truncate text-sm font-bold text-white" data-testid="game-player-title">{game?.title || gameId}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="hidden items-center gap-1.5 rounded-full border border-[#1a1a2e] px-3 py-1 text-[10px] text-[#888] sm:inline-flex" data-testid="game-player-latency">
+          <span className="hidden items-center gap-1.5 rounded-full border border-[#1a1a2e] px-3 py-1 text-[13.5px] text-[#b3bac7] sm:inline-flex" data-testid="game-player-latency">
             <Wifi size={11} className="text-[#6c63ff]" /> {latency === null ? "—" : `${latency} ms`}
           </span>
           <button
             onClick={goFullscreen}
             data-testid="game-player-fullscreen"
             aria-label="Fullscreen"
-            className="grid h-8 w-8 place-items-center rounded-full border border-[#1a1a2e] text-[#888] transition-colors hover:border-[#6c63ff] hover:text-white"
+            className="grid h-8 w-8 place-items-center rounded-full border border-[#1a1a2e] text-[#b3bac7] transition-colors hover:border-[#6c63ff] hover:text-white"
           >
             <Maximize2 size={13} />
           </button>
@@ -122,7 +122,7 @@ export default function GamePlayerPage() {
           </div>
         )}
         {mode === "checking" && (
-          <div className="absolute inset-0 grid place-items-center text-sm text-[#666]">
+          <div className="absolute inset-0 grid place-items-center text-sm text-[#a3abbd]">
             Connecting to Frasberg stream node…
           </div>
         )}
@@ -140,7 +140,7 @@ export default function GamePlayerPage() {
         )}
       </div>
 
-      <div className="border-t border-[#1a1a2e] px-5 py-2 text-center text-[11px] text-[#555]" data-testid="game-player-controls-hint">
+      <div className="border-t border-[#1a1a2e] px-5 py-2 text-center text-[13px] text-[#9aa3b8]" data-testid="game-player-controls-hint">
         {game?.controls || ""}
       </div>
     </div>

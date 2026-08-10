@@ -61,7 +61,7 @@ export default function ApiDocs() {
               <button
                 onClick={copy}
                 data-testid="api-copy"
-                className="inline-flex items-center gap-1.5 font-mono text-xs text-white/60 transition-colors hover:text-white"
+                className="inline-flex items-center gap-1.5 font-mono text-[13px] text-white/75 transition-colors hover:text-white"
               >
                 {copied ? <Check size={13} /> : <Copy size={13} />} {copied ? "Copied" : "Copy"}
               </button>

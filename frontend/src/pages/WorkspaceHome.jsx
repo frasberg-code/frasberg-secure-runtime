@@ -82,7 +82,7 @@ export default function WorkspaceHome() {
         <div className="mt-5 flex gap-2" data-testid="apps-filters">
           {[["all", `All (${list.length})`], ["apps", "Apps"], ["published", "Published"]].map(([k, label]) => (
             <button key={k} onClick={() => setFilter(k)} data-testid={`apps-filter-${k}`}
-              className="rounded-full border px-4 py-1.5 text-[12.5px] transition-colors"
+              className="rounded-full border px-4 py-1.5 text-[13.5px] transition-colors"
               style={filter === k ? { background: "rgba(255,255,255,0.1)", borderColor: T.border, color: T.text } : { borderColor: T.border, color: T.text2 }}>
               {label}
             </button>
@@ -91,7 +91,7 @@ export default function WorkspaceHome() {
 
         {/* App list */}
         <div className="mt-6 space-y-3" data-testid="apps-list">
-          {apps === null && <p className="font-mono text-xs" style={{ color: T.muted }}>Loading…</p>}
+          {apps === null && <p className="font-mono text-[13px]" style={{ color: T.muted }}>Loading…</p>}
           {apps !== null && shown.length === 0 && (
             <div className="rounded-lg border p-10 text-center" style={{ borderColor: T.border, background: T.surface }}>
               <p className="text-sm" style={{ color: T.text2 }}>No published apps yet.</p>
@@ -109,18 +109,18 @@ export default function WorkspaceHome() {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[14px] font-600">{a.title}</p>
-                <p className="mt-0.5 font-mono text-[11px]" style={{ color: T.muted }}>
+                <p className="mt-0.5 font-mono text-[13px]" style={{ color: T.muted }}>
                   Updated {timeAgo(a.updated)} · v{a.version} · {a.hash} · {a.agent}
                 </p>
                 {a.custom_url && (
                   <a href={`${BASE}${a.slug_url}`} target="_blank" rel="noreferrer" data-testid={`app-custom-url-${a.id}`}
-                    className="mt-1 inline-flex items-center gap-1.5 font-mono text-[11px] hover:underline" style={{ color: T.accent }}>
+                    className="mt-1 inline-flex items-center gap-1.5 font-mono text-[13px] hover:underline" style={{ color: T.accent }}>
                     <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: T.accent }} />
                     {a.custom_url.replace("https://", "")}
                   </a>
                 )}
               </div>
-              <span className="flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[10px] uppercase tracking-wide"
+              <span className="flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[13.5px] uppercase tracking-wide"
                 style={{ borderColor: "rgba(16,185,129,0.5)", color: "#10B981" }}>
                 <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#10B981" }} /> Published
               </span>

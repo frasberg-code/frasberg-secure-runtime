@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import {
   Key, Plus, Copy, Trash2, Activity, Cpu, Terminal, ArrowLeft, Check, Mail, Wallet, Gauge, Zap,
 } from "lucide-react";
+import { Sun, Moon } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { useAuth } from "../context/AuthContext";
 import ChatDemo from "../components/site/ChatDemo";
@@ -17,17 +18,7 @@ import { ParallaxSky } from "../components/site/ParallaxSky";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-const T = {
-  bg: "#08090A",
-  surface: "#121316",
-  inset: "#050505",
-  border: "rgba(255,255,255,0.08)",
-  borderSubtle: "rgba(255,255,255,0.04)",
-  text: "#EDEDED",
-  text2: "#8A8F98",
-  muted: "#525860",
-  accent: "#00F0FF",
-};
+import { T, applyDashTheme, isLightSaved } from "../lib/dashTheme";
 
 function Panel({ children, className = "", ...rest }) {
   return (
@@ -42,7 +33,7 @@ function Metric({ label, value, icon: Icon, testid }) {
     <Panel className="p-5" data-testid={testid}>
       <div className="flex items-center gap-2" style={{ color: T.text2 }}>
         <Icon size={13} style={{ color: T.accent }} />
-        <span className="font-mono text-[10px] uppercase tracking-[0.18em]">{label}</span>
+        <span className="font-mono text-[13.5px] uppercase tracking-[0.18em]">{label}</span>
       </div>
       <p className="mt-3 font-mono text-3xl font-500 tracking-tighter" style={{ color: T.text }}>{value}</p>
     </Panel>
@@ -58,7 +49,7 @@ function SectionTitle({ children, right }) {
   );
 }
 
-const ghostBtn = "inline-flex items-center gap-1.5 rounded-sm border px-3 py-1.5 font-mono text-[11px] transition-colors";
+const ghostBtn = "inline-flex items-center gap-1.5 rounded-sm border px-3 py-1.5 font-mono text-[13px] transition-colors";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -72,6 +63,13 @@ export default function Dashboard() {
   const [wallet, setWallet] = useState(0);
   const [emails, setEmails] = useState([]);
   const [quota, setQuota] = useState(null);
+  const [lightMode, setLightMode] = useState(isLightSaved());
+  const toggleTheme = () => {
+    const nl = !lightMode;
+    try { localStorage.setItem("dash-theme", nl ? "light" : "dark"); } catch {}
+    applyDashTheme(nl);
+    setLightMode(nl);
+  };
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [sendingStatement, setSendingStatement] = useState(false);
 
@@ -196,7 +194,7 @@ export default function Dashboard() {
     <main className="relative z-10 min-h-screen" style={{ background: T.bg, color: T.text }}>
       <ParallaxSky />
       {/* Top navigation — 64px, minimal */}
-      <header className="sticky top-0 z-40 border-b backdrop-blur-md" style={{ borderColor: T.borderSubtle, background: "rgba(8,9,10,0.85)", height: 64 }}>
+      <header className="sticky top-0 z-40 border-b backdrop-blur-md" style={{ borderColor: T.borderSubtle, background: T.headerBg, height: 64 }}>
         <div className="mx-auto flex h-full max-w-[1200px] items-center justify-between px-5 sm:px-8">
           <Link to="/" className="flex items-center gap-3" data-testid="dashboard-home-link">
             <ArrowLeft size={15} style={{ color: T.text2 }} />
@@ -205,17 +203,22 @@ export default function Dashboard() {
             <span className="hidden text-[13px] sm:inline" style={{ color: T.text2 }}>/ Developer Console</span>
           </Link>
           <div className="flex items-center gap-3">
+            <button onClick={toggleTheme} aria-label="Toggle theme" data-testid="dashboard-theme-toggle"
+              className="grid h-8 w-8 place-items-center rounded-sm border transition-colors"
+              style={{ borderColor: T.border, color: T.text2 }}>
+              {lightMode ? <Moon size={13} /> : <Sun size={13} />}
+            </button>
             {user && quota && (
               <button onClick={() => setShowUpgrade(true)} data-testid="quota-chip"
                 title={quota.unlimited ? "Frasberg team — unlimited access" : `${quota.rpm_limit} req/min · ${quota.monthly_token_limit.toLocaleString()} tokens/month — click to upgrade`}
-                className="hidden items-center gap-2 rounded-sm border px-3 py-1.5 font-mono text-[11px] transition-colors sm:flex"
+                className="hidden items-center gap-2 rounded-sm border px-3 py-1.5 font-mono text-[13px] transition-colors sm:flex"
                 style={{ borderColor: quotaPct > 80 ? "rgba(245,158,11,0.6)" : T.border, color: quotaPct > 80 ? "#F59E0B" : T.text2 }}>
                 <Gauge size={12} />
                 {quota.plan} · {quota.unlimited ? "Unlimited" : `${quota.monthly_tokens_used.toLocaleString()}/${quota.monthly_token_limit.toLocaleString()}`}
                 {!quota.unlimited && <span style={{ color: T.accent }}>↑ Upgrade</span>}
               </button>
             )}
-            {user && <span className="hidden font-mono text-[11px] md:inline" style={{ color: T.muted }}>{user.email}</span>}
+            {user && <span className="hidden font-mono text-[13px] md:inline" style={{ color: T.muted }}>{user.email}</span>}
           </div>
         </div>
       </header>
@@ -252,7 +255,7 @@ export default function Dashboard() {
           <Panel className="p-5" data-testid="wallet-balance">
             <div className="flex items-center gap-2" style={{ color: T.text2 }}>
               <Wallet size={13} style={{ color: T.accent }} />
-              <span className="font-mono text-[10px] uppercase tracking-[0.18em]">Wallet · auto top-up pool</span>
+              <span className="font-mono text-[13.5px] uppercase tracking-[0.18em]">Wallet · auto top-up pool</span>
             </div>
             <p className="mt-3 font-mono text-3xl font-500 tracking-tighter" style={{ color: T.text }}>
               {wallet.toLocaleString()}<span className="ml-1 text-sm" style={{ color: T.muted }}>tok</span>
@@ -266,13 +269,13 @@ export default function Dashboard() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2" style={{ color: T.text2 }}>
                 <Zap size={13} style={{ color: T.accent }} />
-                <span className="font-mono text-[10px] uppercase tracking-[0.18em]">
+                <span className="font-mono text-[13.5px] uppercase tracking-[0.18em]">
                   Plan: {quota.plan} · {quota.unlimited ? "unlimited req/min · unlimited tokens" : `${quota.rpm_limit} req/min · monthly quota`}
                 </span>
               </div>
               {!quota.unlimited && (
               <button onClick={() => setShowUpgrade(true)} data-testid="quota-upgrade-btn"
-                className="rounded-sm px-4 py-1.5 font-mono text-[11px] font-600 transition-opacity hover:opacity-85"
+                className="rounded-sm px-4 py-1.5 font-mono text-[13px] font-600 transition-opacity hover:opacity-85"
                 style={{ background: T.accent, color: "#08090A" }}>
                 Upgrade plan
               </button>
@@ -281,7 +284,7 @@ export default function Dashboard() {
             <div className="mt-3 h-1 w-full overflow-hidden rounded-sm" style={{ background: "rgba(255,255,255,0.06)" }}>
               <div className="h-full transition-all" style={{ width: `${Math.max(1, quotaPct)}%`, background: quotaPct > 80 ? "#F59E0B" : T.accent }} />
             </div>
-            <p className="mt-2 font-mono text-[11px]" style={{ color: T.text2 }}>
+            <p className="mt-2 font-mono text-[13px]" style={{ color: T.text2 }}>
               {quota.unlimited
                 ? `${quota.monthly_tokens_used.toLocaleString()} tokens used · Unlimited quota (Frasberg team)`
                 : `${quota.monthly_tokens_used.toLocaleString()} / ${quota.monthly_token_limit.toLocaleString()} tokens used (${quotaPct.toFixed(1)}%)`}
@@ -295,7 +298,7 @@ export default function Dashboard() {
         <section className="mt-10">
           <SectionTitle right={
             <>
-              <span className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest" style={{ color: T.text2 }} data-testid="usage-live-badge">
+              <span className="flex items-center gap-1.5 font-mono text-[13.5px] uppercase tracking-widest" style={{ color: T.text2 }} data-testid="usage-live-badge">
                 <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full" style={{ background: "#10B981" }} /> live
               </span>
               <button onClick={emailStatement} disabled={sendingStatement} data-testid="email-statement-btn"
@@ -308,7 +311,7 @@ export default function Dashboard() {
           </SectionTitle>
           <Panel className="p-4" style={{ height: 230 }} data-testid="key-usage-graph">
             {daily.every((d) => d.requests === 0) ? (
-              <div className="grid h-full place-items-center font-mono text-[11px] uppercase tracking-wide" style={{ color: T.muted }}>
+              <div className="grid h-full place-items-center font-mono text-[13px] uppercase tracking-wide" style={{ color: T.muted }}>
                 No API requests yet — call the gateway with your key to see traffic here
               </div>
             ) : (
@@ -337,7 +340,7 @@ export default function Dashboard() {
               className="flex-1 rounded-sm border bg-transparent px-4 py-2.5 text-sm outline-none transition-colors focus:border-[#00F0FF]"
               style={{ borderColor: T.border, color: T.text }} />
             <select value={expiresDays} onChange={(e) => setExpiresDays(e.target.value)} data-testid="key-expiry-select"
-              className="rounded-sm border px-4 py-2.5 font-mono text-xs outline-none focus:border-[#00F0FF]"
+              className="rounded-sm border px-4 py-2.5 font-mono text-[13px] outline-none focus:border-[#00F0FF]"
               style={{ borderColor: T.border, background: T.surface, color: T.text }}>
               <option value="">Never expires</option>
               <option value="30">Expires in 30 days</option>
@@ -353,7 +356,7 @@ export default function Dashboard() {
 
           {newKey && (
             <div className="mt-3 rounded-sm border p-4" style={{ borderColor: "rgba(0,240,255,0.4)", background: "rgba(0,240,255,0.04)" }} data-testid="new-key-banner">
-              <p className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: T.accent }}>
+              <p className="font-mono text-[13.5px] uppercase tracking-[0.18em]" style={{ color: T.accent }}>
                 Copy this now — it won't be shown in full again
               </p>
               <div className="mt-2.5 flex items-center justify-between gap-4">
@@ -381,18 +384,18 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between gap-4">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-500" style={{ color: T.text }}>{k.name}</p>
-                      <code className="font-mono text-xs" style={{ color: T.text2 }}>{k.key}</code>
+                      <code className="font-mono text-[13px]" style={{ color: T.text2 }}>{k.key}</code>
                       {k.expires_at && (
                         k.expires_at < new Date().toISOString() ? (
-                          <span className="ml-3 rounded-sm border px-2 py-0.5 font-mono text-[9px] uppercase tracking-wide"
+                          <span className="ml-3 rounded-sm border px-2 py-0.5 font-mono text-[13.5px] uppercase tracking-wide"
                             style={{ borderColor: "rgba(239,68,68,0.5)", color: "#EF4444" }} data-testid={`key-expired-${k.id}`}>Expired</span>
                         ) : (
-                          <span className="ml-3 font-mono text-[10px]" style={{ color: T.muted }} data-testid={`key-expires-${k.id}`}>expires {k.expires_at.slice(0, 10)}</span>
+                          <span className="ml-3 font-mono text-[13.5px]" style={{ color: T.muted }} data-testid={`key-expires-${k.id}`}>expires {k.expires_at.slice(0, 10)}</span>
                         )
                       )}
                     </div>
                     <div className="flex shrink-0 items-center gap-5">
-                      <span className="hidden font-mono text-xs sm:inline" style={{ color: T.text2 }}>
+                      <span className="hidden font-mono text-[13px] sm:inline" style={{ color: T.text2 }}>
                         {k.request_count} req · {k.token_count} tok
                       </span>
                       <button onClick={() => revoke(k.id)} data-testid={`revoke-key-${k.id}`} aria-label="Revoke key"
@@ -406,24 +409,24 @@ export default function Dashboard() {
                     <div className="h-1 w-36 overflow-hidden rounded-sm" style={{ background: "rgba(255,255,255,0.06)" }}>
                       <div className="h-full transition-all" style={{ width: `${pct}%`, background: low ? "#EF4444" : credits < 1500 ? "#F59E0B" : "#10B981" }} />
                     </div>
-                    <span className="font-mono text-[11px]" style={{ color: low ? "#EF4444" : T.text2 }}>
+                    <span className="font-mono text-[13px]" style={{ color: low ? "#EF4444" : T.text2 }}>
                       {credits.toLocaleString()} credits
                     </span>
                     {low && (
-                      <span className="rounded-sm border px-2 py-0.5 font-mono text-[9px] uppercase tracking-wide"
+                      <span className="rounded-sm border px-2 py-0.5 font-mono text-[13.5px] uppercase tracking-wide"
                         style={{ borderColor: "rgba(239,68,68,0.5)", color: "#EF4444" }} data-testid={`key-low-${k.id}`}>
                         Low — top up
                       </span>
                     )}
                     <button onClick={() => toggleAutoTopup(k)} data-testid={`key-autotopup-${k.id}`}
-                      className="rounded-sm border px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-wide transition-colors"
+                      className="rounded-sm border px-2.5 py-0.5 font-mono text-[13.5px] uppercase tracking-wide transition-colors"
                       style={atOn ? { borderColor: "rgba(16,185,129,0.6)", color: "#10B981" } : { borderColor: T.border, color: T.text2 }}>
                       Auto top-up {atOn ? "on" : "off"}
                     </button>
-                    {atOn && <span className="font-mono text-[10px]" style={{ color: T.muted }}>+{(k.autotopup.amount || 5000).toLocaleString()} @ &lt;{k.autotopup.threshold || 500}</span>}
+                    {atOn && <span className="font-mono text-[13.5px]" style={{ color: T.muted }}>+{(k.autotopup.amount || 5000).toLocaleString()} @ &lt;{k.autotopup.threshold || 500}</span>}
                     <select value={k.alert_threshold || 500} onChange={(e) => setAlertThreshold(k, e.target.value)}
                       data-testid={`key-alert-threshold-${k.id}`}
-                      className="rounded-sm border px-2 py-0.5 font-mono text-[9px] uppercase tracking-wide outline-none focus:border-[#00F0FF]"
+                      className="rounded-sm border px-2 py-0.5 font-mono text-[13.5px] uppercase tracking-wide outline-none focus:border-[#00F0FF]"
                       style={{ borderColor: T.border, background: T.surface, color: T.text2 }}>
                       <option value="250">Email alert @ 250</option>
                       <option value="500">Email alert @ 500</option>
@@ -463,10 +466,10 @@ export default function Dashboard() {
                     style={{ borderColor: T.borderSubtle }}>
                     <div>
                       <p className="text-sm font-500" style={{ color: T.text }}>{m.name}</p>
-                      <p className="font-mono text-[11px]" style={{ color: T.muted }}>{m.tier} · {m.ctx} ctx</p>
+                      <p className="font-mono text-[13px]" style={{ color: T.muted }}>{m.tier} · {m.ctx} ctx</p>
                     </div>
                     <div className="flex items-center gap-3">
-                      <code className="font-mono text-xs" style={{ color: T.accent }}>{m.id}</code>
+                      <code className="font-mono text-[13px]" style={{ color: T.accent }}>{m.id}</code>
                       <Cpu size={13} style={{ color: T.muted }} />
                     </div>
                   </div>
@@ -489,11 +492,11 @@ export default function Dashboard() {
                   style={{ borderColor: T.borderSubtle }} data-testid={`email-row-${e.id}`}>
                   <div className="min-w-0">
                     <p className="truncate text-sm" style={{ color: T.text }}>{e.subject}</p>
-                    <p className="font-mono text-[10px]" style={{ color: T.muted }}>
+                    <p className="font-mono text-[13.5px]" style={{ color: T.muted }}>
                       {(e.kind || "").replace(/_/g, " ")} · {(e.ts || "").slice(0, 16).replace("T", " ")}
                     </p>
                   </div>
-                  <span className="shrink-0 rounded-sm border px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-wide"
+                  <span className="shrink-0 rounded-sm border px-2.5 py-0.5 font-mono text-[13.5px] uppercase tracking-wide"
                     style={e.ok ? { borderColor: "rgba(16,185,129,0.6)", color: "#10B981" } : { borderColor: "rgba(245,158,11,0.6)", color: "#F59E0B" }}>
                     {e.ok ? "Sent" : "Pending domain"}
                   </span>

@@ -41,7 +41,7 @@ function CodeBlock({ lang, code }) {
   return (
     <div className="my-2 max-w-full overflow-hidden rounded-xl border border-lux-border bg-[#0d1117]">
       <div className="flex items-center justify-between border-b border-white/10 px-3 py-1.5">
-        <span className="font-mono text-[10px] uppercase tracking-wide text-[#7ee787]">{lang || "code"}</span>
+        <span className="font-mono text-[13.5px] uppercase tracking-wide text-[#7ee787]">{lang || "code"}</span>
         <button
           type="button"
           onClick={() => {
@@ -50,7 +50,7 @@ function CodeBlock({ lang, code }) {
             setTimeout(() => setCopied(false), 1500);
           }}
           data-testid="code-copy-btn"
-          className="font-mono text-[10px] uppercase text-white/50 transition-colors hover:text-white"
+          className="font-mono text-[13.5px] uppercase text-white/75 transition-colors hover:text-white"
         >
           {copied ? "copied!" : "copy"}
         </button>
@@ -97,7 +97,7 @@ function EngineBadge() {
     <span
       data-testid="engine-status-badge"
       title={online ? "Frasberg Mesh — secure & connected (frasberg-secure-v1)" : "Frasberg Mesh degraded — some systems recovering"}
-      className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-lux-text2"
+      className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-2 py-0.5 font-mono text-[13.5px] uppercase tracking-wider text-lux-text2"
     >
       <span className={`h-1.5 w-1.5 rounded-full ${online ? "bg-emerald-400" : "bg-amber-400"} animate-pulse`} />
       <span className="hidden md:inline">{online ? "Mesh Online" : "Mesh Recovering"}</span>
@@ -477,7 +477,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
       value={model}
       onChange={(e) => setModel(e.target.value)}
       data-testid={`chat-model-select${extraTestId}`}
-      className="w-full rounded-full border border-lux-border bg-lux-surface px-3 py-1 font-mono text-[11px] text-lux-text outline-none focus:border-lux-accent sm:w-auto"
+      className="w-full rounded-full border border-lux-border bg-lux-surface px-3 py-1 font-mono text-[13px] text-lux-text outline-none focus:border-lux-accent sm:w-auto"
     >
       {MODELS.map((m) => (
         <option key={m.id} value={m.id}>{m.name}</option>
@@ -491,7 +491,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
       onChange={(e) => setTone(e.target.value)}
       data-testid={`chat-tone-select${extraTestId}`}
       aria-label="Luchii tone"
-      className="w-full rounded-full border border-lux-border bg-lux-surface px-2 py-1 font-mono text-[10px] text-lux-text2 outline-none focus:border-lux-accent sm:w-auto"
+      className="w-full rounded-full border border-lux-border bg-lux-surface px-2 py-1 font-mono text-[13.5px] text-lux-text2 outline-none focus:border-lux-accent sm:w-auto"
       title="Emotion & tone — how Luchii speaks"
     >
       <option value="balanced">Balanced</option>
@@ -541,7 +541,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
                 onChange={(e) => pickSpeed(parseFloat(e.target.value))}
                 data-testid="voice-speed-select"
                 title="Voice playback speed"
-                className="h-8 cursor-pointer rounded-full border border-lux-border bg-transparent px-2 font-mono text-[10px] text-lux-text2 outline-none transition-colors hover:border-lux-accent"
+                className="h-8 cursor-pointer rounded-full border border-lux-border bg-transparent px-2 font-mono text-[13.5px] text-lux-text2 outline-none transition-colors hover:border-lux-accent"
               >
                 {[0.75, 1, 1.25, 1.5].map((s) => (
                   <option key={s} value={s} label={`${s}x`} />
@@ -565,12 +565,12 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
             {settingsOpen && (
               <div className="absolute right-0 top-9 z-50 w-72 space-y-3 rounded-2xl border border-lux-border bg-lux-surface p-3 shadow-2xl" data-testid="chat-settings-menu">
                 <div>
-                  <p className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-lux-text2">Model</p>
+                  <p className="mb-1.5 font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2">Model</p>
                   {modelSelect("-mobile")}
                 </div>
                 {user && (
                   <div>
-                    <p className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-lux-text2">Tone</p>
+                    <p className="mb-1.5 font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2">Tone</p>
                     {toneSelect("-mobile")}
                   </div>
                 )}
@@ -587,7 +587,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
                 )}
                 {user && (
                   <div>
-                    <p className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-lux-text2">Luchii's voice</p>
+                    <p className="mb-1.5 font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2">Luchii's voice</p>
                     <VoicePicker value={voiceId} onChange={pickVoice} inline />
                   </div>
                 )}
@@ -600,10 +600,10 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
       {live.active && (
         <div className="flex items-center gap-2 border-b border-lux-border bg-lux-surface/70 px-4 py-2" data-testid="live-voice-banner">
           <span className={`h-2 w-2 shrink-0 rounded-full animate-pulse ${live.phase === "listening" ? "bg-emerald-400" : "bg-lux-accent"}`} />
-          <span className="text-xs text-lux-text2">
+          <span className="text-[13px] text-lux-text2">
             {live.phase === "listening" ? "Listening — just speak, Luchii answers aloud" : speakingIdx !== null ? "Luchii is speaking…" : "Thinking…"}
           </span>
-          <button type="button" onClick={live.stop} data-testid="live-voice-stop" className="ml-auto text-xs text-lux-text2 underline hover:text-lux-text">
+          <button type="button" onClick={live.stop} data-testid="live-voice-stop" className="ml-auto text-[13px] text-lux-text2 underline hover:text-lux-text">
             End
           </button>
         </div>
@@ -611,7 +611,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
 
       {locked && (
         <div className={`border-b border-lux-border bg-lux-surface/60 px-4 py-2 text-center ${mobileFull ? "max-sm:hidden" : ""}`} data-testid="chat-guest-banner">
-          <p className="text-[11px] text-lux-text2">
+          <p className="text-[13px] text-lux-text2">
             Guest mode — conversations are deleted after you leave.{" "}
             <Link to="/auth" className="text-lux-accent underline" data-testid="chat-guest-signup-link">Sign up free</Link>
             {" "}to save chats and unlock image creation, voice & attachments.
@@ -627,10 +627,10 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
       >
         {messages.map((m, i) => (
           <div key={i} className="group w-full min-w-0">
-            <p className={`font-mono text-[10px] uppercase tracking-[0.25em] ${m.role === "user" ? "text-lux-accent" : "text-lux-text2"}`}>
+            <p className={`font-mono text-[13.5px] uppercase tracking-[0.25em] ${m.role === "user" ? "text-lux-accent" : "text-lux-text2"}`}>
               {m.role === "user" ? (user?.name || "You") : "Luchii"}
               {m.role === "user" && user?.plan === "premium" && (
-                <span className="ml-2 rounded-full border border-amber-400/50 bg-amber-400/10 px-2 py-0.5 text-[9px] font-700 tracking-wide text-amber-300" data-testid="chat-premium-badge">PREMIUM</span>
+                <span className="ml-2 rounded-full border border-amber-400/50 bg-amber-400/10 px-2 py-0.5 text-[13.5px] font-700 tracking-wide text-amber-300" data-testid="chat-premium-badge">PREMIUM</span>
               )}
             </p>
             <div className="mt-1.5 w-full min-w-0">
@@ -679,14 +679,14 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
       {(attachment || composerMode) && (
         <div className="flex flex-wrap items-center gap-2 px-4 pb-1">
           {composerMode && (
-            <span className="inline-flex items-center gap-2 rounded-full border border-lux-accent bg-lux-surface px-3 py-1 font-mono text-[11px] text-lux-accent" data-testid="composer-mode-chip">
+            <span className="inline-flex items-center gap-2 rounded-full border border-lux-accent bg-lux-surface px-3 py-1 font-mono text-[13px] text-lux-accent" data-testid="composer-mode-chip">
               {composerMode === "image" ? <ImageIcon size={11} /> : <Clapperboard size={11} />}
               {composerMode === "image" ? "Image Creator" : "Video Creator"}
               <button onClick={() => setComposerMode(null)} aria-label="Exit creator mode" data-testid="composer-mode-clear"><X size={11} /></button>
             </span>
           )}
           {attachment && (
-            <span className="inline-flex items-center gap-2 rounded-full border border-lux-accent/40 bg-lux-surface px-3 py-1 font-mono text-[11px] text-lux-text" data-testid="chat-attachment-chip">
+            <span className="inline-flex items-center gap-2 rounded-full border border-lux-accent/40 bg-lux-surface px-3 py-1 font-mono text-[13px] text-lux-text" data-testid="chat-attachment-chip">
               <Paperclip size={11} /> {attachment.name}
               <button onClick={() => setAttachment(null)} aria-label="Remove attachment" data-testid="chat-attachment-remove"><X size={11} /></button>
             </span>
@@ -799,7 +799,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
             </button>
           </div>
         </div>
-        <p className="px-1 pt-2 text-center text-[10px] leading-relaxed text-lux-text2" data-testid="chat-disclaimer">
+        <p className="px-1 pt-2 text-center text-[13.5px] leading-relaxed text-lux-text2" data-testid="chat-disclaimer">
           Luchii is AI. By using it, you agree to our <Link to="/about" className="underline hover:text-lux-text">Terms &amp; Privacy Policy</Link>. Chats may be reviewed and used to improve our AI models. <Link to="/about" className="underline hover:text-lux-text">Learn more</Link>
         </p>
       </form>

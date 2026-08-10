@@ -83,7 +83,7 @@ export default function Navbar() {
         <a href="#top" className="flex items-center gap-2.5" data-testid="brand-logo">
           <img src="/luchii-mark-circle.png" alt="Frasberg Luchii" className="h-9 w-9 rounded-full" />
           <span className="font-display text-lg font-700 tracking-tight text-lux-text">Luchii</span>
-          <span className="hidden font-mono text-[10px] uppercase tracking-[0.2em] text-lux-text2 sm:inline">
+          <span className="hidden font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2 sm:inline">
             by Frasberg
           </span>
         </a>
@@ -110,7 +110,7 @@ export default function Navbar() {
                 <div className="grid grid-cols-2 gap-x-4 gap-y-4">
                   {EXPLORE_GROUPS.map((g) => (
                     <div key={g.title}>
-                      <div className="px-2 pb-1 font-mono text-[10px] uppercase tracking-[0.2em] text-lux-text2">{g.title}</div>
+                      <div className="px-2 pb-1 font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2">{g.title}</div>
                       {g.items.map((l) =>
                         l.to ? (
                           <Link key={l.label} to={l.to} onClick={() => setExploreOpen(false)}

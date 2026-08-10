@@ -15,15 +15,15 @@ function Card({ m, i }) {
         className="tracing-card group h-full rounded-2xl border border-lux-border bg-lux-surface p-7 transition-transform duration-300 hover:-translate-y-1.5"
       >
         <div className="flex items-start justify-between">
-          <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-accent">{m.tier}</span>
-          <span className="font-mono text-xs text-lux-text2">{m.ctx} ctx</span>
+          <span className="font-mono text-[13px] uppercase tracking-[0.2em] text-lux-accent">{m.tier}</span>
+          <span className="font-mono text-[13px] text-lux-text2">{m.ctx} ctx</span>
         </div>
         <h3 className="mt-5 font-display text-2xl font-600 tracking-tight text-lux-text">{m.name}</h3>
-        <p className="mt-1 font-mono text-xs text-lux-text2">{m.params} params</p>
+        <p className="mt-1 font-mono text-[13px] text-lux-text2">{m.params} params</p>
         <p className="mt-4 text-sm leading-relaxed text-lux-text2">{m.blurb}</p>
         <ul className="mt-6 space-y-1.5 border-t border-lux-border pt-5">
           {m.specs.map((s) => (
-            <li key={s} className="flex items-center gap-2 font-mono text-xs text-lux-text2">
+            <li key={s} className="flex items-center gap-2 font-mono text-[13px] text-lux-text2">
               <span className="h-1 w-1 rounded-full bg-lux-accent" /> {s}
             </li>
           ))}

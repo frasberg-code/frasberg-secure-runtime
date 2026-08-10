@@ -27,7 +27,7 @@ function Swatch({ c }) {
       <div className="flex items-center justify-between p-4">
         <div>
           <p className="font-500 text-lux-text">{c.name}</p>
-          <p className="font-mono text-xs text-lux-text2">{c.hex} · {c.use}</p>
+          <p className="font-mono text-[13px] text-lux-text2">{c.hex} · {c.use}</p>
         </div>
         {copied ? <Check size={15} className="text-lux-accent" /> : <Copy size={15} className="text-lux-text2 opacity-0 transition-opacity group-hover:opacity-100" />}
       </div>
@@ -64,17 +64,17 @@ export default function Brand() {
             <div className="flex flex-col items-center justify-center rounded-2xl border border-lux-border bg-[#0d1013] p-12" data-testid="brand-logo-frasberg">
               <img src="/frasberg-emblem.png" alt="Frasberg AI logo" className="h-44 w-44 rounded-full" style={{ boxShadow: "0 0 60px rgba(0,150,255,0.35)" }} />
               <p className="mt-6 font-display text-lg font-700 tracking-tight text-white">Frasberg</p>
-              <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.25em] text-white/50">Deep space navy · electric blue · starlight silver</p>
+              <p className="mt-1 font-mono text-[13.5px] uppercase tracking-[0.25em] text-white/75">Deep space navy · electric blue · starlight silver</p>
             </div>
             <div className="flex flex-col items-center justify-center rounded-2xl border border-lux-border bg-[#0d1013] p-12" data-testid="brand-logo-luchii">
               <img src="/luchii-mark-circle.png" alt="Luchii logo" className="h-44 w-44 rounded-full" style={{ boxShadow: "0 0 60px rgba(0,150,255,0.35)" }} />
               <p className="mt-6 font-display text-lg font-700 tracking-tight text-white">Luchii</p>
-              <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.25em] text-white/50">Deep space navy · electric blue · starlight silver</p>
+              <p className="mt-1 font-mono text-[13.5px] uppercase tracking-[0.25em] text-white/75">Deep space navy · electric blue · starlight silver</p>
             </div>
             <div className="flex flex-col items-center justify-center rounded-2xl border border-lux-border bg-[#0d1013] p-12" data-testid="brand-logo-luchii-mark">
               <img src="/luchii-mark-circle.png" alt="Luchii mark" className="h-44 w-44 rounded-full" style={{ boxShadow: "0 0 60px rgba(45,212,218,0.4)" }} />
               <p className="mt-6 font-display text-lg font-700 tracking-tight text-white">Luchii Mark</p>
-              <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.25em] text-white/50">Glowing cyan waveform · constellation ring</p>
+              <p className="mt-1 font-mono text-[13.5px] uppercase tracking-[0.25em] text-white/75">Glowing cyan waveform · constellation ring</p>
             </div>
           </div>
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -102,15 +102,15 @@ export default function Brand() {
           <h2 className="font-display text-2xl font-600 tracking-tight">Typography</h2>
           <div className="mt-6 space-y-5">
             <div className="rounded-2xl border border-lux-border bg-lux-surface p-8">
-              <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-accent">Display · Unbounded</span>
+              <span className="font-mono text-[13px] uppercase tracking-[0.2em] text-lux-accent">Display · Unbounded</span>
               <p className="mt-3 font-display text-4xl font-700 tracking-tighter">Intelligence, Harmonized.</p>
             </div>
             <div className="rounded-2xl border border-lux-border bg-lux-surface p-8">
-              <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-accent">Body · Satoshi</span>
+              <span className="font-mono text-[13px] uppercase tracking-[0.2em] text-lux-accent">Body · Satoshi</span>
               <p className="mt-3 text-lg text-lux-text2">Where others process data, Luchii perceives meaning. A multi-tier intelligence for reasoning, clarity and synthesis.</p>
             </div>
             <div className="rounded-2xl border border-lux-border bg-lux-surface p-8">
-              <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-accent">Mono · JetBrains Mono</span>
+              <span className="font-mono text-[13px] uppercase tracking-[0.2em] text-lux-accent">Mono · JetBrains Mono</span>
               <p className="mt-3 font-mono text-lg text-lux-text">luchii-70b · 32K ctx · bearer auth</p>
             </div>
           </div>

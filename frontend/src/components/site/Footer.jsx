@@ -14,18 +14,18 @@ export default function Footer() {
           </div>
           <div className="grid grid-cols-2 gap-10 font-mono text-sm sm:grid-cols-3">
             <div>
-              <p className="mb-3 text-xs uppercase tracking-[0.2em] text-lux-text2">Models</p>
+              <p className="mb-3 text-[13px] uppercase tracking-[0.2em] text-lux-text2">Models</p>
               <ul className="space-y-2 text-lux-text2">
                 <li><a href="#models" className="hover:text-lux-text">Luchii 200M</a></li>
                 <li><a href="#models" className="hover:text-lux-text">Luchii 1B</a></li>
                 <li><a href="#models" className="hover:text-lux-text">Luchii 7B</a></li>
                 <li><a href="#models" className="hover:text-lux-text">Luchii 70B</a></li>
-                <li><span className="cursor-default">Luchii Earth 7 <span className="ml-1 rounded bg-lux-gold/15 px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-lux-gold">Soon</span></span></li>
-                <li><span className="cursor-default">Frasberg <span className="ml-1 rounded bg-lux-gold/15 px-1.5 py-0.5 text-[9px] uppercase tracking-widest text-lux-gold">New · Soon</span></span></li>
+                <li><span className="cursor-default">Luchii Earth 7 <span className="ml-1 rounded bg-lux-gold/15 px-1.5 py-0.5 text-[13.5px] uppercase tracking-widest text-lux-gold">Soon</span></span></li>
+                <li><span className="cursor-default">Frasberg <span className="ml-1 rounded bg-lux-gold/15 px-1.5 py-0.5 text-[13.5px] uppercase tracking-widest text-lux-gold">New · Soon</span></span></li>
               </ul>
             </div>
             <div>
-              <p className="mb-3 text-xs uppercase tracking-[0.2em] text-lux-text2">Docs</p>
+              <p className="mb-3 text-[13px] uppercase tracking-[0.2em] text-lux-text2">Docs</p>
               <ul className="space-y-2 text-lux-text2">
                 <li><a href="/dashboard" className="hover:text-lux-text">API</a></li>
                 <li><a href="/ai-models" className="hover:text-lux-text" data-testid="footer-ai-models-link">AI Models</a></li>
@@ -44,18 +44,16 @@ export default function Footer() {
               </ul>
             </div>
             <div>
-              <p className="mb-3 text-xs uppercase tracking-[0.2em] text-lux-text2">Company</p>
+              <p className="mb-3 text-[13px] uppercase tracking-[0.2em] text-lux-text2">Company</p>
               <ul className="space-y-2 text-lux-text2">
                 <li><a href="/about" className="hover:text-lux-text" data-testid="footer-about-link">About Frasberg</a></li>
                 <li><a href="/contact" className="hover:text-lux-text" data-testid="footer-contact-link">Contact Us</a></li>
                 <li><a href="/database" className="hover:text-lux-text" data-testid="footer-database-link">Database Manager</a></li>
-                <li><a href="https://frasberg.com" target="_blank" rel="noreferrer" className="hover:text-lux-text" data-testid="footer-frasberg-com-link">Frasberg.com</a></li>
-                <li><a href="mailto:support@frasberg.com" className="hover:text-lux-text">support@frasberg.com</a></li>
               </ul>
             </div>
           </div>
         </div>
-        <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-lux-border pt-8 font-mono text-xs text-lux-text2 sm:flex-row sm:items-center">
+        <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-lux-border pt-8 font-mono text-[13px] text-lux-text2 sm:flex-row sm:items-center">
           <span>Copyright © 2003-2026 <a href="/about" className="hover:text-lux-text" data-testid="footer-copyright-company-link">FRASBERG, INC</a>., All Rights Reserved.</span>
         </div>
       </div>

@@ -36,7 +36,7 @@ export default function PlayerProfile() {
   return (
     <div className="min-h-screen bg-[#0d0d1a] font-mono text-white" data-testid="player-profile-page">
       <div className="mx-auto max-w-4xl px-5 py-8 sm:px-8">
-        <Link to="/games" className="inline-flex items-center gap-2 text-sm text-[#888] transition-colors hover:text-white" data-testid="profile-back-link">
+        <Link to="/games" className="inline-flex items-center gap-2 text-sm text-[#b3bac7] transition-colors hover:text-white" data-testid="profile-back-link">
           <ArrowLeft size={15} /> Game Library
         </Link>
 
@@ -47,18 +47,18 @@ export default function PlayerProfile() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Player Profile</h1>
             {status === "ok" && (
-              <p className="text-sm text-[#666]" data-testid="profile-total-playtime">
+              <p className="text-sm text-[#a3abbd]" data-testid="profile-total-playtime">
                 Total playtime: <span className="text-[#8b84ff]">{fmtTime(profile.total_seconds)}</span>
               </p>
             )}
           </div>
         </div>
 
-        {status === "loading" && <p className="mt-12 text-sm text-[#555]">Loading your profile…</p>}
+        {status === "loading" && <p className="mt-12 text-sm text-[#9aa3b8]">Loading your profile…</p>}
 
         {status === "unauth" && (
           <div className="mt-12 rounded-2xl border border-[#1a1a2e] bg-[#111122] p-8 text-center" data-testid="profile-signin-prompt">
-            <p className="text-[#888]">Sign in to keep your scores, favorites and playtime across sessions.</p>
+            <p className="text-[#b3bac7]">Sign in to keep your scores, favorites and playtime across sessions.</p>
             <button
               onClick={() => navigate("/auth?mode=login")}
               data-testid="profile-signin-btn"
@@ -76,15 +76,15 @@ export default function PlayerProfile() {
             {achievements && (
               <section className="rounded-2xl border border-[#1a1a2e] bg-[#111122] p-6 md:col-span-2" data-testid="profile-achievements">
                 <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.15em] text-[#ffd166]">
-                  🏅 Achievements <span className="text-[#666]">({achievements.earned}/{achievements.badges.length})</span>
+                  🏅 Achievements <span className="text-[#a3abbd]">({achievements.earned}/{achievements.badges.length})</span>
                 </h2>
                 <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
                   {achievements.badges.map((b) => (
                     <div key={b.id} data-testid={`badge-${b.id}`}
                       className={`rounded-xl border p-3 text-center transition-opacity ${b.earned ? "border-[#ffd166]/50 bg-[#ffd166]/5" : "border-[#1a1a2e] opacity-40"}`}>
                       <p className="text-2xl">{b.icon}</p>
-                      <p className={`mt-1 text-xs font-bold ${b.earned ? "text-[#ffd166]" : "text-[#666]"}`}>{b.title}</p>
-                      <p className="mt-0.5 text-[10px] text-[#666]">{b.desc}</p>
+                      <p className={`mt-1 text-[13px] font-bold ${b.earned ? "text-[#ffd166]" : "text-[#a3abbd]"}`}>{b.title}</p>
+                      <p className="mt-0.5 text-[13.5px] text-[#a3abbd]">{b.desc}</p>
                     </div>
                   ))}
                 </div>
@@ -95,7 +95,7 @@ export default function PlayerProfile() {
                 <Trophy size={14} /> Best scores
               </h2>
               <div className="mt-4 space-y-2">
-                {profile.best_scores.length === 0 && <p className="text-sm text-[#555]">No scores yet — go set a record!</p>}
+                {profile.best_scores.length === 0 && <p className="text-sm text-[#9aa3b8]">No scores yet — go set a record!</p>}
                 {profile.best_scores.map((s) => (
                   <div key={s.game_id} className="flex items-center justify-between rounded-xl border border-[#1a1a2e] px-4 py-2.5" data-testid={`profile-score-${s.game_id}`}>
                     <span className="text-sm text-[#ccc]">{s.title}</span>
@@ -110,7 +110,7 @@ export default function PlayerProfile() {
                 <Heart size={14} /> Favorite games
               </h2>
               <div className="mt-4 space-y-2">
-                {profile.favorites.length === 0 && <p className="text-sm text-[#555]">No favorites yet — tap the ♥ on any game.</p>}
+                {profile.favorites.length === 0 && <p className="text-sm text-[#9aa3b8]">No favorites yet — tap the ♥ on any game.</p>}
                 {profile.favorites.map((f) => (
                   <button
                     key={f.game_id}
@@ -130,9 +130,9 @@ export default function PlayerProfile() {
                 <Clock size={14} /> Playtime by game
               </h2>
               <div className="mt-4 flex flex-wrap gap-2">
-                {profile.playtime.length === 0 && <p className="text-sm text-[#555]">Play any game while signed in and your time will show up here.</p>}
+                {profile.playtime.length === 0 && <p className="text-sm text-[#9aa3b8]">Play any game while signed in and your time will show up here.</p>}
                 {profile.playtime.map((p) => (
-                  <span key={p.game_id} className="rounded-full border border-[#2a2a44] px-4 py-1.5 text-sm text-[#aaa]" data-testid={`profile-playtime-${p.game_id}`}>
+                  <span key={p.game_id} className="rounded-full border border-[#2a2a44] px-4 py-1.5 text-sm text-[#c6ccd6]" data-testid={`profile-playtime-${p.game_id}`}>
                     {p.title}: <b className="text-white">{fmtTime(p.seconds)}</b>
                   </span>
                 ))}

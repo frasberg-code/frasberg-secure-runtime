@@ -48,14 +48,14 @@ export default function UpgradePlanModal({ open, onClose, quota, onUpgraded }) {
               <div key={t.id} data-testid={`upgrade-tier-${t.id}`}
                 className={`rounded-2xl border p-5 ${isCurrent ? "border-lux-accent bg-lux-surface" : "border-lux-border bg-lux-surface"}`}>
                 {isCurrent && (
-                  <span className="mb-2 inline-block rounded-full bg-lux-accent px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-lux-bg">
+                  <span className="mb-2 inline-block rounded-full bg-lux-accent px-2.5 py-0.5 font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-bg">
                     Current plan
                   </span>
                 )}
                 <h3 className="font-display text-lg font-600">{t.name}</h3>
                 <p className="mt-1 font-display text-3xl font-700">${t.price}</p>
-                <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">{t.period}</p>
-                <ul className="mt-4 space-y-1.5 text-xs text-lux-text2">
+                <p className="font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">{t.period}</p>
+                <ul className="mt-4 space-y-1.5 text-[13px] text-lux-text2">
                   {t.features.map((f) => (
                     <li key={f} className="flex items-center gap-1.5"><Check size={12} className="shrink-0 text-lux-accent" /> {f}</li>
                   ))}
@@ -97,7 +97,7 @@ export default function UpgradePlanModal({ open, onClose, quota, onUpgraded }) {
                           onError={() => toast.error("PayPal error — please try again")}
                         />
                       </PayPalScriptProvider>
-                      <button onClick={() => setActivePlan(null)} className="mt-2 w-full text-center font-mono text-xs text-lux-text2 hover:text-lux-text">
+                      <button onClick={() => setActivePlan(null)} className="mt-2 w-full text-center font-mono text-[13px] text-lux-text2 hover:text-lux-text">
                         cancel
                       </button>
                     </div>
@@ -109,7 +109,7 @@ export default function UpgradePlanModal({ open, onClose, quota, onUpgraded }) {
                   )
                 )}
                 {t.id !== "free" && !isCurrent && config && !config.configured && (
-                  <p className="mt-4 font-mono text-[10px] text-lux-text2">Checkout unavailable — PayPal not configured.</p>
+                  <p className="mt-4 font-mono text-[13.5px] text-lux-text2">Checkout unavailable — PayPal not configured.</p>
                 )}
               </div>
             );

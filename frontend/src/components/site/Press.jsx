@@ -24,7 +24,7 @@ export default function Press() {
           {CAMPAIGN.pillars.map((p, i) => (
             <Reveal key={p.name} delay={i * 0.06}>
               <div className="h-full rounded-2xl border border-lux-border bg-lux-surface p-7">
-                <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-accent">
+                <span className="font-mono text-[13px] uppercase tracking-[0.2em] text-lux-accent">
                   0{i + 1}
                 </span>
                 <h3 className="mt-4 font-display text-2xl font-600 tracking-tight text-lux-text">{p.name}</h3>
@@ -38,7 +38,7 @@ export default function Press() {
           <div className="mt-14 flex flex-col gap-4 rounded-2xl border border-lux-border bg-lux-surface/40 p-8 sm:flex-row sm:items-center sm:justify-between">
             {CAMPAIGN.timeline.map((t, i) => (
               <div key={t.week} className="flex items-center gap-4">
-                <span className="font-mono text-xs text-lux-accent">{t.week}</span>
+                <span className="font-mono text-[13px] text-lux-accent">{t.week}</span>
                 <span className="font-display text-lg text-lux-text">{t.label}</span>
                 {i < CAMPAIGN.timeline.length - 1 && (
                   <span className="hidden h-px w-10 bg-lux-border sm:inline-block" />

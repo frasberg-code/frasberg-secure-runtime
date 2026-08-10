@@ -8,7 +8,7 @@ import Seo from "../components/site/Seo";
 import Reveal, { Overline } from "../components/site/Reveal";
 
 const AGENTS = [
-  { name: "Luchii", slug: "architect", tier: "luchii-70b", role: "FRASBERG", desc: "Plans services, data models and APIs before a single line is written." },
+  { name: "Luchii", slug: "architect", tier: "luchii-70b", role: "Frasberg", desc: "Plans services, data models and APIs before a single line is written." },
   { name: "Luchii Builder", slug: "builder", tier: "luchii-7b", role: "Code generation", desc: "Writes production-ready TypeScript, Python and Go from plain instructions." },
   { name: "Luchii Reviewer", slug: "reviewer", tier: "luchii-7b", role: "Code review & refactor", desc: "Audits diffs, flags risks and proposes cleaner, safer implementations." },
   { name: "Luchii Debugger", slug: "debugger", tier: "luchii-1b", role: "Bug hunting & fixes", desc: "Traces stack traces to root cause and drafts the minimal fix, fast." },
@@ -75,12 +75,12 @@ export default function CodingAgents() {
                 <div key={a.name} className="rounded-2xl border border-lux-border bg-lux-surface p-6" data-testid={`coding-agent-${a.slug}`}>
                   <div className="flex items-baseline justify-between">
                     <h3 className="font-display text-lg font-600 tracking-tight">{a.name}</h3>
-                    <span className="font-mono text-[10px] text-lux-accent">{a.tier}</span>
+                    <span className="font-mono text-[13.5px] text-lux-accent">{a.tier.replace(/^luchii/, "Luchii")}</span>
                   </div>
-                  <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.15em] text-lux-text2">{a.role}</p>
+                  <p className="mt-1 font-mono text-[13px] uppercase tracking-[0.15em] text-lux-text2">{a.role}</p>
                   <p className="mt-3 text-sm leading-relaxed text-lux-text2">{a.desc}</p>
                   <Link to={`/chat?model=${a.tier}&agent=${a.slug}`} data-testid={`launch-${a.slug}`}
-                    className="mt-4 inline-block rounded-full border border-lux-border px-5 py-2 text-xs text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
+                    className="mt-4 inline-block rounded-full border border-lux-border px-5 py-2 text-[13px] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
                     Launch in Chat →
                   </Link>
                 </div>

@@ -16,7 +16,7 @@ export default function Reveal({ children, delay = 0, y = 28, className = "" }) 
 
 export function Overline({ children, className = "" }) {
   return (
-    <span className={`font-mono text-xs uppercase tracking-[0.28em] text-lux-accent ${className}`}>
+    <span className={`font-mono text-[13px] uppercase tracking-[0.28em] text-lux-accent ${className}`}>
       {children}
     </span>
   );

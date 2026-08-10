@@ -18,7 +18,7 @@ export default function Safety() {
             <Reveal key={p} delay={i * 0.05}>
               <span
                 data-testid={`safety-${i}`}
-                className="inline-block rounded-full border border-lux-border px-5 py-2.5 font-mono text-xs uppercase tracking-[0.15em] text-lux-text2"
+                className="inline-block rounded-full border border-lux-border px-5 py-2.5 font-mono text-[13px] uppercase tracking-[0.15em] text-lux-text2"
               >
                 {p}
               </span>

@@ -73,10 +73,10 @@ export default function GamesLibrary() {
     <div className="min-h-screen bg-[#0d0d1a] font-mono text-white" data-testid="games-page">
       <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8">
         <div className="flex items-center justify-between">
-          <Link to="/" className="inline-flex items-center gap-2 text-sm text-[#888] transition-colors hover:text-white" data-testid="games-back-link">
+          <Link to="/" className="inline-flex items-center gap-2 text-sm text-[#b3bac7] transition-colors hover:text-white" data-testid="games-back-link">
             <ArrowLeft size={15} /> Back to Luchii
           </Link>
-          <Link to="/games/profile" className="inline-flex items-center gap-2 rounded-full border border-[#2a2a44] px-4 py-1.5 text-sm text-[#888] transition-colors hover:border-[#6c63ff] hover:text-white" data-testid="games-profile-link">
+          <Link to="/games/profile" className="inline-flex items-center gap-2 rounded-full border border-[#2a2a44] px-4 py-1.5 text-sm text-[#b3bac7] transition-colors hover:border-[#6c63ff] hover:text-white" data-testid="games-profile-link">
             <Trophy size={13} className="text-[#8b84ff]" /> My Profile
           </Link>
         </div>
@@ -86,18 +86,18 @@ export default function GamesLibrary() {
             <Gamepad2 size={34} className="text-[#6c63ff]" />
             <h1 className="text-4xl font-bold tracking-tight text-[#6c63ff] sm:text-5xl">Frasberg Game Platform</h1>
           </div>
-          <p className="mt-3 text-sm text-[#666]">Powered by Frasberg</p>
+          <p className="mt-3 text-sm text-[#a3abbd]">Powered by Frasberg</p>
         </div>
 
         <div className="mx-auto mt-10 max-w-3xl space-y-3">
           <div className="relative">
-            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#555]" />
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9aa3b8]" />
             <input
               data-testid="games-search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search games..."
-              className="w-full rounded-xl border border-[#6c63ff]/50 bg-[#1a1a2e] py-3 pl-11 pr-5 text-[15px] text-white outline-none placeholder:text-[#555] focus:border-[#6c63ff]"
+              className="w-full rounded-xl border border-[#6c63ff]/50 bg-[#1a1a2e] py-3 pl-11 pr-5 text-[15px] text-white outline-none placeholder:text-[#9aa3b8] focus:border-[#6c63ff]"
             />
           </div>
           <div className="flex flex-wrap gap-2">
@@ -107,7 +107,7 @@ export default function GamesLibrary() {
                 data-testid={`games-filter-${g.toLowerCase()}`}
                 onClick={() => setFilter(g)}
                 className={`rounded-full border border-[#6c63ff]/60 px-4 py-1.5 text-[13px] transition-colors ${
-                  filter === g ? "bg-[#6c63ff] text-white" : "bg-[#1a1a2e] text-[#aaa] hover:text-white"
+                  filter === g ? "bg-[#6c63ff] text-white" : "bg-[#1a1a2e] text-[#c6ccd6] hover:text-white"
                 }`}
               >
                 {g}
@@ -118,12 +118,12 @@ export default function GamesLibrary() {
 
         {myScores.length > 0 && (
           <div className="mx-auto mt-8 max-w-3xl rounded-2xl border border-[#6c63ff]/25 bg-[#111122] p-4" data-testid="my-best-scores">
-            <p className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.15em] text-[#8b84ff]">
+            <p className="flex items-center gap-2 text-[13.5px] font-bold uppercase tracking-[0.15em] text-[#8b84ff]">
               <Trophy size={13} /> My best scores
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
               {myScores.map((s) => (
-                <span key={s.game_id} className="rounded-full border border-[#2a2a44] px-3 py-1 text-[12px] text-[#aaa]" data-testid={`my-score-${s.game_id}`}>
+                <span key={s.game_id} className="rounded-full border border-[#2a2a44] px-3 py-1 text-[13.5px] text-[#c6ccd6]" data-testid={`my-score-${s.game_id}`}>
                   {s.title}: <b className="text-white">{s.score.toLocaleString()}</b>
                 </span>
               ))}
@@ -139,7 +139,7 @@ export default function GamesLibrary() {
           </div>
         ) : loadError ? (
           <div className="py-24 text-center" data-testid="games-load-error">
-            <p className="text-[#888]">Couldn't reach the game servers.</p>
+            <p className="text-[#b3bac7]">Couldn't reach the game servers.</p>
             <button
               onClick={() => loadGames()}
               data-testid="games-retry-btn"
@@ -156,14 +156,14 @@ export default function GamesLibrary() {
             ))}
             {filtered.length === 0 && (
               <div className="col-span-full py-16 text-center" data-testid="games-empty">
-                <p className="text-[#555]">
+                <p className="text-[#9aa3b8]">
                   {search || filter !== "All" ? "No games match that search." : "No games available right now."}
                 </p>
                 {(search || filter !== "All") && (
                   <button
                     onClick={() => { setSearch(""); setFilter("All"); }}
                     data-testid="games-clear-filters"
-                    className="mt-4 rounded-full border border-[#6c63ff]/60 px-5 py-2 text-[13px] text-[#aaa] transition-colors hover:text-white"
+                    className="mt-4 rounded-full border border-[#6c63ff]/60 px-5 py-2 text-[13px] text-[#c6ccd6] transition-colors hover:text-white"
                   >
                     Clear search & filters
                   </button>

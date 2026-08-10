@@ -13,7 +13,7 @@ export const TrialBanner = () => {
 
   if (user.plan === "trial") {
     return (
-      <div className="flex flex-wrap items-center justify-center gap-2.5 border-b border-lux-accent/30 bg-lux-accent/10 px-4 py-2 text-center text-xs text-lux-text" data-testid="trial-banner">
+      <div className="flex flex-wrap items-center justify-center gap-2.5 border-b border-lux-accent/30 bg-lux-accent/10 px-4 py-2 text-center text-[13px] text-lux-text" data-testid="trial-banner">
         <Zap size={12} className="shrink-0 text-lux-accent" />
         <span>
           <span className="font-700">{days} day{days === 1 ? "" : "s"}</span> left on your trial — keep your API keys, builders &amp; advanced tools.
@@ -28,7 +28,7 @@ export const TrialBanner = () => {
 
   if (PLAN_LABELS[user.plan] && days <= 3) {
     return (
-      <div className="flex flex-wrap items-center justify-center gap-2.5 border-b border-amber-500/30 bg-amber-500/10 px-4 py-2 text-center text-xs text-lux-text" data-testid="renewal-banner">
+      <div className="flex flex-wrap items-center justify-center gap-2.5 border-b border-amber-500/30 bg-amber-500/10 px-4 py-2 text-center text-[13px] text-lux-text" data-testid="renewal-banner">
         <Clock size={12} className="shrink-0 text-amber-500" />
         <span>
           Your <span className="font-700">{PLAN_LABELS[user.plan]}</span> plan lapses in{" "}

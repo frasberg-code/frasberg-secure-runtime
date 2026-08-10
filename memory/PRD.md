@@ -179,3 +179,9 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Support persona renamed Maya -> Zion (backend persona + Contact.jsx panel/avatar/greeting)
 - Admin Contact Inbox: GET /api/admin/contact-messages + POST .../{id}/reply (Resend email w/ original quote, stores reply/replied_by/email_sent); Admin console section with awaiting-reply badges, inline reply box. Verified: reply emailed (delivered@resend.dev email_sent:true; external addresses need Resend domain verification)
 - Contact page: "About the company / Frasberg, Inc." blurb + "Copyright © 2003-2026 FRASBERG, INC., All Rights Reserved."; Footer: Contact Us + Database Manager links added, copyright comma fixed
+
+## 2026-06 (fork session): Readability + Logo fixes
+- Contact page: darkened gray text, enlarged labels/body (gray-500→700, 12px→14px+)
+- Global readability sweep across all pages/components: font sizes bumped (9-12px → 12-13.5px, text-xs → 13px), low-contrast colors brightened (text-white/40-60 → /70-75, #555/#666/#888 → lighter on dark game pages), dashTheme + lux-text-2 tokens improved for both light/dark
+- Logo: regenerated /luchii-mark-circle.png — LUCHII bottom arc now perfectly symmetric (0.1px L/R delta), mark optically centered, corners alpha-masked
+- PENDING (blocked): GitHub OAuth login/fork — awaiting user's GitHub Client ID + Secret

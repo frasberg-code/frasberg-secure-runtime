@@ -60,7 +60,7 @@ function Ruling({ text }) {
         if (m) {
           return (
             <p key={i}>
-              <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-accent">{m[1]}</span>
+              <span className="font-mono text-[13px] uppercase tracking-[0.2em] text-lux-accent">{m[1]}</span>
               {m[2] && <span className="ml-2 text-lux-text">{m[2]}</span>}
             </p>
           );
@@ -206,7 +206,7 @@ export default function Court() {
             <div className="flex flex-wrap gap-2">
               {COURT_CASES.slice(0, 2).map((c) => (
                 <button key={c} type="button" onClick={() => tryCase(c)} data-testid="court-sample"
-                  className="rounded-full border border-lux-border px-3 py-1.5 text-xs text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
+                  className="rounded-full border border-lux-border px-3 py-1.5 text-[13px] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
                   {c.length > 40 ? c.slice(0, 40) + "…" : c}
                 </button>
               ))}
@@ -222,14 +222,14 @@ export default function Court() {
           <div className="mt-10 space-y-4">
             {submitted && (
               <div className="rounded-2xl border border-lux-border bg-lux-surface/60 p-5">
-                <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">The case</span>
+                <span className="font-mono text-[13px] uppercase tracking-[0.2em] text-lux-text2">The case</span>
                 <p className="mt-2 text-lux-text">{submitted}</p>
               </div>
             )}
             <div className="glass rounded-2xl p-6">
               <div className="mb-4 flex items-center gap-2">
                 <Sparkles size={15} className="text-lux-accent" />
-                <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">Ruling of the Court</span>
+                <span className="font-mono text-[13px] uppercase tracking-[0.2em] text-lux-text2">Ruling of the Court</span>
               </div>
               {verdict ? (
                 <>
@@ -241,7 +241,7 @@ export default function Court() {
                         toast.success("Sealed certificate downloaded");
                       }}
                       data-testid="ruling-certificate-btn"
-                      className="mt-5 inline-flex items-center gap-2 rounded-full border border-lux-accent px-5 py-2.5 text-xs font-600 text-lux-accent transition-transform hover:-translate-y-0.5"
+                      className="mt-5 inline-flex items-center gap-2 rounded-full border border-lux-accent px-5 py-2.5 text-[13px] font-600 text-lux-accent transition-transform hover:-translate-y-0.5"
                     >
                       <Download size={13} /> Download sealed certificate
                     </button>
@@ -257,7 +257,7 @@ export default function Court() {
         <section className="mt-20" id="constitution" data-testid="court-constitution">
           <div className="flex items-center gap-2">
             <ScrollText size={17} className="text-lux-accent" />
-            <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">The Court Constitution</span>
+            <span className="font-mono text-[13px] uppercase tracking-[0.2em] text-lux-text2">The Court Constitution</span>
           </div>
           <h2 className="mt-3 font-display text-2xl font-700 tracking-tight sm:text-3xl">Articles of AI World Court</h2>
           <Link to="/laws" data-testid="court-laws-link"
@@ -273,7 +273,7 @@ export default function Court() {
                 <div className="space-y-3">
                   {g.articles.map((a) => (
                     <div key={g.title + a.article} className="rounded-2xl border border-lux-border bg-lux-surface/60 p-5" data-testid={`constitution-${gi}-${a.article.split(" ")[1].toLowerCase()}`}>
-                      <p className="font-mono text-xs uppercase tracking-[0.15em] text-lux-accent">{a.article}</p>
+                      <p className="font-mono text-[13px] uppercase tracking-[0.15em] text-lux-accent">{a.article}</p>
                       <p className="mt-2 text-sm text-lux-text">{a.intro}</p>
                       <ul className="mt-2 space-y-1">
                         {a.items.map((it) => (
@@ -294,7 +294,7 @@ export default function Court() {
         <section className="mt-16 pb-20" data-testid="court-docket">
           <div className="flex items-center gap-2">
             <FolderOpen size={17} className="text-lux-accent" />
-            <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2">Public Docket — Filed Rulings</span>
+            <span className="font-mono text-[13px] uppercase tracking-[0.2em] text-lux-text2">Public Docket — Filed Rulings</span>
           </div>
           <h2 className="mt-3 font-display text-2xl font-700 tracking-tight sm:text-3xl">Court filings</h2>
           <p className="mt-2 text-sm text-lux-text2">
@@ -314,10 +314,10 @@ export default function Court() {
                   className="flex w-full items-center justify-between gap-4 p-5 text-left"
                 >
                   <div className="min-w-0">
-                    <p className="font-mono text-xs text-lux-accent">{f.docket}</p>
+                    <p className="font-mono text-[13px] text-lux-accent">{f.docket}</p>
                     <p className="mt-1 truncate text-sm text-lux-text">{f.case}</p>
                   </div>
-                  <span className="shrink-0 font-mono text-[10px] uppercase text-lux-text2">{openFiling === f.docket ? "close" : "open"}</span>
+                  <span className="shrink-0 font-mono text-[13.5px] uppercase text-lux-text2">{openFiling === f.docket ? "close" : "open"}</span>
                 </button>
                 {openFiling === f.docket && (
                   <div className="border-t border-lux-border p-5">
@@ -325,7 +325,7 @@ export default function Court() {
                     <button
                       onClick={() => requestDownload(f)}
                       data-testid={`filing-download-${f.docket}`}
-                      className="mt-5 inline-flex items-center gap-2 rounded-full border border-lux-border px-5 py-2 text-xs text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text"
+                      className="mt-5 inline-flex items-center gap-2 rounded-full border border-lux-border px-5 py-2 text-[13px] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text"
                     >
                       <Download size={13} /> Download certified PDF · $1 (free with Pro)
                     </button>

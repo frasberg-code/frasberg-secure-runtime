@@ -58,7 +58,7 @@ export const VoicePicker = ({ value, onChange, inline = false }) => {
 
   const list = (
     <div className="max-h-64 space-y-1 overflow-y-auto" data-testid="voice-picker-list">
-      {allVoices.length === 0 && <p className="px-2 py-3 text-xs text-lux-text2">Loading voices…</p>}
+      {allVoices.length === 0 && <p className="px-2 py-3 text-[13px] text-lux-text2">Loading voices…</p>}
       {allVoices.map((v) => (
         <div
           key={v.id}
@@ -76,7 +76,7 @@ export const VoicePicker = ({ value, onChange, inline = false }) => {
             <span className="flex items-center gap-1.5 text-sm font-600 text-lux-text">
               {v.name} {value === v.id && <Check size={12} className="text-lux-accent" />}
             </span>
-            <span className="block text-[11px] text-lux-text2">{v.description}</span>
+            <span className="block text-[13px] text-lux-text2">{v.description}</span>
           </button>
           <button
             type="button"
@@ -110,7 +110,7 @@ export const VoicePicker = ({ value, onChange, inline = false }) => {
       </button>
       {open && (
         <div className="absolute right-0 top-9 z-50 w-72 rounded-2xl border border-lux-border bg-lux-surface p-2 shadow-2xl" data-testid="voice-picker-panel">
-          <p className="px-2 pb-2 pt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-lux-text2">Sovereign voices</p>
+          <p className="px-2 pb-2 pt-1 font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2">Sovereign voices</p>
           {list}
         </div>
       )}

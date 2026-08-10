@@ -70,32 +70,32 @@ export default function DatabaseManager() {
           <Database size={26} className="text-violet-500" />
         </div>
         <h1 className="mt-5 text-center text-3xl font-700" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>Database Manager</h1>
-        <p className="mt-2 text-center text-[15px] text-gray-500">View, edit, and manage your app's live data</p>
+        <p className="mt-2 text-center text-[15px] text-gray-700">View, edit, and manage your app's live data</p>
 
         {!conn && (
           <div className="mt-9 rounded-2xl border border-gray-200 bg-white p-7 shadow-sm" data-testid="dbm-connect-card">
             <label className="block">
               <span className="mb-2 block text-[13.5px] font-600">App Name</span>
               <input value={appName} onChange={(e) => setAppName(e.target.value)} placeholder="e.g. your-app-name" className={input} data-testid="dbm-app-name" />
-              <span className="mt-2 block text-[12px] text-gray-500">Copy app name from database details on Frasberg to access preview data</span>
+              <span className="mt-2 block text-[13.5px] text-gray-700">Copy app name from database details on Frasberg to access preview data</span>
             </label>
             <label className="mt-6 block">
               <span className="mb-2 block text-[13.5px] font-600">MongoDB URL</span>
               <span className="relative block">
                 <input value={mongoUrl} onChange={(e) => setMongoUrl(e.target.value)} type={showUrl ? "text" : "password"}
                   placeholder="mongodb+srv://..." className={`${input} pr-11`} data-testid="dbm-mongo-url" />
-                <button type="button" onClick={() => setShowUrl((s) => !s)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" aria-label="Toggle URL visibility" data-testid="dbm-url-toggle">
+                <button type="button" onClick={() => setShowUrl((s) => !s)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900" aria-label="Toggle URL visibility" data-testid="dbm-url-toggle">
                   {showUrl ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </span>
-              <span className="mt-2 block text-[12px] text-gray-500">Copy MongoDB URL from database details on Frasberg to access live data.</span>
+              <span className="mt-2 block text-[13.5px] text-gray-700">Copy MongoDB URL from database details on Frasberg to access live data.</span>
             </label>
             <button onClick={connect} disabled={!canSubmit} data-testid="dbm-connect-btn"
               className={`mt-7 flex w-full items-center justify-center gap-2 rounded-lg py-3.5 text-[14.5px] font-600 transition-colors ${canSubmit ? "bg-violet-600 text-white hover:bg-violet-700" : "bg-gray-100 text-gray-400"}`}>
               {busy ? "Connecting…" : "Access Database Securely"} <ArrowRight size={15} />
             </button>
-            <p className="mt-4 text-center text-[12.5px] text-gray-500">Provide at least one: App Name or MongoDB URL.</p>
-            <div className={`mt-5 flex items-center gap-2 rounded-lg px-4 py-3 text-[12.5px] ${me ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`} data-testid="dbm-auth-note">
+            <p className="mt-4 text-center text-[13.5px] text-gray-700">Provide at least one: App Name or MongoDB URL.</p>
+            <div className={`mt-5 flex items-center gap-2 rounded-lg px-4 py-3 text-[13.5px] ${me ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`} data-testid="dbm-auth-note">
               <Info size={14} />
               {me === undefined ? "Checking session…" : me ? `Signed in as ${me.email} — preview and live databases unlocked` : "You can access both preview and live database after logging in"}
             </div>
@@ -107,8 +107,8 @@ export default function DatabaseManager() {
             <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
               <p className="text-[14px] font-600">Connected · <span className="font-mono text-violet-600">{conn.db}</span></p>
               <div className="flex gap-2">
-                <button onClick={connect} className="flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-1.5 text-[12px] text-gray-600 hover:border-gray-400" data-testid="dbm-refresh"><RefreshCw size={12} /> Refresh</button>
-                <button onClick={() => { setConn(null); setSel(null); }} className="rounded-md border border-gray-200 px-3 py-1.5 text-[12px] text-gray-600 hover:border-gray-400" data-testid="dbm-disconnect">Disconnect</button>
+                <button onClick={connect} className="flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-1.5 text-[13.5px] text-gray-600 hover:border-gray-400" data-testid="dbm-refresh"><RefreshCw size={12} /> Refresh</button>
+                <button onClick={() => { setConn(null); setSel(null); }} className="rounded-md border border-gray-200 px-3 py-1.5 text-[13.5px] text-gray-600 hover:border-gray-400" data-testid="dbm-disconnect">Disconnect</button>
               </div>
             </div>
             <div className="grid sm:grid-cols-[200px,1fr]">
@@ -117,16 +117,16 @@ export default function DatabaseManager() {
                   <button key={c.name} onClick={() => loadDocs(c.name)} data-testid={`dbm-col-${c.name}`}
                     className={`flex w-full items-center justify-between px-4 py-2.5 text-left text-[13px] transition-colors ${sel === c.name ? "bg-violet-50 font-600 text-violet-700" : "text-gray-700 hover:bg-gray-50"}`}>
                     <span className="truncate">{c.name}</span>
-                    <span className="ml-2 shrink-0 rounded-full bg-gray-100 px-2 py-0.5 font-mono text-[10px] text-gray-500">{c.count}</span>
+                    <span className="ml-2 shrink-0 rounded-full bg-gray-100 px-2 py-0.5 font-mono text-[13.5px] text-gray-700">{c.count}</span>
                   </button>
                 ))}
               </div>
               <div className="max-h-[480px] overflow-y-auto p-4" data-testid="dbm-docs">
-                {!sel && <p className="p-6 text-center text-[13px] text-gray-400">Select a collection to browse its documents</p>}
+                {!sel && <p className="p-6 text-center text-[14px] text-gray-600">Select a collection to browse its documents</p>}
                 {sel && docs.map((d, i) => (
                   <div key={i} className="group mb-3 rounded-lg border border-gray-200 bg-gray-50 p-3" data-testid={`dbm-doc-${i}`}>
                     <div className="flex items-start justify-between gap-2">
-                      <pre className="min-w-0 flex-1 overflow-x-auto whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-gray-700">{JSON.stringify(d, null, 1)}</pre>
+                      <pre className="min-w-0 flex-1 overflow-x-auto whitespace-pre-wrap font-mono text-[13px] leading-relaxed text-gray-700">{JSON.stringify(d, null, 1)}</pre>
                       <button onClick={() => delDoc(String(d._id))} className="shrink-0 rounded-md border border-gray-200 p-1.5 text-gray-400 opacity-0 transition-opacity hover:border-red-300 hover:text-red-500 group-hover:opacity-100" aria-label="Delete document" data-testid={`dbm-del-${i}`}>
                         <Trash2 size={12} />
                       </button>
@@ -134,7 +134,7 @@ export default function DatabaseManager() {
                   </div>
                 ))}
                 {sel && (
-                  <div className="mt-2 flex items-center justify-between text-[12px] text-gray-500" data-testid="dbm-pagination">
+                  <div className="mt-2 flex items-center justify-between text-[13.5px] text-gray-700" data-testid="dbm-pagination">
                     <span>{total} documents · page {page + 1}</span>
                     <span className="flex gap-1">
                       <button disabled={page === 0} onClick={() => loadDocs(sel, page - 1)} className="rounded border border-gray-200 p-1.5 disabled:opacity-30" aria-label="Previous page"><ChevronLeft size={13} /></button>

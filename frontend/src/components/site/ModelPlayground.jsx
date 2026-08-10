@@ -88,7 +88,7 @@ export const ModelPlayground = () => {
           <div key={t.id} className="flex flex-col rounded-3xl border border-lux-border bg-lux-surface/60 p-5" data-testid={`playground-col-${t.id}`}>
             <div className="flex items-center justify-between border-b border-lux-border pb-3">
               <p className="font-display text-sm font-700 tracking-tight">{t.label}</p>
-              <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-lux-accent">{t.tag}</span>
+              <span className="font-mono text-[13.5px] uppercase tracking-[0.15em] text-lux-accent">{t.tag}</span>
             </div>
             <div className="mt-3 min-h-[140px] flex-1 whitespace-pre-wrap text-[13px] leading-relaxed text-lux-text2">
               {out[t.id] || (busy ? <Loader2 size={14} className="animate-spin text-lux-accent" /> : "Awaiting your prompt…")}

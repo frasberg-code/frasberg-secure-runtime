@@ -28,6 +28,8 @@ export default function Admin() {
   const [tenants, setTenants] = useState(null);
   const [team, setTeam] = useState(null);
   const [inbox, setInbox] = useState(null);
+  const [chats, setChats] = useState(null);
+  const [openChat, setOpenChat] = useState(null);
   const [replyDraft, setReplyDraft] = useState({});
   const [tenantAnalytics, setTenantAnalytics] = useState(null);
   const [cloudUniverses, setCloudUniverses] = useState([]);
@@ -194,6 +196,7 @@ export default function Admin() {
       axios.get(`${API}/admin/tenants`, ax).then((r) => setTenants(r.data)).catch(() => {});
       axios.get(`${API}/admin/team`, ax).then((r) => setTeam(r.data)).catch(() => {});
       axios.get(`${API}/admin/contact-messages`, ax).then((r) => setInbox(r.data)).catch(() => {});
+      axios.get(`${API}/admin/support-chats`, ax).then((r) => setChats(r.data.chats)).catch(() => {});
       axios.get(`${API}/admin/tenants/analytics`, ax).then((r) => setTenantAnalytics(r.data)).catch(() => {});
       axios.get(`${API}/admin/health`, ax).then((r) => setHealth(r.data)).catch(() => {});
       axios.get(`${API}/admin/audit`, ax).then((r) => setAudit(r.data)).catch(() => {});
@@ -285,7 +288,7 @@ export default function Admin() {
           </Link>
           <div className="flex items-center gap-2">
             <Link to="/status" data-testid="admin-status-link"
-              className="rounded-full border border-lux-border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.15em] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
+              className="rounded-full border border-lux-border px-4 py-2 font-mono text-[13px] uppercase tracking-[0.15em] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
               System Status
             </Link>
             <button onClick={toggle} aria-label="Toggle theme" className="grid h-10 w-10 place-items-center rounded-full border border-lux-border hover:border-lux-accent hover:text-lux-accent">
@@ -302,7 +305,7 @@ export default function Admin() {
           <>
             <div className="flex items-center justify-between">
               <h1 className="font-display text-3xl font-700 tracking-tighter sm:text-4xl">System health</h1>
-              <span className={`rounded-full border px-4 py-1.5 font-mono text-xs ${stats.upstream_active ? "border-green-500 text-green-400" : "border-lux-border text-lux-text2"}`} data-testid="admin-upstream-status">
+              <span className={`rounded-full border px-4 py-1.5 font-mono text-[13px] ${stats.upstream_active ? "border-green-500 text-green-400" : "border-lux-border text-lux-text2"}`} data-testid="admin-upstream-status">
                 Upstream: {stats.upstream_active ? "LIVE (frasberg servers)" : "fallback engine"}
               </span>
             </div>
@@ -312,7 +315,7 @@ export default function Admin() {
                 <div key={c.label} className="rounded-2xl border border-lux-border bg-lux-surface p-5">
                   <c.icon size={17} className="text-lux-accent" />
                   <p className="mt-3 font-display text-2xl font-700">{c.value}</p>
-                  <p className="mt-1 font-mono text-[10px] uppercase tracking-wide text-lux-text2">{c.label}</p>
+                  <p className="mt-1 font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">{c.label}</p>
                 </div>
               ))}
             </div>
@@ -321,17 +324,17 @@ export default function Admin() {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <h2 className="font-display text-2xl font-700 tracking-tight">Live Ops</h2>
-                  <span className="flex items-center gap-1.5 rounded-full border border-green-500/40 px-3 py-1 font-mono text-[10px] uppercase tracking-wide text-green-400">
+                  <span className="flex items-center gap-1.5 rounded-full border border-green-500/40 px-3 py-1 font-mono text-[13.5px] uppercase tracking-wide text-green-400">
                     <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-400" /> polling 5s
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <Link to="/admin/mesh" data-testid="admin-mesh-center-link"
-                    className="flex items-center gap-2 rounded-full border border-lux-accent/60 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.15em] text-lux-accent transition-colors hover:bg-lux-accent hover:text-white">
+                    className="flex items-center gap-2 rounded-full border border-lux-accent/60 px-4 py-2 font-mono text-[13px] uppercase tracking-[0.15em] text-lux-accent transition-colors hover:bg-lux-accent hover:text-white">
                     <Radio size={13} /> Mesh Control Center
                   </Link>
                   <button onClick={rotateKey} data-testid="admin-rotate-key-btn"
-                    className="flex items-center gap-2 rounded-full border border-lux-border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.15em] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
+                    className="flex items-center gap-2 rounded-full border border-lux-border px-4 py-2 font-mono text-[13px] uppercase tracking-[0.15em] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
                     <RefreshCcw size={13} /> Rotate E2E Key
                   </button>
                 </div>
@@ -347,35 +350,35 @@ export default function Admin() {
                   <div key={c.label} className="rounded-2xl border border-lux-border bg-lux-surface p-5" data-testid={c.tid}>
                     <c.icon size={17} className={c.tid === "ops-tamper" && ops?.stats?.tamper_attempts > 0 ? "text-red-400" : "text-lux-accent"} />
                     <p className="mt-3 font-display text-2xl font-700">{c.value}</p>
-                    <p className="mt-1 font-mono text-[10px] uppercase tracking-wide text-lux-text2">{c.label}</p>
+                    <p className="mt-1 font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">{c.label}</p>
                   </div>
                 ))}
               </div>
 
               <div className="mt-4 grid gap-4 lg:grid-cols-2">
                 <div className="rounded-2xl border border-lux-border bg-lux-surface p-5" data-testid="ops-clients">
-                  <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">Connected mesh clients</p>
+                  <p className="font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">Connected mesh clients</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {(ops?.client_ids || []).length === 0 ? (
-                      <span className="font-mono text-xs text-lux-text2">No live WebSocket clients right now</span>
+                      <span className="font-mono text-[13px] text-lux-text2">No live WebSocket clients right now</span>
                     ) : ops.client_ids.map((id) => (
-                      <span key={id} className="rounded-full border border-lux-border px-3 py-1 font-mono text-xs text-lux-text">{id}</span>
+                      <span key={id} className="rounded-full border border-lux-border px-3 py-1 font-mono text-[13px] text-lux-text">{id}</span>
                     ))}
                   </div>
-                  <p className="mt-4 font-mono text-[10px] uppercase tracking-wide text-lux-text2">E2E public key</p>
-                  <p className="mt-1 break-all font-mono text-xs text-lux-accent" data-testid="ops-pubkey">{ops?.e2e_pubkey || "—"}</p>
+                  <p className="mt-4 font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">E2E public key</p>
+                  <p className="mt-1 break-all font-mono text-[13px] text-lux-accent" data-testid="ops-pubkey">{ops?.e2e_pubkey || "—"}</p>
                 </div>
                 <div className="rounded-2xl border border-lux-border bg-lux-surface p-5" data-testid="ops-alerts">
-                  <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">Security alerts</p>
+                  <p className="font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">Security alerts</p>
                   <div className="mt-3 space-y-2">
                     {(ops?.alerts || []).length === 0 ? (
-                      <span className="font-mono text-xs text-lux-text2">No alerts — mesh integrity clean</span>
+                      <span className="font-mono text-[13px] text-lux-text2">No alerts — mesh integrity clean</span>
                     ) : ops.alerts.slice(0, 6).map((a) => (
                       <div key={a.id} className="flex items-start gap-2.5 rounded-xl border border-lux-border p-3">
                         <ShieldAlert size={14} className={a.type === "tamper" ? "mt-0.5 shrink-0 text-red-400" : "mt-0.5 shrink-0 text-lux-accent"} />
                         <div className="min-w-0">
-                          <p className="text-xs text-lux-text">{a.detail}</p>
-                          <p className="mt-0.5 font-mono text-[10px] text-lux-text2">{a.type} · {a.client_id} · {(a.ts || "").slice(0, 19).replace("T", " ")}</p>
+                          <p className="text-[13px] text-lux-text">{a.detail}</p>
+                          <p className="mt-0.5 font-mono text-[13.5px] text-lux-text2">{a.type} · {a.client_id} · {(a.ts || "").slice(0, 19).replace("T", " ")}</p>
                         </div>
                       </div>
                     ))}
@@ -387,13 +390,13 @@ export default function Admin() {
             <section className="mt-12" data-testid="admin-revenue-panel">
               <div className="flex items-center justify-between">
                 <h2 className="font-display text-2xl font-700 tracking-tight">Revenue</h2>
-                <span className="rounded-full border border-lux-accent/40 px-4 py-1.5 font-mono text-xs text-lux-accent" data-testid="admin-revenue-total">
+                <span className="rounded-full border border-lux-accent/40 px-4 py-1.5 font-mono text-[13px] text-lux-accent" data-testid="admin-revenue-total">
                   ${(stats.revenue_total ?? 0).toFixed(2)} all-time
                 </span>
               </div>
               <div className="mt-4 rounded-2xl border border-lux-border bg-lux-surface p-5" style={{ height: 280 }} data-testid="admin-revenue-chart">
                 {(stats.revenue_monthly || []).length === 0 ? (
-                  <div className="grid h-full place-items-center font-mono text-xs uppercase tracking-wide text-lux-text2">
+                  <div className="grid h-full place-items-center font-mono text-[13px] uppercase tracking-wide text-lux-text2">
                     No confirmed payments yet
                   </div>
                 ) : (
@@ -427,13 +430,13 @@ export default function Admin() {
                     ["Uptime", `${Math.floor(health.uptime_seconds / 3600)}h ${Math.floor((health.uptime_seconds % 3600) / 60)}m`, "health-uptime"],
                   ].map(([label, value, tid]) => (
                     <div key={tid} className="rounded-2xl border border-lux-border bg-lux-surface p-4" data-testid={tid}>
-                      <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">{label}</p>
+                      <p className="font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">{label}</p>
                       <p className={`mt-1 font-display text-xl font-700 ${tid === "health-error-rate" && health.error_rate > 1 ? "text-red-400" : "text-lux-text"}`}>{value}</p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="mt-4 font-mono text-xs text-lux-text2">Loading health metrics…</p>
+                <p className="mt-4 font-mono text-[13px] text-lux-text2">Loading health metrics…</p>
               )}
             </section>
 
@@ -442,15 +445,15 @@ export default function Admin() {
                 <h2 className="font-display text-2xl font-700 tracking-tight">Tenants &amp; revenue</h2>
                 <div className="flex flex-wrap items-center gap-2">
                   <button onClick={previewDigest} data-testid="digest-preview-btn"
-                    className="rounded-full border border-lux-border px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
+                    className="rounded-full border border-lux-border px-4 py-1.5 font-mono text-[13px] uppercase tracking-[0.12em] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
                     Preview weekly digest
                   </button>
                   <button onClick={exportTenants} data-testid="export-tenants-btn"
-                    className="rounded-full border border-lux-border px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
+                    className="rounded-full border border-lux-border px-4 py-1.5 font-mono text-[13px] uppercase tracking-[0.12em] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-accent">
                     Export CSV
                   </button>
                   {tenants?.totals && (
-                    <div className="flex flex-wrap gap-2 font-mono text-[11px] text-lux-text2">
+                    <div className="flex flex-wrap gap-2 font-mono text-[13px] text-lux-text2">
                       <span className="rounded-full border border-lux-border px-3 py-1" data-testid="tenants-total-count">{tenants.totals.tenants} tenants</span>
                       <span className="rounded-full border border-lux-accent/40 px-3 py-1 text-lux-accent" data-testid="tenants-total-revenue">${tenants.totals.revenue.toFixed(2)} revenue</span>
                     </div>
@@ -460,18 +463,18 @@ export default function Admin() {
               {digest && (
                 <div className="mt-4 rounded-2xl border border-lux-accent/40 bg-lux-surface p-5" data-testid="digest-preview-panel">
                   {digest.loading ? (
-                    <div className="flex items-center gap-2 font-mono text-xs text-lux-text2"><Loader2 size={14} className="animate-spin" /> Building digest…</div>
+                    <div className="flex items-center gap-2 font-mono text-[13px] text-lux-text2"><Loader2 size={14} className="animate-spin" /> Building digest…</div>
                   ) : (
                     <>
                       <div className="flex flex-wrap items-center justify-between gap-3">
-                        <p className="font-mono text-xs text-lux-accent" data-testid="digest-subject">{digest.data.subject}</p>
+                        <p className="font-mono text-[13px] text-lux-accent" data-testid="digest-subject">{digest.data.subject}</p>
                         <div className="flex gap-2">
                           <button onClick={sendDigest} data-testid="digest-send-btn"
-                            className="rounded-full bg-lux-accent px-4 py-1.5 text-xs font-600 text-lux-bg hover:-translate-y-0.5 transition-transform">
+                            className="rounded-full bg-lux-accent px-4 py-1.5 text-[13px] font-600 text-lux-bg hover:-translate-y-0.5 transition-transform">
                             Send to admins now
                           </button>
                           <button onClick={() => setDigest(null)} data-testid="digest-close-btn"
-                            className="rounded-full border border-lux-border px-4 py-1.5 text-xs text-lux-text2 hover:text-lux-text">
+                            className="rounded-full border border-lux-border px-4 py-1.5 text-[13px] text-lux-text2 hover:text-lux-text">
                             Close
                           </button>
                         </div>
@@ -485,10 +488,10 @@ export default function Admin() {
               {tenantAnalytics && tenantAnalytics.top.length > 0 && (
                 <div className="mt-4 rounded-2xl border border-lux-border bg-lux-surface p-5" data-testid="tenant-analytics-panel">
                   <div className="flex flex-wrap items-center justify-between gap-3">
-                    <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">Tenant analytics — token usage trend, top {tenantAnalytics.top.length} tenants (14 days)</p>
+                    <p className="font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">Tenant analytics — token usage trend, top {tenantAnalytics.top.length} tenants (14 days)</p>
                     <div className="flex flex-wrap gap-2">
                       {tenantAnalytics.top.map((t, i) => (
-                        <span key={t.email} className="rounded-full border border-lux-border px-2.5 py-0.5 font-mono text-[9px] text-lux-text2" data-testid={`analytics-top-${i}`}>
+                        <span key={t.email} className="rounded-full border border-lux-border px-2.5 py-0.5 font-mono text-[13.5px] text-lux-text2" data-testid={`analytics-top-${i}`}>
                           {t.email} · {t.tokens.toLocaleString()} tok
                         </span>
                       ))}
@@ -513,7 +516,7 @@ export default function Admin() {
               )}
               <div className="mt-4 overflow-x-auto rounded-2xl border border-lux-border" data-testid="admin-tenants-table">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-lux-surface font-mono text-[10px] uppercase tracking-wide text-lux-text2">
+                  <thead className="bg-lux-surface font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">
                     <tr>
                       <th className="p-3">Tenant</th><th className="p-3">Plan</th><th className="p-3 text-right">Keys</th>
                       <th className="p-3 text-right">Requests</th><th className="p-3 text-right">Tokens</th>
@@ -529,24 +532,24 @@ export default function Admin() {
                         data-testid={`tenant-row-${t.id}`}>
                         <td className="p-3">
                           <p className="text-lux-text">{t.email}
-                            {t.suspended && <span className="ml-2 rounded-full border border-red-500/60 bg-red-500/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wide text-red-400" data-testid={`tenant-suspended-${t.id}`}>Suspended</span>}
+                            {t.suspended && <span className="ml-2 rounded-full border border-red-500/60 bg-red-500/10 px-2 py-0.5 font-mono text-[13.5px] uppercase tracking-wide text-red-400" data-testid={`tenant-suspended-${t.id}`}>Suspended</span>}
                           </p>
-                          <p className="font-mono text-[10px] text-lux-text2">{t.name}</p>
+                          <p className="font-mono text-[13.5px] text-lux-text2">{t.name}</p>
                         </td>
                         <td className="p-3"><span className={t.plan !== "free" ? "text-lux-accent" : "text-lux-text2"}>{t.plan}</span></td>
-                        <td className="p-3 text-right font-mono text-xs text-lux-text2">{t.keys}</td>
-                        <td className="p-3 text-right font-mono text-xs text-lux-text2">{t.requests.toLocaleString()}</td>
-                        <td className="p-3 text-right font-mono text-xs text-lux-text2">{t.tokens.toLocaleString()}</td>
-                        <td className="p-3 text-right font-mono text-xs text-lux-text2">{t.credits.toLocaleString()}</td>
-                        <td className="p-3 text-right font-mono text-xs text-lux-text2">{(t.wallet || 0).toLocaleString()}</td>
-                        <td className={`p-3 text-right font-mono text-xs ${t.spend > 0 ? "text-emerald-400" : "text-lux-text2"}`}>${t.spend.toFixed(2)}</td>
-                        <td className="p-3 font-mono text-xs text-lux-text2">{t.joined}</td>
+                        <td className="p-3 text-right font-mono text-[13px] text-lux-text2">{t.keys}</td>
+                        <td className="p-3 text-right font-mono text-[13px] text-lux-text2">{t.requests.toLocaleString()}</td>
+                        <td className="p-3 text-right font-mono text-[13px] text-lux-text2">{t.tokens.toLocaleString()}</td>
+                        <td className="p-3 text-right font-mono text-[13px] text-lux-text2">{t.credits.toLocaleString()}</td>
+                        <td className="p-3 text-right font-mono text-[13px] text-lux-text2">{(t.wallet || 0).toLocaleString()}</td>
+                        <td className={`p-3 text-right font-mono text-[13px] ${t.spend > 0 ? "text-emerald-400" : "text-lux-text2"}`}>${t.spend.toFixed(2)}</td>
+                        <td className="p-3 font-mono text-[13px] text-lux-text2">{t.joined}</td>
                       </tr>
                       {tenantDetail?.id === t.id && (
                         <tr className="border-t border-lux-border bg-lux-bg/60">
                           <td colSpan={9} className="p-5" data-testid={`tenant-detail-${t.id}`}>
                             {tenantDetail.loading ? (
-                              <div className="flex items-center gap-2 font-mono text-xs text-lux-text2"><Loader2 size={14} className="animate-spin" /> Loading tenant detail…</div>
+                              <div className="flex items-center gap-2 font-mono text-[13px] text-lux-text2"><Loader2 size={14} className="animate-spin" /> Loading tenant detail…</div>
                             ) : (
                               <>
                               <div className="mb-4 flex flex-wrap items-center gap-3" data-testid={`tenant-actions-${t.id}`}>
@@ -555,49 +558,49 @@ export default function Admin() {
                                   value={grantAmount} onChange={(e) => setGrantAmount(e.target.value)}
                                   onClick={(e) => e.stopPropagation()}
                                   data-testid={`tenant-grant-input-${t.id}`}
-                                  className="w-44 rounded-full border border-lux-border bg-lux-surface px-4 py-2 font-mono text-xs outline-none focus:border-lux-accent"
+                                  className="w-44 rounded-full border border-lux-border bg-lux-surface px-4 py-2 font-mono text-[13px] outline-none focus:border-lux-accent"
                                 />
                                 <button onClick={(e) => { e.stopPropagation(); grantCredits(t.id); }}
                                   data-testid={`tenant-grant-btn-${t.id}`}
-                                  className="rounded-full bg-lux-accent px-4 py-2 text-xs font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
+                                  className="rounded-full bg-lux-accent px-4 py-2 text-[13px] font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
                                   Grant credits
                                 </button>
                                 {t.role !== "admin" && (
                                   <button onClick={(e) => { e.stopPropagation(); suspendTenant(t.id, !t.suspended); }}
                                     data-testid={`tenant-suspend-btn-${t.id}`}
-                                    className={`rounded-full border px-4 py-2 text-xs transition-colors ${t.suspended ? "border-emerald-400/60 text-emerald-400 hover:bg-emerald-400/10" : "border-red-500/60 text-red-400 hover:bg-red-500/10"}`}>
+                                    className={`rounded-full border px-4 py-2 text-[13px] transition-colors ${t.suspended ? "border-emerald-400/60 text-emerald-400 hover:bg-emerald-400/10" : "border-red-500/60 text-red-400 hover:bg-red-500/10"}`}>
                                     {t.suspended ? "Reinstate tenant" : "Suspend tenant"}
                                   </button>
                                 )}
                               </div>
                               <div className="grid gap-5 lg:grid-cols-3">
                                 <div>
-                                  <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">API keys ({tenantDetail.data.keys.length})</p>
+                                  <p className="font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">API keys ({tenantDetail.data.keys.length})</p>
                                   <div className="mt-2 space-y-2">
-                                    {tenantDetail.data.keys.length === 0 && <p className="text-xs text-lux-text2">No keys</p>}
+                                    {tenantDetail.data.keys.length === 0 && <p className="text-[13px] text-lux-text2">No keys</p>}
                                     {tenantDetail.data.keys.map((k) => (
                                       <div key={k.id} className="rounded-xl border border-lux-border p-3">
-                                        <p className="text-xs font-600 text-lux-text">{k.name}</p>
-                                        <p className="font-mono text-[10px] text-lux-text2">{k.key} · {(k.credits ?? 0).toLocaleString()} credits · {k.request_count || 0} req · {(k.token_count || 0).toLocaleString()} tok</p>
-                                        {k.last_used && <p className="font-mono text-[10px] text-lux-text2">last used {(k.last_used || "").slice(0, 16).replace("T", " ")}</p>}
+                                        <p className="text-[13px] font-600 text-lux-text">{k.name}</p>
+                                        <p className="font-mono text-[13.5px] text-lux-text2">{k.key} · {(k.credits ?? 0).toLocaleString()} credits · {k.request_count || 0} req · {(k.token_count || 0).toLocaleString()} tok</p>
+                                        {k.last_used && <p className="font-mono text-[13.5px] text-lux-text2">last used {(k.last_used || "").slice(0, 16).replace("T", " ")}</p>}
                                       </div>
                                     ))}
                                   </div>
                                 </div>
                                 <div>
-                                  <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">Purchases ({tenantDetail.data.purchases.length})</p>
+                                  <p className="font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">Purchases ({tenantDetail.data.purchases.length})</p>
                                   <div className="mt-2 space-y-2">
-                                    {tenantDetail.data.purchases.length === 0 && <p className="text-xs text-lux-text2">No purchases</p>}
+                                    {tenantDetail.data.purchases.length === 0 && <p className="text-[13px] text-lux-text2">No purchases</p>}
                                     {tenantDetail.data.purchases.slice(0, 8).map((p) => (
                                       <div key={p.id} className="rounded-xl border border-lux-border p-3">
-                                        <p className="text-xs text-lux-text">{p.plan} <span className="text-lux-text2">· {p.kind || "credits"}</span></p>
-                                        <p className="font-mono text-[10px] text-lux-text2">{(p.ts || "").slice(0, 16).replace("T", " ")} · {p.status}</p>
+                                        <p className="text-[13px] text-lux-text">{p.plan} <span className="text-lux-text2">· {p.kind || "credits"}</span></p>
+                                        <p className="font-mono text-[13.5px] text-lux-text2">{(p.ts || "").slice(0, 16).replace("T", " ")} · {p.status}</p>
                                       </div>
                                     ))}
                                   </div>
                                 </div>
                                 <div>
-                                  <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">Usage — last 14 days</p>
+                                  <p className="font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">Usage — last 14 days</p>
                                   <div className="mt-2" style={{ height: 140 }}>
                                     <ResponsiveContainer width="100%" height="100%">
                                       <BarChart data={tenantDetail.data.daily} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
@@ -628,32 +631,32 @@ export default function Admin() {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="font-display text-2xl font-700 tracking-tight">Contact Inbox</h2>
                 {inbox && (
-                  <span className="rounded-full border border-lux-border px-3 py-1 font-mono text-xs" data-testid="inbox-count">
+                  <span className="rounded-full border border-lux-border px-3 py-1 font-mono text-[13px]" data-testid="inbox-count">
                     {inbox.messages.length} messages · <span className={inbox.unreplied ? "text-lux-gold" : ""}>{inbox.unreplied} awaiting reply</span>
                   </span>
                 )}
               </div>
               <div className="mt-4 space-y-3" data-testid="admin-inbox-list">
-                {!inbox && <p className="font-mono text-xs text-lux-text2">Loading inbox…</p>}
+                {!inbox && <p className="font-mono text-[13px] text-lux-text2">Loading inbox…</p>}
                 {inbox && inbox.messages.length === 0 && (
-                  <p className="rounded-2xl border border-lux-border p-5 font-mono text-xs text-lux-text2">No contact form submissions yet — messages from /contact land here.</p>
+                  <p className="rounded-2xl border border-lux-border p-5 font-mono text-[13px] text-lux-text2">No contact form submissions yet — messages from /contact land here.</p>
                 )}
                 {inbox && inbox.messages.map((m) => (
                   <div key={m.id} className="rounded-2xl border border-lux-border p-4" data-testid={`inbox-msg-${m.id}`}>
                     <div className="flex flex-wrap items-center gap-3">
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-600">{m.name} <span className="ml-1.5 font-mono text-[11px] text-lux-text2">{m.email}</span></p>
-                        <p className="mt-0.5 font-mono text-[10.5px] text-lux-text2">{new Date(m.created).toLocaleString()}</p>
+                        <p className="text-sm font-600">{m.name} <span className="ml-1.5 font-mono text-[13px] text-lux-text2">{m.email}</span></p>
+                        <p className="mt-0.5 font-mono text-[13.5px] text-lux-text2">{new Date(m.created).toLocaleString()}</p>
                       </div>
                       {m.replied_at ? (
-                        <span className="rounded-full border border-emerald-500/40 px-2.5 py-0.5 font-mono text-[10px] uppercase text-emerald-400" data-testid={`inbox-replied-${m.id}`}>Replied{m.email_sent ? " · emailed" : ""}</span>
+                        <span className="rounded-full border border-emerald-500/40 px-2.5 py-0.5 font-mono text-[13.5px] uppercase text-emerald-400" data-testid={`inbox-replied-${m.id}`}>Replied{m.email_sent ? " · emailed" : ""}</span>
                       ) : (
-                        <span className="rounded-full border border-lux-gold/40 px-2.5 py-0.5 font-mono text-[10px] uppercase text-lux-gold">Awaiting reply</span>
+                        <span className="rounded-full border border-lux-gold/40 px-2.5 py-0.5 font-mono text-[13.5px] uppercase text-lux-gold">Awaiting reply</span>
                       )}
                     </div>
                     <p className="mt-3 whitespace-pre-wrap rounded-lg border border-lux-border/60 bg-white/[0.02] p-3 text-[13px] leading-relaxed text-lux-text2">{m.message}</p>
                     {m.replied_at ? (
-                      <p className="mt-2 rounded-lg border border-emerald-500/20 p-3 text-[12.5px] text-lux-text2"><span className="font-mono text-[10px] uppercase text-emerald-400">Your reply · {m.replied_by}</span><br />{m.reply}</p>
+                      <p className="mt-2 rounded-lg border border-emerald-500/20 p-3 text-[13.5px] text-lux-text2"><span className="font-mono text-[13.5px] uppercase text-emerald-400">Your reply · {m.replied_by}</span><br />{m.reply}</p>
                     ) : (
                       <div className="mt-3 flex flex-wrap items-end gap-2">
                         <textarea rows={2} value={replyDraft[m.id] || ""} onChange={(e) => setReplyDraft((d) => ({ ...d, [m.id]: e.target.value }))}
@@ -667,7 +670,7 @@ export default function Admin() {
                               load();
                             } catch (e) { toast.error(e.response?.data?.detail || "Reply failed"); }
                           }}
-                          className="rounded-lg bg-lux-accent px-4 py-2 font-mono text-[11.5px] font-600 text-black transition-opacity hover:opacity-85">
+                          className="rounded-lg bg-lux-accent px-4 py-2 font-mono text-[13px] font-600 text-black transition-opacity hover:opacity-85">
                           Send reply
                         </button>
                       </div>
@@ -675,13 +678,45 @@ export default function Admin() {
                   </div>
                 ))}
               </div>
+              <div className="mt-8" data-testid="admin-chat-transcripts">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-display text-lg font-700">Zion live-chat transcripts</h3>
+                  {chats && <span className="rounded-full border border-lux-border px-3 py-1 font-mono text-[13px]" data-testid="transcripts-count">{chats.length} conversations</span>}
+                </div>
+                <div className="mt-3 space-y-2">
+                  {!chats && <p className="font-mono text-[13px] text-lux-text2">Loading transcripts…</p>}
+                  {chats && chats.length === 0 && <p className="rounded-2xl border border-lux-border p-4 font-mono text-[13px] text-lux-text2">No live-chat conversations yet — Zion's chats from /contact are saved here automatically.</p>}
+                  {chats && chats.map((c) => (
+                    <div key={c.session_id} className="rounded-2xl border border-lux-border" data-testid={`transcript-${c.session_id}`}>
+                      <button onClick={() => setOpenChat(openChat === c.session_id ? null : c.session_id)} data-testid={`transcript-toggle-${c.session_id}`}
+                        className="flex w-full flex-wrap items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/[0.02]">
+                        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/10 text-[13.5px] font-700">Z</span>
+                        <span className="min-w-0 flex-1 truncate text-[13px] text-lux-text2">
+                          {(c.messages?.find((m) => m.role === "user") || {}).content || "Conversation"}
+                        </span>
+                        <span className="font-mono text-[13.5px] text-lux-text2">{c.messages?.length || 0} msgs · {new Date(c.updated).toLocaleString()}</span>
+                      </button>
+                      {openChat === c.session_id && (
+                        <div className="max-h-72 space-y-2 overflow-y-auto border-t border-lux-border/60 p-4" data-testid={`transcript-body-${c.session_id}`}>
+                          {(c.messages || []).map((m, i) => (
+                            <p key={i} className={`max-w-[85%] rounded-xl px-3 py-2 text-[13.5px] leading-relaxed ${m.role === "user" ? "ml-auto bg-white/10" : "bg-white/[0.03] text-lux-text2"}`}>
+                              <span className="mr-2 font-mono text-[13.5px] uppercase text-lux-accent">{m.role === "user" ? "Visitor" : "Zion"}</span>
+                              {m.content}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
             </section>
 
             <section className="mt-12" data-testid="admin-team-panel">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="font-display text-2xl font-700 tracking-tight">Frasberg Team</h2>
                 {team && (
-                  <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
+                  <div className="flex flex-wrap items-center gap-2 font-mono text-[13px]">
                     <span className="rounded-full border border-lux-accent/40 px-3 py-1 text-lux-accent" data-testid="team-unlimited-badge">@frasbergai.com · unlimited access</span>
                     <span className="rounded-full border border-lux-border px-3 py-1" data-testid="team-total-members">{team.totals.members} members</span>
                     <span className="rounded-full border border-lux-border px-3 py-1" data-testid="team-total-tokens">{team.totals.tokens.toLocaleString()} tok · {team.month}</span>
@@ -691,7 +726,7 @@ export default function Admin() {
               <div className="mt-4 overflow-x-auto rounded-2xl border border-lux-border" data-testid="admin-team-table">
                 <table className="w-full text-left text-sm">
                   <thead>
-                    <tr className="border-b border-lux-border font-mono text-[10px] uppercase tracking-wide text-lux-text2">
+                    <tr className="border-b border-lux-border font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">
                       <th className="p-3.5">Member</th>
                       <th className="p-3.5">Plan</th>
                       <th className="p-3.5">Keys</th>
@@ -702,24 +737,24 @@ export default function Admin() {
                   </thead>
                   <tbody>
                     {!team && (
-                      <tr><td colSpan={6} className="p-5 font-mono text-xs text-lux-text2">Loading team…</td></tr>
+                      <tr><td colSpan={6} className="p-5 font-mono text-[13px] text-lux-text2">Loading team…</td></tr>
                     )}
                     {team && team.members.length === 0 && (
-                      <tr><td colSpan={6} className="p-5 font-mono text-xs text-lux-text2">No @frasbergai.com accounts yet — team members get unlimited access the moment they sign up.</td></tr>
+                      <tr><td colSpan={6} className="p-5 font-mono text-[13px] text-lux-text2">No @frasbergai.com accounts yet — team members get unlimited access the moment they sign up.</td></tr>
                     )}
                     {team && team.members.map((m) => (
                       <tr key={m.id} className="border-b border-lux-border/50 transition-colors hover:bg-white/[0.02]" data-testid={`team-row-${m.id}`}>
                         <td className="p-3.5">
                           <span className="font-600">{m.name || m.email.split("@")[0]}</span>
-                          <span className="ml-2 font-mono text-[11px] text-lux-text2">{m.email}</span>
+                          <span className="ml-2 font-mono text-[13px] text-lux-text2">{m.email}</span>
                         </td>
                         <td className="p-3.5">
-                          <span className="rounded-full border border-lux-accent/40 px-2.5 py-0.5 font-mono text-[10px] uppercase text-lux-accent">{m.plan} · ∞</span>
+                          <span className="rounded-full border border-lux-accent/40 px-2.5 py-0.5 font-mono text-[13.5px] uppercase text-lux-accent">{m.plan} · ∞</span>
                         </td>
-                        <td className="p-3.5 font-mono text-xs">{m.keys}</td>
-                        <td className="p-3.5 font-mono text-xs">{m.monthly_tokens.toLocaleString()}</td>
-                        <td className="p-3.5 font-mono text-xs">{m.monthly_requests.toLocaleString()}</td>
-                        <td className="p-3.5 font-mono text-[11px] text-lux-text2">{m.last_active ? new Date(m.last_active).toLocaleString() : "—"}</td>
+                        <td className="p-3.5 font-mono text-[13px]">{m.keys}</td>
+                        <td className="p-3.5 font-mono text-[13px]">{m.monthly_tokens.toLocaleString()}</td>
+                        <td className="p-3.5 font-mono text-[13px]">{m.monthly_requests.toLocaleString()}</td>
+                        <td className="p-3.5 font-mono text-[13px] text-lux-text2">{m.last_active ? new Date(m.last_active).toLocaleString() : "—"}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -731,14 +766,14 @@ export default function Admin() {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="font-display text-2xl font-700 tracking-tight">Frasberg Cloud — Universes</h2>
                 <a href="/cloud" target="_blank" rel="noreferrer" data-testid="admin-open-cloud-link"
-                  className="rounded-full border border-lux-border px-4 py-1.5 font-mono text-xs text-lux-text2 hover:border-lux-accent hover:text-lux-text">
+                  className="rounded-full border border-lux-border px-4 py-1.5 font-mono text-[13px] text-lux-text2 hover:border-lux-accent hover:text-lux-text">
                   Open Cloud Console →
                 </a>
               </div>
               <div className="mt-4 overflow-x-auto rounded-2xl border border-lux-border" data-testid="admin-cloud-table">
                 <table className="w-full text-left text-sm">
                   <thead>
-                    <tr className="border-b border-lux-border font-mono text-[10px] uppercase tracking-wide text-lux-text2">
+                    <tr className="border-b border-lux-border font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">
                       <th className="px-4 py-3">Universe</th><th className="px-4 py-3">Phase</th>
                       <th className="px-4 py-3">Tick</th><th className="px-4 py-3">Entropy</th>
                       <th className="px-4 py-3">Stability</th><th className="px-4 py-3">Population</th>
@@ -747,18 +782,18 @@ export default function Admin() {
                   </thead>
                   <tbody>
                     {cloudUniverses.length === 0 && (
-                      <tr><td colSpan="8" className="px-4 py-5 text-center font-mono text-xs text-lux-text2">No universes yet</td></tr>
+                      <tr><td colSpan="8" className="px-4 py-5 text-center font-mono text-[13px] text-lux-text2">No universes yet</td></tr>
                     )}
                     {cloudUniverses.map((u) => (
                       <Fragment key={u.id}>
                       <tr className="border-b border-lux-border/50" data-testid={`admin-universe-row-${u.id}`}>
                         <td className="px-4 py-3 text-lux-text">{u.name}</td>
-                        <td className="px-4 py-3 font-mono text-xs text-lux-accent">{u.phase}</td>
-                        <td className="px-4 py-3 font-mono text-xs">{u.tick}</td>
-                        <td className="px-4 py-3 font-mono text-xs">{u.entropy}</td>
-                        <td className="px-4 py-3 font-mono text-xs">{u.stability}</td>
-                        <td className="px-4 py-3 font-mono text-xs">{u.population.toLocaleString()}</td>
-                        <td className="px-4 py-3 font-mono text-xs">{u.civilizations}</td>
+                        <td className="px-4 py-3 font-mono text-[13px] text-lux-accent">{u.phase}</td>
+                        <td className="px-4 py-3 font-mono text-[13px]">{u.tick}</td>
+                        <td className="px-4 py-3 font-mono text-[13px]">{u.entropy}</td>
+                        <td className="px-4 py-3 font-mono text-[13px]">{u.stability}</td>
+                        <td className="px-4 py-3 font-mono text-[13px]">{u.population.toLocaleString()}</td>
+                        <td className="px-4 py-3 font-mono text-[13px]">{u.civilizations}</td>
                         <td className="px-4 py-3">
                           <div className="flex gap-2">
                             <button data-testid={`admin-universe-tick-${u.id}`}
@@ -767,30 +802,30 @@ export default function Admin() {
                                 toast.success(`${u.name} advanced 10 ticks`);
                                 axios.get(`${API}/cloud/universes`).then((r) => setCloudUniverses(r.data.universes || []));
                               }}
-                              className="rounded-full border border-lux-border px-3 py-1 font-mono text-[10px] hover:border-lux-accent">Tick ×10</button>
+                              className="rounded-full border border-lux-border px-3 py-1 font-mono text-[13.5px] hover:border-lux-accent">Tick ×10</button>
                             <button data-testid={`admin-universe-chronicle-${u.id}`}
                               onClick={() => openChronicle(u)}
-                              className="rounded-full border border-lux-gold/40 px-3 py-1 font-mono text-[10px] text-lux-gold hover:bg-lux-gold/10">Chronicle</button>
+                              className="rounded-full border border-lux-gold/40 px-3 py-1 font-mono text-[13.5px] text-lux-gold hover:bg-lux-gold/10">Chronicle</button>
                             <button data-testid={`admin-universe-snapshot-${u.id}`}
                               onClick={async () => {
                                 const r = await axios.post(`${API}/cloud/universes/${u.id}/snapshots`, {});
                                 toast.success(`Snapshot saved: ${r.data.label}`);
                                 if (snapUniverse === u.id) loadSnapshots(u.id);
                               }}
-                              className="rounded-full border border-lux-border px-3 py-1 font-mono text-[10px] hover:border-lux-accent">Snapshot</button>
+                              className="rounded-full border border-lux-border px-3 py-1 font-mono text-[13.5px] hover:border-lux-accent">Snapshot</button>
                             <button data-testid={`admin-universe-snapshots-${u.id}`}
                               onClick={() => {
                                 if (snapUniverse === u.id) { setSnapUniverse(null); return; }
                                 setSnapUniverse(u.id); loadSnapshots(u.id);
                               }}
-                              className={`rounded-full border px-3 py-1 font-mono text-[10px] ${snapUniverse === u.id ? "border-lux-accent text-lux-accent" : "border-lux-border hover:border-lux-accent"}`}>Restore…</button>
+                              className={`rounded-full border px-3 py-1 font-mono text-[13.5px] ${snapUniverse === u.id ? "border-lux-accent text-lux-accent" : "border-lux-border hover:border-lux-accent"}`}>Restore…</button>
                             <button data-testid={`admin-universe-delete-${u.id}`}
                               onClick={async () => {
                                 await axios.delete(`${API}/cloud/universes/${u.id}`);
                                 toast.success(`${u.name} dissolved`);
                                 reloadCloud();
                               }}
-                              className="rounded-full border border-lux-border px-3 py-1 font-mono text-[10px] text-red-400 hover:border-red-500/60">Dissolve</button>
+                              className="rounded-full border border-lux-border px-3 py-1 font-mono text-[13.5px] text-red-400 hover:border-red-500/60">Dissolve</button>
                           </div>
                         </td>
                       </tr>
@@ -798,22 +833,22 @@ export default function Admin() {
                         <tr className="border-b border-lux-border/50 bg-lux-surface" data-testid={`admin-snapshots-row-${u.id}`}>
                           <td colSpan="8" className="px-4 py-3">
                             {snapshots.length === 0 ? (
-                              <p className="font-mono text-xs text-lux-text2">No snapshots yet — click Snapshot to save this universe's exact state.</p>
+                              <p className="font-mono text-[13px] text-lux-text2">No snapshots yet — click Snapshot to save this universe's exact state.</p>
                             ) : (
                               <div className="flex flex-wrap gap-2">
                                 {snapshots.map((s) => (
                                   <div key={s.id} className="flex items-center gap-2 rounded-full border border-lux-border px-3 py-1.5" data-testid={`snapshot-chip-${s.id}`}>
-                                    <span className="font-mono text-[10px] text-lux-text2">{s.label} · {s.created.slice(0, 16).replace("T", " ")}</span>
+                                    <span className="font-mono text-[13.5px] text-lux-text2">{s.label} · {s.created.slice(0, 16).replace("T", " ")}</span>
                                     <button data-testid={`snapshot-restore-${s.id}`}
                                       onClick={async () => {
                                         await axios.post(`${API}/cloud/snapshots/${s.id}/restore`);
                                         toast.success(`Restored to "${s.label}"`);
                                         reloadCloud();
                                       }}
-                                      className="rounded-full border border-emerald-400/50 px-2.5 py-0.5 font-mono text-[9px] uppercase text-emerald-400 hover:bg-emerald-400/10">Restore</button>
+                                      className="rounded-full border border-emerald-400/50 px-2.5 py-0.5 font-mono text-[13.5px] uppercase text-emerald-400 hover:bg-emerald-400/10">Restore</button>
                                     <button data-testid={`snapshot-delete-${s.id}`}
                                       onClick={async () => { await axios.delete(`${API}/cloud/snapshots/${s.id}`); loadSnapshots(u.id); }}
-                                      className="font-mono text-[10px] text-lux-text2 hover:text-red-400">✕</button>
+                                      className="font-mono text-[13.5px] text-lux-text2 hover:text-red-400">✕</button>
                                   </div>
                                 ))}
                               </div>
@@ -836,28 +871,28 @@ export default function Admin() {
                     <div className="flex gap-2">
                       {chronicleU.data && (
                         <button onClick={narrateChronicleAdmin} data-testid="admin-chronicle-narrate-btn"
-                          className={`rounded-full border px-4 py-1.5 font-mono text-[11px] ${chronPlaying ? "border-emerald-400/60 text-emerald-400" : "border-lux-gold/50 text-lux-gold hover:bg-lux-gold/10"}`}>
+                          className={`rounded-full border px-4 py-1.5 font-mono text-[13px] ${chronPlaying ? "border-emerald-400/60 text-emerald-400" : "border-lux-gold/50 text-lux-gold hover:bg-lux-gold/10"}`}>
                           {chronPlaying === "loading" ? "Summoning voice…" : chronPlaying ? "◼ Stop" : "🔊 Read aloud"}
                         </button>
                       )}
                       <button onClick={writeChronicleAdmin} disabled={chronWriting} data-testid="admin-chronicle-write-btn"
-                        className="rounded-full border border-lux-gold/50 px-4 py-1.5 font-mono text-[11px] text-lux-gold hover:bg-lux-gold/10 disabled:opacity-50">
+                        className="rounded-full border border-lux-gold/50 px-4 py-1.5 font-mono text-[13px] text-lux-gold hover:bg-lux-gold/10 disabled:opacity-50">
                         {chronWriting ? "Writing…" : chronicleU.data ? "Rewrite" : "Write Chronicle"}
                       </button>
                       <button onClick={closeChronicle} data-testid="admin-chronicle-close" aria-label="Close"
-                        className="rounded-full border border-lux-border px-3 py-1.5 font-mono text-[11px] text-lux-text2 hover:border-lux-accent">✕</button>
+                        className="rounded-full border border-lux-border px-3 py-1.5 font-mono text-[13px] text-lux-text2 hover:border-lux-accent">✕</button>
                     </div>
                   </div>
                   <div className="mt-4" data-testid="admin-chronicle-body">
                     {chronicleU.loading ? (
-                      <p className="font-mono text-xs text-lux-text2">Loading…</p>
+                      <p className="font-mono text-[13px] text-lux-text2">Loading…</p>
                     ) : chronicleU.data ? (
                       <>
                         <p className="whitespace-pre-wrap font-display text-sm italic leading-relaxed text-lux-text2">{chronicleU.data.text}</p>
-                        <p className="mt-3 font-mono text-[9px] uppercase tracking-[0.2em] text-lux-text2">Inscribed at tick {chronicleU.data.tick}</p>
+                        <p className="mt-3 font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2">Inscribed at tick {chronicleU.data.tick}</p>
                       </>
                     ) : (
-                      <p className="text-xs text-lux-text2">No chronicle yet — click "Write Chronicle" and the Chronicle-Keeper will inscribe this universe's history.</p>
+                      <p className="text-[13px] text-lux-text2">No chronicle yet — click "Write Chronicle" and the Chronicle-Keeper will inscribe this universe's history.</p>
                     )}
                   </div>
                 </div>
@@ -868,18 +903,18 @@ export default function Admin() {
               <h2 className="font-display text-2xl font-700 tracking-tight">Admin audit log</h2>
               <div className="mt-4 overflow-hidden rounded-2xl border border-lux-border">
                 {audit.length === 0 ? (
-                  <p className="p-5 font-mono text-xs text-lux-text2">No admin actions recorded yet.</p>
+                  <p className="p-5 font-mono text-[13px] text-lux-text2">No admin actions recorded yet.</p>
                 ) : (
                   audit.slice(0, 25).map((a) => (
                     <div key={a.id} className="flex flex-wrap items-center justify-between gap-2 border-b border-lux-border px-5 py-2.5 last:border-0" data-testid={`audit-row-${a.id}`}>
                       <div className="flex items-center gap-3">
-                        <span className="rounded-full border border-lux-accent/40 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wide text-lux-accent">{a.action.replace(/_/g, " ")}</span>
-                        <span className="font-mono text-xs text-lux-text2">{a.admin_email}</span>
+                        <span className="rounded-full border border-lux-accent/40 px-2.5 py-0.5 font-mono text-[13.5px] uppercase tracking-wide text-lux-accent">{a.action.replace(/_/g, " ")}</span>
+                        <span className="font-mono text-[13px] text-lux-text2">{a.admin_email}</span>
                         {a.detail && Object.keys(a.detail).length > 0 && (
-                          <span className="font-mono text-[10px] text-lux-text2">{JSON.stringify(a.detail).slice(0, 80)}</span>
+                          <span className="font-mono text-[13.5px] text-lux-text2">{JSON.stringify(a.detail).slice(0, 80)}</span>
                         )}
                       </div>
-                      <span className="font-mono text-[10px] text-lux-text2">{(a.ts || "").slice(0, 16).replace("T", " ")}</span>
+                      <span className="font-mono text-[13.5px] text-lux-text2">{(a.ts || "").slice(0, 16).replace("T", " ")}</span>
                     </div>
                   ))
                 )}
@@ -890,7 +925,7 @@ export default function Admin() {
               <h2 className="font-display text-2xl font-700 tracking-tight">Users</h2>
               <div className="mt-4 overflow-x-auto rounded-2xl border border-lux-border" data-testid="admin-users-table">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-lux-surface font-mono text-[10px] uppercase tracking-wide text-lux-text2">
+                  <thead className="bg-lux-surface font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">
                     <tr><th className="p-3">Email</th><th className="p-3">Name</th><th className="p-3">Plan</th><th className="p-3">Role</th><th className="p-3">Joined</th></tr>
                   </thead>
                   <tbody>
@@ -900,7 +935,7 @@ export default function Admin() {
                         <td className="p-3 text-lux-text2">{u.name}</td>
                         <td className="p-3"><span className={u.plan === "pro" ? "text-lux-accent" : "text-lux-text2"}>{u.plan}</span></td>
                         <td className="p-3 text-lux-text2">{u.role}</td>
-                        <td className="p-3 font-mono text-xs text-lux-text2">{(u.created_at || "").slice(0, 10)}</td>
+                        <td className="p-3 font-mono text-[13px] text-lux-text2">{(u.created_at || "").slice(0, 10)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -915,9 +950,9 @@ export default function Admin() {
                   <div key={c.session_id} className="flex items-center justify-between gap-4 rounded-xl border border-lux-border bg-lux-surface/60 px-4 py-3">
                     <div className="min-w-0">
                       <p className="truncate text-sm">{c.title}</p>
-                      <p className="mt-0.5 font-mono text-[10px] text-lux-text2">{c.user_email} · {c.count} msgs · {c.model}</p>
+                      <p className="mt-0.5 font-mono text-[13.5px] text-lux-text2">{c.user_email} · {c.count} msgs · {c.model}</p>
                     </div>
-                    <span className="shrink-0 font-mono text-[10px] text-lux-text2">{(c.last_ts || "").slice(0, 16).replace("T", " ")}</span>
+                    <span className="shrink-0 font-mono text-[13.5px] text-lux-text2">{(c.last_ts || "").slice(0, 16).replace("T", " ")}</span>
                   </div>
                 ))}
               </div>
@@ -930,11 +965,11 @@ export default function Admin() {
                 {payments.map((p) => (
                   <div key={p.reference} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-lux-border bg-lux-surface/60 px-4 py-3" data-testid={`admin-cashapp-${p.reference}`}>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-600">{p.plan_name} · ${p.amount} <span className="font-mono text-[11px] text-lux-accent">{p.reference}</span></p>
-                      <p className="mt-0.5 font-mono text-[10px] text-lux-text2">{p.user_email} · from {p.sender_cashtag || "—"} {p.note ? `· "${p.note}"` : ""}</p>
+                      <p className="truncate text-sm font-600">{p.plan_name} · ${p.amount} <span className="font-mono text-[13px] text-lux-accent">{p.reference}</span></p>
+                      <p className="mt-0.5 font-mono text-[13.5px] text-lux-text2">{p.user_email} · from {p.sender_cashtag || "—"} {p.note ? `· "${p.note}"` : ""}</p>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
-                      <span className={`rounded-full border px-3 py-1 font-mono text-[10px] uppercase ${
+                      <span className={`rounded-full border px-3 py-1 font-mono text-[13.5px] uppercase ${
                         p.status === "approved" ? "border-green-500 text-green-400" :
                         p.status === "pending_review" ? "border-amber-500 text-amber-400" :
                         p.status === "rejected" ? "border-red-500 text-red-400" : "border-lux-border text-lux-text2"}`}>
@@ -943,9 +978,9 @@ export default function Admin() {
                       {p.status === "pending_review" && (
                         <>
                           <button onClick={() => decidePayment(p.reference, "approve")} data-testid={`admin-cashapp-approve-${p.reference}`}
-                            className="rounded-full bg-green-500/90 px-4 py-1.5 text-xs font-600 text-black hover:bg-green-400">Approve</button>
+                            className="rounded-full bg-green-500/90 px-4 py-1.5 text-[13px] font-600 text-black hover:bg-green-400">Approve</button>
                           <button onClick={() => decidePayment(p.reference, "reject")} data-testid={`admin-cashapp-reject-${p.reference}`}
-                            className="rounded-full border border-lux-border px-4 py-1.5 text-xs text-lux-text2 hover:border-red-400 hover:text-red-400">Reject</button>
+                            className="rounded-full border border-lux-border px-4 py-1.5 text-[13px] text-lux-text2 hover:border-red-400 hover:text-red-400">Reject</button>
                         </>
                       )}
                     </div>
@@ -965,18 +1000,18 @@ export default function Admin() {
                       <span className="text-lux-text2">{b.type === "game" ? <Gamepad2 size={15} /> : b.type === "app" ? <AppWindow size={15} /> : <Globe size={15} />}</span>
                       <div className="min-w-0">
                         <p className="truncate text-sm font-600">{b.title}</p>
-                        <p className="mt-0.5 font-mono text-[10px] text-lux-text2">/{b.slug} · {b.plays || 0} plays{b.custom_domain ? ` · ${b.custom_domain}` : ""}</p>
+                        <p className="mt-0.5 font-mono text-[13.5px] text-lux-text2">/{b.slug} · {b.plays || 0} plays{b.custom_domain ? ` · ${b.custom_domain}` : ""}</p>
                       </div>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
-                      {b.hidden && <span className="rounded-full border border-red-500 px-3 py-1 font-mono text-[10px] uppercase text-red-400">hidden</span>}
-                      {b.featured && !b.hidden && <span className="rounded-full border border-lux-accent px-3 py-1 font-mono text-[10px] uppercase text-lux-accent">featured</span>}
+                      {b.hidden && <span className="rounded-full border border-red-500 px-3 py-1 font-mono text-[13.5px] uppercase text-red-400">hidden</span>}
+                      {b.featured && !b.hidden && <span className="rounded-full border border-lux-accent px-3 py-1 font-mono text-[13.5px] uppercase text-lux-accent">featured</span>}
                       <button onClick={() => curateBuild(b.id, { featured: !b.featured })} data-testid={`admin-build-feature-${b.slug}`}
-                        className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-xs ${b.featured ? "border-lux-accent text-lux-accent" : "border-lux-border text-lux-text2 hover:border-lux-accent hover:text-lux-text"}`}>
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-[13px] ${b.featured ? "border-lux-accent text-lux-accent" : "border-lux-border text-lux-text2 hover:border-lux-accent hover:text-lux-text"}`}>
                         <Star size={12} /> {b.featured ? "Unfeature" : "Feature"}
                       </button>
                       <button onClick={() => curateBuild(b.id, { hidden: !b.hidden })} data-testid={`admin-build-hide-${b.slug}`}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-1.5 text-xs text-lux-text2 hover:border-red-400 hover:text-red-400">
+                        className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-1.5 text-[13px] text-lux-text2 hover:border-red-400 hover:text-red-400">
                         {b.hidden ? <><Eye size={12} /> Show</> : <><EyeOff size={12} /> Hide</>}
                       </button>
                     </div>
@@ -1018,7 +1053,7 @@ export default function Admin() {
                   <div key={d.id} className="flex items-start justify-between gap-4 rounded-xl border border-lux-border bg-lux-surface/60 p-4">
                     <div className="min-w-0">
                       <p className="text-sm font-600 text-lux-text">{d.title}</p>
-                      <p className="mt-1 line-clamp-2 text-xs text-lux-text2">{d.content}</p>
+                      <p className="mt-1 line-clamp-2 text-[13px] text-lux-text2">{d.content}</p>
                     </div>
                     <div className="flex shrink-0 gap-2">
                       <button onClick={() => setEditing({ id: d.id, title: d.title, content: d.content, tagsText: (d.tags || []).join(", ") })}

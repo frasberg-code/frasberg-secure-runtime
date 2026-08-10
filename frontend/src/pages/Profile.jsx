@@ -173,10 +173,10 @@ export default function Profile() {
                 <h1 className="flex items-center gap-3 font-display text-3xl font-700 tracking-tighter" data-testid="profile-name-display">
                   {user.name}
                   {user.plan === "premium" && (
-                    <span className="rounded-full border border-amber-400/50 bg-amber-400/10 px-3 py-1 font-mono text-[10px] font-700 uppercase tracking-[0.15em] text-amber-300" data-testid="profile-premium-badge">Premium</span>
+                    <span className="rounded-full border border-amber-400/50 bg-amber-400/10 px-3 py-1 font-mono text-[13.5px] font-700 uppercase tracking-[0.15em] text-amber-300" data-testid="profile-premium-badge">Premium</span>
                   )}
                 </h1>
-                <p className="font-mono text-xs text-lux-text2">{user.email} · <span className="uppercase text-lux-accent">{user.plan} plan</span></p>
+                <p className="font-mono text-[13px] text-lux-text2">{user.email} · <span className="uppercase text-lux-accent">{user.plan} plan</span></p>
               </div>
             </div>
 
@@ -214,21 +214,21 @@ export default function Profile() {
                   <h2 className="flex items-center gap-2 font-display text-xl font-600 tracking-tight">
                     <CalendarDays size={19} className="text-lux-accent" /> Your subscription
                   </h2>
-                  <span className={`rounded-full border px-3 py-1 font-mono text-[10px] font-700 uppercase tracking-[0.15em] ${user.plan === "premium" ? "border-amber-400/50 bg-amber-400/10 text-amber-300" : "border-lux-accent/50 bg-lux-accent/10 text-lux-accent"}`} data-testid="subscription-plan-badge">
+                  <span className={`rounded-full border px-3 py-1 font-mono text-[13.5px] font-700 uppercase tracking-[0.15em] ${user.plan === "premium" ? "border-amber-400/50 bg-amber-400/10 text-amber-300" : "border-lux-accent/50 bg-lux-accent/10 text-lux-accent"}`} data-testid="subscription-plan-badge">
                     {user.plan}
                   </span>
                 </div>
                 <div className="mt-5 grid gap-4 sm:grid-cols-3">
                   <div>
-                    <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">Started</p>
+                    <p className="font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">Started</p>
                     <p className="mt-1 text-sm font-600" data-testid="subscription-started">{user.plan_started ? user.plan_started.slice(0, 10) : "—"}</p>
                   </div>
                   <div>
-                    <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">Renews by</p>
+                    <p className="font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">Renews by</p>
                     <p className="mt-1 text-sm font-600" data-testid="subscription-renews">{user.plan_expires ? user.plan_expires.slice(0, 10) : "No expiry"}</p>
                   </div>
                   <div>
-                    <p className="font-mono text-[10px] uppercase tracking-wide text-lux-text2">Days left</p>
+                    <p className="font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">Days left</p>
                     <p className="mt-1 text-sm font-600" data-testid="subscription-days-left">
                       {user.plan_expires ? Math.max(0, Math.ceil((new Date(user.plan_expires) - Date.now()) / 86400000)) : "∞"}
                     </p>
@@ -244,7 +244,7 @@ export default function Profile() {
                     Renew early
                   </Link>
                 </div>
-                <p className="mt-4 text-xs leading-relaxed text-lux-text2">
+                <p className="mt-4 text-[13px] leading-relaxed text-lux-text2">
                   Paying for any plan switches you to it instantly and resets your renewal date. If a plan lapses, your account moves to Free automatically — nothing is deleted.
                 </p>
               </div>
@@ -303,7 +303,7 @@ export default function Profile() {
                             onError={() => toast.error("PayPal error — please try again")}
                           />
                         </PayPalScriptProvider>
-                        <button onClick={() => setShowPay(false)} className="mt-2 w-full text-center font-mono text-xs text-lux-text2 hover:text-lux-text">cancel</button>
+                        <button onClick={() => setShowPay(false)} className="mt-2 w-full text-center font-mono text-[13px] text-lux-text2 hover:text-lux-text">cancel</button>
                       </div>
                     ) : (
                       <button
@@ -315,7 +315,7 @@ export default function Profile() {
                       </button>
                     )
                   ) : (
-                    <p className="mt-5 font-mono text-xs text-lux-text2">Checkout unavailable — PayPal not configured.</p>
+                    <p className="mt-5 font-mono text-[13px] text-lux-text2">Checkout unavailable — PayPal not configured.</p>
                   )}
                   <Link to="/pay" data-testid="profile-cashapp-link"
                     className="mt-3 flex w-full items-center justify-center gap-2 rounded-full border border-[#00d64f]/50 px-6 py-3 text-sm font-600 text-[#00d64f] transition-colors hover:bg-[#00d64f]/10">
@@ -330,14 +330,14 @@ export default function Profile() {
                 className="mt-6 flex items-center justify-between rounded-2xl border border-lux-border bg-lux-surface p-6 transition-colors hover:border-lux-accent">
                 <div>
                   <h2 className="font-display text-xl font-600 tracking-tight">My certified downloads</h2>
-                  <p className="mt-1 text-xs text-lux-text2">Every court PDF you own — re-download any time, free.</p>
+                  <p className="mt-1 text-[13px] text-lux-text2">Every court PDF you own — re-download any time, free.</p>
                 </div>
-                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-lux-accent">Open →</span>
+                <span className="font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-accent">Open →</span>
               </Link>
             )}
             <div className="mt-6 rounded-2xl border border-lux-border bg-lux-surface p-7" data-testid="profile-memory-card">
               <h2 className="font-display text-xl font-600 tracking-tight">Memory Manager</h2>
-              <p className="mt-2 text-xs text-lux-text2">Everything Luchii remembers about you. Add, edit or delete any fact — she uses them to personalize every reply.</p>
+              <p className="mt-2 text-[13px] text-lux-text2">Everything Luchii remembers about you. Add, edit or delete any fact — she uses them to personalize every reply.</p>
               <form onSubmit={addMemory} className="mt-4 flex gap-2">
                 <input value={newFact} onChange={(e) => setNewFact(e.target.value)} placeholder="Teach Luchii a fact about you…"
                   data-testid="memory-add-input"
@@ -356,8 +356,8 @@ export default function Profile() {
                         <input value={editText} onChange={(e) => setEditText(e.target.value)} autoFocus
                           data-testid={`memory-edit-input-${m.id}`}
                           className="flex-1 rounded-lg border border-lux-accent bg-lux-surface px-3 py-1.5 text-sm text-lux-text outline-none" />
-                        <button type="submit" data-testid={`memory-save-${m.id}`} className="font-mono text-[10px] uppercase text-lux-accent">save</button>
-                        <button type="button" onClick={() => setEditId(null)} className="font-mono text-[10px] uppercase text-lux-text2">cancel</button>
+                        <button type="submit" data-testid={`memory-save-${m.id}`} className="font-mono text-[13.5px] uppercase text-lux-accent">save</button>
+                        <button type="button" onClick={() => setEditId(null)} className="font-mono text-[13.5px] uppercase text-lux-text2">cancel</button>
                       </form>
                     ) : (
                       <>
@@ -366,7 +366,7 @@ export default function Profile() {
                           <button onClick={() => { setEditId(m.id); setEditText(m.fact); }} aria-label="Edit" data-testid={`memory-edit-${m.id}`}
                             className="text-lux-text2 hover:text-lux-accent"><Pencil size={13} /></button>
                           <button onClick={() => forget(m.id)} aria-label="Forget" data-testid={`memory-forget-${m.id}`}
-                            className="font-mono text-[10px] uppercase text-lux-text2 hover:text-red-400">forget</button>
+                            className="font-mono text-[13.5px] uppercase text-lux-text2 hover:text-red-400">forget</button>
                         </span>
                       </>
                     )}
@@ -377,12 +377,12 @@ export default function Profile() {
 
             <div className="mt-6 rounded-2xl border border-lux-border bg-lux-surface p-7" data-testid="profile-voice-clone-card">
               <h2 className="flex items-center gap-2 font-display text-xl font-600 tracking-tight"><AudioWaveform size={18} className="text-lux-accent" /> My Voice</h2>
-              <p className="mt-2 text-xs text-lux-text2">
+              <p className="mt-2 text-[13px] text-lux-text2">
                 Record a short sample (5-15 seconds of natural speech) and Luchii will answer in your own cloned voice —
                 built entirely on Frasberg infrastructure. Pick "My Voice" in the chat voice gallery once saved.
               </p>
               {voiceClone?.has_sample && (
-                <p className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-lux-accent/50 px-3 py-1 font-mono text-[10px] uppercase tracking-wide text-lux-accent" data-testid="voice-clone-active">
+                <p className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-lux-accent/50 px-3 py-1 font-mono text-[13.5px] uppercase tracking-wide text-lux-accent" data-testid="voice-clone-active">
                   <Check size={11} /> Cloned voice active
                 </p>
               )}
@@ -396,13 +396,13 @@ export default function Profile() {
                 </button>
                 {voiceClone?.has_sample && (
                   <button onClick={deleteVoiceSample} data-testid="voice-clone-delete-btn"
-                    className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-5 py-3 text-xs text-lux-text2 transition-colors hover:border-red-400 hover:text-red-400">
+                    className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-5 py-3 text-[13px] text-lux-text2 transition-colors hover:border-red-400 hover:text-red-400">
                     <Trash2 size={13} /> Remove
                   </button>
                 )}
               </div>
               {voiceClone && voiceClone.cloning_status !== "ready" && (
-                <p className="mt-3 font-mono text-[10px] uppercase tracking-wide text-lux-text2" data-testid="voice-clone-engine-status">
+                <p className="mt-3 font-mono text-[13.5px] uppercase tracking-wide text-lux-text2" data-testid="voice-clone-engine-status">
                   Cloning engine: {voiceClone.cloning_status === "loading" ? "warming up…" : voiceClone.cloning_status}
                 </p>
               )}

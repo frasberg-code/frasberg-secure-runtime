@@ -54,7 +54,7 @@ export default function Software() {
       </header>
 
       <div className="relative mx-auto max-w-6xl px-5 py-14 sm:px-8">
-        <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-lux-accent">Shipping, not slides</p>
+        <p className="font-mono text-[13px] uppercase tracking-[0.3em] text-lux-accent">Shipping, not slides</p>
         <h1 className="mt-4 max-w-3xl font-display text-4xl font-700 tracking-tighter sm:text-5xl lg:text-6xl">
           Everything Frasberg ships. All real. All live.
         </h1>
@@ -70,14 +70,14 @@ export default function Software() {
                 <span className="grid h-11 w-11 place-items-center rounded-full border border-lux-accent/40 text-lux-accent" style={{ boxShadow: "0 0 26px var(--lux-glow)" }}>
                   <p.icon size={18} />
                 </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 px-2.5 py-1 font-mono text-[9px] uppercase tracking-wide text-emerald-400">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 px-2.5 py-1 font-mono text-[13.5px] uppercase tracking-wide text-emerald-400">
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" /> Live
                 </span>
               </div>
               <h2 className="mt-5 font-display text-xl font-700 tracking-tight">{p.name}</h2>
-              <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-lux-accent">{p.tag}</p>
+              <p className="mt-1 font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-accent">{p.tag}</p>
               <p className="mt-3 flex-1 text-sm leading-relaxed text-lux-text2">{p.desc}</p>
-              <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-600 text-lux-text transition-transform duration-200 group-hover:translate-x-1">
+              <span className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-600 text-lux-text transition-transform duration-200 group-hover:translate-x-1">
                 Use it now <ArrowUpRight size={13} />
               </span>
             </Link>

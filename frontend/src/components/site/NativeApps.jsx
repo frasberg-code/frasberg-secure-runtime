@@ -5,14 +5,10 @@ import { Smartphone, Download, Trash2, RefreshCw, Play, Sparkles, Upload, X } fr
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const BASE = process.env.REACT_APP_BACKEND_URL;
 
-const T = {
-  surface: "#121316", inset: "#050505",
-  border: "rgba(255,255,255,0.08)", borderSubtle: "rgba(255,255,255,0.04)",
-  text: "#EDEDED", text2: "#8A8F98", muted: "#525860", accent: "#00F0FF",
-};
+const T = require("../../lib/dashTheme").T;
 
-const input = "rounded-sm border px-3 py-2 font-mono text-[12px] outline-none";
-const inputStyle = { borderColor: T.border, background: T.inset, color: T.text };
+const input = "rounded-sm border px-3 py-2 font-mono text-[13.5px] outline-none";
+const inputStyle = () => ({ borderColor: T.border, background: T.inset, color: T.text });
 
 function StatusChip({ s, ios }) {
   const store = ios ? "App Store" : "Google Play";
@@ -23,7 +19,7 @@ function StatusChip({ s, ios }) {
   };
   const m = map[s] || map.built;
   return (
-    <span className="flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wide"
+    <span className="flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[13.5px] uppercase tracking-wide"
       style={{ borderColor: `${m.c}66`, color: m.c }}>
       <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: m.c }} /> {m.label}
     </span>
@@ -40,7 +36,7 @@ function StoreListingPreview({ b, title, desc, onChanged }) {
   };
   return (
     <div className="w-full max-w-md shrink-0 rounded-xl border p-4" style={{ borderColor: T.border, background: "#0C0D10" }} data-testid={`store-preview-${b.id}`}>
-      <p className="mb-3 font-mono text-[9.5px] uppercase tracking-[0.2em]" style={{ color: ios ? "#0A84FF" : "#01B47A" }}>
+      <p className="mb-3 font-mono text-[13.5px] uppercase tracking-[0.2em]" style={{ color: ios ? "#0A84FF" : "#01B47A" }}>
         {ios ? " App Store — listing preview" : "▶ Google Play — listing preview"}
       </p>
       <div className="flex items-center gap-3">
@@ -51,10 +47,10 @@ function StoreListingPreview({ b, title, desc, onChanged }) {
         )}
         <div className="min-w-0 flex-1">
           <p className="truncate text-[15px] font-700" style={{ color: T.text }} data-testid={`store-preview-title-${b.id}`}>{title || b.app_name}</p>
-          <p className="truncate text-[12px]" style={{ color: ios ? T.text2 : "#01B47A" }}>{ios ? (desc || "Frasberg Inc.") : "Frasberg Inc."}</p>
-          <p className="mt-0.5 text-[10.5px]" style={{ color: T.muted }}>{ios ? "Designed for iPhone" : "Contains no ads · Free"}</p>
+          <p className="truncate text-[13.5px]" style={{ color: ios ? T.text2 : "#01B47A" }}>{ios ? (desc || "Frasberg Inc.") : "Frasberg Inc."}</p>
+          <p className="mt-0.5 text-[13.5px]" style={{ color: T.muted }}>{ios ? "Designed for iPhone" : "Contains no ads · Free"}</p>
         </div>
-        <span className="rounded-full px-5 py-1.5 text-[12.5px] font-700" style={{ background: ios ? "#0A84FF" : "#01875F", color: "#fff" }}>
+        <span className="rounded-full px-5 py-1.5 text-[13.5px] font-700" style={{ background: ios ? "#0A84FF" : "#01875F", color: "#fff" }}>
           {ios ? "GET" : "Install"}
         </span>
       </div>
@@ -62,7 +58,7 @@ function StoreListingPreview({ b, title, desc, onChanged }) {
         {[["4.8 ★", `${(123 + b.version * 7)} ratings`], [ios ? "#12" : "10K+", ios ? "Productivity" : "Downloads"], [ios ? "4+" : "E", ios ? "Age" : "Everyone"]].map(([v, l]) => (
           <div key={l}>
             <p className="text-[13px] font-700" style={{ color: T.text }}>{v}</p>
-            <p className="font-mono text-[9px] uppercase" style={{ color: T.muted }}>{l}</p>
+            <p className="font-mono text-[13.5px] uppercase" style={{ color: T.muted }}>{l}</p>
           </div>
         ))}
       </div>
@@ -86,14 +82,14 @@ function StoreListingPreview({ b, title, desc, onChanged }) {
         <div className="grid h-[170px] w-[96px] shrink-0 place-items-center rounded-lg border p-2 text-center" style={{ borderColor: T.borderSubtle, background: "linear-gradient(160deg, #101B2E, #06131F)" }}>
           <div>
             {b.has_icon && <img src={`${BASE}/api/native/builds/${b.id}/icon`} alt="" className="mx-auto h-9 w-9 rounded-lg" />}
-            <p className="mt-2 text-[10px] font-700 leading-tight" style={{ color: T.text }}>{title || b.app_name}</p>
+            <p className="mt-2 text-[13.5px] font-700 leading-tight" style={{ color: T.text }}>{title || b.app_name}</p>
             <p className="mt-1 text-[7.5px] leading-snug" style={{ color: T.text2 }}>{desc || "Built with Luchii"}</p>
           </div>
         </div>
       </div>
       <div className="mt-3">
-        <p className="font-mono text-[9px] uppercase tracking-wide" style={{ color: T.muted }}>About this app</p>
-        <p className="mt-1 text-[11px] leading-relaxed" style={{ color: T.text2 }} data-testid={`store-preview-desc-${b.id}`}>
+        <p className="font-mono text-[13.5px] uppercase tracking-wide" style={{ color: T.muted }}>About this app</p>
+        <p className="mt-1 text-[13px] leading-relaxed" style={{ color: T.text2 }} data-testid={`store-preview-desc-${b.id}`}>
           {desc || "Add a short description to see it here — this is exactly how your listing card will read in the store."}
         </p>
       </div>
@@ -246,7 +242,7 @@ export const NativeApps = () => {
         <h2 className="flex items-center gap-2 text-[15px] font-700 tracking-tight" style={{ color: T.text }}>
           <Smartphone size={14} style={{ color: T.accent }} /> Native apps · Android & iOS
         </h2>
-        <button onClick={load} className="flex items-center gap-1.5 rounded-sm border px-3 py-1.5 font-mono text-[11px]"
+        <button onClick={load} className="flex items-center gap-1.5 rounded-sm border px-3 py-1.5 font-mono text-[13px]"
           style={{ borderColor: T.border, color: T.text2 }} data-testid="native-refresh-btn">
           <RefreshCw size={11} /> Refresh
         </button>
@@ -254,12 +250,12 @@ export const NativeApps = () => {
 
       {/* Build form */}
       <div className="rounded-sm border p-5" style={{ borderColor: T.border, background: T.surface }} data-testid="native-build-form">
-        <p className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: T.text2 }}>Package a published app</p>
+        <p className="font-mono text-[13.5px] uppercase tracking-[0.18em]" style={{ color: T.text2 }}>Package a published app</p>
         <div className="mt-3 flex rounded-sm border p-0.5" style={{ borderColor: T.border, width: "fit-content" }} data-testid="native-platform-toggle">
           {[["android", "🤖 Android"], ["ios", " iOS"]].map(([k, label]) => (
             <button key={k} onClick={() => { setPlatform(k); if (sel) { const a = apps.find((x) => x.id === sel); if (a) setPkg((p) => p); } }}
               data-testid={`native-platform-${k}`}
-              className="rounded-sm px-4 py-1.5 font-mono text-[11px] transition-colors"
+              className="rounded-sm px-4 py-1.5 font-mono text-[13px] transition-colors"
               style={platform === k ? { background: "rgba(255,255,255,0.1)", color: T.text } : { color: T.text2 }}>
               {label}
             </button>
@@ -267,29 +263,29 @@ export const NativeApps = () => {
         </div>
         <div className="mt-3 flex flex-wrap items-end gap-3">
           <label className="flex flex-col gap-1.5">
-            <span className="font-mono text-[10px] uppercase" style={{ color: T.muted }}>Published app</span>
-            <select value={sel} onChange={(e) => pickApp(e.target.value)} className={input} style={{ ...inputStyle, minWidth: 220 }} data-testid="native-app-select">
+            <span className="font-mono text-[13.5px] uppercase" style={{ color: T.muted }}>Published app</span>
+            <select value={sel} onChange={(e) => pickApp(e.target.value)} className={input} style={{ ...inputStyle(), minWidth: 220 }} data-testid="native-app-select">
               <option value="">Select an app…</option>
               {apps.map((a) => <option key={a.id} value={a.id}>{a.title} · v{a.version}</option>)}
             </select>
           </label>
           <label className="flex flex-col gap-1.5">
-            <span className="font-mono text-[10px] uppercase" style={{ color: T.muted }}>App name</span>
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="My App" className={input} style={inputStyle} data-testid="native-name-input" />
+            <span className="font-mono text-[13.5px] uppercase" style={{ color: T.muted }}>App name</span>
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="My App" className={input} style={inputStyle()} data-testid="native-name-input" />
           </label>
           <label className="flex flex-col gap-1.5">
-            <span className="font-mono text-[10px] uppercase" style={{ color: T.muted }}>{platform === "ios" ? "Bundle ID" : "Package ID"}</span>
-            <input value={pkg} onChange={(e) => setPkg(e.target.value)} placeholder="com.frasberg.myapp" className={input} style={{ ...inputStyle, minWidth: 220 }} data-testid="native-package-input" />
+            <span className="font-mono text-[13.5px] uppercase" style={{ color: T.muted }}>{platform === "ios" ? "Bundle ID" : "Package ID"}</span>
+            <input value={pkg} onChange={(e) => setPkg(e.target.value)} placeholder="com.frasberg.myapp" className={input} style={{ ...inputStyle(), minWidth: 220 }} data-testid="native-package-input" />
           </label>
           <button onClick={build} disabled={building} data-testid="native-build-btn"
-            className="rounded-sm px-5 py-2 font-mono text-[12px] font-600 transition-opacity hover:opacity-85 disabled:opacity-50"
+            className="rounded-sm px-5 py-2 font-mono text-[13.5px] font-600 transition-opacity hover:opacity-85 disabled:opacity-50"
             style={{ background: T.accent, color: "#08090A" }}>
             {building ? "Building…" : platform === "ios" ? "⚒ Build iOS package" : "⚒ Build Android package"}
           </button>
         </div>
         {/* Launcher icon */}
         <div className="mt-4 flex flex-wrap items-center gap-3 border-t pt-4" style={{ borderColor: T.borderSubtle }} data-testid="native-icon-row">
-          <span className="font-mono text-[10px] uppercase" style={{ color: T.muted }}>Launcher icon</span>
+          <span className="font-mono text-[13.5px] uppercase" style={{ color: T.muted }}>Launcher icon</span>
           {icon ? (
             <span className="relative inline-block">
               <img src={icon} alt="App icon" className="h-12 w-12 rounded-xl border object-cover" style={{ borderColor: T.border }} data-testid="native-icon-preview" />
@@ -300,28 +296,28 @@ export const NativeApps = () => {
               </button>
             </span>
           ) : (
-            <span className="grid h-12 w-12 place-items-center rounded-xl border font-mono text-[9px]" style={{ borderColor: T.border, color: T.muted }}>none</span>
+            <span className="grid h-12 w-12 place-items-center rounded-xl border font-mono text-[13.5px]" style={{ borderColor: T.border, color: T.muted }}>none</span>
           )}
           <input ref={iconRef} type="file" hidden accept="image/*" onChange={onIconFile} data-testid="native-icon-file-input" />
           <button onClick={() => iconRef.current?.click()} data-testid="native-icon-upload-btn"
-            className="flex items-center gap-1.5 rounded-sm border px-3.5 py-1.5 font-mono text-[11px]"
+            className="flex items-center gap-1.5 rounded-sm border px-3.5 py-1.5 font-mono text-[13px]"
             style={{ borderColor: T.border, color: T.text2 }}>
             <Upload size={11} /> Upload
           </button>
           <select value={iconStyle} onChange={(e) => setIconStyle(e.target.value)} data-testid="native-icon-style-select"
-            className={input} style={inputStyle}>
+            className={input} style={inputStyle()}>
             <option value="minimal">Minimal</option>
             <option value="playful">Playful</option>
             <option value="gradient">Gradient</option>
           </select>
           <button onClick={generateIcon} disabled={genBusy} data-testid="native-icon-generate-btn"
-            className="flex items-center gap-1.5 rounded-sm border px-3.5 py-1.5 font-mono text-[11px] transition-colors hover:border-[#00F0FF] disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-sm border px-3.5 py-1.5 font-mono text-[13px] transition-colors hover:border-[#00F0FF] disabled:opacity-50"
             style={{ borderColor: T.border, color: T.accent }}>
             <Sparkles size={11} /> {genBusy ? "Designing…" : icon ? "Re-roll icon" : "Auto-generate with AI"}
           </button>
-          <span className="font-mono text-[10.5px]" style={{ color: T.muted }}>Bundled at every density (Android mipmaps / iOS AppIcon 1024)</span>
+          <span className="font-mono text-[13.5px]" style={{ color: T.muted }}>Bundled at every density (Android mipmaps / iOS AppIcon 1024)</span>
         </div>
-        <p className="mt-3 font-mono text-[10.5px]" style={{ color: T.muted }}>
+        <p className="mt-3 font-mono text-[13.5px]" style={{ color: T.muted }}>
           {platform === "ios"
             ? <>Produces a complete Xcode project (WKWebView shell + your app bundled) — open in Xcode 15+ and press Run.</>
             : <>Produces a complete Android Studio project (WebView shell + your app bundled) — run <code style={{ color: T.text2 }}>./gradlew assembleDebug</code> to get the installable APK.</>}
@@ -330,9 +326,9 @@ export const NativeApps = () => {
 
       {/* Builds table */}
       <div className="mt-4 space-y-3" data-testid="native-builds-list">
-        {builds === null && <p className="font-mono text-xs" style={{ color: T.muted }}>Loading builds…</p>}
+        {builds === null && <p className="font-mono text-[13px]" style={{ color: T.muted }}>Loading builds…</p>}
         {builds !== null && builds.length === 0 && (
-          <p className="rounded-sm border p-5 font-mono text-xs" style={{ borderColor: T.border, background: T.surface, color: T.text2 }}>
+          <p className="rounded-sm border p-5 font-mono text-[13px]" style={{ borderColor: T.border, background: T.surface, color: T.text2 }}>
             No native builds yet — package a published app above to get your first APK project.
           </p>
         )}
@@ -345,26 +341,26 @@ export const NativeApps = () => {
                 <span className="grid h-10 w-10 place-items-center rounded-lg border text-[15px]" style={{ borderColor: T.border }}>{b.platform === "ios" ? "" : "🤖"}</span>
               )}
               <div className="min-w-0 flex-1">
-                <p className="text-[13.5px] font-600" style={{ color: T.text }}>{b.app_name} <span className="font-mono text-[11px]" style={{ color: T.muted }}>v{b.version}</span></p>
-                <p className="mt-0.5 font-mono text-[11px]" style={{ color: T.muted }}>{b.platform === "ios" ? " iOS" : "🤖 Android"} · {b.package_id} · {b.size_kb} KB · {new Date(b.created).toLocaleString()}</p>
+                <p className="text-[13.5px] font-600" style={{ color: T.text }}>{b.app_name} <span className="font-mono text-[13px]" style={{ color: T.muted }}>v{b.version}</span></p>
+                <p className="mt-0.5 font-mono text-[13px]" style={{ color: T.muted }}>{b.platform === "ios" ? " iOS" : "🤖 Android"} · {b.package_id} · {b.size_kb} KB · {new Date(b.created).toLocaleString()}</p>
               </div>
               <StatusChip s={b.play_status || b.status} ios={b.platform === "ios"} />
               <div className="flex items-center gap-2">
                 <a href={`${BASE}${b.download_url}`} data-testid={`native-download-${b.id}`}
-                  className="flex items-center gap-1.5 rounded-sm border px-3.5 py-1.5 font-mono text-[11px] transition-colors hover:border-[#00F0FF]"
+                  className="flex items-center gap-1.5 rounded-sm border px-3.5 py-1.5 font-mono text-[13px] transition-colors hover:border-[#00F0FF]"
                   style={{ borderColor: T.border, color: T.text }}>
                   <Download size={12} /> {b.platform === "ios" ? "Xcode project (.zip)" : "APK project (.zip)"}
                 </a>
                 {b.play_status === "published" ? (
                   <a href={b.play_url} target="_blank" rel="noreferrer" data-testid={`native-play-link-${b.id}`}
-                    className="flex items-center gap-1.5 rounded-sm px-3.5 py-1.5 font-mono text-[11px] font-600"
+                    className="flex items-center gap-1.5 rounded-sm px-3.5 py-1.5 font-mono text-[13px] font-600"
                     style={{ background: b.platform === "ios" ? "#3B82F6" : "#10B981", color: "#08090A" }}>
                     <Play size={11} fill="currentColor" /> {b.platform === "ios" ? "View on the App Store" : "View on Google Play"}
                   </a>
                 ) : b.play_status !== "in_review" && (
                   <button onClick={() => { setPublishing(publishing === b.id ? null : b.id); setListTitle(b.app_name); setListDesc(""); }}
                     data-testid={`native-publish-${b.id}`}
-                    className="flex items-center gap-1.5 rounded-sm px-3.5 py-1.5 font-mono text-[11px] font-600 transition-opacity hover:opacity-85"
+                    className="flex items-center gap-1.5 rounded-sm px-3.5 py-1.5 font-mono text-[13px] font-600 transition-opacity hover:opacity-85"
                     style={{ background: T.text, color: "#08090A" }}>
                     ▶ {b.platform === "ios" ? "Publish to App Store" : "Publish to Google Play"}
                   </button>
@@ -381,30 +377,30 @@ export const NativeApps = () => {
                 <StoreListingPreview b={b} title={listTitle} desc={listDesc} onChanged={load} />
                 <div className="flex min-w-[240px] flex-1 flex-col justify-center gap-3">
                   <button onClick={() => autowrite(b.id)} disabled={autoBusy} data-testid={`native-autowrite-${b.id}`}
-                    className="flex w-fit items-center gap-1.5 rounded-sm border px-3.5 py-1.5 font-mono text-[11px] transition-colors hover:border-[#00F0FF] disabled:opacity-50"
+                    className="flex w-fit items-center gap-1.5 rounded-sm border px-3.5 py-1.5 font-mono text-[13px] transition-colors hover:border-[#00F0FF] disabled:opacity-50"
                     style={{ borderColor: T.border, color: T.accent }}>
                     <Sparkles size={11} /> {autoBusy ? "Luchii is writing…" : "Autowrite with Luchii"}
                   </button>
                   <label className="flex flex-col gap-1.5">
-                    <span className="font-mono text-[10px] uppercase" style={{ color: T.muted }}>Store listing title</span>
-                    <input value={listTitle} onChange={(e) => setListTitle(e.target.value)} className={input} style={inputStyle} data-testid="native-listing-title" />
+                    <span className="font-mono text-[13.5px] uppercase" style={{ color: T.muted }}>Store listing title</span>
+                    <input value={listTitle} onChange={(e) => setListTitle(e.target.value)} className={input} style={inputStyle()} data-testid="native-listing-title" />
                   </label>
                   <label className="flex flex-col gap-1.5">
-                    <span className="font-mono text-[10px] uppercase" style={{ color: T.muted }}>Short description</span>
-                    <input value={listDesc} onChange={(e) => setListDesc(e.target.value)} placeholder="One line about your app" className={input} style={inputStyle} data-testid="native-listing-desc" />
+                    <span className="font-mono text-[13.5px] uppercase" style={{ color: T.muted }}>Short description</span>
+                    <input value={listDesc} onChange={(e) => setListDesc(e.target.value)} placeholder="One line about your app" className={input} style={inputStyle()} data-testid="native-listing-desc" />
                   </label>
                   <div className="flex flex-wrap items-center gap-2">
                     <input ref={shotRef} type="file" hidden multiple accept="image/*" onChange={onShotFiles} data-testid="native-shot-file-input" />
                     <button onClick={() => shotRef.current?.click()} data-testid={`native-add-shots-${b.id}`}
-                      className="flex items-center gap-1.5 rounded-sm border px-3.5 py-1.5 font-mono text-[11px]"
+                      className="flex items-center gap-1.5 rounded-sm border px-3.5 py-1.5 font-mono text-[13px]"
                       style={{ borderColor: T.border, color: T.text2 }}>
                       <Upload size={11} /> Add screenshots ({b.screenshots || 0}/5)
                     </button>
-                    <span className="font-mono text-[9.5px]" style={{ color: T.muted }}>The live frames are captured from your running app automatically</span>
+                    <span className="font-mono text-[13.5px]" style={{ color: T.muted }}>The live frames are captured from your running app automatically</span>
                   </div>
-                  <p className="font-mono text-[10px]" style={{ color: T.muted }}>The preview updates live — this is how your card appears {b.platform === "ios" ? "on the App Store" : "on Google Play"}.</p>
+                  <p className="font-mono text-[13.5px]" style={{ color: T.muted }}>The preview updates live — this is how your card appears {b.platform === "ios" ? "on the App Store" : "on Google Play"}.</p>
                   <button onClick={() => submitPlay(b.id)} data-testid={`native-submit-play-${b.id}`}
-                    className="rounded-sm px-5 py-2 font-mono text-[12px] font-600" style={{ background: T.accent, color: "#08090A", width: "fit-content" }}>
+                    className="rounded-sm px-5 py-2 font-mono text-[13.5px] font-600" style={{ background: T.accent, color: "#08090A", width: "fit-content" }}>
                     Submit for review
                   </button>
                 </div>

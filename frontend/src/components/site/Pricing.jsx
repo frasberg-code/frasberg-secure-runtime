@@ -32,7 +32,7 @@ export default function Pricing({ keys = [], onPurchased, walletId }) {
 
       {keys.length > 0 && (
         <div className="mt-5 flex items-center gap-3">
-          <span className="font-mono text-xs text-lux-text2">Credit key:</span>
+          <span className="font-mono text-[13px] text-lux-text2">Credit key:</span>
           <select
             value={selectedKey}
             onChange={(e) => setSelectedKey(e.target.value)}
@@ -57,7 +57,7 @@ export default function Pricing({ keys = [], onPurchased, walletId }) {
             }`}
           >
             {p.id === "pro" && (
-              <span className="mb-3 inline-block rounded-full bg-lux-accent px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-lux-bg">
+              <span className="mb-3 inline-block rounded-full bg-lux-accent px-3 py-1 font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-bg">
                 Most popular
               </span>
             )}
@@ -106,7 +106,7 @@ export default function Pricing({ keys = [], onPurchased, walletId }) {
                       onError={() => toast.error("PayPal error — please try again")}
                     />
                   </PayPalScriptProvider>
-                  <button onClick={() => setActivePlan(null)} className="mt-2 w-full text-center font-mono text-xs text-lux-text2 hover:text-lux-text">
+                  <button onClick={() => setActivePlan(null)} className="mt-2 w-full text-center font-mono text-[13px] text-lux-text2 hover:text-lux-text">
                     cancel
                   </button>
                 </div>
@@ -120,7 +120,7 @@ export default function Pricing({ keys = [], onPurchased, walletId }) {
                 </button>
               )
             ) : (
-              <p className="mt-6 font-mono text-xs text-lux-text2">Checkout unavailable — PayPal not configured.</p>
+              <p className="mt-6 font-mono text-[13px] text-lux-text2">Checkout unavailable — PayPal not configured.</p>
             )}
           </div>
         ))}

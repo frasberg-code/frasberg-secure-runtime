@@ -71,7 +71,7 @@ export default function PlayGame() {
                 <span className="grid h-11 w-11 place-items-center rounded-full border border-lux-accent/50 text-lux-accent"><Gamepad2 size={18} /></span>
                 <div>
                   <h1 className="font-display text-2xl font-700 tracking-tight sm:text-3xl" data-testid="play-title">{meta.title}</h1>
-                  <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-lux-text2" data-testid="play-counter">
+                  <p className="font-mono text-[13px] uppercase tracking-[0.2em] text-lux-text2" data-testid="play-counter">
                     {plays === null ? "…" : plays} play{plays === 1 ? "" : "s"} · built with Luchii
                   </p>
                 </div>

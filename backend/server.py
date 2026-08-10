@@ -1253,6 +1253,12 @@ async def my_quotas(user: dict = Depends(auth_module.get_current_user)):
             "monthly_tokens_used": used}
 
 
+@api_router.get("/admin/support-chats")
+async def admin_support_chats(admin: dict = Depends(require_admin)):
+    docs = await db.support_chats.find({}, {"_id": 0}).sort("updated", -1).to_list(100)
+    return {"chats": docs}
+
+
 @api_router.get("/admin/contact-messages")
 async def admin_contact_messages(admin: dict = Depends(require_admin)):
     docs = await db.contact_messages.find({}, {"_id": 0}).sort("created", -1).to_list(200)
@@ -2903,11 +2909,13 @@ async def support_chat(body: SupportChatBody):
 
     async def gen():
         yield ": stream-start\n\n"
+        full = ""
         try:
             chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"support-{sid}",
                            system_message=SUPPORT_PERSONA).with_model("anthropic", "claude-sonnet-4-6").with_params(max_tokens=600)
             async for chunk in chat.stream_message(UserMessage(text=prompt)):
                 if isinstance(chunk, TextDelta) and chunk.content:
+                    full += chunk.content
                     yield f"data: {json.dumps({'delta': chunk.content})}\n\n"
                 elif isinstance(chunk, StreamDone):
                     break
@@ -2915,6 +2923,17 @@ async def support_chat(body: SupportChatBody):
             logger.exception("support chat stream failed")
             yield f"data: {json.dumps({'delta': 'Sorry — our chat hit a snag. You can always reach the team at support@frasberg.com.'})}\n\n"
         yield f"data: {json.dumps({'done': True, 'session_id': sid})}\n\n"
+        try:
+            now = datetime.now(timezone.utc).isoformat()
+            await db.support_chats.update_one(
+                {"session_id": sid},
+                {"$push": {"messages": {"$each": [
+                    {"role": "user", "content": body.message.strip()[:2000], "at": now},
+                    {"role": "assistant", "content": full[:4000], "at": now}]}},
+                 "$set": {"updated": now}, "$setOnInsert": {"created": now}},
+                upsert=True)
+        except Exception:
+            logger.exception("support transcript save failed")
 
     return StreamingResponse(gen(), media_type="text/event-stream",
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})

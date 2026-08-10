@@ -32,7 +32,7 @@ const Card = ({ b, testable }) => {
           <span className="block truncate font-display text-sm font-600 text-lux-text transition-colors group-hover:text-lux-accent">
             {b.title}
           </span>
-          <span className="mt-0.5 flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.2em]" style={{ color: meta.hue }}>
+          <span className="mt-0.5 flex items-center gap-1.5 font-mono text-[13.5px] uppercase tracking-[0.2em]" style={{ color: meta.hue }}>
             <Icon size={10} /> {meta.label}
             {typeof b.plays === "number" && b.plays > 0 && <span className="text-lux-text2">· {b.plays} plays</span>}
           </span>
@@ -78,11 +78,11 @@ export const GalleryMarquee = () => {
   return (
     <section className="relative overflow-hidden border-y border-lux-border py-10" data-testid="gallery-marquee">
       <div className="mx-auto mb-6 flex max-w-7xl items-center justify-between px-5 sm:px-8">
-        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-lux-text2">
+        <p className="font-mono text-[13.5px] uppercase tracking-[0.25em] text-lux-text2">
           Builder Gallery — live sites, apps &amp; games made with Luchii
         </p>
         <Link to="/gallery" data-testid="marquee-gallery-link"
-          className="inline-flex items-center gap-1 text-xs text-lux-accent hover:underline">
+          className="inline-flex items-center gap-1 text-[13px] text-lux-accent hover:underline">
           Open gallery <ArrowUpRight size={12} />
         </Link>
       </div>
