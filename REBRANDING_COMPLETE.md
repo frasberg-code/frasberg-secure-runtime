@@ -124,7 +124,7 @@ Each script:
 
 ### **GitHub Repository Settings** (Cannot be automated)
 
-Go to: https://github.com/frasberg/frasberg-ai-backend/settings
+Go to: https://github.com/FrasbergAI/frasberg/settings
 
 #### 1. **Update Repository Description**
 ```
@@ -157,16 +157,16 @@ NEW: "Behavioral governance engine for Frasberg AI. Includes tonal modulation, h
 #### 4. **Optional: Rename Repository**
 
 **If desired, rename:**
-- `frasberg-ai-backend` → `frasberg-ai-backend`
+- `frasberg-ai-backend` → `frasberg`
 
 **Steps:**
 1. Scroll to **Danger Zone**
 2. Click **"Rename"**
-3. Enter new name: `frasberg-ai-backend`
+3. Enter new name: `frasberg`
 4. Click **"Rename"**
 5. Update local git remotes:
    ```bash
-   git remote set-url origin https://github.com/frasberg/frasberg-ai-backend.git
+   git remote set-url origin https://github.com/FrasbergAI/frasberg.git
    ```
 
 ---

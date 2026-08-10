@@ -242,8 +242,8 @@ Frasberg AI v5.0.0 Architecture
 ### Installation
 ```bash
 # Clone repository
-git clone https://github.com/frasberg/frasberg-ai-backend
-cd frasberg-ai-backend
+git clone https://github.com/FrasbergAI/frasberg
+cd frasberg
 
 # Checkout v5.0.0
 git checkout v5.0.0
@@ -430,8 +430,8 @@ The `/api/v5/consciousness` endpoints are **educational** and **philosophical to
 ## 📞 Support & Community
 
 - **Documentation:** [docs/README.md](docs/README.md)
-- **Issues:** https://github.com/frasberg/frasberg-ai-backend/issues
-- **Discussions:** https://github.com/frasberg/frasberg-ai-backend/discussions
+- **Issues:** https://github.com/frasberg/frasberg/issues
+- **Discussions:** https://github.com/frasberg/frasberg/discussions
 - **Email:** contact@168emeraldestatesllc.com
 
 ---

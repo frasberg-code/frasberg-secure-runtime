@@ -51,13 +51,13 @@ curl "https://api.npmjs.org/downloads/range/last-month/@frasberg/core-sdk"
 **GitHub Insights:**
 ```bash
 # View traffic
-gh api repos/frasberg/frasberg-ai-backend/traffic/views
+gh api repos/FrasbergAI/frasberg/traffic/views
 
 # View clones
-gh api repos/frasberg/frasberg-ai-backend/traffic/clones
+gh api repos/FrasbergAI/frasberg/traffic/clones
 
 # Popular content
-gh api repos/frasberg/frasberg-ai-backend/traffic/popular/paths
+gh api repos/FrasbergAI/frasberg/traffic/popular/paths
 ```
 
 **Metrics to Monitor:**

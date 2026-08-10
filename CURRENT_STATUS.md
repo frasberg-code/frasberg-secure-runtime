@@ -69,7 +69,7 @@ curl http://localhost:8000/openapi.json
 **Usage after PR completes:**
 ```bash
 # Full system activation
-cd /workspaces/frasberg-ai-backend/deploy
+cd /workspaces/frasberg/deploy
 ./post-pr-activation.sh
 
 # Health check all services

@@ -19,12 +19,12 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 ## Step 1: Update Repository Description (2 minutes)
 
 ### Location
-**URL:** https://github.com/frasberg/frasberg-ai-backend/settings/general
+**URL:** https://github.com/FrasbergAI/frasberg/settings/general
 
 ### Instructions
 
 1. **Navigate to Settings**
-   - Go to https://github.com/frasberg/frasberg-ai-backend
+   - Go to https://github.com/FrasbergAI/frasberg
    - Click the **Settings** tab (near the top right)
    - You'll be on the **General** settings page
 
@@ -46,14 +46,14 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 
 ### ✅ Verification
 - The description on the main repository page updates immediately
-- Check: https://github.com/frasberg/frasberg-ai-backend (should show new description)
+- Check: https://github.com/FrasbergAI/frasberg (should show new description)
 
 ---
 
 ## Step 2: Make Repository Private (3 minutes)
 
 ### Location
-**URL:** https://github.com/frasberg/frasberg-ai-backend/settings/danger
+**URL:** https://github.com/FrasbergAI/frasberg/settings/danger
 
 ### ⚠️ Important Notes
 - This change is **irreversible** without GitHub support
@@ -63,7 +63,7 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 ### Instructions
 
 1. **Navigate to Danger Zone**
-   - Go to https://github.com/frasberg/frasberg-ai-backend/settings
+   - Go to https://github.com/FrasbergAI/frasberg/settings
    - Scroll down to the bottom to find the **Danger Zone** section (red/pink background)
 
 2. **Click "Change repository visibility"**
@@ -78,7 +78,7 @@ This guide provides detailed instructions for updating Frasberg AI repository se
    - A text field will appear asking you to confirm
 
 4. **Confirm by Typing Repository Name**
-   - Type exactly: `frasberg-ai-backend`
+   - Type exactly: `frasberg`
    - This is a safety measure to prevent accidental changes
 
 5. **Click "I understand, change repository visibility"**
@@ -90,19 +90,19 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 - Repository URL will no longer be searchable
 - The lock icon 🔒 will appear next to the repository name
 - The visibility badge changes from "Public" to "Private"
-- Only collaborators can access: https://github.com/frasberg/frasberg-ai-backend
+- Only collaborators can access: https://github.com/FrasbergAI/frasberg
 
 ---
 
 ## Step 3: Disable Forking (2 minutes)
 
 ### Location
-**URL:** https://github.com/frasberg/frasberg-ai-backend/settings/general
+**URL:** https://github.com/FrasbergAI/frasberg/settings/general
 
 ### Instructions
 
 1. **Navigate to Features Section**
-   - Go to https://github.com/frasberg/frasberg-ai-backend/settings/general
+   - Go to https://github.com/FrasbergAI/frasberg/settings/general
    - Scroll down to find the **Features** section (below the About section)
 
 2. **Locate the Forking Checkbox**
@@ -129,13 +129,13 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 ### Check Repository Settings
 
 1. **View Repository Main Page**
-   - Go to https://github.com/frasberg/frasberg-ai-backend
+   - Go to https://github.com/FrasbergAI/frasberg
    - Verify the new description is displayed
    - Confirm the **lock icon** 🔒 is visible (private indicator)
    - Confirm there's **no "Fork" button** in the top toolbar
 
 2. **Check Settings Page**
-   - Go to Settings: https://github.com/frasberg/frasberg-ai-backend/settings
+   - Go to Settings: https://github.com/FrasbergAI/frasberg/settings
    - Verify:
      - ✅ Description shows new Frasberg AI text
      - ✅ Repository visibility is **Private**
@@ -162,15 +162,15 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 ### Instructions
 
 1. **Navigate to Settings**
-   - Go to https://github.com/frasberg/frasberg-ai-backend/settings/general
+   - Go to https://github.com/FrasbergAI/frasberg/settings/general
    - Scroll to the top
 
 2. **Find Repository Name Field**
-   - You'll see a text field with the current repository name: `frasberg-ai-backend`
+   - You'll see a text field with the current repository name: `frasberg`
 
 3. **Change the Name**
    - Clear the field
-   - Enter the new name: `frasberg-ai-backend`
+   - Enter the new name: `frasberg`
 
 4. **Click "Rename"**
    - The button appears next to the name field
@@ -181,7 +181,7 @@ This guide provides detailed instructions for updating Frasberg AI repository se
    
    Open terminal/command prompt and run:
    ```bash
-   git remote set-url origin https://github.com/frasberg/frasberg-ai-backend.git
+   git remote set-url origin https://github.com/FrasbergAI/frasberg.git
    ```
    
    Verify the change:
@@ -190,7 +190,7 @@ This guide provides detailed instructions for updating Frasberg AI repository se
    ```
 
 ### ✅ Verification
-- Repository URL changes to: `https://github.com/frasberg/frasberg-ai-backend`
+- Repository URL changes to: `https://github.com/FrasbergAI/frasberg`
 - Old URLs redirect to new URL (for a period)
 - Local git remote is updated
 - All commits and history are preserved
@@ -206,7 +206,7 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 - [ ] Step 4: All changes verified
 
 ### Optional Steps
-- [ ] Step 5: Repository renamed to `frasberg-ai-backend`
+- [ ] Step 5: Repository renamed to `frasberg`
 
 ---
 
@@ -245,7 +245,7 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 ✅ Repository is now **PRIVATE** - only invited users can access  
 ✅ Forking is **DISABLED** - prevents external copies  
 ✅ Description updated to **Frasberg AI** branding  
-✅ (Optional) Repository renamed to **frasberg-ai-backend**  
+✅ (Optional) Repository renamed to **frasberg**  
 
 ### Next Steps
 1. Update project documentation linking to new repository
