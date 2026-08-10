@@ -205,7 +205,7 @@ Frasberg AI Month 1 Foundation Phase is complete! We've successfully built produ
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/emeraldorbit/frasberg-ai-backend
+git clone https://github.com/frasberg/frasberg-ai-backend
 cd frasberg-ai-backend
 
 # 2. Execute Month 1
@@ -342,8 +342,8 @@ gh issue create --title "[GOOD FIRST ISSUE] ..." --label "good-first-issue"
 
 ## 📞 Contact & Support
 
-- **GitHub**: https://github.com/emeraldorbit/frasberg-ai-backend
-- **Issues**: https://github.com/emeraldorbit/frasberg-ai-backend/issues
+- **GitHub**: https://github.com/frasberg/frasberg-ai-backend
+- **Issues**: https://github.com/frasberg/frasberg-ai-backend/issues
 - **Email**: hello@frasberg-ai.ai
 - **Research**: research@frasberg-ai.ai
 - **Bounties**: bounties@frasberg-ai.ai

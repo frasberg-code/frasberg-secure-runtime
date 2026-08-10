@@ -111,7 +111,7 @@ We're exploring:
 
 Frasberg AI is open source (MIT License). Join us:
 
-- **GitHub**: github.com/emeraldorbit/frasberg-ai-backend
+- **GitHub**: github.com/frasberg/frasberg-ai-backend
 - **Docs**: docs.frasberg-ai.ai
 - **Community**: discord.gg/frasberg-ai
 

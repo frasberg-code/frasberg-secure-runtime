@@ -14,7 +14,7 @@
 ### Phase 1: Code Verification (✅ COMPLETE)
 
 - [x] All Frasberg AI references renamed to Frasberg AI
-- [x] All @emeraldorbit/frasberg-* packages renamed to @frasberg-*
+- [x] All @frasberg/* packages renamed to @frasberg-*
 - [x] All FRASBERG_* environment variables renamed to FRASBERG_*
 - [x] All source code files updated and verified
 - [x] No broken imports or references
@@ -118,7 +118,7 @@
 
 - [ ] Clone/pull latest code
   ```bash
-  git clone https://github.com/emeraldorbit/frasberg-ai-backend.git
+  git clone https://github.com/frasberg/frasberg-ai-backend.git
   cd frasberg-ai-backend
   ```
 
@@ -464,7 +464,7 @@
   ```
 
 - [ ] Create GitHub Release
-  - See: https://github.com/emeraldorbit/frasberg-ai-backend/releases/new
+  - See: https://github.com/frasberg/frasberg-ai-backend/releases/new
   - Tag: v6.5.0
   - Title: "Frasberg AI v6.5.0"
   - Description: Complete rebranding and system integration

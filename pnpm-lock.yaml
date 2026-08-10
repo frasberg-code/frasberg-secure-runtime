@@ -8,22 +8,22 @@ importers:
 
   .:
     dependencies:
-      '@emeraldorbit/frasberg-continuum-identity':
+      '@frasberg/continuum-identity':
         specifier: workspace:*
         version: link:packages/frasberg-continuum-identity
-      '@emeraldorbit/frasberg-governance-engine':
+      '@frasberg/governance-engine':
         specifier: workspace:*
         version: link:packages/frasberg-governance-engine
-      '@emeraldorbit/frasberg-hinge-logic':
+      '@frasberg/hinge-logic':
         specifier: workspace:*
         version: link:packages/frasberg-hinge-logic
-      '@emeraldorbit/frasberg-membrane-protocol':
+      '@frasberg/membrane-protocol':
         specifier: workspace:*
         version: link:packages/frasberg-membrane-protocol
-      '@emeraldorbit/frasberg-tonal-modulation':
+      '@frasberg/tonal-modulation':
         specifier: workspace:*
         version: link:packages/frasberg-tonal-modulation
-      '@emeraldorbit/frasberg-unified-field-runtime':
+      '@frasberg/unified-field-runtime':
         specifier: workspace:*
         version: link:packages/frasberg-unified-field-runtime
       express:
@@ -147,19 +147,19 @@ importers:
 
   packages/frasberg-unified-field-runtime:
     dependencies:
-      '@emeraldorbit/frasberg-continuum-identity':
+      '@frasberg/continuum-identity':
         specifier: workspace:*
         version: link:../frasberg-continuum-identity
-      '@emeraldorbit/frasberg-governance-engine':
+      '@frasberg/governance-engine':
         specifier: workspace:*
         version: link:../frasberg-governance-engine
-      '@emeraldorbit/frasberg-hinge-logic':
+      '@frasberg/hinge-logic':
         specifier: workspace:*
         version: link:../frasberg-hinge-logic
-      '@emeraldorbit/frasberg-membrane-protocol':
+      '@frasberg/membrane-protocol':
         specifier: workspace:*
         version: link:../frasberg-membrane-protocol
-      '@emeraldorbit/frasberg-tonal-modulation':
+      '@frasberg/tonal-modulation':
         specifier: workspace:*
         version: link:../frasberg-tonal-modulation
     devDependencies:

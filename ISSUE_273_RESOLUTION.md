@@ -31,12 +31,12 @@ The repository underwent a modularization to use **pnpm workspaces** with `works
 ```json
 {
   "dependencies": {
-    "@emeraldorbit/frasberg-governance-engine": "workspace:*",
-    "@emeraldorbit/frasberg-tonal-modulation": "workspace:*",
-    "@emeraldorbit/frasberg-membrane-protocol": "workspace:*",
-    "@emeraldorbit/frasberg-hinge-logic": "workspace:*",
-    "@emeraldorbit/frasberg-unified-field-runtime": "workspace:*",
-    "@emeraldorbit/frasberg-continuum-identity": "workspace:*"
+    "@frasberg/governance-engine": "workspace:*",
+    "@frasberg/tonal-modulation": "workspace:*",
+    "@frasberg/membrane-protocol": "workspace:*",
+    "@frasberg/hinge-logic": "workspace:*",
+    "@frasberg/unified-field-runtime": "workspace:*",
+    "@frasberg/continuum-identity": "workspace:*"
   }
 }
 ```

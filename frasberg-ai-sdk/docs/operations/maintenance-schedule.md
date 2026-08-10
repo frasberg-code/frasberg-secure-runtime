@@ -596,7 +596,7 @@ Create maintenance dashboard tracking:
 
 Maintenance questions:
 - **GitHub:** Create issue with `maintenance` label
-- **Email:** maintenance@emeraldorbit.com
+- **Email:** maintenance@frasberg.com
 - **Slack:** #frasberg-sdk-maintenance
 
 ---

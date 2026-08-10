@@ -8,12 +8,12 @@
  */
 
 // Import from modularized packages
-import { bridgeState } from '@emeraldorbit/frasberg-continuum-identity';
-import { modulateIdentity } from '@emeraldorbit/frasberg-continuum-identity';
-import { filterIdentity } from '@emeraldorbit/frasberg-continuum-identity';
-import { orchestrate } from '@emeraldorbit/frasberg-governance-engine';
-import { conductResonance } from '@emeraldorbit/frasberg-tonal-modulation';
-import { shiftFieldState } from '@emeraldorbit/frasberg-hinge-logic';
+import { bridgeState } from '@frasberg/continuum-identity';
+import { modulateIdentity } from '@frasberg/continuum-identity';
+import { filterIdentity } from '@frasberg/continuum-identity';
+import { orchestrate } from '@frasberg/governance-engine';
+import { conductResonance } from '@frasberg/tonal-modulation';
+import { shiftFieldState } from '@frasberg/hinge-logic';
 
 // Import field modules from original location (to be migrated)
 import { filterSignature } from '../../../supabase/frasberg_ai/signature_filter/signature_filter';

@@ -7,7 +7,7 @@ Complete guide for setting up your development environment for the Frasberg AI S
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/emeraldorbit/frasberg-ai-backend.git
+git clone https://github.com/frasberg/frasberg-ai-backend.git
 cd frasberg-ai-backend/frasberg-ai-sdk
 ```
 

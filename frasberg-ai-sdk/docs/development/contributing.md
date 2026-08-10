@@ -53,7 +53,7 @@ Instances of abusive, harassing, or otherwise unacceptable behavior may be repor
 3. **Add upstream remote**
 
    ```bash
-   git remote add upstream https://github.com/emeraldorbit/frasberg-ai-backend.git
+   git remote add upstream https://github.com/frasberg/frasberg-ai-backend.git
    ```
 
 4. **Install dependencies**
@@ -88,7 +88,7 @@ For detailed development workflow, see [Local Workflow Guide](local-workflow.md)
 ### Reporting Bugs
 
 Before creating a bug report:
-1. Check the [existing issues](https://github.com/emeraldorbit/frasberg-ai-backend/issues)
+1. Check the [existing issues](https://github.com/frasberg/frasberg-ai-backend/issues)
 2. Check the [troubleshooting guide](../guides/troubleshooting.md)
 3. Verify you're using the latest version
 
@@ -136,7 +136,7 @@ Paste error message here
 ### Requesting Features
 
 Before requesting a feature:
-1. Check [existing feature requests](https://github.com/emeraldorbit/frasberg-ai-backend/issues?q=is%3Aissue+label%3Aenhancement)
+1. Check [existing feature requests](https://github.com/frasberg/frasberg-ai-backend/issues?q=is%3Aissue+label%3Aenhancement)
 2. Consider if it aligns with the project's goals
 3. Think about how it would benefit other users
 
@@ -423,8 +423,8 @@ Documentation locations:
 
 ### Getting Help
 
-- 💬 [GitHub Discussions](https://github.com/emeraldorbit/frasberg-ai-backend/discussions)
-- 🐛 [Issue Tracker](https://github.com/emeraldorbit/frasberg-ai-backend/issues)
+- 💬 [GitHub Discussions](https://github.com/frasberg/frasberg-ai-backend/discussions)
+- 🐛 [Issue Tracker](https://github.com/frasberg/frasberg-ai-backend/issues)
 - 📖 [Documentation](../index.md)
 
 ### Stay Updated
@@ -447,7 +447,7 @@ By contributing, you agree that your contributions will be licensed under the sa
 ## Questions?
 
 If you have questions about contributing, feel free to:
-- Open a [GitHub Discussion](https://github.com/emeraldorbit/frasberg-ai-backend/discussions)
+- Open a [GitHub Discussion](https://github.com/frasberg/frasberg-ai-backend/discussions)
 - Contact the maintainers
 - Check existing documentation
 

@@ -44,7 +44,7 @@ All preparation work for Frasberg AI 6.0.0 is complete:
    - Guide you through creating GitHub release
 
 3. **Create GitHub Release:**
-   - Go to: https://github.com/emeraldorbit/frasberg-ai-backend/releases/new?tag=v6.0.0
+   - Go to: https://github.com/frasberg/frasberg-ai-backend/releases/new?tag=v6.0.0
    - Title: "Frasberg AI 6.0.0 - Enterprise Evolution"
    - Description: Copy from CHANGELOG_v6.0.0.md
    - Publish release
@@ -152,7 +152,7 @@ Migration tool available: `frasberg-cli migrate --from=5.x --to=6.0.0`
 
 ## 🔗 Important Links
 
-- **GitHub Release:** https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v6.0.0
+- **GitHub Release:** https://github.com/frasberg/frasberg-ai-backend/releases/tag/v6.0.0
 - **CHANGELOG:** [CHANGELOG_v6.0.0.md](CHANGELOG_v6.0.0.md)
 - **Enterprise Guide:** [docs/enterprise/README.md](docs/enterprise/README.md)
 - **Advanced AI Guide:** [docs/advanced-ai/README.md](docs/advanced-ai/README.md)

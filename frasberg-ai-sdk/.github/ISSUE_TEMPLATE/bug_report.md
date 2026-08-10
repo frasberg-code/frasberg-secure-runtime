@@ -3,7 +3,7 @@ name: Bug Report
 about: Report a bug in the Frasberg AI SDK
 title: '[BUG] '
 labels: bug
-assignees: emeraldorbit
+assignees: frasberg
 
 ---
 

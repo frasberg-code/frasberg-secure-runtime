@@ -159,8 +159,8 @@ Welcome to Frasberg AI, @username! 👋
 • Browse #showcase for inspiration
 
 📖 Resources:
-• Docs: https://github.com/emeraldorbit/frasberg-ai-backend
-• GitHub: https://github.com/emeraldorbit/frasberg-ai-backend
+• Docs: https://github.com/frasberg/frasberg-ai-backend
+• GitHub: https://github.com/frasberg/frasberg-ai-backend
 • Website: https://frasberg-ai.ai
 
 Let's build the future of AI together! 🚀
@@ -198,13 +198,13 @@ Frasberg AI is a planetary-scale distributed AI system. This is our community Di
 ## 🚀 Getting Started
 
 **New to Frasberg AI?**
-• Check out the [README](https://github.com/emeraldorbit/frasberg-ai-backend)
+• Check out the [README](https://github.com/frasberg/frasberg-ai-backend)
 • Ask questions in #help
 • Share your projects in #showcase
 
 **Want to contribute?**
-• Read [CONTRIBUTING.md](https://github.com/emeraldorbit/frasberg-ai-backend/blob/main/CONTRIBUTING-ENHANCED.md)
-• Find [good first issues](https://github.com/emeraldorbit/frasberg-ai-backend/labels/good-first-issue)
+• Read [CONTRIBUTING.md](https://github.com/frasberg/frasberg-ai-backend/blob/main/CONTRIBUTING-ENHANCED.md)
+• Find [good first issues](https://github.com/frasberg/frasberg-ai-backend/labels/good-first-issue)
 • Join discussions in #contributors
 
 **Enterprise user?**
@@ -222,8 +222,8 @@ Frasberg AI is a planetary-scale distributed AI system. This is our community Di
 
 ## 🔗 Links
 
-• GitHub: https://github.com/emeraldorbit/frasberg-ai-backend
-• Documentation: [README](https://github.com/emeraldorbit/frasberg-ai-backend)
+• GitHub: https://github.com/frasberg/frasberg-ai-backend
+• Documentation: [README](https://github.com/frasberg/frasberg-ai-backend)
 • Twitter: [@frasberg_ai_ai](https://twitter.com/frasberg_ai_ai)
 • Email: hello@frasberg-ai.ai
 
@@ -233,7 +233,7 @@ Need help? Ask in #help or email support@frasberg-ai.ai
 
 ---
 
-**By participating, you agree to our [Code of Conduct](https://github.com/emeraldorbit/frasberg-ai-backend/blob/main/CODE_OF_CONDUCT.md)**
+**By participating, you agree to our [Code of Conduct](https://github.com/frasberg/frasberg-ai-backend/blob/main/CODE_OF_CONDUCT.md)**
 ```
 
 ---

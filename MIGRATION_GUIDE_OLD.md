@@ -336,4 +336,4 @@ When in doubt, reference the Continuum Identity.
 
 **Version**: 1.0.0  
 **Part of**: Frasberg AI Backend - Continuum Identity Integration  
-© Emerald Orbit®
+© Frasberg®

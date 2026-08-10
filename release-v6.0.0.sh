@@ -128,7 +128,7 @@ Breaking changes:
 - API v2 endpoints
 - RBAC authentication
 
-Full changelog: https://github.com/emeraldorbit/frasberg-ai-backend/blob/main/CHANGELOG_v6.0.0.md
+Full changelog: https://github.com/frasberg/frasberg-ai-backend/blob/main/CHANGELOG_v6.0.0.md
 "
         echo -e "${GREEN}✓ Tag recreated${NC}"
     fi
@@ -146,7 +146,7 @@ Breaking changes:
 - API v2 endpoints
 - RBAC authentication
 
-Full changelog: https://github.com/emeraldorbit/frasberg-ai-backend/blob/main/CHANGELOG_v6.0.0.md
+Full changelog: https://github.com/frasberg/frasberg-ai-backend/blob/main/CHANGELOG_v6.0.0.md
 "
     echo -e "${GREEN}✓ Tag v6.0.0 created${NC}"
 fi
@@ -208,7 +208,7 @@ echo ""
 # Step 10: Create GitHub release
 echo -e "${BLUE}Step 10: Create GitHub release${NC}"
 echo "Create a GitHub release at:"
-echo "https://github.com/emeraldorbit/frasberg-ai-backend/releases/new?tag=v6.0.0"
+echo "https://github.com/frasberg/frasberg-ai-backend/releases/new?tag=v6.0.0"
 echo ""
 echo "Use this title:"
 echo "Frasberg AI 6.0.0 - Enterprise Evolution"

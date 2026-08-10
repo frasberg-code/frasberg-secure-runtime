@@ -259,7 +259,7 @@ We integrated DNA computing into a planetary-scale distributed system, achieving
 • Open-source implementation
 
 📄 Paper: [arXiv link]
-💻 Code: https://github.com/emeraldorbit/frasberg-ai-backend
+💻 Code: https://github.com/frasberg/frasberg-ai-backend
 
 #DNAcomputing #AI #DistributedSystems
 
@@ -275,7 +275,7 @@ Key results:
 - Production deployment
 
 Paper: [arXiv link]
-Code: https://github.com/emeraldorbit/frasberg-ai-backend
+Code: https://github.com/frasberg/frasberg-ai-backend
 
 This is the first practical integration of DNA computing into a production distributed system. Would love your feedback!
 
@@ -291,7 +291,7 @@ Highlights:
 - Complete working implementation
 
 Paper (arXiv): [link]
-Code: https://github.com/emeraldorbit/frasberg-ai-backend
+Code: https://github.com/frasberg/frasberg-ai-backend
 
 ## LinkedIn
 I'm excited to share our latest research on integrating DNA computing into distributed systems!
@@ -308,7 +308,7 @@ Our team built Frasberg AI, a planetary-scale AI system that leverages biologica
 The entire system is open-source, and we've published a detailed paper explaining the architecture and benchmarks.
 
 Read the paper: [arXiv link]
-Try the code: https://github.com/emeraldorbit/frasberg-ai-backend
+Try the code: https://github.com/frasberg/frasberg-ai-backend
 
 #AI #DNAcomputing #Research #DistributedSystems
 EOF

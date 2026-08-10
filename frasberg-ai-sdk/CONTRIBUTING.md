@@ -165,7 +165,7 @@ docs(readme): update installation instructions
 
 ## Questions?
 
-If you have questions, please open an issue or contact @emeraldorbit.
+If you have questions, please open an issue or contact @frasberg.
 
 ## License
 

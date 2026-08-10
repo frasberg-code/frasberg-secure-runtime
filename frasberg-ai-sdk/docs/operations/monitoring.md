@@ -51,13 +51,13 @@ curl "https://api.npmjs.org/downloads/range/last-month/@frasberg/core-sdk"
 **GitHub Insights:**
 ```bash
 # View traffic
-gh api repos/emeraldorbit/frasberg-ai-backend/traffic/views
+gh api repos/frasberg/frasberg-ai-backend/traffic/views
 
 # View clones
-gh api repos/emeraldorbit/frasberg-ai-backend/traffic/clones
+gh api repos/frasberg/frasberg-ai-backend/traffic/clones
 
 # Popular content
-gh api repos/emeraldorbit/frasberg-ai-backend/traffic/popular/paths
+gh api repos/frasberg/frasberg-ai-backend/traffic/popular/paths
 ```
 
 **Metrics to Monitor:**
@@ -484,7 +484,7 @@ curl -X POST -H 'Content-type: application/json' \
 ```bash
 # Send email alert
 echo "SDK bundle size exceeded budget" | \
-  mail -s "SDK Alert" team@emeraldorbit.com
+  mail -s "SDK Alert" team@frasberg.com
 ```
 
 ### Alert Rules

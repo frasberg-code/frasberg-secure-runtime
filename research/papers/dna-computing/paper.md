@@ -46,7 +46,7 @@ This paper makes the following contributions:
 
 1. **Novel Architecture**: First practical integration of DNA computing principles into a distributed microservices architecture with 45-layer sovereign design
 2. **Performance Analysis**: Theoretical and simulated benchmarks demonstrating advantages
-3. **Open Implementation**: Complete open-source system at github.com/emeraldorbit/frasberg-ai-backend
+3. **Open Implementation**: Complete open-source system at github.com/frasberg/frasberg-ai-backend
 4. **Integration Patterns**: Reusable patterns for hybrid biological-silicon computing
 5. **Scalability Demonstration**: Planetary-scale deployment across 1000+ nodes
 
@@ -477,7 +477,7 @@ We thank the open-source community for contributions, and researchers in DNA com
 
 ## Code & Data Availability
 
-- **Source Code**: https://github.com/emeraldorbit/frasberg-ai-backend
+- **Source Code**: https://github.com/frasberg/frasberg-ai-backend
 - **License**: MIT (fully open)
 - **Documentation**: https://docs.frasberg-ai.ai
 - **API Access**: https://api.frasberg-ai.ai

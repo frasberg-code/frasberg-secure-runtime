@@ -34,7 +34,7 @@ export GITHUB_TOKEN=your_github_token_here
 Clone the repository and build locally:
 
 ```bash
-git clone https://github.com/emeraldorbit/frasberg-ai-backend.git
+git clone https://github.com/frasberg/frasberg-ai-backend.git
 cd frasberg-ai-backend/frasberg-ai-sdk
 npm install
 npm run build

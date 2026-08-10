@@ -30,7 +30,7 @@
 
 ```bash
 # Download v5.0.0
-wget https://github.com/emeraldorbit/frasberg-ai-backend/releases/download/v5.0.0/frasberg-ai-v5.0.0-planetary.zip
+wget https://github.com/frasberg/frasberg-ai-backend/releases/download/v5.0.0/frasberg-ai-v5.0.0-planetary.zip
 
 # Extract and run
 unzip frasberg-ai-v5.0.0-planetary.zip
@@ -168,7 +168,7 @@ az container create --resource-group frasberg --name canonical --image frasberg:
 
 ## 🤝 Community
 
-- **GitHub**: github.com/emeraldorbit/frasberg-ai-backend
+- **GitHub**: github.com/frasberg/frasberg-ai-backend
 - **Discord**: discord.gg/frasberg-ai
 - **Twitter**: @frasberg_ai_ai
 - **Email**: hello@frasberg-ai.ai

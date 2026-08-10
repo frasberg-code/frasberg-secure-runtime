@@ -249,10 +249,10 @@ class TestFrasbergAI:
 **Docker:**
 ```dockerfile
 # OLD (v5.x)
-FROM emeraldorbit/frasberg-ai:5.0.0
+FROM frasberg/frasberg-ai:5.0.0
 
 # NEW (v6.0.0)
-FROM emeraldorbit/frasberg-ai:6.0.0
+FROM frasberg/frasberg-ai:6.0.0
 ```
 
 **Docker Compose:**
@@ -261,7 +261,7 @@ FROM emeraldorbit/frasberg-ai:6.0.0
 version: '3.8'
 services:
   frasberg-ai:
-    image: emeraldorbit/frasberg-ai:6.0.0  # Updated
+    image: frasberg/frasberg-ai:6.0.0  # Updated
     environment:
       - FRASBERG_VERSION=6.0.0  # NEW
       - RBAC_ENABLED=true  # NEW
@@ -284,7 +284,7 @@ spec:
     spec:
       containers:
       - name: frasberg-ai
-        image: emeraldorbit/frasberg-ai:6.0.0  # Updated
+        image: frasberg/frasberg-ai:6.0.0  # Updated
         env:
         - name: FRASBERG_VERSION
           value: "6.0.0"
@@ -451,7 +451,7 @@ If you need help with migration:
 
 - **Documentation:** https://docs.frasberg-ai.io/migration/v5-to-v6
 - **Discord:** https://discord.gg/frasberg-ai
-- **GitHub Issues:** https://github.com/emeraldorbit/frasberg-ai-backend/issues
+- **GitHub Issues:** https://github.com/frasberg/frasberg-ai-backend/issues
 - **Email:** support@frasberg-ai.io
 - **Enterprise Support:** enterprise@frasberg-ai.io
 

@@ -393,7 +393,7 @@ If you can't resolve your issue:
    - [Best Practices](best-practices.md)
 
 2. **Search Existing Issues:**
-   - Visit: https://github.com/emeraldorbit/frasberg-ai-backend/issues
+   - Visit: https://github.com/frasberg/frasberg-ai-backend/issues
 
 3. **Create New Issue:**
    - Use bug report template
@@ -402,7 +402,7 @@ If you can't resolve your issue:
    - Specify SDK version: `npm list @frasberg/core-sdk`
 
 4. **Security Issues:**
-   - Email: security@emeraldorbit.com
+   - Email: security@frasberg.com
    - See: [Security Policy](../governance/security.md)
 
 ## Diagnostic Commands

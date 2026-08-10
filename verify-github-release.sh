@@ -5,7 +5,7 @@ echo "  VERIFYING FRASBERG CORE v1.0.0 GITHUB RELEASE"
 echo "════════════════════════════════════════════════"
 echo ""
 
-REPO="emeraldorbit/frasberg-ai-backend"
+REPO="frasberg/frasberg-ai-backend"
 TAG="v1.0.0"
 
 echo "Step 1: Checking if tag exists on GitHub..."

@@ -3,7 +3,7 @@ name: Feature Request
 about: Suggest a new feature for the Frasberg AI SDK
 title: '[FEATURE] '
 labels: enhancement, feature-request
-assignees: emeraldorbit
+assignees: frasberg
 
 ---
 

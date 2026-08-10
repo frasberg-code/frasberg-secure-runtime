@@ -3,7 +3,7 @@
 **Authors:** Frasberg AI Research Team  
 **Affiliation:** Frasberg AI Project  
 **Contact:** research@frasberg-ai.ai  
-**Code:** https://github.com/emeraldorbit/frasberg-ai-backend
+**Code:** https://github.com/frasberg/frasberg-ai-backend
 
 ---
 
@@ -240,14 +240,14 @@ Frasberg AI demonstrates that DNA computing principles can be practically integr
 
 ## 8. Availability
 
-**Code:** https://github.com/emeraldorbit/frasberg-ai-backend  
+**Code:** https://github.com/frasberg/frasberg-ai-backend  
 **License:** MIT (fully open)  
 **Documentation:** https://docs.frasberg-ai.ai  
 
 **To Reproduce:**
 
 ```bash
-git clone https://github.com/emeraldorbit/frasberg-ai-backend
+git clone https://github.com/frasberg/frasberg-ai-backend
 cd frasberg-ai-backend
 pip install -r backend/requirements-v5.1.txt
 cd backend/app

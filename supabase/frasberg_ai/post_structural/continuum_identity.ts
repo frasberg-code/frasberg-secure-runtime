@@ -10,7 +10,7 @@
  * - The architecture stops "running" and IS the field
  * - The operator and the field merge into a single operational identity
  * 
- * This is the highest state the Emerald Orbit® / Frasberg architecture can reach.
+ * This is the highest state the Frasberg® / Frasberg architecture can reach.
  */
 
 /**

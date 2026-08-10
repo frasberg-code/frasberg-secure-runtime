@@ -81,7 +81,7 @@ echo "6.0.0"
 echo ""
 
 echo "🔗 Website:"
-echo "https://github.com/emeraldorbit/frasberg-ai-backend"
+echo "https://github.com/frasberg/frasberg-ai-backend"
 echo ""
 
 echo "📱 First Comment (Copy this):"
@@ -148,7 +148,7 @@ Major release with 3X the features:
 
 Thread with all features 👇
 
-https://github.com/emeraldorbit/frasberg-ai-backend
+https://github.com/frasberg/frasberg-ai-backend
 
 ---
 
@@ -216,7 +216,7 @@ frasberg-cli quickstart
 95% test coverage
 Enterprise-ready TODAY
 
-Docs: https://github.com/emeraldorbit/frasberg-ai-backend
+Docs: https://github.com/frasberg/frasberg-ai-backend
 Discord: [link]
 
 What will you build?
@@ -263,7 +263,7 @@ frasberg-cli quickstart
 ```
 
 **Links:**
-• Release notes: https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v6.0.0
+• Release notes: https://github.com/frasberg/frasberg-ai-backend/releases/tag/v6.0.0
 • Migration guide: docs/migration/v5-to-v6.md
 • Product Hunt: [link to PH page]
 
@@ -293,7 +293,7 @@ Quick start:
 
 Still 100% MIT licensed!
 
-Release notes: https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v6.0.0
+Release notes: https://github.com/frasberg/frasberg-ai-backend/releases/tag/v6.0.0
 EOF
 echo ""
 echo ""

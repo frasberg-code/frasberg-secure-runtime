@@ -21,42 +21,42 @@ frasberg-ai-sdk/.github/CODEOWNERS
 # This file defines code ownership for the Frasberg AI SDK
 
 # Default owners for everything in the repo
-* @emeraldorbit/frasberg-ai-maintainers
+* @frasberg/ai-maintainers
 
 # Core SDK
-/src/ @emeraldorbit/sdk-team
-/src/client/ @emeraldorbit/sdk-team @tech-lead
-/src/providers/ @emeraldorbit/provider-team
+/src/ @frasberg/sdk-team
+/src/client/ @frasberg/sdk-team @tech-lead
+/src/providers/ @frasberg/provider-team
 
 # Configuration
-/src/config/ @emeraldorbit/sdk-team @devops-team
+/src/config/ @frasberg/sdk-team @devops-team
 /.env.example @devops-team
 
 # Documentation
-/docs/ @emeraldorbit/documentation-team
-/README.md @emeraldorbit/documentation-team
-/CHANGELOG.md @emeraldorbit/release-team
+/docs/ @frasberg/documentation-team
+/README.md @frasberg/documentation-team
+/CHANGELOG.md @frasberg/release-team
 
 # Testing
-/src/**/*.test.ts @emeraldorbit/qa-team
-/src/__tests__/ @emeraldorbit/qa-team
+/src/**/*.test.ts @frasberg/qa-team
+/src/__tests__/ @frasberg/qa-team
 
 # Build and CI/CD
 /.github/ @devops-team
-/.github/workflows/ @devops-team @emeraldorbit/release-team
-/package.json @emeraldorbit/release-team
-/tsconfig.json @emeraldorbit/sdk-team
+/.github/workflows/ @devops-team @frasberg/release-team
+/package.json @frasberg/release-team
+/tsconfig.json @frasberg/sdk-team
 
 # Security
 /SECURITY.md @security-team
 /docs/governance/security.md @security-team
 
 # Types and Interfaces
-/src/types/ @emeraldorbit/sdk-team @tech-lead
-/src/**/*.d.ts @emeraldorbit/sdk-team
+/src/types/ @frasberg/sdk-team @tech-lead
+/src/**/*.d.ts @frasberg/sdk-team
 
 # Examples
-/examples/ @emeraldorbit/documentation-team @emeraldorbit/sdk-team
+/examples/ @frasberg/documentation-team @frasberg/sdk-team
 ```
 
 ## Code Ownership Areas
@@ -305,7 +305,7 @@ Areas requiring elevated review:
 
 ## Teams and Roles
 
-### @emeraldorbit/frasberg-ai-maintainers
+### @frasberg/ai-maintainers
 
 **Members:** Core maintainers  
 **Scope:** Overall repository  
@@ -315,7 +315,7 @@ Areas requiring elevated review:
 - Security reviews
 - Breaking changes
 
-### @emeraldorbit/sdk-team
+### @frasberg/sdk-team
 
 **Members:** SDK developers  
 **Scope:** `/src/`  
@@ -325,7 +325,7 @@ Areas requiring elevated review:
 - Type definitions
 - Code quality
 
-### @emeraldorbit/provider-team
+### @frasberg/provider-team
 
 **Members:** Provider specialists  
 **Scope:** `/src/providers/`  
@@ -334,7 +334,7 @@ Areas requiring elevated review:
 - Provider abstraction
 - Integration testing
 
-### @emeraldorbit/documentation-team
+### @frasberg/documentation-team
 
 **Members:** Technical writers and contributors  
 **Scope:** `/docs/`, `README.md`  
@@ -344,7 +344,7 @@ Areas requiring elevated review:
 - Cross-references
 - Clarity and consistency
 
-### @emeraldorbit/qa-team
+### @frasberg/qa-team
 
 **Members:** QA engineers  
 **Scope:** Tests, test infrastructure  
@@ -353,7 +353,7 @@ Areas requiring elevated review:
 - Test quality
 - Testing best practices
 
-### @emeraldorbit/release-team
+### @frasberg/release-team
 
 **Members:** Release managers  
 **Scope:** Release process, CI/CD  
@@ -453,7 +453,7 @@ Areas requiring elevated review:
 
 For questions about code ownership:
 - **GitHub:** Create issue with `codeowners` label
-- **Email:** codeowners@emeraldorbit.com
+- **Email:** codeowners@frasberg.com
 - **Tech Lead:** @tech-lead on GitHub
 
 ---

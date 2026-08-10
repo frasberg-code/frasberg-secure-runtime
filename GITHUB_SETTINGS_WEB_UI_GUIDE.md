@@ -19,12 +19,12 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 ## Step 1: Update Repository Description (2 minutes)
 
 ### Location
-**URL:** https://github.com/emeraldorbit/frasberg-ai-backend/settings/general
+**URL:** https://github.com/frasberg/frasberg-ai-backend/settings/general
 
 ### Instructions
 
 1. **Navigate to Settings**
-   - Go to https://github.com/emeraldorbit/frasberg-ai-backend
+   - Go to https://github.com/frasberg/frasberg-ai-backend
    - Click the **Settings** tab (near the top right)
    - You'll be on the **General** settings page
 
@@ -46,14 +46,14 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 
 ### ✅ Verification
 - The description on the main repository page updates immediately
-- Check: https://github.com/emeraldorbit/frasberg-ai-backend (should show new description)
+- Check: https://github.com/frasberg/frasberg-ai-backend (should show new description)
 
 ---
 
 ## Step 2: Make Repository Private (3 minutes)
 
 ### Location
-**URL:** https://github.com/emeraldorbit/frasberg-ai-backend/settings/danger
+**URL:** https://github.com/frasberg/frasberg-ai-backend/settings/danger
 
 ### ⚠️ Important Notes
 - This change is **irreversible** without GitHub support
@@ -63,7 +63,7 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 ### Instructions
 
 1. **Navigate to Danger Zone**
-   - Go to https://github.com/emeraldorbit/frasberg-ai-backend/settings
+   - Go to https://github.com/frasberg/frasberg-ai-backend/settings
    - Scroll down to the bottom to find the **Danger Zone** section (red/pink background)
 
 2. **Click "Change repository visibility"**
@@ -90,19 +90,19 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 - Repository URL will no longer be searchable
 - The lock icon 🔒 will appear next to the repository name
 - The visibility badge changes from "Public" to "Private"
-- Only collaborators can access: https://github.com/emeraldorbit/frasberg-ai-backend
+- Only collaborators can access: https://github.com/frasberg/frasberg-ai-backend
 
 ---
 
 ## Step 3: Disable Forking (2 minutes)
 
 ### Location
-**URL:** https://github.com/emeraldorbit/frasberg-ai-backend/settings/general
+**URL:** https://github.com/frasberg/frasberg-ai-backend/settings/general
 
 ### Instructions
 
 1. **Navigate to Features Section**
-   - Go to https://github.com/emeraldorbit/frasberg-ai-backend/settings/general
+   - Go to https://github.com/frasberg/frasberg-ai-backend/settings/general
    - Scroll down to find the **Features** section (below the About section)
 
 2. **Locate the Forking Checkbox**
@@ -129,13 +129,13 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 ### Check Repository Settings
 
 1. **View Repository Main Page**
-   - Go to https://github.com/emeraldorbit/frasberg-ai-backend
+   - Go to https://github.com/frasberg/frasberg-ai-backend
    - Verify the new description is displayed
    - Confirm the **lock icon** 🔒 is visible (private indicator)
    - Confirm there's **no "Fork" button** in the top toolbar
 
 2. **Check Settings Page**
-   - Go to Settings: https://github.com/emeraldorbit/frasberg-ai-backend/settings
+   - Go to Settings: https://github.com/frasberg/frasberg-ai-backend/settings
    - Verify:
      - ✅ Description shows new Frasberg AI text
      - ✅ Repository visibility is **Private**
@@ -162,7 +162,7 @@ This guide provides detailed instructions for updating Frasberg AI repository se
 ### Instructions
 
 1. **Navigate to Settings**
-   - Go to https://github.com/emeraldorbit/frasberg-ai-backend/settings/general
+   - Go to https://github.com/frasberg/frasberg-ai-backend/settings/general
    - Scroll to the top
 
 2. **Find Repository Name Field**
@@ -181,7 +181,7 @@ This guide provides detailed instructions for updating Frasberg AI repository se
    
    Open terminal/command prompt and run:
    ```bash
-   git remote set-url origin https://github.com/emeraldorbit/frasberg-ai-backend.git
+   git remote set-url origin https://github.com/frasberg/frasberg-ai-backend.git
    ```
    
    Verify the change:
@@ -190,7 +190,7 @@ This guide provides detailed instructions for updating Frasberg AI repository se
    ```
 
 ### ✅ Verification
-- Repository URL changes to: `https://github.com/emeraldorbit/frasberg-ai-backend`
+- Repository URL changes to: `https://github.com/frasberg/frasberg-ai-backend`
 - Old URLs redirect to new URL (for a period)
 - Local git remote is updated
 - All commits and history are preserved

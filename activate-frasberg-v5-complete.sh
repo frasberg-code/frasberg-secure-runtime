@@ -47,7 +47,7 @@ echo -e "${BLUE}[TRACK 2]${NC} Starting GitHub Push..."
     git push origin main 2>&1 | tail -3
     
     echo -e "${GREEN}  ✓ GitHub push complete${NC}"
-    echo -e "  ${BLUE}→${NC} https://github.com/emeraldorbit/frasberg-ai-backend"
+    echo -e "  ${BLUE}→${NC} https://github.com/frasberg/frasberg-ai-backend"
 ) &
 TRACK2_PID=$!
 
@@ -171,7 +171,7 @@ echo ""
 echo -e "${BLUE}[3/3]${NC} GitHub Status:"
 if git tag | grep -q "v5.0.0"; then
     echo -e "  ${GREEN}✓${NC} v5.0.0 tag exists"
-    echo -e "  ${GREEN}✓${NC} View: https://github.com/emeraldorbit/frasberg-ai-backend"
+    echo -e "  ${GREEN}✓${NC} View: https://github.com/frasberg/frasberg-ai-backend"
 fi
 echo ""
 
@@ -197,7 +197,7 @@ echo "print(client.__class__.__name__, 'initialized')"
 echo "EOF"
 echo ""
 echo "🌍 GitHub:"
-echo "   https://github.com/emeraldorbit/frasberg-ai-backend"
+echo "   https://github.com/frasberg/frasberg-ai-backend"
 echo ""
 
 echo -e "${BLUE}═══════════════════════════════════════════════════════${NC}"

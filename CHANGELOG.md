@@ -200,7 +200,7 @@ model = HuggingFaceTransformer("gpt2")
 
 ### 🔗 Links
 
-- **Release Notes:** https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v6.5.0
+- **Release Notes:** https://github.com/frasberg/frasberg-ai-backend/releases/tag/v6.5.0
 - **Migration Guide:** docs/migration/v6.0-to-v6.5.md
 - **Documentation:** https://docs.frasberg-ai.dev
 
@@ -390,7 +390,7 @@ frasberg-cli migrate --from=5.x --to=6.0.0
 
 Thanks to our 50+ contributors and 1,000+ community members!
 
-Full release notes: https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v6.0.0
+Full release notes: https://github.com/frasberg/frasberg-ai-backend/releases/tag/v6.0.0
 
-[6.5.0]: https://github.com/emeraldorbit/frasberg-ai-backend/compare/v6.0.0...v6.5.0
-[6.0.0]: https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v6.0.0
+[6.5.0]: https://github.com/frasberg/frasberg-ai-backend/compare/v6.0.0...v6.5.0
+[6.0.0]: https://github.com/frasberg/frasberg-ai-backend/releases/tag/v6.0.0

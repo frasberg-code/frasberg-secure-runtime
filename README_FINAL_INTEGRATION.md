@@ -305,7 +305,7 @@ npm test -- tests/post_structural
 ## License
 
 Part of Frasberg AI Backend project.  
-© Emerald Orbit®
+© Frasberg®
 
 ---
 

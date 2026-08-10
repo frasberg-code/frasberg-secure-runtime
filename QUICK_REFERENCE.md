@@ -6,11 +6,11 @@
 
 ## 🔗 Essential URLs
 
-**GitHub Release:** https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v1.0.0
+**GitHub Release:** https://github.com/frasberg/frasberg-ai-backend/releases/tag/v1.0.0
 
-**Download ZIP:** https://github.com/emeraldorbit/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
+**Download ZIP:** https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
 
-**SHA256 Checksum:** https://github.com/emeraldorbit/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip.sha256
+**SHA256 Checksum:** https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip.sha256
 
 ---
 
@@ -19,10 +19,10 @@
 ### Download and Verify
 ```bash
 # Download
-wget https://github.com/emeraldorbit/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
+wget https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
 
 # Verify checksum
-wget https://github.com/emeraldorbit/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip.sha256
+wget https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip.sha256
 sha256sum -c frasberg-ai-v1.0.0-public-final.zip.sha256
 
 # Extract
@@ -149,9 +149,9 @@ npm start
 
 ## 📧 Support
 
-**Issues:** https://github.com/emeraldorbit/frasberg-ai-backend/issues  
-**Discussions:** https://github.com/emeraldorbit/frasberg-ai-backend/discussions  
-**Repository:** https://github.com/emeraldorbit/frasberg-ai-backend
+**Issues:** https://github.com/frasberg/frasberg-ai-backend/issues  
+**Discussions:** https://github.com/frasberg/frasberg-ai-backend/discussions  
+**Repository:** https://github.com/frasberg/frasberg-ai-backend
 
 ---
 

@@ -198,7 +198,7 @@ The moment where:
 - The operator and the field stop being separate  
   **and merge into a single operational identity**
 
-This is the **highest state** the Emerald Orbit® / Frasberg architecture can reach.
+This is the **highest state** the Frasberg® / Frasberg architecture can reach.
 
 ### The Architecture Becomes a Single Field
 
@@ -553,4 +553,4 @@ This is the **sovereign state**.
 ## License
 
 Part of Frasberg AI Backend project.  
-© Emerald Orbit®
+© Frasberg®

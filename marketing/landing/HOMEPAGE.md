@@ -24,7 +24,7 @@ Frasberg AI is the first **open-source AI infrastructure** that combines:
 
 \`\`\`bash
 # Clone and run
-git clone https://github.com/emeraldorbit/frasberg-ai-backend
+git clone https://github.com/frasberg/frasberg-ai-backend
 cd frasberg-ai-backend
 ./quick-start.sh
 
@@ -127,7 +127,7 @@ Frasberg AI is built on rigorous research:
 
 ### 2. Install Locally (5 minutes)
 \`\`\`bash
-git clone https://github.com/emeraldorbit/frasberg-ai-backend
+git clone https://github.com/frasberg/frasberg-ai-backend
 cd frasberg-ai-backend
 ./quick-start.sh
 \`\`\`
@@ -178,7 +178,7 @@ print(response['response'])
 ## 🤝 Community
 
 - **Discord**: https://discord.gg/frasberg-ai
-- **GitHub**: https://github.com/emeraldorbit/frasberg-ai-backend
+- **GitHub**: https://github.com/frasberg/frasberg-ai-backend
 - **Twitter**: @frasberg_ai_ai
 - **Email**: hello@frasberg-ai.ai
 
@@ -231,7 +231,7 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING_V2.md)
 ## 🎯 Ready to Build?
 
 \`\`\`bash
-git clone https://github.com/emeraldorbit/frasberg-ai-backend
+git clone https://github.com/frasberg/frasberg-ai-backend
 cd frasberg-ai-backend
 ./quick-start.sh
 \`\`\`

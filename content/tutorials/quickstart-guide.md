@@ -11,7 +11,7 @@
 ### Step 1: Download Frasberg AI
 
 ```bash
-wget https://github.com/emeraldorbit/frasberg-ai-backend/releases/download/v5.0.0/frasberg-ai-v5.0.0.zip
+wget https://github.com/frasberg/frasberg-ai-backend/releases/download/v5.0.0/frasberg-ai-v5.0.0.zip
 unzip frasberg-ai-v5.0.0.zip
 cd frasberg-ai-v5.0.0
 ```
@@ -157,6 +157,6 @@ lsof -ti:8000 | xargs kill -9
 
 ## Support
 
-- **GitHub Issues**: github.com/emeraldorbit/frasberg-ai-backend/issues
+- **GitHub Issues**: github.com/frasberg/frasberg-ai-backend/issues
 - **Discord**: discord.gg/frasberg-ai
 - **Email**: support@frasberg-ai.ai

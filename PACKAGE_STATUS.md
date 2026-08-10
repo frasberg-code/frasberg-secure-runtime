@@ -33,9 +33,9 @@ cd packages/frasberg-governance-engine && pnpm test
 
 \`\`\`typescript
 // Import from modular packages
-import { deviationEngine } from '@emeraldorbit/frasberg-governance-engine';
-import { tonalEngine } from '@emeraldorbit/frasberg-tonal-modulation';
-import { membraneEngine } from '@emeraldorbit/frasberg-membrane-protocol';
+import { deviationEngine } from '@frasberg/governance-engine';
+import { tonalEngine } from '@frasberg/tonal-modulation';
+import { membraneEngine } from '@frasberg/membrane-protocol';
 
 // Use the engines
 const devState = deviationEngine.initialize();

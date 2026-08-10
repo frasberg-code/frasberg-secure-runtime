@@ -97,7 +97,7 @@ gh release create v1.0.0 \
 ```
 
 **Option B: Using GitHub Web Interface**
-1. Go to: https://github.com/emeraldorbit/frasberg-ai-backend/releases/new
+1. Go to: https://github.com/frasberg/frasberg-ai-backend/releases/new
 2. Tag version: `v1.0.0`
 3. Release title: `Frasberg AI v1.0.0 - Public Release`
 4. Copy content from RELEASE_NOTES.md into description
@@ -142,7 +142,7 @@ After publishing, announce on:
 - Social media (if applicable)
 
 Share the download link:
-`https://github.com/emeraldorbit/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip`
+`https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip`
 
 EOF
 

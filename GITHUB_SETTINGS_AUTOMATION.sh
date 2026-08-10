@@ -21,7 +21,7 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Configuration
-OWNER="emeraldorbit"
+OWNER="frasberg"
 OLD_REPO="frasberg-ai-backend"
 NEW_REPO="frasberg-ai-backend"
 DESCRIPTION="Behavioral governance engine for Frasberg AI. Includes tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules. Used across Emerald Estates® and Orbit systems for identity-preserving conversational output."

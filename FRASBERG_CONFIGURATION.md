@@ -32,7 +32,7 @@ SERVICE_ROLE_KEY=5a99fb8b9bdb01d466a9184a1e66cf36c2441513026d4efde3f8d2595633c39
 #### GitHub Integration
 ```bash
 GITHUB_TOKEN=your_github_token_here
-GITHUB_REPO_URL=https://github.com/emeraldorbit/frasberg-ai-backend
+GITHUB_REPO_URL=https://github.com/frasberg/frasberg-ai-backend
 ```
 
 ---
@@ -103,7 +103,7 @@ supabase functions deploy
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                   FRASBERG Core Backend                    │
-│         https://github.com/emeraldorbit/frasberg-ai      │
+│         https://github.com/frasberg/frasberg-ai      │
 └─────────────────────────────────────────────────────────┘
                            │
                            ▼
@@ -180,7 +180,7 @@ supabase functions deploy
 ## 📞 Support
 
 For issues or questions:
-- **Repository:** https://github.com/emeraldorbit/frasberg-ai-backend
+- **Repository:** https://github.com/frasberg/frasberg-ai-backend
 - **Documentation:** See [SECRETS_SETUP.md](SECRETS_SETUP.md)
 - **Supabase Dashboard:** https://app.supabase.com/project/sdtilgpppwhwtbxlbmik
 

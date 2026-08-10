@@ -145,7 +145,7 @@ All revolutionary v4.0.0 features are maintained:
 ### Quick Start with v4.1.0
 ```bash
 # Clone repository
-git clone https://github.com/emeraldorbit/frasberg-ai-backend
+git clone https://github.com/frasberg/frasberg-ai-backend
 cd frasberg-ai-backend
 
 # Checkout v4.1.0
@@ -276,8 +276,8 @@ Coming in 2-3 weeks:
 ## 📞 Support
 
 - **Documentation:** [docs/README.md](docs/README.md)
-- **Issues:** https://github.com/emeraldorbit/frasberg-ai-backend/issues
-- **Discussions:** https://github.com/emeraldorbit/frasberg-ai-backend/discussions
+- **Issues:** https://github.com/frasberg/frasberg-ai-backend/issues
+- **Discussions:** https://github.com/frasberg/frasberg-ai-backend/discussions
 
 ---
 

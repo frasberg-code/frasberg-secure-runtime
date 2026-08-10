@@ -1,5 +1,5 @@
 /**
- * Tests for @emeraldorbit/frasberg-governance-engine
+ * Tests for @frasberg/governance-engine
  */
 
 import { deviationEngine, orchestrate } from '../src/index';

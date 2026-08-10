@@ -399,11 +399,11 @@ frasberg-cli interactive  # New command, old commands still work
 
 ## 🔗 Links
 
-- **GitHub Repository:** https://github.com/emeraldorbit/frasberg-ai-backend
+- **GitHub Repository:** https://github.com/frasberg/frasberg-ai-backend
 - **Full Changelog:** CHANGELOG_v6.5.0.md
 - **Documentation:** https://docs.frasberg-ai.dev
-- **Issues:** https://github.com/emeraldorbit/frasberg-ai-backend/issues
-- **Discussions:** https://github.com/emeraldorbit/frasberg-ai-backend/discussions
+- **Issues:** https://github.com/frasberg/frasberg-ai-backend/issues
+- **Discussions:** https://github.com/frasberg/frasberg-ai-backend/discussions
 
 ## 🚀 What's Next?
 
@@ -418,7 +418,7 @@ frasberg-cli interactive  # New command, old commands still work
 - Architecture improvements
 - New core features
 
-Join the discussion: https://github.com/emeraldorbit/frasberg-ai-backend/discussions
+Join the discussion: https://github.com/frasberg/frasberg-ai-backend/discussions
 
 ## 💬 Community
 

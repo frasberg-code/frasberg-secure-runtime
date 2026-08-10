@@ -320,7 +320,7 @@ npx commitlint --edit $1
 ### Sync Fork
 
 ```bash
-git remote add upstream git@github.com:emeraldorbit/frasberg-ai-backend.git
+git remote add upstream git@github.com:frasberg/frasberg-ai-backend.git
 git fetch upstream
 git checkout dev
 git merge upstream/dev

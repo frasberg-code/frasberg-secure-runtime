@@ -33,5 +33,5 @@ All AI, LLM, image, and video operations use **Frasberg AI API exclusively**:
 ## Support
 
 - [Troubleshooting Guide](guides/troubleshooting.md)
-- [GitHub Issues](https://github.com/emeraldorbit/frasberg-ai-backend/issues)
+- [GitHub Issues](https://github.com/frasberg/frasberg-ai-backend/issues)
 - [Security Policy](governance/security.md)

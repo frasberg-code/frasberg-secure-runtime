@@ -12,7 +12,7 @@ Security guidelines, vulnerability reporting, and secure coding practices for th
 
 1. **Email Security Team**
    
-   Send details to: **security@emeraldorbit.com**
+   Send details to: **security@frasberg.com**
 
 2. **Include Following Information**
 
@@ -389,7 +389,7 @@ We are committed to:
 ## Security Advisories
 
 View published security advisories:
-- [GitHub Security Advisories](https://github.com/emeraldorbit/frasberg-ai-backend/security/advisories)
+- [GitHub Security Advisories](https://github.com/frasberg/frasberg-ai-backend/security/advisories)
 - [CHANGELOG.md](../../CHANGELOG.md) (security fixes noted)
 
 ## Security Updates
@@ -448,7 +448,7 @@ Currently, we do not have a public bug bounty program. However, we greatly appre
 
 ## Security Contact
 
-**Email:** security@emeraldorbit.com  
+**Email:** security@frasberg.com  
 **PGP Key:** Available upon request  
 **Response Time:** 48 hours
 

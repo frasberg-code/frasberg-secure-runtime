@@ -1,6 +1,6 @@
 # 🚀 Frasberg AI v1.0.0
 
-[![Release](https://img.shields.io/github/v/release/emeraldorbit/frasberg-ai-backend?style=for-the-badge)](https://github.com/emeraldorbit/frasberg-ai-backend/releases/latest)
+[![Release](https://img.shields.io/github/v/release/frasberg/frasberg-ai-backend?style=for-the-badge)](https://github.com/frasberg/frasberg-ai-backend/releases/latest)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Production-green.svg?style=for-the-badge)]()
 
@@ -24,7 +24,7 @@ Frasberg AI is a complete operational intelligence system featuring:
 
 ```bash
 # Download latest release
-wget https://github.com/emeraldorbit/frasberg-ai-backend/releases/latest/download/frasberg-ai-v1.0.0-public-final.zip
+wget https://github.com/frasberg/frasberg-ai-backend/releases/latest/download/frasberg-ai-v1.0.0-public-final.zip
 
 # Extract
 unzip frasberg-ai-v1.0.0-public-final.zip
@@ -52,7 +52,7 @@ cd ../../frontend/admin && npm install && npm start
 
 ## 📦 Latest Release
 
-**[Download Frasberg AI v1.0.0](https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v1.0.0)**
+**[Download Frasberg AI v1.0.0](https://github.com/frasberg/frasberg-ai-backend/releases/tag/v1.0.0)**
 
 What's included:
 
@@ -110,9 +110,9 @@ See [CLOUD_DEPLOYMENT.md](CLOUD_DEPLOYMENT.md) for complete guides.
 
 Contributions welcome! Please see:
 
-- [Issues](https://github.com/emeraldorbit/frasberg-ai-backend/issues)
-- [Discussions](https://github.com/emeraldorbit/frasberg-ai-backend/discussions)
-- [Pull Requests](https://github.com/emeraldorbit/frasberg-ai-backend/pulls)
+- [Issues](https://github.com/frasberg/frasberg-ai-backend/issues)
+- [Discussions](https://github.com/frasberg/frasberg-ai-backend/discussions)
+- [Pull Requests](https://github.com/frasberg/frasberg-ai-backend/pulls)
 
 ## 📜 License
 
@@ -120,9 +120,9 @@ MIT License - See [LICENSE](LICENSE) file for details
 
 ## 🎊 Support
 
-- **Repository:** https://github.com/emeraldorbit/frasberg-ai-backend
-- **Issues:** https://github.com/emeraldorbit/frasberg-ai-backend/issues
-- **Releases:** https://github.com/emeraldorbit/frasberg-ai-backend/releases
+- **Repository:** https://github.com/frasberg/frasberg-ai-backend
+- **Issues:** https://github.com/frasberg/frasberg-ai-backend/issues
+- **Releases:** https://github.com/frasberg/frasberg-ai-backend/releases
 
 ---
 

@@ -1,6 +1,6 @@
 # 🚀 Frasberg AI v4.0.0
 
-[![Release](https://img.shields.io/badge/release-v4.0.0-blue?style=for-the-badge)](https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v4.0.0)
+[![Release](https://img.shields.io/badge/release-v4.0.0-blue?style=for-the-badge)](https://github.com/frasberg/frasberg-ai-backend/releases/tag/v4.0.0)
 [![Quantum Safe](https://img.shields.io/badge/Quantum-Safe-purple?style=for-the-badge)]()
 [![Distributed](https://img.shields.io/badge/Architecture-Distributed-green?style=for-the-badge)]()
 
@@ -42,7 +42,7 @@
 
 ```bash
 # Download release
-wget https://github.com/emeraldorbit/frasberg-ai-backend/releases/download/v4.0.0/frasberg-ai-v4.0.0-distributed.zip
+wget https://github.com/frasberg/frasberg-ai-backend/releases/download/v4.0.0/frasberg-ai-v4.0.0-distributed.zip
 
 # Extract
 unzip frasberg-ai-v4.0.0-distributed.zip
@@ -217,8 +217,8 @@ docker-compose -f deploy/docker-compose-v4.yml up -d
 
 ## 🔗 Resources
 
-- **GitHub**: https://github.com/emeraldorbit/frasberg-ai-backend
-- **Release**: https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v4.0.0
+- **GitHub**: https://github.com/frasberg/frasberg-ai-backend
+- **Release**: https://github.com/frasberg/frasberg-ai-backend/releases/tag/v4.0.0
 - **Changelog**: [CHANGELOG_v4.md](CHANGELOG_v4.md)
 - **License**: MIT
 

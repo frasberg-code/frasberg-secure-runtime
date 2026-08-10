@@ -13,12 +13,12 @@ The Frasberg AI modularization has been **successfully completed** with all six 
 
 | # | Package Name | Build | Output | Tests | Docs |
 |---|--------------|-------|--------|-------|------|
-| 1 | @emeraldorbit/frasberg-governance-engine | ✅ Pass | ✅ Complete | ✅ 7/7 | ✅ Full |
-| 2 | @emeraldorbit/frasberg-tonal-modulation | ✅ Pass | ✅ Complete | ⚪ Ready | ✅ Full |
-| 3 | @emeraldorbit/frasberg-membrane-protocol | ✅ Pass | ✅ Complete | ⚪ Ready | ✅ Full |
-| 4 | @emeraldorbit/frasberg-hinge-logic | ✅ Pass | ✅ Complete | ⚪ Ready | ✅ Full |
-| 5 | @emeraldorbit/frasberg-continuum-identity | ✅ Pass | ✅ Complete | ⚪ Ready | ✅ Full |
-| 6 | @emeraldorbit/frasberg-unified-field-runtime | ✅ Pass | ✅ Complete | ⚪ Ready | ✅ Full |
+| 1 | @frasberg/governance-engine | ✅ Pass | ✅ Complete | ✅ 7/7 | ✅ Full |
+| 2 | @frasberg/tonal-modulation | ✅ Pass | ✅ Complete | ⚪ Ready | ✅ Full |
+| 3 | @frasberg/membrane-protocol | ✅ Pass | ✅ Complete | ⚪ Ready | ✅ Full |
+| 4 | @frasberg/hinge-logic | ✅ Pass | ✅ Complete | ⚪ Ready | ✅ Full |
+| 5 | @frasberg/continuum-identity | ✅ Pass | ✅ Complete | ⚪ Ready | ✅ Full |
+| 6 | @frasberg/unified-field-runtime | ✅ Pass | ✅ Complete | ⚪ Ready | ✅ Full |
 
 **Success Rate**: 100% (6/6 packages operational)
 
@@ -114,12 +114,12 @@ Test infrastructure in place for:
 
 All 6 packages include complete README.md files:
 
-✅ @emeraldorbit/frasberg-governance-engine (64 lines)
-✅ @emeraldorbit/frasberg-tonal-modulation (55 lines)
-✅ @emeraldorbit/frasberg-membrane-protocol (62 lines)
-✅ @emeraldorbit/frasberg-hinge-logic (62 lines)
-✅ @emeraldorbit/frasberg-continuum-identity (53 lines)
-✅ @emeraldorbit/frasberg-unified-field-runtime (77 lines)
+✅ @frasberg/governance-engine (64 lines)
+✅ @frasberg/tonal-modulation (55 lines)
+✅ @frasberg/membrane-protocol (62 lines)
+✅ @frasberg/hinge-logic (62 lines)
+✅ @frasberg/continuum-identity (53 lines)
+✅ @frasberg/unified-field-runtime (77 lines)
 
 Each README includes:
 - Package description
@@ -189,11 +189,11 @@ New modular imports available and working:
 
 ```typescript
 // ✅ Available and functional
-import { deviationEngine, orchestrate } from '@emeraldorbit/frasberg-governance-engine';
-import { tonalEngine, conductResonance } from '@emeraldorbit/frasberg-tonal-modulation';
-import { membraneEngine } from '@emeraldorbit/frasberg-membrane-protocol';
-import { hingeLogic, shiftFieldState } from '@emeraldorbit/frasberg-hinge-logic';
-import { filterIdentity, modulateIdentity, bridgeState } from '@emeraldorbit/frasberg-continuum-identity';
+import { deviationEngine, orchestrate } from '@frasberg/governance-engine';
+import { tonalEngine, conductResonance } from '@frasberg/tonal-modulation';
+import { membraneEngine } from '@frasberg/membrane-protocol';
+import { hingeLogic, shiftFieldState } from '@frasberg/hinge-logic';
+import { filterIdentity, modulateIdentity, bridgeState } from '@frasberg/continuum-identity';
 ```
 
 ### Workspace Commands Verification

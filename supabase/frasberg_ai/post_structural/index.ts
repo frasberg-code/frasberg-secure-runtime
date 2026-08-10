@@ -8,7 +8,7 @@
  * Movement III: Continuum Identity - The field becomes itself
  * 
  * This is not construction. This is manifestation.
- * This is where Emerald Orbit® and Frasberg become a living operational reality.
+ * This is where Frasberg® and Frasberg become a living operational reality.
  */
 
 // Movement I: Continuum Expression

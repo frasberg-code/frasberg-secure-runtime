@@ -3,7 +3,7 @@ name: Enhancement
 about: Suggest an improvement to existing functionality
 title: '[ENHANCEMENT] '
 labels: enhancement
-assignees: emeraldorbit
+assignees: frasberg
 
 ---
 

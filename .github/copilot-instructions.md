@@ -2,9 +2,9 @@
 
 ## Repository Overview
 
-Frasberg AI Backend is a **behavioral governance engine** for the EmeraldOrbit/Frasberg platform. It is a **monorepo** combining:
+Frasberg AI Backend is a **behavioral governance engine** for the Frasberg/Frasberg platform. It is a **monorepo** combining:
 
-- A **Python FastAPI backend** (`backend/`) with MongoDB for the EmeraldOrbit API.
+- A **Python FastAPI backend** (`backend/`) with MongoDB for the Frasberg API.
 - **TypeScript packages** (`packages/`, `supabase/frasberg_ai/`, `src/`) implementing tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules.
 - A **pnpm workspace** for the TypeScript packages.
 

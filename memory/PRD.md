@@ -1,7 +1,7 @@
-# EmeraldOrbit - Product Requirements Document
+# Frasberg - Product Requirements Document
 
 ## Project Overview
-EmeraldOrbit is a comprehensive enterprise platform combining AI assistance (Frasberg), real estate management, crypto trading, communications, and creative tools in one unified experience.
+Frasberg is a comprehensive enterprise platform combining AI assistance (Frasberg), real estate management, crypto trading, communications, and creative tools in one unified experience.
 
 ## Tech Stack
 - **Backend**: FastAPI + MongoDB (primary) + Supabase (hybrid for realtime)
@@ -80,7 +80,7 @@ EmeraldOrbit is a comprehensive enterprise platform combining AI assistance (Fra
 ### Backend (.env)
 ```
 MONGO_URL=mongodb://localhost:27017
-DB_NAME=emerald_orbit
+DB_NAME=frasberg
 JWT_SECRET=<secret>
 ```
 

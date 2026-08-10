@@ -250,7 +250,7 @@ echo "Option A: Use GitHub CLI (if installed):"
 echo '  gh issue create --title "[GOOD FIRST ISSUE] Add test coverage for DNA computing" --label "good-first-issue" --body "..." '
 echo ""
 echo "Option B: Create manually on GitHub:"
-echo "  1. Go to: https://github.com/emeraldorbit/frasberg-ai-backend/issues/new"
+echo "  1. Go to: https://github.com/frasberg/frasberg-ai-backend/issues/new"
 echo "  2. Use template from .github/ISSUE_TEMPLATE/good_first_issue.md"
 echo "  3. Fill in details from community/good-first-issues.txt"
 echo ""
@@ -335,7 +335,7 @@ We've created a comprehensive guide for contributors:
 - Fix typos
 - Add examples
 
-**Browse**: https://github.com/emeraldorbit/frasberg-ai-backend/labels/good-first-issue
+**Browse**: https://github.com/frasberg/frasberg-ai-backend/labels/good-first-issue
 
 ## Get Involved
 
@@ -388,7 +388,7 @@ Let's make Frasberg AI the best distributed AI system in the world. 🌟
 
 **Links**:
 - Discord: [invite link]
-- GitHub: https://github.com/emeraldorbit/frasberg-ai-backend
+- GitHub: https://github.com/frasberg/frasberg-ai-backend
 - Contributing: [CONTRIBUTING-ENHANCED.md](../CONTRIBUTING-ENHANCED.md)
 - Bounties: bounties@frasberg-ai.ai
 EOF

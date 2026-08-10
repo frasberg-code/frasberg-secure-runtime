@@ -48,5 +48,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Usage examples
 - Security best practices
 
-[Unreleased]: https://github.com/emeraldorbit/frasberg-ai-backend/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v1.0.0
+[Unreleased]: https://github.com/frasberg/frasberg-ai-backend/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/frasberg/frasberg-ai-backend/releases/tag/v1.0.0

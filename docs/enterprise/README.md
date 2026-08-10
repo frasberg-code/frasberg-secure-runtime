@@ -335,7 +335,7 @@ frasberg-cli start \
 version: '3.8'
 services:
   frasberg-ai:
-    image: emeraldorbit/frasberg-ai:6.0.0-enterprise
+    image: frasberg/frasberg-ai:6.0.0-enterprise
     environment:
       - RBAC_ENABLED=true
       - RATE_LIMIT_ENABLED=true

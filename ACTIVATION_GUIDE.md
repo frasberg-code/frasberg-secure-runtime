@@ -200,7 +200,7 @@ gh release create v1.0.0-public-final \
 ```
 
 **Option 2: GitHub Web UI**
-1. Go to https://github.com/emeraldorbit/frasberg-ai-backend/releases/new
+1. Go to https://github.com/frasberg/frasberg-ai-backend/releases/new
 2. Tag: `v1.0.0-public-final`
 3. Title: "Frasberg AI v1.0.0 - Public Release"
 4. Upload ZIP and SHA256 files

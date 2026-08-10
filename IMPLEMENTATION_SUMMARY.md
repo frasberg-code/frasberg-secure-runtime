@@ -140,9 +140,9 @@ frasberg-ai-sdk/
    - Copyright: Emerald Estates® and Mr. Clayton-M. Bernard-Ex.
 
 2. **`.github/CODEOWNERS`**
-   - All files: @emeraldorbit
-   - src/client/: @emeraldorbit
-   - src/config/: @emeraldorbit
+   - All files: @frasberg
+   - src/client/: @frasberg
+   - src/config/: @frasberg
 
 #### CI/CD Workflows:
 

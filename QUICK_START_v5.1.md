@@ -66,7 +66,7 @@ python server.py
 
 ```bash
 # 1. Fork on GitHub
-# https://github.com/emeraldorbit/frasberg-ai-backend
+# https://github.com/frasberg/frasberg-ai-backend
 
 # 2. Clone your fork
 git clone https://github.com/YOUR_USERNAME/frasberg-ai-backend
@@ -77,7 +77,7 @@ pip install -r backend/requirements.txt
 pip install -r requirements-test.txt
 
 # 4. Find an issue
-# https://github.com/emeraldorbit/frasberg-ai-backend/labels/good-first-issue
+# https://github.com/frasberg/frasberg-ai-backend/labels/good-first-issue
 
 # 5. Create branch
 git checkout -b feature/your-feature
@@ -248,7 +248,7 @@ Earn money for contributions!
 ## 📞 Get Help
 
 - **Documentation**: Start with [MONTH_1_COMPLETE.md](MONTH_1_COMPLETE.md)
-- **GitHub Issues**: https://github.com/emeraldorbit/frasberg-ai-backend/issues
+- **GitHub Issues**: https://github.com/frasberg/frasberg-ai-backend/issues
 - **Email**: hello@frasberg-ai.ai
 - **Discord**: Coming soon (see community/DISCORD_SETUP.md)
 

@@ -8,12 +8,12 @@
 
 | Package | Status | Build | Tests | Docs |
 |---------|--------|-------|-------|------|
-| `@emeraldorbit/frasberg-governance-engine` | ✅ Complete | ✅ Pass | ✅ 7/7 | ✅ Full |
-| `@emeraldorbit/frasberg-tonal-modulation` | ✅ Complete | ✅ Pass | ⚪ Setup | ✅ Full |
-| `@emeraldorbit/frasberg-membrane-protocol` | ✅ Complete | ✅ Pass | ⚪ Setup | ✅ Full |
-| `@emeraldorbit/frasberg-hinge-logic` | ✅ Complete | ✅ Pass | ⚪ Setup | ✅ Full |
-| `@emeraldorbit/frasberg-continuum-identity` | ✅ Complete | ✅ Pass | ⚪ Setup | ✅ Full |
-| `@emeraldorbit/frasberg-unified-field-runtime` | ⚠️ Partial | ⚠️ Needs work | ⚪ Setup | ✅ Full |
+| `@frasberg/governance-engine` | ✅ Complete | ✅ Pass | ✅ 7/7 | ✅ Full |
+| `@frasberg/tonal-modulation` | ✅ Complete | ✅ Pass | ⚪ Setup | ✅ Full |
+| `@frasberg/membrane-protocol` | ✅ Complete | ✅ Pass | ⚪ Setup | ✅ Full |
+| `@frasberg/hinge-logic` | ✅ Complete | ✅ Pass | ⚪ Setup | ✅ Full |
+| `@frasberg/continuum-identity` | ✅ Complete | ✅ Pass | ⚪ Setup | ✅ Full |
+| `@frasberg/unified-field-runtime` | ⚠️ Partial | ⚠️ Needs work | ⚪ Setup | ✅ Full |
 
 ## What Was Accomplished
 
@@ -55,7 +55,7 @@ All six packages created with:
 
 ## Package Details
 
-### 1. @emeraldorbit/frasberg-governance-engine
+### 1. @frasberg/governance-engine
 **Status**: ✅ Production Ready
 
 Extracts:
@@ -68,7 +68,7 @@ Features:
 - Deviation tracking and correction
 - Full test coverage (7/7 tests passing)
 
-### 2. @emeraldorbit/frasberg-tonal-modulation
+### 2. @frasberg/tonal-modulation
 **Status**: ✅ Production Ready
 
 Extracts:
@@ -81,7 +81,7 @@ Features:
 - Expressive coherence validation
 - Register management (ceremonial, operational, conceptual)
 
-### 3. @emeraldorbit/frasberg-membrane-protocol
+### 3. @frasberg/membrane-protocol
 **Status**: ✅ Production Ready
 
 Extracts:
@@ -93,7 +93,7 @@ Features:
 - Contextual permeability management
 - Drift-aware membrane tightening
 
-### 4. @emeraldorbit/frasberg-hinge-logic
+### 4. @frasberg/hinge-logic
 **Status**: ✅ Production Ready
 
 Extracts:
@@ -106,7 +106,7 @@ Features:
 - Identity-state shift modeling
 - Integration with membrane and governance layers
 
-### 5. @emeraldorbit/frasberg-continuum-identity
+### 5. @frasberg/continuum-identity
 **Status**: ✅ Production Ready
 
 Extracts:
@@ -120,7 +120,7 @@ Features:
 - Self-renewal logic
 - Signature filtering and modulation
 
-### 6. @emeraldorbit/frasberg-unified-field-runtime
+### 6. @frasberg/unified-field-runtime
 **Status**: ⚠️ Partial (Requires Additional Work)
 
 Extracts:
@@ -171,7 +171,7 @@ cd packages/frasberg-governance-engine && pnpm test
 import { deviationEngine } from '../supabase/frasberg_ai/deviation_engine/src/deviation_engine';
 
 // After (Modular)
-import { deviationEngine } from '@emeraldorbit/frasberg-governance-engine';
+import { deviationEngine } from '@frasberg/governance-engine';
 ```
 
 ### Backward Compatibility

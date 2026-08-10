@@ -315,7 +315,7 @@ app.listen(3000);
 
 ```bash
 # Clone the repository
-git clone https://github.com/emeraldorbit/frasberg-ai-backend.git
+git clone https://github.com/frasberg/frasberg-ai-backend.git
 cd frasberg-ai-backend/frasberg-ai-sdk
 
 # Install dependencies
@@ -388,11 +388,11 @@ See [LICENSE](LICENSE) for full license text.
 
 - 📧 Email: support@emeraldestates.com
 - 📖 Documentation: [docs/FRASBERG_PROVIDER_ARCHITECTURE.md](../../docs/FRASBERG_PROVIDER_ARCHITECTURE.md)
-- 🐛 Issues: [GitHub Issues](https://github.com/emeraldorbit/frasberg-ai-backend/issues)
+- 🐛 Issues: [GitHub Issues](https://github.com/frasberg/frasberg-ai-backend/issues)
 
 ## Related Projects
 
-- [Frasberg AI Backend](https://github.com/emeraldorbit/frasberg-ai-backend)
+- [Frasberg AI Backend](https://github.com/frasberg/frasberg-ai-backend)
 - Frasberg Governance Engine
 - Frasberg Continuum Identity
 - Frasberg Membrane Protocol

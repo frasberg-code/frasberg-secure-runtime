@@ -52,7 +52,7 @@ New to the project? Look for `good-first-issue` labels:
 - 🟡 **Medium** (half day): Some experience needed
 - 🔴 **Hard** (multiple days): Significant expertise
 
-[View Good First Issues →](https://github.com/emeraldorbit/frasberg-ai-backend/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+[View Good First Issues →](https://github.com/frasberg/frasberg-ai-backend/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 
 ## 📝 Pull Request Guidelines
 

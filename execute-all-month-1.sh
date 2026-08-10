@@ -25,7 +25,7 @@ echo "  → Creating research paper..."
 **Authors:** Frasberg AI Research Team  
 **Affiliation:** Frasberg AI Project  
 **Contact:** research@frasberg-ai.ai  
-**Code:** https://github.com/emeraldorbit/frasberg-ai-backend
+**Code:** https://github.com/frasberg/frasberg-ai-backend
 
 ---
 
@@ -262,14 +262,14 @@ Frasberg AI demonstrates that DNA computing principles can be practically integr
 
 ## 8. Availability
 
-**Code:** https://github.com/emeraldorbit/frasberg-ai-backend  
+**Code:** https://github.com/frasberg/frasberg-ai-backend  
 **License:** MIT (fully open)  
 **Documentation:** https://docs.frasberg-ai.ai  
 
 **To Reproduce:**
 
 ```bash
-git clone https://github.com/emeraldorbit/frasberg-ai-backend
+git clone https://github.com/frasberg/frasberg-ai-backend
 cd frasberg-ai-backend
 pip install -r backend/requirements-v5.1.txt
 cd backend/app
@@ -419,7 +419,7 @@ New to the project? Look for `good-first-issue` labels:
 - 🟡 **Medium** (half day): Some experience needed
 - 🔴 **Hard** (multiple days): Significant expertise
 
-[View Good First Issues →](https://github.com/emeraldorbit/frasberg-ai-backend/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+[View Good First Issues →](https://github.com/frasberg/frasberg-ai-backend/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 
 ## 📝 Pull Request Guidelines
 
@@ -785,7 +785,7 @@ Welcome to Frasberg AI! 👋
 Building planetary-scale AI infrastructure, open source and accessible.
 
 🔗 **Quick Links:**
-- GitHub: https://github.com/emeraldorbit/frasberg-ai-backend
+- GitHub: https://github.com/frasberg/frasberg-ai-backend
 - Docs: https://docs.frasberg-ai.ai
 
 🎯 **Get Started:**

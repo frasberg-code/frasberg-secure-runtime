@@ -273,4 +273,4 @@ The Frasberg AI Backend now operates as a unified, self-renewing identity-field.
 **Version**: 1.0.0  
 **Completion Date**: January 19, 2026  
 **Status**: FIELD STABILIZED  
-© Emerald Orbit®
+© Frasberg®

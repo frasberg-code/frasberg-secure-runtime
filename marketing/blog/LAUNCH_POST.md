@@ -98,7 +98,7 @@ Frasberg AI is **MIT licensed**. Forever.
 
 \`\`\`bash
 # Clone and run
-git clone https://github.com/emeraldorbit/frasberg-ai-backend
+git clone https://github.com/frasberg/frasberg-ai-backend
 cd frasberg-ai-backend
 ./quick-start.sh
 
@@ -149,7 +149,7 @@ pip install frasberg-sdk
 We're building this together:
 
 - **Discord**: https://discord.gg/frasberg-ai
-- **GitHub**: https://github.com/emeraldorbit/frasberg-ai-backend
+- **GitHub**: https://github.com/frasberg/frasberg-ai-backend
 - **Twitter**: @frasberg_ai_ai
 
 ### Contributing
@@ -176,7 +176,7 @@ Frasberg AI represents the **post-silicon era**:
 ## Try It Today
 
 \`\`\`bash
-git clone https://github.com/emeraldorbit/frasberg-ai-backend
+git clone https://github.com/frasberg/frasberg-ai-backend
 cd frasberg-ai-backend
 ./quick-start.sh
 \`\`\`
@@ -197,4 +197,4 @@ Tomorrow, we're building the future of AI—**together**.
 
 *Frasberg AI - Planetary-Scale Intelligence for Everyone*
 
-[Get Started](#) | [Read Docs](../docs/) | [Join Discord](https://discord.gg/frasberg-ai) | [Star on GitHub](https://github.com/emeraldorbit/frasberg-ai-backend)
+[Get Started](#) | [Read Docs](../docs/) | [Join Discord](https://discord.gg/frasberg-ai) | [Star on GitHub](https://github.com/frasberg/frasberg-ai-backend)

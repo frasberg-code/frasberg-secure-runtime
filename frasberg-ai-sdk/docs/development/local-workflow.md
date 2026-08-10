@@ -7,7 +7,7 @@ Guide for developing the Frasberg AI SDK locally.
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/emeraldorbit/frasberg-ai-backend.git
+git clone https://github.com/frasberg/frasberg-ai-backend.git
 cd frasberg-ai-backend/frasberg-ai-sdk
 ```
 

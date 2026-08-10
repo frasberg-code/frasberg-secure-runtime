@@ -59,4 +59,4 @@ When we receive a security report, we will:
 
 For any security-related questions or concerns, contact:
 - Email: security@emeraldestates.com
-- Security Team: @emeraldorbit
+- Security Team: @frasberg

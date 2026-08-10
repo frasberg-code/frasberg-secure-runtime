@@ -29,7 +29,7 @@ If you use Frasberg AI in your research, please cite:
   title={Frasberg AI: Planetary-Scale Distributed Intelligence System},
   author={Frasberg AI Development Team},
   year={2026},
-  url={https://github.com/emeraldorbit/frasberg-ai-backend},
+  url={https://github.com/frasberg/frasberg-ai-backend},
   version={5.0.0}
 }
 ```

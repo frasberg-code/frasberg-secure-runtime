@@ -13,7 +13,7 @@ This document summarizes the complete rebranding from **Frasberg AI** to **Frasb
 ## 🎯 What's Been Done
 
 ### ✨ Code & Modules (15 files)
-- ✅ All package names: `@emeraldorbit/frasberg-*` → `@emeraldorbit/frasberg-*`
+- ✅ All package names: `@frasberg/*` → `@frasberg/*`
 - ✅ All imports updated throughout codebase
 - ✅ All references in source files updated
 - ✅ TypeScript compilation verified
@@ -64,8 +64,8 @@ This document summarizes the complete rebranding from **Frasberg AI** to **Frasb
 All packages follow the pattern:
 
 ```
-OLD: @emeraldorbit/frasberg-{MODULE}
-NEW: @emeraldorbit/frasberg-{MODULE}
+OLD: @frasberg/{MODULE}
+NEW: @frasberg/{MODULE}
 ```
 
 **Modules:**
@@ -124,7 +124,7 @@ Each script:
 
 ### **GitHub Repository Settings** (Cannot be automated)
 
-Go to: https://github.com/emeraldorbit/frasberg-ai-backend/settings
+Go to: https://github.com/frasberg/frasberg-ai-backend/settings
 
 #### 1. **Update Repository Description**
 ```
@@ -166,7 +166,7 @@ NEW: "Behavioral governance engine for Frasberg AI. Includes tonal modulation, h
 4. Click **"Rename"**
 5. Update local git remotes:
    ```bash
-   git remote set-url origin https://github.com/emeraldorbit/frasberg-ai-backend.git
+   git remote set-url origin https://github.com/frasberg/frasberg-ai-backend.git
    ```
 
 ---

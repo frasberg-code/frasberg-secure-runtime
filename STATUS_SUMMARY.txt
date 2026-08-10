@@ -9,12 +9,12 @@
 📦 PACKAGE STATUS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  ✅ @emeraldorbit/frasberg-governance-engine      [OPERATIONAL] 🔧
-  ✅ @emeraldorbit/frasberg-tonal-modulation       [OPERATIONAL] 🎵
-  ✅ @emeraldorbit/frasberg-membrane-protocol      [OPERATIONAL] 🛡️
-  ✅ @emeraldorbit/frasberg-hinge-logic            [OPERATIONAL] 🔀
-  ✅ @emeraldorbit/frasberg-continuum-identity     [OPERATIONAL] 🌊
-  ✅ @emeraldorbit/frasberg-unified-field-runtime  [OPERATIONAL] 🌐
+  ✅ @frasberg/frasberg-governance-engine      [OPERATIONAL] 🔧
+  ✅ @frasberg/frasberg-tonal-modulation       [OPERATIONAL] 🎵
+  ✅ @frasberg/frasberg-membrane-protocol      [OPERATIONAL] 🛡️
+  ✅ @frasberg/frasberg-hinge-logic            [OPERATIONAL] 🔀
+  ✅ @frasberg/frasberg-continuum-identity     [OPERATIONAL] 🌊
+  ✅ @frasberg/frasberg-unified-field-runtime  [OPERATIONAL] 🌐
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -59,7 +59,7 @@
   Build:    pnpm build (or build individual packages)
   Test:     cd packages/frasberg-governance-engine && pnpm test
 
-  Import:   import { deviationEngine } from '@emeraldorbit/frasberg-governance-engine'
+  Import:   import { deviationEngine } from '@frasberg/frasberg-governance-engine'
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
