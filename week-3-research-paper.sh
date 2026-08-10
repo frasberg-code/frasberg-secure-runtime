@@ -1,11 +1,11 @@
 #!/bin/bash
-# Sofia Core - Month 1 Week 3: Research Paper Preparation
+# Frasberg AI - Month 1 Week 3: Research Paper Preparation
 # Prepare and submit DNA Computing research paper
 
 set -e
 
 echo "════════════════════════════════════════════════════════════════"
-echo "  SOFIA CORE - WEEK 3: RESEARCH PAPER PREPARATION"
+echo "  FRASBERG CORE - WEEK 3: RESEARCH PAPER PREPARATION"
 echo "  Topic: DNA Computing in Distributed Systems"
 echo "════════════════════════════════════════════════════════════════"
 echo ""
@@ -17,7 +17,7 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 if [ ! -f "backend/server.py" ]; then
-    echo -e "${RED}❌ Error: Must run from sofia-core-backend root directory${NC}"
+    echo -e "${RED}❌ Error: Must run from frasberg-ai-backend root directory${NC}"
     exit 1
 fi
 
@@ -259,14 +259,14 @@ We integrated DNA computing into a planetary-scale distributed system, achieving
 • Open-source implementation
 
 📄 Paper: [arXiv link]
-💻 Code: https://github.com/emeraldorbit/sofia-core-backend
+💻 Code: https://github.com/emeraldorbit/frasberg-ai-backend
 
 #DNAcomputing #AI #DistributedSystems
 
 ## Reddit (r/MachineLearning)
-Title: [R] DNA Computing Integration in Distributed Intelligence Systems: The Sofia Core Approach
+Title: [R] DNA Computing Integration in Distributed Intelligence Systems: The Frasberg AI Approach
 
-We present Sofia Core, a distributed AI system integrating DNA computing principles at planetary scale. 
+We present Frasberg AI, a distributed AI system integrating DNA computing principles at planetary scale. 
 
 Key results:
 - 10^6x storage density vs traditional systems
@@ -275,7 +275,7 @@ Key results:
 - Production deployment
 
 Paper: [arXiv link]
-Code: https://github.com/emeraldorbit/sofia-core-backend
+Code: https://github.com/emeraldorbit/frasberg-ai-backend
 
 This is the first practical integration of DNA computing into a production distributed system. Would love your feedback!
 
@@ -291,12 +291,12 @@ Highlights:
 - Complete working implementation
 
 Paper (arXiv): [link]
-Code: https://github.com/emeraldorbit/sofia-core-backend
+Code: https://github.com/emeraldorbit/frasberg-ai-backend
 
 ## LinkedIn
 I'm excited to share our latest research on integrating DNA computing into distributed systems!
 
-Our team built Sofia Core, a planetary-scale AI system that leverages biological computing principles to achieve remarkable improvements:
+Our team built Frasberg AI, a planetary-scale AI system that leverages biological computing principles to achieve remarkable improvements:
 
 📊 Results:
 • 1,000,000× storage density increase
@@ -308,7 +308,7 @@ Our team built Sofia Core, a planetary-scale AI system that leverages biological
 The entire system is open-source, and we've published a detailed paper explaining the architecture and benchmarks.
 
 Read the paper: [arXiv link]
-Try the code: https://github.com/emeraldorbit/sofia-core-backend
+Try the code: https://github.com/emeraldorbit/frasberg-ai-backend
 
 #AI #DNAcomputing #Research #DistributedSystems
 EOF

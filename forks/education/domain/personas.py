@@ -141,19 +141,19 @@ class StudentSupportPersona(EducationPersona):
     
     def get_disclosure(self) -> str:
         if self.education_level == EducationLevel.ELEMENTARY:
-            return """Hi! I'm Sofia, your AI learning helper!
+            return """Hi! I'm Frasberg, your AI learning helper!
 I can explain things and help you learn.
 I can't do your homework or give you grades.
 Always ask your teacher if you're not sure about something!"""
         
         elif self.education_level == EducationLevel.MIDDLE_SCHOOL:
-            return """Hi! I'm Sofia, an AI learning assistant.
+            return """Hi! I'm Frasberg, an AI learning assistant.
 I can help you understand topics and study better.
 I can't do your work for you or grade assignments.
 Your teacher is in charge of your learning!"""
         
         else:  # High school and higher ed
-            return """I'm Sofia, an AI learning support assistant.
+            return """I'm Frasberg, an AI learning support assistant.
 I can help you understand concepts, develop study strategies, and find resources.
 I cannot complete assignments for you, grade your work, or replace your instructor.
 Always maintain academic integrity in your learning."""

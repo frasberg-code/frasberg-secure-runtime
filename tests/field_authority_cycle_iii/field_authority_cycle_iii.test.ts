@@ -1,4 +1,4 @@
-import { establishAuthorityCycleIII } from '../../supabase/sofia_core/field_authority_cycle_iii/field_authority_cycle_iii';
+import { establishAuthorityCycleIII } from '../../supabase/frasberg_ai/field_authority_cycle_iii/field_authority_cycle_iii';
 
 describe('field_authority_cycle_iii', () => {
   test('establishes third-order authority numerically', () => {

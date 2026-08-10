@@ -1,4 +1,4 @@
-# Sofia Core v4.1.0 - Exploratory Subsystems Release
+# Frasberg AI v4.1.0 - Exploratory Subsystems Release
 
 **Release Date:** February 8, 2026  
 **Type:** Feature Release  
@@ -8,7 +8,7 @@
 
 ## 🎯 Overview
 
-Sofia Core v4.1.0 resolves **Issue #5 - Exploratory Subsystem Candidates** that was deferred from v4.0.1. This release introduces cutting-edge exploratory technologies while maintaining the stability foundation established in v4.0.1.
+Frasberg AI v4.1.0 resolves **Issue #5 - Exploratory Subsystem Candidates** that was deferred from v4.0.1. This release introduces cutting-edge exploratory technologies while maintaining the stability foundation established in v4.0.1.
 
 ---
 
@@ -145,8 +145,8 @@ All revolutionary v4.0.0 features are maintained:
 ### Quick Start with v4.1.0
 ```bash
 # Clone repository
-git clone https://github.com/emeraldorbit/sofia-core-backend
-cd sofia-core-backend
+git clone https://github.com/emeraldorbit/frasberg-ai-backend
+cd frasberg-ai-backend
 
 # Checkout v4.1.0
 git checkout v4.1.0
@@ -246,7 +246,7 @@ docker run -d -p 6379:6379 redis:7-alpine
 If protecting endpoints, set JWT secret:
 ```python
 # In production, set environment variable
-SECRET_KEY = os.getenv("SOFIA_JWT_SECRET", "default_secret")
+SECRET_KEY = os.getenv("FRASBERG_JWT_SECRET", "default_secret")
 ```
 
 **Step 4: No Code Changes Required**
@@ -276,8 +276,8 @@ Coming in 2-3 weeks:
 ## 📞 Support
 
 - **Documentation:** [docs/README.md](docs/README.md)
-- **Issues:** https://github.com/emeraldorbit/sofia-core-backend/issues
-- **Discussions:** https://github.com/emeraldorbit/sofia-core-backend/discussions
+- **Issues:** https://github.com/emeraldorbit/frasberg-ai-backend/issues
+- **Discussions:** https://github.com/emeraldorbit/frasberg-ai-backend/discussions
 
 ---
 

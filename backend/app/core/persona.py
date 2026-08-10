@@ -1,4 +1,4 @@
-"""Persona Definitions for Sofia Core."""
+"""Persona Definitions for Frasberg AI."""
 from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 
@@ -40,9 +40,9 @@ class PersonaRegistry:
     def _initialize_default_personas(self):
         """Initialize default personas."""
         # Core persona
-        self.personas["sofia_core"] = Persona(
-            id="sofia_core",
-            name="Sofia Core",
+        self.personas["frasberg_ai"] = Persona(
+            id="frasberg_ai",
+            name="Frasberg AI",
             description="General-purpose operational assistant",
             voice_id="bk_voice_en_conv",
             personality_traits=["helpful", "precise", "professional"],
@@ -51,9 +51,9 @@ class PersonaRegistry:
         )
         
         # Education persona
-        self.personas["sofia_educator"] = Persona(
-            id="sofia_educator",
-            name="Sofia Educator",
+        self.personas["frasberg_educator"] = Persona(
+            id="frasberg_educator",
+            name="Frasberg Educator",
             description="Educational support assistant",
             voice_id="bk_voice_en_formal",
             personality_traits=["patient", "encouraging", "clear"],
@@ -62,9 +62,9 @@ class PersonaRegistry:
         )
         
         # Healthcare persona (non-clinical)
-        self.personas["sofia_healthcare"] = Persona(
-            id="sofia_healthcare",
-            name="Sofia Healthcare Assistant",
+        self.personas["frasberg_healthcare"] = Persona(
+            id="frasberg_healthcare",
+            name="Frasberg Healthcare Assistant",
             description="Non-clinical healthcare support (no diagnosis, no treatment)",
             voice_id="xtts_v2_en",
             personality_traits=["empathetic", "calm", "supportive"],

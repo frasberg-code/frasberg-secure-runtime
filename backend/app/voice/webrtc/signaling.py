@@ -1,4 +1,4 @@
-"""WebRTC Signaling for Sofia Core."""
+"""WebRTC Signaling for Frasberg AI."""
 from typing import Dict, Optional, List
 from dataclasses import dataclass, field
 from datetime import datetime

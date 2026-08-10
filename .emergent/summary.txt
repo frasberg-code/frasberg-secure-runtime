@@ -4,7 +4,7 @@ The user wants to build a massive, fully-functional, 50+ page enterprise applica
 **PRODUCT REQUIREMENTS:**
 - A full-stack application named EmeraldOrbit.
 - A comprehensive backend with database models for users, properties, crypto, live streaming, music, contacts, calls, and more.
-- A fully functional frontend with over 50 pages, including but not limited to: Dashboards, Sofia Chat, Calling, Live Streaming, Crypto Trading, Real Estate, Content Creation, Social Feeds, and extensive settings pages.
+- A fully functional frontend with over 50 pages, including but not limited to: Dashboards, Frasberg Chat, Calling, Live Streaming, Crypto Trading, Real Estate, Content Creation, Social Feeds, and extensive settings pages.
 - The UI should be modern, using components styled like , with animations (), and icons ().
 - The application should be highly interactive and data-driven, utilizing libraries like  for state management.
 

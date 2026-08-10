@@ -1,4 +1,4 @@
-import { applyTide } from '../../supabase/sofia_core/field_tide/field_tide';
+import { applyTide } from '../../supabase/frasberg_ai/field_tide/field_tide';
 
 describe('field_tide', () => {
   test('applies rising tide', () => {

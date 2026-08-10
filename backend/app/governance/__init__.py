@@ -1,7 +1,7 @@
 """
-Sofia Core Governance System v2.0.0
+Frasberg AI Governance System v2.0.0
 
-Institutional-grade governance, compliance, and audit system for Sofia Core.
+Institutional-grade governance, compliance, and audit system for Frasberg AI.
 Provides hash-chained audit logs, FRE Rule 902(13) compliance, expert witness
 mode, multi-jurisdiction policy support, and court-ready exhibit generation.
 """

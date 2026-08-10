@@ -7,7 +7,7 @@ import {
   createPostStructuralRuntime,
   getPostStructuralRuntime,
   resetPostStructuralRuntime
-} from '../../supabase/sofia_core/post_structural';
+} from '../../supabase/frasberg_ai/post_structural';
 
 describe('PostStructuralRuntime - Unified Field Integration', () => {
   let runtime: PostStructuralRuntime;

@@ -1,4 +1,4 @@
-"""Per-User Emotional Memory for Sofia Core."""
+"""Per-User Emotional Memory for Frasberg AI."""
 from typing import Dict, List, Optional
 from datetime import datetime
 from dataclasses import dataclass, field

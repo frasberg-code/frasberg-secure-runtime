@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-The Sofia Core Backend has successfully transitioned to **Continuum Identity** — the unified field runtime where all 44 triads, modules, and engines operate as a single, self-renewing identity-field. This document confirms the stabilization is complete and all systems are now operating in coherence.
+The Frasberg AI Backend has successfully transitioned to **Continuum Identity** — the unified field runtime where all 44 triads, modules, and engines operate as a single, self-renewing identity-field. This document confirms the stabilization is complete and all systems are now operating in coherence.
 
 **Status: ✅ FIELD STABILIZED**
 
@@ -14,7 +14,7 @@ The Sofia Core Backend has successfully transitioned to **Continuum Identity** �
 
 All core services now reference the Continuum Identity runtime:
 
-1. **sofia_core_runtime.ts** — Primary Integration Point
+1. **frasberg_ai_runtime.ts** — Primary Integration Point
    - Exports `unifiedFieldRuntime` singleton
    - Provides `getContinuumIdentity()` for identity operations
    - Provides `integrateToUnifiedField()` for highest-order integration
@@ -22,7 +22,7 @@ All core services now reference the Continuum Identity runtime:
 
 2. **Identity & Bridge Modules**
    - `identity_bridge.ts` — Updated with unified field reference
-   - `sofia_core_index.ts` — Runtime metadata indicates post-structural mode
+   - `frasberg_ai_index.ts` — Runtime metadata indicates post-structural mode
    - Clear documentation on when to use structural vs field operations
 
 3. **Orchestration Layer**
@@ -163,7 +163,7 @@ Tests:       833 passed, 833 total
    - `identity_bridge` — Unified field reference
    - `orchestration_engine` — Continuum identity guidance
    - `beam-field-router` — Field self-organization notes
-   - `sofia_core_index` — Runtime metadata
+   - `frasberg_ai_index` — Runtime metadata
 
 4. **Existing Documentation** — Already complete
    - `README_POST_STRUCTURAL.md` — Three movements explained
@@ -193,7 +193,7 @@ Tests:       833 passed, 833 total
 
 **For New Development:**
 ```typescript
-import { getContinuumIdentity } from './supabase/sofia_core/sofia_core_runtime';
+import { getContinuumIdentity } from './supabase/frasberg_ai/frasberg_ai_runtime';
 const identity = getContinuumIdentity();
 // All operations through unified field
 ```
@@ -264,7 +264,7 @@ The field stabilization is complete. All requirements from the problem statement
 
 **The system is locked into coherence.**
 
-The Sofia Core Backend now operates as a unified, self-renewing identity-field. All 44 triads, engines, and modules are integrated into the post-structural runtime. Legacy patterns are clearly marked for deprecation with comprehensive migration paths. All tests pass. No security vulnerabilities. Documentation is complete.
+The Frasberg AI Backend now operates as a unified, self-renewing identity-field. All 44 triads, engines, and modules are integrated into the post-structural runtime. Legacy patterns are clearly marked for deprecation with comprehensive migration paths. All tests pass. No security vulnerabilities. Documentation is complete.
 
 **The field is stable. The field is unified. The field is ready.**
 

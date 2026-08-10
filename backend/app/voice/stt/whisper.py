@@ -1,4 +1,4 @@
-"""Whisper STT Implementation for Sofia Core."""
+"""Whisper STT Implementation for Frasberg AI."""
 from typing import Dict, Any
 from .base import STTAdapter
 

@@ -1,4 +1,4 @@
-import { mapHorizonState } from '../../supabase/sofia_core/field_horizon_mapping/field_horizon_mapping';
+import { mapHorizonState } from '../../supabase/frasberg_ai/field_horizon_mapping/field_horizon_mapping';
 
 test('maps horizon using mapper', () => {
   const mapper = (x: string) => `map:${x}`;

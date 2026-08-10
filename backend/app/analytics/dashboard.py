@@ -1,4 +1,4 @@
-"""Analytics Dashboard Generation for Sofia Core."""
+"""Analytics Dashboard Generation for Frasberg AI."""
 from typing import Dict, List
 from datetime import datetime
 import json
@@ -28,7 +28,7 @@ class AnalyticsDashboard:
         """
         dashboard = {
             "generated_at": datetime.utcnow().isoformat(),
-            "type": "sofia_core_analytics",
+            "type": "frasberg_ai_analytics",
             "version": "1.0.0",
             "overview": self._generate_overview(metrics),
             "forks": self._generate_fork_panels(metrics),

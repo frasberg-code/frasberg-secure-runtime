@@ -1,4 +1,4 @@
-import { modulateSemantics } from '../../supabase/sofia_core/semantic_modulator/semantic_modulator';
+import { modulateSemantics } from '../../supabase/frasberg_ai/semantic_modulator/semantic_modulator';
 
 describe('semantic_modulator', () => {
   test('modulates semantics with mode', () => {

@@ -1,4 +1,4 @@
-import { continueHorizonStateIV } from '../../supabase/sofia_core/field_horizon_continuity_iv/field_horizon_continuity_iv';
+import { continueHorizonStateIV } from '../../supabase/frasberg_ai/field_horizon_continuity_iv/field_horizon_continuity_iv';
 
 describe('field_horizon_continuity_iv', () => {
   test('continues fourth-order horizon numerically', () => {

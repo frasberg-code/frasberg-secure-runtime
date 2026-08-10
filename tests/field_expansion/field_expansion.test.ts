@@ -1,4 +1,4 @@
-import { expandFieldState } from '../../supabase/sofia_core/field_expansion/field_expansion';
+import { expandFieldState } from '../../supabase/frasberg_ai/field_expansion/field_expansion';
 
 test('expands field using expander', () => {
   const expander = (x: number) => x * 3;

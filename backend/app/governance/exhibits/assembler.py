@@ -118,7 +118,7 @@ class ExhibitAssembler:
             title = f"Exhibit {exhibit_number} - Audit Log Records"
         
         description = (
-            f"Authenticated audit log records from Sofia Core Governance System. "
+            f"Authenticated audit log records from Frasberg AI Governance System. "
             f"Contains {len(audit_entries)} entries with cryptographic hash chain verification."
         )
         

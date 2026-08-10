@@ -1,4 +1,4 @@
-"""Base STT Adapter for Sofia Core."""
+"""Base STT Adapter for Frasberg AI."""
 from abc import ABC, abstractmethod
 from typing import Dict, Any
 

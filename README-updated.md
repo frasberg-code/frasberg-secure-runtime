@@ -1,6 +1,6 @@
-# 🚀 Sofia Core v1.0.0
+# 🚀 Frasberg AI v1.0.0
 
-[![Release](https://img.shields.io/github/v/release/emeraldorbit/sofia-core-backend?style=for-the-badge)](https://github.com/emeraldorbit/sofia-core-backend/releases/latest)
+[![Release](https://img.shields.io/github/v/release/emeraldorbit/frasberg-ai-backend?style=for-the-badge)](https://github.com/emeraldorbit/frasberg-ai-backend/releases/latest)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Production-green.svg?style=for-the-badge)]()
 
@@ -8,9 +8,9 @@
 
 ---
 
-## 🎯 What is Sofia Core?
+## 🎯 What is Frasberg AI?
 
-Sofia Core is a complete operational intelligence system featuring:
+Frasberg AI is a complete operational intelligence system featuring:
 
 - **5 Containerized Services** - Canonical Core, Education Fork, Healthcare Fork, Analytics, Admin UI
 - **Production-Ready Deployment** - Docker, Kubernetes, multi-cloud support
@@ -24,11 +24,11 @@ Sofia Core is a complete operational intelligence system featuring:
 
 ```bash
 # Download latest release
-wget https://github.com/emeraldorbit/sofia-core-backend/releases/latest/download/sofia-core-v1.0.0-public-final.zip
+wget https://github.com/emeraldorbit/frasberg-ai-backend/releases/latest/download/frasberg-ai-v1.0.0-public-final.zip
 
 # Extract
-unzip sofia-core-v1.0.0-public-final.zip
-cd sofia-core-v1.0.0-public-final
+unzip frasberg-ai-v1.0.0-public-final.zip
+cd frasberg-ai-v1.0.0-public-final
 
 # Deploy
 cd deploy/canonical-core && docker-compose up -d
@@ -52,7 +52,7 @@ cd ../../frontend/admin && npm install && npm start
 
 ## 📦 Latest Release
 
-**[Download Sofia Core v1.0.0](https://github.com/emeraldorbit/sofia-core-backend/releases/tag/v1.0.0)**
+**[Download Frasberg AI v1.0.0](https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v1.0.0)**
 
 What's included:
 
@@ -103,16 +103,16 @@ See [CLOUD_DEPLOYMENT.md](CLOUD_DEPLOYMENT.md) for complete guides.
 - [Quick Start Guide](README.md)
 - [API Documentation](http://localhost:8000/docs)
 - [Cloud Deployment](CLOUD_DEPLOYMENT.md)
-- [System Manifest](release/sofia-core-v1.0.0-public-final/system-manifest.json)
+- [System Manifest](release/frasberg-ai-v1.0.0-public-final/system-manifest.json)
 - [Release Notes](RELEASE_NOTES.md)
 
 ## 🤝 Contributing
 
 Contributions welcome! Please see:
 
-- [Issues](https://github.com/emeraldorbit/sofia-core-backend/issues)
-- [Discussions](https://github.com/emeraldorbit/sofia-core-backend/discussions)
-- [Pull Requests](https://github.com/emeraldorbit/sofia-core-backend/pulls)
+- [Issues](https://github.com/emeraldorbit/frasberg-ai-backend/issues)
+- [Discussions](https://github.com/emeraldorbit/frasberg-ai-backend/discussions)
+- [Pull Requests](https://github.com/emeraldorbit/frasberg-ai-backend/pulls)
 
 ## 📜 License
 
@@ -120,12 +120,12 @@ MIT License - See [LICENSE](LICENSE) file for details
 
 ## 🎊 Support
 
-- **Repository:** https://github.com/emeraldorbit/sofia-core-backend
-- **Issues:** https://github.com/emeraldorbit/sofia-core-backend/issues
-- **Releases:** https://github.com/emeraldorbit/sofia-core-backend/releases
+- **Repository:** https://github.com/emeraldorbit/frasberg-ai-backend
+- **Issues:** https://github.com/emeraldorbit/frasberg-ai-backend/issues
+- **Releases:** https://github.com/emeraldorbit/frasberg-ai-backend/releases
 
 ---
 
-**Sofia Core - Institution-Grade Intelligence**
+**Frasberg AI - Institution-Grade Intelligence**
 
 *Manifested in code. Ready for deployment.*

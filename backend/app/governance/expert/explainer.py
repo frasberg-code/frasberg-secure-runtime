@@ -1,7 +1,7 @@
 """
 Expert Witness Explainer
 
-Provides court-safe, scope-limited explanations of the Sofia Core Governance
+Provides court-safe, scope-limited explanations of the Frasberg AI Governance
 System for expert witness testimony. Explanations are factual, technical, and
 limited to the system's design and operation.
 """
@@ -52,7 +52,7 @@ class ExpertExplainer:
     """
     Expert witness explanation generator.
     
-    Provides factual, scope-limited explanations of the Sofia Core Governance
+    Provides factual, scope-limited explanations of the Frasberg AI Governance
     System suitable for expert witness testimony. All explanations:
     
     - Are strictly factual and technical
@@ -143,7 +143,7 @@ class ExpertExplainer:
         report = f"""
 {'='*80}
 EXPERT WITNESS REPORT
-Sofia Core Governance System
+Frasberg AI Governance System
 {'='*80}
 
 Expert: {self.expert_name}
@@ -159,7 +159,7 @@ QUALIFICATIONS:
         report += f"""
 SCOPE OF EXPERTISE:
 ------------------
-This report provides technical explanations of the Sofia Core Governance System's
+This report provides technical explanations of the Frasberg AI Governance System's
 design, architecture, and operation. Explanations are limited to factual,
 technical matters within my area of expertise. I do not opine on legal matters,
 case-specific facts, or matters outside my expertise.
@@ -237,7 +237,7 @@ KEY POINTS:
                 summary="Hash chaining creates tamper-evident audit logs using cryptographic hashing.",
                 technical_description=(
                     "Hash chaining is a cryptographic technique where each record contains a "
-                    "hash (cryptographic fingerprint) of the previous record. The Sofia Core system "
+                    "hash (cryptographic fingerprint) of the previous record. The Frasberg AI system "
                     "uses SHA-256, a cryptographically secure hash function, to create a chain where "
                     "each entry is mathematically linked to all previous entries. Any modification to "
                     "any entry in the chain will break the chain, making tampering immediately detectable."
@@ -246,7 +246,7 @@ KEY POINTS:
                     "Think of hash chaining like a sealed envelope system. Each envelope (record) "
                     "contains information about the previous envelope's unique seal. If someone tries "
                     "to tamper with any envelope, the seals won't match up anymore, and you'll know "
-                    "something was changed. The Sofia Core system uses advanced mathematics to create "
+                    "something was changed. The Frasberg AI system uses advanced mathematics to create "
                     "these 'seals' in a way that makes it virtually impossible to forge them."
                 ),
                 key_points=[
@@ -272,7 +272,7 @@ KEY POINTS:
                 topic=ExplanationTopic.AUDIT_LOGGING,
                 summary="Automated system that records all significant events with timestamps and context.",
                 technical_description=(
-                    "The Sofia Core audit logging system automatically captures significant system "
+                    "The Frasberg AI audit logging system automatically captures significant system "
                     "events as they occur. Each audit entry includes: (1) a unique identifier, "
                     "(2) high-precision timestamp with microsecond accuracy, (3) event type and details, "
                     "(4) user and session context, (5) cryptographic hash of the entry, and "
@@ -309,7 +309,7 @@ KEY POINTS:
                 topic=ExplanationTopic.TAMPER_DETECTION,
                 summary="Mathematical techniques that detect any unauthorized modification to records.",
                 technical_description=(
-                    "Tamper detection in Sofia Core relies on cryptographic hash verification. "
+                    "Tamper detection in Frasberg AI relies on cryptographic hash verification. "
                     "Each audit entry's hash is computed from its complete contents using SHA-256. "
                     "Any modification to the entry, no matter how small, will produce a different "
                     "hash value. By recomputing the hash and comparing it to the stored value, "
@@ -347,7 +347,7 @@ KEY POINTS:
                 topic=ExplanationTopic.TIMESTAMP_PRECISION,
                 summary="Microsecond-precision timestamps synchronized to authoritative time sources.",
                 technical_description=(
-                    "Sofia Core generates timestamps with microsecond precision (millionths of a second) "
+                    "Frasberg AI generates timestamps with microsecond precision (millionths of a second) "
                     "in ISO 8601 format with UTC timezone. Timestamps are generated using system clocks "
                     "that are synchronized to authoritative time sources via NTP (Network Time Protocol). "
                     "This precision allows for accurate ordering of events and detection of temporal "

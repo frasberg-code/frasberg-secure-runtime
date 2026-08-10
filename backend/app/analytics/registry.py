@@ -1,4 +1,4 @@
-"""Fork Registry for Sofia Core Analytics."""
+"""Fork Registry for Frasberg AI Analytics."""
 from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 
@@ -17,7 +17,7 @@ class ForkDefinition:
 
 class ForkRegistry:
     """
-    Registry for Sofia Core forks.
+    Registry for Frasberg AI forks.
     
     Tracks all fork instances for multi-fork analytics and management.
     """
@@ -32,7 +32,7 @@ class ForkRegistry:
         # Canonical core
         self.forks["canonical-core"] = ForkDefinition(
             fork_id="canonical-core",
-            name="Sofia Core (Canonical)",
+            name="Frasberg AI (Canonical)",
             domain="general",
             port=8000,
             description="General-purpose operational intelligence system"
@@ -41,7 +41,7 @@ class ForkRegistry:
         # Education fork
         self.forks["education"] = ForkDefinition(
             fork_id="education",
-            name="Sofia Core (Education)",
+            name="Frasberg AI (Education)",
             domain="education",
             port=8001,
             description="Educational support fork",
@@ -55,7 +55,7 @@ class ForkRegistry:
         # Healthcare fork (non-clinical)
         self.forks["healthcare-nonclinical"] = ForkDefinition(
             fork_id="healthcare-nonclinical",
-            name="Sofia Core (Healthcare Non-Clinical)",
+            name="Frasberg AI (Healthcare Non-Clinical)",
             domain="healthcare",
             port=8002,
             description="Healthcare support fork (non-clinical operations only)",

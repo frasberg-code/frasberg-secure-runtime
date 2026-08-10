@@ -50,7 +50,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>🎯 Sofia Core v1.0.0</h1>
+        <h1>🎯 Frasberg AI v1.0.0</h1>
         <p className="subtitle">Institution-Grade Operational Intelligence</p>
       </header>
 
@@ -120,7 +120,7 @@ function App() {
       </main>
 
       <footer>
-        <p>Sofia Core - Institutional-Grade Intelligence | Court-Ready | Auditor-Verified</p>
+        <p>Frasberg AI - Institutional-Grade Intelligence | Court-Ready | Auditor-Verified</p>
       </footer>
     </div>
   );

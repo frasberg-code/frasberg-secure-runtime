@@ -98,7 +98,7 @@ class PropertyCreate(BaseModel):
 
 class SubscriptionCreate(BaseModel):
     tier: str = "free"
-    sofia_message_limit: int = 50
+    frasberg_message_limit: int = 50
     image_generation_limit: int = 5
     music_generation_limit: int = 0
     video_generation_limit: int = 0
@@ -161,8 +161,8 @@ async def register(user: UserCreate):
         "id": str(uuid.uuid4()),
         "user_email": user.email,
         "tier": "free",
-        "sofia_message_limit": 50,
-        "sofia_messages_used": 0,
+        "frasberg_message_limit": 50,
+        "frasberg_messages_used": 0,
         "image_generation_limit": 5,
         "image_generations_used": 0,
         "music_generation_limit": 0,

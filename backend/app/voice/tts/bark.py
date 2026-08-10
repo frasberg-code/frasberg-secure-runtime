@@ -1,4 +1,4 @@
-"""Bark TTS Implementation for Sofia Core."""
+"""Bark TTS Implementation for Frasberg AI."""
 from typing import Dict, Any
 from .base import TTSAdapter
 

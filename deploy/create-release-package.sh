@@ -4,11 +4,11 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
-RELEASE_NAME="sofia-core-v1.0.0-public-final"
+RELEASE_NAME="frasberg-ai-v1.0.0-public-final"
 RELEASE_DIR="$REPO_ROOT/release/${RELEASE_NAME}"
 
 echo "═══════════════════════════════════════════════════════"
-echo "  SOFIA CORE v1.0.0 - RELEASE PACKAGE CREATION"
+echo "  FRASBERG CORE v1.0.0 - RELEASE PACKAGE CREATION"
 echo "═══════════════════════════════════════════════════════"
 echo ""
 
@@ -34,7 +34,7 @@ echo "📋 Copying files..."
 # Create RELEASE_NOTES.md
 echo "📝 Creating RELEASE_NOTES.md..."
 cat > "$RELEASE_DIR/RELEASE_NOTES.md" << 'EOF'
-# Sofia Core v1.0.0 - Public Release
+# Frasberg AI v1.0.0 - Public Release
 
 **Release Date:** 2026-02-08  
 **Status:** Production Ready  
@@ -44,8 +44,8 @@ cat > "$RELEASE_DIR/RELEASE_NOTES.md" << 'EOF'
 
 ```bash
 # Extract and deploy
-unzip sofia-core-v1.0.0-public-final.zip
-cd sofia-core-v1.0.0-public-final
+unzip frasberg-ai-v1.0.0-public-final.zip
+cd frasberg-ai-v1.0.0-public-final
 
 # Run activation
 chmod +x deploy/post-pr-activation.sh
@@ -88,15 +88,15 @@ chmod +x deploy/post-pr-activation.sh
 ## Documentation
 
 - API Docs: http://localhost:8000/docs (after deployment)
-- Repository: https://github.com/emeraldorbit/sofia-core-backend
+- Repository: https://github.com/emeraldorbit/frasberg-ai-backend
 
 ## Support
 
-- Issues: https://github.com/emeraldorbit/sofia-core-backend/issues
+- Issues: https://github.com/emeraldorbit/frasberg-ai-backend/issues
 
 ---
 
-**Sofia Core** - Institution-Grade Intelligence
+**Frasberg AI** - Institution-Grade Intelligence
 EOF
 
 # Create ZIP archive

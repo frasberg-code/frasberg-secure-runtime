@@ -1,4 +1,4 @@
-import { expressApexStateIII } from '../../supabase/sofia_core/field_expression_apex_iii/field_expression_apex_iii';
+import { expressApexStateIII } from '../../supabase/frasberg_ai/field_expression_apex_iii/field_expression_apex_iii';
 
 describe('field_expression_apex_iii', () => {
   test('expresses third-order apex using expressFn', () => {

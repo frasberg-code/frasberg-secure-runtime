@@ -1,5 +1,5 @@
 """
-Metrics Collector for Sofia Core
+Metrics Collector for Frasberg AI
 Collects request metrics (meta-only, no content)
 """
 

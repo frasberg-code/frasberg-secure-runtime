@@ -1,0 +1,6 @@
+import { getAppEntry } from './frasberg_ai_application_shell/app_shell_runtime';
+
+export function bootstrapFrasbergAI(initialContext: object = {}) {
+  const entry = getAppEntry();
+  return entry.initializeFrasbergAppShell(initialContext);
+}

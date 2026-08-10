@@ -1,4 +1,4 @@
-import { bridgeSignature } from '../../supabase/sofia_core/signature_bridge/signature_bridge';
+import { bridgeSignature } from '../../supabase/frasberg_ai/signature_bridge/signature_bridge';
 
 describe('signature_bridge', () => {
   test('bridges local and external signatures', () => {
@@ -6,7 +6,7 @@ describe('signature_bridge', () => {
   });
 
   test('bridges with uppercase signatures', () => {
-    expect(bridgeSignature('SOFIA', 'EXTERNAL')).toBe('SOFIA⇄EXTERNAL');
+    expect(bridgeSignature('FRASBERG', 'EXTERNAL')).toBe('FRASBERG⇄EXTERNAL');
   });
 
   test('bridges with numeric signatures', () => {

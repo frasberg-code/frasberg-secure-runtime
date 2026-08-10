@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 
 app = FastAPI(
-    title="Sofia Core - Analytics Dashboard",
+    title="Frasberg AI - Analytics Dashboard",
     description="Cross-fork meta-only analytics (no content)",
     version="v1.0.0"
 )

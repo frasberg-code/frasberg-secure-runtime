@@ -1,4 +1,4 @@
-"""Voice Replay Player for Sofia Core."""
+"""Voice Replay Player for Frasberg AI."""
 from typing import Optional, Dict
 from datetime import datetime
 import json

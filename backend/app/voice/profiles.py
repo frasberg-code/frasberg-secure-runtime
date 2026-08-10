@@ -1,4 +1,4 @@
-"""Voice Profile Registry for Sofia Core."""
+"""Voice Profile Registry for Frasberg AI."""
 from typing import Optional, Dict
 from dataclasses import dataclass
 

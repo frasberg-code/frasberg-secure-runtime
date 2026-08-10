@@ -1,4 +1,4 @@
-import { generateFieldStateII } from '../../supabase/sofia_core/field_generation_ii/field_generation_ii';
+import { generateFieldStateII } from '../../supabase/frasberg_ai/field_generation_ii/field_generation_ii';
 
 describe('field_generation_ii', () => {
   test('generates field-II using generator', () => {

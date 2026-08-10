@@ -1,4 +1,4 @@
-# 🚀 SOFIA CORE v1.0.0 - COMPREHENSIVE ACTIVATION GUIDE
+# 🚀 FRASBERG CORE v1.0.0 - COMPREHENSIVE ACTIVATION GUIDE
 
 ## 📊 CURRENT STATUS (2026-02-08)
 
@@ -44,7 +44,7 @@ curl http://localhost:8000/openapi.json
 {"status":"healthy","service":"canonical-core","version":"v1.0.0"}
 
 // GET /
-{"name":"Sofia Core","version":"v1.0.0","status":"operational","architecture":"45-layer sovereign intelligence"}
+{"name":"Frasberg AI","version":"v1.0.0","status":"operational","architecture":"45-layer sovereign intelligence"}
 
 // GET /api/v1/status
 {"service":"canonical-core","version":"v1.0.0","status":"operational","components":{"field_architecture":"active","sovereign_intelligence":"operational"}}
@@ -80,7 +80,7 @@ curl http://localhost:8000/openapi.json
 
 **When PR Completes, Run:**
 ```bash
-cd /workspaces/sofia-core-backend/deploy
+cd /workspaces/frasberg-ai-backend/deploy
 ./post-pr-activation.sh
 ```
 
@@ -146,7 +146,7 @@ npm start
 
 ### Health Check All Services
 ```bash
-cd /workspaces/sofia-core-backend/deploy
+cd /workspaces/frasberg-ai-backend/deploy
 ./full-health-check.sh
 ```
 
@@ -168,7 +168,7 @@ Checking Frontend Admin UI   (port 3000)... ✅ HEALTHY
 
 **When All Services Are Operational, Run:**
 ```bash
-cd /workspaces/sofia-core-backend/deploy
+cd /workspaces/frasberg-ai-backend/deploy
 ./create-release-package.sh
 ```
 
@@ -176,16 +176,16 @@ cd /workspaces/sofia-core-backend/deploy
 
 **1. Release Package**
 - Copies all backend, frontend, docs, deploy files
-- Creates `release/sofia-core-v1.0.0-public-final/`
+- Creates `release/frasberg-ai-v1.0.0-public-final/`
 - Includes RELEASE_NOTES.md
 - Packages everything needed for deployment
 
 **2. ZIP Archive**
-- `release/sofia-core-v1.0.0-public-final.zip`
+- `release/frasberg-ai-v1.0.0-public-final.zip`
 - Ready for distribution
 
 **3. Checksum**
-- `release/sofia-core-v1.0.0-public-final.zip.sha256`
+- `release/frasberg-ai-v1.0.0-public-final.zip.sha256`
 - For verification
 
 ### Create GitHub Release
@@ -193,23 +193,23 @@ cd /workspaces/sofia-core-backend/deploy
 **Option 1: GitHub CLI**
 ```bash
 gh release create v1.0.0-public-final \
-  release/sofia-core-v1.0.0-public-final.zip \
-  release/sofia-core-v1.0.0-public-final.zip.sha256 \
-  --title "Sofia Core v1.0.0 - Public Release" \
-  --notes-file release/sofia-core-v1.0.0-public-final/RELEASE_NOTES.md
+  release/frasberg-ai-v1.0.0-public-final.zip \
+  release/frasberg-ai-v1.0.0-public-final.zip.sha256 \
+  --title "Frasberg AI v1.0.0 - Public Release" \
+  --notes-file release/frasberg-ai-v1.0.0-public-final/RELEASE_NOTES.md
 ```
 
 **Option 2: GitHub Web UI**
-1. Go to https://github.com/emeraldorbit/sofia-core-backend/releases/new
+1. Go to https://github.com/emeraldorbit/frasberg-ai-backend/releases/new
 2. Tag: `v1.0.0-public-final`
-3. Title: "Sofia Core v1.0.0 - Public Release"
+3. Title: "Frasberg AI v1.0.0 - Public Release"
 4. Upload ZIP and SHA256 files
-5. Copy release notes from `release/sofia-core-v1.0.0-public-final/RELEASE_NOTES.md`
+5. Copy release notes from `release/frasberg-ai-v1.0.0-public-final/RELEASE_NOTES.md`
 6. Publish release
 
 ### Tag Repository
 ```bash
-git tag -a v1.0.0-public-final -m "Sofia Core v1.0.0 - Institution-Grade Intelligence System"
+git tag -a v1.0.0-public-final -m "Frasberg AI v1.0.0 - Institution-Grade Intelligence System"
 git push origin v1.0.0-public-final
 ```
 
@@ -219,7 +219,7 @@ git push origin v1.0.0-public-final
 
 ```
 ═══════════════════════════════════════════════════════
-  SOFIA CORE v1.0.0 - ACTIVATION TIMELINE
+  FRASBERG CORE v1.0.0 - ACTIVATION TIMELINE
 ═══════════════════════════════════════════════════════
 
 NOW (✅ COMPLETE)
@@ -261,7 +261,7 @@ ALL SERVICES OPERATIONAL ✅
 
 RUN: ./deploy/create-release-package.sh
   │
-  └─ ZIP created: release/sofia-core-v1.0.0-public-final.zip
+  └─ ZIP created: release/frasberg-ai-v1.0.0-public-final.zip
 
   ↓ [5 minutes]
 
@@ -301,8 +301,8 @@ Total Time from Now: 50-75 minutes
 3. **✅ Verify Current Service**
    ```bash
    curl http://localhost:8000/health
-   docker ps | grep sofia
-   docker logs sofia_canonical_core
+   docker ps | grep frasberg
+   docker logs frasberg_canonical_core
    ```
 
 4. **⏳ Monitor PR Status**
@@ -314,7 +314,7 @@ Total Time from Now: 50-75 minutes
 
 5. **🚀 Run Post-PR Activation**
    ```bash
-   cd /workspaces/sofia-core-backend/deploy
+   cd /workspaces/frasberg-ai-backend/deploy
    ./post-pr-activation.sh
    ```
 
@@ -340,21 +340,21 @@ Total Time from Now: 50-75 minutes
 
 ### Service Management
 ```bash
-# View all SOFIA containers
-docker ps --filter "name=sofia"
+# View all FRASBERG containers
+docker ps --filter "name=frasberg"
 
 # View logs (Canonical Core)
-docker logs -f sofia_canonical_core
+docker logs -f frasberg_canonical_core
 
 # Restart service
 cd deploy/canonical-core
 docker-compose restart
 
 # Stop all services
-docker stop $(docker ps -q --filter "name=sofia")
+docker stop $(docker ps -q --filter "name=frasberg")
 
 # Remove all services
-docker rm $(docker ps -aq --filter "name=sofia")
+docker rm $(docker ps -aq --filter "name=frasberg")
 ```
 
 ### System Status
@@ -377,10 +377,10 @@ docker-compose down
 docker-compose up -d --build
 
 # View real-time logs
-docker logs -f sofia_canonical_core
+docker logs -f frasberg_canonical_core
 
 # Enter container
-docker exec -it sofia_canonical_core /bin/bash
+docker exec -it frasberg_canonical_core /bin/bash
 ```
 
 ---
@@ -429,5 +429,5 @@ docker exec -it sofia_canonical_core /bin/bash
 
 ---
 
-**Sofia Core v1.0.0** - Institution-Grade Intelligence  
+**Frasberg AI v1.0.0** - Institution-Grade Intelligence  
 **Status:** Canonical Core OPERATIONAL 🟢 | Full System PENDING PR ⏳

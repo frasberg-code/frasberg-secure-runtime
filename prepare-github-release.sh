@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Sofia Core v1.0.0 - GitHub Release Preparation Script
+# Frasberg AI v1.0.0 - GitHub Release Preparation Script
 # This script prepares everything for GitHub release but does NOT push
 # (User must authenticate and push manually)
 
 set -e
 
 echo "=========================================="
-echo "Sofia Core v1.0.0 - Release Preparation"
+echo "Frasberg AI v1.0.0 - Release Preparation"
 echo "=========================================="
 echo ""
 
@@ -19,9 +19,9 @@ NC='\033[0m'
 
 # Step 1: Verify release package exists
 echo -e "${BLUE}Step 1:${NC} Verifying release package..."
-if [ -f "release/sofia-core-v1.0.0-public-final.zip" ]; then
+if [ -f "release/frasberg-ai-v1.0.0-public-final.zip" ]; then
     echo -e "${GREEN}✓${NC} Release package found"
-    ls -lh release/sofia-core-v1.0.0-public-final.zip
+    ls -lh release/frasberg-ai-v1.0.0-public-final.zip
 else
     echo "ERROR: Release package not found!"
     exit 1
@@ -30,9 +30,9 @@ fi
 # Step 2: Verify checksum
 echo ""
 echo -e "${BLUE}Step 2:${NC} Verifying package integrity..."
-if [ -f "release/sofia-core-v1.0.0-public-final.zip.sha256" ]; then
+if [ -f "release/frasberg-ai-v1.0.0-public-final.zip.sha256" ]; then
     cd release
-    if sha256sum -c sofia-core-v1.0.0-public-final.zip.sha256; then
+    if sha256sum -c frasberg-ai-v1.0.0-public-final.zip.sha256; then
         echo -e "${GREEN}✓${NC} Checksum verified"
     else
         echo "ERROR: Checksum verification failed!"
@@ -55,14 +55,14 @@ echo -e "${BLUE}Step 4:${NC} Preparing release notes..."
 cat > GITHUB_RELEASE_INSTRUCTIONS.md << 'EOF'
 # GitHub Release Instructions
 
-## 📦 Ready to Release: Sofia Core v1.0.0
+## 📦 Ready to Release: Frasberg AI v1.0.0
 
 All files have been prepared for GitHub release. Follow these steps:
 
 ### 1. Commit Release Files
 ```bash
 git add .
-git commit -m "Sofia Core v1.0.0 - Complete institutional-grade operational intelligence system
+git commit -m "Frasberg AI v1.0.0 - Complete institutional-grade operational intelligence system
 
 - 5 production services deployed
 - Canonical Core + Education & Healthcare Forks
@@ -76,7 +76,7 @@ Production-ready. Fork-isolated. Institution-grade."
 
 ### 2. Create Git Tag
 ```bash
-git tag -a v1.0.0 -m "Sofia Core v1.0.0 - Public Release"
+git tag -a v1.0.0 -m "Frasberg AI v1.0.0 - Public Release"
 ```
 
 ### 3. Push to GitHub
@@ -90,20 +90,20 @@ git push origin v1.0.0
 **Option A: Using GitHub CLI (gh)**
 ```bash
 gh release create v1.0.0 \
-  release/sofia-core-v1.0.0-public-final.zip \
-  release/sofia-core-v1.0.0-public-final.zip.sha256 \
-  --title "Sofia Core v1.0.0 - Public Release" \
+  release/frasberg-ai-v1.0.0-public-final.zip \
+  release/frasberg-ai-v1.0.0-public-final.zip.sha256 \
+  --title "Frasberg AI v1.0.0 - Public Release" \
   --notes-file RELEASE_NOTES.md
 ```
 
 **Option B: Using GitHub Web Interface**
-1. Go to: https://github.com/emeraldorbit/sofia-core-backend/releases/new
+1. Go to: https://github.com/emeraldorbit/frasberg-ai-backend/releases/new
 2. Tag version: `v1.0.0`
-3. Release title: `Sofia Core v1.0.0 - Public Release`
+3. Release title: `Frasberg AI v1.0.0 - Public Release`
 4. Copy content from RELEASE_NOTES.md into description
 5. Attach files:
-   - `release/sofia-core-v1.0.0-public-final.zip`
-   - `release/sofia-core-v1.0.0-public-final.zip.sha256`
+   - `release/frasberg-ai-v1.0.0-public-final.zip`
+   - `release/frasberg-ai-v1.0.0-public-final.zip.sha256`
 6. Check "Set as the latest release"
 7. Click "Publish release"
 
@@ -142,7 +142,7 @@ After publishing, announce on:
 - Social media (if applicable)
 
 Share the download link:
-`https://github.com/emeraldorbit/sofia-core-backend/releases/download/v1.0.0/sofia-core-v1.0.0-public-final.zip`
+`https://github.com/emeraldorbit/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip`
 
 EOF
 
@@ -155,8 +155,8 @@ echo "✅ Release Preparation Complete!"
 echo "=========================================="
 echo ""
 echo "Files prepared:"
-echo "  • release/sofia-core-v1.0.0-public-final.zip (218 MB)"
-echo "  • release/sofia-core-v1.0.0-public-final.zip.sha256"
+echo "  • release/frasberg-ai-v1.0.0-public-final.zip (218 MB)"
+echo "  • release/frasberg-ai-v1.0.0-public-final.zip.sha256"
 echo "  • RELEASE_NOTES.md"
 echo "  • CLOUD_DEPLOYMENT.md"
 echo "  • GITHUB_RELEASE_INSTRUCTIONS.md"
@@ -164,8 +164,8 @@ echo ""
 echo -e "${YELLOW}Next Steps:${NC}"
 echo "1. Review GITHUB_RELEASE_INSTRUCTIONS.md"
 echo "2. Commit changes: git add . && git commit -m 'Release v1.0.0'"
-echo "3. Create tag: git tag -a v1.0.0 -m 'Sofia Core v1.0.0'"
+echo "3. Create tag: git tag -a v1.0.0 -m 'Frasberg AI v1.0.0'"
 echo "4. Push: git push origin main && git push origin v1.0.0"
 echo "5. Create GitHub release (see instructions)"
 echo ""
-echo -e "${GREEN}Sofia Core v1.0.0 is ready for release! 🚀${NC}"
+echo -e "${GREEN}Frasberg AI v1.0.0 is ready for release! 🚀${NC}"

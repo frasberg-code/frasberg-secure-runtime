@@ -8,24 +8,24 @@ importers:
 
   .:
     dependencies:
-      '@emeraldorbit/sofia-continuum-identity':
+      '@emeraldorbit/frasberg-continuum-identity':
         specifier: workspace:*
-        version: link:packages/sofia-continuum-identity
-      '@emeraldorbit/sofia-governance-engine':
+        version: link:packages/frasberg-continuum-identity
+      '@emeraldorbit/frasberg-governance-engine':
         specifier: workspace:*
-        version: link:packages/sofia-governance-engine
-      '@emeraldorbit/sofia-hinge-logic':
+        version: link:packages/frasberg-governance-engine
+      '@emeraldorbit/frasberg-hinge-logic':
         specifier: workspace:*
-        version: link:packages/sofia-hinge-logic
-      '@emeraldorbit/sofia-membrane-protocol':
+        version: link:packages/frasberg-hinge-logic
+      '@emeraldorbit/frasberg-membrane-protocol':
         specifier: workspace:*
-        version: link:packages/sofia-membrane-protocol
-      '@emeraldorbit/sofia-tonal-modulation':
+        version: link:packages/frasberg-membrane-protocol
+      '@emeraldorbit/frasberg-tonal-modulation':
         specifier: workspace:*
-        version: link:packages/sofia-tonal-modulation
-      '@emeraldorbit/sofia-unified-field-runtime':
+        version: link:packages/frasberg-tonal-modulation
+      '@emeraldorbit/frasberg-unified-field-runtime':
         specifier: workspace:*
-        version: link:packages/sofia-unified-field-runtime
+        version: link:packages/frasberg-unified-field-runtime
       express:
         specifier: ^4.18.0
         version: 4.22.1
@@ -55,7 +55,7 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
-  packages/sofia-continuum-identity:
+  packages/frasberg-continuum-identity:
     devDependencies:
       '@types/jest':
         specifier: ^29.5.0
@@ -73,7 +73,7 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
-  packages/sofia-governance-engine:
+  packages/frasberg-governance-engine:
     devDependencies:
       '@types/jest':
         specifier: ^29.5.0
@@ -91,7 +91,7 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
-  packages/sofia-hinge-logic:
+  packages/frasberg-hinge-logic:
     devDependencies:
       '@types/jest':
         specifier: ^29.5.0
@@ -109,7 +109,7 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
-  packages/sofia-membrane-protocol:
+  packages/frasberg-membrane-protocol:
     devDependencies:
       '@types/jest':
         specifier: ^29.5.0
@@ -127,7 +127,7 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
-  packages/sofia-tonal-modulation:
+  packages/frasberg-tonal-modulation:
     devDependencies:
       '@types/jest':
         specifier: ^29.5.0
@@ -145,23 +145,23 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
-  packages/sofia-unified-field-runtime:
+  packages/frasberg-unified-field-runtime:
     dependencies:
-      '@emeraldorbit/sofia-continuum-identity':
+      '@emeraldorbit/frasberg-continuum-identity':
         specifier: workspace:*
-        version: link:../sofia-continuum-identity
-      '@emeraldorbit/sofia-governance-engine':
+        version: link:../frasberg-continuum-identity
+      '@emeraldorbit/frasberg-governance-engine':
         specifier: workspace:*
-        version: link:../sofia-governance-engine
-      '@emeraldorbit/sofia-hinge-logic':
+        version: link:../frasberg-governance-engine
+      '@emeraldorbit/frasberg-hinge-logic':
         specifier: workspace:*
-        version: link:../sofia-hinge-logic
-      '@emeraldorbit/sofia-membrane-protocol':
+        version: link:../frasberg-hinge-logic
+      '@emeraldorbit/frasberg-membrane-protocol':
         specifier: workspace:*
-        version: link:../sofia-membrane-protocol
-      '@emeraldorbit/sofia-tonal-modulation':
+        version: link:../frasberg-membrane-protocol
+      '@emeraldorbit/frasberg-tonal-modulation':
         specifier: workspace:*
-        version: link:../sofia-tonal-modulation
+        version: link:../frasberg-tonal-modulation
     devDependencies:
       '@types/jest':
         specifier: ^29.5.0

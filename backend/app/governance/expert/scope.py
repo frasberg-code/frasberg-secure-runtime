@@ -235,7 +235,7 @@ following statement regarding the scope and limitations of their testimony:
 SCOPE OF TESTIMONY:
 ------------------
 The expert's testimony is limited to technical and factual matters regarding
-the design, implementation, and operation of the Sofia Core Governance System.
+the design, implementation, and operation of the Frasberg AI Governance System.
 Specifically, the expert is qualified to testify regarding:
 
 """
@@ -312,7 +312,7 @@ or testify to ultimate issues reserved for the trier of fact.
         qualifications: Dict[str, Any],
     ) -> 'ExpertScope':
         """
-        Create default scope for Sofia Core expert.
+        Create default scope for Frasberg AI expert.
         
         Args:
             expert_name: Name of expert
@@ -327,7 +327,7 @@ or testify to ultimate issues reserved for the trier of fact.
             scope_id=str(uuid.uuid4()),
             expert_name=expert_name,
             scope_areas=[
-                "Design and architecture of the Sofia Core Governance System",
+                "Design and architecture of the Frasberg AI Governance System",
                 "Implementation of cryptographic hash chaining",
                 "Audit logging processes and procedures",
                 "Tamper detection mechanisms",
@@ -339,7 +339,7 @@ or testify to ultimate issues reserved for the trier of fact.
             ],
             qualifications=qualifications,
             limitations=[
-                "Testimony limited to technical matters regarding the Sofia Core system",
+                "Testimony limited to technical matters regarding the Frasberg AI system",
                 "No opinions on legal interpretation or application of law",
                 "No testimony regarding case-specific facts outside personal knowledge",
                 "No opinions on ultimate issues reserved for the trier of fact",

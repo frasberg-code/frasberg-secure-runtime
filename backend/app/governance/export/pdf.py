@@ -105,7 +105,7 @@ class PDFExporter:
 {title.center(80)}
 {'='*80}
 
-Sofia Core Governance System
+Frasberg AI Governance System
 Audit Log Export
 
 Generated: {timestamp}
@@ -135,10 +135,10 @@ Federal Rules of Evidence Rule 902(13)
 
 I, {custodian}, {title} of {organization}, hereby certify that:
 
-1. I am the qualified person responsible for the Sofia Core system that
+1. I am the qualified person responsible for the Frasberg AI system that
    generated these electronic records.
 
-2. The Sofia Core system uses a hash-chained audit logging process that
+2. The Frasberg AI system uses a hash-chained audit logging process that
    creates tamper-evident records.
 
 3. Each audit entry contains:
@@ -289,7 +289,7 @@ Verification Date: {datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")}
         cert_data = {
             "custodian_name": case_info.get("custodian_name", "System Administrator"),
             "custodian_title": case_info.get("custodian_title", "Chief Technology Officer"),
-            "organization": case_info.get("organization", "Sofia Core"),
+            "organization": case_info.get("organization", "Frasberg AI"),
             "case_number": case_info.get("case_number", ""),
             "case_name": case_info.get("case_name", ""),
         }

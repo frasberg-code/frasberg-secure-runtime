@@ -1,4 +1,4 @@
-import { stabilizeFieldCycle } from '../../supabase/sofia_core/field_cycle_stabilization/field_cycle_stabilization';
+import { stabilizeFieldCycle } from '../../supabase/frasberg_ai/field_cycle_stabilization/field_cycle_stabilization';
 
 describe('field_cycle_stabilization', () => {
   test('stabilizes cycle using stabilizer', () => {

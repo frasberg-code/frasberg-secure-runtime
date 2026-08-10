@@ -1,6 +1,6 @@
 # LEGACY MODULE — used only by deprecated endpoints.
 # Do not extend. Do not use for canonical provider routing.
-"""Legacy OpenAI client — hardened for Sofia sovereign governance."""
+"""Legacy OpenAI client — hardened for Frasberg sovereign governance."""
 import logging
 import os
 from typing import Any, Dict, Optional

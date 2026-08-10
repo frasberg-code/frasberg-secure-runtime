@@ -222,7 +222,7 @@ class JSONLExporter:
             "export_timestamp": datetime.utcnow().isoformat() + "Z",
             "total_entries": len(entries),
             "compressed": self.compress,
-            "source_system": "sofia-core-governance",
+            "source_system": "frasberg-ai-governance",
             "chain_validation": "enabled",
         }
     

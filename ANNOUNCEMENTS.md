@@ -1,9 +1,9 @@
-# 📣 Sofia Core v1.0.0 - Public Announcements
+# 📣 Frasberg AI v1.0.0 - Public Announcements
 
 ## 🐦 Twitter/X Announcement
 
 ```
-🚀 Sofia Core v1.0.0 is now LIVE!
+🚀 Frasberg AI v1.0.0 is now LIVE!
 
 Institution-grade operational intelligence system with:
 ✅ 5 containerized services
@@ -11,17 +11,17 @@ Institution-grade operational intelligence system with:
 ✅ Real-time monitoring
 ✅ Multi-cloud deployment
 
-Download: https://github.com/emeraldorbit/sofia-core-backend/releases/tag/v1.0.0
+Download: https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v1.0.0
 
-#OpenSource #OperationalIntelligence #Docker #Kubernetes #SofiaCore
+#OpenSource #OperationalIntelligence #Docker #Kubernetes #FrasbergAI
 ```
 
 ## 💼 LinkedIn Announcement
 
 ```
-Excited to announce the release of Sofia Core v1.0.0! 🚀
+Excited to announce the release of Frasberg AI v1.0.0! 🚀
 
-Sofia Core is an institutional-grade operational intelligence system built for production environments. After months of development, we're releasing it as open source.
+Frasberg AI is an institutional-grade operational intelligence system built for production environments. After months of development, we're releasing it as open source.
 
 **Key Features:**
 • 5 containerized microservices
@@ -40,7 +40,7 @@ Built on a 45-layer sovereign design with enforced fork isolation and multi-juri
 • Healthcare training (non-clinical)
 • Research and development
 
-**Download:** https://github.com/emeraldorbit/sofia-core-backend/releases/tag/v1.0.0
+**Download:** https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v1.0.0
 
 **License:** MIT (free and open source)
 
@@ -52,14 +52,14 @@ Contributions, feedback, and discussions welcome!
 ## 📧 Email Announcement (Stakeholders)
 
 ```
-Subject: Sofia Core v1.0.0 - Public Release Available
+Subject: Frasberg AI v1.0.0 - Public Release Available
 
 Dear [Stakeholder],
 
-I'm pleased to announce that Sofia Core v1.0.0 has been publicly released and is now available for download.
+I'm pleased to announce that Frasberg AI v1.0.0 has been publicly released and is now available for download.
 
 **What's New:**
-Sofia Core v1.0.0 is a complete institutional-grade operational intelligence system featuring 5 containerized services, production-ready deployment infrastructure, and complete API documentation.
+Frasberg AI v1.0.0 is a complete institutional-grade operational intelligence system featuring 5 containerized services, production-ready deployment infrastructure, and complete API documentation.
 
 **Key Features:**
 • 5 operational microservices (all verified and tested)
@@ -70,7 +70,7 @@ Sofia Core v1.0.0 is a complete institutional-grade operational intelligence sys
 • Kubernetes-ready manifests
 
 **Download:**
-https://github.com/emeraldorbit/sofia-core-backend/releases/tag/v1.0.0
+https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v1.0.0
 
 **Documentation:**
 Complete documentation, deployment guides, and quick start instructions are included in the release package.
@@ -83,21 +83,21 @@ Complete documentation, deployment guides, and quick start instructions are incl
 
 **Support:**
 For questions, issues, or discussions:
-https://github.com/emeraldorbit/sofia-core-backend/issues
+https://github.com/emeraldorbit/frasberg-ai-backend/issues
 
 Thank you for your continued support.
 
 Best regards,
 [Your Name]
-Sofia Core Team
+Frasberg AI Team
 ```
 
 ## 🎯 GitHub Discussions Post
 
 ```markdown
-# 🎉 Sofia Core v1.0.0 Released!
+# 🎉 Frasberg AI v1.0.0 Released!
 
-I'm thrilled to announce that **Sofia Core v1.0.0 is now publicly available**!
+I'm thrilled to announce that **Frasberg AI v1.0.0 is now publicly available**!
 
 ## 🚀 What's Included
 
@@ -109,14 +109,14 @@ I'm thrilled to announce that **Sofia Core v1.0.0 is now publicly available**!
 
 ## 📦 Download
 
-**Release:** https://github.com/emeraldorbit/sofia-core-backend/releases/tag/v1.0.0
+**Release:** https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v1.0.0
 
 ## 🧪 Quick Test
 
 \`\`\`bash
-wget https://github.com/emeraldorbit/sofia-core-backend/releases/download/v1.0.0/sofia-core-v1.0.0-public-final.zip
-unzip sofia-core-v1.0.0-public-final.zip
-cd sofia-core-v1.0.0-public-final
+wget https://github.com/emeraldorbit/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
+unzip frasberg-ai-v1.0.0-public-final.zip
+cd frasberg-ai-v1.0.0-public-final
 # Follow README.md
 \`\`\`
 

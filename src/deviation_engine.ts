@@ -1,1 +1,1 @@
-export { deviationEngine } from '../supabase/sofia_core/deviation_engine/src/deviation_engine';
+export { deviationEngine } from '../supabase/frasberg_ai/deviation_engine/src/deviation_engine';

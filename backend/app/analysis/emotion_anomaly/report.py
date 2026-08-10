@@ -1,4 +1,4 @@
-"""Anomaly Reporting for Sofia Core."""
+"""Anomaly Reporting for Frasberg AI."""
 from typing import Dict, List, Optional
 from datetime import datetime
 from dataclasses import dataclass, field

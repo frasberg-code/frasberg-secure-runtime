@@ -1,4 +1,4 @@
-# Sofia Core v5.0.0 - Complete Quickstart Guide
+# Frasberg AI v5.0.0 - Complete Quickstart Guide
 
 ## Prerequisites
 
@@ -8,12 +8,12 @@
 
 ## Installation (5 Minutes)
 
-### Step 1: Download Sofia Core
+### Step 1: Download Frasberg AI
 
 ```bash
-wget https://github.com/emeraldorbit/sofia-core-backend/releases/download/v5.0.0/sofia-core-v5.0.0.zip
-unzip sofia-core-v5.0.0.zip
-cd sofia-core-v5.0.0
+wget https://github.com/emeraldorbit/frasberg-ai-backend/releases/download/v5.0.0/frasberg-ai-v5.0.0.zip
+unzip frasberg-ai-v5.0.0.zip
+cd frasberg-ai-v5.0.0
 ```
 
 ### Step 2: Start Services
@@ -40,16 +40,16 @@ curl http://localhost:8000/health
 ### Installation
 
 ```bash
-pip install sofia-sdk
+pip install frasberg-sdk
 ```
 
 ### Basic Usage
 
 ```python
-from sofia_sdk import SofiaClient
+from frasberg_sdk import FrasbergClient
 
 # Initialize client
-client = SofiaClient()
+client = FrasbergClient()
 
 # Check health
 print(client.health())
@@ -68,26 +68,26 @@ print(response['response'])
 ### Installation
 
 ```bash
-pip install sofia-cli
+pip install frasberg-cli
 ```
 
 ### Commands
 
 ```bash
 # Check health
-sofia health
+frasberg health
 
 # Get status
-sofia status
+frasberg status
 
 # Generate speech
-sofia speak "Hello world" --language en
+frasberg speak "Hello world" --language en
 
 # AI generation
-sofia generate "Explain DNA computing"
+frasberg generate "Explain DNA computing"
 
 # View services
-sofia services
+frasberg services
 ```
 
 ## Advanced Features
@@ -128,7 +128,7 @@ print(prediction['future_projection'])
 
 - [Explore the API Documentation](docs/API_REFERENCE.md)
 - [Read the Architecture Guide](docs/ARCHITECTURE.md)
-- [Join the Community Discord](https://discord.gg/sofia-core)
+- [Join the Community Discord](https://discord.gg/frasberg-ai)
 
 ## Troubleshooting
 
@@ -139,7 +139,7 @@ print(prediction['future_projection'])
 docker ps
 
 # View logs
-docker logs sofia_canonical_core
+docker logs frasberg_canonical_core
 ```
 
 ### Port conflicts:
@@ -157,6 +157,6 @@ lsof -ti:8000 | xargs kill -9
 
 ## Support
 
-- **GitHub Issues**: github.com/emeraldorbit/sofia-core-backend/issues
-- **Discord**: discord.gg/sofia-core
-- **Email**: support@sofia-core.ai
+- **GitHub Issues**: github.com/emeraldorbit/frasberg-ai-backend/issues
+- **Discord**: discord.gg/frasberg-ai
+- **Email**: support@frasberg-ai.ai

@@ -1,4 +1,4 @@
-# Sofia Core SDK — Issue Triage Protocol
+# Frasberg AI SDK — Issue Triage Protocol
 
 ---
 

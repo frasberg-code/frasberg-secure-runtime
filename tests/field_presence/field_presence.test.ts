@@ -1,4 +1,4 @@
-import { establishFieldPresence } from '../../supabase/sofia_core/field_presence/field_presence';
+import { establishFieldPresence } from '../../supabase/frasberg_ai/field_presence/field_presence';
 
 describe('field_presence', () => {
   test('establishes presence using presencer', () => {

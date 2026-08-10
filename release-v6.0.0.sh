@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Sofia Core 6.0.0 Release Script
-# This script prepares and releases Sofia Core 6.0.0
+# Frasberg AI 6.0.0 Release Script
+# This script prepares and releases Frasberg AI 6.0.0
 
 set -e
 
-echo "🚀 Sofia Core 6.0.0 Release Process"
+echo "🚀 Frasberg AI 6.0.0 Release Process"
 echo "===================================="
 echo ""
 
@@ -63,7 +63,7 @@ git add VERSION
 git add package.json
 git add sdk/python/setup.py
 git add cli/setup.py
-git add sdk/python/sofia_sdk/__init__.py
+git add sdk/python/frasberg_sdk/__init__.py
 git add CHANGELOG_v6.0.0.md
 git add docs/enterprise/README.md
 git add docs/advanced-ai/README.md
@@ -73,7 +73,7 @@ echo ""
 
 # Step 5: Commit changes
 echo -e "${BLUE}Step 5: Committing changes...${NC}"
-git commit -m "Release Sofia Core 6.0.0 - Enterprise Evolution
+git commit -m "Release Frasberg AI 6.0.0 - Enterprise Evolution
 
 Major release combining enterprise features, advanced AI, and ecosystem integrations:
 
@@ -115,7 +115,7 @@ if [ -n "$TAG_EXISTS" ]; then
     echo ""
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         git tag -d v6.0.0
-        git tag -a v6.0.0 -m "Sofia Core 6.0.0 - Enterprise Evolution
+        git tag -a v6.0.0 -m "Frasberg AI 6.0.0 - Enterprise Evolution
 
 Major features:
 ✅ Enterprise: RBAC, observability, Kubernetes operator
@@ -128,12 +128,12 @@ Breaking changes:
 - API v2 endpoints
 - RBAC authentication
 
-Full changelog: https://github.com/emeraldorbit/sofia-core-backend/blob/main/CHANGELOG_v6.0.0.md
+Full changelog: https://github.com/emeraldorbit/frasberg-ai-backend/blob/main/CHANGELOG_v6.0.0.md
 "
         echo -e "${GREEN}✓ Tag recreated${NC}"
     fi
 else
-    git tag -a v6.0.0 -m "Sofia Core 6.0.0 - Enterprise Evolution
+    git tag -a v6.0.0 -m "Frasberg AI 6.0.0 - Enterprise Evolution
 
 Major features:
 ✅ Enterprise: RBAC, observability, Kubernetes operator
@@ -146,7 +146,7 @@ Breaking changes:
 - API v2 endpoints
 - RBAC authentication
 
-Full changelog: https://github.com/emeraldorbit/sofia-core-backend/blob/main/CHANGELOG_v6.0.0.md
+Full changelog: https://github.com/emeraldorbit/frasberg-ai-backend/blob/main/CHANGELOG_v6.0.0.md
 "
     echo -e "${GREEN}✓ Tag v6.0.0 created${NC}"
 fi
@@ -208,10 +208,10 @@ echo ""
 # Step 10: Create GitHub release
 echo -e "${BLUE}Step 10: Create GitHub release${NC}"
 echo "Create a GitHub release at:"
-echo "https://github.com/emeraldorbit/sofia-core-backend/releases/new?tag=v6.0.0"
+echo "https://github.com/emeraldorbit/frasberg-ai-backend/releases/new?tag=v6.0.0"
 echo ""
 echo "Use this title:"
-echo "Sofia Core 6.0.0 - Enterprise Evolution"
+echo "Frasberg AI 6.0.0 - Enterprise Evolution"
 echo ""
 echo "Use CHANGELOG_v6.0.0.md for release notes"
 echo ""

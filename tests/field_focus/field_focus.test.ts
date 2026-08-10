@@ -1,4 +1,4 @@
-import { focusFieldPeak } from '../../supabase/sofia_core/field_focus/field_focus';
+import { focusFieldPeak } from '../../supabase/frasberg_ai/field_focus/field_focus';
 
 describe('field_focus', () => {
   test('focuses peak using focuser', () => {

@@ -1,10 +1,10 @@
 #!/bin/bash
-# Research Paper Submission Script for Sofia Core DNA Computing Paper
+# Research Paper Submission Script for Frasberg AI DNA Computing Paper
 
 set -e
 
 echo "╔════════════════════════════════════════════════════════╗"
-echo "║  Sofia Core DNA Computing Paper Submission Helper     ║"
+echo "║  Frasberg AI DNA Computing Paper Submission Helper     ║"
 echo "╚════════════════════════════════════════════════════════╝"
 echo ""
 
@@ -152,7 +152,7 @@ echo "Review Process: Double-blind (remove author names)"
 echo "Review Time: ~3 months for conferences"
 echo ""
 
-echo "Questions? Email: research@sofia-core.ai"
+echo "Questions? Email: research@frasberg-ai.ai"
 echo ""
 
 # Offer to convert to LaTeX

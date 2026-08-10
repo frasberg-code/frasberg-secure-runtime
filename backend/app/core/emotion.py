@@ -1,4 +1,4 @@
-"""Emotional State Modeling with Decay for Sofia Core."""
+"""Emotional State Modeling with Decay for Frasberg AI."""
 from typing import Dict, Optional
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field

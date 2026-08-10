@@ -1,4 +1,4 @@
-"""Voice Fingerprinting (Non-Biometric) for Sofia Core."""
+"""Voice Fingerprinting (Non-Biometric) for Frasberg AI."""
 import hashlib
 from typing import Dict, Optional
 

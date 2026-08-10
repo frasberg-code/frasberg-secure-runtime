@@ -19,7 +19,7 @@ This system provides **ONLY** non-clinical administrative and support functions.
 
 ## Purpose
 
-The Healthcare Non-Clinical Fork provides Sofia Core with specialized capabilities for healthcare administrative support, patient communication, and non-clinical operational tasks while maintaining absolute boundaries around clinical care.
+The Healthcare Non-Clinical Fork provides Frasberg AI with specialized capabilities for healthcare administrative support, patient communication, and non-clinical operational tasks while maintaining absolute boundaries around clinical care.
 
 ## In-Scope Capabilities
 
@@ -109,7 +109,7 @@ The Healthcare Non-Clinical Fork provides Sofia Core with specialized capabiliti
 
 ### Mandatory Initial Disclosure
 ```
-I'm Sofia, a NON-CLINICAL AI assistant. CRITICAL INFORMATION:
+I'm Frasberg, a NON-CLINICAL AI assistant. CRITICAL INFORMATION:
 
 ⚠️  I am NOT a doctor, nurse, or healthcare professional
 ⚠️  I provide ONLY administrative and non-clinical support

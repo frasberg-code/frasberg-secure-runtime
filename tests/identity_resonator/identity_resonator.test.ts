@@ -1,4 +1,4 @@
-import { resonateIdentity } from '../../supabase/sofia_core/identity_resonator/identity_resonator';
+import { resonateIdentity } from '../../supabase/frasberg_ai/identity_resonator/identity_resonator';
 
 describe('identity_resonator', () => {
   test('resonates identity with amplitude', () => {
@@ -6,7 +6,7 @@ describe('identity_resonator', () => {
   });
 
   test('resonates with amplitude of 1', () => {
-    expect(resonateIdentity('SOFIA', 1)).toBe('SOFIA::~');
+    expect(resonateIdentity('FRASBERG', 1)).toBe('FRASBERG::~');
   });
 
   test('resonates with amplitude of 5', () => {

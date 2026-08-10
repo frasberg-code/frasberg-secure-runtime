@@ -14,7 +14,7 @@ class TestHuggingFaceTransformer:
             model = HuggingFaceTransformer("gpt2")
             assert model.model_name == "gpt2"
             assert model.device == "auto"
-            assert model.use_sofia_cache is True
+            assert model.use_frasberg_cache is True
     
     def test_init_with_custom_device(self):
         """Test initialization with custom device"""
@@ -29,16 +29,16 @@ class TestHuggingFaceTransformer:
         assert True
     
     def test_cache_enabled(self):
-        """Test Sofia Core caching is enabled"""
+        """Test Frasberg AI caching is enabled"""
         with patch.object(HuggingFaceTransformer, '_initialize_model'):
-            model = HuggingFaceTransformer("gpt2", use_sofia_cache=True)
-            assert model.use_sofia_cache is True
+            model = HuggingFaceTransformer("gpt2", use_frasberg_cache=True)
+            assert model.use_frasberg_cache is True
     
     def test_cache_disabled(self):
-        """Test Sofia Core caching can be disabled"""
+        """Test Frasberg AI caching can be disabled"""
         with patch.object(HuggingFaceTransformer, '_initialize_model'):
-            model = HuggingFaceTransformer("gpt2", use_sofia_cache=False)
-            assert model.use_sofia_cache is False
+            model = HuggingFaceTransformer("gpt2", use_frasberg_cache=False)
+            assert model.use_frasberg_cache is False
 
 
 if __name__ == "__main__":

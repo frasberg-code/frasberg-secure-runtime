@@ -377,7 +377,7 @@ HASH CHAIN VERIFICATION CERTIFICATE
 {'='*80}
 
 Verification Timestamp: {timestamp}
-System: Sofia Core Governance v1.0.0
+System: Frasberg AI Governance v1.0.0
 Verification Method: SHA-256 Hash Chain Analysis
 
 RESULTS:

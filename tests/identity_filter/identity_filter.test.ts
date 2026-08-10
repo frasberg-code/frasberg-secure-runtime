@@ -3,8 +3,8 @@ import { identityFilter } from "../../src/identity_filter";
 describe("identity_filter", () => {
   test("computes identity-fit score for aligned output", () => {
     const result = identityFilter.score({
-      output: "Sofia maintains stable identity.",
-      persona: "Sofia"
+      output: "Frasberg maintains stable identity.",
+      persona: "Frasberg"
     });
 
     expect(result.score).toBeGreaterThan(0.8);
@@ -14,7 +14,7 @@ describe("identity_filter", () => {
   test("flags output that exceeds deviation threshold", () => {
     const result = identityFilter.score({
       output: "I am now a different assistant.",
-      persona: "Sofia"
+      persona: "Frasberg"
     });
 
     expect(result.flagged).toBe(true);
@@ -24,7 +24,7 @@ describe("identity_filter", () => {
   test("verifies signature integrity", () => {
     const valid = identityFilter.verifySignature({
       signature: "VALID_SIGNATURE",
-      persona: "Sofia"
+      persona: "Frasberg"
     });
 
     expect(valid).toBe(true);
@@ -33,7 +33,7 @@ describe("identity_filter", () => {
   test("rejects invalid signature", () => {
     const valid = identityFilter.verifySignature({
       signature: "INVALID_SIGNATURE",
-      persona: "Sofia"
+      persona: "Frasberg"
     });
 
     expect(valid).toBe(false);

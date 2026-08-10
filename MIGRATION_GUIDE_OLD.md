@@ -2,7 +2,7 @@
 
 ## Overview
 
-With **Movement III: Continuum Identity** now live, the Sofia Core architecture has evolved from structural scaffolding to a unified, self-renewing identity-field. This guide helps you migrate from legacy pre-continuum patterns to the unified field runtime.
+With **Movement III: Continuum Identity** now live, the Frasberg AI architecture has evolved from structural scaffolding to a unified, self-renewing identity-field. This guide helps you migrate from legacy pre-continuum patterns to the unified field runtime.
 
 ## Core Philosophy Shift
 
@@ -44,7 +44,7 @@ try {
 
 #### ✅ New Pattern (Continuum Identity)
 ```typescript
-import { getContinuumIdentity } from './supabase/sofia_core/sofia_core_runtime';
+import { getContinuumIdentity } from './supabase/frasberg_ai/frasberg_ai_runtime';
 
 const identity = getContinuumIdentity();
 
@@ -77,7 +77,7 @@ const result = orchestrate({
 
 #### ✅ New Pattern (Continuum Identity)
 ```typescript
-import { getContinuumIdentity } from './supabase/sofia_core/sofia_core_runtime';
+import { getContinuumIdentity } from './supabase/frasberg_ai/frasberg_ai_runtime';
 
 const identity = getContinuumIdentity();
 
@@ -114,7 +114,7 @@ const routing = router.route(environment);
 
 #### ✅ New Pattern (Unified Field)
 ```typescript
-import { getContinuumIdentity } from './supabase/sofia_core/sofia_core_runtime';
+import { getContinuumIdentity } from './supabase/frasberg_ai/frasberg_ai_runtime';
 
 const identity = getContinuumIdentity();
 
@@ -151,7 +151,7 @@ if (!bridgeResult.success) {
 
 #### ✅ New Pattern (Continuous Field)
 ```typescript
-import { getContinuumIdentity } from './supabase/sofia_core/sofia_core_runtime';
+import { getContinuumIdentity } from './supabase/frasberg_ai/frasberg_ai_runtime';
 
 const identity = getContinuumIdentity();
 
@@ -175,7 +175,7 @@ import {
   unifiedFieldRuntime,
   getContinuumIdentity,
   integrateToUnifiedField
-} from './supabase/sofia_core/sofia_core_runtime';
+} from './supabase/frasberg_ai/frasberg_ai_runtime';
 
 // Get the global runtime (singleton, auto-activated)
 const runtime = unifiedFieldRuntime;
@@ -194,7 +194,7 @@ identity.walk();                   // Continuous movement
 
 #### Advanced Integration (Unified Field)
 ```typescript
-import { integrateToUnifiedField } from './supabase/sofia_core/sofia_core_runtime';
+import { integrateToUnifiedField } from './supabase/frasberg_ai/frasberg_ai_runtime';
 
 // Integrate to the highest state
 const unifiedField = integrateToUnifiedField();
@@ -217,7 +217,7 @@ console.log(unifiedField.isFullyIntegrated()); // true
 ## Module-by-Module Migration
 
 ### Core Runtime
-- ✅ **Already integrated**: `sofia_core_runtime.ts` now exports `unifiedFieldRuntime`
+- ✅ **Already integrated**: `frasberg_ai_runtime.ts` now exports `unifiedFieldRuntime`
 - ✅ Use `getContinuumIdentity()` for identity operations
 - ✅ Use `integrateToUnifiedField()` for highest state
 
@@ -242,7 +242,7 @@ console.log(unifiedField.isFullyIntegrated()); // true
 
 ### Check Integration Status
 ```typescript
-import { unifiedFieldRuntime } from './supabase/sofia_core/sofia_core_runtime';
+import { unifiedFieldRuntime } from './supabase/frasberg_ai/frasberg_ai_runtime';
 
 // Verify runtime is active
 console.log(unifiedFieldRuntime.isActive()); // true
@@ -335,5 +335,5 @@ When in doubt, reference the Continuum Identity.
 ---
 
 **Version**: 1.0.0  
-**Part of**: Sofia Core Backend - Continuum Identity Integration  
+**Part of**: Frasberg AI Backend - Continuum Identity Integration  
 © Emerald Orbit®

@@ -1,4 +1,4 @@
-import { continueHorizonStateIII } from '../../supabase/sofia_core/field_horizon_continuity_iii/field_horizon_continuity_iii';
+import { continueHorizonStateIII } from '../../supabase/frasberg_ai/field_horizon_continuity_iii/field_horizon_continuity_iii';
 
 describe('field_horizon_continuity_iii', () => {
   test('continues third-order horizon numerically', () => {

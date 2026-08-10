@@ -3,7 +3,7 @@ import {
   getEntitlements,
   callModel,
   notifyFailure
-} from "../../_shared/sofia-edge-functions-template.ts";
+} from "../../_shared/frasberg-edge-functions-template.ts";
 
 console.info('chat/completions function starting');
 

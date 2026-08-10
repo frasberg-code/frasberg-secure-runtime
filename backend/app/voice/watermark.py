@@ -1,4 +1,4 @@
-"""Audio Watermarking for Sofia Core."""
+"""Audio Watermarking for Frasberg AI."""
 import hashlib
 from typing import Optional
 
@@ -6,7 +6,7 @@ from typing import Optional
 class AudioWatermarker:
     """Audio watermarking system for tamper detection."""
     
-    def __init__(self, secret_key: str = "sofia-core-watermark"):
+    def __init__(self, secret_key: str = "frasberg-ai-watermark"):
         """Initialize watermarker with secret key."""
         self.secret_key = secret_key
     

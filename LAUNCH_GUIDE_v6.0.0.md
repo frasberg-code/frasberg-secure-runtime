@@ -1,4 +1,4 @@
-# Sofia Core 6.0.0 Launch Guide
+# Frasberg AI 6.0.0 Launch Guide
 
 **Version:** 6.0.0 "Enterprise Evolution"  
 **Release Date:** February 9, 2026  
@@ -6,7 +6,7 @@
 
 ## 🎯 Overview
 
-Sofia Core 6.0.0 is our biggest release yet, combining three major feature sets:
+Frasberg AI 6.0.0 is our biggest release yet, combining three major feature sets:
 - **Option A:** Enterprise Features (RBAC, observability, scalability)
 - **Option C:** Advanced AI Features (Neural-DNA hybrid, distributed intelligence)
 - **Option D:** Ecosystem & Integrations (LLM support, framework plugins, cloud platforms)
@@ -56,7 +56,7 @@ Sofia Core 6.0.0 is our biggest release yet, combining three major feature sets:
    ```
 
 2. **Create GitHub Release:**
-   - Title: "Sofia Core 6.0.0 - Enterprise Evolution"
+   - Title: "Frasberg AI 6.0.0 - Enterprise Evolution"
    - Tag: v6.0.0
    - Description: Use CHANGELOG_v6.0.0.md
 
@@ -75,7 +75,7 @@ Sofia Core 6.0.0 is our biggest release yet, combining three major feature sets:
 
 2. **Post First Comment on Product Hunt:**
    ```
-   Launching Sofia Core 6.0.0! 🚀
+   Launching Frasberg AI 6.0.0! 🚀
 
    Major Release - 3X the features:
 
@@ -104,8 +104,8 @@ Sofia Core 6.0.0 is our biggest release yet, combining three major feature sets:
    • SOC2 compliance ready
 
    Try it:
-   pip install sofia-core==6.0.0
-   sofia-cli quickstart
+   pip install frasberg-ai==6.0.0
+   frasberg-cli quickstart
 
    100% MIT licensed. Production-ready TODAY.
 
@@ -115,7 +115,7 @@ Sofia Core 6.0.0 is our biggest release yet, combining three major feature sets:
 ### T+5 Minutes
 1. **Post on Twitter/X:**
    ```
-   🎉 SOFIA CORE 6.0.0 IS LIVE!
+   🎉 FRASBERG CORE 6.0.0 IS LIVE!
 
    Major release with 3X the features:
 
@@ -126,7 +126,7 @@ Sofia Core 6.0.0 is our biggest release yet, combining three major feature sets:
 
    Thread with all features 👇
 
-   https://github.com/emeraldorbit/sofia-core-backend
+   https://github.com/emeraldorbit/frasberg-ai-backend
    
    [Continue with full thread from launch script]
    ```
@@ -135,7 +135,7 @@ Sofia Core 6.0.0 is our biggest release yet, combining three major feature sets:
    ```
    @everyone
 
-   🎉 SOFIA CORE 6.0.0 IS LIVE! 🎉
+   🎉 FRASBERG CORE 6.0.0 IS LIVE! 🎉
 
    [Use full announcement from launch script]
    ```
@@ -160,7 +160,7 @@ Sofia Core 6.0.0 is our biggest release yet, combining three major feature sets:
 ## 📊 Key Messaging
 
 ### Elevator Pitch
-"Sofia Core 6.0.0 is production-ready AI infrastructure combining enterprise security, advanced AI capabilities, and seamless integrations. Deploy DNA computing, swarm intelligence, and temporal reasoning at scale with RBAC, observability, and 10+ LLM integrations."
+"Frasberg AI 6.0.0 is production-ready AI infrastructure combining enterprise security, advanced AI capabilities, and seamless integrations. Deploy DNA computing, swarm intelligence, and temporal reasoning at scale with RBAC, observability, and 10+ LLM integrations."
 
 ### Key Features (Prioritize in Communications)
 1. **Enterprise Features** - For decision-makers
@@ -199,7 +199,7 @@ Sofia Core 6.0.0 is our biggest release yet, combining three major feature sets:
 
 **Question: "How does this compare to X?"**
 ```
-Great question! Sofia Core is unique in combining:
+Great question! Frasberg AI is unique in combining:
 1. DNA computing (biological algorithms)
 2. Swarm intelligence (multi-agent systems)
 3. Temporal reasoning (time-aware logic)
@@ -236,7 +236,7 @@ Real benchmarks from v6.0.0:
 
 We use PyPy, Cython, and custom optimization for critical paths.
 
-Benchmark suite included - run `sofia-cli benchmark` to test on your hardware!
+Benchmark suite included - run `frasberg-cli benchmark` to test on your hardware!
 ```
 
 ## 📈 Success Metrics
@@ -288,13 +288,13 @@ Benchmark suite included - run `sofia-cli benchmark` to test on your hardware!
 ## 📞 Support Channels
 
 ### Community Support
-- **GitHub Issues:** https://github.com/emeraldorbit/sofia-core-backend/issues
+- **GitHub Issues:** https://github.com/emeraldorbit/frasberg-ai-backend/issues
 - **Discord:** #support channel
 - **Product Hunt:** Comments section
-- **Email:** support@sofia-core.io
+- **Email:** support@frasberg-ai.io
 
 ### Enterprise Support
-- **Email:** enterprise@sofia-core.io
+- **Email:** enterprise@frasberg-ai.io
 - **Slack Connect:** Available for enterprise customers
 - **Dedicated Channel:** Priority support
 - **SLA:** <4 hour response time
@@ -354,15 +354,15 @@ Benchmark suite included - run `sofia-cli benchmark` to test on your hardware!
 ## 🔗 Important Links
 
 ### Documentation
-- **Main Docs:** https://github.com/emeraldorbit/sofia-core-backend
+- **Main Docs:** https://github.com/emeraldorbit/frasberg-ai-backend
 - **Enterprise Guide:** [docs/enterprise/README.md](docs/enterprise/README.md)
 - **Advanced AI Guide:** [docs/advanced-ai/README.md](docs/advanced-ai/README.md)
 - **Migration Guide:** [docs/migration/v5-to-v6.md](docs/migration/v5-to-v6.md)
 
 ### Release
-- **GitHub Release:** https://github.com/emeraldorbit/sofia-core-backend/releases/tag/v6.0.0
+- **GitHub Release:** https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v6.0.0
 - **CHANGELOG:** [CHANGELOG_v6.0.0.md](CHANGELOG_v6.0.0.md)
-- **PyPI:** https://pypi.org/project/sofia-core/6.0.0/
+- **PyPI:** https://pypi.org/project/frasberg-ai/6.0.0/
 
 ### Community
 - **Discord:** [Your Discord invite]

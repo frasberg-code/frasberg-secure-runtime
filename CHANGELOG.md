@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Sofia Core will be documented in this file.
+All notable changes to Frasberg AI will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🎉 New Features
 
 #### Developer Experience
-- **Interactive CLI** - New `sofia-cli interactive` command for guided setup and configuration
+- **Interactive CLI** - New `frasberg-cli interactive` command for guided setup and configuration
 - **Auto-migration improvements** - Better error messages and automatic fixes for configuration issues
 - **Hot reload support** - Development mode with automatic reload on file changes
 - **Configuration validation** - Enhanced validation with helpful suggestions and auto-fix
@@ -123,7 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### ⚠️ Deprecations
 
 **Soft Deprecations (will be removed in 7.0.0):**
-- Old CLI command syntax (use new `sofia-cli` commands instead)
+- Old CLI command syntax (use new `frasberg-cli` commands instead)
 - Legacy configuration keys in YAML format (migrate to TOML)
 - Deprecated swarm algorithms (use new consensus mechanisms)
 - Old authentication middleware (migrate to RBAC)
@@ -132,11 +132,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 📦 New Packages
 
-- `sofia-integrations-huggingface` - Hugging Face Transformers integration
-- `sofia-integrations-wandb` - Weights & Biases logging
-- `sofia-integrations-mlflow` - MLflow tracking
-- `sofia-integrations-prefect` - Prefect orchestration
-- `sofia-integrations-dagster` - Dagster pipeline support
+- `frasberg-integrations-huggingface` - Hugging Face Transformers integration
+- `frasberg-integrations-wandb` - Weights & Biases logging
+- `frasberg-integrations-mlflow` - MLflow tracking
+- `frasberg-integrations-prefect` - Prefect orchestration
+- `frasberg-integrations-dagster` - Dagster pipeline support
 
 ### 📊 Performance Benchmarks
 
@@ -161,11 +161,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **From 6.0.0 to 6.5.0:**
 
-Sofia Core 6.5.0 is **fully backward compatible** with 6.0.0. No breaking changes!
+Frasberg AI 6.5.0 is **fully backward compatible** with 6.0.0. No breaking changes!
 
 ```bash
 # Simple upgrade
-pip install --upgrade sofia-core==6.5.0
+pip install --upgrade frasberg-ai==6.5.0
 
 # No migration needed - existing 6.0.0 configs work as-is
 ```
@@ -174,7 +174,7 @@ pip install --upgrade sofia-core==6.5.0
 
 ```python
 # Try the interactive CLI
-sofia-cli interactive
+frasberg-cli interactive
 
 # Use new integrations
 from backend.app.integrations import HuggingFaceTransformer
@@ -200,9 +200,9 @@ model = HuggingFaceTransformer("gpt2")
 
 ### 🔗 Links
 
-- **Release Notes:** https://github.com/emeraldorbit/sofia-core-backend/releases/tag/v6.5.0
+- **Release Notes:** https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v6.5.0
 - **Migration Guide:** docs/migration/v6.0-to-v6.5.md
-- **Documentation:** https://docs.sofia-core.dev
+- **Documentation:** https://docs.frasberg-ai.dev
 
 ---
 
@@ -302,7 +302,7 @@ model = HuggingFaceTransformer("gpt2")
 - Query optimization (5× faster temporal queries)
 
 **Developer Experience:**
-- CLI tool: `sofia-cli`
+- CLI tool: `frasberg-cli`
 - TypeScript SDK (full type safety)
 - Rust SDK (high-performance)
 - Go SDK (cloud-native)
@@ -335,14 +335,14 @@ model = HuggingFaceTransformer("gpt2")
 
 ### 📦 New Packages
 
-- `sofia-core-enterprise` - Enterprise features
-- `sofia-core-hybrid` - Neural-DNA hybrid models
-- `sofia-core-distributed` - Cross-datacenter capabilities
-- `sofia-core-temporal-advanced` - Quantum temporal logic
-- `sofia-core-integrations` - Framework integrations
-- `sofia-sdk-typescript` - TypeScript SDK
-- `sofia-sdk-rust` - Rust SDK
-- `sofia-sdk-go` - Go SDK
+- `frasberg-ai-enterprise` - Enterprise features
+- `frasberg-ai-hybrid` - Neural-DNA hybrid models
+- `frasberg-ai-distributed` - Cross-datacenter capabilities
+- `frasberg-ai-temporal-advanced` - Quantum temporal logic
+- `frasberg-ai-integrations` - Framework integrations
+- `frasberg-sdk-typescript` - TypeScript SDK
+- `frasberg-sdk-rust` - Rust SDK
+- `frasberg-sdk-go` - Go SDK
 
 ### 🔒 Security
 
@@ -382,15 +382,15 @@ See: docs/migration/v5-to-v6.md
 
 Quick upgrade:
 ```bash
-pip install --upgrade sofia-core==6.0.0
-sofia-cli migrate --from=5.x --to=6.0.0
+pip install --upgrade frasberg-ai==6.0.0
+frasberg-cli migrate --from=5.x --to=6.0.0
 ```
 
 ### 🙏 Credits
 
 Thanks to our 50+ contributors and 1,000+ community members!
 
-Full release notes: https://github.com/emeraldorbit/sofia-core-backend/releases/tag/v6.0.0
+Full release notes: https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v6.0.0
 
-[6.5.0]: https://github.com/emeraldorbit/sofia-core-backend/compare/v6.0.0...v6.5.0
-[6.0.0]: https://github.com/emeraldorbit/sofia-core-backend/releases/tag/v6.0.0
+[6.5.0]: https://github.com/emeraldorbit/frasberg-ai-backend/compare/v6.0.0...v6.5.0
+[6.0.0]: https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v6.0.0

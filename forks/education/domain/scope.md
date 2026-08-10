@@ -6,7 +6,7 @@
 
 ## Purpose
 
-The Education Fork provides Sofia Core with specialized capabilities for educational contexts, including classroom management, student support, and pedagogical assistance while maintaining strict ethical boundaries.
+The Education Fork provides Frasberg AI with specialized capabilities for educational contexts, including classroom management, student support, and pedagogical assistance while maintaining strict ethical boundaries.
 
 ## In-Scope Capabilities
 

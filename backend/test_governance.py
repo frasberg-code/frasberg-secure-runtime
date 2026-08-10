@@ -1,5 +1,5 @@
 """
-Comprehensive test suite for Sofia Core Governance System v1.0.0
+Comprehensive test suite for Frasberg AI Governance System v1.0.0
 
 Tests all governance modules to ensure proper functionality.
 """
@@ -160,7 +160,7 @@ def test_authentication_system(logger):
         record_type=RecordType.AUDIT_LOG,
         custodian_name="John Doe",
         custodian_title="Chief Technology Officer",
-        organization="Sofia Core",
+        organization="Frasberg AI",
     )
     
     assert cert.created_by_system
@@ -419,7 +419,7 @@ def test_lifecycle_management():
 def run_all_tests():
     """Run all governance system tests"""
     print("="*80)
-    print("Sofia Core Governance System v1.0.0 - Comprehensive Test Suite")
+    print("Frasberg AI Governance System v1.0.0 - Comprehensive Test Suite")
     print("="*80)
     
     try:

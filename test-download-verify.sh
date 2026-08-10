@@ -1,13 +1,13 @@
 #!/bin/bash
 
 echo "════════════════════════════════════════════════"
-echo "  TESTING SOFIA CORE v1.0.0 DOWNLOAD & VERIFY"
+echo "  TESTING FRASBERG CORE v1.0.0 DOWNLOAD & VERIFY"
 echo "════════════════════════════════════════════════"
 echo ""
 
-REPO="emeraldorbit/sofia-core-backend"
+REPO="emeraldorbit/frasberg-ai-backend"
 TAG="v1.0.0"
-RELEASE_NAME="sofia-core-v1.0.0-public-final"
+RELEASE_NAME="frasberg-ai-v1.0.0-public-final"
 TEST_DIR="test-release-download"
 
 # Create test directory
@@ -103,8 +103,8 @@ done
 
 echo ""
 echo "Step 6: Verifying documentation..."
-if grep -q "Sofia Core" README.md; then
-    echo "✅ README contains Sofia Core reference"
+if grep -q "Frasberg AI" README.md; then
+    echo "✅ README contains Frasberg AI reference"
 fi
 
 if grep -q "MIT License" LICENSE; then

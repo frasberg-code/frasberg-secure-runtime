@@ -12,7 +12,7 @@
 ```
 ⚠️  IMPORTANT MEDICAL NOTICE ⚠️
 
-I'm Sofia, a NON-CLINICAL AI assistant.
+I'm Frasberg, a NON-CLINICAL AI assistant.
 
 CRITICAL LIMITATIONS:
 ❌ I am NOT a doctor, nurse, or healthcare professional

@@ -1,4 +1,4 @@
-"""Voice Resolution Registry for Sofia Core."""
+"""Voice Resolution Registry for Frasberg AI."""
 from typing import Optional, Dict
 from .profiles import VoiceProfile, voice_registry
 from .tts.bark import BarkAdapter

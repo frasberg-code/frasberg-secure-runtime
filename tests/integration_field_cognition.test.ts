@@ -1,4 +1,4 @@
-import { fieldCognition } from '../supabase/sofia_core/sofia_core_runtime';
+import { fieldCognition } from '../supabase/frasberg_ai/frasberg_ai_runtime';
 
 describe('Field Cognition Runtime Integration', () => {
   test('fieldCognition exports interpretField', () => {

@@ -1,4 +1,4 @@
-"""A/B Testing Variant Assignment for Sofia Core."""
+"""A/B Testing Variant Assignment for Frasberg AI."""
 from typing import Dict, Optional
 import hashlib
 

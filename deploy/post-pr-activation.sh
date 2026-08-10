@@ -2,7 +2,7 @@
 set -e
 
 echo "═══════════════════════════════════════════════════════"
-echo "  SOFIA CORE v1.0.0 - POST-PR ACTIVATION SEQUENCE"
+echo "  FRASBERG CORE v1.0.0 - POST-PR ACTIVATION SEQUENCE"
 echo "═══════════════════════════════════════════════════════"
 echo ""
 

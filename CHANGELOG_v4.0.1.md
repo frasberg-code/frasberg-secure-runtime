@@ -1,4 +1,4 @@
-# Changelog - Sofia Core v4.0.1
+# Changelog - Frasberg AI v4.0.1
 
 ## [4.0.1] - 2026-02-08
 
@@ -11,7 +11,7 @@ This release focuses on stability, testing, documentation, and developer experie
 ## 🔧 Stability Improvements (Issue #3) ✅ CLOSED
 
 ### Error Handling
-- ✅ Custom Exception Classes (SofiaException, ServiceUnavailableError, ValidationError, RateLimitError)
+- ✅ Custom Exception Classes (FrasbergException, ServiceUnavailableError, ValidationError, RateLimitError)
 - ✅ Global Exception Handlers (standardized error responses across all APIs)
 - ✅ Request Validation (comprehensive validation with detailed error messages)
 - ✅ Structured Logging (context-aware logging with tracebacks)

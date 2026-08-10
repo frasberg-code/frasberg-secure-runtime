@@ -1,8 +1,8 @@
-# Sofia Core Governance System v1.0.0
+# Frasberg AI Governance System v1.0.0
 
 ## Overview
 
-The Sofia Core Governance System is an institutional-grade compliance, audit, and governance framework designed for enterprise and legal use. It provides tamper-evident audit logging, FRE Rule 902(13) compliance, expert witness support, and multi-jurisdiction policy management.
+The Frasberg AI Governance System is an institutional-grade compliance, audit, and governance framework designed for enterprise and legal use. It provides tamper-evident audit logging, FRE Rule 902(13) compliance, expert witness support, and multi-jurisdiction policy management.
 
 ## Architecture
 
@@ -331,8 +331,8 @@ See individual module docstrings for detailed API documentation:
 
 ## License
 
-Part of Sofia Core v1.0.0
+Part of Frasberg AI v1.0.0
 
 ## Support
 
-For technical support or questions about the governance system, contact the Sofia Core development team.
+For technical support or questions about the governance system, contact the Frasberg AI development team.

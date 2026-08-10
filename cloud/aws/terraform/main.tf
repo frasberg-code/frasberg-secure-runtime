@@ -1,4 +1,4 @@
-# Sofia Core AWS Infrastructure
+# Frasberg AI AWS Infrastructure
 
 terraform {
   required_version = ">= 1.0"
@@ -15,8 +15,8 @@ provider "aws" {
 }
 
 # ECS Cluster
-resource "aws_ecs_cluster" "sofia_core" {
-  name = "sofia-core-production"
+resource "aws_ecs_cluster" "frasberg_ai" {
+  name = "frasberg-ai-production"
   
   setting {
     name  = "containerInsights"
@@ -26,7 +26,7 @@ resource "aws_ecs_cluster" "sofia_core" {
 
 # ECR Repositories
 resource "aws_ecr_repository" "canonical_core" {
-  name                 = "sofia-core/canonical"
+  name                 = "frasberg-ai/canonical"
   image_tag_mutability = "MUTABLE"
   
   image_scanning_configuration {
@@ -35,8 +35,8 @@ resource "aws_ecr_repository" "canonical_core" {
 }
 
 # Load Balancer
-resource "aws_lb" "sofia_core" {
-  name               = "sofia-core-alb"
+resource "aws_lb" "frasberg_ai" {
+  name               = "frasberg-ai-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
@@ -44,15 +44,15 @@ resource "aws_lb" "sofia_core" {
 }
 
 # RDS Database
-resource "aws_db_instance" "sofia_core" {
-  identifier           = "sofia-core-db"
+resource "aws_db_instance" "frasberg_ai" {
+  identifier           = "frasberg-ai-db"
   engine              = "postgres"
   engine_version      = "15.3"
   instance_class      = "db.t3.medium"
   allocated_storage   = 100
   storage_encrypted   = true
   
-  db_name  = "sofia_core"
+  db_name  = "frasberg_ai"
   username = var.db_username
   password = var.db_password
   
@@ -61,8 +61,8 @@ resource "aws_db_instance" "sofia_core" {
 }
 
 # ElastiCache Redis
-resource "aws_elasticache_cluster" "sofia_core" {
-  cluster_id           = "sofia-core-cache"
+resource "aws_elasticache_cluster" "frasberg_ai" {
+  cluster_id           = "frasberg-ai-cache"
   engine               = "redis"
   node_type            = "cache.t3.medium"
   num_cache_nodes      = 1
@@ -71,10 +71,10 @@ resource "aws_elasticache_cluster" "sofia_core" {
 }
 
 # S3 for static assets
-resource "aws_s3_bucket" "sofia_core_assets" {
-  bucket = "sofia-core-assets-${var.environment}"
+resource "aws_s3_bucket" "frasberg_ai_assets" {
+  bucket = "frasberg-ai-assets-${var.environment}"
 }
 
 output "alb_dns_name" {
-  value = aws_lb.sofia_core.dns_name
+  value = aws_lb.frasberg_ai.dns_name
 }

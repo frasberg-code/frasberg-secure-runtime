@@ -1,7 +1,7 @@
 """
 Air-Gapped Deployment Configuration
 
-Configuration for deploying Sofia Core in air-gapped (network-isolated) environments.
+Configuration for deploying Frasberg AI in air-gapped (network-isolated) environments.
 """
 
 from typing import Dict, List, Optional
@@ -226,13 +226,13 @@ def create_restricted_config(
 EXAMPLE_CONFIGS = {
     'secure_facility': create_full_airgap_config(
         deployment_id='secure-facility-001',
-        local_model_path='/opt/sofia/models',
-        local_data_path='/opt/sofia/data',
+        local_model_path='/opt/frasberg/models',
+        local_data_path='/opt/frasberg/data',
         allowed_internal_ips=['10.0.0.0/8']
     ),
     'internal_network': create_restricted_config(
         deployment_id='internal-net-001',
-        local_model_path='/opt/sofia/models',
+        local_model_path='/opt/frasberg/models',
         allowed_internal_ips=['192.168.0.0/16', '10.0.0.0/8']
     )
 }

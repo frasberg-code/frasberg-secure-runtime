@@ -4,7 +4,7 @@ services:
     build:
       context: ../../..
       dockerfile: deploy/forks/healthcare-nonclinical/Dockerfile
-    container_name: sofia_healthcare_fork
+    container_name: frasberg_healthcare_fork
     ports:
       - "8002:8002"
     environment:

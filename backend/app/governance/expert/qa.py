@@ -200,7 +200,7 @@ A{idx}: {answer.answer_text}
         
         answer_text = (
             f"Regarding your question about {question.question_text[:50]}..., "
-            "based on my knowledge of the Sofia Core Governance System, "
+            "based on my knowledge of the Frasberg AI Governance System, "
             "[detailed technical answer would be provided here]."
         )
         
@@ -218,7 +218,7 @@ A{idx}: {answer.answer_text}
             in_scope=True,
             confidence="high",
             caveats=caveats,
-            references=["Sofia Core Technical Documentation"],
+            references=["Frasberg AI Technical Documentation"],
         )
     
     def _generate_out_of_scope_answer(self, question: Question) -> Answer:
@@ -229,7 +229,7 @@ A{idx}: {answer.answer_text}
             answer_text = (
                 "I must respectfully decline to answer this question as it calls for "
                 "a legal interpretation or opinion. My expertise is limited to the "
-                "technical operation of the Sofia Core Governance System. Questions "
+                "technical operation of the Frasberg AI Governance System. Questions "
                 "about legal matters should be directed to a qualified attorney."
             )
         
@@ -238,7 +238,7 @@ A{idx}: {answer.answer_text}
             answer_text = (
                 "I cannot answer this question as it pertains to specific facts of "
                 "this case that are outside my area of expertise. I can only testify "
-                "to the technical design and operation of the Sofia Core system in "
+                "to the technical design and operation of the Frasberg AI system in "
                 "general, not to specific facts or circumstances of particular cases."
             )
         

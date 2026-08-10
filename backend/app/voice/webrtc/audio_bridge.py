@@ -1,4 +1,4 @@
-"""Audio Bridge for WebRTC in Sofia Core."""
+"""Audio Bridge for WebRTC in Frasberg AI."""
 from typing import Optional, Dict
 import asyncio
 from datetime import datetime
@@ -7,7 +7,7 @@ from datetime import datetime
 class AudioBridge:
     """
     Audio bridge for WebRTC sessions.
-    Handles audio routing between peers and Sofia voice system.
+    Handles audio routing between peers and Frasberg voice system.
     """
     
     def __init__(self):

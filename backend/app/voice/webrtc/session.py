@@ -1,4 +1,4 @@
-"""WebRTC Session Management for Sofia Core."""
+"""WebRTC Session Management for Frasberg AI."""
 from typing import Dict, Optional
 from dataclasses import dataclass, field
 from datetime import datetime

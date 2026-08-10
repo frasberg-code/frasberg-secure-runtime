@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # =============================================================================
-# FRASBERG AI Activation Script v6.0.0
+# FRASBERG Core Activation Script
 # =============================================================================
-# This script activates and verifies the Frasberg AI Backend system
+# This script activates and verifies the FRASBERG Core Backend system
 # =============================================================================
 
 set -e
 
-echo "🚀 Activating Frasberg AI Backend..."
+echo "🚀 Activating FRASBERG Core Backend..."
 echo ""
 
 # Color codes
@@ -31,8 +31,8 @@ echo ""
 # Load environment variables
 export $(grep -v '^#' .env | xargs)
 
-# Verify required Frasberg variables
-echo "🔍 Verifying Frasberg Model Configuration..."
+# Verify required FRASBERG variables
+echo "🔍 Verifying FRASBERG Model Configuration..."
 echo ""
 
 if [ -z "$FRASBERG_MODEL_ENDPOINT" ]; then
@@ -94,10 +94,46 @@ else
 fi
 
 echo ""
-echo -e "${GREEN}✅ Frasberg AI Backend is configured and ready!${NC}"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo -e "${GREEN}✨ FRASBERG Core Backend is ACTIVE and CONFIGURED! ✨${NC}"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "Next steps:"
-echo "  1. Start Docker services: docker-compose up -d"
-echo "  2. Check API health: curl http://localhost:8000/health"
-echo "  3. Access API docs: http://localhost:8000/docs"
+echo "📋 Quick Reference:"
 echo ""
+echo "  Model Endpoint:"
+echo "    $FRASBERG_MODEL_ENDPOINT"
+echo ""
+echo "  Supabase Project:"
+echo "    $PROJECT_URL"
+echo ""
+echo "  GitHub Repository:"
+echo "    $GITHUB_REPO_URL"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "📚 Next Steps:"
+echo ""
+echo "  1. Deploy Supabase Functions:"
+echo "     supabase functions deploy"
+echo ""
+echo "  2. Configure Vault Secrets (production):"
+echo "     ./setup-frasberg-secrets.sh"
+echo ""
+echo "  3. Test the endpoint:"
+echo "     curl -X POST $FRASBERG_MODEL_ENDPOINT \\"
+echo "       -H 'Authorization: Bearer $FRASBERG_MODEL_API_KEY' \\"
+echo "       -H 'Content-Type: application/json' \\"
+echo "       -d '{\"message\": \"Hello FRASBERG\"}'"
+echo ""
+echo "  4. Start backend server (if needed):"
+echo "     cd backend && python server.py"
+echo ""
+echo "  5. Start voice gateway (if needed):"
+echo "     cd voice-gateway && npm start"
+echo ""
+echo "  6. View documentation:"
+echo "     - SECRETS_SETUP.md - Secrets management guide"
+echo "     - README.md - Main documentation"
+echo "     - MIGRATION_GUIDE.md - Migration instructions"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

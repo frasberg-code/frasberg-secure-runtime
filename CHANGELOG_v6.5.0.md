@@ -1,4 +1,4 @@
-# Sofia Core 6.5.0 "Performance & Polish"
+# Frasberg AI 6.5.0 "Performance & Polish"
 Release Date: February 9, 2026
 
 ## 📋 Overview
@@ -12,13 +12,13 @@ Incremental release with performance improvements, new integrations, and communi
 **Interactive CLI Mode**
 ```bash
 # Guided setup and configuration
-sofia-cli interactive
+frasberg-cli interactive
 
 # Auto-fix configuration issues
-sofia-cli validate-config --fix
+frasberg-cli validate-config --fix
 
 # Hot reload in development
-sofia-cli dev --hot-reload
+frasberg-cli dev --hot-reload
 ```
 
 **Improvements:**
@@ -31,7 +31,7 @@ sofia-cli dev --hot-reload
 
 #### 1. Hugging Face Transformers
 ```python
-from sofia_core.integrations import HuggingFaceTransformer
+from frasberg_ai.integrations import HuggingFaceTransformer
 
 # Use any HuggingFace model
 model = HuggingFaceTransformer("gpt2")
@@ -40,20 +40,20 @@ result = model.generate("Hello world")
 
 #### 2. Weights & Biases (W&B)
 ```python
-from sofia_core.integrations import WandBLogger
+from frasberg_ai.integrations import WandBLogger
 
 # Track experiments
-logger = WandBLogger(project="sofia-experiments")
+logger = WandBLogger(project="frasberg-experiments")
 logger.log_metrics({"accuracy": 0.95})
 logger.log_model(model, name="neural-dna-v1")
 ```
 
 #### 3. MLflow
 ```python
-from sofia_core.integrations import MLflowTracker
+from frasberg_ai.integrations import MLflowTracker
 
 # Model lifecycle management
-tracker = MLflowTracker(experiment_name="sofia-dna")
+tracker = MLflowTracker(experiment_name="frasberg-dna")
 tracker.log_params({"learning_rate": 0.001})
 tracker.log_metrics({"accuracy": 0.95})
 tracker.log_model(model, "neural-dna-v1")
@@ -61,10 +61,10 @@ tracker.log_model(model, "neural-dna-v1")
 
 #### 4. Prefect
 ```python
-from sofia_core.integrations import PrefectFlow
+from frasberg_ai.integrations import PrefectFlow
 
 # Workflow orchestration
-flow = PrefectFlow("sofia-pipeline")
+flow = PrefectFlow("frasberg-pipeline")
 
 @flow.task
 def compute_dna(sequence):
@@ -73,10 +73,10 @@ def compute_dna(sequence):
 
 #### 5. Dagster
 ```python
-from sofia_core.integrations import DagsterPipeline
+from frasberg_ai.integrations import DagsterPipeline
 
 # Data pipeline orchestration
-pipeline = DagsterPipeline("sofia-data")
+pipeline = DagsterPipeline("frasberg-data")
 
 @pipeline.op
 def process_dna(context, sequence: str):
@@ -206,25 +206,25 @@ def process_dna(context, sequence: str):
 ### Upgrade from 6.0.0
 ```bash
 # Simple upgrade - fully backward compatible!
-pip install --upgrade sofia-core==6.5.0
+pip install --upgrade frasberg-ai==6.5.0
 
 # No migration needed - works with existing configs
 ```
 
 ### Fresh Install
 ```bash
-pip install sofia-core==6.5.0
+pip install frasberg-ai==6.5.0
 ```
 
 ### With New Integrations
 ```bash
 # Install with specific integrations
-pip install sofia-core[huggingface]==6.5.0
-pip install sofia-core[wandb]==6.5.0
-pip install sofia-core[mlflow]==6.5.0
+pip install frasberg-ai[huggingface]==6.5.0
+pip install frasberg-ai[wandb]==6.5.0
+pip install frasberg-ai[mlflow]==6.5.0
 
 # Install with all integrations
-pip install sofia-core[all-integrations]==6.5.0
+pip install frasberg-ai[all-integrations]==6.5.0
 ```
 
 ## 🆕 Quick Start Examples
@@ -232,18 +232,18 @@ pip install sofia-core[all-integrations]==6.5.0
 ### Interactive CLI
 ```bash
 # Guided setup
-sofia-cli interactive
+frasberg-cli interactive
 
 # Validate configuration
-sofia-cli validate-config --fix
+frasberg-cli validate-config --fix
 
 # Development mode with hot reload
-sofia-cli dev --hot-reload
+frasberg-cli dev --hot-reload
 ```
 
 ### HuggingFace Integration
 ```python
-from sofia_core.integrations import HuggingFaceTransformer
+from frasberg_ai.integrations import HuggingFaceTransformer
 
 # Text generation
 model = HuggingFaceTransformer("gpt2")
@@ -256,10 +256,10 @@ sentiment = classifier.classify("This is amazing!")
 
 ### Experiment Tracking with W&B
 ```python
-from sofia_core.integrations import WandBLogger
+from frasberg_ai.integrations import WandBLogger
 
 logger = WandBLogger(
-    project="sofia-experiments",
+    project="frasberg-experiments",
     name="neural-dna-training"
 )
 
@@ -277,9 +277,9 @@ logger.finish()
 
 ### MLflow Model Management
 ```python
-from sofia_core.integrations import MLflowTracker
+from frasberg_ai.integrations import MLflowTracker
 
-tracker = MLflowTracker(experiment_name="sofia-dna-compute")
+tracker = MLflowTracker(experiment_name="frasberg-dna-compute")
 tracker.start_run(run_name="experiment-1")
 
 tracker.log_params({
@@ -331,11 +331,11 @@ tracker.end_run()
 
 ### From 6.0.0 to 6.5.0
 
-**Good news: Sofia Core 6.5.0 is fully backward compatible with 6.0.0!**
+**Good news: Frasberg AI 6.5.0 is fully backward compatible with 6.0.0!**
 
 ```bash
 # Simple one-line upgrade
-pip install --upgrade sofia-core==6.5.0
+pip install --upgrade frasberg-ai==6.5.0
 
 # That's it! No migration needed.
 ```
@@ -351,14 +351,14 @@ pip install --upgrade sofia-core==6.5.0
 
 ```python
 # New integrations are opt-in
-from sofia_core.integrations import HuggingFaceTransformer
+from frasberg_ai.integrations import HuggingFaceTransformer
 
 # New CLI commands are additive
-sofia-cli interactive  # New command, old commands still work
+frasberg-cli interactive  # New command, old commands still work
 ```
 
 ### New Features to Explore
-- Try the interactive CLI: `sofia-cli interactive`
+- Try the interactive CLI: `frasberg-cli interactive`
 - Add experiment tracking: Install W&B or MLflow
 - Use HuggingFace models: Install transformers integration
 - Orchestrate workflows: Try Prefect or Dagster
@@ -367,7 +367,7 @@ sofia-cli interactive  # New command, old commands still work
 ## ⚠️ Deprecations
 
 **Soft deprecations (will be removed in v7.0.0):**
-- Old CLI command syntax → Use new `sofia-cli` commands
+- Old CLI command syntax → Use new `frasberg-cli` commands
 - Legacy YAML config keys → Migrate to TOML format
 - Deprecated swarm algorithms → Use new consensus mechanisms
 
@@ -399,11 +399,11 @@ sofia-cli interactive  # New command, old commands still work
 
 ## 🔗 Links
 
-- **GitHub Repository:** https://github.com/emeraldorbit/sofia-core-backend
+- **GitHub Repository:** https://github.com/emeraldorbit/frasberg-ai-backend
 - **Full Changelog:** CHANGELOG_v6.5.0.md
-- **Documentation:** https://docs.sofia-core.dev
-- **Issues:** https://github.com/emeraldorbit/sofia-core-backend/issues
-- **Discussions:** https://github.com/emeraldorbit/sofia-core-backend/discussions
+- **Documentation:** https://docs.frasberg-ai.dev
+- **Issues:** https://github.com/emeraldorbit/frasberg-ai-backend/issues
+- **Discussions:** https://github.com/emeraldorbit/frasberg-ai-backend/discussions
 
 ## 🚀 What's Next?
 
@@ -418,13 +418,13 @@ sofia-cli interactive  # New command, old commands still work
 - Architecture improvements
 - New core features
 
-Join the discussion: https://github.com/emeraldorbit/sofia-core-backend/discussions
+Join the discussion: https://github.com/emeraldorbit/frasberg-ai-backend/discussions
 
 ## 💬 Community
 
-- **Discord:** https://discord.gg/sofia-core
-- **Twitter:** https://twitter.com/sofia_core
-- **Product Hunt:** https://www.producthunt.com/posts/sofia-core
+- **Discord:** https://discord.gg/frasberg-ai
+- **Twitter:** https://twitter.com/frasberg_ai
+- **Product Hunt:** https://www.producthunt.com/posts/frasberg-ai
 
 ## 📄 License
 
@@ -432,10 +432,10 @@ MIT License - Free forever, use commercially, modify, distribute.
 
 ---
 
-Launched with ❤️ by the Sofia Core team
+Launched with ❤️ by the Frasberg AI team
 
-⭐ Star us on GitHub if you find Sofia Core useful!
+⭐ Star us on GitHub if you find Frasberg AI useful!
 
-**Installation:** `pip install --upgrade sofia-core==6.5.0`
+**Installation:** `pip install --upgrade frasberg-ai==6.5.0`
 
 Questions? Open an issue or discussion on GitHub!

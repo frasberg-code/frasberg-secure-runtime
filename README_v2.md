@@ -1,6 +1,6 @@
-# 🚀 Sofia Core v2.0.0
+# 🚀 Frasberg AI v2.0.0
 
-[![Release](https://img.shields.io/badge/release-v2.0.0-blue?style=for-the-badge)](https://github.com/emeraldorbit/sofia-core-backend/releases/tag/v2.0.0)
+[![Release](https://img.shields.io/badge/release-v2.0.0-blue?style=for-the-badge)](https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v2.0.0)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Production-success?style=for-the-badge)]()
 
@@ -28,11 +28,11 @@
 
 ```bash
 # Download v2.0.0
-wget https://github.com/emeraldorbit/sofia-core-backend/releases/download/v2.0.0/sofia-core-v2.0.0-complete.zip
+wget https://github.com/emeraldorbit/frasberg-ai-backend/releases/download/v2.0.0/frasberg-ai-v2.0.0-complete.zip
 
 # Extract and deploy
-unzip sofia-core-v2.0.0-complete.zip
-cd sofia-core-v2.0.0-complete
+unzip frasberg-ai-v2.0.0-complete.zip
+cd frasberg-ai-v2.0.0-complete
 
 # Deploy all services
 ./deploy-all-v2.sh
@@ -132,5 +132,5 @@ MIT License - See [LICENSE](LICENSE) file
 
 ---
 
-**Sofia Core v2.0.0 - Voice-Enabled Institution-Grade Intelligence**  
+**Frasberg AI v2.0.0 - Voice-Enabled Institution-Grade Intelligence**  
 *Speak. Listen. Document. Verify.*

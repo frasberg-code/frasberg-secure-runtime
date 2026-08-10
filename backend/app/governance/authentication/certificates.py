@@ -61,7 +61,7 @@ class CertificateGenerator:
     
     def __init__(
         self,
-        issuer_name: str = "Sofia Core Governance Authority",
+        issuer_name: str = "Frasberg AI Governance Authority",
         issuer_id: Optional[str] = None,
     ):
         """
@@ -163,7 +163,7 @@ class CertificateGenerator:
         cert_data = {
             "type": "expert_witness",
             "qualifications": qualifications,
-            "scope": "Sofia Core Governance System",
+            "scope": "Frasberg AI Governance System",
             "certification_date": datetime.now(timezone.utc).isoformat(),
         }
         
@@ -224,7 +224,7 @@ class CertificateGenerator:
         }
         
         return self.generate_certificate(
-            subject_name="Sofia Core Hash Chain",
+            subject_name="Frasberg AI Hash Chain",
             purpose="Hash Chain Integrity Verification",
             validity_days=3650,
             certificate_data=cert_data,
@@ -304,13 +304,13 @@ class CertificateGenerator:
         cert_b64 = base64.b64encode(cert_json.encode()).decode()
         
         # Format as PEM
-        pem = "-----BEGIN SOFIA CERTIFICATE-----\n"
+        pem = "-----BEGIN FRASBERG CERTIFICATE-----\n"
         
         # Wrap at 64 characters
         for i in range(0, len(cert_b64), 64):
             pem += cert_b64[i:i+64] + "\n"
         
-        pem += "-----END SOFIA CERTIFICATE-----\n"
+        pem += "-----END FRASBERG CERTIFICATE-----\n"
         
         return pem
     

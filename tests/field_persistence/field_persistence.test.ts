@@ -1,4 +1,4 @@
-import { ensureFieldPersistence } from '../../supabase/sofia_core/field_persistence/field_persistence';
+import { ensureFieldPersistence } from '../../supabase/frasberg_ai/field_persistence/field_persistence';
 
 describe('field_persistence', () => {
   test('ensures persistence using validator', () => {

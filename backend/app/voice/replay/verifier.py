@@ -1,4 +1,4 @@
-"""Replay Verification for Sofia Core."""
+"""Replay Verification for Frasberg AI."""
 from typing import Dict, Optional
 from ..fingerprint import VoiceFingerprint
 

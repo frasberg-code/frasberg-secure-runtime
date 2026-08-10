@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "═══════════════════════════════════════════"
-echo "  SOFIA CORE v1.0.0 COMPLETE HEALTH CHECK"
+echo "  FRASBERG CORE v1.0.0 COMPLETE HEALTH CHECK"
 echo "═══════════════════════════════════════════"
 echo ""
 

@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Sofia Core 6.0.0 Product Hunt Launch Script
+# Frasberg AI 6.0.0 Product Hunt Launch Script
 # Launch at midnight PT (12:01am PT)
 
 set -e
 
-echo "🚀 Sofia Core 6.0.0 Product Hunt Launch"
+echo "🚀 Frasberg AI 6.0.0 Product Hunt Launch"
 echo "========================================"
 echo ""
 
@@ -69,7 +69,7 @@ echo "=============================="
 echo ""
 
 echo "🏷️  Product Name:"
-echo "Sofia Core"
+echo "Frasberg AI"
 echo ""
 
 echo "📝 Tagline:"
@@ -81,13 +81,13 @@ echo "6.0.0"
 echo ""
 
 echo "🔗 Website:"
-echo "https://github.com/emeraldorbit/sofia-core-backend"
+echo "https://github.com/emeraldorbit/frasberg-ai-backend"
 echo ""
 
 echo "📱 First Comment (Copy this):"
 echo "----------------------------"
 cat << 'EOF'
-Launching Sofia Core 6.0.0! 🚀
+Launching Frasberg AI 6.0.0! 🚀
 
 Major Release - 3X the features:
 
@@ -117,8 +117,8 @@ Major Release - 3X the features:
 
 **Try it:**
 ```bash
-pip install sofia-core==6.0.0
-sofia-cli quickstart
+pip install frasberg-ai==6.0.0
+frasberg-cli quickstart
 ```
 
 100% MIT licensed. Production-ready TODAY.
@@ -137,7 +137,7 @@ echo ""
 echo "🐦 Twitter/X Thread:"
 echo "-------------------"
 cat << 'EOF'
-🎉 SOFIA CORE 6.0.0 IS LIVE!
+🎉 FRASBERG CORE 6.0.0 IS LIVE!
 
 Major release with 3X the features:
 
@@ -148,7 +148,7 @@ Major release with 3X the features:
 
 Thread with all features 👇
 
-https://github.com/emeraldorbit/sofia-core-backend
+https://github.com/emeraldorbit/frasberg-ai-backend
 
 ---
 
@@ -209,14 +209,14 @@ Real benchmarks, real improvements!
 
 5/ Try it now! 🚀
 
-pip install sofia-core==6.0.0
-sofia-cli quickstart
+pip install frasberg-ai==6.0.0
+frasberg-cli quickstart
 
 100% MIT licensed
 95% test coverage
 Enterprise-ready TODAY
 
-Docs: https://github.com/emeraldorbit/sofia-core-backend
+Docs: https://github.com/emeraldorbit/frasberg-ai-backend
 Discord: [link]
 
 What will you build?
@@ -229,7 +229,7 @@ echo "-----------------------"
 cat << 'EOF'
 @everyone
 
-🎉 **SOFIA CORE 6.0.0 IS LIVE!** 🎉
+🎉 **FRASBERG CORE 6.0.0 IS LIVE!** 🎉
 
 Major release combining enterprise features, advanced AI, and ecosystem integrations!
 
@@ -258,12 +258,12 @@ Major release combining enterprise features, advanced AI, and ecosystem integrat
 
 **Get started:**
 ```bash
-pip install sofia-core==6.0.0
-sofia-cli quickstart
+pip install frasberg-ai==6.0.0
+frasberg-cli quickstart
 ```
 
 **Links:**
-• Release notes: https://github.com/emeraldorbit/sofia-core-backend/releases/tag/v6.0.0
+• Release notes: https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v6.0.0
 • Migration guide: docs/migration/v5-to-v6.md
 • Product Hunt: [link to PH page]
 
@@ -288,12 +288,12 @@ New in 6.0.0:
 • Testing: 95% test coverage, SOC2 compliance ready
 
 Quick start:
-    pip install sofia-core==6.0.0
-    sofia-cli quickstart
+    pip install frasberg-ai==6.0.0
+    frasberg-cli quickstart
 
 Still 100% MIT licensed!
 
-Release notes: https://github.com/emeraldorbit/sofia-core-backend/releases/tag/v6.0.0
+Release notes: https://github.com/emeraldorbit/frasberg-ai-backend/releases/tag/v6.0.0
 EOF
 echo ""
 echo ""
@@ -365,12 +365,12 @@ echo ""
 
 # Final confirmation
 echo ""
-echo -e "${YELLOW}Ready to launch Sofia Core 6.0.0?${NC}"
+echo -e "${YELLOW}Ready to launch Frasberg AI 6.0.0?${NC}"
 read -p "Launch now? (y/n) " -n 1 -r
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo ""
-    echo -e "${GREEN}🎉🚀 LAUNCHING SOFIA CORE 6.0.0! 🚀🎉${NC}"
+    echo -e "${GREEN}🎉🚀 LAUNCHING FRASBERG CORE 6.0.0! 🚀🎉${NC}"
     echo ""
     echo "Good luck! 🍀"
     echo ""

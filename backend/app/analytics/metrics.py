@@ -1,4 +1,4 @@
-"""Usage Metrics (Meta-Only) for Sofia Core Analytics."""
+"""Usage Metrics (Meta-Only) for Frasberg AI Analytics."""
 from typing import Dict, Optional
 from datetime import datetime
 from dataclasses import dataclass, field

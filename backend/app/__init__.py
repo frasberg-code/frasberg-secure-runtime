@@ -1,1 +1,1 @@
-"""Sofia Core Backend Application."""
+"""Frasberg AI Backend Application."""

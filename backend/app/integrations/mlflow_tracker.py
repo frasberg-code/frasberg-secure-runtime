@@ -1,4 +1,4 @@
-"""MLflow Integration for Sofia Core"""
+"""MLflow Integration for Frasberg AI"""
 
 from typing import Optional, Dict, Any
 import logging
@@ -10,7 +10,7 @@ class MLflowTracker:
     """
     MLflow experiment tracking and model registry integration
     
-    Track Sofia Core experiments and manage model lifecycle with MLflow.
+    Track Frasberg AI experiments and manage model lifecycle with MLflow.
     """
     
     def __init__(
@@ -28,7 +28,7 @@ class MLflowTracker:
             **kwargs: Additional MLflow configuration
         
         Examples:
-            >>> tracker = MLflowTracker(experiment_name="sofia-dna-compute")
+            >>> tracker = MLflowTracker(experiment_name="frasberg-dna-compute")
             >>> tracker.start_run(run_name="experiment-1")
             >>> tracker.log_params({"learning_rate": 0.001})
             >>> tracker.log_metrics({"accuracy": 0.95})

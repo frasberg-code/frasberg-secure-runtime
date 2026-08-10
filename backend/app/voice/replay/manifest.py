@@ -1,4 +1,4 @@
-"""Replay Manifest for Sofia Core."""
+"""Replay Manifest for Frasberg AI."""
 from typing import Dict, List
 from datetime import datetime
 import json

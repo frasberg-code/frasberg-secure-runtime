@@ -1,7 +1,7 @@
 """
 Air-Gapped Deployment Module
 
-Provides configuration and validation for air-gapped deployments of Sofia Core.
+Provides configuration and validation for air-gapped deployments of Frasberg AI.
 """
 
 from .config import (

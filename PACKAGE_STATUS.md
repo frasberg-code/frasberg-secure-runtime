@@ -1,41 +1,41 @@
-# Sofia Core Packages - Quick Status Reference
+# Frasberg AI Packages - Quick Status Reference
 
 ## Package Build Status
 
 | Package | Status | Tests | Exports |
 |---------|--------|-------|---------|
-| 🔧 sofia-governance-engine | ✅ Operational | ✅ 7/7 | deviationEngine, orchestrate |
-| 🎵 sofia-tonal-modulation | ✅ Operational | ⚪ Ready | tonalEngine, conductResonance |
-| 🛡️ sofia-membrane-protocol | ✅ Operational | ⚪ Ready | membraneEngine |
-| 🔀 sofia-hinge-logic | ✅ Operational | ⚪ Ready | hingeLogic, shiftFieldState |
-| 🌊 sofia-continuum-identity | ✅ Operational | ⚪ Ready | filterIdentity, modulateIdentity, bridgeState |
-| 🌐 sofia-unified-field-runtime | ✅ Operational | ⚪ Ready | unifiedFieldRuntime, post-structural |
+| 🔧 frasberg-governance-engine | ✅ Operational | ✅ 7/7 | deviationEngine, orchestrate |
+| 🎵 frasberg-tonal-modulation | ✅ Operational | ⚪ Ready | tonalEngine, conductResonance |
+| 🛡️ frasberg-membrane-protocol | ✅ Operational | ⚪ Ready | membraneEngine |
+| 🔀 frasberg-hinge-logic | ✅ Operational | ⚪ Ready | hingeLogic, shiftFieldState |
+| 🌊 frasberg-continuum-identity | ✅ Operational | ⚪ Ready | filterIdentity, modulateIdentity, bridgeState |
+| 🌐 frasberg-unified-field-runtime | ✅ Operational | ⚪ Ready | unifiedFieldRuntime, post-structural |
 
 ## Quick Start
 
 ### Build All Packages
 \`\`\`bash
 pnpm install
-cd packages/sofia-governance-engine && pnpm build
-cd ../sofia-tonal-modulation && pnpm build
-cd ../sofia-membrane-protocol && pnpm build
-cd ../sofia-hinge-logic && pnpm build
-cd ../sofia-continuum-identity && pnpm build
-cd ../sofia-unified-field-runtime && pnpm build
+cd packages/frasberg-governance-engine && pnpm build
+cd ../frasberg-tonal-modulation && pnpm build
+cd ../frasberg-membrane-protocol && pnpm build
+cd ../frasberg-hinge-logic && pnpm build
+cd ../frasberg-continuum-identity && pnpm build
+cd ../frasberg-unified-field-runtime && pnpm build
 \`\`\`
 
 ### Run Tests
 \`\`\`bash
-cd packages/sofia-governance-engine && pnpm test
+cd packages/frasberg-governance-engine && pnpm test
 \`\`\`
 
 ## Usage Example
 
 \`\`\`typescript
 // Import from modular packages
-import { deviationEngine } from '@emeraldorbit/sofia-governance-engine';
-import { tonalEngine } from '@emeraldorbit/sofia-tonal-modulation';
-import { membraneEngine } from '@emeraldorbit/sofia-membrane-protocol';
+import { deviationEngine } from '@emeraldorbit/frasberg-governance-engine';
+import { tonalEngine } from '@emeraldorbit/frasberg-tonal-modulation';
+import { membraneEngine } from '@emeraldorbit/frasberg-membrane-protocol';
 
 // Use the engines
 const devState = deviationEngine.initialize();

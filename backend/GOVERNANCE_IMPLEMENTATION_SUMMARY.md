@@ -1,4 +1,4 @@
-# Sofia Core Governance System v1.0.0 - Implementation Summary
+# Frasberg AI Governance System v1.0.0 - Implementation Summary
 
 ## Status: ✅ COMPLETE
 
@@ -281,7 +281,7 @@ Recommended enhancements for production deployment:
 
 ## Conclusion
 
-The Sofia Core Governance System v1.0.0 is a **complete, institutional-grade** governance framework providing:
+The Frasberg AI Governance System v1.0.0 is a **complete, institutional-grade** governance framework providing:
 
 - Tamper-evident audit logging
 - FRE Rule 902(13) compliance

@@ -1,6 +1,6 @@
 # Governance Policies
 
-The Sofia Core SDK governance framework consists of:
+The Frasberg AI SDK governance framework consists of:
 
 1. **[Maintainer Oath](maintainer-oath.md)** - Constitutional commitment to system identity
 2. **[Code Review Rubric](code-review-rubric.md)** - Evaluation framework for all PRs

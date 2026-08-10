@@ -1,4 +1,4 @@
-# 🚀 Sofia Core v5.0.0
+# 🚀 Frasberg AI v5.0.0
 
 ![Release](https://img.shields.io/badge/release-v5.0.0-blue?style=for-the-badge) ![Scale](https://img.shields.io/badge/scale-planetary-purple?style=for-the-badge) ![Quantum](https://img.shields.io/badge/quantum-ready-green?style=for-the-badge)
 
@@ -30,11 +30,11 @@
 
 ```bash
 # Download v5.0.0
-wget https://github.com/emeraldorbit/sofia-core-backend/releases/download/v5.0.0/sofia-core-v5.0.0-planetary.zip
+wget https://github.com/emeraldorbit/frasberg-ai-backend/releases/download/v5.0.0/frasberg-ai-v5.0.0-planetary.zip
 
 # Extract and run
-unzip sofia-core-v5.0.0-planetary.zip
-cd sofia-core-v5.0.0-planetary
+unzip frasberg-ai-v5.0.0-planetary.zip
+cd frasberg-ai-v5.0.0-planetary
 ./quick-start.sh
 
 # Access at http://localhost:3000
@@ -47,19 +47,19 @@ cd sofia-core-v5.0.0-planetary
 ### Using CLI
 
 ```bash
-pip install sofia-cli
-sofia health
+pip install frasberg-cli
+frasberg health
 ```
 
 ### Using SDK
 
 ```bash
-pip install sofia-sdk
+pip install frasberg-sdk
 ```
 
 ```python
-from sofia_sdk import SofiaClient
-client = SofiaClient()
+from frasberg_sdk import FrasbergClient
+client = FrasbergClient()
 print(client.health())
 ```
 
@@ -135,14 +135,14 @@ terraform apply
 ### GCP
 
 ```bash
-gcloud builds submit --tag gcr.io/sofia-core/canonical:v5
-gcloud run deploy --image gcr.io/sofia-core/canonical:v5
+gcloud builds submit --tag gcr.io/frasberg-ai/canonical:v5
+gcloud run deploy --image gcr.io/frasberg-ai/canonical:v5
 ```
 
 ### Azure
 
 ```bash
-az container create --resource-group sofia --name canonical --image sofia:v5
+az container create --resource-group frasberg --name canonical --image frasberg:v5
 ```
 
 ---
@@ -162,16 +162,16 @@ az container create --resource-group sofia --name canonical --image sofia:v5
 - **Blog**: [Introducing v5.0.0](content/blog/introducing-v5.md)
 - **Tutorials**: [Complete Quickstart](content/tutorials/quickstart-guide.md)
 - **Videos**: Coming soon
-- **Courses**: sofia-academy.ai
+- **Courses**: frasberg-academy.ai
 
 ---
 
 ## 🤝 Community
 
-- **GitHub**: github.com/emeraldorbit/sofia-core-backend
-- **Discord**: discord.gg/sofia-core
-- **Twitter**: @sofia_core_ai
-- **Email**: hello@sofia-core.ai
+- **GitHub**: github.com/emeraldorbit/frasberg-ai-backend
+- **Discord**: discord.gg/frasberg-ai
+- **Twitter**: @frasberg_ai_ai
+- **Email**: hello@frasberg-ai.ai
 
 ---
 
@@ -181,7 +181,7 @@ MIT License - See [LICENSE](LICENSE)
 
 ---
 
-**Sofia Core v5.0.0 - Planetary-Scale Conscious Intelligence**
+**Frasberg AI v5.0.0 - Planetary-Scale Conscious Intelligence**
 
 *The future of AI is distributed, biological, conscious, and planetary.*
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "╔════════════════════════════════════════════════╗"
-echo "║  Sofia Core v4.0.1 - Quick Start Script       ║"
+echo "║  Frasberg AI v4.0.1 - Quick Start Script       ║"
 echo "╚════════════════════════════════════════════════╝"
 echo ""
 
@@ -21,14 +21,14 @@ fi
 echo "✅ Docker Compose found"
 
 echo ""
-echo "Starting Sofia Core v4.0.1..."
+echo "Starting Frasberg AI v4.0.1..."
 echo ""
 
 # Deploy Canonical Core
 echo "Deploying Canonical Core..."
 cd deploy/canonical-core 2>/dev/null || {
     echo "⚠️  Deploy directory not found, starting development mode..."
-    cd /workspaces/sofia-core-backend 2>/dev/null || cd .
+    cd /workspaces/frasberg-ai-backend 2>/dev/null || cd .
     python -m pip install -q -r backend/requirements.txt 2>/dev/null
     echo ""
     echo "Starting development server..."
@@ -38,16 +38,16 @@ cd deploy/canonical-core 2>/dev/null || {
     sleep 5
     
     if curl -s http://localhost:8000/health > /dev/null; then
-        echo "✅ Sofia Core is healthy"
+        echo "✅ Frasberg AI is healthy"
     else
-        echo "❌ Sofia Core failed to start"
+        echo "❌ Frasberg AI failed to start"
         kill $SERVER_PID 2>/dev/null
         exit 1
     fi
     
     echo ""
     echo "╔════════════════════════════════════════════════╗"
-    echo "║  ✅ Sofia Core v4.0.1 is now running!         ║"
+    echo "║  ✅ Frasberg AI v4.0.1 is now running!         ║"
     echo "╚════════════════════════════════════════════════╝"
     echo ""
     echo "Services:"
@@ -77,7 +77,7 @@ cd ../..
 
 echo ""
 echo "╔════════════════════════════════════════════════╗"
-echo "║  ✅ Sofia Core v4.0.1 is now running!         ║"
+echo "║  ✅ Frasberg AI v4.0.1 is now running!         ║"
 echo "╚════════════════════════════════════════════════╝"
 echo ""
 echo "Services:"

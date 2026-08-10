@@ -1,6 +1,6 @@
-# Sofia Core Research Papers
+# Frasberg AI Research Papers
 
-This directory contains research papers and publications related to Sofia Core.
+This directory contains research papers and publications related to Frasberg AI.
 
 ## Current Papers
 
@@ -10,7 +10,7 @@ This directory contains research papers and publications related to Sofia Core.
 **File:** [paper.md](dna-computing/paper.md)  
 **Target:** ICML 2026, NeurIPS 2026, Nature Communications
 
-**Abstract:** We present Sofia Core, a distributed intelligence system integrating DNA computing paradigms into a planetary-scale architecture, achieving 10^6x storage density improvements and 10^5x energy efficiency gains compared to traditional approaches.
+**Abstract:** We present Frasberg AI, a distributed intelligence system integrating DNA computing paradigms into a planetary-scale architecture, achieving 10^6x storage density improvements and 10^5x energy efficiency gains compared to traditional approaches.
 
 ## Submission Process
 
@@ -18,18 +18,18 @@ See [submit.sh](dna-computing/submit.sh) for conference and journal submission t
 
 ## Contributing
 
-We welcome research collaborations! Contact: research@sofia-core.ai
+We welcome research collaborations! Contact: research@frasberg-ai.ai
 
 ## Citation
 
-If you use Sofia Core in your research, please cite:
+If you use Frasberg AI in your research, please cite:
 
 ```bibtex
-@software{sofia_core_2026,
-  title={Sofia Core: Planetary-Scale Distributed Intelligence System},
-  author={Sofia Core Development Team},
+@software{frasberg_ai_2026,
+  title={Frasberg AI: Planetary-Scale Distributed Intelligence System},
+  author={Frasberg AI Development Team},
   year={2026},
-  url={https://github.com/emeraldorbit/sofia-core-backend},
+  url={https://github.com/emeraldorbit/frasberg-ai-backend},
   version={5.0.0}
 }
 ```

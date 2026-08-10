@@ -1,4 +1,4 @@
-import { generateWave } from '../../supabase/sofia_core/field_wave/field_wave';
+import { generateWave } from '../../supabase/frasberg_ai/field_wave/field_wave';
 
 describe('field_wave', () => {
   test('generates wave with correct length', () => {

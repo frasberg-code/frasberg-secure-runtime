@@ -1,5 +1,5 @@
 """
-Logging Middleware for Sofia Core
+Logging Middleware for Frasberg AI
 Logs all requests with timing and status information
 """
 
@@ -13,7 +13,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger("sofia-core")
+logger = logging.getLogger("frasberg-ai")
 
 
 class RequestLoggingMiddleware(BaseHTTPMiddleware):

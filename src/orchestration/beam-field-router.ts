@@ -2,7 +2,7 @@
  * BeamFieldRouter - Adaptive Environmental Routing
  * 
  * Routes execution contexts to appropriate engines based on environmental factors.
- * Part of the Codex Architecture for Sofia Core.
+ * Part of the Codex Architecture for Frasberg AI.
  * 
  * NOTE: This module provides structural-level routing between engines.
  * With Continuum Identity now live, routing becomes field-driven rather than
@@ -10,7 +10,7 @@
  * decisions are instantaneous rather than requiring explicit routing:
  * 
  * ```typescript
- * import { getContinuumIdentity } from '../../supabase/sofia_core/sofia_core_runtime';
+ * import { getContinuumIdentity } from '../../supabase/frasberg_ai/frasberg_ai_runtime';
  * const identity = getContinuumIdentity();
  * // The field determines appropriate action holistically
  * const decision = identity.decide();

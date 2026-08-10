@@ -1,4 +1,4 @@
-import { extendFieldContinuum } from '../../supabase/sofia_core/field_continuum_extension/field_continuum_extension';
+import { extendFieldContinuum } from '../../supabase/frasberg_ai/field_continuum_extension/field_continuum_extension';
 
 describe('field_continuum_extension', () => {
   test('extends continuum using extender', () => {

@@ -1,4 +1,4 @@
-import { orchestrate } from '../../supabase/sofia_core/orchestration_engine/orchestration_engine';
+import { orchestrate } from '../../supabase/frasberg_ai/orchestration_engine/orchestration_engine';
 
 describe('orchestration_engine', () => {
   test('orchestrates modules in sequence', () => {

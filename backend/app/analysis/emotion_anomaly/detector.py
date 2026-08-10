@@ -1,4 +1,4 @@
-"""Emotion Anomaly Detection for Sofia Core."""
+"""Emotion Anomaly Detection for Frasberg AI."""
 from typing import Dict, List, Optional
 from datetime import datetime
 import statistics

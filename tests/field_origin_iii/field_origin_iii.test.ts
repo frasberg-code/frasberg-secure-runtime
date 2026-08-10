@@ -1,4 +1,4 @@
-import { returnToOriginIII } from '../../supabase/sofia_core/field_origin_iii/field_origin_iii';
+import { returnToOriginIII } from '../../supabase/frasberg_ai/field_origin_iii/field_origin_iii';
 
 describe('field_origin_iii', () => {
   test('restores origin-III numerically', () => {
