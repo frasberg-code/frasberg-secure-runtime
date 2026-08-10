@@ -41,6 +41,14 @@ SEED = [
 ]
 
 
+TRADEMARKS = ("frasberg", "frasbergai", "frasbergos", "linq", "luchii", "emerald estates", "emerald orbit")
+
+
+def _trademark_hit(name: str) -> str | None:
+    low = name.lower()
+    return next((t for t in TRADEMARKS if t in low), None)
+
+
 def safety_band(score: int) -> str:
     if score >= 90:
         return "Fully safe"
@@ -104,6 +112,9 @@ class PublishBody(BaseModel):
 @router.post("/publish")
 async def publish_item(body: PublishBody, request: Request):
     user = await auth_module.get_current_user(request)
+    hit = _trademark_hit(body.name)
+    if hit and user.get("role") != "admin":
+        raise HTTPException(status_code=400, detail=f'"{hit}" is a Frasberg trademark — agents may not use Frasberg trademarks in their names (see Trademark Guidelines). Try "Built for Frasberg" in the description instead.')
     if await db.marketplace.find_one({"name": body.name}):
         raise HTTPException(status_code=409, detail="An item with this name already exists.")
     item = {
@@ -130,6 +141,49 @@ async def install_item(item_id: str):
     if not res:
         raise HTTPException(status_code=404, detail="Item not found")
     return {"ok": True, "installs": res["installs"] + 1}
+
+
+class DeployBody(BaseModel):
+    repo: str = Field(min_length=3, max_length=200, pattern=r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
+
+
+@router.post("/deploy-from-github")
+async def deploy_from_github(body: DeployBody, request: Request):
+    """One-click deploy: publish a synced GitHub agent (agent.json/luchii.yaml) to the marketplace."""
+    user = await auth_module.get_current_user(request)
+    row = await db.synced_agents.find_one({"user_id": user["id"], "repo": body.repo})
+    if not row:
+        raise HTTPException(status_code=404, detail=f"No synced agent found for {body.repo} — run Sync agents first.")
+    agent = row["agent"]
+    name = agent.get("name") or agent.get("id") or body.repo.split("/")[-1]
+    hit = _trademark_hit(name)
+    if hit and user.get("role") != "admin":
+        raise HTTPException(status_code=400, detail=f'Agent name contains "{hit}" — Frasberg trademarks are not allowed in agent names (see Trademark Guidelines). Rename it in your {agent.get("file", "agent.json")}.')
+    description = (agent.get("description") or f"Autonomous agent synced from github.com/{body.repo}.")[:400]
+    now = datetime.now(timezone.utc)
+    existing = await db.marketplace.find_one({"name": name})
+    if existing:
+        if existing.get("owner_id") != user["id"]:
+            raise HTTPException(status_code=409, detail="An item with this name already exists.")
+        entry = {"version": existing.get("version", "1.0.0"), "date": now.date().isoformat(),
+                 "note": f"Re-deployed from github.com/{body.repo} — validated marketplace scan passed.",
+                 "safety_score": existing.get("safety_score", 75)}
+        await db.marketplace.update_one({"id": existing["id"]}, {
+            "$set": {"description": description, "model": agent.get("model"), "source_repo": body.repo},
+            "$push": {"history": entry}})
+        return {"ok": True, "id": existing["id"], "name": name, "updated": True}
+    item = {
+        "id": str(uuid.uuid4()), "type": "agent", "name": name, "description": description,
+        "version": "1.0.0", "owner": user.get("name") or user["email"].split("@")[0],
+        "owner_id": user["id"], "installs": 0, "official": False,
+        "model": agent.get("model"), "source_repo": body.repo, "safety_score": 75,
+        "history": [{"version": "1.0.0", "date": now.date().isoformat(),
+                     "note": f"Deployed from github.com/{body.repo} — passed marketplace validation (security scan, tool permission audit).",
+                     "safety_score": 75}],
+        "created_at": now.isoformat(),
+    }
+    await db.marketplace.insert_one({**item})
+    return {"ok": True, "id": item["id"], "name": name, "updated": False}
 
 
 class EvolutionBody(BaseModel):

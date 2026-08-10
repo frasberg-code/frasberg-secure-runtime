@@ -157,6 +157,12 @@ export default function AgentWorkspace() {
   };
   const [ghSynced, setGhSynced] = useState(null);
   const [ghSyncBusy, setGhSyncBusy] = useState(false);
+  useEffect(() => {
+    fetch(`${API}/github/synced-agents`, { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d?.agents?.length) setGhSynced(d.agents); })
+      .catch(() => {});
+  }, []);
   const syncAgents = async () => {
     setGhSyncBusy(true);
     try {
@@ -168,6 +174,22 @@ export default function AgentWorkspace() {
       toast.success(`Scanned ${d.scanned} repos — ${d.synced.length} agent file${d.synced.length === 1 ? "" : "s"} synced`);
     } catch (e) { toast.error(String(e.message || e)); }
     setGhSyncBusy(false);
+  };
+  const [ghDeploying, setGhDeploying] = useState(null);
+  const deployAgent = async (repo) => {
+    setGhDeploying(repo);
+    try {
+      const res = await fetch(`${API}/marketplace/deploy-from-github`, {
+        method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ repo }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.detail || "Deploy failed");
+      toast.success(`${d.name} ${d.updated ? "re-deployed" : "deployed"} to the Marketplace`, {
+        action: { label: "View", onClick: () => window.open("/marketplace", "_blank") },
+      });
+    } catch (e) { toast.error(String(e.message || e)); }
+    setGhDeploying(null);
   };
   const exportGithub = async (o = ghOwner, r = ghRepo) => {
     if (!previewHtml) { toast.error("Nothing to push yet — build something with Luchii first"); return; }
@@ -915,6 +937,12 @@ export default function AgentWorkspace() {
                             <span className="text-[13px] font-600" style={{ color: T.text }}>{s.agent?.name || s.agent?.id || "Agent"}</span>
                             <span className="font-mono text-[12px]" style={{ color: T.text2 }}>{s.repo} · {s.agent?.file}{s.agent?.model ? ` · ${s.agent.model}` : ""}</span>
                             <span className="rounded-full border px-2 py-0.5 font-mono text-[11px]" style={{ borderColor: T.border, color: T.muted }}>{s.source === "webhook_push" ? "auto · push" : "manual"}</span>
+                            <button onClick={() => deployAgent(s.repo)} disabled={ghDeploying === s.repo} data-testid={`deploy-agent-${s.repo.replace("/", "-")}`}
+                              title="Publish this agent to the Frasberg Marketplace in one click"
+                              className="rounded-full border px-3 py-0.5 text-[12px] font-600 transition-opacity disabled:opacity-40"
+                              style={{ borderColor: T.accent, color: T.accent }}>
+                              {ghDeploying === s.repo ? "Deploying…" : "Deploy to Marketplace"}
+                            </button>
                           </div>
                         ))}
                       </div>

@@ -18,8 +18,26 @@ const LAYOUT = {
   out: { x: 740, y: 150, label: "Output Gate" },
 };
 const STATE_COLOR = { running: "#34D399", waiting: "#8A8F98", evolving: "#22D3EE", sandboxed: "#FBBF24" };
+const SCENARIOS = [
+  ["threat_surge", "Threat surge", "#F87171"],
+  ["evolution_burst", "Evolution burst", "#22D3EE"],
+  ["region_failover", "Region failover", "#FBBF24"],
+];
+const NODE_INFO = {
+  percept: "Ingests multimodal frames — text, audio, vision — and normalizes them for the context assembler.",
+  ctx: "Assembles working context from perception and memory under identity-membrane constraints.",
+  mem: "MemoryFS v4 — episodic and semantic stores with cross-region replication.",
+  plan: "Decomposes goals into cognition steps following the P→I→R→D→A flow invariant.",
+  reason: "Constellation reasoning layer — deterministic decision core of Kernel v4.",
+  safety: "Safety Suite v3 — hinge logic, Classifier v3 risk scoring and the GSS-2 membrane.",
+  tools: "Sandboxed tool execution with side-effect auditing and delegation limits.",
+  mutate: "Mutation Classifier — scores every evolution candidate against safety invariants.",
+  evolve: "Evolution Engine v3 — validated improvement cycles with lineage checkpoints.",
+  out: "Output Gate — final membrane check before any action leaves the kernel.",
+};
+const safetyColor = (s) => (s >= 90 ? "#34D399" : s >= 75 ? "#22D3EE" : s >= 60 ? "#FBBF24" : "#F87171");
 
-function CognitionGraph({ nodes, edges, pulses }) {
+function CognitionGraph({ nodes, edges, pulses, selected, onSelect }) {
   return (
     <svg viewBox="0 0 810 470" className="w-full" data-testid="cognition-graph">
       {edges.map(([a, b], i) => {
@@ -39,16 +57,45 @@ function CognitionGraph({ nodes, edges, pulses }) {
       {Object.entries(LAYOUT).map(([id, p]) => {
         const act = nodes[id] ?? 0.3;
         const r = 13 + act * 11;
+        const isSel = selected === id;
         return (
-          <g key={id} data-testid={`cog-node-${id}`}>
+          <g key={id} data-testid={`cog-node-${id}`} onClick={() => onSelect(isSel ? null : id)} style={{ cursor: "pointer" }}>
             <circle cx={p.x} cy={p.y} r={r + 7} fill="#00F0FF" opacity={act * 0.18} />
-            <circle cx={p.x} cy={p.y} r={r} fill="#0d1418" stroke="#00F0FF" strokeWidth="1.4" strokeOpacity={0.35 + act * 0.65} />
+            {isSel && <circle cx={p.x} cy={p.y} r={r + 5} fill="none" stroke="#FBBF24" strokeWidth="1.5" strokeDasharray="4 3" />}
+            <circle cx={p.x} cy={p.y} r={r} fill="#0d1418" stroke={isSel ? "#FBBF24" : "#00F0FF"} strokeWidth="1.4" strokeOpacity={0.35 + act * 0.65} />
             <text x={p.x} y={p.y + 4} textAnchor="middle" fill="#EDEDED" fontSize="11" fontFamily="monospace">{Math.round(act * 100)}</text>
             <text x={p.x} y={p.y + r + 16} textAnchor="middle" fill="#8A8F98" fontSize="11.5">{p.label}</text>
           </g>
         );
       })}
     </svg>
+  );
+}
+
+function NodeDetail({ id, state, onClose }) {
+  const p = LAYOUT[id];
+  const st = state.node_stats?.[id] || {};
+  const act = state.nodes[id] ?? 0;
+  const inbound = state.edges.filter(([, b]) => b === id).map(([a]) => LAYOUT[a].label);
+  const outbound = state.edges.filter(([a]) => a === id).map(([, b]) => LAYOUT[b].label);
+  return (
+    <div className="mt-4 rounded-xl border border-amber-400/30 bg-amber-400/[0.04] p-4" data-testid="node-detail-panel">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-[14.5px] font-700 text-amber-200">{p.label}</p>
+        <button onClick={onClose} className="font-mono text-[12px] text-gray-400 hover:text-white" data-testid="node-detail-close">close ✕</button>
+      </div>
+      <p className="mt-1 text-[13.5px] leading-relaxed text-gray-300">{NODE_INFO[id]}</p>
+      <div className="mt-3 flex flex-wrap gap-2 font-mono text-[12px]">
+        <span className="rounded-full border border-cyan-400/40 px-3 py-1 text-cyan-200">activation {Math.round(act * 100)}%</span>
+        <span className="rounded-full border px-3 py-1" style={{ borderColor: safetyColor(st.safety ?? 80), color: safetyColor(st.safety ?? 80) }}>safety {st.safety ?? "—"}/100</span>
+        <span className="rounded-full border border-white/20 px-3 py-1 text-gray-300">traffic {st.traffic ?? 0} pulses</span>
+        {st.last_pulse_tick != null && <span className="rounded-full border border-white/20 px-3 py-1 text-gray-300">last pulse t{st.last_pulse_tick}</span>}
+      </div>
+      <div className="mt-3 grid grid-cols-1 gap-2 font-mono text-[12px] text-gray-400 sm:grid-cols-2">
+        <p><span className="text-gray-500">in ←</span> {inbound.length ? inbound.join(", ") : "—"}</p>
+        <p><span className="text-gray-500">out →</span> {outbound.length ? outbound.join(", ") : "—"}</p>
+      </div>
+    </div>
   );
 }
 
@@ -81,11 +128,14 @@ function AgentTable({ agents }) {
 export default function FrasbergOS() {
   const [state, setState] = useState(null);
   const [running, setRunning] = useState(false);
+  const [selected, setSelected] = useState(null);
   const timer = useRef(null);
 
-  const call = useCallback(async (path, method = "GET") => {
+  const call = useCallback(async (path, method = "GET", body = null) => {
     try {
-      const r = await fetch(`${API}/os/${path}`, { method });
+      const r = await fetch(`${API}/os/${path}`, {
+        method, ...(body ? { headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {}),
+      });
       const d = await r.json();
       if (r.ok) setState(d);
     } catch {}
@@ -125,14 +175,33 @@ export default function FrasbergOS() {
           </div>
         )}
 
-        <div className="mt-5 flex flex-wrap gap-2">
+        <div className="mt-5 flex flex-wrap items-center gap-2">
           <button onClick={() => setRunning(!running)} data-testid="os-run-btn"
             className={`${btn} ${running ? "border-emerald-400 text-emerald-300" : ""}`}>
             {running ? <><Pause size={13} /> Pause</> : <><Play size={13} /> Run</>}
           </button>
           <button onClick={() => call("tick", "POST")} data-testid="os-step-btn" className={btn}><StepForward size={13} /> Step</button>
-          <button onClick={() => { setRunning(false); call("reset", "POST"); }} data-testid="os-reset-btn" className={btn}><RotateCcw size={13} /> Reset</button>
+          <button onClick={() => { setRunning(false); setSelected(null); call("reset", "POST"); }} data-testid="os-reset-btn" className={btn}><RotateCcw size={13} /> Reset</button>
+          <span className="mx-1 hidden h-5 w-px bg-white/15 sm:block" />
+          <span className="font-mono text-[11.5px] uppercase tracking-wide text-gray-500">Inject scenario:</span>
+          {SCENARIOS.map(([key, label, color]) => (
+            <button key={key} onClick={() => { call("scenario", "POST", { name: key }); if (!running) setRunning(true); }}
+              data-testid={`os-scenario-${key}`}
+              className="rounded-full border px-3.5 py-1.5 text-[12.5px] font-600 transition-opacity hover:opacity-80"
+              style={{ borderColor: color, color }}>
+              {label}
+            </button>
+          ))}
         </div>
+
+        {state?.scenario && (
+          <div className="mt-4 flex items-center gap-2 rounded-xl border border-amber-400/40 bg-amber-400/[0.07] px-4 py-2.5" data-testid="os-scenario-banner">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-amber-400" />
+            <span className="font-mono text-[13px] uppercase tracking-wide text-amber-200">
+              {state.scenario.label} active — {state.scenario.remaining} tick{state.scenario.remaining === 1 ? "" : "s"} remaining
+            </span>
+          </div>
+        )}
 
         {!state ? (
           <p className="mt-10 font-mono text-[13px] text-gray-400">Booting kernel…</p>
@@ -140,8 +209,9 @@ export default function FrasbergOS() {
           <>
             <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-3">
               <div className="rounded-2xl border border-white/10 bg-black/30 p-5 backdrop-blur lg:col-span-2" data-testid="os-graph-panel">
-                <p className="flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400"><Activity size={12} /> Cognition Graph v2 — node activations</p>
-                <CognitionGraph nodes={state.nodes} edges={state.edges} pulses={state.pulses} />
+                <p className="flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400"><Activity size={12} /> Cognition Graph v2 — node activations · click a node for details</p>
+                <CognitionGraph nodes={state.nodes} edges={state.edges} pulses={state.pulses} selected={selected} onSelect={setSelected} />
+                {selected && <NodeDetail id={selected} state={state} onClose={() => setSelected(null)} />}
               </div>
               <AgentTable agents={state.agents} />
             </div>

@@ -44,6 +44,12 @@ function DetailModal({ item, onClose, onInstall }) {
           {item.evolution_mode && <span className="flex items-center gap-1 font-mono text-[12px] text-emerald-300"><Zap size={11} /> Evolution Mode on</span>}
         </div>
         <p className="mt-3 text-[14px] leading-relaxed text-gray-300">{item.description}</p>
+        {item.source_repo && (
+          <a href={`https://github.com/${item.source_repo}`} target="_blank" rel="noreferrer" data-testid="detail-source-repo"
+            className="mt-2 inline-flex items-center gap-1.5 font-mono text-[12.5px] text-gray-400 underline hover:text-cyan-300">
+            <GitBranch size={12} /> github.com/{item.source_repo}
+          </a>
+        )}
 
         <p className="mt-6 font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400">Evolution history</p>
         <div className="mt-3 space-y-0" data-testid="evolution-timeline">
