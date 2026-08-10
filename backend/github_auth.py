@@ -261,3 +261,52 @@ async def scaffold_repo(body: ImportBody, request: Request):
                 raise HTTPException(status_code=502, detail=f"Scaffold failed on {path} ({res.status_code})")
     return {"ok": True, "added": added, "skipped_existing": skipped,
             "repo_url": f"https://github.com/{body.owner}/{body.repo}"}
+
+
+@router.get("/github/repos")
+async def list_repos(request: Request):
+    """List the signed-in user's own GitHub repositories."""
+    full, token = await _user_gh_token(request)
+    async with httpx.AsyncClient(timeout=30) as client:
+        res = await client.get(
+            "https://api.github.com/user/repos?sort=updated&per_page=30&affiliation=owner",
+            headers={**GITHUB_HEADERS, "Authorization": f"Bearer {token}"},
+        )
+    if res.status_code in (401, 403):
+        raise HTTPException(status_code=403, detail="GitHub token invalid — re-login with GitHub.")
+    if res.status_code != 200:
+        raise HTTPException(status_code=502, detail=f"GitHub repos listing failed ({res.status_code})")
+    return {"login": full.get("github_login"), "repos": [
+        {"name": r["name"], "owner": r["owner"]["login"], "full_name": r["full_name"],
+         "description": r.get("description"), "private": r.get("private", False),
+         "language": r.get("language"), "updated_at": r.get("updated_at"), "html_url": r.get("html_url")}
+        for r in res.json()
+    ]}
+
+
+@router.post("/github/webhook")
+async def github_webhook(request: Request):
+    """GitHub App webhook ingestion with HMAC SHA-256 signature verification."""
+    import hmac as hmac_mod
+    secret = os.environ.get("GITHUB_WEBHOOK_SECRET", "").strip()
+    if not secret:
+        raise HTTPException(status_code=503, detail="Webhook not configured — set GITHUB_WEBHOOK_SECRET.")
+    body_bytes = await request.body()
+    signature = request.headers.get("x-hub-signature-256", "")
+    digest = "sha256=" + hmac_mod.new(secret.encode(), body_bytes, hashlib.sha256).hexdigest()
+    if not hmac_mod.compare_digest(signature, digest):
+        raise HTTPException(status_code=401, detail="Invalid signature")
+    event = request.headers.get("x-github-event", "unknown")
+    import json as json_mod
+    try:
+        payload = json_mod.loads(body_bytes.decode() or "{}")
+    except Exception:
+        payload = {}
+    await db.github_events.insert_one({
+        "id": str(uuid.uuid4()), "event": event,
+        "repo": (payload.get("repository") or {}).get("full_name"),
+        "installation_id": (payload.get("installation") or {}).get("id"),
+        "action": payload.get("action"),
+        "received_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"ok": True, "event": event}

@@ -89,30 +89,44 @@ export default function AgentWorkspace() {
   const [ghRepo, setGhRepo] = useState("");
   const [ghBusy, setGhBusy] = useState(false);
   const [ghResult, setGhResult] = useState(null);
-  const forkGithub = async () => {
+  const [ghRepos, setGhRepos] = useState(null);
+  const [ghListBusy, setGhListBusy] = useState(false);
+  const loadGhRepos = async () => {
+    if (ghRepos) { setGhRepos(null); return; }
+    setGhListBusy(true);
+    try {
+      const r = await fetch(`${API}/github/repos`, { credentials: "include" });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || "Could not list repos");
+      setGhRepos(d.repos);
+      toast.success(`Loaded ${d.repos.length} repos for ${d.login}`);
+    } catch (e) { toast.error(String(e.message || e)); }
+    setGhListBusy(false);
+  };
+  const forkGithub = async (o = ghOwner, r = ghRepo) => {
     setGhBusy(true);
     setGhResult(null);
     try {
-      const r = await fetch(`${API}/github/fork`, {
+      const res = await fetch(`${API}/github/fork`, {
         method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ owner: ghOwner, repo: ghRepo }),
+        body: JSON.stringify({ owner: o, repo: r }),
       });
-      const d = await r.json();
-      if (!r.ok) throw new Error(d.detail || "Fork failed");
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.detail || "Fork failed");
       setGhResult(d.html_url);
       toast.success(`Forked ${d.full_name}`);
     } catch (e) { toast.error(String(e.message || e)); }
     setGhBusy(false);
   };
-  const importGithub = async () => {
+  const importGithub = async (o = ghOwner, r = ghRepo) => {
     setGhBusy(true);
     try {
-      const r = await fetch(`${API}/github/import`, {
+      const res = await fetch(`${API}/github/import`, {
         method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ owner: ghOwner, repo: ghRepo }),
+        body: JSON.stringify({ owner: o, repo: r }),
       });
-      const d = await r.json();
-      if (!r.ok) throw new Error(d.detail || "Import failed");
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.detail || "Import failed");
       setHtmlOverride(d.content);
       setEditing(true);
       setTab("code");
@@ -120,15 +134,15 @@ export default function AgentWorkspace() {
     } catch (e) { toast.error(String(e.message || e)); }
     setGhBusy(false);
   };
-  const scaffoldGithub = async () => {
+  const scaffoldGithub = async (o = ghOwner, r = ghRepo) => {
     setGhBusy(true);
     try {
-      const r = await fetch(`${API}/github/scaffold`, {
+      const res = await fetch(`${API}/github/scaffold`, {
         method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ owner: ghOwner, repo: ghRepo }),
+        body: JSON.stringify({ owner: o, repo: r }),
       });
-      const d = await r.json();
-      if (!r.ok) throw new Error(d.detail || "Scaffold failed");
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.detail || "Scaffold failed");
       toast.success(`Frasberg-ready — added ${d.added.length ? d.added.join(", ") : "nothing new"}${d.skipped_existing.length ? ` (already had ${d.skipped_existing.join(", ")})` : ""}`);
     } catch (e) { toast.error(String(e.message || e)); }
     setGhBusy(false);
@@ -790,11 +804,33 @@ export default function AgentWorkspace() {
                         style={{ borderColor: T.border, color: T.text2 }}>
                         <Sparkles size={12} /> Scaffold
                       </button>
+                      <button onClick={loadGhRepos} disabled={ghListBusy} data-testid="github-my-repos-btn"
+                        title="List your own GitHub repositories"
+                        className="flex items-center gap-1.5 rounded-md border px-4 py-1.5 text-[13.5px] font-600 transition-opacity disabled:opacity-40"
+                        style={{ borderColor: T.border, color: T.text2 }}>
+                        <Github size={12} /> {ghListBusy ? "Loading…" : ghRepos ? "Hide repos" : "My repos"}
+                      </button>
                     </div>
                     {ghResult && (
                       <p className="mt-2 font-mono text-[13px]" style={{ color: "#10B981" }} data-testid="github-fork-result">
                         ✓ Forked — <a className="underline" href={ghResult} target="_blank" rel="noreferrer">{ghResult}</a>
                       </p>
+                    )}
+                    {ghRepos && (
+                      <div className="mt-3 max-h-64 overflow-y-auto rounded-md border" style={{ borderColor: T.borderSub }} data-testid="github-repo-browser">
+                        {ghRepos.length === 0 && <p className="p-3 text-[13.5px]" style={{ color: T.text2 }}>No repositories found on your account.</p>}
+                        {ghRepos.map((r) => (
+                          <div key={r.full_name} className="flex items-center gap-2 border-b px-3 py-2 last:border-b-0" style={{ borderColor: T.borderSub }} data-testid={`github-repo-row-${r.name}`}>
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate font-mono text-[13px]" style={{ color: T.text }}>{r.full_name}{r.private ? " · private" : ""}</p>
+                              {r.description && <p className="truncate text-[12.5px]" style={{ color: T.muted }}>{r.description}</p>}
+                            </div>
+                            <button onClick={() => forkGithub(r.owner, r.name)} disabled={ghBusy} className="rounded border px-2.5 py-1 text-[12.5px] disabled:opacity-40" style={{ borderColor: T.border, color: T.text2 }} data-testid={`repo-fork-${r.name}`}>Fork</button>
+                            <button onClick={() => importGithub(r.owner, r.name)} disabled={ghBusy} className="rounded border px-2.5 py-1 text-[12.5px] disabled:opacity-40" style={{ borderColor: T.accent, color: T.accent }} data-testid={`repo-import-${r.name}`}>Import</button>
+                            <button onClick={() => scaffoldGithub(r.owner, r.name)} disabled={ghBusy} className="rounded border px-2.5 py-1 text-[12.5px] disabled:opacity-40" style={{ borderColor: T.border, color: T.text2 }} data-testid={`repo-scaffold-${r.name}`}>Scaffold</button>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
                   <div className="mt-4 rounded-lg border p-4" style={{ borderColor: T.border, background: T.surface }} data-testid="manage-publishes">

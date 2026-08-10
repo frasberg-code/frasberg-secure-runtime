@@ -218,3 +218,10 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Workspace manage-github card now has Fork / Import / Scaffold buttons (verified via screenshot).
 - Logo: restored ORIGINAL brand mark from git (084db00) — matches user's TikTok/Instagram profiles exactly.
 - Backlog from user's spec dump (not yet requested to build): GitHub App installation tokens, webhooks/multi-region replication, CLI auth, agent deployment/runtime, billing metering, marketplace, secrets manager, debugger UI.
+
+## 2026-06 (cont. 5): Repo Browser + Marketplace — TESTED
+- GET /api/github/repos (user's own repos, GitHub-link gated 403/401 verified) + "My repos" browser in workspace GitHub card with one-tap Fork/Import/Scaffold per row
+- POST /api/github/webhook with HMAC SHA-256 verification (503 until GITHUB_WEBHOOK_SECRET set; placeholder added to .env)
+- Marketplace: /marketplace page + /api/marketplace (list/filter/publish/install), seeded 7 official Frasberg items, publish requires auth (verified as Doc Tester), install increments (verified 15321→15322), nav links added (Explore > Products + mobile menu)
+- User pasted extensive spec docs (runtime diagram, security checklist, handbook, whitepaper) — stored at /app/memory/frasberg_github_spec_notes.md
+- STILL AWAITING: GITHUB_CLIENT_SECRET (user has Client ID wired: lv23liupMC2JMOEbwmKA)

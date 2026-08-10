@@ -3116,6 +3116,9 @@ api_router.include_router(native_packaging.router)
 import github_auth
 github_auth.setup(db)
 api_router.include_router(github_auth.router)
+import marketplace as marketplace_module
+marketplace_module.setup(db)
+api_router.include_router(marketplace_module.router)
 import db_manager
 api_router.include_router(db_manager.router)
 import games_portal
