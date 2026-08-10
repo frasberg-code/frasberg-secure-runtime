@@ -1,4 +1,4 @@
-import { expressApexIIState } from '../../supabase/sofia_core/field_expression_apex_ii/field_expression_apex_ii';
+import { expressApexIIState } from '../../supabase/frasberg_ai/field_expression_apex_ii/field_expression_apex_ii';
 
 describe('field_expression_apex_ii', () => {
   test('expresses second-order apex using expresser', () => {

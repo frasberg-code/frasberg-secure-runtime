@@ -1,15 +1,15 @@
-# DNA Computing Integration in Distributed Intelligence Systems: The Sofia Core Approach
+# DNA Computing Integration in Distributed Intelligence Systems: The Frasberg AI Approach
 
-**Authors:** Sofia Core Research Team  
-**Affiliation:** Sofia Core Project  
-**Contact:** research@sofia-core.ai  
-**Code:** https://github.com/emeraldorbit/sofia-core-backend
+**Authors:** Frasberg AI Research Team  
+**Affiliation:** Frasberg AI Project  
+**Contact:** research@frasberg-ai.ai  
+**Code:** https://github.com/frasberg/frasberg-ai-backend
 
 ---
 
 ## Abstract
 
-We present Sofia Core, a production distributed intelligence system integrating DNA computing paradigms into a planetary-scale architecture. Our approach demonstrates practical application of biological computing principles—massive parallelism, ultra-high density storage, and energy-efficient computation—within traditional silicon-based distributed systems. We provide an open-source implementation and performance analysis comparing DNA-inspired algorithms against conventional approaches.
+We present Frasberg AI, a production distributed intelligence system integrating DNA computing paradigms into a planetary-scale architecture. Our approach demonstrates practical application of biological computing principles—massive parallelism, ultra-high density storage, and energy-efficient computation—within traditional silicon-based distributed systems. We provide an open-source implementation and performance analysis comparing DNA-inspired algorithms against conventional approaches.
 
 **Keywords:** DNA Computing, Distributed Systems, Biological Computing, Hybrid Architecture, Open Source
 
@@ -17,7 +17,7 @@ We present Sofia Core, a production distributed intelligence system integrating 
 
 ## 1. Introduction
 
-DNA computing, since Adleman's seminal 1994 work, has remained largely theoretical. Sofia Core bridges this gap by providing a production-ready framework that incorporates DNA computing principles into distributed systems architecture.
+DNA computing, since Adleman's seminal 1994 work, has remained largely theoretical. Frasberg AI bridges this gap by providing a production-ready framework that incorporates DNA computing principles into distributed systems architecture.
 
 ### 1.1 Contributions
 
@@ -65,7 +65,7 @@ DNA molecules store information in sequences of nucleotides (A, T, G, C). Key pr
 
 ### 2.2 System Architecture
 
-Sofia Core implements a hybrid silicon-DNA architecture with graceful degradation:
+Frasberg AI implements a hybrid silicon-DNA architecture with graceful degradation:
 
 ```
 ┌─────────────────────────────────────────┐
@@ -227,7 +227,7 @@ async def generate(request: GenerateRequest):
 
 ## 7. Conclusion
 
-Sofia Core demonstrates that DNA computing principles can be practically integrated into production distributed systems. Our open-source implementation provides:
+Frasberg AI demonstrates that DNA computing principles can be practically integrated into production distributed systems. Our open-source implementation provides:
 
 - **Immediate Value**: 300× speedup in parallel tasks
 - **Future Path**: Clear roadmap to real DNA integration
@@ -240,15 +240,15 @@ Sofia Core demonstrates that DNA computing principles can be practically integra
 
 ## 8. Availability
 
-**Code:** https://github.com/emeraldorbit/sofia-core-backend  
+**Code:** https://github.com/frasberg/frasberg-ai-backend  
 **License:** MIT (fully open)  
-**Documentation:** https://docs.sofia-core.ai  
+**Documentation:** https://docs.frasberg-ai.ai  
 
 **To Reproduce:**
 
 ```bash
-git clone https://github.com/emeraldorbit/sofia-core-backend
-cd sofia-core-backend
+git clone https://github.com/frasberg/frasberg-ai-backend
+cd frasberg-ai-backend
 pip install -r backend/requirements-v5.1.txt
 cd backend/app
 python -m uvicorn main:app --reload

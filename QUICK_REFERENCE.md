@@ -1,4 +1,4 @@
-# 🚀 SOFIA CORE v1.0.0 - QUICK REFERENCE
+# 🚀 FRASBERG CORE v1.0.0 - QUICK REFERENCE
 
 **Status:** ✅ GLOBALLY ACCESSIBLE | **Release Date:** February 8, 2026
 
@@ -6,11 +6,11 @@
 
 ## 🔗 Essential URLs
 
-**GitHub Release:** https://github.com/emeraldorbit/sofia-core-backend/releases/tag/v1.0.0
+**GitHub Release:** https://github.com/frasberg/frasberg-ai-backend/releases/tag/v1.0.0
 
-**Download ZIP:** https://github.com/emeraldorbit/sofia-core-backend/releases/download/v1.0.0/sofia-core-v1.0.0-public-final.zip
+**Download ZIP:** https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
 
-**SHA256 Checksum:** https://github.com/emeraldorbit/sofia-core-backend/releases/download/v1.0.0/sofia-core-v1.0.0-public-final.zip.sha256
+**SHA256 Checksum:** https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip.sha256
 
 ---
 
@@ -19,15 +19,15 @@
 ### Download and Verify
 ```bash
 # Download
-wget https://github.com/emeraldorbit/sofia-core-backend/releases/download/v1.0.0/sofia-core-v1.0.0-public-final.zip
+wget https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
 
 # Verify checksum
-wget https://github.com/emeraldorbit/sofia-core-backend/releases/download/v1.0.0/sofia-core-v1.0.0-public-final.zip.sha256
-sha256sum -c sofia-core-v1.0.0-public-final.zip.sha256
+wget https://github.com/frasberg/frasberg-ai-backend/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip.sha256
+sha256sum -c frasberg-ai-v1.0.0-public-final.zip.sha256
 
 # Extract
-unzip sofia-core-v1.0.0-public-final.zip
-cd sofia-core-v1.0.0-public-final
+unzip frasberg-ai-v1.0.0-public-final.zip
+cd frasberg-ai-v1.0.0-public-final
 ```
 
 ### Run Verification Scripts
@@ -48,9 +48,9 @@ cd sofia-core-v1.0.0-public-final
 ./deploy-to-cloud.sh
 
 # Or deploy directly:
-./cloud-deploy/aws-deploy-sofia-core.sh     # AWS
-./cloud-deploy/gcp-deploy-sofia-core.sh     # GCP
-./cloud-deploy/azure-deploy-sofia-core.sh   # Azure
+./cloud-deploy/aws-deploy-frasberg-ai.sh     # AWS
+./cloud-deploy/gcp-deploy-frasberg-ai.sh     # GCP
+./cloud-deploy/azure-deploy-frasberg-ai.sh   # Azure
 ```
 
 ### Local Deployment
@@ -94,9 +94,9 @@ npm start
 
 ### Cloud Deployment
 - `deploy-to-cloud.sh` - Multi-cloud orchestrator
-- `cloud-deploy/aws-deploy-sofia-core.sh` - AWS deployment
-- `cloud-deploy/gcp-deploy-sofia-core.sh` - GCP deployment
-- `cloud-deploy/azure-deploy-sofia-core.sh` - Azure deployment
+- `cloud-deploy/aws-deploy-frasberg-ai.sh` - AWS deployment
+- `cloud-deploy/gcp-deploy-frasberg-ai.sh` - GCP deployment
+- `cloud-deploy/azure-deploy-frasberg-ai.sh` - Azure deployment
 
 ### Documentation
 - `GLOBAL_DEPLOYMENT_COMPLETE.md` - Comprehensive status
@@ -139,7 +139,7 @@ npm start
 
 ## 🔒 Package Details
 
-**File:** sofia-core-v1.0.0-public-final.zip  
+**File:** frasberg-ai-v1.0.0-public-final.zip  
 **Size:** 217.23 MB  
 **SHA256:** `29115fc23aa29f0db250bc183790f2b63d2913c51065de00830185ffb9f44aa7`  
 **License:** MIT  
@@ -149,12 +149,12 @@ npm start
 
 ## 📧 Support
 
-**Issues:** https://github.com/emeraldorbit/sofia-core-backend/issues  
-**Discussions:** https://github.com/emeraldorbit/sofia-core-backend/discussions  
-**Repository:** https://github.com/emeraldorbit/sofia-core-backend
+**Issues:** https://github.com/frasberg/frasberg-ai-backend/issues  
+**Discussions:** https://github.com/frasberg/frasberg-ai-backend/discussions  
+**Repository:** https://github.com/frasberg/frasberg-ai-backend
 
 ---
 
-**🌟 Sofia Core v1.0.0 - Institutional-Grade Operational Intelligence**
+**🌟 Frasberg AI v1.0.0 - Institutional-Grade Operational Intelligence**
 
 *Production-ready. Fork-isolated. Globally accessible.*

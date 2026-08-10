@@ -4,7 +4,7 @@ services:
     build:
       context: ../../..
       dockerfile: deploy/forks/research/Dockerfile
-    container_name: sofia_research_fork
+    container_name: frasberg_research_fork
     ports:
       - "8004:8004"
     environment:

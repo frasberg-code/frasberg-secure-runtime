@@ -3,10 +3,10 @@
  * Tests the complete flow from signature to constancy to expression
  */
 
-import { computeFieldSignature } from '../supabase/sofia_core/field_signature/field_signature';
-import { maintainFieldConstancy } from '../supabase/sofia_core/field_constancy/field_constancy';
-import { expressFieldIdentity } from '../supabase/sofia_core/field_expression/field_expression';
-import { fieldIdentity } from '../supabase/sofia_core/sofia_core_runtime';
+import { computeFieldSignature } from '../supabase/frasberg_ai/field_signature/field_signature';
+import { maintainFieldConstancy } from '../supabase/frasberg_ai/field_constancy/field_constancy';
+import { expressFieldIdentity } from '../supabase/frasberg_ai/field_expression/field_expression';
+import { fieldIdentity } from '../supabase/frasberg_ai/frasberg_ai_runtime';
 
 describe('Field Identity Triad Integration', () => {
   test('complete identity flow: signature -> constancy -> expression', () => {
@@ -95,8 +95,8 @@ describe('Field Identity Triad Integration', () => {
     
     // Create signature from multiple cores
     const cores: Identity[] = [
-      { name: 'sofia', version: 1 },
-      { name: 'sofia', version: 2 },
+      { name: 'frasberg', version: 1 },
+      { name: 'frasberg', version: 2 },
     ];
     
     const signer = (arr: Identity[]) => ({
@@ -108,7 +108,7 @@ describe('Field Identity Triad Integration', () => {
     const sig = computeFieldSignature(cores, signer, validator);
     
     expect(sig.valid).toBe(true);
-    expect(sig.signature).toEqual({ name: 'sofia', version: 2 });
+    expect(sig.signature).toEqual({ name: 'frasberg', version: 2 });
     
     // Maintain constancy
     const comparator = (prev: Identity | null, curr: Identity) =>
@@ -124,6 +124,6 @@ describe('Field Identity Triad Integration', () => {
     });
     
     const expr = expressFieldIdentity(const_.identity, expressor);
-    expect(expr.output).toEqual({ name: 'SOFIA', version: 3 });
+    expect(expr.output).toEqual({ name: 'FRASBERG', version: 3 });
   });
 });

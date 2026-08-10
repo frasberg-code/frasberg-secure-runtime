@@ -1,14 +1,14 @@
-# Contributing to Sofia Core 🚀
+# Contributing to Frasberg AI 🚀
 
-Welcome to Sofia Core! We're building the future of distributed AI systems together, and we're thrilled you're here.
+Welcome to Frasberg AI! We're building the future of distributed AI systems together, and we're thrilled you're here.
 
 ## Quick Links
 
-- 💬 **[Discord Community](https://discord.gg/sofia-core)** - Join the conversation
-- 🐛 **[Report a Bug](https://github.com/emeraldorbit/sofia-core-backend/issues/new?template=bug_report.md)**
-- ✨ **[Request a Feature](https://github.com/emeraldorbit/sofia-core-backend/issues/new?template=feature_request.md)**
-- 📖 **[Documentation](https://github.com/emeraldorbit/sofia-core-backend/blob/main/README.md)**
-- 🎯 **[Good First Issues](https://github.com/emeraldorbit/sofia-core-backend/labels/good-first-issue)**
+- 💬 **[Discord Community](https://discord.gg/frasberg-ai)** - Join the conversation
+- 🐛 **[Report a Bug](https://github.com/frasberg/frasberg-ai-backend/issues/new?template=bug_report.md)**
+- ✨ **[Request a Feature](https://github.com/frasberg/frasberg-ai-backend/issues/new?template=feature_request.md)**
+- 📖 **[Documentation](https://github.com/frasberg/frasberg-ai-backend/blob/main/README.md)**
+- 🎯 **[Good First Issues](https://github.com/frasberg/frasberg-ai-backend/labels/good-first-issue)**
 
 ---
 
@@ -36,7 +36,7 @@ Welcome to Sofia Core! We're building the future of distributed AI systems toget
 - Write blog posts
 
 ### 4. 🔬 Research
-- Publish papers using Sofia Core
+- Publish papers using Frasberg AI
 - Share benchmarks
 - Propose new algorithms
 - Conduct experiments
@@ -60,11 +60,11 @@ Welcome to Sofia Core! We're building the future of distributed AI systems toget
 
 ```bash
 # 1. Fork the repository on GitHub
-# Click "Fork" at https://github.com/emeraldorbit/sofia-core-backend
+# Click "Fork" at https://github.com/frasberg/frasberg-ai-backend
 
 # 2. Clone your fork
-git clone https://github.com/YOUR_USERNAME/sofia-core-backend
-cd sofia-core-backend
+git clone https://github.com/YOUR_USERNAME/frasberg-ai-backend
+cd frasberg-ai-backend
 
 # 3. Install dependencies
 pip install -r backend/requirements.txt
@@ -105,7 +105,7 @@ git push origin feature/your-feature-name
 
 ## 🟢 Good First Issues
 
-New to the project? Look for issues labeled **[good-first-issue](https://github.com/emeraldorbit/sofia-core-backend/labels/good-first-issue)**:
+New to the project? Look for issues labeled **[good-first-issue](https://github.com/frasberg/frasberg-ai-backend/labels/good-first-issue)**:
 
 - **🟢 Easy**: 1-2 hours, clear scope, great for first-timers
 - **🟡 Medium**: Half day, some complexity, requires understanding of system
@@ -116,7 +116,7 @@ New to the project? Look for issues labeled **[good-first-issue](https://github.
 1. **Add test coverage** - Write unit tests for existing features
 2. **Documentation improvements** - Add examples, fix typos, clarify explanations
 3. **Error message improvements** - Make errors more helpful and actionable
-4. **Add CLI commands** - Extend the sofia-cli tool with new commands
+4. **Add CLI commands** - Extend the frasberg-cli tool with new commands
 5. **Performance benchmarks** - Create benchmarks for various features
 
 ---
@@ -231,7 +231,7 @@ We offer bounties for significant contributions!
 2. Comment expressing interest
 3. Get assigned to issue
 4. Submit PR with solution
-5. After merge, contact: bounties@sofia-core.ai
+5. After merge, contact: bounties@frasberg-ai.ai
 
 *Bounties paid via GitHub Sponsors, PayPal, or cryptocurrency*
 
@@ -288,7 +288,7 @@ We are committed to providing a welcoming and inclusive environment. See our [Co
 ### Reporting Issues
 
 If you experience harassment or violations, contact:
-- Email: conduct@sofia-core.ai
+- Email: conduct@frasberg-ai.ai
 - All reports confidential
 
 ---
@@ -298,7 +298,7 @@ If you experience harassment or violations, contact:
 Understanding the codebase:
 
 ```
-sofia-core-backend/
+frasberg-ai-backend/
 ├── backend/              # Python backend (FastAPI)
 │   ├── app/              # Application code
 │   │   ├── v5/           # v5 API endpoints
@@ -318,7 +318,7 @@ sofia-core-backend/
 ### Key Files
 - `backend/server.py` - Main API server
 - `backend/app/v5/` - v5.0 endpoints
-- `cli/sofia/` - CLI commands
+- `cli/frasberg/` - CLI commands
 - `tests/` - Test files
 
 ---
@@ -326,7 +326,7 @@ sofia-core-backend/
 ## FAQ
 
 ### Q: I'm new to open source. Where should I start?
-A: Start with **[good-first-issue](https://github.com/emeraldorbit/sofia-core-backend/labels/good-first-issue)** labels! These are specifically chosen to be beginner-friendly.
+A: Start with **[good-first-issue](https://github.com/frasberg/frasberg-ai-backend/labels/good-first-issue)** labels! These are specifically chosen to be beginner-friendly.
 
 ### Q: How long does PR review take?
 A: We aim to provide initial feedback within 48 hours. Complete review may take 3-7 days depending on complexity.
@@ -343,7 +343,7 @@ A: Absolutely! Documentation, design, community support, and research are all va
 ### Q: How do I get help?
 A: Ask in Discord `#contributors` channel or comment on the GitHub issue. We're here to help!
 
-### Q: Can I use Sofia Core in my commercial product?
+### Q: Can I use Frasberg AI in my commercial product?
 A: Yes! It's MIT licensed - use freely in commercial projects.
 
 ---
@@ -356,7 +356,7 @@ A: Yes! It's MIT licensed - use freely in commercial projects.
 - [Git Guide](https://github.com/git-guides)
 - [Open Source Guide](https://opensource.guide/)
 
-### Sofia Core Specific
+### Frasberg AI Specific
 - [Architecture Overview](docs/ARCHITECTURE.md)
 - [API Reference](docs/API.md)
 - [Development Setup](docs/DEVELOPMENT.md)
@@ -365,20 +365,20 @@ A: Yes! It's MIT licensed - use freely in commercial projects.
 
 ## Contact
 
-- 💬 **Discord**: https://discord.gg/sofia-core
-- 📧 **Email**: hello@sofia-core.ai
-- 🐦 **Twitter**: [@sofia_core_ai](https://twitter.com/sofia_core_ai)
-- 💼 **LinkedIn**: [Sofia Core](https://linkedin.com/company/sofia-core)
+- 💬 **Discord**: https://discord.gg/frasberg-ai
+- 📧 **Email**: hello@frasberg-ai.ai
+- 🐦 **Twitter**: [@frasberg_ai_ai](https://twitter.com/frasberg_ai_ai)
+- 💼 **LinkedIn**: [Frasberg AI](https://linkedin.com/company/frasberg-ai)
 
 ---
 
 ## Thank You! 🙏
 
-Every contribution, no matter how small, makes Sofia Core better. We appreciate your time and effort in helping build the future of distributed AI systems.
+Every contribution, no matter how small, makes Frasberg AI better. We appreciate your time and effort in helping build the future of distributed AI systems.
 
 **Together, we're building something amazing.** ✨
 
 ---
 
 *Last updated: February 2026*
-*For questions about this guide: docs@sofia-core.ai*
+*For questions about this guide: docs@frasberg-ai.ai*

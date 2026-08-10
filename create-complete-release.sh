@@ -1,10 +1,10 @@
 #!/bin/bash
 
-RELEASE_NAME="sofia-core-v1.0.0-public-final"
+RELEASE_NAME="frasberg-ai-v1.0.0-public-final"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 echo "════════════════════════════════════════════"
-echo "  CREATING SOFIA CORE v1.0.0 PUBLIC RELEASE"
+echo "  CREATING FRASBERG CORE v1.0.0 PUBLIC RELEASE"
 echo "════════════════════════════════════════════"
 echo ""
 
@@ -24,7 +24,7 @@ cp ACTIVATION_REPORT.md release/${RELEASE_NAME}/ 2>/dev/null || true
 
 # Create comprehensive README
 cat > release/${RELEASE_NAME}/README.md << 'EOF'
-# 🚀 Sofia Core v1.0.0 - Public Release
+# 🚀 Frasberg AI v1.0.0 - Public Release
 
 **Institution-Grade Operational Intelligence System**
 
@@ -34,9 +34,9 @@ cat > release/${RELEASE_NAME}/README.md << 'EOF'
 
 ---
 
-## 🎯 What is Sofia Core?
+## 🎯 What is Frasberg AI?
 
-Sofia Core is a complete operational intelligence system featuring:
+Frasberg AI is a complete operational intelligence system featuring:
 
 - **Multi-service architecture** (5 containerized services)
 - **Voice synthesis capabilities** (multi-speaker, multi-language)
@@ -51,8 +51,8 @@ Sofia Core is a complete operational intelligence system featuring:
 
 ```bash
 # 1. Extract release
-unzip sofia-core-v1.0.0-public-final.zip
-cd sofia-core-v1.0.0-public-final
+unzip frasberg-ai-v1.0.0-public-final.zip
+cd frasberg-ai-v1.0.0-public-final
 
 # 2. Deploy Canonical Core
 cd deploy/canonical-core
@@ -174,15 +174,15 @@ docker-compose restart
 
 **View logs:**
 ```bash
-docker logs sofia_canonical_core
-docker logs sofia_education_fork
-docker logs sofia_healthcare_fork
+docker logs frasberg_canonical_core
+docker logs frasberg_education_fork
+docker logs frasberg_healthcare_fork
 ```
 
 ## 📦 What's Included
 
 ```
-sofia-core-v1.0.0-public-final/
+frasberg-ai-v1.0.0-public-final/
 ├── backend/              # FastAPI applications
 ├── frontend/             # React admin UI
 ├── deploy/               # Docker configurations
@@ -194,19 +194,19 @@ sofia-core-v1.0.0-public-final/
 
 ## 🤝 Support
 
-- **Repository:** https://github.com/emeraldorbit/sofia-core-backend
-- **Issues:** https://github.com/emeraldorbit/sofia-core-backend/issues
+- **Repository:** https://github.com/frasberg/frasberg-ai-backend
+- **Issues:** https://github.com/frasberg/frasberg-ai-backend/issues
 - **License:** MIT
 
 ## 🎊 Acknowledgments
 
-Sofia Core v1.0.0 represents complete institutional-grade operational intelligence architecture.
+Frasberg AI v1.0.0 represents complete institutional-grade operational intelligence architecture.
 
 **45 layers. 5 services. Production ready.**
 
 ---
 
-**Sofia Core** - Institution-Grade Intelligence  
+**Frasberg AI** - Institution-Grade Intelligence  
 *Manifested in code. Ready for deployment.*
 EOF
 
@@ -214,7 +214,7 @@ EOF
 cat > release/${RELEASE_NAME}/LICENSE << 'EOF'
 MIT License
 
-Copyright (c) 2026 Sofia Core
+Copyright (c) 2026 Frasberg AI
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -259,7 +259,7 @@ cat > release/${RELEASE_NAME}/CHANGELOG.md << 'EOF'
 - Multi-jurisdiction compliance support
 
 ### Initial Release
-First public release of Sofia Core institutional-grade operational intelligence system.
+First public release of Frasberg AI institutional-grade operational intelligence system.
 EOF
 
 echo "Creating ZIP archive..."

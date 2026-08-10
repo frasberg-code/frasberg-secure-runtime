@@ -1,4 +1,4 @@
-import { formFieldPeakII } from '../../supabase/sofia_core/field_peak_ii/field_peak_ii';
+import { formFieldPeakII } from '../../supabase/frasberg_ai/field_peak_ii/field_peak_ii';
 
 describe('field_peak_ii', () => {
   test('forms second-order peak using peaker', () => {

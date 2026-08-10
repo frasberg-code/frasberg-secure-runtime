@@ -1,13 +1,13 @@
 # Troubleshooting Guide
 
-Common issues and solutions for Sofia Core 6.5.0.
+Common issues and solutions for Frasberg AI 6.5.0.
 
 ## Quick Diagnostics
 
 Run the health check:
 
 ```bash
-sofia-cli test --health-check
+frasberg-cli test --health-check
 ```
 
 ## Common Issues
@@ -18,8 +18,8 @@ sofia-cli test --health-check
 
 **Problem:**
 ```bash
-pip install sofia-core==6.5.0
-ERROR: Could not find a version that satisfies the requirement sofia-core==6.5.0
+pip install frasberg-ai==6.5.0
+ERROR: Could not find a version that satisfies the requirement frasberg-ai==6.5.0
 ```
 
 **Solution:**
@@ -28,11 +28,11 @@ ERROR: Could not find a version that satisfies the requirement sofia-core==6.5.0
 pip install --upgrade pip
 
 # Try again
-pip install sofia-core==6.5.0
+pip install frasberg-ai==6.5.0
 
 # Or install from source
-git clone https://github.com/emeraldorbit/sofia-core-backend.git
-cd sofia-core-backend
+git clone https://github.com/frasberg/frasberg-ai-backend.git
+cd frasberg-ai-backend
 pip install -e .
 ```
 
@@ -49,8 +49,8 @@ ERROR: incompatible version of transformers
 python -m venv venv
 source venv/bin/activate  # or `venv\Scripts\activate` on Windows
 
-# Install Sofia Core
-pip install sofia-core==6.5.0
+# Install Frasberg AI
+pip install frasberg-ai==6.5.0
 
 # Install optional dependencies
 pip install transformers torch wandb mlflow
@@ -68,13 +68,13 @@ ConfigError: Invalid port number
 **Solution:**
 ```bash
 # Validate configuration
-sofia-cli config validate
+frasberg-cli config validate
 
 # Fix automatically
-sofia-cli interactive --auto-migrate
+frasberg-cli interactive --auto-migrate
 
 # Or edit manually
-sofia-cli config edit
+frasberg-cli config edit
 ```
 
 #### Missing API Keys
@@ -93,7 +93,7 @@ export OPENAI_API_KEY=sk-...
 echo "OPENAI_API_KEY=sk-..." >> .env
 
 # Or in config
-sofia-cli config edit
+frasberg-cli config edit
 ```
 
 ### Database Issues
@@ -111,10 +111,10 @@ DatabaseError: could not connect to server
 pg_isready
 
 # Verify connection string
-psql "postgresql://localhost/sofia"
+psql "postgresql://localhost/frasberg"
 
 # Update configuration
-sofia-cli config edit
+frasberg-cli config edit
 # Change database.url to correct value
 ```
 
@@ -128,13 +128,13 @@ MigrationError: migration 001 failed
 **Solution:**
 ```bash
 # Reset database (WARNING: deletes data)
-sofia-cli db reset
+frasberg-cli db reset
 
 # Or fix manually
-sofia-cli db migrate --fix
+frasberg-cli db migrate --fix
 
 # Check migration status
-sofia-cli db status
+frasberg-cli db status
 ```
 
 #### Pool Exhausted
@@ -292,10 +292,10 @@ database:
 **Solution:**
 ```bash
 # Check logs
-tail -f logs/sofia-core.log
+tail -f logs/frasberg-ai.log
 
 # Enable debug mode
-sofia-cli dev --debug
+frasberg-cli dev --debug
 
 # Test endpoint
 curl -v http://localhost:8000/api/health
@@ -347,10 +347,10 @@ WARNING: SIMD optimizations not available
 **Solution:**
 ```bash
 # Install with SIMD support
-pip install sofia-core[simd]
+pip install frasberg-ai[simd]
 
 # Or compile from source
-SOFIA_ENABLE_SIMD=1 pip install -e .
+FRASBERG_ENABLE_SIMD=1 pip install -e .
 
 # Check CPU support
 lscpu | grep flags
@@ -380,7 +380,7 @@ python -c "import torch; print(torch.cuda.is_available())"
 ### Enable Debug Logging
 
 ```bash
-sofia-cli dev --debug
+frasberg-cli dev --debug
 ```
 
 ```python
@@ -398,20 +398,20 @@ py-spy record -o profile.svg -- python server.py
 memory_profiler python server.py
 
 # Built-in profiler
-sofia-cli dev --profile
+frasberg-cli dev --profile
 ```
 
 ### Health Checks
 
 ```bash
 # Full health check
-sofia-cli test --health-check
+frasberg-cli test --health-check
 
 # Test specific integration
-sofia-cli test --integration huggingface
+frasberg-cli test --integration huggingface
 
 # Test database
-sofia-cli db check
+frasberg-cli db check
 
 # Test Redis
 redis-cli ping
@@ -434,13 +434,13 @@ redis-cli ping
 
 ```bash
 # Default log location
-logs/sofia-core.log
+logs/frasberg-ai.log
 
 # System logs
-journalctl -u sofia-core
+journalctl -u frasberg-ai
 
 # Docker logs
-docker logs sofia-core
+docker logs frasberg-ai
 ```
 
 ## Getting Help
@@ -453,15 +453,15 @@ docker logs sofia-core
 
 ### Community Support
 
-- **Discord:** https://discord.gg/sofia-core
-- **GitHub Issues:** https://github.com/emeraldorbit/sofia-core-backend/issues
-- **Email:** support@sofia-core.dev
+- **Discord:** https://discord.gg/frasberg-ai
+- **GitHub Issues:** https://github.com/frasberg/frasberg-ai-backend/issues
+- **Email:** support@frasberg-ai.dev
 
 ### Report a Bug
 
 ```bash
 # Generate diagnostic report
-sofia-cli diagnostics > report.txt
+frasberg-cli diagnostics > report.txt
 
 # Submit on GitHub with:
 # 1. Error message
@@ -475,31 +475,31 @@ sofia-cli diagnostics > report.txt
 ### 1. Always Validate Configuration
 
 ```bash
-sofia-cli config validate
+frasberg-cli config validate
 ```
 
 ### 2. Use Health Checks
 
 ```bash
 # Before deployment
-sofia-cli test --health-check
+frasberg-cli test --health-check
 ```
 
 ### 3. Monitor Logs
 
 ```bash
 # Watch logs in production
-tail -f logs/sofia-core.log | grep ERROR
+tail -f logs/frasberg-ai.log | grep ERROR
 ```
 
 ### 4. Regular Updates
 
 ```bash
 # Check for updates
-pip list --outdated | grep sofia-core
+pip list --outdated | grep frasberg-ai
 
 # Upgrade
-pip install --upgrade sofia-core
+pip install --upgrade frasberg-ai
 ```
 
 ### 5. Backup Configuration
@@ -509,7 +509,7 @@ pip install --upgrade sofia-core
 cp config.yaml config.yaml.backup
 
 # Export configuration
-sofia-cli config export > config-backup.yaml
+frasberg-cli config export > config-backup.yaml
 ```
 
 ## Emergency Recovery
@@ -518,30 +518,30 @@ sofia-cli config export > config-backup.yaml
 
 ```bash
 # WARNING: This will delete all configuration
-sofia-cli config reset
+frasberg-cli config reset
 
 # Re-run setup
-sofia-cli interactive
+frasberg-cli interactive
 ```
 
 ### Rollback Version
 
 ```bash
 # Uninstall current version
-pip uninstall sofia-core
+pip uninstall frasberg-ai
 
 # Install previous version
-pip install sofia-core==6.0.0
+pip install frasberg-ai==6.0.0
 ```
 
 ### Database Recovery
 
 ```bash
 # Backup database
-pg_dump sofia > backup.sql
+pg_dump frasberg > backup.sql
 
 # Restore from backup
-psql sofia < backup.sql
+psql frasberg < backup.sql
 ```
 
 ## Learn More

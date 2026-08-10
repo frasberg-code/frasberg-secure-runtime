@@ -1,4 +1,4 @@
-import { extendFieldCycleIV } from '../../supabase/sofia_core/field_cycle_extension_iv/field_cycle_extension_iv';
+import { extendFieldCycleIV } from '../../supabase/frasberg_ai/field_cycle_extension_iv/field_cycle_extension_iv';
 
 describe('field_cycle_extension_iv', () => {
   test('extends fourth-order cycle numerically', () => {

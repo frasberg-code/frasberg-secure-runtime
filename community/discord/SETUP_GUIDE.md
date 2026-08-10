@@ -1,7 +1,7 @@
-# Sofia Core Discord Server Setup Guide
+# Frasberg AI Discord Server Setup Guide
 
 ## Server Name
-**Sofia Core - Building the Future of AI**
+**Frasberg AI - Building the Future of AI**
 
 ## Categories & Channels
 
@@ -18,7 +18,7 @@
 ### 💬 COMMUNITY
 - **#general** - General chat
 - **#showcase** - Share projects
-- **#off-topic** - Non-Sofia chat
+- **#off-topic** - Non-Frasberg chat
 - **#ideas** - Brainstorm
 
 ### 🛠️ DEVELOPMENT
@@ -63,13 +63,13 @@
 ## Welcome Message
 
 ```
-Welcome to Sofia Core! 👋
+Welcome to Frasberg AI! 👋
 
 Building planetary-scale AI infrastructure, open source and accessible.
 
 🔗 **Quick Links:**
-- GitHub: https://github.com/emeraldorbit/sofia-core-backend
-- Docs: https://docs.sofia-core.ai
+- GitHub: https://github.com/frasberg/frasberg-ai-backend
+- Docs: https://docs.frasberg-ai.ai
 
 🎯 **Get Started:**
 1. Read rules in #welcome
@@ -85,7 +85,7 @@ Let's build the future together! 🚀
 ## Rules
 
 ```
-**Sofia Core Community Rules** 📜
+**Frasberg AI Community Rules** 📜
 
 1️⃣ **Be Respectful** - No harassment or hate speech
 2️⃣ **Stay On Topic** - Keep discussions relevant
@@ -121,6 +121,6 @@ Let's build the future together! 🚀
 
 ## Invite Link
 
-`discord.gg/sofia-core` (custom URL after verification)
+`discord.gg/frasberg-ai` (custom URL after verification)
 
 **Ready to launch!** 🚀

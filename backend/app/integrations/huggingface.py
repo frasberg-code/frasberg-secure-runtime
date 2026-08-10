@@ -1,4 +1,4 @@
-"""Hugging Face Transformers Integration for Sofia Core"""
+"""Hugging Face Transformers Integration for Frasberg AI"""
 
 from typing import Optional, Dict, Any, List
 import logging
@@ -10,23 +10,23 @@ class HuggingFaceTransformer:
     """
     Integration with Hugging Face Transformers
     
-    Enables using any Hugging Face model with Sofia Core infrastructure.
+    Enables using any Hugging Face model with Frasberg AI infrastructure.
     """
     
     def __init__(
         self,
         model_name: str,
         device: str = "auto",
-        use_sofia_cache: bool = True,
+        use_frasberg_cache: bool = True,
         **kwargs
     ):
         """
-        Initialize Hugging Face model with Sofia Core
+        Initialize Hugging Face model with Frasberg AI
         
         Args:
             model_name: HuggingFace model identifier (e.g., "gpt2", "bert-base-uncased")
             device: Device to run on ("auto", "cpu", "cuda", "mps")
-            use_sofia_cache: Use Sofia Core caching for model outputs
+            use_frasberg_cache: Use Frasberg AI caching for model outputs
             **kwargs: Additional arguments passed to transformers.AutoModel
         
         Examples:
@@ -40,7 +40,7 @@ class HuggingFaceTransformer:
         """
         self.model_name = model_name
         self.device = device
-        self.use_sofia_cache = use_sofia_cache
+        self.use_frasberg_cache = use_frasberg_cache
         self.kwargs = kwargs
         
         self._initialize_model()

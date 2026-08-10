@@ -29,22 +29,22 @@ from backend.app.integrations.llm.canonical import (
 
 
 def test_resolve_model_none_uses_env(monkeypatch):
-    monkeypatch.setenv("SOFIA_CORE_MODEL", "my-model")
+    monkeypatch.setenv("FRASBERG_AI_MODEL", "my-model")
     assert _resolve_model(None) == "my-model"
 
 
-def test_resolve_model_sofia_core_uses_env(monkeypatch):
-    monkeypatch.setenv("SOFIA_CORE_MODEL", "llama3")
-    assert _resolve_model("sofia-core") == "llama3"
+def test_resolve_model_frasberg_ai_uses_env(monkeypatch):
+    monkeypatch.setenv("FRASBERG_AI_MODEL", "llama3")
+    assert _resolve_model("frasberg-ai") == "llama3"
 
 
 def test_resolve_model_explicit_passes_through(monkeypatch):
-    monkeypatch.setenv("SOFIA_CORE_MODEL", "llama3")
+    monkeypatch.setenv("FRASBERG_AI_MODEL", "llama3")
     assert _resolve_model("gpt-4o") == "gpt-4o"
 
 
 def test_resolve_model_default_when_env_missing(monkeypatch):
-    monkeypatch.delenv("SOFIA_CORE_MODEL", raising=False)
+    monkeypatch.delenv("FRASBERG_AI_MODEL", raising=False)
     assert _resolve_model(None) == "llama3"
 
 
@@ -87,7 +87,7 @@ async def test_generate_cloud_provider_disabled_raises_403(monkeypatch):
 @pytest.mark.asyncio
 async def test_generate_default_provider_is_local(monkeypatch):
     monkeypatch.delenv("LLM_PROVIDER", raising=False)
-    monkeypatch.setenv("SOFIA_CORE_MODEL", "llama3")
+    monkeypatch.setenv("FRASBERG_AI_MODEL", "llama3")
 
     mock_provider = MagicMock()
     mock_provider.generate = AsyncMock(return_value=("Hello from Ollama", 5, 10))
@@ -115,9 +115,9 @@ async def test_generate_default_provider_is_local(monkeypatch):
 async def test_generate_routes_to_openai(monkeypatch):
     monkeypatch.setenv("LLM_PROVIDER", "openai")
     monkeypatch.setenv("ENABLE_OPENAI", "true")
-    monkeypatch.setenv("SOFIA_CORE_MODEL", "gpt-4.1")
-    monkeypatch.setenv("SOFIA_CORE_TEMPERATURE", "0.2")
-    monkeypatch.setenv("SOFIA_CORE_MAX_TOKENS", "4096")
+    monkeypatch.setenv("FRASBERG_AI_MODEL", "gpt-4.1")
+    monkeypatch.setenv("FRASBERG_AI_TEMPERATURE", "0.2")
+    monkeypatch.setenv("FRASBERG_AI_MAX_TOKENS", "4096")
 
     mock_provider = MagicMock()
     mock_provider.generate = AsyncMock(return_value=("Hello from OpenAI", 10, 5))
@@ -130,7 +130,7 @@ async def test_generate_routes_to_openai(monkeypatch):
         new_callable=AsyncMock,
     ):
         req = GenerateRequest(
-            model="sofia-core",
+            model="frasberg-ai",
             messages=[Message(role="user", content="hello")],
         )
         result = await generate(req)
@@ -152,7 +152,7 @@ async def test_generate_routes_to_openai(monkeypatch):
 async def test_generate_routes_to_anthropic(monkeypatch):
     monkeypatch.setenv("LLM_PROVIDER", "anthropic")
     monkeypatch.setenv("ENABLE_ANTHROPIC", "true")
-    monkeypatch.setenv("SOFIA_CORE_MODEL", "claude-3-5-sonnet-20241022")
+    monkeypatch.setenv("FRASBERG_AI_MODEL", "claude-3-5-sonnet-20241022")
 
     mock_provider = MagicMock()
     mock_provider.generate = AsyncMock(return_value=("Hello from Anthropic", 20, 8))
@@ -165,7 +165,7 @@ async def test_generate_routes_to_anthropic(monkeypatch):
         new_callable=AsyncMock,
     ):
         req = GenerateRequest(
-            model="sofia-core",
+            model="frasberg-ai",
             messages=[Message(role="user", content="hi")],
         )
         result = await generate(req)
@@ -182,7 +182,7 @@ async def test_generate_routes_to_anthropic(monkeypatch):
 async def test_generate_explicit_model_overrides_env(monkeypatch):
     monkeypatch.setenv("LLM_PROVIDER", "openai")
     monkeypatch.setenv("ENABLE_OPENAI", "true")
-    monkeypatch.setenv("SOFIA_CORE_MODEL", "llama3")
+    monkeypatch.setenv("FRASBERG_AI_MODEL", "llama3")
 
     mock_provider = MagicMock()
     mock_provider.generate = AsyncMock(return_value=("output", 1, 1))
@@ -241,7 +241,7 @@ def test_canonical_endpoint_unknown_provider_returns_400(monkeypatch):
     response = client.post(
         "/api/llm/generate",
         json={
-            "model": "sofia-core",
+            "model": "frasberg-ai",
             "messages": [{"role": "user", "content": "hello"}],
         },
     )
@@ -265,7 +265,7 @@ def test_canonical_endpoint_cloud_disabled_returns_403(monkeypatch):
     response = client.post(
         "/api/llm/generate",
         json={
-            "model": "sofia-core",
+            "model": "frasberg-ai",
             "messages": [{"role": "user", "content": "hello"}],
         },
     )

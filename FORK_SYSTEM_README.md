@@ -1,15 +1,15 @@
-# Sofia Core Fork System v1.0.0
+# Frasberg AI Fork System v1.0.0
 
-Complete documentation for the Sofia Core Fork System - a framework for domain-specific AI agent extensions with strict scope boundaries.
+Complete documentation for the Frasberg AI Fork System - a framework for domain-specific AI agent extensions with strict scope boundaries.
 
 ## Overview
 
-The Fork System enables Sofia Core to operate safely in specialized domains (education, healthcare) while maintaining absolute boundaries around prohibited capabilities.
+The Fork System enables Frasberg AI to operate safely in specialized domains (education, healthcare) while maintaining absolute boundaries around prohibited capabilities.
 
 ## Architecture
 
 ```
-sofia-core/
+frasberg-ai/
 ├── forks/                              # Domain-specific forks
 │   ├── education/                      # Education fork
 │   │   ├── domain/
@@ -205,8 +205,8 @@ from backend.app.deployment.airgap import create_full_airgap_config
 
 config = create_full_airgap_config(
     deployment_id='secure-facility-001',
-    local_model_path='/opt/sofia/models',
-    local_data_path='/opt/sofia/data',
+    local_model_path='/opt/frasberg/models',
+    local_data_path='/opt/frasberg/data',
     allowed_internal_ips=['10.0.0.0/8']
 )
 ```

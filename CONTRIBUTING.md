@@ -1,6 +1,6 @@
-# Contributing to Sofia Core
+# Contributing to Frasberg AI
 
-Thank you for your interest in contributing to Sofia Core v4.0.1!
+Thank you for your interest in contributing to Frasberg AI v4.0.1!
 
 ## Development Setup
 
@@ -13,8 +13,8 @@ Thank you for your interest in contributing to Sofia Core v4.0.1!
 
 ```bash
 # Clone repository
-git clone https://github.com/emeraldorbit/sofia-core-backend.git
-cd sofia-core-backend
+git clone https://github.com/frasberg/frasberg-ai-backend.git
+cd frasberg-ai-backend
 
 # Install dependencies
 pip install -r backend/requirements.txt

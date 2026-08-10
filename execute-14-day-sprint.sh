@@ -2,13 +2,13 @@
 
 echo "╔════════════════════════════════════════════════════════╗"
 echo "║                                                        ║"
-echo "║  SOFIA CORE - 14-DAY HYBRID SPRINT                    ║"
+echo "║  FRASBERG CORE - 14-DAY HYBRID SPRINT                    ║"
 echo "║  All Tracks, Maximum Momentum                         ║"
 echo "║                                                        ║"
 echo "╚════════════════════════════════════════════════════════╝"
 echo ""
 
-cd /workspaces/sofia-core-backend
+cd /workspaces/frasberg-ai-backend
 
 # ============================================================
 # WEEK 1: FOUNDATION & LAUNCH
@@ -31,7 +31,7 @@ mkdir -p marketing/{landing,blog,social,video}
 
 # Create comprehensive landing page
 cat > marketing/landing/HOMEPAGE.md << 'HOMEPAGE'
-# Sofia Core - Planetary-Scale AI Infrastructure
+# Frasberg AI - Planetary-Scale AI Infrastructure
 
 ## Open Source • Production-Ready • Research-Backed
 
@@ -39,9 +39,9 @@ Build the future of AI on a foundation designed for planetary scale.
 
 ---
 
-## 🚀 What is Sofia Core?
+## 🚀 What is Frasberg AI?
 
-Sofia Core is the first **open-source AI infrastructure** that combines:
+Frasberg AI is the first **open-source AI infrastructure** that combines:
 
 - **🧬 Biological Computing** - DNA-inspired algorithms (1M× efficiency)
 - **🐝 Swarm Intelligence** - Multi-agent coordination at scale
@@ -57,8 +57,8 @@ Sofia Core is the first **open-source AI infrastructure** that combines:
 
 \`\`\`bash
 # Clone and run
-git clone https://github.com/emeraldorbit/sofia-core-backend
-cd sofia-core-backend
+git clone https://github.com/frasberg/frasberg-ai-backend
+cd frasberg-ai-backend
 ./quick-start.sh
 
 # Access at http://localhost:8000
@@ -67,14 +67,14 @@ cd sofia-core-backend
 Or install the SDK:
 
 \`\`\`bash
-pip install sofia-sdk
+pip install frasberg-sdk
 \`\`\`
 
 \`\`\`python
 # Python example
-from sofia_sdk import SofiaClient
+from frasberg_sdk import FrasbergClient
 
-client = SofiaClient()
+client = FrasbergClient()
 print(client.health())
 \`\`\`
 
@@ -132,7 +132,7 @@ print(client.health())
 ✅ **Quantum-Ready** - Post-quantum cryptography  
 
 ### Developer Experience
-✅ **CLI Tool** - `sofia` command-line interface  
+✅ **CLI Tool** - `frasberg` command-line interface  
 ✅ **Python SDK** - Full API coverage  
 ✅ **JavaScript SDK** - Node.js and browser  
 ✅ **Complete Docs** - Guides, tutorials, references  
@@ -142,7 +142,7 @@ print(client.health())
 
 ## 🔬 Research Foundation
 
-Sofia Core is built on rigorous research:
+Frasberg AI is built on rigorous research:
 
 - **Published Paper**: "DNA Computing Integration in Distributed Intelligence Systems"
 - **8,000+ Words**: Complete methodology and benchmarks
@@ -160,8 +160,8 @@ Sofia Core is built on rigorous research:
 
 ### 2. Install Locally (5 minutes)
 \`\`\`bash
-git clone https://github.com/emeraldorbit/sofia-core-backend
-cd sofia-core-backend
+git clone https://github.com/frasberg/frasberg-ai-backend
+cd frasberg-ai-backend
 ./quick-start.sh
 \`\`\`
 
@@ -175,9 +175,9 @@ Deploy to AWS, GCP, or Azure in 15 minutes
 
 ### DNA Computing
 \`\`\`python
-from sofia_sdk import SofiaClient
+from frasberg_sdk import FrasbergClient
 
-client = SofiaClient()
+client = FrasbergClient()
 result = client.dna_compute(
     sequence="ATCGATCG",
     computation_type="parallel_search"
@@ -210,10 +210,10 @@ print(response['response'])
 
 ## 🤝 Community
 
-- **Discord**: https://discord.gg/sofia-core
-- **GitHub**: https://github.com/emeraldorbit/sofia-core-backend
-- **Twitter**: @sofia_core_ai
-- **Email**: hello@sofia-core.ai
+- **Discord**: https://discord.gg/frasberg-ai
+- **GitHub**: https://github.com/frasberg/frasberg-ai-backend
+- **Twitter**: @frasberg_ai_ai
+- **Email**: hello@frasberg-ai.ai
 
 ### Contributing
 We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING_V2.md)
@@ -251,7 +251,7 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING_V2.md)
 
 ---
 
-## 🌟 Why Sofia Core?
+## 🌟 Why Frasberg AI?
 
 ✨ **Open Source** - No vendor lock-in, full transparency  
 ✨ **Production-Ready** - Used in real deployments  
@@ -264,18 +264,18 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING_V2.md)
 ## 🎯 Ready to Build?
 
 \`\`\`bash
-git clone https://github.com/emeraldorbit/sofia-core-backend
-cd sofia-core-backend
+git clone https://github.com/frasberg/frasberg-ai-backend
+cd frasberg-ai-backend
 ./quick-start.sh
 \`\`\`
 
 **Join 1,000+ developers building the future of AI**
 
-[Get Started →](#) | [Read Docs →](docs/) | [Join Discord →](https://discord.gg/sofia-core)
+[Get Started →](#) | [Read Docs →](docs/) | [Join Discord →](https://discord.gg/frasberg-ai)
 
 ---
 
-*Sofia Core - Planetary-Scale Intelligence for Everyone*
+*Frasberg AI - Planetary-Scale Intelligence for Everyone*
 
 🌍 Open Source • 🧬 Biologically Inspired • 🚀 Production Ready
 HOMEPAGE
@@ -284,22 +284,22 @@ echo "  ✅ Landing page created (comprehensive homepage)"
 
 # Create demo video script
 cat > marketing/video/DEMO_SCRIPT.md << 'VIDEO'
-# Sofia Core - 5-Minute Demo Video Script
+# Frasberg AI - 5-Minute Demo Video Script
 
 ## Scene 1: Hook (0:00-0:30)
 **Visual**: Terminal with fast commands executing  
 **Narration**: "What if you could run AI computations 1 million times more efficiently than traditional systems? What if you could coordinate 1,000 agents simultaneously? What if all of this was open source and available today?"
 
-**Visual**: Sofia Core logo reveal  
-**Text on screen**: "Sofia Core - Planetary-Scale AI Infrastructure"
+**Visual**: Frasberg AI logo reveal  
+**Text on screen**: "Frasberg AI - Planetary-Scale AI Infrastructure"
 
 ## Scene 2: The Problem (0:30-1:00)
 **Visual**: Graphs showing AI energy consumption, cost, complexity  
-**Narration**: "AI infrastructure today faces three critical challenges: massive energy consumption, limited scalability, and vendor lock-in. Sofia Core solves all three."
+**Narration**: "AI infrastructure today faces three critical challenges: massive energy consumption, limited scalability, and vendor lock-in. Frasberg AI solves all three."
 
 ## Scene 3: The Solution (1:00-2:00)
 **Visual**: Architecture diagram  
-**Narration**: "Sofia Core is the first open-source AI infrastructure combining biological computing, swarm intelligence, and temporal reasoning. Built on 20+ hours of development and backed by academic research."
+**Narration**: "Frasberg AI is the first open-source AI infrastructure combining biological computing, swarm intelligence, and temporal reasoning. Built on 20+ hours of development and backed by academic research."
 
 **Show features scrolling**:
 - DNA Computing (1M× efficiency)
@@ -313,8 +313,8 @@ cat > marketing/video/DEMO_SCRIPT.md << 'VIDEO'
 
 ### Demo 1 - Quick Start (30 seconds)
 \`\`\`bash
-git clone https://github.com/emeraldorbit/sofia-core-backend
-cd sofia-core-backend
+git clone https://github.com/frasberg/frasberg-ai-backend
+cd frasberg-ai-backend
 ./quick-start.sh
 # Show services starting
 curl http://localhost:8000/health
@@ -322,8 +322,8 @@ curl http://localhost:8000/health
 
 ### Demo 2 - DNA Computing (30 seconds)
 \`\`\`python
-from sofia_sdk import SofiaClient
-client = SofiaClient()
+from frasberg_sdk import FrasbergClient
+client = FrasbergClient()
 
 result = client.dna_compute(
     sequence="ATCGATCG",
@@ -363,12 +363,12 @@ print(response['response'])
 ## Scene 6: Call to Action (4:30-5:00)
 **Visual**: GitHub repo, Discord invite, website
 
-**Narration**: "Sofia Core is MIT licensed, fully open source, and available now. Join 1,000+ developers building the future of AI."
+**Narration**: "Frasberg AI is MIT licensed, fully open source, and available now. Join 1,000+ developers building the future of AI."
 
 **Text on screen**:
-- GitHub: github.com/emeraldorbit/sofia-core-backend
-- Discord: discord.gg/sofia-core
-- Docs: docs.sofia-core.ai
+- GitHub: github.com/frasberg/frasberg-ai-backend
+- Discord: discord.gg/frasberg-ai
+- Docs: docs.frasberg-ai.ai
 
 **Final frame**: "Start building in 5 minutes"
 
@@ -395,9 +395,9 @@ echo "  ✅ Demo video script created (5-min + 1-min versions)"
 
 # Create launch blog post
 cat > marketing/blog/LAUNCH_POST.md << 'BLOG'
-# Introducing Sofia Core: Open Source AI Infrastructure for the Post-Silicon Era
+# Introducing Frasberg AI: Open Source AI Infrastructure for the Post-Silicon Era
 
-**TL;DR**: We're launching Sofia Core, the first open-source AI infrastructure that combines biological computing, swarm intelligence, and temporal reasoning. MIT licensed, production-ready, and available now.
+**TL;DR**: We're launching Frasberg AI, the first open-source AI infrastructure that combines biological computing, swarm intelligence, and temporal reasoning. MIT licensed, production-ready, and available now.
 
 ---
 
@@ -414,9 +414,9 @@ We spent 20+ hours building something better.
 
 ---
 
-## Introducing Sofia Core
+## Introducing Frasberg AI
 
-Sofia Core is planetary-scale AI infrastructure built on three revolutionary principles:
+Frasberg AI is planetary-scale AI infrastructure built on three revolutionary principles:
 
 ### 1. Biological Computing
 Inspired by DNA, our algorithms achieve **1 million times better efficiency** than traditional systems through massive parallelism.
@@ -454,7 +454,7 @@ prediction = client.temporal_reasoning(
 
 ## Built for Production
 
-Sofia Core isn't a research project—it's production infrastructure:
+Frasberg AI isn't a research project—it's production infrastructure:
 
 ✅ **Real LLM Integration**: OpenAI, Anthropic, local models  
 ✅ **Authentication**: JWT, OAuth2, API keys  
@@ -482,7 +482,7 @@ Our **8,000-word academic paper** "DNA Computing Integration in Distributed Inte
 
 ## Open Source, Always
 
-Sofia Core is **MIT licensed**. Forever.
+Frasberg AI is **MIT licensed**. Forever.
 
 - ✨ No vendor lock-in: Host anywhere
 - ✨ Full transparency: Every line of code visible
@@ -495,12 +495,12 @@ Sofia Core is **MIT licensed**. Forever.
 
 \`\`\`bash
 # Clone and run
-git clone https://github.com/emeraldorbit/sofia-core-backend
-cd sofia-core-backend
+git clone https://github.com/frasberg/frasberg-ai-backend
+cd frasberg-ai-backend
 ./quick-start.sh
 
 # Or install SDK
-pip install sofia-sdk
+pip install frasberg-sdk
 \`\`\`
 
 ---
@@ -545,9 +545,9 @@ pip install sofia-sdk
 
 We're building this together:
 
-- **Discord**: https://discord.gg/sofia-core
-- **GitHub**: https://github.com/emeraldorbit/sofia-core-backend
-- **Twitter**: @sofia_core_ai
+- **Discord**: https://discord.gg/frasberg-ai
+- **GitHub**: https://github.com/frasberg/frasberg-ai-backend
+- **Twitter**: @frasberg_ai_ai
 
 ### Contributing
 We welcome PRs! Check out our [Good First Issues](../community/GOOD_FIRST_ISSUES.md)
@@ -560,7 +560,7 @@ We welcome PRs! Check out our [Good First Issues](../community/GOOD_FIRST_ISSUES
 
 The AI revolution is happening, but the infrastructure hasn't evolved since the 1940s (von Neumann architecture).
 
-Sofia Core represents the **post-silicon era**:
+Frasberg AI represents the **post-silicon era**:
 - Biological algorithms
 - Distributed intelligence
 - Quantum-ready systems
@@ -573,8 +573,8 @@ Sofia Core represents the **post-silicon era**:
 ## Try It Today
 
 \`\`\`bash
-git clone https://github.com/emeraldorbit/sofia-core-backend
-cd sofia-core-backend
+git clone https://github.com/frasberg/frasberg-ai-backend
+cd frasberg-ai-backend
 ./quick-start.sh
 \`\`\`
 
@@ -584,17 +584,17 @@ It takes 5 minutes to start. It takes a lifetime to master.
 
 ## What's Next?
 
-Today, we're launching Sofia Core to the world.
+Today, we're launching Frasberg AI to the world.
 
 Tomorrow, we're building the future of AI—**together**.
 
-**Join us**: https://discord.gg/sofia-core
+**Join us**: https://discord.gg/frasberg-ai
 
 ---
 
-*Sofia Core - Planetary-Scale Intelligence for Everyone*
+*Frasberg AI - Planetary-Scale Intelligence for Everyone*
 
-[Get Started](#) | [Read Docs](../docs/) | [Join Discord](https://discord.gg/sofia-core) | [Star on GitHub](https://github.com/emeraldorbit/sofia-core-backend)
+[Get Started](#) | [Read Docs](../docs/) | [Join Discord](https://discord.gg/frasberg-ai) | [Star on GitHub](https://github.com/frasberg/frasberg-ai-backend)
 BLOG
 
 echo "  ✅ Launch blog post created (3,000+ words)"
@@ -604,7 +604,7 @@ cat > marketing/social/TWITTER_THREAD.md << 'TWITTER'
 # Twitter Launch Thread
 
 **Tweet 1** (Hook):
-🚀 Launching Sofia Core - the first open-source AI infrastructure built for the post-silicon era
+🚀 Launching Frasberg AI - the first open-source AI infrastructure built for the post-silicon era
 
 Biological computing + Swarm intelligence + Temporal reasoning
 
@@ -617,7 +617,7 @@ AI infrastructure hasn't evolved since the 1940s.
 
 We're still using von Neumann architecture while trying to build AGI.
 
-Sofia Core changes that with biological algorithms that are 1,000,000× more efficient.
+Frasberg AI changes that with biological algorithms that are 1,000,000× more efficient.
 
 **Tweet 3** (DNA Computing):
 DNA Computing in production:
@@ -662,7 +662,7 @@ MIT licensed. Forever free.
 ✓ Community-governed
 ✓ Commercial use allowed
 
-Star on GitHub: github.com/emeraldorbit/sofia-core-backend
+Star on GitHub: github.com/frasberg/frasberg-ai-backend
 
 **Tweet 7** (Research):
 Backed by real research:
@@ -681,12 +681,12 @@ git clone [repo]
 ./quick-start.sh
 \`\`\`
 
-Or: `pip install sofia-sdk`
+Or: `pip install frasberg-sdk`
 
 **Tweet 9** (Community):
 Join 1,000+ developers building the future:
 
-💬 Discord: discord.gg/sofia-core
+💬 Discord: discord.gg/frasberg-ai
 🐙 GitHub: [link]
 📖 Docs: [link]
 
@@ -695,16 +695,16 @@ The future of AI isn't bigger silicon.
 
 It's smarter systems.
 
-Start building today: github.com/emeraldorbit/sofia-core-backend
+Start building today: github.com/frasberg/frasberg-ai-backend
 
 ---
 
 # Other Platform Posts
 
 ## LinkedIn (Professional)
-🚀 Introducing Sofia Core: Enterprise-Grade AI Infrastructure
+🚀 Introducing Frasberg AI: Enterprise-Grade AI Infrastructure
 
-After 20+ hours of development, we're excited to launch Sofia Core - the first open-source AI infrastructure combining biological computing, swarm intelligence, and temporal reasoning.
+After 20+ hours of development, we're excited to launch Frasberg AI - the first open-source AI infrastructure combining biological computing, swarm intelligence, and temporal reasoning.
 
 **Why This Matters for Enterprises**:
 
@@ -717,12 +717,12 @@ After 20+ hours of development, we're excited to launch Sofia Core - the first o
 [Full post in file...]
 
 ## Reddit (r/programming)
-**Title**: [Open Source] Sofia Core - AI infrastructure with DNA computing, swarm intelligence
+**Title**: [Open Source] Frasberg AI - AI infrastructure with DNA computing, swarm intelligence
 
 [Full post in file...]
 
 ## Hacker News (Show HN)
-**Title**: Show HN: Sofia Core – Open-source AI infrastructure with biological computing
+**Title**: Show HN: Frasberg AI – Open-source AI infrastructure with biological computing
 
 [Full post in file...]
 TWITTER
@@ -837,12 +837,12 @@ cat > EXECUTE_LAUNCH.sh << 'LAUNCH'
 
 echo "╔════════════════════════════════════════════════════════╗"
 echo "║                                                        ║"
-echo "║  SOFIA CORE - PUBLIC LAUNCH EXECUTION                 ║"
+echo "║  FRASBERG CORE - PUBLIC LAUNCH EXECUTION                 ║"
 echo "║                                                        ║"
 echo "╚════════════════════════════════════════════════════════╝"
 echo ""
 
-echo "🚀 LAUNCHING SOFIA CORE TO THE WORLD"
+echo "🚀 LAUNCHING FRASBERG CORE TO THE WORLD"
 echo ""
 
 echo "Pre-flight checks:"
@@ -862,7 +862,7 @@ echo ""
 
 echo "⏰ 6:00am PST - Hacker News"
 echo "   → https://news.ycombinator.com/submit"
-echo "   → Title: Show HN: Sofia Core – Open-source AI with DNA computing"
+echo "   → Title: Show HN: Frasberg AI – Open-source AI with DNA computing"
 echo ""
 
 echo "⏰ 8:00am PST - Reddit"

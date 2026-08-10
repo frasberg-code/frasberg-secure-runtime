@@ -47,4 +47,4 @@ CREATE POLICY "Service role has full access to entitlements"
   USING (auth.jwt()->>'role' = 'service_role');
 
 -- Comment on table
-COMMENT ON TABLE ops.entitlements IS 'User entitlements, quotas, and feature flags for Sofia Core Backend';
+COMMENT ON TABLE ops.entitlements IS 'User entitlements, quotas, and feature flags for Frasberg AI Backend';

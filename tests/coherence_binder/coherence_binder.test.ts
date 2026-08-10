@@ -1,4 +1,4 @@
-import { bindCoherence } from '../../supabase/sofia_core/coherence_binder/coherence_binder';
+import { bindCoherence } from '../../supabase/frasberg_ai/coherence_binder/coherence_binder';
 
 describe('coherence_binder', () => {
   test('binds coherence across overlays', () => {

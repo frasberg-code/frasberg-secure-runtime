@@ -1,4 +1,4 @@
-import { synthesizeIdentity } from '../../supabase/sofia_core/identity_synthesizer/identity_synthesizer';
+import { synthesizeIdentity } from '../../supabase/frasberg_ai/identity_synthesizer/identity_synthesizer';
 
 describe('identity_synthesizer', () => {
   test('synthesizes expressive identity', () => {
@@ -6,7 +6,7 @@ describe('identity_synthesizer', () => {
   });
 
   test('handles different intensity levels', () => {
-    expect(synthesizeIdentity('SOFIA', 'context', 5)).toBe('SOFIA:context:5');
+    expect(synthesizeIdentity('FRASBERG', 'context', 5)).toBe('FRASBERG:context:5');
   });
 
   test('handles zero intensity', () => {

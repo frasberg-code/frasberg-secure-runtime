@@ -1,4 +1,4 @@
-"""Dagster Pipeline Integration for Sofia Core"""
+"""Dagster Pipeline Integration for Frasberg AI"""
 
 from typing import Any, Optional
 import logging
@@ -10,7 +10,7 @@ class DagsterPipeline:
     """
     Dagster data pipeline integration
     
-    Build type-safe data pipelines with Sofia Core operations.
+    Build type-safe data pipelines with Frasberg AI operations.
     """
     
     def __init__(self, pipeline_name: str, **kwargs):
@@ -22,7 +22,7 @@ class DagsterPipeline:
             **kwargs: Additional Dagster configuration
         
         Examples:
-            >>> pipeline = DagsterPipeline("sofia-data-pipeline")
+            >>> pipeline = DagsterPipeline("frasberg-data-pipeline")
             >>> 
             >>> @pipeline.op
             >>> def process_dna(context, sequence: str):

@@ -1,4 +1,4 @@
-import { initiateContinuumStateIV } from '../../supabase/sofia_core/field_continuum_initiation_iv/field_continuum_initiation_iv';
+import { initiateContinuumStateIV } from '../../supabase/frasberg_ai/field_continuum_initiation_iv/field_continuum_initiation_iv';
 
 describe('field_continuum_initiation_iv', () => {
   test('initiates fourth-order continuum numerically', () => {

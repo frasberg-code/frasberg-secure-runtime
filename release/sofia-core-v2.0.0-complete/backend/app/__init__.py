@@ -1,1 +1,0 @@
-"""Sofia Core Backend Application."""

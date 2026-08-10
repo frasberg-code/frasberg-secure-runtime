@@ -1,4 +1,4 @@
-import { commitFieldDecision } from '../../supabase/sofia_core/field_commitment/field_commitment';
+import { commitFieldDecision } from '../../supabase/frasberg_ai/field_commitment/field_commitment';
 
 describe('field_commitment', () => {
   test('commits decision with decided=true', () => {

@@ -1,0 +1,90 @@
+Metadata-Version: 2.4
+Name: frasberg-cli
+Version: 5.0.0
+Summary: Command-line interface for Frasberg AI
+Home-page: https://github.com/frasberg/frasberg-ai-backend
+Author: Frasberg AI Team
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.11
+Description-Content-Type: text/markdown
+Requires-Dist: click>=8.0.0
+Requires-Dist: requests>=2.28.0
+Requires-Dist: rich>=13.0.0
+Dynamic: author
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: requires-dist
+Dynamic: summary
+
+# Frasberg CLI
+
+Command-line interface for Frasberg AI v5.0.0.
+
+## Installation
+
+```bash
+pip install frasberg-cli
+```
+
+Or from source:
+
+```bash
+cd cli
+pip install -e .
+```
+
+## Usage
+
+```bash
+# Check health
+frasberg health
+
+# Get system status
+frasberg status
+
+# List services
+frasberg services
+
+# Generate speech
+frasberg speak "Hello world" --language en --emotion warm
+
+# Generate AI response
+frasberg generate "Explain quantum computing" --provider anthropic
+
+# Get mesh topology
+frasberg mesh
+
+# Get metrics
+frasberg metrics
+```
+
+## Commands
+
+- **health** - Check system health
+- **status** - Get detailed system status
+- **services** - List all services
+- **speak** - Text-to-speech synthesis
+- **generate** - AI text generation
+- **mesh** - Mesh network topology
+- **metrics** - System metrics
+
+## Configuration
+
+Set base URL:
+
+```bash
+export FRASBERG_BASE_URL=http://localhost:8000
+```
+
+## Requirements
+
+- Python 3.11+
+- Frasberg AI v5.0.0 running
+
+## License
+
+MIT License

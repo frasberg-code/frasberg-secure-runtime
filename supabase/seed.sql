@@ -1,4 +1,4 @@
--- Seed data for Sofia Core Backend
+-- Seed data for Frasberg AI Backend
 -- This creates demo users and entitlements for testing
 
 -- Insert demo entitlements

@@ -1,10 +1,10 @@
-name: Sofia Core CI
+name: Frasberg AI CI
 
 on:
   pull_request:
     paths:
       - 'src/**'
-      - 'supabase/sofia_core/**'
+      - 'supabase/frasberg_ai/**'
       - 'tests/**'
       - 'tsconfig.json'
       - 'deno.json'
@@ -26,57 +26,57 @@ jobs:
       
       - name: Validate directory structure
         run: |
-          echo "Validating Sofia Core Application Shell structure..."
+          echo "Validating Frasberg AI Application Shell structure..."
           
           # Check required directories exist
-          test -d supabase/sofia_core/sofia_core_application_shell || exit 1
-          test -d supabase/sofia_core/deviation_engine || exit 1
-          test -d supabase/sofia_core/identity_filter || exit 1
-          test -d supabase/sofia_core/membrane_engine || exit 1
-          test -d supabase/sofia_core/tonal_engine || exit 1
-          test -d supabase/sofia_core/sofia_api || exit 1
-          test -d supabase/sofia_core/continuum_modulator || exit 1
-          test -d supabase/sofia_core/signature_bridge || exit 1
-          test -d supabase/sofia_core/orchestration_engine || exit 1
-          test -d supabase/sofia_core/semantic_bridge || exit 1
-          test -d supabase/sofia_core/signature_synthesizer || exit 1
-          test -d supabase/sofia_core/semantic_modulator || exit 1
-          test -d supabase/sofia_core/signature_router || exit 1
-          test -d supabase/sofia_core/identity_synthesizer || exit 1
-          test -d supabase/sofia_core/field_choice || exit 1
-          test -d supabase/sofia_core/field_resolution || exit 1
-          test -d supabase/sofia_core/field_commitment || exit 1
-          test -d supabase/sofia_core/field_execution || exit 1
-          test -d supabase/sofia_core/field_projection || exit 1
-          test -d supabase/sofia_core/field_feedback || exit 1
-          test -d supabase/sofia_core/field_synthesis || exit 1
-          test -d supabase/sofia_core/field_harmonization || exit 1
-          test -d supabase/sofia_core/field_stability || exit 1
-          test -d supabase/sofia_core/field_alignment || exit 1
-          test -d supabase/sofia_core/field_convergence || exit 1
-          test -d supabase/sofia_core/field_coherence || exit 1
-          test -d supabase/sofia_core/field_signature || exit 1
-          test -d supabase/sofia_core/field_constancy || exit 1
-          test -d supabase/sofia_core/field_expression || exit 1
-          test -d supabase/sofia_core/field_presence || exit 1
-          test -d supabase/sofia_core/field_resonance || exit 1
-          test -d supabase/sofia_core/field_presence_projection || exit 1
-          test -d supabase/sofia_core/field_expansion || exit 1
-          test -d supabase/sofia_core/field_horizon_mapping || exit 1
-          test -d supabase/sofia_core/field_horizon_continuity || exit 1
+          test -d supabase/frasberg_ai/frasberg_ai_application_shell || exit 1
+          test -d supabase/frasberg_ai/deviation_engine || exit 1
+          test -d supabase/frasberg_ai/identity_filter || exit 1
+          test -d supabase/frasberg_ai/membrane_engine || exit 1
+          test -d supabase/frasberg_ai/tonal_engine || exit 1
+          test -d supabase/frasberg_ai/frasberg_api || exit 1
+          test -d supabase/frasberg_ai/continuum_modulator || exit 1
+          test -d supabase/frasberg_ai/signature_bridge || exit 1
+          test -d supabase/frasberg_ai/orchestration_engine || exit 1
+          test -d supabase/frasberg_ai/semantic_bridge || exit 1
+          test -d supabase/frasberg_ai/signature_synthesizer || exit 1
+          test -d supabase/frasberg_ai/semantic_modulator || exit 1
+          test -d supabase/frasberg_ai/signature_router || exit 1
+          test -d supabase/frasberg_ai/identity_synthesizer || exit 1
+          test -d supabase/frasberg_ai/field_choice || exit 1
+          test -d supabase/frasberg_ai/field_resolution || exit 1
+          test -d supabase/frasberg_ai/field_commitment || exit 1
+          test -d supabase/frasberg_ai/field_execution || exit 1
+          test -d supabase/frasberg_ai/field_projection || exit 1
+          test -d supabase/frasberg_ai/field_feedback || exit 1
+          test -d supabase/frasberg_ai/field_synthesis || exit 1
+          test -d supabase/frasberg_ai/field_harmonization || exit 1
+          test -d supabase/frasberg_ai/field_stability || exit 1
+          test -d supabase/frasberg_ai/field_alignment || exit 1
+          test -d supabase/frasberg_ai/field_convergence || exit 1
+          test -d supabase/frasberg_ai/field_coherence || exit 1
+          test -d supabase/frasberg_ai/field_signature || exit 1
+          test -d supabase/frasberg_ai/field_constancy || exit 1
+          test -d supabase/frasberg_ai/field_expression || exit 1
+          test -d supabase/frasberg_ai/field_presence || exit 1
+          test -d supabase/frasberg_ai/field_resonance || exit 1
+          test -d supabase/frasberg_ai/field_presence_projection || exit 1
+          test -d supabase/frasberg_ai/field_expansion || exit 1
+          test -d supabase/frasberg_ai/field_horizon_mapping || exit 1
+          test -d supabase/frasberg_ai/field_horizon_continuity || exit 1
           
           # Check required files exist
-          test -f supabase/sofia_core/sofia_core_application_shell/app_shell_runtime.ts || exit 1
-          test -f supabase/sofia_core/sofia_core_application_shell/app_shell_index.ts || exit 1
-          test -f supabase/sofia_core/sofia_core_application_shell/app_shell_context.ts || exit 1
-          test -f supabase/sofia_core/sofia_core_application_shell/app_shell_lifecycle.ts || exit 1
-          test -f supabase/sofia_core/sofia_core_application_shell/app_shell_manifest.json || exit 1
-          test -f supabase/sofia_core/sofia_core_application_shell/README.md || exit 1
+          test -f supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_runtime.ts || exit 1
+          test -f supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_index.ts || exit 1
+          test -f supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_context.ts || exit 1
+          test -f supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_lifecycle.ts || exit 1
+          test -f supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_manifest.json || exit 1
+          test -f supabase/frasberg_ai/frasberg_ai_application_shell/README.md || exit 1
           
           # Check no nested supabase directories exist
-          if find supabase/sofia_core -type d -name "supabase" | grep -q .; then
+          if find supabase/frasberg_ai -type d -name "supabase" | grep -q .; then
             echo "Error: Nested 'supabase' directories found"
-            find supabase/sofia_core -type d -name "supabase"
+            find supabase/frasberg_ai -type d -name "supabase"
             exit 1
           fi
           
@@ -87,6 +87,6 @@ jobs:
           echo "Validating app_shell_manifest.json..."
           
           # Check JSON is valid using Node.js
-          node -e "JSON.parse(require('fs').readFileSync('supabase/sofia_core/sofia_core_application_shell/app_shell_manifest.json', 'utf8'))"
+          node -e "JSON.parse(require('fs').readFileSync('supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_manifest.json', 'utf8'))"
           
           echo "✓ Manifest validation passed"

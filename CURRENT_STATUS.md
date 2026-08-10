@@ -1,4 +1,4 @@
-# Sofia Core v1.0.0 - Current Status Report
+# Frasberg AI v1.0.0 - Current Status Report
 **Generated:** 2026-02-08  
 **Phase:** Canonical Core Deployed - Awaiting PR Completion
 
@@ -18,7 +18,7 @@
 **Container:**
 ```
 CONTAINER ID   IMAGE                       STATUS         PORTS
-51555df697eb   canonical-core-sofia-core   Up X minutes   0.0.0.0:8000->8000/tcp
+51555df697eb   canonical-core-frasberg-ai   Up X minutes   0.0.0.0:8000->8000/tcp
 ```
 
 **Test Commands:**
@@ -69,7 +69,7 @@ curl http://localhost:8000/openapi.json
 **Usage after PR completes:**
 ```bash
 # Full system activation
-cd /workspaces/sofia-core-backend/deploy
+cd /workspaces/frasberg-ai-backend/deploy
 ./post-pr-activation.sh
 
 # Health check all services
@@ -130,5 +130,5 @@ All deployment scripts created and ready. While waiting for PR:
 
 ---
 
-**Sofia Core v1.0.0** - Institution-Grade Intelligence  
+**Frasberg AI v1.0.0** - Institution-Grade Intelligence  
 Canonical Core: **OPERATIONAL** 🟢

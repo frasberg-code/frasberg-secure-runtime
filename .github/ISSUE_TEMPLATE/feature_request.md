@@ -24,7 +24,7 @@ assignees: ''
 
 ## 📈 Benefits
 
-<!-- How will this benefit Sofia Core users? -->
+<!-- How will this benefit Frasberg AI users? -->
 
 ## 🚧 Implementation Ideas
 
@@ -37,5 +37,5 @@ assignees: ''
 ## ✅ Checklist
 
 - [ ] I've searched existing issues/PRs for similar features
-- [ ] This feature aligns with Sofia Core's goals
+- [ ] This feature aligns with Frasberg AI's goals
 - [ ] I'm willing to help implement this (optional)

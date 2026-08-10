@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
-    title="Sofia Core - Medical Research Fork",
+    title="Frasberg AI - Medical Research Fork",
     description="Non-clinical medical research support (v4.0.0)",
     version="4.0.0"
 )

@@ -20,8 +20,8 @@ export default {
   testPathIgnorePatterns: [
     '/node_modules/',
     '/dist/',
-    'tests/sofia_core_application_shell/execution/',
-    'tests/sofia_core_application_shell/pipeline/'
+    'tests/frasberg_ai_application_shell/execution/',
+    'tests/frasberg_ai_application_shell/pipeline/'
   ],
   collectCoverageFrom: [
     'src/**/*.ts',

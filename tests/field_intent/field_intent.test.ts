@@ -1,4 +1,4 @@
-import { generateIntent } from '../../supabase/sofia_core/field_intent/field_intent';
+import { generateIntent } from '../../supabase/frasberg_ai/field_intent/field_intent';
 
 describe('field_intent', () => {
   test('generates correct intent based on evaluation', () => {

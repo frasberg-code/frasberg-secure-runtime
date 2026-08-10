@@ -1,4 +1,4 @@
-"""Weights & Biases Integration for Sofia Core"""
+"""Weights & Biases Integration for Frasberg AI"""
 
 from typing import Optional, Dict, Any
 import logging
@@ -10,7 +10,7 @@ class WandBLogger:
     """
     Weights & Biases experiment tracking integration
     
-    Log Sofia Core metrics, models, and experiments to W&B.
+    Log Frasberg AI metrics, models, and experiments to W&B.
     """
     
     def __init__(
@@ -32,7 +32,7 @@ class WandBLogger:
             **kwargs: Additional wandb.init() arguments
         
         Examples:
-            >>> logger = WandBLogger(project="sofia-experiments")
+            >>> logger = WandBLogger(project="frasberg-experiments")
             >>> logger.log_metrics({"accuracy": 0.95, "loss": 0.05})
             >>> logger.log_model(model, name="neural-dna-v1")
         """

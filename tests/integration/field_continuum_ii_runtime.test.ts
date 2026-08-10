@@ -1,6 +1,6 @@
-import { fieldContinuumII } from '../../supabase/sofia_core/sofia_core_runtime';
+import { fieldContinuumII } from '../../supabase/frasberg_ai/frasberg_ai_runtime';
 
-describe('sofia_core_runtime - fieldContinuumII integration', () => {
+describe('frasberg_ai_runtime - fieldContinuumII integration', () => {
   test('fieldContinuumII exports stabilizeFieldCycle', () => {
     expect(fieldContinuumII.stabilizeFieldCycle).toBeDefined();
     const result = fieldContinuumII.stabilizeFieldCycle(5, x => x * 2);

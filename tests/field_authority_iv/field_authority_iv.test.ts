@@ -1,4 +1,4 @@
-import { authorizeFieldStateIV } from '../../supabase/sofia_core/field_authority_iv/field_authority_iv';
+import { authorizeFieldStateIV } from '../../supabase/frasberg_ai/field_authority_iv/field_authority_iv';
 
 describe('field_authority_iv', () => {
   test('authorizes fourth-order state numerically', () => {

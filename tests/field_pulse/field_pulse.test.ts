@@ -1,4 +1,4 @@
-import { generatePulse } from '../../supabase/sofia_core/field_pulse/field_pulse';
+import { generatePulse } from '../../supabase/frasberg_ai/field_pulse/field_pulse';
 
 describe('field_pulse', () => {
   test('generates correct number of pulses', () => {

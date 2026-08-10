@@ -1,4 +1,4 @@
-# Sofia Core Contributors 🌟
+# Frasberg AI Contributors 🌟
 
 Thank you to everyone who has contributed!
 
@@ -36,7 +36,7 @@ Make a contribution and appear here automatically:
 - **Code**: Submit merged PR
 - **Docs**: Improve documentation
 - **Community**: Help on Discord
-- **Research**: Publish using Sofia
+- **Research**: Publish using Frasberg
 
 ## Recognition Program
 

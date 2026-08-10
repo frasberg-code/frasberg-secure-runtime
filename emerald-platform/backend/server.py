@@ -12,8 +12,8 @@ import uuid
 load_dotenv()
 
 app = FastAPI(
-    title="EmeraldOrbit API",
-    description="Complete backend for EmeraldOrbit platform",
+    title="Frasberg API",
+    description="Complete backend for Frasberg platform",
     version="1.0.0"
 )
 
@@ -35,7 +35,7 @@ app.add_middleware(
 # MongoDB setup
 MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
 client = AsyncIOMotorClient(MONGO_URL)
-db = client.emerald_orbit
+db = client.frasberg
 
 # Collections
 users_collection = db.users
@@ -67,7 +67,7 @@ class Contact(BaseModel):
 @app.get("/")
 async def root():
     return {
-        "message": "Welcome to EmeraldOrbit API",
+        "message": "Welcome to Frasberg API",
         "version": "1.0.0",
         "status": "operational"
     }

@@ -1,4 +1,4 @@
-import { establishAuthorityCycle } from '../../supabase/sofia_core/field_authority_cycle/field_authority_cycle';
+import { establishAuthorityCycle } from '../../supabase/frasberg_ai/field_authority_cycle/field_authority_cycle';
 
 describe('field_authority_cycle', () => {
   test('establishes authority cycle using authorityFn', () => {

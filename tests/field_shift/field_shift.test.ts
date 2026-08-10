@@ -1,4 +1,4 @@
-import { shiftFieldState } from '../../supabase/sofia_core/field_shift/field_shift';
+import { shiftFieldState } from '../../supabase/frasberg_ai/field_shift/field_shift';
 
 describe('field_shift', () => {
   test('shifts field using shifter', () => {

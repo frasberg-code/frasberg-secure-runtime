@@ -1,4 +1,4 @@
-import { synthesizeFieldContinuumIII } from '../../supabase/sofia_core/field_continuum_synthesis_iii/field_continuum_synthesis_iii';
+import { synthesizeFieldContinuumIII } from '../../supabase/frasberg_ai/field_continuum_synthesis_iii/field_continuum_synthesis_iii';
 
 describe('field_continuum_synthesis_iii', () => {
   test('synthesizes third-order continuum numerically', () => {

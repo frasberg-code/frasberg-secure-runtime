@@ -1,4 +1,4 @@
-import { evolveFieldState } from '../../supabase/sofia_core/field_evolution/field_evolution';
+import { evolveFieldState } from '../../supabase/frasberg_ai/field_evolution/field_evolution';
 
 describe('field_evolution', () => {
   test('evolves field using evolver', () => {

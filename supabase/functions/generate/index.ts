@@ -5,7 +5,7 @@ import {
   notifyFailure,
   callModel,
   uploadAsset,
-} from "../_shared/sofia-edge-functions-template.ts";
+} from "../_shared/frasberg-edge-functions-template.ts";
 
 console.info('generate function starting');
 

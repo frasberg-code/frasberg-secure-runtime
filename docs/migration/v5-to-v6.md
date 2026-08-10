@@ -1,8 +1,8 @@
-# Migration Guide: Sofia Core v5 to v6
+# Migration Guide: Frasberg AI v5 to v6
 
 ## Overview
 
-This guide helps you migrate from Sofia Core 5.x to 6.0.0. The new version includes breaking changes, new features, and performance improvements.
+This guide helps you migrate from Frasberg AI 5.x to 6.0.0. The new version includes breaking changes, new features, and performance improvements.
 
 ## Breaking Changes
 
@@ -33,11 +33,11 @@ pyenv global 3.11
 **Changes:**
 ```python
 # OLD (v5.x)
-client = SofiaClient(base_url="https://api.sofia.io/v1")
+client = FrasbergClient(base_url="https://api.frasberg.io/v1")
 client.dna_compute(...)
 
 # NEW (v6.0.0)
-client = SofiaClient(base_url="https://api.sofia.io/v2")
+client = FrasbergClient(base_url="https://api.frasberg.io/v2")
 client.dna_compute(...)  # Same method, different endpoint
 ```
 
@@ -45,8 +45,8 @@ The client automatically uses v2 endpoints in 6.0.0. If you explicitly set URLs,
 
 ```python
 # Update explicit URLs
-OLD: "https://api.sofia.io/v1/dna/compute"
-NEW: "https://api.sofia.io/v2/dna/compute"
+OLD: "https://api.frasberg.io/v1/dna/compute"
+NEW: "https://api.frasberg.io/v2/dna/compute"
 ```
 
 ### 3. Authentication System
@@ -58,29 +58,29 @@ NEW: "https://api.sofia.io/v2/dna/compute"
 
 ```python
 # OLD (v5.x)
-client = SofiaClient(api_key="your-api-key")
+client = FrasbergClient(api_key="your-api-key")
 
 # NEW (v6.0.0) - API keys still work for backwards compatibility
-client = SofiaClient(api_key="your-api-key")
+client = FrasbergClient(api_key="your-api-key")
 
 # NEW (v6.0.0) - Recommended: JWT authentication
-from sofia_core.auth import JWTManager
+from frasberg_ai.auth import JWTManager
 
 jwt_manager = JWTManager()
 access_token = jwt_manager.create_access_token(user_id="your-user-id")
 
-client = SofiaClient(access_token=access_token)
+client = FrasbergClient(access_token=access_token)
 ```
 
 **Setup RBAC:**
 
 ```bash
 # Create roles
-sofia-cli rbac create-role data_scientist \
+frasberg-cli rbac create-role data_scientist \
   --permissions "dna.compute.*" "swarm.*" "temporal.*"
 
 # Assign role to user
-sofia-cli rbac assign-role user@company.com data_scientist
+frasberg-cli rbac assign-role user@company.com data_scientist
 ```
 
 ### 4. Configuration File Format
@@ -95,7 +95,7 @@ api:
   host: localhost
   port: 8000
 database:
-  url: postgresql://localhost/sofia
+  url: postgresql://localhost/frasberg
 redis:
   url: redis://localhost:6379
 ```
@@ -119,7 +119,7 @@ observability:  # NEW
   metrics_port: 9090
 
 database:
-  url: postgresql://localhost/sofia
+  url: postgresql://localhost/frasberg
   sharding: false  # NEW
   connection_pool_size: 100  # NEW
 
@@ -131,7 +131,7 @@ redis:
 **Auto-migration:**
 ```bash
 # Migrate config automatically
-sofia-cli config migrate --from config_v5.yaml --to config_v6.yaml
+frasberg-cli config migrate --from config_v5.yaml --to config_v6.yaml
 ```
 
 ## Automated Migration
@@ -139,11 +139,11 @@ sofia-cli config migrate --from config_v5.yaml --to config_v6.yaml
 The easiest way to migrate is using the CLI tool:
 
 ```bash
-# Install Sofia Core 6.0.0
-pip install --upgrade sofia-core==6.0.0
+# Install Frasberg AI 6.0.0
+pip install --upgrade frasberg-ai==6.0.0
 
 # Run migration tool
-sofia-cli migrate --from=5.x --to=6.0.0
+frasberg-cli migrate --from=5.x --to=6.0.0
 
 # Follow the interactive prompts
 ```
@@ -161,41 +161,41 @@ The migration tool will:
 ### Step 1: Update Dependencies
 
 ```bash
-# Update Sofia Core
-pip install --upgrade sofia-core==6.0.0
+# Update Frasberg AI
+pip install --upgrade frasberg-ai==6.0.0
 
 # Update related packages
-pip install --upgrade sofia-cli==6.0.0
-pip install --upgrade sofia-sdk==6.0.0
+pip install --upgrade frasberg-cli==6.0.0
+pip install --upgrade frasberg-sdk==6.0.0
 
 # Install enterprise features (optional)
-pip install sofia-core[enterprise]==6.0.0
+pip install frasberg-ai[enterprise]==6.0.0
 ```
 
 ### Step 2: Update Configuration
 
 ```bash
 # Backup old config
-cp sofia_config.yaml sofia_config_v5_backup.yaml
+cp frasberg_config.yaml frasberg_config_v5_backup.yaml
 
 # Generate new config
-sofia-cli config generate --version 6.0.0 > sofia_config.yaml
+frasberg-cli config generate --version 6.0.0 > frasberg_config.yaml
 
 # Edit and customize as needed
-nano sofia_config.yaml
+nano frasberg_config.yaml
 ```
 
 ### Step 3: Database Migration
 
 ```bash
 # Backup database
-pg_dump sofia > sofia_backup.sql
+pg_dump frasberg > frasberg_backup.sql
 
 # Run migrations
-sofia-cli db migrate --from 5.x --to 6.0.0
+frasberg-cli db migrate --from 5.x --to 6.0.0
 
 # Verify migration
-sofia-cli db verify
+frasberg-cli db verify
 ```
 
 ### Step 4: Update Application Code
@@ -203,25 +203,25 @@ sofia-cli db verify
 **Import changes:**
 ```python
 # OLD (v5.x)
-from sofia_core import SofiaClient
+from frasberg_ai import FrasbergClient
 
 # NEW (v6.0.0) - Same, but with new features available
-from sofia_core import SofiaClient
-from sofia_core.security import RBACManager  # NEW
-from sofia_core.observability import Telemetry  # NEW
-from sofia_core.hybrid import NeuralDNAHybrid  # NEW
+from frasberg_ai import FrasbergClient
+from frasberg_ai.security import RBACManager  # NEW
+from frasberg_ai.observability import Telemetry  # NEW
+from frasberg_ai.hybrid import NeuralDNAHybrid  # NEW
 ```
 
 **Client initialization:**
 ```python
 # OLD (v5.x)
-client = SofiaClient(api_key="your-key")
+client = FrasbergClient(api_key="your-key")
 
 # NEW (v6.0.0) - Backwards compatible
-client = SofiaClient(api_key="your-key")
+client = FrasbergClient(api_key="your-key")
 
 # NEW (v6.0.0) - With new features
-client = SofiaClient(
+client = FrasbergClient(
     api_key="your-key",
     enable_telemetry=True,
     enable_rate_limiting=True
@@ -232,10 +232,10 @@ client = SofiaClient(
 
 ```python
 # Update test imports
-from sofia_core.testing import TestClient  # NEW in v6
+from frasberg_ai.testing import TestClient  # NEW in v6
 
 # Update test client
-class TestSofiaCore:
+class TestFrasbergAI:
     def setup_method(self):
         self.client = TestClient()  # Uses v2 API
     
@@ -249,10 +249,10 @@ class TestSofiaCore:
 **Docker:**
 ```dockerfile
 # OLD (v5.x)
-FROM emeraldorbit/sofia-core:5.0.0
+FROM frasberg/frasberg-ai:5.0.0
 
 # NEW (v6.0.0)
-FROM emeraldorbit/sofia-core:6.0.0
+FROM frasberg/frasberg-ai:6.0.0
 ```
 
 **Docker Compose:**
@@ -260,10 +260,10 @@ FROM emeraldorbit/sofia-core:6.0.0
 # docker-compose.yml
 version: '3.8'
 services:
-  sofia-core:
-    image: emeraldorbit/sofia-core:6.0.0  # Updated
+  frasberg-ai:
+    image: frasberg/frasberg-ai:6.0.0  # Updated
     environment:
-      - SOFIA_VERSION=6.0.0  # NEW
+      - FRASBERG_VERSION=6.0.0  # NEW
       - RBAC_ENABLED=true  # NEW
       - TELEMETRY_ENABLED=true  # NEW
     ports:
@@ -277,16 +277,16 @@ services:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sofia-core
+  name: frasberg-ai
 spec:
   replicas: 3
   template:
     spec:
       containers:
-      - name: sofia-core
-        image: emeraldorbit/sofia-core:6.0.0  # Updated
+      - name: frasberg-ai
+        image: frasberg/frasberg-ai:6.0.0  # Updated
         env:
-        - name: SOFIA_VERSION
+        - name: FRASBERG_VERSION
           value: "6.0.0"
         - name: RBAC_ENABLED
           value: "true"
@@ -298,20 +298,20 @@ spec:
 
 ```python
 # Enable RBAC
-from sofia_core.security import RBACManager
+from frasberg_ai.security import RBACManager
 
 rbac = RBACManager()
 rbac.create_role("data_scientist", permissions=["dna.compute.*", "swarm.*"])
 rbac.assign_role("user@company.com", "data_scientist")
 
 # Enable observability
-from sofia_core.observability import Telemetry
+from frasberg_ai.observability import Telemetry
 
 telemetry = Telemetry()
 telemetry.configure(exporter="jaeger", endpoint="http://jaeger:14268")
 
 # Enable rate limiting
-from sofia_core.middleware import RateLimiter
+from frasberg_ai.middleware import RateLimiter
 
 limiter = RateLimiter(requests_per_minute=100)
 ```
@@ -320,13 +320,13 @@ limiter = RateLimiter(requests_per_minute=100)
 
 ```python
 # Try Neural-DNA Hybrid
-from sofia_core.hybrid import NeuralDNAHybrid
+from frasberg_ai.hybrid import NeuralDNAHybrid
 
 hybrid = NeuralDNAHybrid(neural_layers=[256, 512, 256])
 hybrid.train(dataset=training_data, epochs=100)
 
 # Try federated learning
-from sofia_core.federated import FederatedLearning
+from frasberg_ai.federated import FederatedLearning
 
 federated = FederatedLearning(nodes=["node1", "node2", "node3"])
 federated.train(model=base_model)
@@ -336,14 +336,14 @@ federated.train(model=base_model)
 
 ```python
 # LangChain integration
-from langchain.agents import SofiaCoreAgent
+from langchain.agents import FrasbergAIAgent
 
-agent = SofiaCoreAgent(sofia_client=client)
+agent = FrasbergAIAgent(frasberg_client=client)
 
 # LlamaIndex integration
-from llama_index.retrievers import SofiaCoreRetriever
+from llama_index.retrievers import FrasbergAIRetriever
 
-retriever = SofiaCoreRetriever(sofia_client=client)
+retriever = FrasbergAIRetriever(frasberg_client=client)
 ```
 
 ## Rollback Plan
@@ -351,24 +351,24 @@ retriever = SofiaCoreRetriever(sofia_client=client)
 If you encounter issues, you can roll back:
 
 ```bash
-# Rollback Sofia Core
-pip install sofia-core==5.0.0
+# Rollback Frasberg AI
+pip install frasberg-ai==5.0.0
 
 # Restore database
-psql sofia < sofia_backup.sql
+psql frasberg < frasberg_backup.sql
 
 # Restore config
-cp sofia_config_v5_backup.yaml sofia_config.yaml
+cp frasberg_config_v5_backup.yaml frasberg_config.yaml
 
 # Restart services
-sudo systemctl restart sofia-core
+sudo systemctl restart frasberg-ai
 ```
 
 ## Common Issues
 
 ### Issue 1: Python Version Mismatch
 
-**Error:** `RuntimeError: Sofia Core 6.0.0 requires Python 3.11+`
+**Error:** `RuntimeError: Frasberg AI 6.0.0 requires Python 3.11+`
 
 **Solution:**
 ```bash
@@ -385,7 +385,7 @@ pyenv install 3.11
 **Solution:**
 ```python
 # Update client to use v2 endpoints
-client = SofiaClient(base_url="https://api.sofia.io/v2")
+client = FrasbergClient(base_url="https://api.frasberg.io/v2")
 ```
 
 ### Issue 3: Authentication Failed
@@ -395,10 +395,10 @@ client = SofiaClient(base_url="https://api.sofia.io/v2")
 **Solution:**
 ```bash
 # Regenerate API key
-sofia-cli auth regenerate-key
+frasberg-cli auth regenerate-key
 
 # Or use JWT
-sofia-cli auth generate-jwt --user-id your-user-id
+frasberg-cli auth generate-jwt --user-id your-user-id
 ```
 
 ### Issue 4: Database Migration Failed
@@ -408,11 +408,11 @@ sofia-cli auth generate-jwt --user-id your-user-id
 **Solution:**
 ```bash
 # Run migration manually
-sofia-cli db migrate --from 5.x --to 6.0.0 --force
+frasberg-cli db migrate --from 5.x --to 6.0.0 --force
 
 # Or restore and retry
-psql sofia < sofia_backup.sql
-sofia-cli db migrate --from 5.x --to 6.0.0
+psql frasberg < frasberg_backup.sql
+frasberg-cli db migrate --from 5.x --to 6.0.0
 ```
 
 ## Testing Checklist
@@ -442,18 +442,18 @@ You should see these improvements after migration:
 Run benchmarks to verify:
 
 ```bash
-sofia-cli benchmark --compare-with 5.0.0
+frasberg-cli benchmark --compare-with 5.0.0
 ```
 
 ## Support
 
 If you need help with migration:
 
-- **Documentation:** https://docs.sofia-core.io/migration/v5-to-v6
-- **Discord:** https://discord.gg/sofia-core
-- **GitHub Issues:** https://github.com/emeraldorbit/sofia-core-backend/issues
-- **Email:** support@sofia-core.io
-- **Enterprise Support:** enterprise@sofia-core.io
+- **Documentation:** https://docs.frasberg-ai.io/migration/v5-to-v6
+- **Discord:** https://discord.gg/frasberg-ai
+- **GitHub Issues:** https://github.com/frasberg/frasberg-ai-backend/issues
+- **Email:** support@frasberg-ai.io
+- **Enterprise Support:** enterprise@frasberg-ai.io
 
 ## Next Steps
 
@@ -463,8 +463,8 @@ After successful migration:
 2. [Try Advanced AI Features](../advanced-ai/README.md)
 3. [Setup Integrations](../integrations/README.md)
 4. [Optimize Performance](../guides/performance-tuning.md)
-5. [Join the Community](https://discord.gg/sofia-core)
+5. [Join the Community](https://discord.gg/frasberg-ai)
 
 ---
 
-**Migration completed?** Share your experience in our [Discord community](https://discord.gg/sofia-core)!
+**Migration completed?** Share your experience in our [Discord community](https://discord.gg/frasberg-ai)!

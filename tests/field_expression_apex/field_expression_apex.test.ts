@@ -1,4 +1,4 @@
-import { expressApexState } from '../../supabase/sofia_core/field_expression_apex/field_expression_apex';
+import { expressApexState } from '../../supabase/frasberg_ai/field_expression_apex/field_expression_apex';
 
 describe('field_expression_apex', () => {
   test('expresses apex using expresser', () => {

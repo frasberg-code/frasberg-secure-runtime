@@ -48,12 +48,12 @@
 ## Core Modules
 
 ```
-@emeraldorbit/frasberg-governance-engine
-@emeraldorbit/frasberg-tonal-modulation
-@emeraldorbit/frasberg-membrane-protocol
-@emeraldorbit/frasberg-hinge-logic
-@emeraldorbit/frasberg-unified-field-runtime
-@emeraldorbit/frasberg-continuum-identity
+@frasberg/governance-engine
+@frasberg/tonal-modulation
+@frasberg/membrane-protocol
+@frasberg/hinge-logic
+@frasberg/unified-field-runtime
+@frasberg/continuum-identity
 ```
 
 ## Services
@@ -114,7 +114,7 @@
 
 ## Support
 
-**Repository**: https://github.com/emeraldorbit/frasberg-ai-backend  
+**Repository**: https://github.com/frasberg/frasberg-ai-backend  
 **License**: Proprietary (UNLICENSED)  
 **Creator**: Frasberg Selassie  
 

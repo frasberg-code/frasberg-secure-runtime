@@ -4,7 +4,7 @@ services:
     build:
       context: ../../..
       dockerfile: deploy/forks/legal/Dockerfile
-    container_name: sofia_legal_fork
+    container_name: frasberg_legal_fork
     ports:
       - "8003:8003"
     environment:

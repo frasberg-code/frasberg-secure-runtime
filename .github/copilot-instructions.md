@@ -1,11 +1,11 @@
-# Copilot Instructions for sofia-core-backend
+# Copilot Instructions for frasberg-ai-backend
 
 ## Repository Overview
 
-Sofia Core Backend is a **behavioral governance engine** for the EmeraldOrbit/Sofia platform. It is a **monorepo** combining:
+Frasberg AI Backend is a **behavioral governance engine** for the Frasberg/Frasberg platform. It is a **monorepo** combining:
 
-- A **Python FastAPI backend** (`backend/`) with MongoDB for the EmeraldOrbit API.
-- **TypeScript packages** (`packages/`, `supabase/sofia_core/`, `src/`) implementing tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules.
+- A **Python FastAPI backend** (`backend/`) with MongoDB for the Frasberg API.
+- **TypeScript packages** (`packages/`, `supabase/frasberg_ai/`, `src/`) implementing tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules.
 - A **pnpm workspace** for the TypeScript packages.
 
 **Runtimes:** Python 3.11+, Node.js 18+, pnpm 8+
@@ -21,14 +21,14 @@ backend/           Python FastAPI app
   app/             Application modules (core, auth, integrations, etc.)
   requirements.txt All Python dependencies (pinned)
 packages/          pnpm workspace TypeScript packages
-  sofia-governance-engine/
-  sofia-tonal-modulation/
-  sofia-membrane-protocol/
-  sofia-hinge-logic/
-  sofia-continuum-identity/
-  sofia-unified-field-runtime/
+  frasberg-governance-engine/
+  frasberg-tonal-modulation/
+  frasberg-membrane-protocol/
+  frasberg-hinge-logic/
+  frasberg-continuum-identity/
+  frasberg-unified-field-runtime/
 src/               TypeScript source (engines, pipelines, orchestration)
-supabase/sofia_core/  Core runtime modules (TypeScript); structure validated by CI
+supabase/frasberg_ai/  Core runtime modules (TypeScript); structure validated by CI
 tests/             TypeScript tests (jest) + Python tests (pytest)
   unit/            Python unit tests
   *.test.ts        TypeScript jest tests
@@ -71,7 +71,7 @@ pnpm install
 # Build all packages
 pnpm build
 # or per-package:
-cd packages/sofia-governance-engine && pnpm build
+cd packages/frasberg-governance-engine && pnpm build
 
 # Run TypeScript (jest) tests
 pnpm test                  # all tests matching tests/**/*.test.ts
@@ -86,7 +86,7 @@ pnpm lint                  # runs pnpm lint in each workspace package
 ```
 
 - Tests use ESM via `ts-jest`. The `moduleNameMapper` strips `.js` extensions.
-- Ignored test paths: `tests/sofia_core_application_shell/execution/` and `.../pipeline/`.
+- Ignored test paths: `tests/frasberg_ai_application_shell/execution/` and `.../pipeline/`.
 
 ---
 
@@ -95,10 +95,10 @@ pnpm lint                  # runs pnpm lint in each workspace package
 Two workflows run on pull requests:
 
 1. **`build.yml`** (on every push/PR): installs pnpm, builds packages, runs governance engine tests.
-2. **`ci.yml`** (on PRs touching `src/**`, `supabase/sofia_core/**`, `tests/**`, `tsconfig.json`):
-   - Validates that all required directories under `supabase/sofia_core/` exist.
-   - Validates `supabase/sofia_core/sofia_core_application_shell/app_shell_manifest.json` is valid JSON.
-   - **Never remove or rename directories under `supabase/sofia_core/`** without updating `ci.yml`.
+2. **`ci.yml`** (on PRs touching `src/**`, `supabase/frasberg_ai/**`, `tests/**`, `tsconfig.json`):
+   - Validates that all required directories under `supabase/frasberg_ai/` exist.
+   - Validates `supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_manifest.json` is valid JSON.
+   - **Never remove or rename directories under `supabase/frasberg_ai/`** without updating `ci.yml`.
 
 ---
 

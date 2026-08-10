@@ -1,4 +1,4 @@
-import { expandFieldStateIII } from '../../supabase/sofia_core/field_expansion_iii/field_expansion_iii';
+import { expandFieldStateIII } from '../../supabase/frasberg_ai/field_expansion_iii/field_expansion_iii';
 
 describe('field_expansion_iii', () => {
   test('expands apex-III using expander', () => {

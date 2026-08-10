@@ -142,7 +142,7 @@ Key Features:
 not erase them," said Frasberg Selassie.
 
 FRASBERG AI is open-source under the MIT license and available at:
-https://github.com/emeraldorbit/frasberg-ai-backend
+https://github.com/frasberg/frasberg-ai-backend
 
 Media contact: [contact info]
 ```
@@ -179,7 +179,7 @@ Thread: "How to Build Governance-First AI Systems"
    Join the community.
    Let's change what's possible.
 
-   GitHub: https://github.com/emeraldorbit/frasberg-ai-backend
+   GitHub: https://github.com/frasberg/frasberg-ai-backend
 ```
 
 **Instagram/Facebook Posts**
@@ -236,7 +236,7 @@ brings a new standard for ethical, culturally-aware AI:
 This represents a milestone for Caribbean innovation in frontier technology. 
 The world is watching how we build AI. Let's build it right.
 
-GitHub: https://github.com/emeraldorbit/frasberg-ai-backend
+GitHub: https://github.com/frasberg/frasberg-ai-backend
 
 I welcome developers, researchers, and community members to contribute and 
 shape the future of ethical AI.
@@ -621,7 +621,7 @@ Month 3: Research publications, case studies, expansion
 Frasberg Selassie (Mr. Clayton-M. Bernard-Ex.)
 
 **Repository:**  
-https://github.com/emeraldorbit/frasberg-ai-backend
+https://github.com/frasberg/frasberg-ai-backend
 
 **Vision:**  
 *Where culture meets code. Governance born in Jamaica, built for the world.*

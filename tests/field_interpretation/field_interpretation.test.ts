@@ -1,4 +1,4 @@
-import { interpretField } from '../../supabase/sofia_core/field_interpretation/field_interpretation';
+import { interpretField } from '../../supabase/frasberg_ai/field_interpretation/field_interpretation';
 
 describe('field_interpretation', () => {
   test('interprets field value using interpreter', () => {

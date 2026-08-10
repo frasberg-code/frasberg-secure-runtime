@@ -1,8 +1,8 @@
-# Sofia Core 6.0.0 - Enterprise Features
+# Frasberg AI 6.0.0 - Enterprise Features
 
 ## Overview
 
-Sofia Core 6.0.0 introduces production-grade enterprise features including security, observability, and scalability enhancements for deploying AI infrastructure at scale.
+Frasberg AI 6.0.0 introduces production-grade enterprise features including security, observability, and scalability enhancements for deploying AI infrastructure at scale.
 
 ## Table of Contents
 
@@ -15,10 +15,10 @@ Sofia Core 6.0.0 introduces production-grade enterprise features including secur
 
 ### Role-Based Access Control (RBAC)
 
-Control access to Sofia Core resources with fine-grained permissions:
+Control access to Frasberg AI resources with fine-grained permissions:
 
 ```python
-from sofia_core.security import RBACManager
+from frasberg_ai.security import RBACManager
 
 # Initialize RBAC
 rbac = RBACManager()
@@ -52,7 +52,7 @@ if rbac.has_permission(user="alice@company.com", permission="dna.compute.write")
 Protect your infrastructure with configurable rate limits:
 
 ```python
-from sofia_core.middleware import RateLimiter
+from frasberg_ai.middleware import RateLimiter
 
 # Configure rate limiting
 limiter = RateLimiter(
@@ -75,7 +75,7 @@ limiter.set_endpoint_limit("/api/v2/swarm/create", requests_per_minute=10)
 Track all operations for compliance and security:
 
 ```python
-from sofia_core.audit import AuditLogger
+from frasberg_ai.audit import AuditLogger
 
 # Initialize audit logger
 audit = AuditLogger(
@@ -106,7 +106,7 @@ logs = audit.query(
 Secure API access with JWT tokens:
 
 ```python
-from sofia_core.auth import JWTManager
+from frasberg_ai.auth import JWTManager
 
 # Initialize JWT manager
 jwt_manager = JWTManager(
@@ -132,7 +132,7 @@ if jwt_manager.validate_token(access_token):
 Integrate with industry-standard observability tools:
 
 ```python
-from sofia_core.observability import Telemetry
+from frasberg_ai.observability import Telemetry
 
 # Initialize telemetry
 telemetry = Telemetry()
@@ -141,7 +141,7 @@ telemetry = Telemetry()
 telemetry.configure(
     exporter="jaeger",
     endpoint="http://jaeger:14268/api/traces",
-    service_name="sofia-core-production"
+    service_name="frasberg-ai-production"
 )
 
 # Zipkin exporter
@@ -154,7 +154,7 @@ telemetry.configure(
 telemetry.configure(
     exporter="datadog",
     api_key="your-datadog-api-key",
-    service_name="sofia-core"
+    service_name="frasberg-ai"
 )
 ```
 
@@ -163,7 +163,7 @@ telemetry.configure(
 Track performance and usage metrics:
 
 ```python
-from sofia_core.metrics import MetricsCollector
+from frasberg_ai.metrics import MetricsCollector
 
 # Initialize metrics collector
 metrics = MetricsCollector(
@@ -192,7 +192,7 @@ metrics.observe_histogram("request_duration", 0.125)
 Identify bottlenecks and optimize performance:
 
 ```python
-from sofia_core.profiler import Profiler
+from frasberg_ai.profiler import Profiler
 
 # Profile specific code blocks
 with Profiler() as prof:
@@ -212,15 +212,15 @@ print(f"Peak memory: {summary['peak_memory_mb']}MB")
 
 ### Kubernetes Operator
 
-Deploy and scale Sofia Core on Kubernetes:
+Deploy and scale Frasberg AI on Kubernetes:
 
 ```yaml
-# sofia-cluster.yaml
-apiVersion: sofia.core/v1
-kind: SofiaCluster
+# frasberg-cluster.yaml
+apiVersion: frasberg.core/v1
+kind: FrasbergCluster
 metadata:
-  name: sofia-production
-  namespace: sofia
+  name: frasberg-production
+  namespace: frasberg
 spec:
   replicas: 10
   autoScaling:
@@ -261,7 +261,7 @@ spec:
 Apply the configuration:
 
 ```bash
-kubectl apply -f sofia-cluster.yaml
+kubectl apply -f frasberg-cluster.yaml
 ```
 
 ### Multi-Region Deployment
@@ -269,14 +269,14 @@ kubectl apply -f sofia-cluster.yaml
 Deploy across multiple data centers:
 
 ```python
-from sofia_core.distributed import MultiRegionManager
+from frasberg_ai.distributed import MultiRegionManager
 
 # Configure multi-region deployment
 manager = MultiRegionManager(
     regions=[
-        {"name": "us-east-1", "endpoint": "https://us-east.sofia.io"},
-        {"name": "eu-west-1", "endpoint": "https://eu-west.sofia.io"},
-        {"name": "ap-southeast-1", "endpoint": "https://ap-southeast.sofia.io"}
+        {"name": "us-east-1", "endpoint": "https://us-east.frasberg.io"},
+        {"name": "eu-west-1", "endpoint": "https://eu-west.frasberg.io"},
+        {"name": "ap-southeast-1", "endpoint": "https://ap-southeast.frasberg.io"}
     ],
     routing_strategy="latency_based"  # or "round_robin", "weighted"
 )
@@ -290,7 +290,7 @@ result = manager.execute(client.dna_compute, sequence="ATCG")
 Scale database operations with automatic sharding:
 
 ```python
-from sofia_core.database import ShardingManager
+from frasberg_ai.database import ShardingManager
 
 # Configure sharding
 sharding = ShardingManager(
@@ -308,21 +308,21 @@ user = sharding.query("users", shard_key="123")
 
 ### Quick Start
 
-Deploy Sofia Core 6.0.0 with enterprise features:
+Deploy Frasberg AI 6.0.0 with enterprise features:
 
 ```bash
 # Install with enterprise features
-pip install sofia-core[enterprise]==6.0.0
+pip install frasberg-ai[enterprise]==6.0.0
 
 # Initialize configuration
-sofia-cli init --enterprise
+frasberg-cli init --enterprise
 
 # Configure RBAC
-sofia-cli rbac create-role data_scientist \
+frasberg-cli rbac create-role data_scientist \
   --permissions dna.compute.* swarm.* temporal.*
 
 # Start with observability
-sofia-cli start \
+frasberg-cli start \
   --telemetry-exporter jaeger \
   --telemetry-endpoint http://localhost:14268 \
   --metrics-port 9090
@@ -334,8 +334,8 @@ sofia-cli start \
 # docker-compose-enterprise.yml
 version: '3.8'
 services:
-  sofia-core:
-    image: emeraldorbit/sofia-core:6.0.0-enterprise
+  frasberg-ai:
+    image: frasberg/frasberg-ai:6.0.0-enterprise
     environment:
       - RBAC_ENABLED=true
       - RATE_LIMIT_ENABLED=true
@@ -394,9 +394,9 @@ docker-compose -f docker-compose-enterprise.yml up -d
 ## Support
 
 For enterprise support:
-- Email: enterprise@sofia-core.io
-- Slack: #sofia-enterprise
-- Documentation: https://docs.sofia-core.io/enterprise
+- Email: enterprise@frasberg-ai.io
+- Slack: #frasberg-enterprise
+- Documentation: https://docs.frasberg-ai.io/enterprise
 
 ## Next Steps
 

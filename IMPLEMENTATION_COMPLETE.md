@@ -1,19 +1,19 @@
-# Sofia Core Modularization - Implementation Complete
+# Frasberg AI Modularization - Implementation Complete
 
 ## Executive Summary
 
-✅ **Successfully transformed the Sofia Core monolithic backend into six discrete, versioned packages** while preserving unified-field identity behavior and maintaining full backward compatibility.
+✅ **Successfully transformed the Frasberg AI monolithic backend into six discrete, versioned packages** while preserving unified-field identity behavior and maintaining full backward compatibility.
 
 ## Package Overview
 
 | Package | Status | Build | Tests | Docs |
 |---------|--------|-------|-------|------|
-| `@emeraldorbit/sofia-governance-engine` | ✅ Complete | ✅ Pass | ✅ 7/7 | ✅ Full |
-| `@emeraldorbit/sofia-tonal-modulation` | ✅ Complete | ✅ Pass | ⚪ Setup | ✅ Full |
-| `@emeraldorbit/sofia-membrane-protocol` | ✅ Complete | ✅ Pass | ⚪ Setup | ✅ Full |
-| `@emeraldorbit/sofia-hinge-logic` | ✅ Complete | ✅ Pass | ⚪ Setup | ✅ Full |
-| `@emeraldorbit/sofia-continuum-identity` | ✅ Complete | ✅ Pass | ⚪ Setup | ✅ Full |
-| `@emeraldorbit/sofia-unified-field-runtime` | ⚠️ Partial | ⚠️ Needs work | ⚪ Setup | ✅ Full |
+| `@frasberg/governance-engine` | ✅ Complete | ✅ Pass | ✅ 7/7 | ✅ Full |
+| `@frasberg/tonal-modulation` | ✅ Complete | ✅ Pass | ⚪ Setup | ✅ Full |
+| `@frasberg/membrane-protocol` | ✅ Complete | ✅ Pass | ⚪ Setup | ✅ Full |
+| `@frasberg/hinge-logic` | ✅ Complete | ✅ Pass | ⚪ Setup | ✅ Full |
+| `@frasberg/continuum-identity` | ✅ Complete | ✅ Pass | ⚪ Setup | ✅ Full |
+| `@frasberg/unified-field-runtime` | ⚠️ Partial | ⚠️ Needs work | ⚪ Setup | ✅ Full |
 
 ## What Was Accomplished
 
@@ -55,7 +55,7 @@ All six packages created with:
 
 ## Package Details
 
-### 1. @emeraldorbit/sofia-governance-engine
+### 1. @frasberg/governance-engine
 **Status**: ✅ Production Ready
 
 Extracts:
@@ -68,7 +68,7 @@ Features:
 - Deviation tracking and correction
 - Full test coverage (7/7 tests passing)
 
-### 2. @emeraldorbit/sofia-tonal-modulation
+### 2. @frasberg/tonal-modulation
 **Status**: ✅ Production Ready
 
 Extracts:
@@ -81,7 +81,7 @@ Features:
 - Expressive coherence validation
 - Register management (ceremonial, operational, conceptual)
 
-### 3. @emeraldorbit/sofia-membrane-protocol
+### 3. @frasberg/membrane-protocol
 **Status**: ✅ Production Ready
 
 Extracts:
@@ -93,7 +93,7 @@ Features:
 - Contextual permeability management
 - Drift-aware membrane tightening
 
-### 4. @emeraldorbit/sofia-hinge-logic
+### 4. @frasberg/hinge-logic
 **Status**: ✅ Production Ready
 
 Extracts:
@@ -106,7 +106,7 @@ Features:
 - Identity-state shift modeling
 - Integration with membrane and governance layers
 
-### 5. @emeraldorbit/sofia-continuum-identity
+### 5. @frasberg/continuum-identity
 **Status**: ✅ Production Ready
 
 Extracts:
@@ -120,11 +120,11 @@ Features:
 - Self-renewal logic
 - Signature filtering and modulation
 
-### 6. @emeraldorbit/sofia-unified-field-runtime
+### 6. @frasberg/unified-field-runtime
 **Status**: ⚠️ Partial (Requires Additional Work)
 
 Extracts:
-- `sofia_core_runtime.ts` - Main runtime
+- `frasberg_ai_runtime.ts` - Main runtime
 - `post_structural/` - Post-structural components
 
 Features:
@@ -134,7 +134,7 @@ Features:
 - Continuum identity coordination
 - Dependencies on all other packages
 
-**Note**: This package requires resolution of field module imports from the original `supabase/sofia_core/` structure. The imports have been partially updated but need complete migration of all 44+ field triads.
+**Note**: This package requires resolution of field module imports from the original `supabase/frasberg_ai/` structure. The imports have been partially updated but need complete migration of all 44+ field triads.
 
 ## Workspace Commands
 
@@ -143,14 +143,14 @@ Features:
 pnpm install
 
 # Build all packages
-cd packages/sofia-governance-engine && pnpm build
-cd ../sofia-tonal-modulation && pnpm build
-cd ../sofia-membrane-protocol && pnpm build
-cd ../sofia-hinge-logic && pnpm build
-cd ../sofia-continuum-identity && pnpm build
+cd packages/frasberg-governance-engine && pnpm build
+cd ../frasberg-tonal-modulation && pnpm build
+cd ../frasberg-membrane-protocol && pnpm build
+cd ../frasberg-hinge-logic && pnpm build
+cd ../frasberg-continuum-identity && pnpm build
 
 # Run tests
-cd packages/sofia-governance-engine && pnpm test
+cd packages/frasberg-governance-engine && pnpm test
 ```
 
 ## Security & Quality
@@ -168,28 +168,28 @@ cd packages/sofia-governance-engine && pnpm test
 
 ```typescript
 // Before (Monolithic)
-import { deviationEngine } from '../supabase/sofia_core/deviation_engine/src/deviation_engine';
+import { deviationEngine } from '../supabase/frasberg_ai/deviation_engine/src/deviation_engine';
 
 // After (Modular)
-import { deviationEngine } from '@emeraldorbit/sofia-governance-engine';
+import { deviationEngine } from '@frasberg/governance-engine';
 ```
 
 ### Backward Compatibility
 
-The original `supabase/sofia_core/` structure is **preserved** and unchanged. Existing code continues to work without modification.
+The original `supabase/frasberg_ai/` structure is **preserved** and unchanged. Existing code continues to work without modification.
 
 ## Repository Structure
 
 ```
-sofia-core-backend/
+frasberg-ai-backend/
 ├── packages/
-│   ├── sofia-governance-engine/          ✅
-│   ├── sofia-tonal-modulation/           ✅
-│   ├── sofia-membrane-protocol/          ✅
-│   ├── sofia-hinge-logic/                ✅
-│   ├── sofia-continuum-identity/         ✅
-│   └── sofia-unified-field-runtime/      ⚠️
-├── supabase/sofia_core/                  (Preserved)
+│   ├── frasberg-governance-engine/          ✅
+│   ├── frasberg-tonal-modulation/           ✅
+│   ├── frasberg-membrane-protocol/          ✅
+│   ├── frasberg-hinge-logic/                ✅
+│   ├── frasberg-continuum-identity/         ✅
+│   └── frasberg-unified-field-runtime/      ⚠️
+├── supabase/frasberg_ai/                  (Preserved)
 ├── pnpm-workspace.yaml
 ├── tsconfig.base.json
 ├── MIGRATION_GUIDE.md
@@ -210,11 +210,11 @@ sofia-core-backend/
 ### To Add Tests
 
 1. Add test suites for:
-   - sofia-tonal-modulation
-   - sofia-membrane-protocol
-   - sofia-hinge-logic
-   - sofia-continuum-identity
-   - sofia-unified-field-runtime
+   - frasberg-tonal-modulation
+   - frasberg-membrane-protocol
+   - frasberg-hinge-logic
+   - frasberg-continuum-identity
+   - frasberg-unified-field-runtime
 
 ### To Enable Publishing
 
@@ -237,9 +237,9 @@ sofia-core-backend/
 
 ## Conclusion
 
-The Sofia Core modularization has been **successfully implemented** with 5 of 6 packages fully operational and production-ready. The architecture preserves the unified-field identity behavior while providing clear functional boundaries and enabling independent versioning of components.
+The Frasberg AI modularization has been **successfully implemented** with 5 of 6 packages fully operational and production-ready. The architecture preserves the unified-field identity behavior while providing clear functional boundaries and enabling independent versioning of components.
 
-The remaining work on `sofia-unified-field-runtime` is well-defined and can be completed in a follow-up task.
+The remaining work on `frasberg-unified-field-runtime` is well-defined and can be completed in a follow-up task.
 
 ---
 

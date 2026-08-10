@@ -1,4 +1,4 @@
-import { applyHarmonics } from '../../supabase/sofia_core/signature_harmonics/signature_harmonics';
+import { applyHarmonics } from '../../supabase/frasberg_ai/signature_harmonics/signature_harmonics';
 
 describe('signature_harmonics', () => {
   test('applies tonal harmonics to signature', () => {
@@ -6,7 +6,7 @@ describe('signature_harmonics', () => {
   });
 
   test('applies soft tonal harmonic', () => {
-    expect(applyHarmonics('SOFIA', 'soft')).toBe('SOFIA~soft');
+    expect(applyHarmonics('FRASBERG', 'soft')).toBe('FRASBERG~soft');
   });
 
   test('applies neutral tonal harmonic', () => {

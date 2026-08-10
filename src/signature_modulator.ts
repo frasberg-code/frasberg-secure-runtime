@@ -1,6 +1,6 @@
 /**
  * Signature Modulator - Adaptive Identity Shaping
- * Part of the Bridge Triad for Sofia Core
+ * Part of the Bridge Triad for Frasberg AI
  * 
  * Provides adaptive identity shaping through signature modulation,
  * allowing identity to adjust while maintaining coherence.

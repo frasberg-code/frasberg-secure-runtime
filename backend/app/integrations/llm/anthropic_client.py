@@ -1,4 +1,4 @@
-"""Real Anthropic Integration for Sofia Core v5.1"""
+"""Real Anthropic Integration for Frasberg AI v5.1"""
 import os
 from typing import Optional, Dict, Any, AsyncIterator
 import logging

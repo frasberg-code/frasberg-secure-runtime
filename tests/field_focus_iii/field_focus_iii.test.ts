@@ -1,4 +1,4 @@
-import { focusFieldPeakIII } from '../../supabase/sofia_core/field_focus_iii/field_focus_iii';
+import { focusFieldPeakIII } from '../../supabase/frasberg_ai/field_focus_iii/field_focus_iii';
 
 describe('field_focus_iii', () => {
   test('focuses third-order peak using focusFn', () => {

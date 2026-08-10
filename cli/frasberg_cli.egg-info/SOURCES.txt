@@ -1,0 +1,10 @@
+README.md
+setup.py
+frasberg/__init__.py
+frasberg/main.py
+frasberg_cli.egg-info/PKG-INFO
+frasberg_cli.egg-info/SOURCES.txt
+frasberg_cli.egg-info/dependency_links.txt
+frasberg_cli.egg-info/entry_points.txt
+frasberg_cli.egg-info/requires.txt
+frasberg_cli.egg-info/top_level.txt

@@ -1,4 +1,4 @@
-# Sofia Core - Planetary-Scale AI Infrastructure
+# Frasberg AI - Planetary-Scale AI Infrastructure
 
 ## Open Source • Production-Ready • Research-Backed
 
@@ -6,9 +6,9 @@ Build the future of AI on a foundation designed for planetary scale.
 
 ---
 
-## 🚀 What is Sofia Core?
+## 🚀 What is Frasberg AI?
 
-Sofia Core is the first **open-source AI infrastructure** that combines:
+Frasberg AI is the first **open-source AI infrastructure** that combines:
 
 - **🧬 Biological Computing** - DNA-inspired algorithms (1M× efficiency)
 - **🐝 Swarm Intelligence** - Multi-agent coordination at scale
@@ -24,8 +24,8 @@ Sofia Core is the first **open-source AI infrastructure** that combines:
 
 \`\`\`bash
 # Clone and run
-git clone https://github.com/emeraldorbit/sofia-core-backend
-cd sofia-core-backend
+git clone https://github.com/frasberg/frasberg-ai-backend
+cd frasberg-ai-backend
 ./quick-start.sh
 
 # Access at http://localhost:8000
@@ -34,14 +34,14 @@ cd sofia-core-backend
 Or install the SDK:
 
 \`\`\`bash
-pip install sofia-sdk
+pip install frasberg-sdk
 \`\`\`
 
 \`\`\`python
 # Python example
-from sofia_sdk import SofiaClient
+from frasberg_sdk import FrasbergClient
 
-client = SofiaClient()
+client = FrasbergClient()
 print(client.health())
 \`\`\`
 
@@ -99,7 +99,7 @@ print(client.health())
 ✅ **Quantum-Ready** - Post-quantum cryptography  
 
 ### Developer Experience
-✅ **CLI Tool** - `sofia` command-line interface  
+✅ **CLI Tool** - `frasberg` command-line interface  
 ✅ **Python SDK** - Full API coverage  
 ✅ **JavaScript SDK** - Node.js and browser  
 ✅ **Complete Docs** - Guides, tutorials, references  
@@ -109,7 +109,7 @@ print(client.health())
 
 ## 🔬 Research Foundation
 
-Sofia Core is built on rigorous research:
+Frasberg AI is built on rigorous research:
 
 - **Published Paper**: "DNA Computing Integration in Distributed Intelligence Systems"
 - **8,000+ Words**: Complete methodology and benchmarks
@@ -127,8 +127,8 @@ Sofia Core is built on rigorous research:
 
 ### 2. Install Locally (5 minutes)
 \`\`\`bash
-git clone https://github.com/emeraldorbit/sofia-core-backend
-cd sofia-core-backend
+git clone https://github.com/frasberg/frasberg-ai-backend
+cd frasberg-ai-backend
 ./quick-start.sh
 \`\`\`
 
@@ -142,9 +142,9 @@ Deploy to AWS, GCP, or Azure in 15 minutes
 
 ### DNA Computing
 \`\`\`python
-from sofia_sdk import SofiaClient
+from frasberg_sdk import FrasbergClient
 
-client = SofiaClient()
+client = FrasbergClient()
 result = client.dna_compute(
     sequence="ATCGATCG",
     computation_type="parallel_search"
@@ -177,10 +177,10 @@ print(response['response'])
 
 ## 🤝 Community
 
-- **Discord**: https://discord.gg/sofia-core
-- **GitHub**: https://github.com/emeraldorbit/sofia-core-backend
-- **Twitter**: @sofia_core_ai
-- **Email**: hello@sofia-core.ai
+- **Discord**: https://discord.gg/frasberg-ai
+- **GitHub**: https://github.com/frasberg/frasberg-ai-backend
+- **Twitter**: @frasberg_ai_ai
+- **Email**: hello@frasberg-ai.ai
 
 ### Contributing
 We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING_V2.md)
@@ -218,7 +218,7 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING_V2.md)
 
 ---
 
-## 🌟 Why Sofia Core?
+## 🌟 Why Frasberg AI?
 
 ✨ **Open Source** - No vendor lock-in, full transparency  
 ✨ **Production-Ready** - Used in real deployments  
@@ -231,17 +231,17 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING_V2.md)
 ## 🎯 Ready to Build?
 
 \`\`\`bash
-git clone https://github.com/emeraldorbit/sofia-core-backend
-cd sofia-core-backend
+git clone https://github.com/frasberg/frasberg-ai-backend
+cd frasberg-ai-backend
 ./quick-start.sh
 \`\`\`
 
 **Join 1,000+ developers building the future of AI**
 
-[Get Started →](#) | [Read Docs →](docs/) | [Join Discord →](https://discord.gg/sofia-core)
+[Get Started →](#) | [Read Docs →](docs/) | [Join Discord →](https://discord.gg/frasberg-ai)
 
 ---
 
-*Sofia Core - Planetary-Scale Intelligence for Everyone*
+*Frasberg AI - Planetary-Scale Intelligence for Everyone*
 
 🌍 Open Source • 🧬 Biologically Inspired • 🚀 Production Ready

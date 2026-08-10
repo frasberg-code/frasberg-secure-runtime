@@ -1,6 +1,6 @@
-# Sofia Core Discord Server Setup Guide
+# Frasberg AI Discord Server Setup Guide
 
-Complete guide for setting up and managing the Sofia Core Discord community.
+Complete guide for setting up and managing the Frasberg AI Discord community.
 
 ---
 
@@ -19,14 +19,14 @@ Complete guide for setting up and managing the Sofia Core Discord community.
 #### 💬 GENERAL
 
 - **#welcome** - Server rules, intro channel for new members
-- **#general** - General discussion about Sofia Core
-- **#showcase** - Share your projects built with Sofia Core
-- **#off-topic** - Non-Sofia discussion, memes, casual chat
+- **#general** - General discussion about Frasberg AI
+- **#showcase** - Share your projects built with Frasberg AI
+- **#off-topic** - Non-Frasberg discussion, memes, casual chat
 
 #### 🛠️ DEVELOPMENT
 
 - **#contributors** - Contributor discussions, PR reviews
-- **#help** - Get help using Sofia Core
+- **#help** - Get help using Frasberg AI
 - **#bug-reports** - Report bugs (links to GitHub Issues)
 - **#feature-requests** - Suggest new features
 - **#code-review** - Request code reviews from community
@@ -53,7 +53,7 @@ Complete guide for setting up and managing the Sofia Core Discord community.
 #### 🎉 COMMUNITY
 
 - **#events** - Community events
-- **#jobs** - Job postings (Sofia Core related)
+- **#jobs** - Job postings (Frasberg AI related)
 - **#partnerships** - Partnership opportunities
 - **#random** - Random chat
 
@@ -75,7 +75,7 @@ Complete guide for setting up and managing the Sofia Core Discord community.
 - All permissions
 
 #### 🟠 **Core Team**
-- Sofia Core maintainers with commit access
+- Frasberg AI maintainers with commit access
 - Permissions: Manage messages, manage roles, kick/ban
 - Can post in #announcements
 
@@ -86,7 +86,7 @@ Complete guide for setting up and managing the Sofia Core Discord community.
 - Can post in #showcase
 
 #### 🟢 **Researchers**
-- Published research using Sofia Core
+- Published research using Frasberg AI
 - Access to #research-papers private discussions
 - Can share preprints
 
@@ -117,19 +117,19 @@ Complete guide for setting up and managing the Sofia Core Discord community.
 
 ## Server Bots
 
-### 1. Sofia Bot (Custom)
-AI assistant powered by Sofia Core itself!
+### 1. Frasberg Bot (Custom)
+AI assistant powered by Frasberg AI itself!
 
 **Features:**
-- Answer questions about Sofia Core
+- Answer questions about Frasberg AI
 - Provide code examples
 - Help with debugging
-- Commands: `!sofia ask [question]`
+- Commands: `!frasberg ask [question]`
 
 **Setup:**
 ```python
-# Deploy bot using Sofia Core API
-# Code in: discord-bot/sofia_bot.py
+# Deploy bot using Frasberg AI API
+# Code in: discord-bot/frasberg_bot.py
 ```
 
 ### 2. GitHub Bot
@@ -150,7 +150,7 @@ Welcomes new members
 
 **Message Template:**
 ```
-Welcome to Sofia Core, @username! 👋
+Welcome to Frasberg AI, @username! 👋
 
 🎯 Get started:
 • Read #welcome for server rules
@@ -159,9 +159,9 @@ Welcome to Sofia Core, @username! 👋
 • Browse #showcase for inspiration
 
 📖 Resources:
-• Docs: https://github.com/emeraldorbit/sofia-core-backend
-• GitHub: https://github.com/emeraldorbit/sofia-core-backend
-• Website: https://sofia-core.ai
+• Docs: https://github.com/frasberg/frasberg-ai-backend
+• GitHub: https://github.com/frasberg/frasberg-ai-backend
+• Website: https://frasberg-ai.ai
 
 Let's build the future of AI together! 🚀
 ```
@@ -182,9 +182,9 @@ Auto-moderation and logging
 ### #welcome
 
 ```markdown
-# Welcome to Sofia Core! 👋
+# Welcome to Frasberg AI! 👋
 
-Sofia Core is a planetary-scale distributed AI system. This is our community Discord server.
+Frasberg AI is a planetary-scale distributed AI system. This is our community Discord server.
 
 ## 📋 Server Rules
 
@@ -197,19 +197,19 @@ Sofia Core is a planetary-scale distributed AI system. This is our community Dis
 
 ## 🚀 Getting Started
 
-**New to Sofia Core?**
-• Check out the [README](https://github.com/emeraldorbit/sofia-core-backend)
+**New to Frasberg AI?**
+• Check out the [README](https://github.com/frasberg/frasberg-ai-backend)
 • Ask questions in #help
 • Share your projects in #showcase
 
 **Want to contribute?**
-• Read [CONTRIBUTING.md](https://github.com/emeraldorbit/sofia-core-backend/blob/main/CONTRIBUTING-ENHANCED.md)
-• Find [good first issues](https://github.com/emeraldorbit/sofia-core-backend/labels/good-first-issue)
+• Read [CONTRIBUTING.md](https://github.com/frasberg/frasberg-ai-backend/blob/main/CONTRIBUTING-ENHANCED.md)
+• Find [good first issues](https://github.com/frasberg/frasberg-ai-backend/labels/good-first-issue)
 • Join discussions in #contributors
 
 **Enterprise user?**
 • Contact us for #enterprise-users access
-• Email: enterprise@sofia-core.ai
+• Email: enterprise@frasberg-ai.ai
 
 ## 🎯 Channel Guide
 
@@ -222,18 +222,18 @@ Sofia Core is a planetary-scale distributed AI system. This is our community Dis
 
 ## 🔗 Links
 
-• GitHub: https://github.com/emeraldorbit/sofia-core-backend
-• Documentation: [README](https://github.com/emeraldorbit/sofia-core-backend)
-• Twitter: [@sofia_core_ai](https://twitter.com/sofia_core_ai)
-• Email: hello@sofia-core.ai
+• GitHub: https://github.com/frasberg/frasberg-ai-backend
+• Documentation: [README](https://github.com/frasberg/frasberg-ai-backend)
+• Twitter: [@frasberg_ai_ai](https://twitter.com/frasberg_ai_ai)
+• Email: hello@frasberg-ai.ai
 
 ## 📞 Support
 
-Need help? Ask in #help or email support@sofia-core.ai
+Need help? Ask in #help or email support@frasberg-ai.ai
 
 ---
 
-**By participating, you agree to our [Code of Conduct](https://github.com/emeraldorbit/sofia-core-backend/blob/main/CODE_OF_CONDUCT.md)**
+**By participating, you agree to our [Code of Conduct](https://github.com/frasberg/frasberg-ai-backend/blob/main/CODE_OF_CONDUCT.md)**
 ```
 
 ---
@@ -241,7 +241,7 @@ Need help? Ask in #help or email support@sofia-core.ai
 ## Server Settings
 
 ### General Settings
-- **Server Name**: Sofia Core
+- **Server Name**: Frasberg AI
 - **Server Region**: Automatic
 - **Verification Level**: Medium (verified email)
 - **Explicit Content Filter**: Scan media from all members
@@ -250,7 +250,7 @@ Need help? Ask in #help or email support@sofia-core.ai
 ### Moderation
 - **2FA Requirement**: For moderators
 - **Invites**: Allow anyone to create invite links
-- **Vanity URL**: discord.gg/sofia-core (if available)
+- **Vanity URL**: discord.gg/frasberg-ai (if available)
 
 ### Integrations
 - **GitHub**: Link repository
@@ -285,7 +285,7 @@ Need help? Ask in #help or email support@sofia-core.ai
 
 #### **Research Paper Club** (Third Wednesday)
 - Discuss recent AI papers
-- Relate to Sofia Core
+- Relate to Frasberg AI
 - #research-papers channel
 
 ### Special Events
@@ -391,7 +391,7 @@ Need help? Ask in #help or email support@sofia-core.ai
    - **Temporary membership**: Off
 
 ### Custom Invite (if available)
-Try to claim: `discord.gg/sofia-core`
+Try to claim: `discord.gg/frasberg-ai`
 
 ### Invite Link Placement
 - GitHub README
@@ -426,7 +426,7 @@ Try to claim: `discord.gg/sofia-core`
 **Cost**: $49.99/month (Level 2)
 
 **Benefits:**
-- Custom invite link (discord.gg/sofia-core)
+- Custom invite link (discord.gg/frasberg-ai)
 - HD video/screen share
 - Larger upload limit (50MB → 100MB)
 - Custom server banner
@@ -436,7 +436,7 @@ Try to claim: `discord.gg/sofia-core`
 
 ### Bot Hosting
 - Free tier for most bots
-- If custom Sofia Bot: $5-20/month for hosting
+- If custom Frasberg Bot: $5-20/month for hosting
 
 ---
 
@@ -451,7 +451,7 @@ Before launching:
 - [ ] Write welcome message
 - [ ] Create invite link
 - [ ] Test all channels with friends
-- [ ] Add Sofia Core team as moderators
+- [ ] Add Frasberg AI team as moderators
 - [ ] Pin important messages
 - [ ] Create channel descriptions
 - [ ] Set up server icon and banner
@@ -463,7 +463,7 @@ Before launching:
 
 ## Questions?
 
-Contact: discord@sofia-core.ai
+Contact: discord@frasberg-ai.ai
 
 ---
 

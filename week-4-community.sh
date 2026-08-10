@@ -1,11 +1,11 @@
 #!/bin/bash
-# Sofia Core - Month 1 Week 4: Community Launch
+# Frasberg AI - Month 1 Week 4: Community Launch
 # Launch Discord, contributing guide, and community infrastructure
 
 set -e
 
 echo "════════════════════════════════════════════════════════════════"
-echo "  SOFIA CORE - WEEK 4: COMMUNITY LAUNCH"
+echo "  FRASBERG CORE - WEEK 4: COMMUNITY LAUNCH"
 echo "  Discord + Contributing Guide + First Contributors"
 echo "════════════════════════════════════════════════════════════════"
 echo ""
@@ -18,7 +18,7 @@ PURPLE='\033[0;35m'
 NC='\033[0m'
 
 if [ ! -f "backend/server.py" ]; then
-    echo -e "${RED}❌ Error: Must run from sofia-core-backend root directory${NC}"
+    echo -e "${RED}❌ Error: Must run from frasberg-ai-backend root directory${NC}"
     exit 1
 fi
 
@@ -53,7 +53,7 @@ echo "1. Go to: https://discord.com/create"
 echo ""
 echo "2. Choose 'Create My Own' → 'For a club or community'"
 echo ""
-echo "3. Server name: Sofia Core"
+echo "3. Server name: Frasberg AI"
 echo ""
 echo "4. Upload icon (if you have one)"
 echo ""
@@ -91,7 +91,7 @@ echo "   • Expire after: Never"
 echo "   • Max uses: Unlimited"
 echo "   • Grant temporary membership: OFF"
 echo ""
-echo "3. Try to get custom link: discord.gg/sofia-core"
+echo "3. Try to get custom link: discord.gg/frasberg-ai"
 echo "   (Requires Server Boost Level 3)"
 echo ""
 
@@ -168,7 +168,7 @@ Files to review:
 - Add specific suggestions for common errors
 - Include links to documentation
 
-## 4. Add CLI Command: sofia info
+## 4. Add CLI Command: frasberg info
 **Difficulty**: 🟡 Medium
 **Time**: 3-4 hours
 
@@ -178,7 +178,7 @@ Add a new CLI command that displays system information:
 - Configuration status
 - Health check
 
-Location: `cli/sofia/commands/`
+Location: `cli/frasberg/commands/`
 
 ## 5. Create Performance Benchmarks
 **Difficulty**: 🔴 Hard
@@ -203,7 +203,7 @@ Review CHANGELOG_v5.md and fix any typos or formatting issues.
 **Time**: 2 hours
 
 Create `docker-compose.yml` that sets up:
-- Sofia Core backend
+- Frasberg AI backend
 - PostgreSQL
 - Redis
 - All in one command
@@ -250,7 +250,7 @@ echo "Option A: Use GitHub CLI (if installed):"
 echo '  gh issue create --title "[GOOD FIRST ISSUE] Add test coverage for DNA computing" --label "good-first-issue" --body "..." '
 echo ""
 echo "Option B: Create manually on GitHub:"
-echo "  1. Go to: https://github.com/emeraldorbit/sofia-core-backend/issues/new"
+echo "  1. Go to: https://github.com/frasberg/frasberg-ai-backend/issues/new"
 echo "  2. Use template from .github/ISSUE_TEMPLATE/good_first_issue.md"
 echo "  3. Fill in details from community/good-first-issues.txt"
 echo ""
@@ -303,9 +303,9 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 
 cat > community/launch-announcement.md << 'EOF'
-# Sofia Core Community Launch! 🚀
+# Frasberg AI Community Launch! 🚀
 
-We're excited to announce the launch of the Sofia Core community!
+We're excited to announce the launch of the Frasberg AI community!
 
 ## What's New
 
@@ -335,7 +335,7 @@ We've created a comprehensive guide for contributors:
 - Fix typos
 - Add examples
 
-**Browse**: https://github.com/emeraldorbit/sofia-core-backend/labels/good-first-issue
+**Browse**: https://github.com/frasberg/frasberg-ai-backend/labels/good-first-issue
 
 ## Get Involved
 
@@ -376,21 +376,21 @@ We're offering bounties for contributions:
 - **$500-$2000**: Major features
 - **$1000-$5000**: Research contributions
 
-Contact: bounties@sofia-core.ai
+Contact: bounties@frasberg-ai.ai
 
 ## Thank You!
 
 Thanks to everyone who's contributed so far. We're building something amazing together!
 
-Let's make Sofia Core the best distributed AI system in the world. 🌟
+Let's make Frasberg AI the best distributed AI system in the world. 🌟
 
 ---
 
 **Links**:
 - Discord: [invite link]
-- GitHub: https://github.com/emeraldorbit/sofia-core-backend
+- GitHub: https://github.com/frasberg/frasberg-ai-backend
 - Contributing: [CONTRIBUTING-ENHANCED.md](../CONTRIBUTING-ENHANCED.md)
-- Bounties: bounties@sofia-core.ai
+- Bounties: bounties@frasberg-ai.ai
 EOF
 
 echo "Launch announcement created: community/launch-announcement.md"
@@ -399,15 +399,15 @@ echo ""
 echo "Share this announcement on:"
 echo ""
 echo "✅ Twitter:"
-echo "   Tweet: '🚀 Sofia Core Community Launch! Join our Discord, contribute to open-source AI, earn bounties ($100-$5000). #OpenSource #AI #Community'"
+echo "   Tweet: '🚀 Frasberg AI Community Launch! Join our Discord, contribute to open-source AI, earn bounties ($100-$5000). #OpenSource #AI #Community'"
 echo "   Link: [Discord invite]"
 echo ""
 echo "✅ Reddit:"
 echo "   r/opensource, r/python, r/artificial"
-echo "   Title: 'Sofia Core Community Launch - Distributed AI System with Bounties'"
+echo "   Title: 'Frasberg AI Community Launch - Distributed AI System with Bounties'"
 echo ""
 echo "✅ HackerNews:"
-echo "   Title: 'Sofia Core Community Launch – Distributed AI with contributor bounties'"
+echo "   Title: 'Frasberg AI Community Launch – Distributed AI with contributor bounties'"
 echo ""
 echo "✅ LinkedIn:"
 echo "   Professional announcement about community and bounty program"

@@ -17,7 +17,7 @@
 
 ```bash
 # Download v6.5.0
-wget https://github.com/emeraldorbit/frasberg-ai/releases/download/v6.5.0/frasberg-ai-v6.5.0-stable.zip
+wget https://github.com/frasberg/frasberg-ai/releases/download/v6.5.0/frasberg-ai-v6.5.0-stable.zip
 unzip frasberg-ai-v6.5.0-stable.zip
 cd frasberg-ai-v6.5.0-stable
 
@@ -117,8 +117,8 @@ License
 UNLICENSED - Proprietary. See LICENSE for details
 
 Support
-GitHub Issues: https://github.com/emeraldorbit/frasberg-ai/issues
-Discussions: https://github.com/emeraldorbit/frasberg-ai/discussions
+GitHub Issues: https://github.com/frasberg/frasberg-ai/issues
+Discussions: https://github.com/frasberg/frasberg-ai/discussions
 Frasberg AI v6.5.0 - Stable. Tested. Documented.
 
 **Creator:** Frasberg Selassie — Mr. Clayton-M. Bernard-Ex.

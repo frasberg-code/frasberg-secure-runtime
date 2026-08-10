@@ -1,4 +1,4 @@
-import { stabilizeFieldCycleIII } from '../../supabase/sofia_core/field_cycle_stabilization_iii/field_cycle_stabilization_iii';
+import { stabilizeFieldCycleIII } from '../../supabase/frasberg_ai/field_cycle_stabilization_iii/field_cycle_stabilization_iii';
 
 describe('field_cycle_stabilization_iii', () => {
   test('stabilizes third-order cycle numerically', () => {

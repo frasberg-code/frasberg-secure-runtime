@@ -24,12 +24,12 @@ jobs:
       
       - name: Build packages
         run: |
-          cd packages/sofia-governance-engine && pnpm build
-          cd ../sofia-tonal-modulation && pnpm build
-          cd ../sofia-membrane-protocol && pnpm build
-          cd ../sofia-hinge-logic && pnpm build
-          cd ../sofia-continuum-identity && pnpm build
+          cd packages/frasberg-governance-engine && pnpm build
+          cd ../frasberg-tonal-modulation && pnpm build
+          cd ../frasberg-membrane-protocol && pnpm build
+          cd ../frasberg-hinge-logic && pnpm build
+          cd ../frasberg-continuum-identity && pnpm build
       
       - name: Run tests
         run: |
-          cd packages/sofia-governance-engine && pnpm test || true
+          cd packages/frasberg-governance-engine && pnpm test || true

@@ -1,4 +1,4 @@
-import { convergeFieldAlignment } from '../../supabase/sofia_core/field_convergence/field_convergence';
+import { convergeFieldAlignment } from '../../supabase/frasberg_ai/field_convergence/field_convergence';
 
 describe('field_convergence', () => {
   test('converges orientations using converger', () => {

@@ -1,6 +1,6 @@
 # Hugging Face Transformers Integration
 
-Sofia Core provides seamless integration with Hugging Face Transformers, enabling you to use any model from the Hugging Face Model Hub with Sofia Core's infrastructure.
+Frasberg AI provides seamless integration with Hugging Face Transformers, enabling you to use any model from the Hugging Face Model Hub with Frasberg AI's infrastructure.
 
 ## Installation
 
@@ -58,14 +58,14 @@ model = HuggingFaceTransformer("gpt2", device="cpu")
 model = HuggingFaceTransformer("gpt2", device="auto")
 ```
 
-### Sofia Core Caching
+### Frasberg AI Caching
 
-Sofia Core can cache model outputs to improve performance:
+Frasberg AI can cache model outputs to improve performance:
 
 ```python
 model = HuggingFaceTransformer(
     "gpt2",
-    use_sofia_cache=True  # Default
+    use_frasberg_cache=True  # Default
 )
 ```
 
@@ -102,9 +102,9 @@ The integration supports all Hugging Face models including:
    )
    ```
 
-2. **Enable Sofia Core caching** for repeated queries:
+2. **Enable Frasberg AI caching** for repeated queries:
    ```python
-   model = HuggingFaceTransformer("gpt2", use_sofia_cache=True)
+   model = HuggingFaceTransformer("gpt2", use_frasberg_cache=True)
    ```
 
 3. **Use smaller models** for production:
@@ -123,7 +123,7 @@ except Exception as e:
     print(f"Error: {e}")
 ```
 
-## Integration with Sofia Core Features
+## Integration with Frasberg AI Features
 
 ### With DNA Computing
 
@@ -159,14 +159,14 @@ results = swarm.generate("Hello world")
 
 ### `HuggingFaceTransformer`
 
-#### `__init__(model_name, device, use_sofia_cache, **kwargs)`
+#### `__init__(model_name, device, use_frasberg_cache, **kwargs)`
 
 Initialize the Hugging Face model.
 
 **Parameters:**
 - `model_name` (str): Model identifier from Hugging Face Hub
 - `device` (str): Device to run on ("auto", "cpu", "cuda", "mps")
-- `use_sofia_cache` (bool): Enable Sofia Core caching
+- `use_frasberg_cache` (bool): Enable Frasberg AI caching
 - `**kwargs`: Additional arguments for model initialization
 
 #### `generate(prompt, max_length, temperature, **kwargs)`
@@ -236,7 +236,7 @@ from backend.app.integrations import HuggingFaceTransformer
 model = HuggingFaceTransformer(
     "gpt2",
     device="auto",
-    use_sofia_cache=True
+    use_frasberg_cache=True
 )
 
 # Generate text
@@ -259,5 +259,5 @@ for prompt in prompts:
 ## Learn More
 
 - [Hugging Face Transformers Documentation](https://huggingface.co/docs/transformers)
-- [Sofia Core Integration Guide](../README.md)
+- [Frasberg AI Integration Guide](../README.md)
 - [Performance Tuning](../performance/tuning.md)

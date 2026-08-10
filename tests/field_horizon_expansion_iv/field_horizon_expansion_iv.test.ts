@@ -1,4 +1,4 @@
-import { expandHorizonStateIV } from '../../supabase/sofia_core/field_horizon_expansion_iv/field_horizon_expansion_iv';
+import { expandHorizonStateIV } from '../../supabase/frasberg_ai/field_horizon_expansion_iv/field_horizon_expansion_iv';
 
 describe('field_horizon_expansion_iv', () => {
   test('expands fourth-order horizon numerically', () => {

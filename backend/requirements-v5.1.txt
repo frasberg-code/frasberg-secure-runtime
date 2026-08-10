@@ -1,4 +1,4 @@
-# Sofia Core v5.1.0 Production Dependencies
+# Frasberg AI v5.1.0 Production Dependencies
 
 # ===== Core FastAPI =====
 fastapi==0.109.0

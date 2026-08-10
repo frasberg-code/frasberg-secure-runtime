@@ -1,14 +1,14 @@
 // llm/brain.js
 import fetch from "node-fetch";
 
-const SOFIA_BACKEND_URL = process.env.SOFIA_BACKEND_URL || "http://localhost:8000";
-const CANONICAL_ENDPOINT = `${SOFIA_BACKEND_URL}/api/llm/generate`;
+const FRASBERG_BACKEND_URL = process.env.FRASBERG_BACKEND_URL || "http://localhost:8000";
+const CANONICAL_ENDPOINT = `${FRASBERG_BACKEND_URL}/api/llm/generate`;
 
 async function _callCanonical(messages) {
   const response = await fetch(CANONICAL_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model: "sofia-core", messages })
+    body: JSON.stringify({ model: "frasberg-ai", messages })
   });
 
   if (!response.ok) {
@@ -24,7 +24,7 @@ export async function runLLM(transcript) {
 
   try {
     const reply = await _callCanonical([
-      { role: "system", content: "You are Sofia, a warm, human-like conversational AI." },
+      { role: "system", content: "You are Frasberg, a warm, human-like conversational AI." },
       { role: "user", content: transcript }
     ]);
 
@@ -43,7 +43,7 @@ export async function generateSessionSummaryWithTags(events) {
     const reply = await _callCanonical([
       {
         role: "system",
-        content: "You are Sofia, a conversational AI. Summarize the session clearly and warmly, and also provide 2–5 tags that describe the conversation (e.g., greeting, question, farewell, small talk)."
+        content: "You are Frasberg, a conversational AI. Summarize the session clearly and warmly, and also provide 2–5 tags that describe the conversation (e.g., greeting, question, farewell, small talk)."
       },
       {
         role: "user",

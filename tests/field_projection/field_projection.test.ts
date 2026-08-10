@@ -1,4 +1,4 @@
-import { projectFieldAction } from '../../supabase/sofia_core/field_projection/field_projection';
+import { projectFieldAction } from '../../supabase/frasberg_ai/field_projection/field_projection';
 
 describe('field_projection', () => {
   test('projects action using projector', () => {

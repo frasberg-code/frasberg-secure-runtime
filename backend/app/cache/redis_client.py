@@ -1,4 +1,4 @@
-"""Real Redis Cache Implementation for Sofia Core v5.1"""
+"""Real Redis Cache Implementation for Frasberg AI v5.1"""
 import json
 import os
 from typing import Any, Optional, List, Dict

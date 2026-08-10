@@ -1,4 +1,4 @@
-import { harmonizeFieldState } from '../../supabase/sofia_core/field_harmonization/field_harmonization';
+import { harmonizeFieldState } from '../../supabase/frasberg_ai/field_harmonization/field_harmonization';
 
 describe('field_harmonization', () => {
   test('harmonizes states using harmonizer', () => {

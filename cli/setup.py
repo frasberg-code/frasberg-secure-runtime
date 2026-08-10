@@ -26,7 +26,7 @@ setup(
     description='Command-line interface for Frasberg AI',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/emeraldorbit/frasberg-ai-backend',
+    url='https://github.com/frasberg/frasberg-ai-backend',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

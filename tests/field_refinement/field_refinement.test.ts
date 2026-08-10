@@ -1,4 +1,4 @@
-import { refineFieldState } from '../../supabase/sofia_core/field_refinement/field_refinement';
+import { refineFieldState } from '../../supabase/frasberg_ai/field_refinement/field_refinement';
 
 describe('field_refinement', () => {
   test('refines field using refiner', () => {

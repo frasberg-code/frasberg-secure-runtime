@@ -9,7 +9,7 @@ import {
   UnifiedFieldIdentity,
   createUnifiedFieldIdentity,
   type UnifiedFieldState
-} from '../../supabase/sofia_core/post_structural';
+} from '../../supabase/frasberg_ai/post_structural';
 
 describe('UnifiedFieldIdentity - Final Integration', () => {
   let unifiedField: UnifiedFieldIdentity;

@@ -1,6 +1,6 @@
 # Performance Tuning Guide
 
-Sofia Core 6.5.0 includes significant performance improvements. This guide helps you optimize for your workload.
+Frasberg AI 6.5.0 includes significant performance improvements. This guide helps you optimize for your workload.
 
 ## Quick Wins
 
@@ -71,7 +71,7 @@ CREATE INDEX CONCURRENTLY idx_dna_sequences_hash
 ON dna_sequences(sequence_hash);
 ```
 
-Sofia Core 6.5.0 automatically creates optimal indexes.
+Frasberg AI 6.5.0 automatically creates optimal indexes.
 
 ### Query Planning
 
@@ -233,7 +233,7 @@ resource_management:
 from backend.app.integrations import WandBLogger
 
 # Monitor performance
-logger = WandBLogger(project="sofia-performance")
+logger = WandBLogger(project="frasberg-performance")
 
 logger.log_metrics({
     "request_latency_ms": latency,
@@ -247,7 +247,7 @@ logger.log_metrics({
 
 ```bash
 # Profile your application
-sofia-cli dev --profile
+frasberg-cli dev --profile
 
 # Generate flame graph
 py-spy record -o flamegraph.svg -- python server.py
@@ -273,7 +273,7 @@ wrk -t12 -c400 -d30s http://localhost:8000/api/health
 # locustfile.py
 from locust import HttpUser, task
 
-class SofiaUser(HttpUser):
+class FrasbergUser(HttpUser):
     @task
     def dna_compute(self):
         self.client.post("/api/dna/encode", json={
@@ -402,7 +402,7 @@ resource_management:
 
 ```bash
 # Enable memory profiling
-sofia-cli dev --profile-memory
+frasberg-cli dev --profile-memory
 
 # Check for memory leaks
 py-spy dump --pid <PID>

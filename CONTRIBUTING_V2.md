@@ -1,11 +1,11 @@
-# Contributing to Sofia Core 🚀
+# Contributing to Frasberg AI 🚀
 
 Welcome! We're building the future of AI together.
 
 ## 🌟 Quick Start
 
 1. **Fork** the repository
-2. **Clone**: `git clone https://github.com/YOUR_USERNAME/sofia-core-backend`
+2. **Clone**: `git clone https://github.com/YOUR_USERNAME/frasberg-ai-backend`
 3. **Branch**: `git checkout -b feature/amazing-feature`
 4. **Commit**: `git commit -m "Add amazing feature"`
 5. **Push**: `git push origin feature/amazing-feature`
@@ -13,10 +13,10 @@ Welcome! We're building the future of AI together.
 
 ## 💬 Community
 
-- **Discord**: https://discord.gg/sofia-core
+- **Discord**: https://discord.gg/frasberg-ai
 - **GitHub Discussions**: For long-form conversations  
-- **Twitter**: @sofia_core_ai
-- **Email**: hello@sofia-core.ai
+- **Twitter**: @frasberg_ai_ai
+- **Email**: hello@frasberg-ai.ai
 
 ## 🎯 Ways to Contribute
 
@@ -39,7 +39,7 @@ Welcome! We're building the future of AI together.
 - Write blog posts
 
 ### 4. Research
-- Use Sofia in research
+- Use Frasberg in research
 - Share benchmarks
 - Propose algorithms
 - Write papers
@@ -52,7 +52,7 @@ New to the project? Look for `good-first-issue` labels:
 - 🟡 **Medium** (half day): Some experience needed
 - 🔴 **Hard** (multiple days): Significant expertise
 
-[View Good First Issues →](https://github.com/emeraldorbit/sofia-core-backend/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+[View Good First Issues →](https://github.com/frasberg/frasberg-ai-backend/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 
 ## 📝 Pull Request Guidelines
 
@@ -135,7 +135,7 @@ We reward significant contributions!
 | Major feature | $500-$2,000 |
 | Research paper | $1,000-$5,000 |
 
-Email bounties@sofia-core.ai for details.
+Email bounties@frasberg-ai.ai for details.
 
 ## 🏆 Recognition
 
@@ -191,13 +191,13 @@ We pledge to make participation harassment-free for everyone.
 
 ### Enforcement
 
-Report violations to conduct@sofia-core.ai.
+Report violations to conduct@frasberg-ai.ai.
 
 ## 📞 Getting Help
 
 - **Discord #help**: Real-time support
 - **GitHub Discussions**: Longer conversations
-- **Stack Overflow**: Tag with `sofia-core`
+- **Stack Overflow**: Tag with `frasberg-ai`
 
 ## 📄 License
 
@@ -205,6 +205,6 @@ By contributing, you agree contributions will be licensed under MIT License.
 
 ---
 
-**Thank you for contributing to Sofia Core!** 🙏
+**Thank you for contributing to Frasberg AI!** 🙏
 
 Every contribution helps build the future of AI. Let's build something amazing together! ✨

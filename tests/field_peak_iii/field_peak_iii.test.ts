@@ -1,4 +1,4 @@
-import { formFieldPeakIII } from '../../supabase/sofia_core/field_peak_iii/field_peak_iii';
+import { formFieldPeakIII } from '../../supabase/frasberg_ai/field_peak_iii/field_peak_iii';
 
 describe('field_peak_iii', () => {
   test('forms third-order peak using peakFn', () => {
