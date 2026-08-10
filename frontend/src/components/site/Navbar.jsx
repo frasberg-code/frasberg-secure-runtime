@@ -38,6 +38,7 @@ const EXPLORE_GROUPS = [
       { label: "AI Models", to: "/ai-models" },
       { label: "Games", to: "/games" },
       { label: "Marketplace", to: "/marketplace" },
+      { label: "Developer Docs", to: "/developers/docs" },
       { label: "Visual Studio", to: "/studio" },
       { label: "Luchii Code", to: "/luchii-code" },
       { label: "Frasberg Software", to: "/software" },

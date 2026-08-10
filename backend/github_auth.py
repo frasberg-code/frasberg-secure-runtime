@@ -201,7 +201,7 @@ class ImportBody(BaseModel):
 
 @router.post("/github/import")
 async def import_repo(body: ImportBody, request: Request):
-    """Load a repo's main HTML file (or README) so the workspace can edit it with Luchii."""
+    """Load a repo's main HTML file (or README) plus agent.json/luchii.yaml so the workspace can edit it with Luchii."""
     _, token = await _user_gh_token(request)
     gh = {**GITHUB_HEADERS, "Authorization": f"Bearer {token}"}
     async with httpx.AsyncClient(timeout=30) as client:
@@ -212,21 +212,55 @@ async def import_repo(body: ImportBody, request: Request):
             raise HTTPException(status_code=502, detail=f"GitHub listing failed ({listing.status_code})")
         files = [f for f in listing.json() if f.get("type") == "file"]
         names = {f["name"].lower(): f for f in files}
+
+        async def fetch_text(entry):
+            res = await client.get(entry["url"], headers=gh)
+            if res.status_code != 200:
+                return None
+            return base64.b64decode(res.json().get("content", "")).decode("utf-8", errors="replace")
+
+        # Agent file sync — agent.json or luchii.yaml
+        agent = None
+        agent_file = names.get("agent.json") or names.get("luchii.yaml") or names.get("luchii.yml")
+        if agent_file:
+            raw = await fetch_text(agent_file)
+            if raw:
+                try:
+                    if agent_file["name"].lower().endswith(".json"):
+                        import json as json_mod
+                        parsed = json_mod.loads(raw)
+                    else:
+                        import yaml as yaml_mod
+                        parsed = yaml_mod.safe_load(raw)
+                    if isinstance(parsed, dict):
+                        agent = {
+                            "file": agent_file["name"],
+                            "id": parsed.get("id"), "name": parsed.get("name"),
+                            "model": parsed.get("model"), "description": parsed.get("description"),
+                            "entrypoint": parsed.get("entrypoint"),
+                            "capabilities": parsed.get("capabilities") or {},
+                            "env_keys": sorted((parsed.get("env") or {}).keys()),
+                            "tools": sorted((parsed.get("tools") or {}).keys()),
+                        }
+                except Exception:
+                    agent = {"file": agent_file["name"], "error": "Could not parse agent file"}
+
         target = names.get("index.html") \
             or next((f for n, f in names.items() if n.endswith(".html")), None) \
             or names.get("readme.md")
-        if not target:
-            raise HTTPException(status_code=404, detail="No index.html, .html file, or README.md found at the repo root.")
-        file_res = await client.get(target["url"], headers=gh)
-    if file_res.status_code != 200:
-        raise HTTPException(status_code=502, detail="Could not download the file from GitHub.")
-    payload = file_res.json()
-    content = base64.b64decode(payload.get("content", "")).decode("utf-8", errors="replace")
-    if target["name"].lower().endswith(".md"):
-        content = ("<!doctype html><html><head><meta charset='utf-8'><title>{r}</title>"
-                   "<style>body{{font-family:sans-serif;max-width:760px;margin:40px auto;padding:0 20px;line-height:1.6}}</style>"
-                   "</head><body><pre style='white-space:pre-wrap'>{c}</pre></body></html>").format(r=body.repo, c=content.replace("<", "&lt;"))
-    return {"ok": True, "file": target["name"], "repo": f"{body.owner}/{body.repo}", "content": content[:400000]}
+        if not target and not agent:
+            raise HTTPException(status_code=404, detail="No index.html, .html file, README.md, agent.json or luchii.yaml found at the repo root.")
+        content = None
+        file_name = None
+        if target:
+            content = await fetch_text(target)
+            file_name = target["name"]
+            if content and file_name.lower().endswith(".md"):
+                content = ("<!doctype html><html><head><meta charset='utf-8'><title>{r}</title>"
+                           "<style>body{{font-family:sans-serif;max-width:760px;margin:40px auto;padding:0 20px;line-height:1.6}}</style>"
+                           "</head><body><pre style='white-space:pre-wrap'>{c}</pre></body></html>").format(r=body.repo, c=content.replace("<", "&lt;"))
+    return {"ok": True, "file": file_name, "repo": f"{body.owner}/{body.repo}",
+            "content": (content or "")[:400000] or None, "agent": agent}
 
 
 SCAFFOLD_FILES = {

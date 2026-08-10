@@ -3,7 +3,7 @@ import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
   Home, X, Plus, Paperclip, GitFork, Mic, ArrowUp, Share2, RefreshCw, ExternalLink, Copy, Sparkles, Download, Square, Play,
-  MousePointerClick, Monitor, Smartphone, Tablet, Maximize2, Minimize2, ChevronDown, ChevronUp, Undo2, Github,
+  MousePointerClick, Monitor, Smartphone, Tablet, Maximize2, Minimize2, ChevronDown, ChevronUp, Undo2, Github, Bot,
 } from "lucide-react";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -89,6 +89,7 @@ export default function AgentWorkspace() {
   const [ghRepo, setGhRepo] = useState("");
   const [ghBusy, setGhBusy] = useState(false);
   const [ghResult, setGhResult] = useState(null);
+  const [ghAgent, setGhAgent] = useState(null);
   const [ghRepos, setGhRepos] = useState(null);
   const [ghListBusy, setGhListBusy] = useState(false);
   const loadGhRepos = async () => {
@@ -127,10 +128,17 @@ export default function AgentWorkspace() {
       });
       const d = await res.json();
       if (!res.ok) throw new Error(d.detail || "Import failed");
-      setHtmlOverride(d.content);
-      setEditing(true);
-      setTab("code");
-      toast.success(`Imported ${d.file} from ${d.repo} — edit it with Luchii`);
+      setGhAgent(d.agent ? { ...d.agent, repo: d.repo } : null);
+      if (d.content) {
+        setHtmlOverride(d.content);
+        setEditing(true);
+        setTab("code");
+        toast.success(`Imported ${d.file} from ${d.repo} — edit it with Luchii`);
+      } else {
+        setManageTab("overview");
+        toast.success(`Synced agent file ${d.agent?.file} from ${d.repo}`);
+      }
+      if (d.agent && !d.agent.error) toast.success(`Agent detected: ${d.agent.name || d.agent.id} (${d.agent.file})`);
     } catch (e) { toast.error(String(e.message || e)); }
     setGhBusy(false);
   };
@@ -815,6 +823,30 @@ export default function AgentWorkspace() {
                       <p className="mt-2 font-mono text-[13px]" style={{ color: "#10B981" }} data-testid="github-fork-result">
                         ✓ Forked — <a className="underline" href={ghResult} target="_blank" rel="noreferrer">{ghResult}</a>
                       </p>
+                    )}
+                    {ghAgent && (
+                      <div className="mt-3 rounded-md border p-3" style={{ borderColor: "rgba(0,240,255,0.3)", background: "rgba(0,240,255,0.04)" }} data-testid="github-agent-details">
+                        {ghAgent.error ? (
+                          <p className="text-[13px]" style={{ color: "#FBBF24" }}>{ghAgent.file}: {ghAgent.error}</p>
+                        ) : (
+                          <>
+                            <p className="flex items-center gap-2 text-[13.5px] font-600" style={{ color: T.accent }}>
+                              <Bot size={13} /> {ghAgent.name || ghAgent.id || "Agent"} <span className="font-mono text-[12px] font-400" style={{ color: T.text2 }}>· {ghAgent.file} · {ghAgent.repo}</span>
+                            </p>
+                            {ghAgent.description && <p className="mt-1 text-[13px]" style={{ color: T.text2 }}>{ghAgent.description}</p>}
+                            <div className="mt-2 flex flex-wrap gap-1.5 font-mono text-[12px]">
+                              {ghAgent.model && <span className="rounded-full border px-2.5 py-0.5" style={{ borderColor: T.border, color: T.text2 }}>model: {ghAgent.model}</span>}
+                              {ghAgent.entrypoint && <span className="rounded-full border px-2.5 py-0.5" style={{ borderColor: T.border, color: T.text2 }}>entry: {ghAgent.entrypoint}</span>}
+                              {Object.entries(ghAgent.capabilities || {}).filter(([, v]) => v).map(([k]) => (
+                                <span key={k} className="rounded-full border px-2.5 py-0.5" style={{ borderColor: "rgba(0,240,255,0.4)", color: T.accent }}>{k}</span>
+                              ))}
+                              {(ghAgent.tools || []).map((t) => (
+                                <span key={t} className="rounded-full border px-2.5 py-0.5" style={{ borderColor: T.border, color: T.text2 }}>tool: {t}</span>
+                              ))}
+                            </div>
+                          </>
+                        )}
+                      </div>
                     )}
                     {ghRepos && (
                       <div className="mt-3 max-h-64 overflow-y-auto rounded-md border" style={{ borderColor: T.borderSub }} data-testid="github-repo-browser">

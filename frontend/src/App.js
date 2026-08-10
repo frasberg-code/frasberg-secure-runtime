@@ -49,6 +49,7 @@ import CharacterCreator from "./pages/CharacterCreator";
 import Linq from "./pages/Linq";
 import FrasbergCloud from "./pages/FrasbergCloud";
 import Marketplace from "./pages/Marketplace";
+import DocsHub from "./pages/DocsHub";
 
 function ScrollToHash() {
   const { pathname, hash } = useLocation();
@@ -120,6 +121,8 @@ function App() {
               <Route path="/linq" element={<Linq />} />
               <Route path="/cloud" element={<FrasbergCloud />} />
               <Route path="/marketplace" element={<Marketplace />} />
+              <Route path="/developers/docs" element={<DocsHub />} />
+              <Route path="/developers/docs/:doc" element={<DocsHub />} />
             </Routes>
           </BrowserRouter>
           <Toaster position="top-center" richColors />

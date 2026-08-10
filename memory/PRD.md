@@ -225,3 +225,10 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Marketplace: /marketplace page + /api/marketplace (list/filter/publish/install), seeded 7 official Frasberg items, publish requires auth (verified as Doc Tester), install increments (verified 15321→15322), nav links added (Explore > Products + mobile menu)
 - User pasted extensive spec docs (runtime diagram, security checklist, handbook, whitepaper) — stored at /app/memory/frasberg_github_spec_notes.md
 - STILL AWAITING: GITHUB_CLIENT_SECRET (user has Client ID wired: lv23liupMC2JMOEbwmKA)
+
+## 2026-06 (cont. 6): Naming fixes + Docs Pages + Agent File Sync — TESTED
+- Marketplace renames: Luchii-7b, Luchii-70b, Frasberg SDK (seed + live DB updated, UI verified)
+- Developer Docs at /developers/docs (+/:doc) — DocsHub.jsx with Handbook + V1 Whitepaper as polished dark pages, sidebar nav, nav link in Explore > Products
+- Agent File Sync: /api/github/import now also parses agent.json / luchii.yaml (json+yaml paths unit-verified), returns agent {name, model, entrypoint, capabilities, tools, env_keys}; workspace shows agent details card (github-agent-details) with capability badges after import
+- User pasted V2 vision docs (FrasbergOS kernel, AEE, ACP, MAOE, licenses, compliance) — reference material for future phases
+- STILL AWAITING: GITHUB_CLIENT_SECRET
