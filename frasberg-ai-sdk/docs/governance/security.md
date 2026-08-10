@@ -389,7 +389,7 @@ We are committed to:
 ## Security Advisories
 
 View published security advisories:
-- [GitHub Security Advisories](https://github.com/frasberg/frasberg-ai-backend/security/advisories)
+- [GitHub Security Advisories](https://github.com/FrasbergAI/frasberg/security/advisories)
 - [CHANGELOG.md](../../CHANGELOG.md) (security fixes noted)
 
 ## Security Updates

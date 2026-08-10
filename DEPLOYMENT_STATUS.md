@@ -45,7 +45,7 @@
 **File:** `frasberg-ai-v1.0.0-public-final.zip`  
 **Size:** 218 MB  
 **SHA256:** `29115fc23aa29f0db250bc183790f2b63d2913c51065de00830185ffb9f44aa7`  
-**Location:** `/workspaces/frasberg-ai-backend/release/`
+**Location:** `/workspaces/frasberg/release/`
 
 ### Package Contents
 
@@ -207,7 +207,7 @@ Duration: ~100 minutes
 ### 1. Create GitHub Release
 
 ```bash
-cd /workspaces/frasberg-ai-backend
+cd /workspaces/frasberg
 
 # Commit all changes
 git add .
@@ -233,7 +233,7 @@ gh release create v1.0.0 \
 ```
 
 **Or via GitHub Web:**
-1. Go to: https://github.com/frasberg/frasberg-ai-backend/releases/new
+1. Go to: https://github.com/FrasbergAI/frasberg/releases/new
 2. Tag: `v1.0.0`
 3. Title: `Frasberg AI v1.0.0 - Public Release`
 4. Upload: `frasberg-ai-v1.0.0-public-final.zip` and `.sha256`

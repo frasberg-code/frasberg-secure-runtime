@@ -1,6 +1,6 @@
 # Deployment Guide
 
-This document describes how to deploy `frasberg-ai-backend` to Supabase.
+This document describes how to deploy `frasberg` to Supabase.
 
 ## Prerequisites
 

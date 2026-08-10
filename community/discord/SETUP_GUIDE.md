@@ -68,7 +68,7 @@ Welcome to Frasberg AI! 👋
 Building planetary-scale AI infrastructure, open source and accessible.
 
 🔗 **Quick Links:**
-- GitHub: https://github.com/frasberg/frasberg-ai-backend
+- GitHub: https://github.com/FrasbergAI/frasberg
 - Docs: https://docs.frasberg-ai.ai
 
 🎯 **Get Started:**

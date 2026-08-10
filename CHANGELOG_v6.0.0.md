@@ -183,4 +183,4 @@ frasberg-cli migrate --from=5.x --to=6.0.0
 
 Thanks to our 50+ contributors and 1,000+ community members!
 
-Full release notes: https://github.com/frasberg/frasberg-ai-backend/releases/tag/v6.0.0
+Full release notes: https://github.com/FrasbergAI/frasberg/releases/tag/v6.0.0

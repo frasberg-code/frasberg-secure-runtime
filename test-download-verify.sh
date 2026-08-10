@@ -5,7 +5,7 @@ echo "  TESTING FRASBERG CORE v1.0.0 DOWNLOAD & VERIFY"
 echo "════════════════════════════════════════════════"
 echo ""
 
-REPO="frasberg/frasberg-ai-backend"
+REPO="FrasbergAI/frasberg"
 TAG="v1.0.0"
 RELEASE_NAME="frasberg-ai-v1.0.0-public-final"
 TEST_DIR="test-release-download"

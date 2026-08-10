@@ -367,7 +367,7 @@ release/
 ✅ Branch: main
 ✅ Tag: v5.0.0 (already exists)
 ✅ Pushed to GitHub: Yes
-✅ Remote: frasberg/frasberg-ai-backend
+✅ Remote: FrasbergAI/frasberg
 ```
 
 ### Release Readiness
@@ -391,8 +391,8 @@ release/
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/frasberg/frasberg-ai-backend.git
-cd frasberg-ai-backend
+git clone https://github.com/FrasbergAI/frasberg.git
+cd frasberg
 
 # 2. Start all services
 ./quick-start.sh
@@ -588,8 +588,8 @@ Frasberg AI v5.0.0 is now **production-ready** with:
 
 ## 📞 SUPPORT & COMMUNITY
 
-- **GitHub**: https://github.com/frasberg/frasberg-ai-backend
-- **Issues**: https://github.com/frasberg/frasberg-ai-backend/issues
+- **GitHub**: https://github.com/FrasbergAI/frasberg
+- **Issues**: https://github.com/FrasbergAI/frasberg/issues
 - **Discussions**: GitHub Discussions
 - **Documentation**: docs/
 - **Email**: support@frasberg-ai.ai

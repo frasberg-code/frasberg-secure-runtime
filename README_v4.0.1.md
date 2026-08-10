@@ -25,7 +25,7 @@ This release addresses all technical debt from rapid development (v1→v4), prov
 
 ```bash
 # Download v4.0.1
-wget https://github.com/frasberg/frasberg-ai-backend/releases/download/v4.0.1/frasberg-ai-v4.0.1-stable.zip
+wget https://github.com/FrasbergAI/frasberg/releases/download/v4.0.1/frasberg-ai-v4.0.1-stable.zip
 unzip frasberg-ai-v4.0.1-stable.zip
 cd frasberg-ai-v4.0.1-stable
 

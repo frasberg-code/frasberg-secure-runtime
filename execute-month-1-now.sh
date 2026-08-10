@@ -43,9 +43,9 @@ echo ""
 
 # Check if we're in the right directory
 if [ ! -f "backend/server.py" ]; then
-    echo -e "${RED}❌ Error: Must run from frasberg-ai-backend root directory${NC}"
+    echo -e "${RED}❌ Error: Must run from frasberg root directory${NC}"
     echo "   Current directory: $(pwd)"
-    echo "   Expected: /path/to/frasberg-ai-backend"
+    echo "   Expected: /path/to/frasberg"
     exit 1
 fi
 

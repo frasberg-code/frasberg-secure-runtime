@@ -181,7 +181,7 @@ The original `supabase/frasberg_ai/` structure is **preserved** and unchanged. E
 ## Repository Structure
 
 ```
-frasberg-ai-backend/
+frasberg/
 ├── packages/
 │   ├── frasberg-governance-engine/          ✅
 │   ├── frasberg-tonal-modulation/           ✅

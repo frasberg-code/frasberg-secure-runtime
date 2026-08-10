@@ -17,7 +17,7 @@ NC='\033[0m'
 # TRACK 1: LOCAL DEPLOYMENT (Background)
 echo -e "${BLUE}[TRACK 1]${NC} Starting Local Deployment..."
 (
-    cd /workspaces/frasberg-ai-backend
+    cd /workspaces/frasberg
     
     echo "  • Checking Docker availability..."
     if ! command -v docker &> /dev/null; then
@@ -35,7 +35,7 @@ TRACK1_PID=$!
 # TRACK 2: GITHUB PUSH (Background)
 echo -e "${BLUE}[TRACK 2]${NC} Starting GitHub Push..."
 (
-    cd /workspaces/frasberg-ai-backend
+    cd /workspaces/frasberg
     
     echo "  • Staging final CLI file..."
     git add cli/frasberg/main.py
@@ -47,14 +47,14 @@ echo -e "${BLUE}[TRACK 2]${NC} Starting GitHub Push..."
     git push origin main 2>&1 | tail -3
     
     echo -e "${GREEN}  ✓ GitHub push complete${NC}"
-    echo -e "  ${BLUE}→${NC} https://github.com/frasberg/frasberg-ai-backend"
+    echo -e "  ${BLUE}→${NC} https://github.com/FrasbergAI/frasberg"
 ) &
 TRACK2_PID=$!
 
 # TRACK 3: CLI INSTALLATION (Background)
 echo -e "${BLUE}[TRACK 3]${NC} Installing Frasberg CLI..."
 (
-    cd /workspaces/frasberg-ai-backend/cli
+    cd /workspaces/frasberg/cli
     
     echo "  • Installing dependencies..."
     pip install -q click requests rich 2>&1 | grep -v "^Requirement" || true
@@ -77,7 +77,7 @@ TRACK3_PID=$!
 # TRACK 4: SDK INSTALLATION (Background)
 echo -e "${BLUE}[TRACK 4]${NC} Installing Python SDK..."
 (
-    cd /workspaces/frasberg-ai-backend/sdk/python
+    cd /workspaces/frasberg/sdk/python
     
     echo "  • Installing frasberg-sdk..."
     pip install -e . -q 2>&1
@@ -171,7 +171,7 @@ echo ""
 echo -e "${BLUE}[3/3]${NC} GitHub Status:"
 if git tag | grep -q "v5.0.0"; then
     echo -e "  ${GREEN}✓${NC} v5.0.0 tag exists"
-    echo -e "  ${GREEN}✓${NC} View: https://github.com/frasberg/frasberg-ai-backend"
+    echo -e "  ${GREEN}✓${NC} View: https://github.com/FrasbergAI/frasberg"
 fi
 echo ""
 
@@ -197,7 +197,7 @@ echo "print(client.__class__.__name__, 'initialized')"
 echo "EOF"
 echo ""
 echo "🌍 GitHub:"
-echo "   https://github.com/frasberg/frasberg-ai-backend"
+echo "   https://github.com/FrasbergAI/frasberg"
 echo ""
 
 echo -e "${BLUE}═══════════════════════════════════════════════════════${NC}"

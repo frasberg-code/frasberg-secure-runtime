@@ -298,7 +298,7 @@ npx tsc                  # Build TypeScript
 
 ### Project Structure
 ```
-frasberg-ai-backend/
+frasberg/
 ├── src/
 │   ├── engines/
 │   │   ├── beam-engine.ts

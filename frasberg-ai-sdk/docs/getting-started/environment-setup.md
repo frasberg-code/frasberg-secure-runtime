@@ -7,8 +7,8 @@ Complete guide for setting up your development environment for the Frasberg AI S
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/frasberg/frasberg-ai-backend.git
-cd frasberg-ai-backend/frasberg-ai-sdk
+git clone https://github.com/FrasbergAI/frasberg.git
+cd frasberg/frasberg-ai-sdk
 ```
 
 ### 2. Install Dependencies
