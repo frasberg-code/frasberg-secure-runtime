@@ -3,6 +3,7 @@ import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
   Home, X, Plus, Paperclip, GitFork, Mic, ArrowUp, Share2, RefreshCw, ExternalLink, Copy, Sparkles, Download, Square, Play,
+  MousePointerClick, Monitor, Smartphone, Maximize2, Minimize2, ChevronDown, ChevronUp,
 } from "lucide-react";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -79,6 +80,15 @@ export default function AgentWorkspace() {
   const splitRef = useRef(null);
   const [split, setSplit] = useState(() => { try { const v = Number(localStorage.getItem("ws-split")); return v >= 25 && v <= 75 ? v : 50; } catch { return 50; } });
   const [dragging, setDragging] = useState(false);
+  const [fullPreview, setFullPreview] = useState(false);
+  const [device, setDevice] = useState("desktop");
+  const [toolbarOpen, setToolbarOpen] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [htmlOverride, setHtmlOverride] = useState(null);
+  const snapSplit = () => {
+    if (!fullPreview && split === 50) setFullPreview(true);
+    else { setFullPreview(false); setSplit(50); try { localStorage.setItem("ws-split", "50"); } catch {} }
+  };
   const startDrag = (e) => {
     e.preventDefault();
     const el = splitRef.current;
@@ -162,7 +172,7 @@ export default function AgentWorkspace() {
     } catch (e) { toast.error(String(e.message || e)); }
   };
 
-  const previewHtml = (() => {
+  const derivedHtml = (() => {
     for (let i = messages.length - 1; i >= 0; i--) {
       if (messages[i].role === "assistant") {
         const h = extractHtml(messages[i].content);
@@ -171,6 +181,7 @@ export default function AgentWorkspace() {
     }
     return null;
   })();
+  const previewHtml = htmlOverride ?? derivedHtml;
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
@@ -179,6 +190,7 @@ export default function AgentWorkspace() {
     if (!msg || running) return;
     setInput("");
     setShowSuggest(false);
+    setHtmlOverride(null);
     setRunning(true);
     setPaused(false);
     const ctrl = new AbortController();
@@ -381,13 +393,13 @@ export default function AgentWorkspace() {
 
       <div ref={splitRef} className="flex min-h-0 flex-1">
         {/* Split divider — drag to resize */}
-        <div onPointerDown={startDrag} data-testid="workspace-split-divider" aria-label="Resize panels"
+        <div onPointerDown={startDrag} onDoubleClick={snapSplit} data-testid="workspace-split-divider" aria-label="Resize panels" title="Drag to resize · double-click to snap"
           className="order-2 flex w-2.5 shrink-0 cursor-col-resize items-center justify-center transition-colors hover:bg-white/[0.06]"
           style={{ background: dragging ? "rgba(0,240,255,0.1)" : "transparent", touchAction: "none" }}>
           <span className="h-16 w-1 rounded-full" style={{ background: dragging ? T.accent : "rgba(255,255,255,0.2)" }} />
         </div>
         {/* Chat — right side per user request */}
-        <div className="order-3 flex min-w-0 flex-col border-l" style={{ borderColor: T.borderSub, width: `${split}%` }} data-testid="workspace-chat-pane">
+        <div className="order-3 flex min-w-0 flex-col border-l" style={{ borderColor: T.borderSub, width: `${split}%`, display: fullPreview ? "none" : undefined }} data-testid="workspace-chat-pane">
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
             {messages.length === 0 && (
               <div className="mt-14 text-center">
@@ -471,6 +483,9 @@ export default function AgentWorkspace() {
                   <option value="luchii-1b">✳ Luchii-1b</option>
                   <option value="luchii-7b">✳ Luchii-7b</option>
                   <option value="luchii-70b">✳ Luchii-70b</option>
+                  <option disabled>──────────</option>
+                  <option value="frasberg-ai" disabled>◈ Frasberg AI — coming soon</option>
+                  <option value="luchii-vision" disabled>✳ Luchii Vision — coming soon</option>
                 </select>
                 <button className={`${iconBtn} ml-auto`} style={{ borderColor: listening ? T.accent : T.borderSub, color: listening ? T.accent : T.muted }} onClick={toggleMic} aria-label="Mic" data-testid="workspace-mic"><Mic size={14} className={listening ? "animate-pulse" : ""} /></button>
                 {running ? (
@@ -525,9 +540,17 @@ export default function AgentWorkspace() {
           </div>
 
           {tab === "preview" ? (
-            <div className="min-h-0 flex-1" data-testid="workspace-preview">
+            <div className="relative min-h-0 flex-1" data-testid="workspace-preview">
               {previewHtml ? (
-                <iframe title="preview" srcDoc={previewHtml} sandbox="allow-scripts" className="h-full w-full bg-white" style={{ pointerEvents: dragging ? "none" : "auto" }} />
+                device === "mobile" ? (
+                  <div className="flex h-full items-center justify-center p-4" style={{ background: T.inset }}>
+                    <div className="h-full max-h-[700px] w-[390px] overflow-hidden rounded-[28px] border-4 shadow-2xl" style={{ borderColor: "#26282c" }} data-testid="preview-mobile-frame">
+                      <iframe title="preview" srcDoc={previewHtml} sandbox="allow-scripts" className="h-full w-full bg-white" style={{ pointerEvents: dragging ? "none" : "auto" }} />
+                    </div>
+                  </div>
+                ) : (
+                  <iframe title="preview" srcDoc={previewHtml} sandbox="allow-scripts" className="h-full w-full bg-white" style={{ pointerEvents: dragging ? "none" : "auto" }} />
+                )
               ) : (
                 <div className="grid h-full place-items-center">
                   <div className="text-center">
@@ -539,16 +562,64 @@ export default function AgentWorkspace() {
                   </div>
                 </div>
               )}
+              {/* Floating preview toolbar */}
+              <div className="pointer-events-none absolute inset-x-0 bottom-4 z-20 flex justify-center">
+                <div className="pointer-events-auto flex items-center gap-0.5 rounded-full border px-1.5 py-1 shadow-2xl backdrop-blur-md" style={{ background: "rgba(12,13,15,0.92)", borderColor: T.border }} data-testid="preview-toolbar">
+                  {toolbarOpen && (
+                    <>
+                      <button onClick={() => { setEditing(true); setTab("code"); }} data-testid="preview-edit-btn"
+                        className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] transition-colors hover:bg-white/[0.08]" style={{ color: T.text }}>
+                        <MousePointerClick size={13} /> Edit
+                      </button>
+                      <button onClick={() => setDevice((d) => (d === "desktop" ? "mobile" : "desktop"))} data-testid="preview-device-btn" aria-label="Toggle device preview" title="Desktop / mobile preview"
+                        className="grid h-8 w-8 place-items-center rounded-full transition-colors hover:bg-white/[0.08]" style={{ color: device === "mobile" ? T.accent : T.text2 }}>
+                        {device === "mobile" ? <Smartphone size={14} /> : <Monitor size={14} />}
+                      </button>
+                      <button onClick={() => setFullPreview((f) => !f)} data-testid="preview-fullscreen-btn" aria-label="Toggle full preview" title="Full-screen preview"
+                        className="grid h-8 w-8 place-items-center rounded-full transition-colors hover:bg-white/[0.08]" style={{ color: fullPreview ? T.accent : T.text2 }}>
+                        {fullPreview ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+                      </button>
+                    </>
+                  )}
+                  <button onClick={() => setToolbarOpen((o) => !o)} data-testid="preview-toolbar-collapse" aria-label="Toggle toolbar" title="Collapse toolbar"
+                    className="grid h-8 w-8 place-items-center rounded-full transition-colors hover:bg-white/[0.08]" style={{ color: T.text2 }}>
+                    {toolbarOpen ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+                  </button>
+                </div>
+              </div>
             </div>
           ) : tab === "code" ? (
             <div className="min-h-0 flex-1 overflow-auto p-4" data-testid="workspace-code">
-              {previewHtml ? (
-                <div className="relative rounded-md border" style={{ borderColor: T.borderSub, background: T.inset }}>
-                  <button onClick={() => { navigator.clipboard.writeText(previewHtml).catch(() => {}); toast.success("Code copied"); }}
-                    className="absolute right-3 top-3 z-10 flex items-center gap-1.5 rounded border px-2.5 py-1 text-[13px]" style={{ borderColor: T.border, color: T.text2, background: T.surface }} data-testid="workspace-code-copy">
-                    <Copy size={11} /> Copy
-                  </button>
-                  <pre className="overflow-x-auto p-4 font-mono text-[13px] leading-relaxed" style={{ color: "#c9d1d9" }}>{previewHtml}</pre>
+              {previewHtml || editing ? (
+                <div className="relative flex h-full flex-col rounded-md border" style={{ borderColor: T.borderSub, background: T.inset }}>
+                  <div className="flex shrink-0 items-center justify-between border-b px-3 py-2" style={{ borderColor: T.borderSub }}>
+                    <span className="font-mono text-[12.5px]" style={{ color: editing ? T.accent : T.text2 }} data-testid="workspace-code-status">
+                      {editing ? "● Editing — changes update the preview live" : "Source"}
+                    </span>
+                    <span className="flex items-center gap-2">
+                      <button onClick={() => { navigator.clipboard.writeText(previewHtml || "").catch(() => {}); toast.success("Code copied"); }}
+                        className="flex items-center gap-1.5 rounded border px-2.5 py-1 text-[13px]" style={{ borderColor: T.border, color: T.text2, background: T.surface }} data-testid="workspace-code-copy">
+                        <Copy size={11} /> Copy
+                      </button>
+                      {editing ? (
+                        <button onClick={() => { setEditing(false); setTab("preview"); toast.success("Edits applied to preview"); }}
+                          className="rounded border px-2.5 py-1 text-[13px] font-600" style={{ borderColor: T.accent, color: T.accent }} data-testid="workspace-code-done">
+                          Done — view preview
+                        </button>
+                      ) : (
+                        <button onClick={() => setEditing(true)}
+                          className="flex items-center gap-1.5 rounded border px-2.5 py-1 text-[13px]" style={{ borderColor: T.border, color: T.text2, background: T.surface }} data-testid="workspace-code-edit">
+                          <MousePointerClick size={11} /> Edit
+                        </button>
+                      )}
+                    </span>
+                  </div>
+                  {editing ? (
+                    <textarea value={previewHtml || ""} onChange={(e) => setHtmlOverride(e.target.value)} spellCheck={false} data-testid="workspace-code-editor"
+                      className="min-h-0 flex-1 resize-none bg-transparent p-4 font-mono text-[13px] leading-relaxed outline-none" style={{ color: "#c9d1d9" }} />
+                  ) : (
+                    <pre className="min-h-0 flex-1 overflow-auto p-4 font-mono text-[13px] leading-relaxed" style={{ color: "#c9d1d9" }}>{previewHtml}</pre>
+                  )}
                 </div>
               ) : (
                 <div className="grid h-full place-items-center">

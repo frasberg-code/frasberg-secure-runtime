@@ -193,3 +193,11 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Contact + Database Manager restyled to dark starfield theme matching homepage (ParallaxSky, glass cards, cyan accents)
 - Global FontSizeToggle (bottom-left AA button): cycles 100/115/130% text size, persisted
 - STILL PENDING: GitHub OAuth (awaiting user's Client ID + Secret); "dashboard slide screen" clarified as workspace split slider — now fixed
+
+## 2026-06 (cont. 2): Preview toolbar + snap + model picker + home nav — ALL TESTED
+- Workspace preview toolbar (Edit / desktop-mobile toggle / fullscreen / collapse chevron) — every icon proven working via automated browser test
+- Edit opens a live code editor; edits render in preview instantly (verified with "EDIT PROOF 123")
+- Divider double-click snaps: 50/50 <-> full-preview (verified)
+- Model picker: Frasberg AI + Luchii Vision "coming soon" disabled slots added
+- Contact + Data Manager: back-arrow home header added and click-through verified
+- STILL BLOCKED: GitHub OAuth — user has not provided Client ID/Secret yet

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { Database, Eye, EyeOff, ArrowRight, Trash2, ChevronLeft, ChevronRight, RefreshCw, Info } from "lucide-react";
+import { Database, Eye, EyeOff, ArrowRight, Trash2, ChevronLeft, ChevronRight, RefreshCw, Info, ArrowLeft } from "lucide-react";
 import { ParallaxSky } from "../components/site/ParallaxSky";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -65,9 +66,19 @@ export default function DatabaseManager() {
   const input = "w-full rounded-lg border border-white/20 bg-white/[0.06] px-4 py-3 text-[14.5px] text-white outline-none transition-colors focus:border-cyan-400";
 
   return (
-    <main className="relative min-h-screen px-5 py-14 text-white" style={{ background: "#08090A" }} data-testid="database-manager-page">
+    <main className="relative min-h-screen text-white" style={{ background: "#08090A" }} data-testid="database-manager-page">
       <ParallaxSky />
-      <div className="relative z-10 mx-auto max-w-xl">
+      <header className="relative z-10 border-b border-white/10 bg-black/40 backdrop-blur">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
+          <Link to="/" className="flex items-center gap-2.5" data-testid="dbm-home-link">
+            <ArrowLeft size={16} className="text-gray-400" />
+            <img src="/luchii-mark-circle.png" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
+            <span className="font-display text-lg font-700 tracking-tight">Data Manager</span>
+          </Link>
+          <Link to="/" className="text-[13.5px] text-gray-300 transition-colors hover:text-white" data-testid="dbm-home-text-link">Home</Link>
+        </div>
+      </header>
+      <div className="relative z-10 mx-auto max-w-xl px-5 py-14">
         <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl border border-cyan-400/30 bg-cyan-400/10">
           <Database size={26} className="text-cyan-300" />
         </div>

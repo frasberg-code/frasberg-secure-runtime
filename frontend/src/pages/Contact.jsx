@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { MessageCircle, X, Send } from "lucide-react";
+import { MessageCircle, X, Send, ArrowLeft } from "lucide-react";
 import { ParallaxSky } from "../components/site/ParallaxSky";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -109,6 +110,16 @@ export default function Contact() {
   return (
     <main className="relative min-h-screen text-white" style={{ background: "#08090A" }} data-testid="contact-page">
       <ParallaxSky />
+      <header className="relative z-10 border-b border-white/10 bg-black/40 backdrop-blur">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
+          <Link to="/" className="flex items-center gap-2.5" data-testid="contact-home-link">
+            <ArrowLeft size={16} className="text-gray-400" />
+            <img src="/luchii-mark-circle.png" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
+            <span className="font-display text-lg font-700 tracking-tight">Contact</span>
+          </Link>
+          <Link to="/" className="text-[13.5px] text-gray-300 transition-colors hover:text-white" data-testid="contact-home-text-link">Home</Link>
+        </div>
+      </header>
       <div className="relative z-10 mx-auto max-w-xl px-6 py-20 sm:py-28">
         <h1 className="text-center font-display text-4xl font-700 tracking-tight sm:text-5xl">
           Contact Us
