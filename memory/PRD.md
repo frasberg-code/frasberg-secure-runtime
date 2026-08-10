@@ -174,3 +174,8 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - PROVED end-to-end: 401 wall, connected to real test_database (46 collections), browsed real docs, live-edited a real doc + verified + cleanup, clean 502 on bad Mongo URL, UI browse screenshot. frasberg.com still 520 on /api/dbm (old build — user must redeploy)
 - Contact Us (/contact): Squarespace-clone page (serif heading, Frasberg.com / support@frasberg.com, form -> contact_messages collection) + Live Chat widget: "Maya" AI persona (claude-sonnet, human-like, Frasberg knowledge, multi-turn via client history) streaming SSE at /api/support/chat
 - Fixed: TextDelta .content (not .text) in support stream
+
+## 2026-06 (fork, cont. 11) — Zion rename + Contact Inbox + Company text
+- Support persona renamed Maya -> Zion (backend persona + Contact.jsx panel/avatar/greeting)
+- Admin Contact Inbox: GET /api/admin/contact-messages + POST .../{id}/reply (Resend email w/ original quote, stores reply/replied_by/email_sent); Admin console section with awaiting-reply badges, inline reply box. Verified: reply emailed (delivered@resend.dev email_sent:true; external addresses need Resend domain verification)
+- Contact page: "About the company / Frasberg, Inc." blurb + "Copyright © 2003-2026 FRASBERG, INC., All Rights Reserved."; Footer: Contact Us + Database Manager links added, copyright comma fixed

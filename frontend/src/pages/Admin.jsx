@@ -27,6 +27,8 @@ export default function Admin() {
   const [ops, setOps] = useState(null);
   const [tenants, setTenants] = useState(null);
   const [team, setTeam] = useState(null);
+  const [inbox, setInbox] = useState(null);
+  const [replyDraft, setReplyDraft] = useState({});
   const [tenantAnalytics, setTenantAnalytics] = useState(null);
   const [cloudUniverses, setCloudUniverses] = useState([]);
   const [snapUniverse, setSnapUniverse] = useState(null);
@@ -191,6 +193,7 @@ export default function Admin() {
       setStats(s.data); setUsers(u.data); setConvos(c.data); setKb(k.data); setPayments(p.data.payments || []); setBuilds(b.data);
       axios.get(`${API}/admin/tenants`, ax).then((r) => setTenants(r.data)).catch(() => {});
       axios.get(`${API}/admin/team`, ax).then((r) => setTeam(r.data)).catch(() => {});
+      axios.get(`${API}/admin/contact-messages`, ax).then((r) => setInbox(r.data)).catch(() => {});
       axios.get(`${API}/admin/tenants/analytics`, ax).then((r) => setTenantAnalytics(r.data)).catch(() => {});
       axios.get(`${API}/admin/health`, ax).then((r) => setHealth(r.data)).catch(() => {});
       axios.get(`${API}/admin/audit`, ax).then((r) => setAudit(r.data)).catch(() => {});
@@ -618,6 +621,59 @@ export default function Admin() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </section>
+
+            <section className="mt-12" data-testid="admin-inbox-panel">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2 className="font-display text-2xl font-700 tracking-tight">Contact Inbox</h2>
+                {inbox && (
+                  <span className="rounded-full border border-lux-border px-3 py-1 font-mono text-xs" data-testid="inbox-count">
+                    {inbox.messages.length} messages · <span className={inbox.unreplied ? "text-lux-gold" : ""}>{inbox.unreplied} awaiting reply</span>
+                  </span>
+                )}
+              </div>
+              <div className="mt-4 space-y-3" data-testid="admin-inbox-list">
+                {!inbox && <p className="font-mono text-xs text-lux-text2">Loading inbox…</p>}
+                {inbox && inbox.messages.length === 0 && (
+                  <p className="rounded-2xl border border-lux-border p-5 font-mono text-xs text-lux-text2">No contact form submissions yet — messages from /contact land here.</p>
+                )}
+                {inbox && inbox.messages.map((m) => (
+                  <div key={m.id} className="rounded-2xl border border-lux-border p-4" data-testid={`inbox-msg-${m.id}`}>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-600">{m.name} <span className="ml-1.5 font-mono text-[11px] text-lux-text2">{m.email}</span></p>
+                        <p className="mt-0.5 font-mono text-[10.5px] text-lux-text2">{new Date(m.created).toLocaleString()}</p>
+                      </div>
+                      {m.replied_at ? (
+                        <span className="rounded-full border border-emerald-500/40 px-2.5 py-0.5 font-mono text-[10px] uppercase text-emerald-400" data-testid={`inbox-replied-${m.id}`}>Replied{m.email_sent ? " · emailed" : ""}</span>
+                      ) : (
+                        <span className="rounded-full border border-lux-gold/40 px-2.5 py-0.5 font-mono text-[10px] uppercase text-lux-gold">Awaiting reply</span>
+                      )}
+                    </div>
+                    <p className="mt-3 whitespace-pre-wrap rounded-lg border border-lux-border/60 bg-white/[0.02] p-3 text-[13px] leading-relaxed text-lux-text2">{m.message}</p>
+                    {m.replied_at ? (
+                      <p className="mt-2 rounded-lg border border-emerald-500/20 p-3 text-[12.5px] text-lux-text2"><span className="font-mono text-[10px] uppercase text-emerald-400">Your reply · {m.replied_by}</span><br />{m.reply}</p>
+                    ) : (
+                      <div className="mt-3 flex flex-wrap items-end gap-2">
+                        <textarea rows={2} value={replyDraft[m.id] || ""} onChange={(e) => setReplyDraft((d) => ({ ...d, [m.id]: e.target.value }))}
+                          placeholder={`Reply to ${m.name}…`} data-testid={`inbox-reply-input-${m.id}`}
+                          className="min-w-[240px] flex-1 rounded-lg border border-lux-border bg-transparent px-3 py-2 text-[13px] outline-none focus:border-lux-accent" />
+                        <button data-testid={`inbox-reply-send-${m.id}`}
+                          onClick={async () => {
+                            try {
+                              const r = await axios.post(`${API}/admin/contact-messages/${m.id}/reply`, { reply: replyDraft[m.id] || "" }, ax);
+                              toast.success(r.data.email_sent ? `Reply emailed to ${m.email}` : "Reply saved (email not configured)");
+                              load();
+                            } catch (e) { toast.error(e.response?.data?.detail || "Reply failed"); }
+                          }}
+                          className="rounded-lg bg-lux-accent px-4 py-2 font-mono text-[11.5px] font-600 text-black transition-opacity hover:opacity-85">
+                          Send reply
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </section>
 

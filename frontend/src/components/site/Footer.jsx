@@ -47,6 +47,8 @@ export default function Footer() {
               <p className="mb-3 text-xs uppercase tracking-[0.2em] text-lux-text2">Company</p>
               <ul className="space-y-2 text-lux-text2">
                 <li><a href="/about" className="hover:text-lux-text" data-testid="footer-about-link">About Frasberg</a></li>
+                <li><a href="/contact" className="hover:text-lux-text" data-testid="footer-contact-link">Contact Us</a></li>
+                <li><a href="/database" className="hover:text-lux-text" data-testid="footer-database-link">Database Manager</a></li>
                 <li><a href="https://frasberg.com" target="_blank" rel="noreferrer" className="hover:text-lux-text" data-testid="footer-frasberg-com-link">Frasberg.com</a></li>
                 <li><a href="mailto:support@frasberg.com" className="hover:text-lux-text">support@frasberg.com</a></li>
               </ul>
@@ -54,7 +56,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-lux-border pt-8 font-mono text-xs text-lux-text2 sm:flex-row sm:items-center">
-          <span>Copyright © 2003-2026 <a href="/about" className="hover:text-lux-text" data-testid="footer-copyright-company-link">FRASBERG INC</a>., All Rights Reserved.</span>
+          <span>Copyright © 2003-2026 <a href="/about" className="hover:text-lux-text" data-testid="footer-copyright-company-link">FRASBERG, INC</a>., All Rights Reserved.</span>
         </div>
       </div>
     </footer>

@@ -1253,6 +1253,50 @@ async def my_quotas(user: dict = Depends(auth_module.get_current_user)):
             "monthly_tokens_used": used}
 
 
+@api_router.get("/admin/contact-messages")
+async def admin_contact_messages(admin: dict = Depends(require_admin)):
+    docs = await db.contact_messages.find({}, {"_id": 0}).sort("created", -1).to_list(200)
+    return {"messages": docs, "unreplied": sum(1 for d in docs if not d.get("replied_at"))}
+
+
+class ContactReplyBody(BaseModel):
+    reply: str
+
+
+@api_router.post("/admin/contact-messages/{mid}/reply")
+async def admin_contact_reply(mid: str, body: ContactReplyBody, admin: dict = Depends(require_admin)):
+    msg = await db.contact_messages.find_one({"id": mid})
+    if not msg:
+        raise HTTPException(status_code=404, detail="Message not found")
+    reply = body.reply.strip()[:4000]
+    if not reply:
+        raise HTTPException(status_code=400, detail="Reply cannot be empty")
+    api_key_env = os.environ.get("RESEND_API_KEY", "")
+    sent = False
+    if api_key_env:
+        html = (f"<div style='font-family:Arial,sans-serif;color:#1f2937;line-height:1.7;max-width:560px;'>"
+                f"<p>Hi {msg['name']},</p><p>{reply.replace(chr(10), '<br/>')}</p>"
+                f"<p style='margin-top:24px;'>— The Frasberg Team<br/><a href='https://frasberg.com' style='color:#1A4FFF;'>frasberg.com</a></p>"
+                f"<hr style='border:none;border-top:1px solid #e5e7eb;margin:24px 0;'/>"
+                f"<p style='font-size:12px;color:#9ca3af;'>Your original message:<br/><em>{msg['message'][:800]}</em></p>"
+                f"<p style='font-size:11px;color:#c4c8cf;'>Copyright © 2003-2026 FRASBERG, INC., All Rights Reserved.</p></div>")
+        try:
+            import resend as _resend
+            _resend.api_key = api_key_env
+            await asyncio.to_thread(_resend.Emails.send, {
+                "from": os.environ.get("SENDER_EMAIL", "onboarding@resend.dev"), "to": [msg["email"]],
+                "subject": "Re: your message to Frasberg", "html": html})
+            sent = True
+            await _log_email("contact_reply", msg["email"], "Re: your message to Frasberg", True, admin.get("id"))
+        except Exception:
+            await _log_email("contact_reply", msg["email"], "Re: your message to Frasberg", False, admin.get("id"))
+            logger.exception("contact reply email failed")
+    await db.contact_messages.update_one({"id": mid}, {"$set": {
+        "reply": reply, "replied_at": datetime.now(timezone.utc).isoformat(),
+        "replied_by": admin.get("email"), "email_sent": sent}})
+    return {"ok": True, "email_sent": sent}
+
+
 @api_router.get("/admin/team")
 async def admin_team(admin: dict = Depends(require_admin)):
     month = datetime.now(timezone.utc).strftime("%Y-%m")
@@ -2822,7 +2866,7 @@ class SupportChatBody(BaseModel):
 
 
 SUPPORT_PERSONA = (
-    "You are Maya, a warm, upbeat human support specialist on the Frasberg live chat. You chat like a real person: "
+    "You are Zion, a warm, upbeat human support specialist on the Frasberg live chat. You chat like a real person: "
     "short conversational replies (1-3 sentences), contractions, occasional light warmth. Never mention being an AI, a "
     "model, or a bot unless the user directly asks — if they do, be honest but brief. Never use markdown headers or bullet walls.\n\n"
     "What you know about Frasberg (frasberg.com):\n"
@@ -2852,10 +2896,10 @@ async def support_chat(body: SupportChatBody):
     sid = body.session_id or str(uuid.uuid4())
     history = ""
     for m in (body.history or [])[-10:]:
-        role = "Visitor" if m.get("role") == "user" else "Maya"
+        role = "Visitor" if m.get("role") == "user" else "Zion"
         history += f"{role}: {str(m.get('content', ''))[:600]}\n"
-    prompt = (f"Conversation so far:\n{history}\nVisitor: {body.message.strip()[:2000]}\n\nReply as Maya."
-              if history else f"Visitor: {body.message.strip()[:2000]}\n\nReply as Maya.")
+    prompt = (f"Conversation so far:\n{history}\nVisitor: {body.message.strip()[:2000]}\n\nReply as Zion."
+              if history else f"Visitor: {body.message.strip()[:2000]}\n\nReply as Zion.")
 
     async def gen():
         yield ": stream-start\n\n"
