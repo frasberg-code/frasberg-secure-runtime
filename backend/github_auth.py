@@ -49,21 +49,27 @@ def _redirect_uri(request: Request) -> str:
 
 @router.get("/auth/github/status")
 async def github_status(request: Request):
-    configured = bool(_client_id() and _client_secret())
+    has_id = bool(_client_id())
+    has_secret = bool(_client_secret())
     linked = False
+    login = None
     try:
         user = await auth_module.get_current_user(request)
         full = await db.users.find_one({"id": user["id"]})
         linked = bool(full and full.get("github_id"))
+        login = full.get("github_login") if full else None
     except HTTPException:
         pass
-    return {"configured": configured, "linked": linked}
+    return {"configured": has_id and has_secret, "has_client_id": has_id,
+            "has_client_secret": has_secret, "linked": linked, "github_login": login}
 
 
 @router.get("/auth/github/login")
 async def github_login(request: Request):
-    if not (_client_id() and _client_secret()):
+    if not _client_id():
         raise HTTPException(status_code=503, detail="GitHub login is not configured yet — add GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET.")
+    if not _client_secret():
+        raise HTTPException(status_code=503, detail="Almost there — GITHUB_CLIENT_ID is set, but GITHUB_CLIENT_SECRET is missing. Generate a client secret in your GitHub App settings and add it.")
     state = secrets.token_urlsafe(32)
     query = urlencode({
         "client_id": _client_id(),
@@ -178,3 +184,80 @@ async def fork_repo(body: ForkBody, request: Request):
         raise HTTPException(status_code=502, detail=f"GitHub fork failed ({res.status_code})")
     data = res.json()
     return {"ok": True, "full_name": data.get("full_name"), "html_url": data.get("html_url")}
+
+
+async def _user_gh_token(request: Request) -> tuple[dict, str]:
+    user = await auth_module.get_current_user(request)
+    full = await db.users.find_one({"id": user["id"]})
+    if not full or not full.get("github_token_encrypted"):
+        raise HTTPException(status_code=403, detail="Link your GitHub account first — use Login with GitHub.")
+    return full, _cipher().decrypt(full["github_token_encrypted"].encode()).decode()
+
+
+class ImportBody(BaseModel):
+    owner: str = Field(min_length=1, max_length=100, pattern=r"^[A-Za-z0-9_.-]+$")
+    repo: str = Field(min_length=1, max_length=100, pattern=r"^[A-Za-z0-9_.-]+$")
+
+
+@router.post("/github/import")
+async def import_repo(body: ImportBody, request: Request):
+    """Load a repo's main HTML file (or README) so the workspace can edit it with Luchii."""
+    _, token = await _user_gh_token(request)
+    gh = {**GITHUB_HEADERS, "Authorization": f"Bearer {token}"}
+    async with httpx.AsyncClient(timeout=30) as client:
+        listing = await client.get(f"https://api.github.com/repos/{body.owner}/{body.repo}/contents/", headers=gh)
+        if listing.status_code == 404:
+            raise HTTPException(status_code=404, detail=f"Repository {body.owner}/{body.repo} not found.")
+        if listing.status_code != 200:
+            raise HTTPException(status_code=502, detail=f"GitHub listing failed ({listing.status_code})")
+        files = [f for f in listing.json() if f.get("type") == "file"]
+        names = {f["name"].lower(): f for f in files}
+        target = names.get("index.html") \
+            or next((f for n, f in names.items() if n.endswith(".html")), None) \
+            or names.get("readme.md")
+        if not target:
+            raise HTTPException(status_code=404, detail="No index.html, .html file, or README.md found at the repo root.")
+        file_res = await client.get(target["url"], headers=gh)
+    if file_res.status_code != 200:
+        raise HTTPException(status_code=502, detail="Could not download the file from GitHub.")
+    payload = file_res.json()
+    content = base64.b64decode(payload.get("content", "")).decode("utf-8", errors="replace")
+    if target["name"].lower().endswith(".md"):
+        content = ("<!doctype html><html><head><meta charset='utf-8'><title>{r}</title>"
+                   "<style>body{{font-family:sans-serif;max-width:760px;margin:40px auto;padding:0 20px;line-height:1.6}}</style>"
+                   "</head><body><pre style='white-space:pre-wrap'>{c}</pre></body></html>").format(r=body.repo, c=content.replace("<", "&lt;"))
+    return {"ok": True, "file": target["name"], "repo": f"{body.owner}/{body.repo}", "content": content[:400000]}
+
+
+SCAFFOLD_FILES = {
+    "frasberg.json": '{\n  "regions": ["us-west", "us-east", "eu-central"],\n  "sdk": "luchii",\n  "version": "1.0.0"\n}\n',
+    "src/index.ts": 'import { Luchii } from "@frasbergai/sdk";\n\nconsole.log("Frasberg project ready");\n',
+}
+
+
+@router.post("/github/scaffold")
+async def scaffold_repo(body: ImportBody, request: Request):
+    """Inject Frasberg SDK starter files into a repo the user owns (e.g. their fresh fork)."""
+    full, token = await _user_gh_token(request)
+    gh = {**GITHUB_HEADERS, "Authorization": f"Bearer {token}"}
+    added, skipped = [], []
+    async with httpx.AsyncClient(timeout=30) as client:
+        for path, content in SCAFFOLD_FILES.items():
+            res = await client.put(
+                f"https://api.github.com/repos/{body.owner}/{body.repo}/contents/{path}",
+                headers=gh,
+                json={"message": f"Add Frasberg scaffolding: {path}",
+                      "content": base64.b64encode(content.encode()).decode()},
+            )
+            if res.status_code in (200, 201):
+                added.append(path)
+            elif res.status_code == 422:
+                skipped.append(path)
+            elif res.status_code in (401, 403):
+                raise HTTPException(status_code=403, detail="Your GitHub token can't write to this repo — scaffold your own fork.")
+            elif res.status_code == 404:
+                raise HTTPException(status_code=404, detail=f"Repository {body.owner}/{body.repo} not found.")
+            else:
+                raise HTTPException(status_code=502, detail=f"Scaffold failed on {path} ({res.status_code})")
+    return {"ok": True, "added": added, "skipped_existing": skipped,
+            "repo_url": f"https://github.com/{body.owner}/{body.repo}"}

@@ -104,6 +104,35 @@ export default function AgentWorkspace() {
     } catch (e) { toast.error(String(e.message || e)); }
     setGhBusy(false);
   };
+  const importGithub = async () => {
+    setGhBusy(true);
+    try {
+      const r = await fetch(`${API}/github/import`, {
+        method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ owner: ghOwner, repo: ghRepo }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || "Import failed");
+      setHtmlOverride(d.content);
+      setEditing(true);
+      setTab("code");
+      toast.success(`Imported ${d.file} from ${d.repo} — edit it with Luchii`);
+    } catch (e) { toast.error(String(e.message || e)); }
+    setGhBusy(false);
+  };
+  const scaffoldGithub = async () => {
+    setGhBusy(true);
+    try {
+      const r = await fetch(`${API}/github/scaffold`, {
+        method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ owner: ghOwner, repo: ghRepo }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || "Scaffold failed");
+      toast.success(`Frasberg-ready — added ${d.added.length ? d.added.join(", ") : "nothing new"}${d.skipped_existing.length ? ` (already had ${d.skipped_existing.join(", ")})` : ""}`);
+    } catch (e) { toast.error(String(e.message || e)); }
+    setGhBusy(false);
+  };
   const snapSplit = () => {
     if (!fullPreview && split === 50) setFullPreview(true);
     else { setFullPreview(false); setSplit(50); try { localStorage.setItem("ws-split", "50"); } catch {} }
@@ -737,7 +766,7 @@ export default function AgentWorkspace() {
                   </div>
                   <div className="mt-4 rounded-lg border p-4" style={{ borderColor: T.border, background: T.surface }} data-testid="manage-github">
                     <p className="flex items-center gap-2 text-[13.5px] font-600"><Github size={14} /> Fork from GitHub</p>
-                    <p className="mt-0.5 text-[13.5px]" style={{ color: T.text2 }}>Fork any repository into your GitHub account — sign in with GitHub first</p>
+                    <p className="mt-0.5 text-[13.5px]" style={{ color: T.text2 }}>Fork a repo to your GitHub, import its code into this workspace to edit with Luchii, or scaffold it Frasberg-ready — sign in with GitHub first</p>
                     <div className="mt-3 flex flex-wrap items-center gap-1.5">
                       <input value={ghOwner} onChange={(e) => setGhOwner(e.target.value.trim())} placeholder="owner" maxLength={100} data-testid="github-fork-owner"
                         className="w-36 rounded-md border px-3 py-1.5 font-mono text-[13.5px] outline-none" style={{ borderColor: T.border, background: T.inset, color: T.text }} />
@@ -747,7 +776,19 @@ export default function AgentWorkspace() {
                       <button onClick={forkGithub} disabled={!ghOwner || !ghRepo || ghBusy} data-testid="github-fork-btn"
                         className="flex items-center gap-1.5 rounded-md px-4 py-1.5 text-[13.5px] font-600 transition-opacity disabled:opacity-40"
                         style={{ background: T.text, color: T.bg }}>
-                        <GitFork size={12} /> {ghBusy ? "Forking…" : "Fork"}
+                        <GitFork size={12} /> {ghBusy ? "Working…" : "Fork"}
+                      </button>
+                      <button onClick={importGithub} disabled={!ghOwner || !ghRepo || ghBusy} data-testid="github-import-btn"
+                        title="Load the repo's code into this workspace so you can edit it with Luchii"
+                        className="flex items-center gap-1.5 rounded-md border px-4 py-1.5 text-[13.5px] font-600 transition-opacity disabled:opacity-40"
+                        style={{ borderColor: T.accent, color: T.accent }}>
+                        <Download size={12} /> Import
+                      </button>
+                      <button onClick={scaffoldGithub} disabled={!ghOwner || !ghRepo || ghBusy} data-testid="github-scaffold-btn"
+                        title="Inject Frasberg SDK starter files (frasberg.json, src/index.ts) into your fork"
+                        className="flex items-center gap-1.5 rounded-md border px-4 py-1.5 text-[13.5px] font-600 transition-opacity disabled:opacity-40"
+                        style={{ borderColor: T.border, color: T.text2 }}>
+                        <Sparkles size={12} /> Scaffold
                       </button>
                     </div>
                     {ghResult && (

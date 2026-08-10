@@ -211,3 +211,10 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Hero headline now uses Clash Display (font-hero)
 - GitHub OAuth FULLY BUILT in /app/backend/github_auth.py (login/callback/status/fork routes, Fernet-encrypted tokens, same JWT cookies as normal auth) + "Continue with GitHub" on /auth + "Fork from GitHub" card in workspace manage tab
 - AWAITING: user's real GITHUB_CLIENT_ID + GITHUB_CLIENT_SECRET in /app/backend/.env (currently empty → login returns 503 by design). Callback URL: {preview-url}/api/auth/github/callback
+
+## 2026-06 (cont. 4): Repo Import + Auto Scaffold + Client ID wired + brand logo restored
+- GITHUB_CLIENT_ID=lv23liupMC2JMOEbwmKA set in backend/.env (from user's GitHub App "Frasberg", App ID 4544342). SECRET STILL MISSING — login returns clear "generate a client secret" 503 message.
+- New endpoints: POST /api/github/import (loads repo's index.html/.html/README into workspace as editable htmlOverride) and POST /api/github/scaffold (injects frasberg.json + src/index.ts starter files into user's fork). Both require GitHub-linked account (403 otherwise) — verified via curl with doctester1.
+- Workspace manage-github card now has Fork / Import / Scaffold buttons (verified via screenshot).
+- Logo: restored ORIGINAL brand mark from git (084db00) — matches user's TikTok/Instagram profiles exactly.
+- Backlog from user's spec dump (not yet requested to build): GitHub App installation tokens, webhooks/multi-region replication, CLI auth, agent deployment/runtime, billing metering, marketplace, secrets manager, debugger UI.
