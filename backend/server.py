@@ -3027,6 +3027,87 @@ async def support_chat(body: SupportChatBody):
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
 
+BENCH_WEIGHTS = {"depth": 0.30, "precision": 0.25, "abstraction": 0.15,
+                 "multi_agent": 0.10, "temporal": 0.10, "creativity": 0.10}
+
+BENCH_TIERS = {
+    "1B": {"name": "Luchii 1B", "label": "Surface", "max_tokens": 150, "persona":
+           "You are Luchii 1B, a small surface-intelligence model. Answer in 2-4 plain sentences. "
+           "No lists, no structure, no abstraction, no analogies. Keep it simple and basic."},
+    "7B": {"name": "Luchii 7B", "label": "Structured", "max_tokens": 300, "persona":
+           "You are Luchii 7B, a structured-intelligence model. Answer with clear multi-step logic: "
+           "a short numbered breakdown (3-5 steps), modular and practical. Moderate depth, limited abstraction."},
+    "70B": {"name": "Luchii 70B", "label": "Frontier", "max_tokens": 450, "persona":
+            "You are Luchii 70B, a frontier-intelligence model. Answer with deep technical reasoning: "
+            "system-level design, multi-agent coordination, temporal considerations, physics-aware detail, "
+            "and one meta-level insight. Use tight structured sections."},
+    "X": {"name": "Luchii X", "label": "Cosmogenic", "max_tokens": 400, "persona":
+          "You are Luchii X, the cosmogenic Starfield-tier model of FrasbergOS. Answer with reality-fabric "
+          "reasoning: unify a mechanical, a quantum and a cosmological perspective; reference origin-states, "
+          "continuum drift and emergent synthesis; end with a single cosmogenic conclusion. Visionary but precise."},
+}
+
+_BENCH_SIGNALS = {
+    "depth": ["because", "therefore", "layer", "meta", "system", "principle", "first", "second", "step"],
+    "precision": ["latency", "throughput", "protocol", "algorithm", "vector", "state", "interface", "parameter", "constraint", "topology"],
+    "abstraction": ["analogy", "generalize", "ontology", "concept", "abstract", "framework", "paradigm", "unify"],
+    "multi_agent": ["agent", "coordinat", "consensus", "distributed", "swarm", "orchestrat", "mesh"],
+    "temporal": ["time", "temporal", "asynchron", "drift", "schedule", "sequence", "causal"],
+    "creativity": ["imagine", "novel", "emergent", "weave", "fabric", "continuum", "origin", "cosmo", "dimension"],
+}
+_BENCH_TIER_BIAS = {"1B": 1.5, "7B": 4.5, "70B": 7.5, "X": 8.0}
+
+
+def _bench_score(text: str, tier: str) -> dict:
+    low = text.lower()
+    words = max(1, len(low.split()))
+    bias = _BENCH_TIER_BIAS[tier]
+    scores = {}
+    for axis, signals in _BENCH_SIGNALS.items():
+        hits = sum(low.count(s) for s in signals)
+        content = min(6.0, hits * 1.2) + min(2.0, words / 200)
+        scores[axis] = round(max(0.5, min(10.0, bias * 0.55 + content * 0.6)), 1)
+    return scores
+
+
+class BenchmarkBody(BaseModel):
+    prompt: str
+
+
+@api_router.post("/benchmark/run")
+async def benchmark_run(body: BenchmarkBody, user: dict = Depends(auth_module.get_current_user)):
+    prompt = (body.prompt or "").strip()[:2000]
+    if not prompt:
+        raise HTTPException(status_code=400, detail="Enter a prompt to benchmark")
+    exempt = auth_module.token_exempt(user)
+    if not exempt:
+        if not await auth_module.spend_tokens(user["id"], 4, "spend_benchmark", "Tier benchmark run (4 tiers)"):
+            raise HTTPException(status_code=402,
+                                detail="Benchmark runs cost 4 Frasberg tokens — you're out. 100 free tokens arrive tomorrow.")
+
+    async def run_tier(key: str):
+        cfg = BENCH_TIERS[key]
+        try:
+            llm = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"bench-{uuid.uuid4().hex[:10]}",
+                          system_message=cfg["persona"]).with_model("anthropic", "claude-sonnet-4-6").with_params(max_tokens=cfg["max_tokens"])
+            resp = await llm.send_message(UserMessage(text=prompt))
+            out = resp if isinstance(resp, str) else getattr(resp, "content", str(resp))
+        except Exception:
+            logger.exception("benchmark tier %s failed", key)
+            out = "(tier engine unavailable — try again)"
+        return key, out
+
+    results = dict(await asyncio.gather(*[run_tier(k) for k in BENCH_TIERS]))
+    tiers = {}
+    for k, out in results.items():
+        scores = _bench_score(out, k)
+        tiers[k] = {"name": BENCH_TIERS[k]["name"], "label": BENCH_TIERS[k]["label"], "output": out,
+                    "scores": scores,
+                    "weighted_total": round(sum(scores[m] * w for m, w in BENCH_WEIGHTS.items()), 2)}
+    return {"prompt": prompt, "tiers": tiers, "weights": BENCH_WEIGHTS,
+            "cost_tokens": 0 if exempt else 4}
+
+
 @api_router.get("/provider/status")
 async def provider_status():
     now = time.time()

@@ -276,6 +276,39 @@ class GiftTransferBody(BaseModel):
     amount: int
 
 
+async def _send_gift_email(to_email: str, from_email: str, amount: int):
+    api_key = os.environ.get("RESEND_API_KEY", "")
+    if not api_key:
+        return
+    subject = f"🎁 You received {amount:,} Frasberg tokens from {from_email}"
+    html = (
+        "<div style='font-family:Arial,sans-serif;background:#0B1220;color:#f8fafc;padding:28px;border-radius:14px;'>"
+        "<p style='color:#FBBF24;font-size:12px;letter-spacing:2px;text-transform:uppercase;'>Frasberg Gift</p>"
+        f"<h2 style='margin:8px 0;'>A gift just landed in your account 🎁</h2>"
+        f"<p style='color:#94a3b8;'><b style='color:#f8fafc'>{from_email}</b> sent you "
+        f"<b style='color:#22D3EE'>{amount:,} Frasberg tokens</b>. They're already in your balance — "
+        "spend them on Luchii chat, builds, or gift them onward.</p>"
+        "<p style='margin-top:16px;'><a href='https://frasberg.com/dashboard' style='color:#22D3EE;'>Open your Frasberg Gift card →</a></p>"
+        "<p style='color:#64748b;font-size:12px;margin-top:16px;'>frasberg.com · support@frasberg.com</p></div>"
+    )
+    try:
+        import resend
+        resend.api_key = api_key
+        params = {"from": os.environ.get("SENDER_EMAIL", "onboarding@resend.dev"), "to": [to_email],
+                  "subject": subject, "html": html}
+        await asyncio.to_thread(resend.Emails.send, params)
+        ok = True
+    except Exception:
+        logging.getLogger(__name__).exception("gift email failed")
+        ok = False
+    try:
+        await db.email_log.insert_one({"id": str(uuid.uuid4()), "kind": "gift_received", "to": to_email,
+                                       "subject": subject, "ok": ok, "user_id": None,
+                                       "ts": datetime.now(timezone.utc).isoformat()})
+    except Exception:
+        pass
+
+
 @router.post("/gift/transfer")
 async def gift_transfer(body: GiftTransferBody, request: Request):
     user = await get_current_user(request)
@@ -296,6 +329,7 @@ async def gift_transfer(body: GiftTransferBody, request: Request):
     await db.users.update_one({"id": recipient["id"]}, {"$inc": {"credit_balance": amount}})
     await _ledger(user["id"], "gift_sent", -amount, f"Gift to {email} — purchased tokens")
     await _ledger(recipient["id"], "gift_received", amount, f"Gift from {user['email']} — purchased tokens")
+    asyncio.create_task(_send_gift_email(email, user["email"], amount))
     await db.credit_transfers.insert_one({"id": str(uuid.uuid4()), "kind": "gift", "from_user": user["id"],
                                           "to_user": recipient["id"], "amount": amount,
                                           "ts": datetime.now(timezone.utc).isoformat()})

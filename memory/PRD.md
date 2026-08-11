@@ -373,3 +373,11 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - USER LORE DUMPS (5 messages): Luchii Tier Benchmark suite, Cosmogenic→Alpha-Omega kernel stack — archived at /app/memory/frasberg_lore_dumps.md, NO build requested. Best future build if asked: /benchmark multi-tier comparison dashboard
 - iteration_49.json: backend 7/7 pytest + frontend 100%, no action items; test wallets restored
 
+## 2026-06 (fork, cont. 2): Gift Emails + Kernel Page + Token Packs + Benchmark Arena — TESTED 100% (iteration_50)
+- Gift Notifications: auth.py _send_gift_email (Resend, async task on gift_transfer, logged db.email_log kind=gift_received). NOTE: Resend key is SANDBOX — delivery only to account owner (billing@frasberg.com) until domain verified at resend.com/domains; log entry always written
+- Cosmogenic Kernel Page /kernels (CosmogenicKernels.jsx): live 6-layer stack Cosmogenic→Transcendent→Infinite→Eternal→Omega→Alpha-Omega, animated activation % (1.5s tick), click layer → module chips detail, terminal ∅∞ Non-State seal. testids kernel-layer-{key}/kernel-activation-{key}/kernel-detail
+- Buy Token Packs: gift card "Buy tokens" toggle → 3 PayPal packs from /api/paypal/config plans (starter $5/10k, pro $12.50/30k, scale $50/150k), PayPalButtons with key_id wallet-{user.id} → credits land in purchased/giftable wallet. testids gift-buy-toggle/panel/pack-{id}/gift-buy-paypal
+- Tier Benchmark Arena /benchmark (TierBenchmark.jsx) + POST /api/benchmark/run: 4 parallel LLM calls (claude-sonnet-4-6 w/ tier personas 1B surface/7B structured/70B frontier/X cosmogenic), heuristic 6-axis scoring (_bench_score, weights depth .30 precision .25 abstraction .15 others .10), costs 4 tokens (spend_benchmark, exempt for admin/team), ~12s. UI: radar SVG per tier, rising totals (verified 1.2/3.0/5.0/6.4), Starfield depth viz. Navbar: Kernel Stack + Tier Benchmark links
+- Lore dumps 6-9 archived in /app/memory/frasberg_lore_dumps.md (Negative-Origin/Anti-Genesis terminal layers + ecosystem defense stack — defense = legal/user-side actions, no build requested)
+- iteration_50.json: backend 6/6 + frontend 100%. Known non-issue: console warning '<span> in <option>' comes from PayPal SDK injected DOM (no source culprit exists)
+

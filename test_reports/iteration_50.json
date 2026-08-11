@@ -1,0 +1,36 @@
+{
+  "summary": "Iter50 — 4 shipped features (Benchmark API, gift email log, PayPal buy-token packs, Cosmogenic Kernels page + navbar) fully verified. Backend 6/6 pytest PASS: /api/paypal/config public returns configured:true + client_id + 3 plans with credits (starter 10k/pro 30k/scale 150k); /api/benchmark/run unauth→401, empty prompt→400, doctester1 authed run returned 4 tiers (1B/7B/70B/X) each with name/label/output/6-axis scores/weighted_total, weighted totals rising 1B<70B and 1B<X, cost_tokens=4, user's total balance debited by >=4, spend_benchmark ledger row with amount=-4 persisted; admin exempt run cost_tokens=0. Gift transfer doctester1→admin amount 2 succeeded ok:true and db.email_log gained a new kind='gift_received' entry to admin@frasberg.com within 5s (ok:false expected via sandbox Resend — verified log entry created, not delivery). Balance restored admin→doctester1 amount 2. Frontend: /kernels renders 6 kernel-layer-* rows (cosmogenic/transcendent/infinite/eternal/omega/alpha-omega); kernel-activation-* percentages ticked live — all 6 changed after 4.5s (t1 all 40% → t2 71/50/38/61/71/48); clicking cosmogenic opens kernel-detail with module chips; kernel-terminal-seal visible. /benchmark logged-out shows benchmark-signin-hint; logged in as doctester1, filled 'Explain why the sky is blue' + clicked benchmark-run-btn → benchmark-results appeared in ~12s with all 4 benchmark-tier-{1B,7B,70B,X} cards, radar SVG in each (4 svgs), rising benchmark-total badges 1.2/3.0/5.0/6.4, benchmark-output visible, benchmark-starfield-viz layer bars rendered. /dashboard as doctester1: gift-buy-toggle opens gift-buy-panel with exactly 3 gift-pack-{starter/pro/scale} buttons showing $5/$12.50/$50 and 10k/30k/150k tokens; clicking Starter renders gift-buy-paypal container with 2 PayPal iframes (button + card, sandbox — NOT paid). Ledger toggle opens rows including spend_benchmark. Navbar Explore dropdown exposes both 'Kernel Stack' and 'Tier Benchmark' links; Kernel Stack click navigates to /kernels correctly. Total LLM benchmark runs used: 3 (doctester backend + admin backend + doctester UI).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/dashboard (any authed page)", "issues": ["React hydration warning in console: '<span> cannot be a child of <option>' — a <span> is being rendered inside a native <select><option>. Minor DOM validity issue, does not break UI. Likely in a select somewhere in App shell/AscensionBanner tree. Consider replacing with plain text option label."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter50_new_features.py",
+    "/app/test_reports/pytest/iter50_results.xml"
+  ],
+  "action_items": [
+    "(Low) Fix hydration warning: '<span> cannot be a child of <option>' — locate the offending <select><option><span>…</span></option> and inline the text."
+  ],
+  "critical_code_review_comments": [
+    "server.py benchmark_run fires 4 parallel LlmChat requests via asyncio.gather with per-tier max_tokens 150-450 — good throughput; but there's no overall timeout wrapper. A single hung LLM tier could hold the request indefinitely. Consider asyncio.wait_for(gather, timeout=45).",
+    "server.py benchmark_run swallows per-tier exceptions and returns '(tier engine unavailable — try again)' — however the user is still charged 4 tokens even if 3/4 tiers fail. Consider refunding or reducing the debit when >=1 tier errors, or only charging on all-success.",
+    "auth.py _send_gift_email logs to email_log with user_id=None — losing the sender/recipient linkage in the log record. Consider storing recipient_user_id and sender_user_id for audit.",
+    "FrasbergGiftCard.jsx: PayPal button is re-created on every pack selection — no cleanup of previous SDK instance may leak listeners on rapid pack toggles. Not blocking but worth a useEffect cleanup.",
+    "server.py file is ~3437 lines — exceeds the 700-line guideline. Splitting benchmark, paypal, provider-status into modules would improve maintainability."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter50_new_features.py",
+    "/app/test_reports/iteration_50.json"
+  ],
+  "success_rate": {"backend": "100% (6/6 pytest)", "frontend": "100% — /kernels, /benchmark, /dashboard buy-panel, and Navbar all verified"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026!, doctester1@frasberg.com / DocTester2026!",
+  "seed_data_creation": "None. Only doctester1 balance was temporarily perturbed: -2 gift to admin then +2 back; benchmark run debited 4 tokens (free-first). Wallet remains ~4,999.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iter50 all green. Doctester1 free tokens ~78 after benchmark run + gift roundtrip; wallet ~4,999. Do NOT run more benchmark UI runs unless required (LLM cost). /api/benchmark/run accepts {prompt} and returns 4 tiers; unauth 401, empty 400, admin exempt 0-cost. Gift email is async, allow ~1-3s before checking db.email_log. PayPal is sandbox — never complete a payment.",
+  "rca of the issue": "N/A — all tests passed after two test-side selector fixes: (1) /api/auth/gift/transfer expects field 'email' not 'to_email' (matched previous iterations, my initial guess wrong); (2) newest ledger row assertion was flaky under parallel test execution (concurrent test_gift_transfer wrote gift_sent/gift_received rows that pushed spend_benchmark past top-5 by timestamp); switched to a targeted find_one({kind:'spend_benchmark'}) with amount=-4 assertion. Feature code is correct — issues were purely in the test scaffolding."
+}

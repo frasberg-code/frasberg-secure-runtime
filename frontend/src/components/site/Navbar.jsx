@@ -42,6 +42,8 @@ const EXPLORE_GROUPS = [
       { label: "FrasbergOS", to: "/os" },
       { label: "Singularity Codex", to: "/codex" },
       { label: "Verified Provider", to: "/verified-provider" },
+      { label: "Kernel Stack", to: "/kernels" },
+      { label: "Tier Benchmark", to: "/benchmark" },
       { label: "Cognition Playground", to: "/playground" },
       { label: "Cloud Console", to: "/console" },
       { label: "Ops Center", to: "/ops" },
