@@ -188,7 +188,7 @@ export default function Launch() {
           </ul>
           <blockquote className="mt-7 border-l-2 border-cyan-400 pl-5">
             <p className="font-display text-lg italic text-white/90">"Marketplace v3 is where intelligence becomes deployable."</p>
-            <p className="mt-2 font-mono text-[12.5px] text-gray-400">— Mr. Clayton-M. Bernard-Ex., AKA, Frasberg Selassie, creator of Frasberg</p>
+            <p className="mt-2 font-mono text-[12.5px] text-gray-400">— Mr. Clayton-M. Bernard-Ex., AKA, Frasberg Selassie, creator of Frasberg, Luchii and LINQ</p>
           </blockquote>
         </div>
       </section>
