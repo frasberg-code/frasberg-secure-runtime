@@ -50,7 +50,7 @@ export default function Linq() {
       <div className="min-h-screen bg-[#020617] flex items-center justify-center px-6">
         <div className="text-center space-y-4" data-testid="linq-auth-gate">
           <h1 className="text-3xl text-[#f8fafc]">LINQ Command Center</h1>
-          <p className="text-[#94a3b8]">Sign in to access the FrasbergAI governance workspace.</p>
+          <p className="text-[#94a3b8]">Sign in to access the Frasberg governance workspace.</p>
           <Link to="/auth?mode=login" data-testid="linq-signin-link" className="inline-block bg-[#ef4444] hover:bg-[#dc2626] text-white rounded-full px-6 py-2.5 text-sm">Sign in</Link>
         </div>
       </div>
@@ -65,7 +65,7 @@ export default function Linq() {
           <Link to="/dashboard" data-testid="linq-back-link" className="text-[#64748b] hover:text-[#f8fafc]"><ArrowLeft size={18} /></Link>
           <div>
             <h1 className="text-xl tracking-tight">LINQ <span className="text-[#ef4444]">·</span> Command Center</h1>
-            <p className="text-[13.5px] text-[#64748b] uppercase tracking-[0.25em]">FrasbergAI Sovereign Governance</p>
+            <p className="text-[13.5px] text-[#64748b] uppercase tracking-[0.25em]">Frasberg Sovereign Governance</p>
           </div>
         </div>
         {overview && (

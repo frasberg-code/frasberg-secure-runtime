@@ -59,6 +59,7 @@ import Codex from "./pages/Codex";
 import ConstellationMap from "./pages/ConstellationMap";
 import GlyphGallery from "./pages/GlyphGallery";
 import AscensionHistory from "./pages/AscensionHistory";
+import VerifiedProvider from "./pages/VerifiedProvider";
 import { AscensionBanner } from "./components/site/AscensionBanner";
 import FrasbergOS from "./pages/FrasbergOS";
 import DocsHub from "./pages/DocsHub";
@@ -145,6 +146,7 @@ function App() {
               <Route path="/codex/constellation" element={<ConstellationMap />} />
               <Route path="/glyphs" element={<GlyphGallery />} />
               <Route path="/ascensions" element={<AscensionHistory />} />
+              <Route path="/verified-provider" element={<VerifiedProvider />} />
               <Route path="/developers/docs" element={<DocsHub />} />
               <Route path="/developers/docs/:doc" element={<DocsHub />} />
             </Routes>

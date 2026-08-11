@@ -354,3 +354,14 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Game changes that shipped before the stop (working, syntax-verified, left as-is): mob debt loop (Frankie's cut on 240s timer, beaten if unpaid), pizza runs (Mama's Kitchen, 3 deliveries/100s), hit contracts (burner phone marks targets, $600), Vybz + NPCs speak via natural TTS /api/games/voice (endpoint verified 200, 31KB mp3), no-stick-figures upgrade pass (all peds swap to RPM realistic humans once loaded), real-time day/night exposure, cinematic vignette+grain overlay, title screen + registry renamed "Street Vybz: Carjack Plus 2.0" (user unhappy w/ the rename — offer to revert if raised again)
 - Codex hidden Book XVII "The Unwritten Layer" (codex-book-17) unlocks when all 16 books read; locked teaser (codex-book-17-locked) otherwise — frontend compiles, NOT deep-tested
 - Frontend 200 OK, backend restarted OK
+
+## 2026-06 (fork): Verified LLM Provider + Frasberg Token Economy — TESTED (iteration_48)
+- /verified-provider page (VerifiedProvider.jsx): rotating seal, 6 verification check cards, live registry JSON (fetched from /api/.well-known/frasberg-provider.json), discovery endpoint links, certification statement (cert FRSB-LLM-2026-0001), CTAs; route + Navbar Explore link + Footer link (footer-verified-link)
+- New /.well-known/frasberg-provider.json (backend route + /api/v1/frasberg-provider.json alias + static public file): verified:true, status authorized_distributor, certification block, models/endpoints
+- Dashboard header "Verified LLM Provider" badge (verified-provider-badge) → /verified-provider
+- Token economy (auth.py): SIGNUP_TOKENS=50 on register, DAILY_TOKENS=100 granted once per UTC day via _grant_daily_tokens (atomic update_one on last_token_grant != today) fired on login + GET /api/auth/gift; _public exposes tokens
+- FrasbergGiftCard.jsx (gift-token-balance, gift-card-terms, gift-daily-claimed): credit-card style, mounted on Dashboard (below metric tiles) + Profile; toast when daily grant claimed
+- GLOBAL REBRAND (user demand): FrasbergAI → Frasberg / frasbergai → frasberg in ALL provider JSON (registry id/name, manifest provider, owned_by, providers list, luchii-models doc, OpenAPI title/contact), Docs hero + python snippet + well-known link, DevPortal, Linq, emails (welcome/receipt/digest/alerts/suspension), index.html meta now frasberg-provider, static .well-known files. KEPT: @frasbergai.com team email domain, /.well-known/frasbergai-provider.json route as alias (rebranded content), @frasbergai/sdk npm scope, TRADEMARKS list
+- Codex Book XVII unlock verified by testing agent (localStorage codex_read_books uses ROMAN numerals "I".."XVI", not integers)
+- iteration_48.json: backend 10/10 pytest, frontend pass (dashboard gift card was missing in first run — re-added + screenshot-verified). Non-blocker noted: anonymous homepage 401 console noise from /api/auth/me polling
+

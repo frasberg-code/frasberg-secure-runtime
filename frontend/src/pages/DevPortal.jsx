@@ -28,7 +28,7 @@ const CERT = [
   ["Complete Hands-On Agent Lab", "Build, test and deploy a fully governed agent using the Kernel v4 SDK and pass all safety and determinism checks."],
   ["Pass the Multi-Region Deployment Exam", "Show proficiency in AIM v2 routing, failover, autoscaling, federation and global mesh orchestration."],
   ["Submit Final Capstone Project", "Deliver a production-ready agent with full cognition graph documentation, safety compliance and a multi-region deployment strategy."],
-  ["Earn Kernel v4 Certification", "Receive official accreditation and gain access to advanced FrasbergAI development tracks and partner-level privileges."],
+  ["Earn Kernel v4 Certification", "Receive official accreditation and gain access to advanced Frasberg development tracks and partner-level privileges."],
 ];
 
 export default function DevPortal() {

@@ -597,7 +597,7 @@ async def _send_usage_receipt(user_doc: dict, period_label: str, days_prefix: st
         f"<td style='padding:6px 12px;border-bottom:1px solid #1e293b;text-align:right;'>{c:,}</td></tr>"
         for n, r, t, c in rows)
     html = (f"<div style='font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc;padding:28px;border-radius:14px;'>"
-            f"<p style='color:#1A4FFF;font-size:12px;letter-spacing:2px;text-transform:uppercase;'>FrasbergAI Usage Statement</p>"
+            f"<p style='color:#1A4FFF;font-size:12px;letter-spacing:2px;text-transform:uppercase;'>Frasberg Usage Statement</p>"
             f"<h2 style='margin:8px 0;'>{period_label}</h2>"
             f"<p style='color:#94a3b8;'>Total: <b style='color:#f8fafc'>{total_req}</b> requests · <b style='color:#f8fafc'>{total_tok}</b> tokens</p>"
             f"<table style='border-collapse:collapse;width:100%;color:#cbd5e1;font-size:13px;'>"
@@ -609,13 +609,13 @@ async def _send_usage_receipt(user_doc: dict, period_label: str, days_prefix: st
         import resend
         resend.api_key = api_key_env
         params = {"from": os.environ.get("SENDER_EMAIL", "onboarding@resend.dev"), "to": [email],
-                  "subject": f"Your FrasbergAI usage statement — {period_label}", "html": html}
+                  "subject": f"Your Frasberg usage statement — {period_label}", "html": html}
         await asyncio.to_thread(resend.Emails.send, params)
         await _log_email("usage_receipt", email, params["subject"], True, user_doc.get("id"))
         return "sent"
     except Exception:
         logger.exception("usage receipt email failed")
-        await _log_email("usage_receipt", email, f"Your FrasbergAI usage statement — {period_label}", False, user_doc.get("id"))
+        await _log_email("usage_receipt", email, f"Your Frasberg usage statement — {period_label}", False, user_doc.get("id"))
         return "send_failed"
 
 
@@ -715,14 +715,14 @@ async def _build_weekly_digest():
         if len(top_tenants) >= 5:
             break
     html = (f"<div style='font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc;padding:28px;border-radius:14px;'>"
-            f"<p style='color:#1A4FFF;font-size:12px;letter-spacing:2px;text-transform:uppercase;'>FrasbergAI Weekly Digest</p>"
+            f"<p style='color:#1A4FFF;font-size:12px;letter-spacing:2px;text-transform:uppercase;'>Frasberg Weekly Digest</p>"
             f"<h2 style='margin:8px 0;'>Week of {now.strftime('%B %d, %Y')}</h2>"
             f"<p style='color:#94a3b8;'>New signups: <b style='color:#f8fafc'>{new_users}</b> · "
             f"Revenue: <b style='color:#34d399'>${revenue:.2f}</b></p>"
             f"<p style='color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-top:18px;'>Top tenants by tokens</p>"
             f"<table style='border-collapse:collapse;width:100%;color:#cbd5e1;font-size:13px;'>{rows}</table>"
             f"<p style='color:#64748b;font-size:12px;margin-top:16px;'>Full detail: https://frasberg.com/admin</p></div>")
-    subject = f"FrasbergAI weekly digest — {new_users} signups · ${revenue:.2f}"
+    subject = f"Frasberg weekly digest — {new_users} signups · ${revenue:.2f}"
     return html, subject, {"new_signups": new_users, "revenue": round(revenue, 2), "top_tenants": top_tenants}
 
 
@@ -1505,18 +1505,18 @@ async def _send_suspension_notice(email: str, name: str, suspended: bool, reason
     if not (api_key_env and email):
         return
     if suspended:
-        title, color, body = ("Your FrasbergAI account has been suspended", "#ef4444",
+        title, color, body = ("Your Frasberg account has been suspended", "#ef4444",
                               "Your account and all API keys have been suspended by an administrator. "
                               "API requests will return 403 until access is restored. "
                               "If you believe this is a mistake, contact support@frasberg.com.")
     else:
-        title, color, body = ("Your FrasbergAI account has been reinstated", "#34d399",
+        title, color, body = ("Your Frasberg account has been reinstated", "#34d399",
                               "Good news — your account has been reinstated. All API keys are active again "
                               "and requests will resume immediately.")
     reason_html = (f"<p style='color:#f8fafc;background:#1e293b;border-radius:10px;padding:12px 16px;"
                    f"font-size:13px;'><b>Reason from the admin team:</b><br/>{reason}</p>") if reason else ""
     html = (f"<div style='font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc;padding:28px;border-radius:14px;'>"
-            f"<p style='color:{color};font-size:12px;letter-spacing:2px;text-transform:uppercase;'>FrasbergAI Account Notice</p>"
+            f"<p style='color:{color};font-size:12px;letter-spacing:2px;text-transform:uppercase;'>Frasberg Account Notice</p>"
             f"<h2 style='margin:8px 0;'>{title}</h2>"
             f"<p style='color:#94a3b8;'>Hi {name or 'there'},</p>"
             f"<p style='color:#94a3b8;'>{body}</p>"
@@ -2476,12 +2476,14 @@ async def my_purchases(user: dict = Depends(auth_module.get_current_user)):
             "plan_started": user.get("plan_started"), "plan_expires": user.get("plan_expires")}
 
 
-# ---------------- OpenAI-Compatible Provider Gateway (FrasbergAI) ----------------
+# ---------------- OpenAI-Compatible Provider Gateway (Frasberg) ----------------
 PROVIDER_BASE_URL = os.environ.get("PROVIDER_BASE_URL", "https://api.frasberg.com/v1")
 
 PROVIDER_REGISTRY = {
-    "id": "frasbergai",
-    "name": "FrasbergAI",
+    "id": "frasberg",
+    "name": "Frasberg",
+    "display_name": "Frasberg — Verified LLM Provider",
+    "verified": True,
     "base_url": PROVIDER_BASE_URL,
     "auth": "bearer",
     "models": {
@@ -2498,7 +2500,7 @@ PROVIDER_REGISTRY = {
 }
 
 PROVIDER_MANIFEST = {
-    "provider": "frasbergai",
+    "provider": "frasberg",
     "models": ["luchii-6-plus", "luchii-6-mini", "luchii-6-embed",
                "luchii-70b", "luchii-7b", "luchii-1b", "luchii-200m"],
     "endpoints": {
@@ -2514,6 +2516,31 @@ PROVIDER_MANIFEST = {
     "terms": "Frasberg Public License (FPL)",
     "operator": "FRASBERG INC",
 }
+
+FRASBERG_PROVIDER = {
+    "provider": "frasberg",
+    "name": "Frasberg — Verified LLM Provider",
+    "legal_name": "FRASBERG INC",
+    "verified": True,
+    "status": "authorized_distributor",
+    "certification": {
+        "authority": "Frasberg Provider Registry",
+        "certificate_id": "FRSB-LLM-2026-0001",
+        "tier": "Tier-1 Verified Provider",
+        "issued": "2026-01-15",
+        "scope": "Global distribution of the Luchii model family",
+    },
+    "base_url": PROVIDER_BASE_URL,
+    "auth": "bearer",
+    "models": PROVIDER_REGISTRY["models"],
+    "endpoints": PROVIDER_MANIFEST["endpoints"],
+    "openai_compatible": True,
+    "streaming": True,
+    "sse": True,
+    "documentation": "https://frasberg.com/docs",
+    "verification_page": "https://frasberg.com/verified-provider",
+}
+
 
 OAI_MODEL_ALIASES = {
     "luchii-6-plus": "luchii-70b", "luchii-6-mini": "luchii-1b",
@@ -2615,7 +2642,7 @@ async def _maybe_quota_alert(key_id: str):
         return
     pct = min(100, round(used / cap * 100))
     html = (f"<div style='font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc;padding:28px;border-radius:14px;'>"
-            f"<p style='color:#f59e0b;font-size:12px;letter-spacing:2px;text-transform:uppercase;'>FrasbergAI Quota Alert</p>"
+            f"<p style='color:#f59e0b;font-size:12px;letter-spacing:2px;text-transform:uppercase;'>Frasberg Quota Alert</p>"
             f"<h2 style='margin:8px 0;'>You've used {pct}% of your monthly token quota</h2>"
             f"<p style='color:#94a3b8;'><b style='color:#f8fafc'>{used:,}</b> of <b style='color:#f8fafc'>{cap:,}</b> tokens used this month on your "
             f"<b style='color:#f8fafc'>{plan}</b> plan. Requests are blocked once the quota is reached.</p>"
@@ -2655,7 +2682,7 @@ async def _maybe_low_credit_alert(key_id: str):
         return
     await db.api_keys.update_one({"id": key_id}, {"$set": {"low_credit_alerted": True}})
     html = (f"<div style='font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc;padding:28px;border-radius:14px;'>"
-            f"<p style='color:#f59e0b;font-size:12px;letter-spacing:2px;text-transform:uppercase;'>FrasbergAI Low Credit Alert</p>"
+            f"<p style='color:#f59e0b;font-size:12px;letter-spacing:2px;text-transform:uppercase;'>Frasberg Low Credit Alert</p>"
             f"<h2 style='margin:8px 0;'>Key \u201c{key_doc.get('name', 'API key')}\u201d is running low</h2>"
             f"<p style='color:#94a3b8;'>Only <b style='color:#f8fafc'>{credits:,}</b> credits left (alert threshold: {threshold:,}). "
             f"Requests will stop streaming once credits hit zero.</p>"
@@ -2692,7 +2719,7 @@ async def _meter_key(key_id: str, tokens: int, deduct: bool = False):
 async def oai_list_models():
     created = int(_START_TIME.timestamp())
     return {"object": "list", "data": [
-        {"id": m, "object": "model", "created": created, "owned_by": "frasbergai",
+        {"id": m, "object": "model", "created": created, "owned_by": "frasberg",
          "capabilities": {"chat": kind == "chat", "embeddings": kind == "embed"}}
         for m, kind in PROVIDER_REGISTRY["models"].items()
     ]}
@@ -2701,7 +2728,7 @@ async def oai_list_models():
 @api_router.get("/v1/provider")
 async def oai_provider():
     return {"registry": PROVIDER_REGISTRY, "manifest": PROVIDER_MANIFEST,
-            "providers": ["openai", "anthropic", "google", "cohere", "elevenlabs", "frasbergai"],
+            "providers": ["openai", "anthropic", "google", "cohere", "elevenlabs", "frasberg"],
             "verified": True}
 
 
@@ -2827,12 +2854,12 @@ async def oai_embeddings(body: OAIEmbedBody, authorization: Optional[str] = Head
 
 _WELL_KNOWN_OPENAPI = f"""openapi: 3.1.0
 info:
-  title: FrasbergAI Luchii API
+  title: Frasberg Luchii API
   version: "1.0"
   description: Public LLM API for the Luchii model family by FRASBERG INC. Bearer authentication, SSE streaming, OpenAI-compatible.
   contact:
-    name: FrasbergAI
-    url: https://frasbergai.com
+    name: Frasberg
+    url: https://frasberg.com
 servers:
   - url: {PROVIDER_BASE_URL}
 security:
@@ -2904,7 +2931,7 @@ components:
 
 
 LUCHII_MODELS_DOC = {
-    "provider": "frasbergai",
+    "provider": "frasberg",
     "models": [
         {"id": "luchii-6-plus", "type": "chat", "context_window": 128000, "streaming": True,
          "description": "Flagship long-context reasoning model"},
@@ -2999,6 +3026,16 @@ async def support_chat(body: SupportChatBody):
 @api_router.get("/.well-known/frasbergai-provider.json")
 async def well_known_provider():
     return PROVIDER_REGISTRY
+
+
+@api_router.get("/.well-known/frasberg-provider.json")
+async def well_known_frasberg_provider():
+    return FRASBERG_PROVIDER
+
+
+@api_router.get("/v1/frasberg-provider.json")
+async def v1_frasberg_provider():
+    return FRASBERG_PROVIDER
 
 
 @api_router.get("/.well-known/provider-manifest.json")

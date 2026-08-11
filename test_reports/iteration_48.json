@@ -1,0 +1,28 @@
+{
+  "summary": "Iter48 — Verified LLM Provider + custom token economy + Book XVII. Backend 10/10 pytest PASS: /api/.well-known/frasberg-provider.json (name/verified/cert FRSB-LLM-2026-0001/models/endpoints), /api/v1/frasberg-provider.json, static /.well-known/frasberg-provider.json (no /api prefix), regression 4 other well-known JSON/YAML, register grants 50, login returns tokens field (doctester1 has 200 today — no extra grant), /api/auth/gift authed idempotent (granted_today=0 on 2nd call, tokens unchanged), unauth 401, /api/v1/models 200, admin login. FRONTEND: /verified-provider fully renders (page, seal, 6 verified-check-{0..5}, registry-json contains FRSB-LLM-2026-0001, wellknown-links, cert-statement, cta-docs, cta-dashboard). Homepage footer-verified-link present. /codex Book XVII 'The Unwritten Layer' unlocks correctly when all 16 Roman-numeral IDs (I..XVI) are in codex_read_books; locked teaser text 'a seventeenth book will reveal itself when all sixteen have been opened' shown otherwise. FAIL: FrasbergGiftCard imported at Dashboard.jsx:18 but NEVER rendered in the JSX — no <FrasbergGiftCard /> below the 4 metric tiles. Profile.jsx renders it correctly at line 184. Verified-provider-badge visible in dashboard header. NOTE on Codex test payload: the review-request example used numeric IDs [1..16] but BOOKS[i].num are Roman numerals ('I'..'XVI'); JSON.stringify(['I','II',...,'XVI']) unlocks correctly — feature is fine, main-agent test string in the request was wrong.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Dashboard.jsx", "issue": "FrasbergGiftCard is imported (line 18) but never rendered anywhere in the component. Expected placement per spec: below the 4 metric tiles (around line 270). Result: gift-token-balance and gift-card-terms elements do NOT exist on /dashboard, breaking a shipped feature.", "selector": "[data-testid='frasberg-gift-card']", "priority": "HIGH"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_iter48_new_features.py", "/app/test_reports/pytest/iter48_results.xml"],
+  "action_items": [
+    "Add <FrasbergGiftCard className=\"mt-8\" /> to /app/frontend/src/pages/Dashboard.jsx below the closing </div> of the 4-tile grid (~line 269, after the </div> that closes the grid, before the Quota panel or NativeApps). The component is already imported and works — proven by /profile which renders it correctly."
+  ],
+  "critical_code_review_comments": [
+    "Dashboard.jsx imports FrasbergGiftCard but never uses it — dead import + missing feature. Same pattern regression risk: add lint rule/ESLint no-unused-vars to catch.",
+    "Codex.jsx book-17 unlock uses BOOKS[i].num (Roman numerals I..XVI). Any external caller/test setting codex_read_books with integers will silently fail. Consider documenting the key format inline or normalising to a fixed set.",
+    "Homepage has 12 401 console errors — /api/auth/me or /api/quotas polled without cookies for anonymous visitors. Not blocking but noisy; consider suppressing to 200 with {authed:false} or gating fetch on cookie presence."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter48_new_features.py", "/app/test_reports/iteration_48.json"],
+  "success_rate": {"backend": "100% (10/10)", "frontend": "~85% — verified-provider page, codex XVII, profile gift card, footer, badge all pass; dashboard gift card missing"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026!, doctester1@frasberg.com / DocTester2026!",
+  "seed_data_creation": "test_register_grants_50_tokens creates + deletes a TEST_iter48_<uuid>@frasberg.com user in db.users (self-cleaning).",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "After main agent adds <FrasbergGiftCard /> to Dashboard.jsx, retest by logging in as doctester1@frasberg.com and navigating to /dashboard — check [data-testid='frasberg-gift-card'], [data-testid='gift-token-balance'] (>=100), [data-testid='gift-card-terms'] (contains '50 tokens on signup · 100 free every day'). Backend token economy is fully working; do not re-grant daily to doctester1 today (2026-08-11 grant recorded). For Book XVII testing use Roman-numeral list, not integers. Verified-provider page fully green.",
+  "rca of the issue": "Dashboard.jsx has `import { FrasbergGiftCard } from '../components/site/FrasbergGiftCard';` at line 18 but grep shows only 1 occurrence in the file — no JSX usage. Main agent likely wrote the import + skipped adding the JSX element, or a later edit removed it. Fix: insert `<FrasbergGiftCard className=\"mt-6\" />` after the closing </div> of the 4-metric-tile grid (near line 269, before {quota && <Panel .../>})."
+}

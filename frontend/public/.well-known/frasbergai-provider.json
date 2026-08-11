@@ -1,6 +1,8 @@
 {
-  "id": "frasbergai",
-  "name": "FrasbergAI",
+  "id": "frasberg",
+  "name": "Frasberg",
+  "display_name": "Frasberg — Verified LLM Provider",
+  "verified": true,
   "base_url": "https://api.frasberg.com/v1",
   "auth": "bearer",
   "models": {

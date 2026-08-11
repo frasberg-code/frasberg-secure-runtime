@@ -13,7 +13,7 @@ const SNIPPETS = {
     "messages": [{"role": "user", "content": "Hello Luchii"}],
     "stream": true
   }'`,
-  python: `# pip install openai — FrasbergAI is OpenAI-compatible
+  python: `# pip install openai — Frasberg is OpenAI-compatible
 from openai import OpenAI
 
 client = OpenAI(
@@ -93,10 +93,10 @@ export default function Docs() {
       </header>
 
       <div className="mx-auto max-w-5xl px-5 py-12 sm:px-8" data-testid="docs-page">
-        <p className="font-mono text-[13.5px] uppercase tracking-[0.3em] text-lux-accent">FrasbergAI — Verified LLM Provider</p>
+        <p className="font-mono text-[13.5px] uppercase tracking-[0.3em] text-lux-accent">Frasberg — Verified LLM Provider</p>
         <h1 className="mt-3 font-display text-4xl font-700 tracking-tighter sm:text-5xl">Call Luchii in 60 seconds.</h1>
         <p className="mt-4 max-w-2xl text-lux-text2">
-          FrasbergAI is an OpenAI-compatible provider with Bearer authentication and SSE streaming.
+          Frasberg is an OpenAI-compatible provider with Bearer authentication and SSE streaming.
           Point any OpenAI SDK, Vercel AI SDK, or LangChain at <span className="font-mono text-lux-text">{BASE}</span> and it just works.
         </p>
 
@@ -166,7 +166,7 @@ export default function Docs() {
           <h2 className="font-display text-2xl font-600">Provider verification</h2>
           <p className="mt-2 text-sm text-lux-text2">Standard discovery documents used by registries, routers and agent frameworks:</p>
           <ul className="mt-3 space-y-1.5 font-mono text-[13.5px] text-lux-accent">
-            <li><a className="hover:underline" href="/.well-known/frasbergai-provider.json" target="_blank" rel="noreferrer">/.well-known/frasbergai-provider.json</a></li>
+            <li><a className="hover:underline" href="/.well-known/frasberg-provider.json" target="_blank" rel="noreferrer">/.well-known/frasberg-provider.json</a></li>
             <li><a className="hover:underline" href="/.well-known/provider-manifest.json" target="_blank" rel="noreferrer">/.well-known/provider-manifest.json</a></li>
             <li><a className="hover:underline" href="/api/.well-known/openapi.yaml" target="_blank" rel="noreferrer">/.well-known/openapi.yaml</a></li>
             <li><a className="hover:underline" href="/api/v1/models" target="_blank" rel="noreferrer">GET /v1/models</a></li>

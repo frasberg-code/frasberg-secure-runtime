@@ -41,6 +41,7 @@ const EXPLORE_GROUPS = [
       { label: "Launch — Marketplace v3", to: "/launch" },
       { label: "FrasbergOS", to: "/os" },
       { label: "Singularity Codex", to: "/codex" },
+      { label: "Verified Provider", to: "/verified-provider" },
       { label: "Cognition Playground", to: "/playground" },
       { label: "Cloud Console", to: "/console" },
       { label: "Ops Center", to: "/ops" },

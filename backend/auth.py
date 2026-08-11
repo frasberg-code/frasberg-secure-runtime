@@ -14,6 +14,8 @@ router = APIRouter(prefix="/auth")
 
 
 TEAM_DOMAIN = "@frasbergai.com"
+SIGNUP_TOKENS = 50
+DAILY_TOKENS = 100
 
 
 def setup(database):
@@ -58,7 +60,8 @@ def _set_cookies(response: Response, access: str, refresh: str):
 def _public(user: dict) -> dict:
     return {"id": user["id"], "email": user["email"], "name": user.get("name", ""),
             "role": user.get("role", "user"), "plan": user.get("plan", "free"),
-            "plan_expires": user.get("plan_expires"), "plan_started": user.get("plan_started")}
+            "plan_expires": user.get("plan_expires"), "plan_started": user.get("plan_started"),
+            "tokens": user.get("tokens", 0)}
 
 
 async def get_current_user(request: Request) -> dict:
@@ -130,7 +133,7 @@ async def _send_welcome_email(email: str, name: str):
         return
     html = (
         "<div style='font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc;padding:28px;border-radius:14px;'>"
-        "<p style='color:#1A4FFF;font-size:12px;letter-spacing:2px;text-transform:uppercase;'>Welcome to FrasbergAI</p>"
+        "<p style='color:#1A4FFF;font-size:12px;letter-spacing:2px;text-transform:uppercase;'>Welcome to Frasberg</p>"
         f"<h2 style='margin:8px 0;'>Hey {name} — you're in.</h2>"
         "<p style='color:#94a3b8;'>Your account is live. Here's how to make your first Luchii call in under a minute:</p>"
         "<ol style='color:#cbd5e1;font-size:14px;line-height:1.8;'>"
@@ -147,7 +150,7 @@ async def _send_welcome_email(email: str, name: str):
         import resend
         resend.api_key = api_key
         params = {"from": os.environ.get("SENDER_EMAIL", "onboarding@resend.dev"), "to": [email],
-                  "subject": "Welcome to FrasbergAI — your Luchii quickstart", "html": html}
+                  "subject": "Welcome to Frasberg — your Luchii quickstart", "html": html}
         await asyncio.to_thread(resend.Emails.send, params)
         ok = True
     except Exception:
@@ -155,7 +158,7 @@ async def _send_welcome_email(email: str, name: str):
         ok = False
     try:
         await db.email_log.insert_one({"id": str(uuid.uuid4()), "kind": "welcome", "to": email,
-                                       "subject": "Welcome to FrasbergAI — your Luchii quickstart",
+                                       "subject": "Welcome to Frasberg — your Luchii quickstart",
                                        "ok": ok, "user_id": None,
                                        "ts": datetime.now(timezone.utc).isoformat()})
     except Exception:
@@ -175,6 +178,8 @@ async def register(body: RegisterBody, response: Response):
         "id": str(uuid.uuid4()), "email": email, "name": body.name.strip() or email.split("@")[0],
         "password_hash": hash_password(body.password), "role": "user",
         "plan": "scale" if email.endswith(TEAM_DOMAIN) else "free",
+        "tokens": SIGNUP_TOKENS,
+        "last_token_grant": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.users.insert_one({**user})
@@ -197,8 +202,30 @@ async def login(body: LoginBody, request: Request, response: Response):
     if email.endswith(TEAM_DOMAIN) and user.get("plan") not in ("scale", "enterprise"):
         await db.users.update_one({"id": user["id"]}, {"$set": {"plan": "scale"}})
         user["plan"] = "scale"
+    granted = await _grant_daily_tokens(user["id"])
+    if granted:
+        user["tokens"] = user.get("tokens", 0) + granted
     _set_cookies(response, create_access_token(user["id"], email), create_refresh_token(user["id"]))
     return _public(user)
+
+
+async def _grant_daily_tokens(user_id: str) -> int:
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    res = await db.users.update_one(
+        {"id": user_id, "last_token_grant": {"$ne": today}},
+        {"$inc": {"tokens": DAILY_TOKENS}, "$set": {"last_token_grant": today}})
+    return DAILY_TOKENS if res.modified_count else 0
+
+
+@router.get("/gift")
+async def gift_status(request: Request):
+    user = await get_current_user(request)
+    granted = await _grant_daily_tokens(user["id"])
+    doc = await db.users.find_one({"id": user["id"]}, {"tokens": 1, "last_token_grant": 1, "created_at": 1})
+    return {"tokens": (doc or {}).get("tokens", 0), "granted_today": granted,
+            "signup_grant": SIGNUP_TOKENS, "daily_grant": DAILY_TOKENS,
+            "last_grant": (doc or {}).get("last_token_grant"),
+            "member_since": (doc or {}).get("created_at")}
 
 
 @router.post("/logout")

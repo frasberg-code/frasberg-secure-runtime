@@ -9,6 +9,7 @@ import { useAuth, formatApiErrorDetail } from "../context/AuthContext";
 import Starfield from "../components/site/Starfield";
 import Seo from "../components/site/Seo";
 import { TrialBanner } from "../components/site/TrialBanner";
+import { FrasbergGiftCard } from "../components/site/FrasbergGiftCard";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -179,6 +180,8 @@ export default function Profile() {
                 <p className="font-mono text-[13px] text-lux-text2">{user.email} · <span className="uppercase text-lux-accent">{user.plan} plan</span></p>
               </div>
             </div>
+
+            <FrasbergGiftCard className="mt-8" />
 
             <form onSubmit={saveName} className="mt-10 rounded-2xl border border-lux-border bg-lux-surface p-7">
               <h2 className="font-display text-xl font-600 tracking-tight">Display name</h2>

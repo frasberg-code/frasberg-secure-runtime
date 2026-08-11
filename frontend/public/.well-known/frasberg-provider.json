@@ -1,0 +1,35 @@
+{
+  "provider": "frasberg",
+  "name": "Frasberg — Verified LLM Provider",
+  "legal_name": "FRASBERG INC",
+  "verified": true,
+  "status": "authorized_distributor",
+  "certification": {
+    "authority": "Frasberg Provider Registry",
+    "certificate_id": "FRSB-LLM-2026-0001",
+    "tier": "Tier-1 Verified Provider",
+    "issued": "2026-01-15",
+    "scope": "Global distribution of the Luchii model family"
+  },
+  "base_url": "https://api.frasberg.com/v1",
+  "auth": "bearer",
+  "models": {
+    "luchii-6-plus": "chat",
+    "luchii-6-mini": "chat",
+    "luchii-6-embed": "embed",
+    "luchii-70b": "chat",
+    "luchii-7b": "chat",
+    "luchii-1b": "chat",
+    "luchii-200m": "chat"
+  },
+  "endpoints": {
+    "chat": "https://api.frasberg.com/v1/chat/completions",
+    "embed": "https://api.frasberg.com/v1/embeddings",
+    "models": "https://api.frasberg.com/v1/models"
+  },
+  "openai_compatible": true,
+  "streaming": true,
+  "sse": true,
+  "documentation": "https://frasberg.com/docs",
+  "verification_page": "https://frasberg.com/verified-provider"
+}

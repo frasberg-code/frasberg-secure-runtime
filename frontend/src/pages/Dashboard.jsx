@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
-  Key, Plus, Copy, Trash2, Activity, Cpu, Terminal, ArrowLeft, Check, Mail, Wallet, Gauge, Zap,
+  Key, Plus, Copy, Trash2, Activity, Cpu, Terminal, ArrowLeft, Check, Mail, Wallet, Gauge, Zap, ShieldCheck,
 } from "lucide-react";
 import { Sun, Moon } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
@@ -15,6 +15,7 @@ import { TrialBanner } from "../components/site/TrialBanner";
 import UpgradePlanModal from "../components/site/UpgradePlanModal";
 import { NativeApps } from "../components/site/NativeApps";
 import { ParallaxSky } from "../components/site/ParallaxSky";
+import { FrasbergGiftCard } from "../components/site/FrasbergGiftCard";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -203,6 +204,10 @@ export default function Dashboard() {
             <span className="hidden text-[13px] sm:inline" style={{ color: T.text2 }}>/ Developer Console</span>
           </Link>
           <div className="flex items-center gap-3">
+            <Link to="/verified-provider" data-testid="verified-provider-badge"
+              className="hidden items-center gap-1.5 rounded-full border border-cyan-400/40 bg-cyan-400/[0.06] px-3 py-1.5 font-mono text-[12px] text-cyan-300 transition-colors hover:border-cyan-300 sm:flex">
+              <ShieldCheck size={12} /> Verified LLM Provider
+            </Link>
             <button onClick={toggleTheme} aria-label="Toggle theme" data-testid="dashboard-theme-toggle"
               className="grid h-8 w-8 place-items-center rounded-sm border transition-colors"
               style={{ borderColor: T.border, color: T.text2 }}>
@@ -262,6 +267,8 @@ export default function Dashboard() {
             </p>
           </Panel>
         </div>
+
+        <FrasbergGiftCard className="mt-4" />
 
         {/* Quota bar */}
         {quota && (

@@ -49,6 +49,7 @@ export default function Footer() {
                 <li><a href="/about" className="hover:text-lux-text" data-testid="footer-about-link">About Frasberg</a></li>
                 <li><a href="/contact" className="hover:text-lux-text" data-testid="footer-contact-link">Contact Us</a></li>
                 <li><a href="/database" className="hover:text-lux-text" data-testid="footer-database-link">Database Manager</a></li>
+                <li><a href="/verified-provider" className="hover:text-lux-text" data-testid="footer-verified-link">Verified LLM Provider</a></li>
                 <li><a href="/legal?doc=license" className="hover:text-lux-text" data-testid="footer-license-link">MIT License</a></li>
                 <li><a href="/legal?doc=trademarks" className="hover:text-lux-text" data-testid="footer-trademarks-link">Trademarks</a></li>
                 <li><a href="/legal?doc=safety" className="hover:text-lux-text" data-testid="footer-safety-link">Safety Charter</a></li>
