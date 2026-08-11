@@ -1,0 +1,25 @@
+{
+  "summary": "Frontend E2E verification of AccountMenu, AccountSettingsModal, and AgentWorkspace header (icon strip + quick search) at /chat?agent=architect. All 45 assertions passed on first run.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Dashboard (NativeApps)", "issues": ["Console hydration warning: <span> cannot be a child of <option> in NativeApps.jsx (~line 269). React strips it but noisy in prod. Not in review scope but worth fixing."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "AccountMenu useEffect uses `open && user && gift === null` — if gift fetch fails (returns null via catch) it stays at null and re-fires every open; acceptable but could add loading sentinel.",
+    "AccountSettingsModal support code uses Math.random client-side (documented as mocked)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped per request)", "frontend": "100% (45/45)"},
+  "test_credentials": "doctester1@frasberg.com / DocTester2026! (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "None. Name was changed to 'Doc Tester QA' then restored to 'Doc Tester' (verified via /api/auth/me).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Verified: header icons ws-icon-alerts→/ops, ws-icon-ascensions→/ascensions, ws-icon-codex→/codex, ws-icon-inbox→/dashboard; ws-icon-github stays in /chat and shows workspace-manage + manage-github (info toast). ws-quick-search + 'kernel' shows ws-quick-search-results with ws-quick-nav-kernels→/kernels. '/' key focuses ws-quick-search. account-menu-btn opens account-menu-panel with email doctester1@frasberg.com, tokens '78 + 4,999', all 10 menu items present, closes on outside click, kernels item navigates. Settings modal all 4 tabs work; PATCH /api/auth/profile persisted (verified via /api/auth/me), support code FRSB-XXXX-XXXX generated, ledger + free/paid tokens render, Keys and Plan tabs navigate to /dashboard, close btn closes. Logout produced 401 on /api/auth/me, logged-out avatar is '?' with sign-in/register buttons, re-login worked. Navbar account-menu-btn present on homepage. Name restored to 'Doc Tester'.",
+  "rca of the issue": "n/a — no bugs found."
+}

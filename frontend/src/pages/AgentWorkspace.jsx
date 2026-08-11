@@ -4,9 +4,67 @@ import { toast } from "sonner";
 import {
   Home, X, Plus, Paperclip, GitFork, Mic, ArrowUp, Share2, RefreshCw, ExternalLink, Copy, Sparkles, Download, Square, Play,
   MousePointerClick, Monitor, Smartphone, Tablet, Maximize2, Minimize2, ChevronDown, ChevronUp, Undo2, Github, Bot,
+  Search, CircleDot, GitPullRequest, BookMarked, Inbox,
 } from "lucide-react";
+import { AccountMenu } from "../components/site/AccountMenu";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+
+const QUICK_PAGES = [
+  { label: "Developer Console", to: "/dashboard" },
+  { label: "Frasberg Gift & Tokens", to: "/dashboard" },
+  { label: "Singularity Codex", to: "/codex" },
+  { label: "FrasbergOS Simulator", to: "/os" },
+  { label: "Agent Marketplace", to: "/marketplace" },
+  { label: "Verified LLM Provider", to: "/verified-provider" },
+  { label: "Kernel Stack", to: "/kernels" },
+  { label: "Tier Benchmark Arena", to: "/benchmark" },
+  { label: "Ops Center", to: "/ops" },
+  { label: "Ascension History", to: "/ascensions" },
+  { label: "API Docs", to: "/docs" },
+  { label: "Profile", to: "/profile" },
+];
+
+function QuickSearch({ T, navigate }) {
+  const [q, setQ] = useState("");
+  const [focus, setFocus] = useState(false);
+  const inputRef = useRef(null);
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "/" && !["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName)) {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+  const results = q.trim() ? QUICK_PAGES.filter((p) => p.label.toLowerCase().includes(q.toLowerCase())) : QUICK_PAGES;
+  return (
+    <div className="relative hidden md:block">
+      <div className="flex items-center gap-2 rounded-md border px-2.5 py-1.5" style={{ borderColor: T.border, background: T.inset }}>
+        <Search size={13} style={{ color: T.muted }} />
+        <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)}
+          onFocus={() => setFocus(true)} onBlur={() => setTimeout(() => setFocus(false), 150)}
+          onKeyDown={(e) => { if (e.key === "Enter" && results[0]) navigate(results[0].to); }}
+          placeholder="Type / to search" data-testid="ws-quick-search"
+          className="w-36 bg-transparent text-[12.5px] outline-none" style={{ color: T.text }} />
+        <kbd className="rounded border px-1 font-mono text-[10px]" style={{ borderColor: T.border, color: T.muted }}>/</kbd>
+      </div>
+      {focus && (
+        <div className="absolute left-0 top-10 z-[80] w-64 rounded-xl border p-1.5 shadow-2xl" style={{ borderColor: T.border, background: "rgba(10,14,22,0.98)" }} data-testid="ws-quick-search-results">
+          {results.slice(0, 7).map((p) => (
+            <button key={p.label} onMouseDown={() => navigate(p.to)} data-testid={`ws-quick-nav-${p.to.slice(1)}`}
+              className="block w-full rounded-lg px-3 py-2 text-left text-[12.5px] transition-colors hover:bg-white/[0.07]" style={{ color: T.text }}>
+              {p.label}
+            </button>
+          ))}
+          {results.length === 0 && <p className="px-3 py-2 text-[12.5px]" style={{ color: T.muted }}>No matches</p>}
+        </div>
+      )}
+    </div>
+  );
+}
 
 const AGENTS = {
   architect: { name: "Luchii", model: "luchii-70b", role: "Frasberg",
@@ -509,7 +567,24 @@ export default function AgentWorkspace() {
         <Link to="/coding-agents" className="rounded-md p-1.5 transition-colors hover:bg-white/[0.05]" style={{ color: T.text2 }} data-testid="workspace-new-tab" aria-label="New agent">
           <Plus size={15} />
         </Link>
-        <span className="ml-auto font-mono text-[13.5px] uppercase tracking-wide" style={{ color: T.muted }}>{agent.role}</span>
+        <div className="ml-auto flex items-center gap-1">
+          <QuickSearch T={T} navigate={navigate} />
+          <div className="mx-1.5 hidden h-5 w-px sm:block" style={{ background: T.border }} />
+          <button onClick={() => navigate("/ops")} title="Cycle alerts · Ops Center" aria-label="Ops Center" data-testid="ws-icon-alerts"
+            className="rounded-md p-2 transition-colors hover:bg-white/[0.06]" style={{ color: T.text2 }}><CircleDot size={15} /></button>
+          <button onClick={() => navigate("/ascensions")} title="Ascension history" aria-label="Ascensions" data-testid="ws-icon-ascensions"
+            className="rounded-md p-2 transition-colors hover:bg-white/[0.06]" style={{ color: T.text2 }}><GitPullRequest size={15} /></button>
+          <button onClick={() => navigate("/codex")} title="Singularity Codex" aria-label="Codex" data-testid="ws-icon-codex"
+            className="rounded-md p-2 transition-colors hover:bg-white/[0.06]" style={{ color: T.text2 }}><BookMarked size={15} /></button>
+          <button onClick={() => navigate("/dashboard")} title="Developer Console" aria-label="Console" data-testid="ws-icon-inbox"
+            className="rounded-md p-2 transition-colors hover:bg-white/[0.06]" style={{ color: T.text2 }}><Inbox size={15} /></button>
+          <button onClick={() => { setTab("manage"); toast.info("GitHub tools — fork, import, scaffold & export in Manage"); }}
+            title="GitHub — fork, import & export" aria-label="GitHub tools" data-testid="ws-icon-github"
+            className="rounded-md p-2 transition-colors hover:bg-white/[0.06]" style={{ color: T.text2 }}><Github size={15} /></button>
+          <div className="mx-1.5 h-5 w-px" style={{ background: T.border }} />
+          <AccountMenu />
+          <span className="ml-2 hidden font-mono text-[13.5px] uppercase tracking-wide lg:block" style={{ color: T.muted }}>{agent.role}</span>
+        </div>
       </div>
 
       <div ref={splitRef} className="flex min-h-0 flex-1">

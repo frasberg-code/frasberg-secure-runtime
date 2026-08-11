@@ -381,3 +381,11 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Lore dumps 6-9 archived in /app/memory/frasberg_lore_dumps.md (Negative-Origin/Anti-Genesis terminal layers + ecosystem defense stack — defense = legal/user-side actions, no build requested)
 - iteration_50.json: backend 6/6 + frontend 100%. Known non-issue: console warning '<span> in <option>' comes from PayPal SDK injected DOM (no source culprit exists)
 
+## 2026-06 (fork, cont. 3): GitHub-style Header + Account Menu + Settings Modal — TESTED 100% (iteration_51, 45/45)
+- User provided annotated screenshots (GitHub header + Emergent account menu as reference) asking for wired header icons, GitHub tab, profile popover + settings
+- AgentWorkspace header (/chat?agent=architect) tab bar right side: QuickSearch ('Type / to search', '/' hotkey focuses, dropdown quick-nav over 12 pages) + icon strip: ws-icon-alerts→/ops, ws-icon-ascensions→/ascensions, ws-icon-codex→/codex, ws-icon-inbox→/dashboard, ws-icon-github→setTab('manage') revealing existing wired GitHub fork/import/scaffold/export tools + AccountMenu avatar
+- AccountMenu.jsx (also mounted in global Navbar next to Sign out): avatar initial → popover with email, tokens 'free + purchased', Buy Tokens (→/dashboard), Frasberg Gift, Manage Plan (plan badge), Tier Benchmark, Kernel Stack, Account Settings (opens modal), GitHub (external github.com/frasberg), Community Codex, Help Center, Logout. Logged-out: signin/register buttons
+- AccountSettingsModal.jsx: sidebar tabs Account (email/avatar/Name edit wired to PATCH /api/auth/profile + refreshUser/Support code gen client-side), Tokens & Usage (live /auth/gift + ledger), API Keys (→/dashboard), Plan & Billing (plan + manage)
+- NOTE: workspace route is /chat?agent=architect|builder|reviewer|debugger (NOT /workspace)
+- iteration_51.json: frontend 45/45 pass. Recurring console warning '<span> in <option>' — verified NO source culprit exists (all options plain text); third-party injected DOM
+

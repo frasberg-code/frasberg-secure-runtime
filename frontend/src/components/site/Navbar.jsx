@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Moon, Sun, Menu, X, ChevronDown } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
+import { AccountMenu } from "./AccountMenu";
 
 const LINKS = [
   { label: "Models", href: "#models" },
@@ -161,6 +162,7 @@ export default function Navbar() {
               Sign In
             </Link>
           )}
+          <AccountMenu />
         </div>
 
         <div className="flex items-center gap-2">
