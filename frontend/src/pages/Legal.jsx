@@ -7,13 +7,13 @@ const DOCS = {
     title: "Partner API Agreement",
     icon: FileText,
     sections: [
-      ["1. Definitions", "\"FrasbergAI\" refers to the FrasbergAI Platform and its Luchii model family, operated by FRASBERG INC. \"Partner\" refers to any entity integrating FrasbergAI into its products or services. \"API\" refers to https://api.frasberg.com/v1 and all associated endpoints."],
+      ["1. Definitions", "\"Frasberg\" refers to the Frasberg Platform and its Luchii model family, operated by FRASBERG, INC. \"Partner\" refers to any entity integrating Frasberg into its products or services. \"API\" refers to https://api.frasberg.com/v1 and all associated endpoints."],
       ["2. Authentication", "Partners must authenticate using Bearer tokens: Authorization: Bearer {FRASBERG_LLM_KEY}"],
-      ["3. Permitted Use", "Partners may integrate FrasbergAI models into applications, use SSE streaming for real-time inference, generate embeddings for search and retrieval, and deploy FrasbergAI in commercial products."],
-      ["4. Prohibited Use", "Partners may not attempt to bypass authentication, redistribute API keys, or misrepresent FrasbergAI output as another provider's output."],
+      ["3. Permitted Use", "Partners may integrate Frasberg models into applications, use SSE streaming for real-time inference, generate embeddings for search and retrieval, and deploy Frasberg in commercial products."],
+      ["4. Prohibited Use", "Partners may not attempt to bypass authentication, redistribute API keys, or misrepresent Frasberg output as another provider's output."],
       ["5. Rate Limits & Quotas", "Rate limits are enforced per API key (60 requests/minute standard). Enterprise limits may be negotiated."],
-      ["6. Data Privacy", "FrasbergAI does not store prompts or outputs for training. Metadata-only logging."],
-      ["7. Termination", "FrasbergAI may revoke access for violation of this Agreement."],
+      ["6. Data Privacy", "Frasberg does not store prompts or outputs for training. Metadata-only logging."],
+      ["7. Termination", "Frasberg may revoke access for violation of this Agreement."],
       ["8. Governing Law", "This Agreement is governed by the laws of the State of Delaware, United States, without regard to conflict-of-law principles. Any disputes arising under or relating to this Agreement shall be resolved exclusively in the state or federal courts located in Delaware."],
     ],
   },
@@ -27,7 +27,7 @@ const DOCS = {
       ["4. Failover", "Multi-region failover is automatic for enterprise tenants."],
       ["5. Support Response Times", "Standard: 24 hours · Premium: 4 hours · Enterprise: 1 hour · Dedicated: 15 minutes"],
       ["6. Incident Reporting", "All incidents are posted on https://status.frasberg.com"],
-      ["7. Remedies", "If SLA is not met, FrasbergAI provides service credits."],
+      ["7. Remedies", "If SLA is not met, Frasberg provides service credits."],
       ["8. Governing Law", "Delaware, United States."],
     ],
   },
@@ -59,9 +59,9 @@ const DOCS = {
     icon: FileText,
     sections: [
       ["Protected Marks", "FRASBERG™ · FRASBERGAI™ · FRASBERGOS™ · LINQ™ · LUCHII™ · EMERALD ESTATES™ · EMERALD ORBIT™ · and all associated logos are trademarks of Frasberg, Inc."],
-      ["Permitted Use", "You may refer to Frasberg products by name, state compatibility (\"Works with FrasbergOS\", \"Built for FrasbergAI\"), and use trademarks in documentation describing the origin of software."],
+      ["Permitted Use", "You may refer to Frasberg products by name, state compatibility (\"Works with FrasbergOS\", \"Built for Frasberg\"), and use trademarks in documentation describing the origin of software."],
       ["Prohibited Use", "You may not use Frasberg trademarks in product names, use Frasberg logos without permission, imply partnership or endorsement, or create confusingly similar branding."],
-      ["Marketplace Rules", "Agents may state \"Built for FrasbergAI\" or \"Compatible with Luchii RLM\". Agents may not use Frasberg trademarks in agent names or Frasberg logos in agent icons."],
+      ["Marketplace Rules", "Agents may state \"Built for Frasberg\" or \"Compatible with Luchii RLM\". Agents may not use Frasberg trademarks in agent names or Frasberg logos in agent icons."],
     ],
   },
   safety: {
@@ -90,7 +90,7 @@ export default function Legal() {
         <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/docs" className="flex items-center gap-2.5" data-testid="legal-back-link">
             <ArrowLeft size={16} className="text-lux-text2" />
-            <img src="/frasberg-mark-circle.png" alt="FrasbergAI" className="h-8 w-8 rounded-full" />
+            <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Legal & Compliance</span>
           </Link>
         </div>
@@ -119,7 +119,7 @@ export default function Legal() {
         </div>
 
         <p className="mt-10 text-[13px] text-lux-text2">
-          By integrating FrasbergAI, Partner agrees to these terms. Questions: support@frasberg.com · Operated by FRASBERG INC.
+          By integrating Frasberg, Partner agrees to these terms. Questions: support@frasberg.com · Operated by FRASBERG INC.
         </p>
       </div>
     </main>

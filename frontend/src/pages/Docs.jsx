@@ -18,7 +18,7 @@ from openai import OpenAI
 
 client = OpenAI(
     base_url="${BASE}",
-    api_key="luchii-sk-...",  # your FrasbergAI key
+    api_key="luchii-sk-...",  # your Frasberg key
 )
 
 stream = client.chat.completions.create(
@@ -82,7 +82,7 @@ export default function Docs() {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/" className="flex items-center gap-2.5" data-testid="docs-home-link">
             <ArrowLeft size={16} className="text-lux-text2" />
-            <img src="/luchii-mark-circle.png" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
+            <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Luchii API Docs</span>
           </Link>
           <Link to="/dashboard" data-testid="docs-get-key"

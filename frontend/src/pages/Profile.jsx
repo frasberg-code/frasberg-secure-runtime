@@ -149,7 +149,7 @@ export default function Profile() {
         <div className="mx-auto flex max-w-3xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/chat" className="flex items-center gap-2.5" data-testid="profile-back-link">
             <ArrowLeft size={16} className="text-lux-text2" />
-            <img src="/luchii-mark-circle.png" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
+            <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Profile</span>
           </Link>
           <button onClick={toggle} aria-label="Toggle theme" data-testid="profile-theme-toggle"

@@ -43,6 +43,9 @@ SEED = [
 
 TRADEMARKS = ("frasberg", "frasbergai", "frasbergos", "linq", "luchii", "emerald estates", "emerald orbit")
 
+TIER_LADDER = ["CG-v21", "CG-v22", "CG-v24", "CG-v27", "CG-v29", "CG-v35"]
+TIER_LAYER = {"CG-v21": "Soul", "CG-v22": "Spirit", "CG-v24": "Celestial", "CG-v27": "Omniversal", "CG-v29": "Primordium", "CG-v35": "Apex"}
+
 
 def _trademark_hit(name: str) -> str | None:
     low = name.lower()
@@ -102,12 +105,43 @@ async def list_items(type: str | None = None):
 
 
 @router.get("/{item_id}")
-async def get_item(item_id: str):
-    item = await db.marketplace.find_one({"id": item_id}, {"_id": 0, "owner_id": 0})
+async def get_item(item_id: str, request: Request):
+    item = await db.marketplace.find_one({"id": item_id}, {"_id": 0})
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
+    owner_id = item.pop("owner_id", None)
     item["safety_band"] = safety_band(item.get("safety_score", 75))
+    item["can_ascend"] = False
+    try:
+        user = await auth_module.get_current_user(request)
+        item["can_ascend"] = user.get("role") == "admin" or (owner_id is not None and owner_id == user["id"])
+    except HTTPException:
+        pass
     return item
+
+
+@router.post("/{item_id}/ascend")
+async def ascend_item(item_id: str, request: Request):
+    """Agent Ascension — evolution ceremony that raises the agent's Codex tier."""
+    user = await auth_module.get_current_user(request)
+    item = await db.marketplace.find_one({"id": item_id})
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    if not (item.get("owner_id") == user["id"] or user.get("role") == "admin"):
+        raise HTTPException(status_code=403, detail="Only the publisher (or an admin) can initiate an Ascension ceremony.")
+    current = item.get("codex_tier", "CG-v21")
+    idx = TIER_LADDER.index(current) if current in TIER_LADDER else 0
+    if idx >= len(TIER_LADDER) - 1:
+        raise HTTPException(status_code=400, detail="Already at CG-v35 Apex — the terminal tier. There is no beyond.")
+    new_tier = TIER_LADDER[idx + 1]
+    new_safety = min(100, item.get("safety_score", 75) + 2)
+    entry = {"version": item.get("version", "1.0.0"), "date": datetime.now(timezone.utc).date().isoformat(),
+             "note": f"Ascension ceremony — evolved from {current} ({TIER_LAYER.get(current, 'Identity')}) to {new_tier} ({TIER_LAYER[new_tier]} layer). Substrate rebinding validated.",
+             "safety_score": new_safety}
+    await db.marketplace.update_one({"id": item_id}, {
+        "$set": {"codex_tier": new_tier, "safety_score": new_safety},
+        "$push": {"history": entry}})
+    return {"ok": True, "from_tier": current, "to_tier": new_tier, "layer": TIER_LAYER[new_tier], "safety_score": new_safety}
 
 
 class PublishBody(BaseModel):

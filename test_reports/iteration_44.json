@@ -1,0 +1,33 @@
+{
+  "summary": "Iteration 44 — verified all 4 new features end-to-end. Backend (10/10 pytest pass in /app/backend/tests/test_iter44_new_features.py): (1) GET /api/marketplace/{id} returns can_ascend=false for anon and can_ascend=true for admin; owner_id is stripped from the response body for both. (2) POST /api/marketplace/{id}/ascend → 401 anon, 403 non-owner regular user, 400 on CG-v35 apex item with 'Already at CG-v35 Apex' message, and 200 for admin with {ok, from_tier:'CG-v21', to_tier:'CG-v22', layer:'Spirit', safety_score} + history entry pushed and codex_tier persisted. (3) POST /api/os/tick response contains eternal_cycle(bool), cycle_loops(int), cycle_trace(list). POST /api/os/eternal-cycle {enabled:true} engages the cycle; subsequent ticks populate cycle_trace with {tick,phase,load,loop} restricted to phases collapse|destruction|rebirth. Disable clean. Frontend Playwright verified: /codex → all 16 [data-testid=codex-share-{I..XVI}] present; clicking codex-share-V shows the 'share link copied' toast (clipboard grant needed). /codex?book=IX auto-expands codex-book-detail-9 on load. /codex Book X → codex-descend-primordium click renders codex-descent-overlay then navigates to /os?depth=primordium within ~1.7s with no pageerror or Web Audio JS errors. Admin login → /marketplace → publish throwaway TEST_iter44_ui_* agent (CG-v21) → detail modal shows ascension-panel + detail-ascend-btn → click opens ascension-ceremony-overlay + ascension-tier-transition ('CG-v21 → CG-v22') → tier badge updates to CG-v22 Spirit layer and history reflects 'Ascension ceremony — evolved from CG-v21 (Soul) to CG-v22 (Spirit layer)'. Anonymous user opening the same detail modal does NOT see ascension-panel. /ops shows ops-cycle-feed-panel with ops-cycle-status ('○ engine idle' → '● engine engaged'), ops-cycle-loops, ops-cycle-phases (rebirth pill highlighted after ticks), ops-cycle-trace populated with e.g. '[t7] loop 1 · rebirth · load 95%' after eternal cycle engaged and 6 ticks. Regression: Legal page renders 'Frasberg' (no 'frasbergai'), navbar Frasberg mark logo present, /marketplace lists 12 items including seeded + prior TEST_ agents, /codex renders all 16 book cards + Beyond the Codex meta-expansion sections.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter44_new_features.py",
+    "/app/test_reports/pytest/iter44.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Non-blocking: React duplicate-key warning in Marketplace DetailModal history rendering — 'Encountered two children with the same key, 1.0.0'. History entries use `version` as React key but multiple history entries share the same version (e.g. 1.0.0 initial publication and 1.0.0 ascension ceremony entry both keyed on '1.0.0'). Suggest keying on `${h.version}-${h.date}-${idx}` or the entry index in Marketplace.jsx DetailModal history map.",
+    "Non-blocking (pre-existing, noted iter41-43): /api/auth/me polls 401 on public pages for anonymous users, spamming console errors. Consider suppressing polling until auth state is unknown or gating fetch on cookie presence.",
+    "Non-blocking (pre-existing): /api/marketplace has accumulated many TEST_iter* items across iterations. This iter added one more (TEST_iter44_ascend_* from pytest — pytest test used publish flow, not deletion; TEST_iter44_ui_* from Playwright still in DB as CG-v22). Recommend an admin-only DELETE /api/marketplace/{id} or a TEST_-prefix prune endpoint so QA data doesn't grow unbounded.",
+    "Non-blocking: ascend endpoint doesn't return the appended history entry in the response — clients must GET the item again to see it. Consider returning `entry` for optimistic UI updates without a round-trip.",
+    "Non-blocking: descent cinematic uses setTimeout(navigate, 1700) — noted in iter43 — still not cleaned up on unmount; low priority (user rarely aborts mid-descent)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter44_new_features.py (new, 10 tests all pass)",
+    "/app/test_reports/iteration_44.json",
+    "/app/test_reports/pytest/iter44.xml"
+  ],
+  "success_rate": {"backend": "100% (10/10)", "frontend": "100% of requested flows"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026! (used), doctester1@frasberg.com / DocTester2026! (registered/used for 403 check)",
+  "seed_data_creation": "Published two throwaway agents at CG-v21 to test ascension WITHOUT touching seeded items: (a) TEST_iter44_ascend_<uuid> via pytest — bumped to CG-v22 then left in DB; (b) TEST_iter44_ui_7c7ccc via Playwright — bumped to CG-v22 then left in DB. Seeded items (Luchii Builder, Luchii-70b, etc.) were NOT ascended, only read (can_ascend + Luchii-70b 400 apex check). OS simulator state reset at end (eternal_cycle=false, depth=baseline, cycle_trace=[]).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "iter44 features all green. Key new testids: codex-share-{I..XVI} (16 share buttons), codex-descent-overlay (also used by iter43 descend cinematic), ascension-panel + detail-ascend-btn + ascension-ceremony-overlay + ascension-tier-transition (admin/owner only in DetailModal), ops-cycle-feed-panel + ops-cycle-status + ops-cycle-loops + ops-cycle-phases + ops-cycle-trace on /ops. TIER_LADDER in /app/backend/marketplace.py is ['CG-v21','CG-v22','CG-v24','CG-v27','CG-v29','CG-v35'] with TIER_LAYER map. Ascend endpoint DOES NOT return history entry — client must GET item again. Clipboard toast on /codex requires context.grant_permissions(['clipboard-read','clipboard-write']). Frontend polls /api/os/tick every 3s on /os and /ops — use domcontentloaded + explicit timeouts, never networkidle. React key warning in Marketplace DetailModal history is a real minor bug worth fixing.",
+  "rca of the issue": "No blocking issues. All 4 iteration-44 features (Descent Sound, Codex Share Cards, Agent Ascension, Ops Cycle Feed) work end-to-end. One minor React key uniqueness warning in DetailModal history — recommend keying by index or version+date composite."
+}

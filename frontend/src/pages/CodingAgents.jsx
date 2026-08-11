@@ -29,7 +29,7 @@ export default function CodingAgents() {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/" className="flex items-center gap-2.5" data-testid="coding-agents-home-link">
             <ArrowLeft size={16} className="text-lux-text2" />
-            <img src="/luchii-mark-circle.png" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
+            <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Luchii</span>
           </Link>
           <button onClick={toggle} aria-label="Toggle theme" data-testid="coding-agents-theme-toggle"

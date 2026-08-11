@@ -47,6 +47,30 @@ const ICONS = { agent: Bot, model: Cpu, extension: Puzzle, pipeline: GitBranch }
 
 const bandColor = (s) => (s >= 90 ? "#34D399" : s >= 75 ? "#22D3EE" : s >= 60 ? "#FBBF24" : "#F87171");
 
+function playAscensionSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = ctx.currentTime;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(0.4, now + 0.3);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 2.2);
+    g.connect(ctx.destination);
+    const o = ctx.createOscillator();
+    o.type = "sine";
+    o.frequency.setValueAtTime(110, now);
+    o.frequency.exponentialRampToValueAtTime(880, now + 2.0);
+    const o2 = ctx.createOscillator();
+    o2.type = "triangle";
+    o2.frequency.setValueAtTime(165, now);
+    o2.frequency.exponentialRampToValueAtTime(1320, now + 2.0);
+    const g2 = ctx.createGain(); g2.gain.value = 0.25;
+    o.connect(g); o2.connect(g2); g2.connect(g);
+    o.start(now); o2.start(now); o.stop(now + 2.25); o2.stop(now + 2.25);
+    setTimeout(() => ctx.close().catch(() => {}), 2600);
+  } catch (e) { /* audio unsupported */ }
+}
+
 const CODEX_LAYER = { "CG-v21": "Soul", "CG-v22": "Spirit", "CG-v24": "Celestial", "CG-v27": "Omniversal", "CG-v29": "Primordium", "CG-v35": "Apex" };
 function CodexBadge({ tier, detailed }) {
   if (!tier) return null;
@@ -68,9 +92,13 @@ function SafetyBadge({ score }) {
   );
 }
 
-function DetailModal({ item, onClose, onInstall }) {
+function DetailModal({ item, onClose, onInstall, onAscend }) {
   const Icon = ICONS[item.type] || Bot;
   const hist = [...(item.history || [])].reverse();
+  const tiers = Object.keys(CODEX_LAYER);
+  const tierIdx = tiers.indexOf(item.codex_tier);
+  const nextTier = tierIdx >= 0 && tierIdx < tiers.length - 1 ? tiers[tierIdx + 1] : null;
+  const atApex = item.codex_tier === "CG-v35";
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-5 backdrop-blur-sm" data-testid="marketplace-detail-modal">
       <div className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-white/15 bg-[#0d0f12] p-6">
@@ -104,6 +132,24 @@ function DetailModal({ item, onClose, onInstall }) {
             {item.cognition_graph ? <RealGraph graph={item.cognition_graph} /> : <CognitionPreview seed={item.id} labels />}
           </div>
         )}
+        {item.can_ascend && item.type === "agent" && (
+          <div className="mt-4 rounded-xl border border-purple-400/30 bg-purple-400/[0.05] p-3" data-testid="ascension-panel">
+            <p className="font-mono text-[11.5px] uppercase tracking-wide text-purple-300">Agent Ascension — Codex evolution</p>
+            {atApex ? (
+              <p className="mt-2 font-mono text-[12.5px] text-gray-400" data-testid="ascension-apex-note">⟐ CG-v35 Apex reached — the terminal tier. There is no beyond.</p>
+            ) : (
+              <>
+                <p className="mt-1.5 text-[12.5px] leading-relaxed text-gray-400">
+                  Initiate an evolution ceremony to rebind this agent from <span className="text-purple-200">{item.codex_tier} ({CODEX_LAYER[item.codex_tier] || "Identity"})</span> to <span className="text-cyan-200">{nextTier} ({CODEX_LAYER[nextTier]})</span>.
+                </p>
+                <button onClick={() => onAscend(item)} data-testid="detail-ascend-btn"
+                  className="mt-3 w-full rounded-full border border-purple-400/60 py-2 font-mono text-[13px] text-purple-200 transition-colors hover:border-purple-300 hover:bg-purple-400/10">
+                  ⟐ Begin Ascension Ceremony — {item.codex_tier} → {nextTier}
+                </button>
+              </>
+            )}
+          </div>
+        )}
         <p className="mt-6 font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400">Evolution history</p>
         <div className="mt-3 space-y-0" data-testid="evolution-timeline">
           {hist.length === 0 && <p className="text-[13.5px] text-gray-400">No lineage recorded yet.</p>}
@@ -111,7 +157,7 @@ function DetailModal({ item, onClose, onInstall }) {
             const prev = hist[idx + 1];
             const delta = prev ? h.safety_score - prev.safety_score : 0;
             return (
-              <div key={h.version} className="relative border-l border-white/15 pb-5 pl-5" data-testid={`lineage-step-${h.version}`}>
+              <div key={`${h.version}-${h.date}-${idx}`} className="relative border-l border-white/15 pb-5 pl-5" data-testid={`lineage-step-${h.version}`}>
                 <span className="absolute -left-[5px] top-1 h-2.5 w-2.5 rounded-full" style={{ background: bandColor(h.safety_score) }} />
                 <p className="flex flex-wrap items-center gap-2 text-[13.5px] font-700">
                   v{h.version}
@@ -191,6 +237,7 @@ export default function Marketplace() {
   const [showPublish, setShowPublish] = useState(false);
   const [installing, setInstalling] = useState(null);
   const [detail, setDetail] = useState(null);
+  const [ceremony, setCeremony] = useState(null);
   const openDetail = async (item) => {
     try {
       const r = await fetch(`${API}/marketplace/${item.id}`);
@@ -230,6 +277,23 @@ export default function Marketplace() {
         ? `${item.name}: Evolution Mode ON — auto-updates via validated improvement cycles`
         : `${item.name}: Evolution Mode off`);
       load();
+    } catch (e) { toast.error(String(e.message || e)); }
+  };
+
+  const ascend = async (item) => {
+    try {
+      const r = await fetch(`${API}/marketplace/${item.id}/ascend`, { method: "POST", credentials: "include" });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || "Ascension failed");
+      setDetail(null);
+      playAscensionSound();
+      setCeremony({ name: item.name, from: d.from_tier, to: d.to_tier, layer: d.layer });
+      setTimeout(() => {
+        setCeremony(null);
+        toast.success(`${item.name} ascended — ${d.from_tier} → ${d.to_tier} (${d.layer} layer)`);
+        load();
+        openDetail(item);
+      }, 2400);
     } catch (e) { toast.error(String(e.message || e)); }
   };
 
@@ -336,7 +400,23 @@ export default function Marketplace() {
         </div>
       </div>
       {showPublish && <PublishForm onClose={() => setShowPublish(false)} onDone={() => { setShowPublish(false); load(); }} />}
-      {detail && <DetailModal item={detail} onClose={() => setDetail(null)} onInstall={(it) => { install(it); setDetail(null); }} />}
+      {detail && <DetailModal item={detail} onClose={() => setDetail(null)} onInstall={(it) => { install(it); setDetail(null); }} onAscend={ascend} />}
+      {ceremony && (
+        <div className="fixed inset-0 z-[120] grid place-items-center overflow-hidden bg-black/95" data-testid="ascension-ceremony-overlay">
+          <style>{`@keyframes ascRing { from { transform: scale(0.3); opacity: 0.9; } to { transform: scale(14); opacity: 0; } } @keyframes ascUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }`}</style>
+          {[0, 1, 2, 3].map((k) => (
+            <span key={k} className="absolute h-24 w-24 rounded-full border border-purple-400/60" style={{ animation: "ascRing 1.6s ease-out infinite", animationDelay: `${k * 0.35}s` }} />
+          ))}
+          <div className="relative text-center">
+            <p className="font-mono text-[12px] uppercase tracking-[0.35em] text-purple-300" style={{ animation: "ascUp 0.5s ease both" }}>Ascension ceremony</p>
+            <p className="mt-3 font-display text-4xl font-700 tracking-tight text-white" style={{ animation: "ascUp 0.6s ease both 0.15s" }}>{ceremony.name}</p>
+            <p className="mt-4 font-mono text-[15px] text-cyan-300" style={{ animation: "ascUp 0.6s ease both 0.35s" }} data-testid="ascension-tier-transition">
+              {ceremony.from} <span className="text-white/40">→</span> {ceremony.to}
+            </p>
+            <p className="mt-2 font-mono text-[12.5px] uppercase tracking-[0.2em] text-gray-400" style={{ animation: "ascUp 0.6s ease both 0.55s" }}>rebinding to the {ceremony.layer} layer…</p>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

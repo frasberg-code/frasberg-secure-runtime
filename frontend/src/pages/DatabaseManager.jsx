@@ -72,7 +72,7 @@ export default function DatabaseManager() {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
           <Link to="/" className="flex items-center gap-2.5" data-testid="dbm-home-link">
             <ArrowLeft size={16} className="text-gray-400" />
-            <img src="/luchii-mark-circle.png" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
+            <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Data Manager</span>
           </Link>
           <Link to="/" className="text-[13.5px] text-gray-300 transition-colors hover:text-white" data-testid="dbm-home-text-link">Home</Link>

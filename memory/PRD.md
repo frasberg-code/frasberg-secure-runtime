@@ -313,3 +313,12 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Tier Filtering: marketplace-tier-filters row (7 chips All/CG-v21/v22/v24/v27/v29/v35), client-side, combines w/ type filter, empty-state message
 - Simulator Audio: os-audio-btn "Hum" — WebAudio drone (sine+triangle @55Hz, lowpass, try/catch guarded); gain/filter/pitch ramp with scenario active + substrate depth (deeper = lower + louder)
 - iteration_43.json: 28/28 backend pytest across iter41/42/43 suites, frontend 100%, no action items. TEST_ marketplace items cleaned. Run pytest with -n 0 (shared sim state)
+
+## 2026-06 (cont. 14): Descent Sound + Codex Share Cards + Agent Ascension + Ops Cycle Feed — TESTED 100% (iteration_44)
+- Descent Sound: playDescentSound() in Codex.jsx — WebAudio falling pitch sweep (sawtooth 880→38Hz + sine 440→30Hz + bandpass noise swoosh, 1.7s, try/catch guarded) fired on click of any "Descend in Simulator" button
+- Codex Share Cards: per-book Share2 button (codex-share-{ROMAN}) copies {origin}/codex?book={ROMAN} to clipboard w/ toast; /codex?book=X deep-link auto-expands + smooth-scrolls to that book (useSearchParams + bookRefs)
+- Agent Ascension: POST /api/marketplace/{id}/ascend (owner/admin only; TIER_LADDER CG-v21→v22→v24→v27→v29→v35; +2 safety; history entry pushed; 400 at Apex). GET item now returns can_ascend flag (owner_id never exposed). DetailModal shows purple Ascension panel (ascension-panel, detail-ascend-btn) for agents; ceremony overlay (ascension-ceremony-overlay, ascension-tier-transition) w/ rising WebAudio sweep, then reload + toast. Apex agents show "There is no beyond" note
+- Ops Cycle Feed: /ops panel (ops-cycle-feed-panel) — engine status (ops-cycle-status), loops completed (ops-cycle-loops), phase stepper collapse→destruction→rebirth→infinity (ops-cycle-phases), live trace feed from cycle_trace + eternal-cycle events (ops-cycle-trace), empty-state links to /os
+- Brand/text fixes: Legal.jsx fully rebranded FrasbergAI→Frasberg; Docs.jsx key comment; page-header logos (AiModels, Gallery, DatabaseManager, Downloads, PlayGame, LuchiiCode, Auth, Builder, Chat, CodingAgents, Contact, Court, Docs, Profile, Status) → frasberg-mark-circle.png; Navbar/Footer/Brand header REVERTED to luchii-mark per user request
+- Fixed React duplicate-key warning in DetailModal history (key now version-date-idx)
+- iteration_44.json: backend 10/10 pytest (/app/backend/tests/test_iter44_new_features.py), frontend 100%, no action items. TEST_ items pruned from DB post-test

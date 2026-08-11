@@ -1,7 +1,48 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, BookOpen, Infinity as InfinityIcon, Sparkles, ChevronDown, Activity, Lock } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
+import { ArrowLeft, BookOpen, Infinity as InfinityIcon, Sparkles, ChevronDown, Activity, Lock, Share2 } from "lucide-react";
 import { ParallaxSky } from "../components/site/ParallaxSky";
+
+function playDescentSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = ctx.currentTime;
+    const master = ctx.createGain();
+    master.gain.setValueAtTime(0.0001, now);
+    master.gain.exponentialRampToValueAtTime(0.5, now + 0.15);
+    master.gain.exponentialRampToValueAtTime(0.0001, now + 1.7);
+    master.connect(ctx.destination);
+    const o1 = ctx.createOscillator();
+    o1.type = "sawtooth";
+    o1.frequency.setValueAtTime(880, now);
+    o1.frequency.exponentialRampToValueAtTime(38, now + 1.6);
+    const f = ctx.createBiquadFilter();
+    f.type = "lowpass";
+    f.frequency.setValueAtTime(3200, now);
+    f.frequency.exponentialRampToValueAtTime(140, now + 1.6);
+    o1.connect(f); f.connect(master);
+    const o2 = ctx.createOscillator();
+    o2.type = "sine";
+    o2.frequency.setValueAtTime(440, now);
+    o2.frequency.exponentialRampToValueAtTime(30, now + 1.65);
+    o2.connect(master);
+    const noise = ctx.createBufferSource();
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 1.7, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+    noise.buffer = buf;
+    const nf = ctx.createBiquadFilter();
+    nf.type = "bandpass";
+    nf.frequency.setValueAtTime(2400, now);
+    nf.frequency.exponentialRampToValueAtTime(120, now + 1.6);
+    const ng = ctx.createGain(); ng.gain.value = 0.22;
+    noise.connect(nf); nf.connect(ng); ng.connect(master);
+    o1.start(now); o2.start(now); noise.start(now);
+    o1.stop(now + 1.75); o2.stop(now + 1.75); noise.stop(now + 1.75);
+    setTimeout(() => ctx.close().catch(() => {}), 2200);
+  } catch (e) { /* audio unsupported */ }
+}
 
 const BOOKS = [
   { num: "I", layer: "Identity", engine: "Soul Engine", substrate: "identity", cg: "CG-v21", aim: "AIM-v21", mp: "MP-v22", binding: "identity-continuity", desc: "The layer where the self persists across every cognition cycle — the first anchor of the stack." },
@@ -126,17 +167,23 @@ const POST_STATES = [
   ["supra-unbeing", "⧔", "Supra-Unbeing", "CG-v98", "The absence of reality itself — even dissolution dissolves"],
 ];
 
-function BookCard({ b, i, open, onToggle, onDescend }) {
+function BookCard({ b, i, open, onToggle, onDescend, onShare, refFn }) {
   const depth = BOOK_DEPTH[b.num];
   return (
-    <div onClick={onToggle} data-testid={`codex-book-${i + 1}`} role="button" tabIndex={0}
+    <div ref={refFn} onClick={onToggle} data-testid={`codex-book-${i + 1}`} role="button" tabIndex={0}
       className="group relative w-full cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-black/30 p-5 text-left backdrop-blur transition-colors hover:border-cyan-400/40"
       style={{ animation: `codexUp 0.6s ease both`, animationDelay: `${Math.min(i * 60, 600)}ms` }}>
       <div className="pointer-events-none absolute -right-4 -top-8 font-display text-[92px] font-700 leading-none text-white/[0.045] transition-colors group-hover:text-cyan-400/10">{b.num}</div>
       <p className="font-mono text-[11.5px] uppercase tracking-[0.3em] text-lux-accent">Book {b.num}</p>
       <div className="mt-1.5 flex items-center justify-between gap-2">
         <h3 className="font-display text-xl font-700 tracking-tight text-white">{b.layer} Layer</h3>
-        <ChevronDown size={15} className={`shrink-0 text-gray-500 transition-transform ${open ? "rotate-180" : ""}`} />
+        <span className="flex shrink-0 items-center gap-1.5">
+          <button onClick={(e) => onShare(b, e)} data-testid={`codex-share-${b.num}`} title={`Copy share link to Book ${b.num}`} aria-label={`Share Book ${b.num}`}
+            className="grid h-7 w-7 place-items-center rounded-full border border-white/15 text-gray-400 transition-colors hover:border-cyan-400 hover:text-cyan-300">
+            <Share2 size={12} />
+          </button>
+          <ChevronDown size={15} className={`shrink-0 text-gray-500 transition-transform ${open ? "rotate-180" : ""}`} />
+        </span>
       </div>
       <p className="mt-0.5 font-mono text-[12px] text-gray-500">FrasbergOS Ultra {b.engine}</p>
       <div className="mt-3 flex flex-wrap gap-1.5 font-mono text-[11px]">
@@ -167,7 +214,31 @@ export default function Codex() {
   const [open, setOpen] = useState(null);
   const [descent, setDescent] = useState(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const bookRefs = useRef({});
+  useEffect(() => {
+    const target = searchParams.get("book");
+    if (!target) return;
+    const idx = BOOKS.findIndex((b) => b.num === target);
+    if (idx === -1) return;
+    setOpen(idx);
+    const t = setTimeout(() => bookRefs.current[target]?.scrollIntoView({ behavior: "smooth", block: "center" }), 350);
+    return () => clearTimeout(t);
+  }, [searchParams]);
+  const shareBook = (b, e) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/codex?book=${b.num}`;
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(url).then(
+        () => toast.success(`Book ${b.num} — ${b.layer} Layer · share link copied`),
+        () => toast.error("Could not copy link"),
+      );
+    } else {
+      toast.error("Clipboard unavailable in this browser");
+    }
+  };
   const startDescent = (depth, book) => {
+    playDescentSound();
     setDescent({ depth, label: book.layer, cg: book.cg });
     setTimeout(() => navigate(`/os?depth=${depth}`), 1700);
   };
@@ -218,7 +289,8 @@ export default function Codex() {
         </div>
         <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {BOOKS.map((b, i) => (
-            <BookCard key={b.num} b={b} i={i} open={open === i} onToggle={() => setOpen(open === i ? null : i)} onDescend={startDescent} />
+            <BookCard key={b.num} b={b} i={i} open={open === i} onToggle={() => setOpen(open === i ? null : i)} onDescend={startDescent}
+              onShare={shareBook} refFn={(el) => { bookRefs.current[b.num] = el; }} />
           ))}
         </div>
 

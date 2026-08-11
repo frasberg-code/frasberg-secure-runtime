@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Users, Globe, ShieldCheck, GitBranch, Activity } from "lucide-react";
+import { ArrowLeft, Users, Globe, ShieldCheck, GitBranch, Activity, Infinity as InfinityIcon } from "lucide-react";
 import { ParallaxSky } from "../components/site/ParallaxSky";
 import { RegionMap, RegionCards } from "../components/site/RegionMesh";
 
@@ -8,6 +8,8 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const card = "rounded-2xl border border-white/10 bg-black/30 p-5 backdrop-blur";
 const label = "flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400";
 const safetyColor = (s) => (s >= 90 ? "#34D399" : s >= 75 ? "#22D3EE" : s >= 60 ? "#FBBF24" : "#F87171");
+const PHASES = ["collapse", "destruction", "rebirth", "infinity"];
+const phaseColor = { collapse: "text-amber-300", destruction: "text-red-300", rebirth: "text-emerald-300" };
 
 export default function OpsCenter() {
   const [os, setOs] = useState(null);
@@ -30,6 +32,11 @@ export default function OpsCenter() {
   }, [pull]);
 
   const evolving = items.filter((i) => (i.history || []).length > 1 || i.evolution_mode);
+  const inCycle = os?.scenario?.name === "collapse_rebirth";
+  const rem = os?.scenario?.remaining ?? 0;
+  const phase = inCycle ? (rem > 6 ? "collapse" : rem > 3 ? "destruction" : "rebirth") : (os?.eternal_cycle ? "infinity" : null);
+  const trace = [...(os?.cycle_trace || [])].reverse().slice(0, 12);
+  const loopEvents = (os?.events || []).filter((e) => e.text.includes("eternal-cycle")).slice(0, 5);
   return (
     <main className="relative min-h-screen text-white" style={{ background: "#08090A" }} data-testid="ops-center-page">
       <ParallaxSky />
@@ -114,6 +121,38 @@ export default function OpsCenter() {
 
         {os && (
           <>
+            <div className={`${card} mt-5`} data-testid="ops-cycle-feed-panel">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className={label}><InfinityIcon size={12} /> Eternal cycle feed</p>
+                <span className="flex items-center gap-3 font-mono text-[12px]">
+                  <span className={os.eternal_cycle ? "text-purple-300" : "text-gray-500"} data-testid="ops-cycle-status">
+                    {os.eternal_cycle ? "● engine engaged" : "○ engine idle"}
+                  </span>
+                  <span className="text-cyan-200" data-testid="ops-cycle-loops">{os.cycle_loops || 0} loop{(os.cycle_loops || 0) === 1 ? "" : "s"} completed</span>
+                </span>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center gap-2 font-mono text-[11.5px]" data-testid="ops-cycle-phases">
+                {PHASES.map((p, i) => (
+                  <span key={p} className="flex items-center gap-2">
+                    <span className={`rounded-full border px-3 py-1 transition-colors ${phase === p ? "border-purple-400 bg-purple-400/10 text-purple-200" : "border-white/10 text-gray-500"}`}>{p}</span>
+                    {i < PHASES.length - 1 && <span className="text-white/20">→</span>}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-3 max-h-44 space-y-1 overflow-y-auto font-mono text-[12px]" data-testid="ops-cycle-trace">
+                {loopEvents.map((e, i) => (
+                  <p key={`ev-${i}`} className="text-purple-300/90"><span className="text-purple-400/60">[t{e.tick}]</span> {e.text}</p>
+                ))}
+                {trace.map((t, i) => (
+                  <p key={i} className="text-gray-300">
+                    <span className="text-cyan-300/70">[t{t.tick}]</span> loop {t.loop} · <span className={phaseColor[t.phase] || "text-gray-300"}>{t.phase}</span> · load {Math.round(t.load * 100)}%
+                  </p>
+                ))}
+                {trace.length === 0 && loopEvents.length === 0 && (
+                  <p className="text-gray-500">No cycle activity yet — engage the Eternal Cycle in the <Link to="/os" className="underline hover:text-cyan-300">OS Simulator</Link> to begin the loop.</p>
+                )}
+              </div>
+            </div>
             <div className="mt-5"><RegionCards regions={os.regions || []} /></div>
             <div className={`${card} mt-5`} data-testid="ops-event-panel">
               <p className={label}><Activity size={12} /> Kernel event stream</p>
