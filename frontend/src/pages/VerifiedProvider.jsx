@@ -24,12 +24,17 @@ const WELL_KNOWN = [
 
 export default function VerifiedProvider() {
   const [registry, setRegistry] = useState(null);
+  const [status, setStatus] = useState(null);
 
   useEffect(() => {
     fetch(`${API}/.well-known/frasberg-provider.json`)
       .then((r) => (r.ok ? r.json() : null))
       .then(setRegistry)
       .catch(() => {});
+    const load = () => fetch(`${API}/provider/status`).then((r) => (r.ok ? r.json() : null)).then(setStatus).catch(() => {});
+    load();
+    const id = setInterval(load, 10000);
+    return () => clearInterval(id);
   }, []);
 
   return (
@@ -66,6 +71,39 @@ export default function VerifiedProvider() {
           <span className="mt-5 inline-flex items-center gap-2 rounded-full border border-cyan-400/40 bg-cyan-400/[0.06] px-5 py-2 font-mono text-[12.5px] text-cyan-200" data-testid="verified-cert-id">
             <BadgeCheck size={14} /> Certificate FRSB-LLM-2026-0001 · issued 2026-01-15
           </span>
+        </div>
+
+        {/* Live status strip */}
+        <div className="mt-12 rounded-2xl border border-emerald-400/25 bg-emerald-400/[0.03] p-5" data-testid="provider-status-strip">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className={`absolute inline-flex h-full w-full animate-ping rounded-full ${status?.status === "degraded" ? "bg-amber-400" : "bg-emerald-400"} opacity-60`} />
+                <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${status?.status === "degraded" ? "bg-amber-400" : "bg-emerald-400"}`} />
+              </span>
+              <span className="font-mono text-[13px] font-600 uppercase tracking-[0.2em] text-emerald-300" data-testid="provider-status-label">
+                {status ? (status.status === "degraded" ? "Degraded performance" : "All systems operational") : "Checking status…"}
+              </span>
+            </div>
+            {status && (
+              <div className="flex flex-wrap gap-x-6 gap-y-2 font-mono text-[12.5px] text-gray-400" data-testid="provider-status-metrics">
+                <span>uptime <span className="text-white">{status.uptime_pct}%</span></span>
+                <span>avg <span className="text-white">{status.avg_latency_ms}ms</span></span>
+                <span>p95 <span className="text-white">{status.p95_latency_ms}ms</span></span>
+                <span>req/5m <span className="text-white">{status.requests_5m.toLocaleString()}</span></span>
+                <span>errors <span className="text-white">{(status.error_rate * 100).toFixed(2)}%</span></span>
+              </div>
+            )}
+          </div>
+          {status && (
+            <div className="mt-4 flex flex-wrap gap-2" data-testid="provider-status-endpoints">
+              {status.endpoints.map((e) => (
+                <span key={e.path} className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-black/25 px-3 py-1 font-mono text-[11.5px] text-gray-400">
+                  <CheckCircle2 size={11} className="text-emerald-400" /> {e.path}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Verification checks */}

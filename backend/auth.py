@@ -16,6 +16,8 @@ router = APIRouter(prefix="/auth")
 TEAM_DOMAIN = "@frasbergai.com"
 SIGNUP_TOKENS = 50
 DAILY_TOKENS = 100
+CHAT_TOKEN_COST = 1
+BUILD_TOKEN_COST = 5
 
 
 def setup(database):
@@ -183,6 +185,7 @@ async def register(body: RegisterBody, response: Response):
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.users.insert_one({**user})
+    await _ledger(user["id"], "signup_grant", SIGNUP_TOKENS, "Welcome gift — 50 Frasberg tokens")
     asyncio.create_task(_send_welcome_email(email, user["name"]))
     _set_cookies(response, create_access_token(user["id"], email), create_refresh_token(user["id"]))
     return _public(user)
@@ -214,18 +217,91 @@ async def _grant_daily_tokens(user_id: str) -> int:
     res = await db.users.update_one(
         {"id": user_id, "last_token_grant": {"$ne": today}},
         {"$inc": {"tokens": DAILY_TOKENS}, "$set": {"last_token_grant": today}})
-    return DAILY_TOKENS if res.modified_count else 0
+    if res.modified_count:
+        await _ledger(user_id, "daily_grant", DAILY_TOKENS, "Daily Frasberg Gift — 100 free tokens")
+        return DAILY_TOKENS
+    return 0
+
+
+async def _ledger(user_id: str, kind: str, amount: int, note: str = ""):
+    try:
+        await db.token_ledger.insert_one({"id": str(uuid.uuid4()), "user_id": user_id, "kind": kind,
+                                          "amount": amount, "note": note,
+                                          "ts": datetime.now(timezone.utc).isoformat()})
+    except Exception:
+        pass
+
+
+def token_exempt(user: dict) -> bool:
+    return user.get("role") == "admin" or user.get("email", "").endswith(TEAM_DOMAIN)
+
+
+async def spend_tokens(user_id: str, amount: int, kind: str, note: str = "") -> bool:
+    res = await db.users.update_one({"id": user_id, "tokens": {"$gte": amount}},
+                                    {"$inc": {"tokens": -amount}})
+    if res.modified_count:
+        await _ledger(user_id, kind, -amount, f"{note} — free tokens")
+        return True
+    res = await db.users.update_one({"id": user_id, "credit_balance": {"$gte": amount}},
+                                    {"$inc": {"credit_balance": -amount}})
+    if res.modified_count:
+        await _ledger(user_id, kind, -amount, f"{note} — purchased tokens")
+        return True
+    return False
 
 
 @router.get("/gift")
 async def gift_status(request: Request):
     user = await get_current_user(request)
     granted = await _grant_daily_tokens(user["id"])
-    doc = await db.users.find_one({"id": user["id"]}, {"tokens": 1, "last_token_grant": 1, "created_at": 1})
+    doc = await db.users.find_one({"id": user["id"]}, {"tokens": 1, "last_token_grant": 1,
+                                                       "created_at": 1, "credit_balance": 1})
     return {"tokens": (doc or {}).get("tokens", 0), "granted_today": granted,
+            "paid_tokens": int((doc or {}).get("credit_balance", 0)),
             "signup_grant": SIGNUP_TOKENS, "daily_grant": DAILY_TOKENS,
+            "chat_cost": CHAT_TOKEN_COST, "build_cost": BUILD_TOKEN_COST,
+            "exempt": token_exempt(user),
             "last_grant": (doc or {}).get("last_token_grant"),
             "member_since": (doc or {}).get("created_at")}
+
+
+@router.get("/gift/ledger")
+async def gift_ledger(request: Request):
+    user = await get_current_user(request)
+    return await db.token_ledger.find({"user_id": user["id"]}, {"_id": 0}).sort("ts", -1).to_list(30)
+
+
+class GiftTransferBody(BaseModel):
+    email: str
+    amount: int
+
+
+@router.post("/gift/transfer")
+async def gift_transfer(body: GiftTransferBody, request: Request):
+    user = await get_current_user(request)
+    email = body.email.strip().lower()
+    amount = int(body.amount)
+    if amount < 1 or amount > 1000000:
+        raise HTTPException(status_code=400, detail="Amount must be between 1 and 1,000,000")
+    if email == user["email"]:
+        raise HTTPException(status_code=400, detail="You can't gift tokens to yourself")
+    recipient = await db.users.find_one({"email": email}, {"id": 1, "email": 1})
+    if not recipient:
+        raise HTTPException(status_code=404, detail="No Frasberg account with that email")
+    res = await db.users.update_one({"id": user["id"], "credit_balance": {"$gte": amount}},
+                                    {"$inc": {"credit_balance": -amount}})
+    if not res.modified_count:
+        raise HTTPException(status_code=400,
+                            detail="Only purchased tokens can be gifted — free daily tokens stay on your account. Top up your wallet to send gifts.")
+    await db.users.update_one({"id": recipient["id"]}, {"$inc": {"credit_balance": amount}})
+    await _ledger(user["id"], "gift_sent", -amount, f"Gift to {email} — purchased tokens")
+    await _ledger(recipient["id"], "gift_received", amount, f"Gift from {user['email']} — purchased tokens")
+    await db.credit_transfers.insert_one({"id": str(uuid.uuid4()), "kind": "gift", "from_user": user["id"],
+                                          "to_user": recipient["id"], "amount": amount,
+                                          "ts": datetime.now(timezone.utc).isoformat()})
+    doc = await db.users.find_one({"id": user["id"]}, {"credit_balance": 1})
+    return {"ok": True, "sent": amount, "to": email,
+            "paid_tokens": int((doc or {}).get("credit_balance", 0))}
 
 
 @router.post("/logout")

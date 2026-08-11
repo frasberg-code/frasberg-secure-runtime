@@ -1,13 +1,24 @@
-import { useState, useEffect } from "react";
-import { Gift, Sparkles } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Gift, Sparkles, History, Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
+const KIND_LABEL = {
+  signup_grant: "Signup gift", daily_grant: "Daily gift", spend_chat: "Chat",
+  spend_builder: "Builder", gift_sent: "Gift sent", gift_received: "Gift received",
+};
+
 export const FrasbergGiftCard = ({ className = "" }) => {
   const [gift, setGift] = useState(null);
+  const [ledger, setLedger] = useState(null);
+  const [showLedger, setShowLedger] = useState(false);
+  const [showSend, setShowSend] = useState(false);
+  const [sendEmail, setSendEmail] = useState("");
+  const [sendAmount, setSendAmount] = useState("");
+  const [sending, setSending] = useState(false);
 
-  useEffect(() => {
+  const refresh = useCallback(() => {
     fetch(`${API}/auth/gift`, { credentials: "include" })
       .then((r) => (r.ok ? r.json() : null))
       .then((g) => {
@@ -16,6 +27,38 @@ export const FrasbergGiftCard = ({ className = "" }) => {
       })
       .catch(() => {});
   }, []);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  const loadLedger = () => {
+    if (!showLedger && ledger === null) {
+      fetch(`${API}/auth/gift/ledger`, { credentials: "include" })
+        .then((r) => (r.ok ? r.json() : []))
+        .then(setLedger)
+        .catch(() => setLedger([]));
+    }
+    setShowLedger((v) => !v);
+  };
+
+  const sendGift = async (e) => {
+    e.preventDefault();
+    setSending(true);
+    try {
+      const res = await fetch(`${API}/auth/gift/transfer`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email: sendEmail.trim(), amount: Number(sendAmount) }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Transfer failed");
+      toast.success(`Sent ${data.sent.toLocaleString()} tokens to ${data.to}`);
+      setSendEmail(""); setSendAmount(""); setShowSend(false); setLedger(null);
+      refresh();
+    } catch (err) {
+      toast.error(err.message);
+    } finally { setSending(false); }
+  };
 
   if (!gift) return null;
   const year = (gift.member_since || "2026").slice(0, 4);
@@ -33,7 +76,10 @@ export const FrasbergGiftCard = ({ className = "" }) => {
           </div>
           <p className="mt-4 font-mono text-4xl font-600 tracking-tighter text-white" data-testid="gift-token-balance">
             {Number(gift.tokens).toLocaleString()}
-            <span className="ml-2 text-sm text-cyan-300/80">Frasberg tokens</span>
+            <span className="ml-2 text-sm text-cyan-300/80">free tokens</span>
+          </p>
+          <p className="mt-1.5 font-mono text-[13px] text-gray-400" data-testid="gift-paid-balance">
+            + {Number(gift.paid_tokens).toLocaleString()} purchased tokens <span className="text-gray-600">· giftable</span>
           </p>
           {gift.granted_today > 0 && (
             <span data-testid="gift-daily-claimed" className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 font-mono text-[12px] text-emerald-300">
@@ -41,12 +87,73 @@ export const FrasbergGiftCard = ({ className = "" }) => {
             </span>
           )}
         </div>
-        <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-10 w-10 rounded-full opacity-90" />
+        <div className="flex flex-col items-end gap-2.5">
+          <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-10 w-10 rounded-full opacity-90" />
+          <div className="flex gap-2">
+            <button onClick={loadLedger} data-testid="gift-ledger-toggle"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5 font-mono text-[12px] text-gray-300 transition-colors hover:border-cyan-400/50 hover:text-cyan-200">
+              <History size={12} /> History
+            </button>
+            <button onClick={() => setShowSend((v) => !v)} data-testid="gift-send-toggle"
+              className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 px-3 py-1.5 font-mono text-[12px] text-amber-300 transition-colors hover:bg-amber-400/[0.08]">
+              <Send size={12} /> Send a gift
+            </button>
+          </div>
+        </div>
       </div>
+
+      {showSend && (
+        <form onSubmit={sendGift} className="relative mt-5 rounded-xl border border-amber-400/25 bg-black/25 p-4" data-testid="gift-send-form">
+          <p className="font-mono text-[11.5px] uppercase tracking-[0.2em] text-amber-300">Send purchased tokens to a friend</p>
+          <div className="mt-3 flex flex-col gap-2.5 sm:flex-row">
+            <input type="email" required value={sendEmail} onChange={(e) => setSendEmail(e.target.value)}
+              placeholder="friend@email.com" data-testid="gift-send-email"
+              className="flex-1 rounded-full border border-white/15 bg-transparent px-4 py-2 text-[13px] text-white outline-none focus:border-amber-400/60" />
+            <input type="number" required min="1" value={sendAmount} onChange={(e) => setSendAmount(e.target.value)}
+              placeholder="Amount" data-testid="gift-send-amount"
+              className="w-full rounded-full border border-white/15 bg-transparent px-4 py-2 text-[13px] text-white outline-none focus:border-amber-400/60 sm:w-32" />
+            <button type="submit" disabled={sending} data-testid="gift-send-btn"
+              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-amber-300 px-5 py-2 font-mono text-[12.5px] font-600 text-[#0B1220] transition-opacity hover:opacity-85 disabled:opacity-50">
+              {sending ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />} Send
+            </button>
+          </div>
+          <p className="mt-2.5 font-mono text-[11.5px] text-gray-500" data-testid="gift-send-rule">
+            Only purchased tokens can be gifted — free daily tokens stay on your account.
+          </p>
+        </form>
+      )}
+
+      {showLedger && (
+        <div className="relative mt-5 rounded-xl border border-white/10 bg-black/25 p-4" data-testid="gift-ledger">
+          <p className="font-mono text-[11.5px] uppercase tracking-[0.2em] text-cyan-300">Token history</p>
+          {ledger === null ? (
+            <p className="mt-3 font-mono text-[12.5px] text-gray-500">Loading…</p>
+          ) : ledger.length === 0 ? (
+            <p className="mt-3 font-mono text-[12.5px] text-gray-500" data-testid="gift-ledger-empty">No activity yet — grants and spends will appear here.</p>
+          ) : (
+            <div className="mt-2 max-h-56 space-y-1 overflow-y-auto">
+              {ledger.map((row, i) => (
+                <div key={row.id || i} className="flex items-center justify-between gap-3 border-b border-white/[0.06] py-2 last:border-0" data-testid={`gift-ledger-row-${i}`}>
+                  <div className="min-w-0">
+                    <p className="font-mono text-[12.5px] text-gray-200">{KIND_LABEL[row.kind] || row.kind}</p>
+                    <p className="truncate font-mono text-[11px] text-gray-500">{row.note}</p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-3">
+                    <span className={`font-mono text-[13px] font-600 ${row.amount >= 0 ? "text-emerald-300" : "text-rose-300"}`}>
+                      {row.amount >= 0 ? "+" : ""}{row.amount.toLocaleString()}
+                    </span>
+                    <span className="font-mono text-[11px] text-gray-600">{(row.ts || "").slice(0, 10)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="relative mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
         <p className="font-mono text-[12px] uppercase tracking-[0.18em] text-gray-400" data-testid="gift-card-terms">
-          {gift.signup_grant} tokens on signup · {gift.daily_grant} free every day
+          {gift.signup_grant} tokens on signup · {gift.daily_grant} free every day · chat {gift.chat_cost} tok · build {gift.build_cost} tok
         </p>
         <p className="font-mono text-[12px] tracking-[0.25em] text-cyan-300/70">FRSB •••• {year}</p>
       </div>

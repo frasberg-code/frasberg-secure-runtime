@@ -130,6 +130,10 @@ async def builder_generate(body: GenerateReq, user: dict = Depends(auth_module.g
     used = await db.builder_generations.count_documents({"user_id": user["id"], "day": _today()})
     if used >= limit:
         raise HTTPException(status_code=429, detail=f"Daily build limit reached ({limit}/day). Upgrade to Luchii Pro for {PRO_DAILY} builds/day.")
+    if not auth_module.token_exempt(user):
+        if not await auth_module.spend_tokens(user["id"], auth_module.BUILD_TOKEN_COST, "spend_builder", f"Luchii {body.type} build"):
+            raise HTTPException(status_code=402,
+                                detail=f"Builds cost {auth_module.BUILD_TOKEN_COST} Frasberg tokens — you're out. 100 free tokens arrive tomorrow, or top up your wallet.")
 
     project = None
     if body.project_id:

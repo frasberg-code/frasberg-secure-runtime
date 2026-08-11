@@ -1,0 +1,27 @@
+{
+  "summary": "Iter49 — 4 shipped features (spend tokens, ledger, /provider/status, gift transfer) fully verified end-to-end. Backend 7/7 pytest PASS after fixing local test-side email-case bug (register lowercases email; test needed lowercase for direct mongo update). Frontend: /verified-provider shows provider-status-strip with label 'All systems operational', metrics (uptime 100%, avg 18.9ms, p95 225ms, req/5m 13, errors 0.00%) and 4 endpoint chips (/v1/chat/completions, /v1/embeddings, /v1/models, /.well-known/frasberg-provider.json). /dashboard as doctester1 renders FrasbergGiftCard with 98 free tokens, +5,000 purchased tokens (giftable), ledger toggle opens 5 rows (gift_received/+10, gift_sent/-10, spend_chat/-1 all colored correctly), send form has email/amount/btn/rule elements. Over-balance send (999,999 → admin) triggers exact toast 'Only purchased tokens can be gifted — free daily tokens stay on your account. Top up your wallet to send gifts.' Chat spend: doctester1 tokens decremented by exactly 1 per chat with ledger row kind=spend_chat amount=-1. Admin exempt: chat call did NOT decrement admin tokens (token_exempt=true, confirmed via /api/auth/gift exempt:true). 402 exhaustion: throwaway user with tokens=0 & credit_balance=0 → /api/chat 402 'Out of Frasberg tokens', /api/builder/generate 402 with token-cost message. Gift transfer: 10 doc→admin succeeded (ok:true, paid_tokens -10, admin credit_balance +10 verified in mongo, gift_sent/-10 ledger row); self-transfer 400 'yourself'; unknown email 404; amount 0 400; over-balance 400 with 'Only purchased tokens can be gifted' rule text. Wallet restored: admin sent 10 back to doctester1 (final wallet=5000 confirmed). Regression: /api/auth/gift returns granted_today/signup_grant/daily_grant; /api/.well-known/frasberg-provider.json still 200 with FRSB-LLM-2026-0001.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_iter49_new_features.py",
+    "/app/test_reports/pytest/iter49_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "auth.py:spend_tokens deducts from free tokens (users.tokens) first, THEN purchased (users.credit_balance). Spec is followed but note there's no atomic split-spend if a user has tokens=0.5 across the two — currently OK since amounts are integer 1 or 5 and each field is checked with $gte:amount independently. Fine as-is.",
+  "auth.py:gift_transfer uses two sequential update_one calls (sender debit, then recipient credit) with no transaction — theoretical mid-failure could debit sender without crediting recipient. For a low-frequency gifting flow this is acceptable, but consider a mongo session/txn or a compensating write on the recipient step failing.",
+  "server.py chat endpoint returns SSE StreamingResponse; the 402 raise happens BEFORE stream starts so client sees a clean JSON error — verified working.",
+  "builder.py 402 path verified without invoking LLM — good separation."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter49_new_features.py",
+    "/app/test_reports/iteration_49.json"
+  ],
+  "success_rate": {"backend": "100% (7/7 pytest)", "frontend": "100% — verified-provider + dashboard gift card fully functional"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026!, doctester1@frasberg.com / DocTester2026!",
+  "seed_data_creation": "Throwaway TEST users test_iter49_<uuid>@frasberg.com created + deleted inside test_out_of_tokens_402_chat_and_builder (self-cleaning via lowercase email match).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All 4 iter49 features shipped and green. doctester1 wallet was 5,000 → transfer test moved 10 doc→admin then admin→doc, so final wallet is again 5,000. doctester1 free tokens = ~98 (a few chat spends occurred during testing on 2026-08-11; daily grant already claimed today). Backend chat/builder both meter via auth.spend_tokens (free first, then wallet). Admin (@frasberg.com role=admin) AND @frasbergai.com domain are token_exempt. Public /api/provider/status is unauth and returns static 'operational' plus live middleware metrics. Do not re-register test_iter49_* prefixes — cleaned up.",
+  "rca of the issue": "One test failure during first pytest run (test_out_of_tokens_402_chat_and_builder) was caused by test-side bug: /api/auth/register lowercases email before insert, but my test kept the original 'TEST_iter49_<hex>@…' mixed-case string for the follow-up direct-mongo update. Update matched 0 documents, so tokens/credit_balance stayed at 50/None and chat spent normally (200 instead of 402). Fix: lowercased the test email literal (line 78 of test_iter49_new_features.py). Feature code is correct."
+}

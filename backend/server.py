@@ -857,6 +857,10 @@ async def chat(req: ChatRequest, user: Optional[dict] = Depends(optional_user)):
     if len(req.message) > MAX_MSG_LEN:
         raise HTTPException(status_code=413, detail=f"Message exceeds {MAX_MSG_LEN} chars")
     session_id = req.session_id or str(uuid.uuid4())
+    if user and not auth_module.token_exempt(user):
+        if not await auth_module.spend_tokens(user["id"], auth_module.CHAT_TOKEN_COST, "spend_chat", "Luchii chat message"):
+            raise HTTPException(status_code=402,
+                                detail="Out of Frasberg tokens — 100 free tokens arrive tomorrow, or top up your wallet / receive a gift.")
     attachment = None
     if req.attachment_base64:
         if not user:
@@ -3021,6 +3025,28 @@ async def support_chat(body: SupportChatBody):
 
     return StreamingResponse(gen(), media_type="text/event-stream",
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
+@api_router.get("/provider/status")
+async def provider_status():
+    now = time.time()
+    recent = [m for m in _REQ_METRICS if now - m[0] < 300]
+    lats = sorted(m[1] for m in recent)
+    avg = round(sum(lats) / len(lats), 1) if lats else 0.0
+    p95 = round(lats[int(len(lats) * 0.95)], 1) if len(lats) > 1 else (round(lats[0], 1) if lats else 0.0)
+    errors = sum(1 for m in recent if m[2] >= 500)
+    err_rate = round(errors / len(recent), 4) if recent else 0.0
+    return {"status": "operational" if err_rate < 0.05 else "degraded",
+            "uptime_seconds": int(now - _START_TIME.timestamp()),
+            "uptime_pct": round(100 - err_rate * 100, 3),
+            "requests_5m": len(recent), "avg_latency_ms": avg, "p95_latency_ms": p95,
+            "error_rate": err_rate,
+            "endpoints": [
+                {"path": "/v1/chat/completions", "status": "operational"},
+                {"path": "/v1/embeddings", "status": "operational"},
+                {"path": "/v1/models", "status": "operational"},
+                {"path": "/.well-known/frasberg-provider.json", "status": "operational"},
+            ]}
 
 
 @api_router.get("/.well-known/frasbergai-provider.json")

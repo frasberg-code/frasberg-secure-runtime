@@ -365,3 +365,11 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Codex Book XVII unlock verified by testing agent (localStorage codex_read_books uses ROMAN numerals "I".."XVI", not integers)
 - iteration_48.json: backend 10/10 pytest, frontend pass (dashboard gift card was missing in first run — re-added + screenshot-verified). Non-blocker noted: anonymous homepage 401 console noise from /api/auth/me polling
 
+## 2026-06 (fork, cont.): Token Spend + Ledger + Status Feed + Gift Sharing — TESTED 100% (iteration_49)
+- Spend Tokens: chat costs CHAT_TOKEN_COST=1, builder generate costs BUILD_TOKEN_COST=5 (auth.spend_tokens — deducts free `tokens` first, then wallet `credit_balance`; token_exempt for admins + @frasbergai.com; 402 when both empty). Metering in server.py POST /api/chat + builder.py /builder/generate
+- Token History: db.token_ledger (signup_grant/daily_grant/spend_chat/spend_builder/gift_sent/gift_received), GET /api/auth/gift/ledger (last 30); History panel in FrasbergGiftCard (gift-ledger-toggle/-row-{i}, colored +/- amounts)
+- Provider Status Feed: public GET /api/provider/status (real metrics from _REQ_METRICS middleware: uptime/avg/p95/req5m/error_rate + static endpoint chips); live strip on /verified-provider (provider-status-strip, 10s polling, pulsing dot)
+- Gift Sharing: POST /api/auth/gift/transfer {email,amount} — moves ONLY purchased wallet tokens (credit_balance) between accounts; free daily tokens non-transferable (400 rule msg); self 400, unknown 404; ledger + credit_transfers kind=gift records. Send-a-gift form in gift card (gift-send-toggle/-email/-amount/-btn/-rule). /api/auth/gift now returns paid_tokens/chat_cost/build_cost/exempt
+- USER LORE DUMPS (5 messages): Luchii Tier Benchmark suite, Cosmogenic→Alpha-Omega kernel stack — archived at /app/memory/frasberg_lore_dumps.md, NO build requested. Best future build if asked: /benchmark multi-tier comparison dashboard
+- iteration_49.json: backend 7/7 pytest + frontend 100%, no action items; test wallets restored
+

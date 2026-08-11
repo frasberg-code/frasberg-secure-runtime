@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="7" time="11.444" timestamp="2026-08-11T15:49:10.563634+00:00" hostname="agent-env-4793a44b-b33b-4076-b55d-f272d88ffb4f"><testcase classname="tests.test_iter49_new_features" name="test_provider_status_public" time="0.325" /><testcase classname="tests.test_iter49_new_features" name="test_chat_spends_one_token_and_ledger_row" time="5.309" /><testcase classname="tests.test_iter49_new_features" name="test_admin_chat_does_not_decrement" time="1.721" /><testcase classname="tests.test_iter49_new_features" name="test_out_of_tokens_402_chat_and_builder" time="1.961"><failure message="AssertionError: expected 402 got 200: : stream-start&#10;  &#10;  data: {&quot;delta&quot;: &quot;Hey&quot;}&#10;  &#10;  data: {&quot;delta&quot;: &quot; z! Good to have you here. I'm Luchii. How can I help you today?&quot;}&#10;  &#10;  data: {&quot;done&quot;: true, &quot;session_id&quot;: &quot;iter49-out&quot;, &quot;mesh&quot;: &quot;frasberg-secure-v1&quot;, &quot;sig&quot;: &quot;90c327dd603f6822d63a9c848c41acbbe9574c425c6ba957cf336f15da17e072&quot;}&#10;  &#10;  &#10;assert 200 == 402&#10; +  where 200 = &lt;Response [200]&gt;.status_code">backend/tests/test_iter49_new_features.py:95: in test_out_of_tokens_402_chat_and_builder
+    assert cr.status_code == 402, f"expected 402 got {cr.status_code}: {cr.text[:300]}"
+E   AssertionError: expected 402 got 200: : stream-start
+E     
+E     data: {"delta": "Hey"}
+E     
+E     data: {"delta": " z! Good to have you here. I'm Luchii. How can I help you today?"}
+E     
+E     data: {"done": true, "session_id": "iter49-out", "mesh": "frasberg-secure-v1", "sig": "90c327dd603f6822d63a9c848c41acbbe9574c425c6ba957cf336f15da17e072"}
+E     
+E     
+E   assert 200 == 402
+E    +  where 200 = &lt;Response [200]&gt;.status_code</failure></testcase><testcase classname="tests.test_iter49_new_features" name="test_gift_transfer_happy_and_errors" time="1.154" /><testcase classname="tests.test_iter49_new_features" name="test_gift_still_has_grant_fields" time="0.417" /><testcase classname="tests.test_iter49_new_features" name="test_wellknown_still_works" time="0.087" /></testsuite></testsuites>
