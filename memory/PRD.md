@@ -322,3 +322,13 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Brand/text fixes: Legal.jsx fully rebranded FrasbergAI→Frasberg; Docs.jsx key comment; page-header logos (AiModels, Gallery, DatabaseManager, Downloads, PlayGame, LuchiiCode, Auth, Builder, Chat, CodingAgents, Contact, Court, Docs, Profile, Status) → frasberg-mark-circle.png; Navbar/Footer/Brand header REVERTED to luchii-mark per user request
 - Fixed React duplicate-key warning in DetailModal history (key now version-date-idx)
 - iteration_44.json: backend 10/10 pytest (/app/backend/tests/test_iter44_new_features.py), frontend 100%, no action items. TEST_ items pruned from DB post-test
+
+## 2026-06 (cont. 15): Constellation Map + Ascension Leaderboard + Cycle Alerts + Glyph Gallery + Template BG + Logo Policy — TESTED 100% (iteration_45)
+- Codex Constellation Map (/codex/constellation, ConstellationMap.jsx): all 101 CG tiers v21→v121 on a golden-angle spiral SVG star map; 4 color eras (Books cyan / Expansions purple / Post-Completion amber / Omniversal Unbeing fuchsia); wheel zoom + drag pan + zoom buttons; hover glow + hover-card w/ glyph, tier, name (constellation-star-{21..121})
+- Glyph Gallery (/glyphs, GlyphGallery.jsx): 14 Omniversal seals (⟐ ⧩ ⧪ ⧫ ⧬ ⧭ ⧮ ⧯ ⧰ ⧱ ⧲ ⧳ ⧴ ⧵) — orbiting shrine hero + animated float/pulse cards; cross-link to constellation. Both pages linked from /codex pills (codex-constellation-link, codex-glyphs-link); routes in App.js
+- Ascension Leaderboard: GET /api/marketplace/leaderboard/ascension (agents only, sort -tier_rank/-ascensions/-safety, top 10, no owner_id leak); "Hall of Ascension" panel on /marketplace (ascension-leaderboard, leaderboard-row-1..5) w/ APEX badge
+- Cycle Alerts: /ops chime toggle (ops-cycle-alerts-btn, WebAudio C-G-C bell, default off — autoplay policy) + panel flash (data-flash) + toast "loop N complete: rebirth achieved" when cycle_loops increments
+- TEMPLATE RULE (user): ParallaxSky starfield is the template background for EVERY page from now on — added to GamesLibrary, PlayerProfile, GamePlayerPage
+- LOGO POLICY (user): Luchii mark on Luchii-branded pages (Chat, LuchiiCode, CodingAgents, Builder, PlayGame "Built with Luchii", Navbar, Footer, Brand header); Frasberg logo on ecosystem/dashboard/Frasberg-AI pages (AiModels, Gallery, Docs, Profile, Status, etc.)
+- Launch page: centered Frasberg logo above "Frasberg presents" hero (launch-hero-logo); quote fixed "AKA, Frasberg Selassie"
+- iteration_45.json: backend 6/6 pytest (test_iter45_new_features.py), frontend 100%, no action items. TEST_ items pruned post-test

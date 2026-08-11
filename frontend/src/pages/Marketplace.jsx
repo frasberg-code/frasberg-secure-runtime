@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { ArrowLeft, Download, Plus, X, Bot, Cpu, Puzzle, GitBranch, BadgeCheck, Zap, ShieldCheck, Rocket, Globe } from "lucide-react";
+import { ArrowLeft, Download, Plus, X, Bot, Cpu, Puzzle, GitBranch, BadgeCheck, Zap, ShieldCheck, Rocket, Globe, Trophy } from "lucide-react";
 import { ParallaxSky } from "../components/site/ParallaxSky";
 import { CognitionPreview } from "../components/site/CognitionPreview";
 import { useAuth } from "../context/AuthContext";
@@ -238,6 +238,7 @@ export default function Marketplace() {
   const [installing, setInstalling] = useState(null);
   const [detail, setDetail] = useState(null);
   const [ceremony, setCeremony] = useState(null);
+  const [leaders, setLeaders] = useState([]);
   const openDetail = async (item) => {
     try {
       const r = await fetch(`${API}/marketplace/${item.id}`);
@@ -250,6 +251,8 @@ export default function Marketplace() {
   const load = () => {
     fetch(`${API}/marketplace${type !== "all" ? `?type=${type}` : ""}`)
       .then((r) => r.json()).then((d) => setItems(d.items || [])).catch(() => setItems([]));
+    fetch(`${API}/marketplace/leaderboard/ascension`)
+      .then((r) => r.json()).then((d) => setLeaders(d.leaders || [])).catch(() => {});
   };
   useEffect(load, [type]);
 
@@ -345,6 +348,29 @@ export default function Marketplace() {
             </button>
           ))}
         </div>
+
+        {leaders.length > 0 && (
+          <div className="mt-8 rounded-2xl border border-purple-400/20 bg-purple-400/[0.03] p-5 backdrop-blur" data-testid="ascension-leaderboard">
+            <p className="flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.2em] text-purple-300"><Trophy size={13} /> Hall of Ascension — highest Codex tiers</p>
+            <div className="mt-4 space-y-2.5">
+              {leaders.slice(0, 5).map((l, i) => (
+                <div key={l.id} className="flex flex-wrap items-center justify-between gap-2" data-testid={`leaderboard-row-${i + 1}`}>
+                  <span className="flex min-w-0 items-center gap-3">
+                    <span className={`w-6 shrink-0 text-center font-mono text-[14px] font-700 ${i === 0 ? "text-amber-300" : i === 1 ? "text-gray-300" : i === 2 ? "text-orange-300" : "text-gray-500"}`}>{i + 1}</span>
+                    <span className="truncate text-[14px] font-600">{l.name}</span>
+                    {l.official && <BadgeCheck size={13} className="shrink-0 text-cyan-300" />}
+                    <span className="truncate font-mono text-[11.5px] text-gray-500">by {l.owner}</span>
+                  </span>
+                  <span className="flex items-center gap-2 font-mono text-[11.5px]">
+                    {l.codex_tier === "CG-v35" && <span className="rounded-full border border-amber-400/50 px-2 py-0.5 text-amber-300">⟐ APEX</span>}
+                    <span className="rounded-full border border-purple-400/50 px-2.5 py-0.5 text-purple-300">⟐ {l.codex_tier} · {l.layer}</span>
+                    <span className="text-gray-400">{l.ascensions} ascension{l.ascensions === 1 ? "" : "s"}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3" data-testid="marketplace-grid">
           {items === null && <p className="font-mono text-[13px] text-gray-400">Loading…</p>}

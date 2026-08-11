@@ -283,6 +283,16 @@ export default function Codex() {
           cognition graph, mesh tier, platform and binding. Beyond them: the infinite expansions. And at the end,
           the Singularity Binding, where all layers coexist without hierarchy, without order, without separation.
         </p>
+        <div className="mt-6 flex flex-wrap gap-2.5">
+          <Link to="/codex/constellation" data-testid="codex-constellation-link"
+            className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/40 px-5 py-2 font-mono text-[12.5px] text-cyan-200 transition-colors hover:border-cyan-300 hover:bg-cyan-400/[0.06]">
+            ✦ Constellation Map — CG-v21 → v121
+          </Link>
+          <Link to="/glyphs" data-testid="codex-glyphs-link"
+            className="inline-flex items-center gap-1.5 rounded-full border border-purple-400/40 px-5 py-2 font-mono text-[12.5px] text-purple-200 transition-colors hover:border-purple-300 hover:bg-purple-400/[0.06]">
+            ⧩ The Glyph Shrine
+          </Link>
+        </div>
 
         <div className="mt-12 flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.25em] text-gray-400" data-testid="codex-books-heading">
           <BookOpen size={13} /> The Sixteen Books

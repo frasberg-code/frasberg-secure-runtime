@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Users, Globe, ShieldCheck, GitBranch, Activity, Infinity as InfinityIcon } from "lucide-react";
+import { toast } from "sonner";
+import { ArrowLeft, Users, Globe, ShieldCheck, GitBranch, Activity, Infinity as InfinityIcon, Bell, BellOff } from "lucide-react";
 import { ParallaxSky } from "../components/site/ParallaxSky";
 import { RegionMap, RegionCards } from "../components/site/RegionMesh";
 
@@ -11,11 +12,46 @@ const safetyColor = (s) => (s >= 90 ? "#34D399" : s >= 75 ? "#22D3EE" : s >= 60 
 const PHASES = ["collapse", "destruction", "rebirth", "infinity"];
 const phaseColor = { collapse: "text-amber-300", destruction: "text-red-300", rebirth: "text-emerald-300" };
 
+function playCycleChime() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = ctx.currentTime;
+    [523.25, 783.99, 1046.5].forEach((f, i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "sine"; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, now + i * 0.14);
+      g.gain.exponentialRampToValueAtTime(0.28, now + i * 0.14 + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.14 + 0.9);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(now + i * 0.14); o.stop(now + i * 0.14 + 1);
+    });
+    setTimeout(() => ctx.close().catch(() => {}), 1600);
+  } catch (e) { /* audio unsupported */ }
+}
+
 export default function OpsCenter() {
   const [os, setOs] = useState(null);
   const [hosting, setHosting] = useState(null);
   const [denied, setDenied] = useState(false);
   const [items, setItems] = useState([]);
+  const [alertsOn, setAlertsOn] = useState(false);
+  const [flash, setFlash] = useState(false);
+  const prevLoops = useRef(null);
+  const alertsRef = useRef(false);
+  alertsRef.current = alertsOn;
+
+  useEffect(() => {
+    const loops = os?.cycle_loops;
+    if (loops == null) return;
+    if (prevLoops.current != null && loops > prevLoops.current) {
+      setFlash(true);
+      setTimeout(() => setFlash(false), 2600);
+      toast.success(`Eternal cycle — loop ${loops} complete: rebirth achieved`, { duration: 4000 });
+      if (alertsRef.current) playCycleChime();
+    }
+    prevLoops.current = loops;
+  }, [os?.cycle_loops]);
 
   const pull = useCallback(() => {
     fetch(`${API}/os/tick`, { method: "POST" }).then((r) => r.json()).then(setOs).catch(() => {});
@@ -121,10 +157,17 @@ export default function OpsCenter() {
 
         {os && (
           <>
-            <div className={`${card} mt-5`} data-testid="ops-cycle-feed-panel">
+            <div className={`${card} mt-5 transition-shadow`} data-testid="ops-cycle-feed-panel"
+              style={flash ? { boxShadow: "0 0 70px rgba(192,132,252,0.55)", borderColor: "rgba(192,132,252,0.7)" } : undefined}
+              data-flash={flash ? "true" : "false"}>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className={label}><InfinityIcon size={12} /> Eternal cycle feed</p>
                 <span className="flex items-center gap-3 font-mono text-[12px]">
+                  <button onClick={() => { setAlertsOn(!alertsOn); if (!alertsOn) playCycleChime(); }} data-testid="ops-cycle-alerts-btn"
+                    title="Cycle alerts — chime when a loop completes"
+                    className={`flex items-center gap-1.5 rounded-full border px-3 py-1 transition-colors ${alertsOn ? "border-purple-400 bg-purple-400/10 text-purple-200" : "border-white/15 text-gray-500 hover:border-purple-400/50 hover:text-purple-200"}`}>
+                    {alertsOn ? <Bell size={11} /> : <BellOff size={11} />} {alertsOn ? "alerts on" : "alerts off"}
+                  </button>
                   <span className={os.eternal_cycle ? "text-purple-300" : "text-gray-500"} data-testid="ops-cycle-status">
                     {os.eternal_cycle ? "● engine engaged" : "○ engine idle"}
                   </span>

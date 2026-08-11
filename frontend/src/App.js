@@ -56,6 +56,8 @@ import DevPortal from "./pages/DevPortal";
 import Launch from "./pages/Launch";
 import OpsCenter from "./pages/OpsCenter";
 import Codex from "./pages/Codex";
+import ConstellationMap from "./pages/ConstellationMap";
+import GlyphGallery from "./pages/GlyphGallery";
 import FrasbergOS from "./pages/FrasbergOS";
 import DocsHub from "./pages/DocsHub";
 
@@ -137,6 +139,8 @@ function App() {
               <Route path="/launch" element={<Launch />} />
               <Route path="/ops" element={<OpsCenter />} />
               <Route path="/codex" element={<Codex />} />
+              <Route path="/codex/constellation" element={<ConstellationMap />} />
+              <Route path="/glyphs" element={<GlyphGallery />} />
               <Route path="/developers/docs" element={<DocsHub />} />
               <Route path="/developers/docs/:doc" element={<DocsHub />} />
             </Routes>

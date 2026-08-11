@@ -123,6 +123,8 @@ export default function Launch() {
       <div className="pointer-events-none absolute -top-40 left-1/2 h-[480px] w-[880px] -translate-x-1/2 rounded-full opacity-20 blur-[120px]" style={gradBg} />
 
       <section className="relative z-10 mx-auto max-w-5xl px-5 pt-28 pb-16 text-center">
+        <img src="/frasberg-mark-circle.png" alt="Frasberg" data-testid="launch-hero-logo"
+          className={`mx-auto mb-6 h-16 w-16 rounded-full ${reveal(0)}`} style={{ transitionDelay: "0ms", boxShadow: "0 0 44px rgba(0,240,255,0.35)" }} />
         <p className={`font-mono text-[12px] uppercase tracking-[0.35em] text-cyan-300 ${reveal(0)}`} style={{ transitionDelay: "0ms" }}>
           Frasberg presents
         </p>
@@ -186,7 +188,7 @@ export default function Launch() {
           </ul>
           <blockquote className="mt-7 border-l-2 border-cyan-400 pl-5">
             <p className="font-display text-lg italic text-white/90">"Marketplace v3 is where intelligence becomes deployable."</p>
-            <p className="mt-2 font-mono text-[12.5px] text-gray-400">— Mr. Clayton-M. Bernard-Ex., AKA Frasberg Selassie, creator of Frasberg</p>
+            <p className="mt-2 font-mono text-[12.5px] text-gray-400">— Mr. Clayton-M. Bernard-Ex., AKA, Frasberg Selassie, creator of Frasberg</p>
           </blockquote>
         </div>
       </section>

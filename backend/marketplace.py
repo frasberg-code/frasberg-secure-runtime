@@ -232,6 +232,24 @@ async def deploy_from_github(body: DeployBody, request: Request):
     return {"ok": True, "id": item["id"], "name": name, "updated": False}
 
 
+@router.get("/leaderboard/ascension")
+async def ascension_leaderboard():
+    """Hall of Ascension — highest-ascended agents ranked by Codex tier."""
+    await _seed()
+    items = await db.marketplace.find({"type": "agent"}, {"_id": 0, "owner_id": 0}).to_list(200)
+    leaders = []
+    for i in items:
+        tier = i.get("codex_tier", "CG-v21")
+        ascensions = sum(1 for h in i.get("history", []) if str(h.get("note", "")).startswith("Ascension ceremony"))
+        leaders.append({"id": i["id"], "name": i["name"], "owner": i.get("owner"),
+                        "codex_tier": tier, "layer": TIER_LAYER.get(tier, "Identity"),
+                        "tier_rank": TIER_LADDER.index(tier) if tier in TIER_LADDER else 0,
+                        "ascensions": ascensions, "safety_score": i.get("safety_score", 75),
+                        "official": i.get("official", False)})
+    leaders.sort(key=lambda x: (-x["tier_rank"], -x["ascensions"], -x["safety_score"]))
+    return {"leaders": leaders[:10]}
+
+
 class EvolutionBody(BaseModel):
     enabled: bool
 

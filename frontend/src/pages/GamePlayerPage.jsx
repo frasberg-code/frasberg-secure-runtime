@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Cloud, Cpu, Maximize2, Wifi } from "lucide-react";
 import confetti from "canvas-confetti";
 import StreamPlayer from "../components/games/StreamPlayer";
+import { ParallaxSky } from "../components/site/ParallaxSky";
 
 const API = process.env.REACT_APP_BACKEND_URL;
 
@@ -90,6 +91,7 @@ export default function GamePlayerPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#0d0d1a] font-mono text-white" data-testid="game-player-page">
+      <ParallaxSky />
       <div className="flex items-center justify-between border-b border-[#1a1a2e] px-5 py-3">
         <Link to="/games" className="inline-flex items-center gap-2 text-sm text-[#b3bac7] transition-colors hover:text-white" data-testid="game-player-exit">
           <ArrowLeft size={15} /> Library

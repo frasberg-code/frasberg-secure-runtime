@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Clock, Gamepad2, Heart, Trophy, User } from "lucide-react";
+import { ParallaxSky } from "../components/site/ParallaxSky";
 
 const API = process.env.REACT_APP_BACKEND_URL;
 
@@ -35,6 +36,7 @@ export default function PlayerProfile() {
 
   return (
     <div className="min-h-screen bg-[#0d0d1a] font-mono text-white" data-testid="player-profile-page">
+      <ParallaxSky />
       <div className="mx-auto max-w-4xl px-5 py-8 sm:px-8">
         <Link to="/games" className="inline-flex items-center gap-2 text-sm text-[#b3bac7] transition-colors hover:text-white" data-testid="profile-back-link">
           <ArrowLeft size={15} /> Game Library

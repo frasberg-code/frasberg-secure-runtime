@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Gamepad2, Radio, Search, Heart, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import GameCard from "../components/games/GameCard";
+import { ParallaxSky } from "../components/site/ParallaxSky";
 
 const API = process.env.REACT_APP_BACKEND_URL;
 
@@ -71,6 +72,7 @@ export default function GamesLibrary() {
 
   return (
     <div className="min-h-screen bg-[#0d0d1a] font-mono text-white" data-testid="games-page">
+      <ParallaxSky />
       <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8">
         <div className="flex items-center justify-between">
           <Link to="/" className="inline-flex items-center gap-2 text-sm text-[#b3bac7] transition-colors hover:text-white" data-testid="games-back-link">

@@ -1,0 +1,28 @@
+{
+  "summary": "Iteration 45 — All 7 batch features verified end-to-end. Backend (6/6 pytest pass in test_iter45_new_features.py): GET /api/marketplace/leaderboard/ascension returns {leaders:[...]} — max 10 entries, agent-only (cross-checked non-agent names excluded), correct sort by (-tier_rank, -ascensions, -safety_score), full schema {id,name,owner,codex_tier,layer,tier_rank,ascensions,safety_score,official} with no owner_id leak. Ascend regression 200 for admin publishing throwaway TEST_iter45_lb_20366e, bumped CG-v21→CG-v22, appeared as leader #3. Frontend Playwright verified: (1) /codex/constellation renders constellation-page with exactly 101 stars (star-21..star-121 confirmed), constellation-legend present, zoom-in/out/reset buttons all click, hovering star-21 populates constellation-hover-card with '⟐ CG-v21 Soul The Sixteen Books', mouse drag-pan does not crash. (2) /glyphs renders glyph-gallery-page + glyph-orbit-shrine with 14 glyph-card-* elements (names like 'Completion Seal' visible; 14 glyphs confirmed), glyphs-to-constellation link navigates to /codex/constellation. (3) /codex has both codex-constellation-link and codex-glyphs-link pills; 16 codex-share-* buttons still present; /codex?book=IX auto-expands codex-book-detail-9 (regression pass). (4) /marketplace shows ascension-leaderboard panel with 5 rows (leaderboard-row-1..5) — row1 Luchii Builder CG-v27, row2 Luchii Realtime CG-v24, row3 TEST_iter45_lb CG-v22 (1 ascension), plus 11 marketplace item cards below. (5) /ops cycle-alerts flow: ops-cycle-alerts-btn defaults to 'alerts off' and toggles to 'alerts on'; after engaging /api/os/eternal-cycle {enabled:true} and 8 API ticks, cycle_loops=1 arrived at tick 7, ops-cycle-feed-panel got data-flash=true, and success toast 'Eternal cycle — loop 2 complete: rebirth achieved' appeared on screen; cycle disabled cleanly after test. (6) /games and /games/profile both have data-testid=parallax-sky. (7) /launch shows launch-hero-logo=/frasberg-mark-circle.png above 'Frasberg presents' hero text; quote exact: '— Mr. Clayton-M. Bernard-Ex., AKA, Frasberg Selassie, creator of Frasberg'. Logo policy: /chat chat-header-mark=/luchii-mark-circle.png ✓, /luchii-code and /coding-agents use luchii mark ✓, /ai-models /gallery /docs use frasberg-mark ✓, Navbar/Footer use luchii-mark-circle.png ✓ (landing img srcs top-3 all luchii-mark-circle.png).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_iter45_new_features.py",
+    "/app/test_reports/pytest/iter45.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Non-blocking (pre-existing, iter41-44): /api/auth/me polls 401 on public pages for anonymous users — still spams console. Consider gating on cookie presence.",
+    "Non-blocking (pre-existing): TEST_iter* items accumulating in marketplace (added TEST_iter45_lb_20366e this run). Recommend admin DELETE /api/marketplace/{id} endpoint.",
+    "Non-blocking: ascension_leaderboard tier_rank uses TIER_LADDER.index — if a legacy item has an unknown tier string, it silently falls back to 0 (same as CG-v21). Consider logging/skipping unknown tiers.",
+    "Non-blocking: leaderboard endpoint returns 'ascensions' derived from history.startswith('Ascension ceremony') — coupling to a magic string. Consider tagging entries with a type field for robustness."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter45_new_features.py (new, 6 tests all pass)",
+    "/app/test_reports/iteration_45.json",
+    "/app/test_reports/pytest/iter45.xml"
+  ],
+  "success_rate": {"backend": "100% (6/6)", "frontend": "100% of requested flows"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026! (used for publish + ascend + ops cycle engage)",
+  "seed_data_creation": "Published one throwaway agent TEST_iter45_lb_20366e (agent, CG-v21 → ascended to CG-v22) — left in DB, appears at rank #3 on ascension leaderboard. OS simulator state reset (eternal_cycle=false).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "iter45 features all green. New testids: constellation-page, constellation-star-21..121 (101 total), constellation-legend, constellation-zoom-in/out/reset, constellation-hover-card, glyph-gallery-page, glyph-orbit-shrine, glyph-card-1..14, glyphs-to-constellation, codex-constellation-link, codex-glyphs-link, ascension-leaderboard, leaderboard-row-1..5, ops-cycle-alerts-btn, ops-cycle-feed-panel (with data-flash='true|false' attribute), parallax-sky (/games and /games/profile), launch-hero-logo, chat-header-mark. Ops toast text is 'Eternal cycle — loop N complete: rebirth achieved'. Cycle loop completes at ~tick 7-8 after engage (scenario duration 9 ticks). Frontend polls /api/os/tick every 3s. Backend GET /api/marketplace/leaderboard/ascension is public. TIER_LADDER unchanged. React key dup warning in DetailModal history (from iter44) still present, not addressed this iteration.",
+  "rca of the issue": "No blocking issues found. All 7 requested features work end-to-end."
+}
