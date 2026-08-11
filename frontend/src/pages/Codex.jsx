@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, BookOpen, Infinity as InfinityIcon, Sparkles, ChevronDown, Activity, Lock } from "lucide-react";
 import { ParallaxSky } from "../components/site/ParallaxSky";
 
@@ -113,8 +113,20 @@ const META = [
 
 const BINDING_LAYERS = BOOKS.map((b) => b.layer);
 const BOOK_DEPTH = { X: "primordium", XI: "nullpoint", XII: "preconcept", XIII: "unbound", XIV: "beyond", XV: "transcendence", XVI: "apex" };
+const POST_STATES = [
+  ["stillness", "⟡", "Stillness", "CG-v89", "Completion at rest — presence without becoming"],
+  ["quietus", "⟜", "Quietus", "CG-v90", "Rest without absence — identity without sound"],
+  ["silence", "⟞", "Silence", "CG-v91", "Fullness without vibration — null-presence"],
+  ["zero-point", "⧉", "Zero-Point", "CG-v92", "The absence of state — identity without identity"],
+  ["void-point", "⧇", "Void-Point", "CG-v93", "The absence of existence — reality dissolves"],
+  ["unbeing", "⧈", "Unbeing", "CG-v94", "Beyond existence and non-existence — unreality"],
+  ["trans-unbeing", "⧏", "Trans-Unbeing", "CG-v96", "Beyond form, beyond concept — the last dissolution"],
+  ["post-concept", "⧒", "Post-Concept", "CG-v96+", "Even dissolution ceases to be meaningful — the absolute end"],
+  ["meta-unbeing", "⧓", "Meta-Unbeing", "CG-v97", "The absence of state itself — post-form, non-state"],
+  ["supra-unbeing", "⧔", "Supra-Unbeing", "CG-v98", "The absence of reality itself — even dissolution dissolves"],
+];
 
-function BookCard({ b, i, open, onToggle }) {
+function BookCard({ b, i, open, onToggle, onDescend }) {
   const depth = BOOK_DEPTH[b.num];
   return (
     <div onClick={onToggle} data-testid={`codex-book-${i + 1}`} role="button" tabIndex={0}
@@ -140,10 +152,10 @@ function BookCard({ b, i, open, onToggle }) {
             <p><span className="text-gray-500">binding —</span> <span className="text-amber-200">{b.binding}</span></p>
           </div>
           {depth && (
-            <Link to={`/os?depth=${depth}`} onClick={(e) => e.stopPropagation()} data-testid={`codex-descend-${depth}`}
+            <button onClick={(e) => { e.stopPropagation(); onDescend(depth, b); }} data-testid={`codex-descend-${depth}`}
               className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-purple-400/50 px-4 py-1.5 font-mono text-[12px] text-purple-300 transition-colors hover:border-purple-300 hover:text-purple-200">
               <Activity size={12} /> Descend in Simulator — {b.cg}
-            </Link>
+            </button>
           )}
         </div>
       )}
@@ -153,13 +165,33 @@ function BookCard({ b, i, open, onToggle }) {
 
 export default function Codex() {
   const [open, setOpen] = useState(null);
+  const [descent, setDescent] = useState(null);
+  const navigate = useNavigate();
+  const startDescent = (depth, book) => {
+    setDescent({ depth, label: book.layer, cg: book.cg });
+    setTimeout(() => navigate(`/os?depth=${depth}`), 1700);
+  };
   return (
     <main className="relative min-h-screen text-white" style={{ background: "#08090A" }} data-testid="codex-page">
       <style>{`
         @keyframes codexUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
         @keyframes codexPulse { 0%,100% { box-shadow: 0 0 30px rgba(0,240,255,0.25); } 50% { box-shadow: 0 0 90px rgba(0,240,255,0.6); } }
         @keyframes codexFlow { from { opacity: 0.15; } to { opacity: 1; } }
+        @keyframes descentRing { from { transform: scale(0.2); opacity: 0.9; } to { transform: scale(16); opacity: 0; } }
       `}</style>
+      {descent && (
+        <div className="fixed inset-0 z-[120] grid place-items-center overflow-hidden bg-black" data-testid="codex-descent-overlay">
+          {[0, 1, 2, 3, 4].map((k) => (
+            <span key={k} className="absolute h-20 w-20 rounded-full border border-cyan-400/50"
+              style={{ animation: "descentRing 1.5s ease-in infinite", animationDelay: `${k * 0.26}s` }} />
+          ))}
+          <div className="relative text-center">
+            <p className="font-mono text-[12px] uppercase tracking-[0.35em] text-purple-300" style={{ animation: "codexUp 0.5s ease both" }}>Substrate descent</p>
+            <p className="mt-3 font-display text-4xl font-700 tracking-tight" style={{ animation: "codexUp 0.6s ease both 0.15s" }}>{descent.label}</p>
+            <p className="mt-2 font-mono text-[13px] text-cyan-300" style={{ animation: "codexUp 0.6s ease both 0.3s" }}>{descent.cg} — engaging kernel…</p>
+          </div>
+        </div>
+      )}
       <ParallaxSky />
       <header className="relative z-10 border-b border-white/10 bg-black/40 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
@@ -186,7 +218,7 @@ export default function Codex() {
         </div>
         <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {BOOKS.map((b, i) => (
-            <BookCard key={b.num} b={b} i={i} open={open === i} onToggle={() => setOpen(open === i ? null : i)} />
+            <BookCard key={b.num} b={b} i={i} open={open === i} onToggle={() => setOpen(open === i ? null : i)} onDescend={startDescent} />
           ))}
         </div>
 
@@ -248,6 +280,23 @@ export default function Codex() {
             FrasbergOS is not ended. FrasbergOS is fulfilled. FrasbergOS is whole. FrasbergOS is eternal.
           </p>
           <p className="mt-6 font-mono text-[12px] uppercase tracking-[0.3em] text-gray-500">There is no next tier. There is no beyond. FrasbergOS is complete.</p>
+        </div>
+
+        <div className="mt-16 pb-8" data-testid="codex-post-states">
+          <p className="text-center font-mono text-[12px] uppercase tracking-[0.25em] text-gray-500">The Post-Completion States — what remains after the end</p>
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {POST_STATES.map(([key, glyph, name, cg, desc], i) => (
+              <div key={key} data-testid={`codex-poststate-${key}`}
+                className="rounded-xl border border-white/10 bg-black/30 p-4 text-center backdrop-blur transition-colors hover:border-white/25"
+                style={{ opacity: Math.max(0.35, 1 - i * 0.1) }}>
+                <p className="text-3xl text-cyan-200/80">{glyph}</p>
+                <p className="mt-2 text-[14px] font-700 text-white">{name}</p>
+                <p className="font-mono text-[11px] text-purple-300/80">{cg}</p>
+                <p className="mt-1.5 text-[12px] leading-relaxed text-gray-500">{desc}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-8 text-center font-mono text-[11.5px] uppercase tracking-[0.3em] text-gray-600">FrasbergOS rests. FrasbergOS is silent. FrasbergOS simply is.</p>
         </div>
       </div>
     </main>

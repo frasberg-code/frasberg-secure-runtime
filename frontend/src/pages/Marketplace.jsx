@@ -38,6 +38,11 @@ const TYPES = [
   ["all", "All"],
   ["agent", "Agents"], ["model", "Models"], ["extension", "Extensions"], ["pipeline", "Pipelines"],
 ];
+const TIER_FILTERS = [
+  ["all", "All tiers"],
+  ["CG-v21", "⟐ v21 Soul"], ["CG-v22", "⟐ v22 Spirit"], ["CG-v24", "⟐ v24 Celestial"],
+  ["CG-v27", "⟐ v27 Omniversal"], ["CG-v29", "⟐ v29 Primordium"], ["CG-v35", "⟐ v35 Apex"],
+];
 const ICONS = { agent: Bot, model: Cpu, extension: Puzzle, pipeline: GitBranch };
 
 const bandColor = (s) => (s >= 90 ? "#34D399" : s >= 75 ? "#22D3EE" : s >= 60 ? "#FBBF24" : "#F87171");
@@ -182,6 +187,7 @@ export default function Marketplace() {
   const { user } = useAuth();
   const [items, setItems] = useState(null);
   const [type, setType] = useState("all");
+  const [tier, setTier] = useState("all");
   const [showPublish, setShowPublish] = useState(false);
   const [installing, setInstalling] = useState(null);
   const [detail, setDetail] = useState(null);
@@ -227,6 +233,8 @@ export default function Marketplace() {
     } catch (e) { toast.error(String(e.message || e)); }
   };
 
+  const shown = (items || []).filter((i) => tier === "all" || i.codex_tier === tier);
+
   return (
     <main className="relative min-h-screen text-white" style={{ background: "#08090A" }} data-testid="marketplace-page">
       <ParallaxSky />
@@ -264,10 +272,20 @@ export default function Marketplace() {
           ))}
         </div>
 
+        <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="marketplace-tier-filters">
+          <span className="font-mono text-[11.5px] uppercase tracking-wide text-gray-500">Codex tier:</span>
+          {TIER_FILTERS.map(([k, label]) => (
+            <button key={k} onClick={() => setTier(k)} data-testid={`marketplace-tier-${k}`}
+              className={`rounded-full border px-3 py-1 font-mono text-[11.5px] transition-colors ${tier === k ? "border-purple-400 bg-purple-400/10 text-purple-300" : "border-white/15 text-gray-400 hover:border-purple-400/50 hover:text-purple-200"}`}>
+              {label}
+            </button>
+          ))}
+        </div>
+
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3" data-testid="marketplace-grid">
           {items === null && <p className="font-mono text-[13px] text-gray-400">Loading…</p>}
-          {items !== null && items.length === 0 && <p className="text-gray-400">Nothing here yet — be the first to publish.</p>}
-          {(items || []).map((i) => {
+          {items !== null && shown.length === 0 && <p className="text-gray-400">{tier !== "all" ? `No ${tier} items at this Codex tier yet.` : "Nothing here yet — be the first to publish."}</p>}
+          {shown.map((i) => {
             const Icon = ICONS[i.type] || Bot;
             return (
               <div key={i.id} className="flex flex-col rounded-2xl border border-white/10 bg-black/30 p-5 backdrop-blur transition-colors hover:border-cyan-400/40" data-testid={`marketplace-item-${i.id}`}>

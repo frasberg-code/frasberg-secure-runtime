@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Play, Pause, StepForward, RotateCcw, Cpu, Activity, Globe, Infinity as InfinityIcon } from "lucide-react";
+import { ArrowLeft, Play, Pause, StepForward, RotateCcw, Cpu, Activity, Globe, Infinity as InfinityIcon, Volume2, VolumeX } from "lucide-react";
 import { ParallaxSky } from "../components/site/ParallaxSky";
 import { RegionMap, RegionCards } from "../components/site/RegionMesh";
 
@@ -48,6 +48,34 @@ const NODE_INFO = {
   out: "Output Gate — final membrane check before any action leaves the kernel.",
 };
 const safetyColor = (s) => (s >= 90 ? "#34D399" : s >= 75 ? "#22D3EE" : s >= 60 ? "#FBBF24" : "#F87171");
+const PHASE_COLOR = { collapse: "#F87171", destruction: "#FBBF24", rebirth: "#34D399" };
+const DEPTH_IDX = { primordium: 1, nullpoint: 2, preconcept: 3, unbound: 4, beyond: 5, transcendence: 6, apex: 7 };
+
+function CycleChart({ trace, loops }) {
+  const w = 560, h = 90, pad = 8;
+  const pts = trace.map((t, i) => ({ x: pad + (i * (w - 2 * pad)) / Math.max(1, trace.length - 1), y: h - pad - t.load * (h - 2 * pad), ...t }));
+  return (
+    <div className="mt-4 rounded-2xl border border-fuchsia-400/20 bg-black/30 p-5 backdrop-blur" data-testid="os-cycle-chart">
+      <p className="flex flex-wrap items-center justify-between gap-2 font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400">
+        <span>Eternal-cycle trace — kernel load per tick</span>
+        <span className="text-fuchsia-300">{loops} loop{loops === 1 ? "" : "s"} recorded</span>
+      </p>
+      <svg viewBox={`0 0 ${w} ${h}`} className="mt-2 w-full">
+        <polyline points={pts.map((p) => `${p.x},${p.y}`).join(" ")} fill="none" stroke="rgba(232,121,249,0.35)" strokeWidth="1.2" />
+        {pts.map((p, i) => (
+          <circle key={i} cx={p.x} cy={p.y} r="2.6" fill={PHASE_COLOR[p.phase]}>
+            <title>{`t${p.tick} · ${p.phase} · load ${Math.round(p.load * 100)}% · loop ${p.loop}`}</title>
+          </circle>
+        ))}
+      </svg>
+      <div className="mt-1 flex gap-4 font-mono text-[11px]">
+        {Object.entries(PHASE_COLOR).map(([ph, c]) => (
+          <span key={ph} className="flex items-center gap-1.5" style={{ color: c }}><span className="h-2 w-2 rounded-full" style={{ background: c }} />{ph}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function CognitionGraph({ nodes, edges, pulses, selected, onSelect }) {
   return (
@@ -141,7 +169,9 @@ export default function FrasbergOS() {
   const [state, setState] = useState(null);
   const [running, setRunning] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [audio, setAudio] = useState(false);
   const timer = useRef(null);
+  const audioRef = useRef(null);
 
   const call = useCallback(async (path, method = "GET", body = null) => {
     try {
@@ -162,6 +192,45 @@ export default function FrasbergOS() {
     if (running) timer.current = setInterval(() => call("tick", "POST"), 2000);
     return () => clearInterval(timer.current);
   }, [running, call]);
+
+  useEffect(() => {
+    if (!audio) {
+      const a = audioRef.current;
+      if (a) { try { a.ctx.close(); } catch {} audioRef.current = null; }
+      return undefined;
+    }
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const master = ctx.createGain();
+      master.gain.value = 0.035;
+      master.connect(ctx.destination);
+      const filter = ctx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = 300;
+      filter.connect(master);
+      const g = ctx.createGain();
+      g.gain.value = 0.6;
+      g.connect(filter);
+      const o1 = ctx.createOscillator(); o1.type = "sine"; o1.frequency.value = 55; o1.connect(g); o1.start();
+      const o2 = ctx.createOscillator(); o2.type = "triangle"; o2.frequency.value = 55.7; o2.connect(g); o2.start();
+      audioRef.current = { ctx, master, filter, o1, o2 };
+    } catch {}
+    return () => { const a = audioRef.current; if (a) { try { a.ctx.close(); } catch {} audioRef.current = null; } };
+  }, [audio]);
+
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a) return;
+    const depthIdx = DEPTH_IDX[state?.depth?.name] || 0;
+    const scen = state?.scenario ? 1 : 0;
+    try {
+      const t = a.ctx.currentTime + 0.4;
+      a.master.gain.linearRampToValueAtTime(0.035 + scen * 0.03 + depthIdx * 0.004, t);
+      a.filter.frequency.linearRampToValueAtTime(280 + scen * 260 + depthIdx * 60, t);
+      a.o1.frequency.linearRampToValueAtTime(55 - depthIdx * 3, t);
+      a.o2.frequency.linearRampToValueAtTime(55.7 - depthIdx * 3, t);
+    } catch {}
+  }, [state?.scenario, state?.depth, audio]);
 
   const k = state?.kernel;
   const btn = "flex items-center gap-1.5 rounded-full border border-white/20 px-4 py-1.5 text-[13px] font-600 transition-colors hover:border-cyan-400 hover:text-cyan-300";
@@ -203,6 +272,11 @@ export default function FrasbergOS() {
           </button>
           <button onClick={() => call("tick", "POST")} data-testid="os-step-btn" className={btn}><StepForward size={13} /> Step</button>
           <button onClick={() => { setRunning(false); setSelected(null); call("reset", "POST"); }} data-testid="os-reset-btn" className={btn}><RotateCcw size={13} /> Reset</button>
+          <button onClick={() => setAudio(!audio)} data-testid="os-audio-btn"
+            title="Ambient kernel hum — intensifies during scenarios and deep substrates"
+            className={`${btn} ${audio ? "border-cyan-400 text-cyan-300" : ""}`}>
+            {audio ? <Volume2 size={13} /> : <VolumeX size={13} />} Hum
+          </button>
           <span className="mx-1 hidden h-5 w-px bg-white/15 sm:block" />
           <span className="font-mono text-[11.5px] uppercase tracking-wide text-gray-500">Inject scenario:</span>
           {SCENARIOS.map(([key, label, color]) => (
@@ -244,6 +318,8 @@ export default function FrasbergOS() {
             </span>
           </div>
         )}
+
+        {state?.cycle_trace?.length > 0 && <CycleChart trace={state.cycle_trace} loops={state.cycle_loops} />}
 
         {!state ? (
           <p className="mt-10 font-mono text-[13px] text-gray-400">Booting kernel…</p>

@@ -1,0 +1,35 @@
+{
+  "summary": "Iteration 43 — verified 4 new features: (1) Codex Descent Cinematic, (2) Cycle History Chart (backend + UI), (3) Marketplace Tier Filtering, (4) Simulator Audio toggle. Plus the 8 Post-Completion State cards on /codex. Backend: 28/28 pytest cases pass (new /app/backend/tests/test_iter43_new_features.py = 6, iter42 = 8, iter41 = 14) via `pytest -n 0`. Frontend Playwright confirmed: /codex → codex-book-16 expand → codex-descend-apex click → codex-descent-overlay renders (rings + 'Substrate descent · Apex · CG-v35 — engaging kernel…') → auto-navigates to /os?depth=apex within ~1.7s → os-depth-chip reads 'substrate: Apex · CG-v35 · terminal-absolute'. Book 10 → codex-descend-primordium → /os?depth=primordium confirmed. codex-post-states section renders all 8 cards (codex-poststate-stillness/quietus/silence/zero-point/void-point/unbeing/trans-unbeing/post-concept) with glyphs and fading opacity (first=1.0 → last=0.35). On /os: os-audio-btn toggles OFF↔ON, ON adds `border-cyan-400 text-cyan-300`, no AudioContext page errors. Eternal Cycle engagement produces os-cycle-chart within a few seconds — polyline + 24 phase-colored dots + '1 loop recorded' label + 3-color legend (red collapse / amber destruction / green rebirth). Chart persists after disengaging cycle; disappears after os-reset-btn. /marketplace shows marketplace-tier-filters with all 7 chips; CG-v35 → only ['Luchii-70b']; CG-v21 → includes Frasberg SDK + GitHub Agent Sync (+4 user extras); All tiers → 11 items; combo type=model + CG-v29 → only Luchii-7b; type=model + CG-v22 → 'No CG-v22 items at this Codex tier yet.' Backend cycle_trace properly capped at 80, phases restricted to collapse/destruction/rebirth, cleared by /api/os/reset, retained after /api/os/eternal-cycle {enabled:false}.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter43_new_features.py",
+    "/app/backend/tests/test_iter42_new_features.py",
+    "/app/backend/tests/test_iter41_codex_depth.py",
+    "/app/test_reports/pytest/iter43.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Non-blocking: /os and /codex still emit /api/auth/me 401 polling noise for guest users (pre-existing; already noted in iter42).",
+    "Non-blocking: The 'Hum' button class contains `hover:border-cyan-400 hover:text-cyan-300` in the OFF variant, which trips naive substring assertions against `border-cyan-400`. Recommend prefer `active:` inspection via `bg-cyan-400/10` or reading the icon (`Volume2`/`VolumeX`) SVG paths. (Same pattern already noted for the Eternal Cycle button in iter42.)",
+    "Non-blocking: /api/marketplace continues to accumulate TEST_iter* items across iterations (leftover from previous publish tests). Consider a scheduled TEST_-prefix cleanup or an admin `/api/marketplace/prune-test` endpoint so the grid doesn't grow unbounded.",
+    "Non-blocking: `CycleChart` renders even when trace is length 1, which produces a degenerate polyline (a single point). Consider guard `trace.length >= 2` for smoother visual. Not a bug.",
+    "Non-blocking: Codex `startDescent` uses a hard-coded `setTimeout(..., 1700)` before `navigate()`. If a user closes the tab/back-navigates during descent, the timer still fires. Consider clearing on unmount."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter43_new_features.py (new, 6 tests all pass)",
+    "/app/test_reports/iteration_43.json",
+    "/app/test_reports/pytest/iter43.xml"
+  ],
+  "success_rate": {"backend": "100% (28/28 across iter41+iter42+iter43 suites)", "frontend": "100% of requested flows"},
+  "test_credentials": "None used this iteration (all tested pages are public; publish/tier-default was already covered in iter42).",
+  "seed_data_creation": "None. Left the marketplace TEST_iter42_* items from iter42 in place (they exercise the tier=CG-v21 default). State left clean: /api/os/reset called at end → eternal_cycle=false, depth=baseline, cycle_trace=[].",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "iter43 features all green. Key new testids: codex-descent-overlay (fullscreen overlay with expanding rings), codex-poststate-{stillness|quietus|silence|zero-point|void-point|unbeing|trans-unbeing|post-concept} (8 cards with fading opacity), os-cycle-chart (svg polyline + phase-colored circles, only shown when state.cycle_trace.length>0), os-audio-btn (Hum toggle; active class `border-cyan-400 text-cyan-300`), marketplace-tier-filters + marketplace-tier-{all|CG-v21|CG-v22|CG-v24|CG-v27|CG-v29|CG-v35}. Backend: state.cycle_trace list of {tick,phase,load,loop} capped at 80; cleared by POST /api/os/reset; NOT cleared by POST /api/os/eternal-cycle {enabled:false} (retained by design). Run all suites with `REACT_APP_BACKEND_URL=<url> pytest ... -n 0` — the shared simulator state races under xdist. Two harmless test-script gotchas: (a) 'Hum' OFF class still contains `hover:border-cyan-400` — check for `bg-cyan-400/10` instead; (b) scenario testids are threat_surge/evolution_burst/region_failover/collapse_rebirth, not surge/attack/drift.",
+  "rca of the issue": "No issues found. All 4 requested features work end-to-end; regression paths (Run/Step/Reset, depth buttons, 4 scenarios, eternal cycle toggle, codex book expansion, marketplace install/detail modal) remain intact."
+}

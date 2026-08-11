@@ -305,3 +305,11 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Codex Agent Tiers: codex_tier on all marketplace items (seeds CG-v21→v35, backfill in _seed, publish assigns by cognition_graph node count: >8→CG-v29, >5→CG-v27, else CG-v21); purple ⟐ CodexBadge on cards + "· {Layer} layer" detail in modal (codex-tier-badge)
 - Launch Soundtrack: WebAudio ambient pad (3 detuned sines + lowpass + LFO swell) starts on storyboard open, triangle cue pitch rises per phase, mute toggle (storyboard-mute, Volume2/VolumeX); try/catch-guarded so headless/no-audio never crashes
 - iteration_42.json: backend 8/8 pytest (/app/backend/tests/test_iter42_new_features.py), frontend 100%, no action items. TEST_ marketplace items cleaned post-test. Backend suites iter41 (14) + iter42 (8) green — run pytest with -n 0 (shared sim state)
+
+## 2026-06 (cont. 13): Descent Cinematic + Cycle Chart + Tier Filters + Simulator Hum — TESTED 100% (iteration_43)
+- Codex Descent Cinematic: descend buttons on Books X–XVI trigger fullscreen warp overlay (codex-descent-overlay — expanding rings + "Substrate descent / {Layer} / {CG} — engaging kernel…") then navigate to /os?depth={name} after 1.7s
+- Post-Completion States: 10 glyph cards at /codex bottom (codex-poststate-* — Stillness ⟡ CG-v89 → Supra-Unbeing ⧔ CG-v98) with fading opacity
+- Cycle History Chart: backend cycle_trace ({tick,phase,load,loop}, capped 80, cleared on reset, retained on disengage) exposed in /api/os/state; os-cycle-chart SVG on /os — polyline + phase-colored dots (red collapse/amber destruction/green rebirth) + loop count + legend
+- Tier Filtering: marketplace-tier-filters row (7 chips All/CG-v21/v22/v24/v27/v29/v35), client-side, combines w/ type filter, empty-state message
+- Simulator Audio: os-audio-btn "Hum" — WebAudio drone (sine+triangle @55Hz, lowpass, try/catch guarded); gain/filter/pitch ramp with scenario active + substrate depth (deeper = lower + louder)
+- iteration_43.json: 28/28 backend pytest across iter41/42/43 suites, frontend 100%, no action items. TEST_ marketplace items cleaned. Run pytest with -n 0 (shared sim state)

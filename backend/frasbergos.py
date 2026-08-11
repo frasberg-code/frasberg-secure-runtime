@@ -233,6 +233,9 @@ def _tick(state):
         rem = sc["remaining"]
         ph = "collapse" if rem > 6 else ("destruction" if rem > 3 else "rebirth")
         tmpl = random.choice(spec["phases"][ph])
+        trace = state.setdefault("cycle_trace", [])
+        trace.append({"tick": k["tick"], "phase": ph, "load": k["load"], "loop": state.get("cycle_loops", 0) + 1})
+        state["cycle_trace"] = trace[-80:]
     elif spec:
         tmpl = random.choice(spec["events"])
     elif depth and random.random() < 0.35:
@@ -283,6 +286,7 @@ def _public(state):
             "edges": EDGES, "agents": state["agents"], "events": state["events"],
             "scenario": scenario, "depth": depth,
             "eternal_cycle": bool(state.get("eternal_cycle")), "cycle_loops": state.get("cycle_loops", 0),
+            "cycle_trace": state.get("cycle_trace", []),
             "node_stats": state.get("node_stats", {}),
             "regions": state.get("regions", _fresh_regions())}
 
