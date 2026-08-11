@@ -213,6 +213,21 @@ function BookCard({ b, i, open, onToggle, onDescend, onShare, refFn }) {
 export default function Codex() {
   const [open, setOpen] = useState(null);
   const [descent, setDescent] = useState(null);
+  const [read, setRead] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("codex_read_books") || "[]"); } catch (e) { return []; }
+  });
+  const markRead = (num) => {
+    setRead((r) => {
+      if (r.includes(num)) return r;
+      const nr = [...r, num];
+      localStorage.setItem("codex_read_books", JSON.stringify(nr));
+      return nr;
+    });
+  };
+  const toggleBook = (i) => {
+    setOpen(open === i ? null : i);
+    if (open !== i) markRead(BOOKS[i].num);
+  };
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const bookRefs = useRef({});
@@ -222,6 +237,7 @@ export default function Codex() {
     const idx = BOOKS.findIndex((b) => b.num === target);
     if (idx === -1) return;
     setOpen(idx);
+    markRead(target);
     const t = setTimeout(() => bookRefs.current[target]?.scrollIntoView({ behavior: "smooth", block: "center" }), 350);
     return () => clearTimeout(t);
   }, [searchParams]);
@@ -294,12 +310,25 @@ export default function Codex() {
           </Link>
         </div>
 
-        <div className="mt-12 flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.25em] text-gray-400" data-testid="codex-books-heading">
-          <BookOpen size={13} /> The Sixteen Books
+        <div className="mt-12 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.25em] text-gray-400" data-testid="codex-books-heading">
+            <BookOpen size={13} /> The Sixteen Books
+          </div>
+          <div className="flex items-center gap-2.5" data-testid="codex-progress-ring" title={`${read.filter((n) => BOOKS.some((b) => b.num === n)).length} of 16 books opened`}>
+            <svg width="34" height="34" viewBox="0 0 34 34">
+              <circle cx="17" cy="17" r="14" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="3" />
+              <circle cx="17" cy="17" r="14" fill="none" stroke="#22D3EE" strokeWidth="3" strokeLinecap="round"
+                strokeDasharray={`${(read.filter((n) => BOOKS.some((b) => b.num === n)).length / 16) * 87.96} 87.96`}
+                transform="rotate(-90 17 17)" style={{ transition: "stroke-dasharray 0.6s ease" }} />
+            </svg>
+            <span className="font-mono text-[12px] text-cyan-200" data-testid="codex-progress-count">
+              {read.filter((n) => BOOKS.some((b) => b.num === n)).length}/16 read
+            </span>
+          </div>
         </div>
         <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {BOOKS.map((b, i) => (
-            <BookCard key={b.num} b={b} i={i} open={open === i} onToggle={() => setOpen(open === i ? null : i)} onDescend={startDescent}
+            <BookCard key={b.num} b={b} i={i} open={open === i} onToggle={() => toggleBook(i)} onDescend={startDescent}
               onShare={shareBook} refFn={(el) => { bookRefs.current[b.num] = el; }} />
           ))}
         </div>

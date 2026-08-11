@@ -351,7 +351,10 @@ export default function Marketplace() {
 
         {leaders.length > 0 && (
           <div className="mt-8 rounded-2xl border border-purple-400/20 bg-purple-400/[0.03] p-5 backdrop-blur" data-testid="ascension-leaderboard">
-            <p className="flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.2em] text-purple-300"><Trophy size={13} /> Hall of Ascension — highest Codex tiers</p>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.2em] text-purple-300"><Trophy size={13} /> Hall of Ascension — highest Codex tiers</p>
+              <Link to="/ascensions" data-testid="marketplace-chronicle-link" className="font-mono text-[11.5px] text-cyan-300 underline underline-offset-4 hover:text-cyan-200">full chronicle →</Link>
+            </div>
             <div className="mt-4 space-y-2.5">
               {leaders.slice(0, 5).map((l, i) => (
                 <div key={l.id} className="flex flex-wrap items-center justify-between gap-2" data-testid={`leaderboard-row-${i + 1}`}>

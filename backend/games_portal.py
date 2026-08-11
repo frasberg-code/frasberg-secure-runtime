@@ -64,9 +64,9 @@ GAME_REGISTRY = [
         "id": "streets",
         "title": "Street Vybz",
         "genre": "Open World",
-        "description": "Street Vybz. Play as a realistic male or female character, pull drivers from moving cars, outrun LVMPD, run missions and taxi fares. Shoot or wreck cars and they burn — LVFR fire crews respond. Every car handles differently.",
+        "description": "Street Vybz. Play as a realistic male or female character, pull drivers from moving cars, outrun LVMPD, run missions and taxi fares. Meet VYBZ — the street boss of the Graffiti District — and run his 3-mission chain to get crowned into the crew. Shoot or wreck cars and they burn — LVFR fire crews respond. Every car handles differently.",
         "thumbnail": "/games-thumbs/streets.jpg",
-        "controls": "WASD drive · E carjack/exit · F bat · G pistol · Space brake · Shift sprint",
+        "controls": "WASD drive · E carjack/exit · F bat · G pistol · V talk to Vybz · Space brake · Shift sprint",
         "engine": "",
     },
     {

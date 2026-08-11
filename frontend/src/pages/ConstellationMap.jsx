@@ -36,9 +36,14 @@ export default function ConstellationMap() {
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [hover, setHover] = useState(null);
+  const [q, setQ] = useState("");
   const drag = useRef(null);
   const moved = useRef(false);
   const navigate = useNavigate();
+  const matches = q.trim()
+    ? TIERS.filter((t) => t.name.toLowerCase().includes(q.trim().toLowerCase()) || `v${t.v}`.startsWith(q.trim().toLowerCase().replace("cg-", ""))).slice(0, 8)
+    : [];
+  const flyTo = (t) => { setZoom(2.6); setPan({ x: -t.x * 2.6, y: -t.y * 2.6 }); setHover(t); setQ(""); };
 
   const wheel = (e) => {
     setZoom((z) => Math.min(6, Math.max(0.4, z * (e.deltaY < 0 ? 1.12 : 0.89))));
@@ -80,6 +85,23 @@ export default function ConstellationMap() {
         </p>
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+          <div className="relative">
+            <input value={q} onChange={(e) => setQ(e.target.value)} data-testid="constellation-search-input"
+              onKeyDown={(e) => { if (e.key === "Enter" && matches[0]) flyTo(matches[0]); }}
+              placeholder="Search a tier — 'v121' or 'Apex'…"
+              className="w-72 rounded-full border border-white/20 bg-black/40 px-4 py-2 font-mono text-[12.5px] text-white outline-none backdrop-blur placeholder:text-gray-500 focus:border-cyan-400" />
+            {matches.length > 0 && (
+              <div className="absolute left-0 top-11 z-20 w-72 overflow-hidden rounded-xl border border-white/15 bg-black/90 backdrop-blur" data-testid="constellation-search-results">
+                {matches.map((m) => (
+                  <button key={m.v} onClick={() => flyTo(m)} data-testid={`constellation-search-result-${m.v}`}
+                    className="flex w-full items-center justify-between px-4 py-2 text-left transition-colors hover:bg-white/[0.07]">
+                    <span className="truncate text-[13px] text-white">{m.glyph} {m.name}</span>
+                    <span className="ml-2 shrink-0 font-mono text-[11px]" style={{ color: m.color }}>CG-v{m.v}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <div className="flex flex-wrap items-center gap-3 font-mono text-[11.5px]" data-testid="constellation-legend">
             {ERAS.map((e) => (
               <span key={e.key} className="flex items-center gap-1.5 text-gray-300">

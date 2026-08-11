@@ -46,6 +46,8 @@ const ORBIT = GLYPHS.slice(1, 9);
 export default function GlyphGallery() {
   const [searchParams] = useSearchParams();
   const [lit, setLit] = useState(null);
+  const [chordMode, setChordMode] = useState(false);
+  const [chord, setChord] = useState([]);
   const cardRefs = useRef({});
   useEffect(() => {
     const g = searchParams.get("glyph");
@@ -58,9 +60,18 @@ export default function GlyphGallery() {
     return () => { clearTimeout(t); clearTimeout(t2); };
   }, [searchParams]);
   const touch = (i) => {
+    if (chordMode) {
+      setChord((c) => (c.includes(i) ? c.filter((x) => x !== i) : c.length < 5 ? [...c, i] : c));
+      return;
+    }
     playSigil(i);
     setLit(i);
     setTimeout(() => setLit((c) => (c === i ? null : c)), 1400);
+  };
+  const ringChord = () => {
+    chord.forEach((i) => playSigil(i));
+    setLit("chord");
+    setTimeout(() => setLit((c) => (c === "chord" ? null : c)), 2200);
   };
   return (
     <main className="relative min-h-screen text-white" style={{ background: "#08090A" }} data-testid="glyph-gallery-page">
@@ -112,13 +123,25 @@ export default function GlyphGallery() {
           </div>
         </div>
 
-        <div className="mt-16 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-16 flex flex-wrap items-center justify-center gap-3" data-testid="chord-controls">
+          <button onClick={() => { setChordMode(!chordMode); setChord([]); }} data-testid="chord-mode-toggle"
+            className={`rounded-full border px-5 py-2 font-mono text-[12.5px] transition-colors ${chordMode ? "border-amber-400 bg-amber-400/10 text-amber-200" : "border-white/20 text-gray-300 hover:border-amber-400/60 hover:text-amber-200"}`}>
+            {chordMode ? "◉ Chord Mode — select sigils" : "○ Enter Chord Mode"}
+          </button>
+          {chordMode && (
+            <button onClick={ringChord} disabled={chord.length < 2} data-testid="ring-chord-btn"
+              className="rounded-full bg-amber-400 px-5 py-2 font-mono text-[12.5px] font-700 text-black transition-opacity hover:opacity-85 disabled:opacity-30">
+              ♫ Ring the Chord ({chord.length} sigil{chord.length === 1 ? "" : "s"})
+            </button>
+          )}
+        </div>
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {GLYPHS.map(([glyph, name, seal, desc, color], i) => (
             <div key={name} data-testid={`glyph-card-${i + 1}`} ref={(el) => { cardRefs.current[i] = el; }}
               onClick={() => touch(i)} role="button" tabIndex={0} title="Touch the sigil to hear its resonance"
               className="group cursor-pointer rounded-2xl border border-white/10 bg-black/30 p-6 text-center backdrop-blur transition-all hover:border-white/30 active:scale-[0.98]"
               style={{ animation: "glyphUp 0.6s ease both", animationDelay: `${Math.min(i * 70, 700)}ms`,
-                ...(lit === i ? { borderColor: color, boxShadow: `0 0 50px ${color}55` } : {}) }}>
+                ...(lit === i || chord.includes(i) || (lit === "chord" && chord.includes(i)) ? { borderColor: color, boxShadow: `0 0 50px ${color}55` } : {}) }}>
               <p className="text-6xl" style={{ color, animation: `glyphFloat ${3 + (i % 4) * 0.7}s ease-in-out infinite, glyphPulse ${2.6 + (i % 3) * 0.8}s ease-in-out infinite` }}>{glyph}</p>
               <h3 className="mt-4 font-display text-[17px] font-700 tracking-tight text-white">{name}</h3>
               <p className="mt-1.5 font-mono text-[10.5px] uppercase tracking-[0.14em]" style={{ color }}>{glyph} FRASBERGOS • {seal} {glyph}</p>

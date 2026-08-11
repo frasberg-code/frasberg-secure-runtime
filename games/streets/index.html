@@ -48,7 +48,7 @@
 <div class="pill" id="healthPill">HP <b id="hp">100</b></div>
 <div class="pill" id="prompt">PRESS E TO CARJACK</div>
 <div id="toasts" style="position:fixed;top:100px;left:50%;transform:translateX(-50%);z-index:9;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none"></div>
-<div class="pill" id="ctrlHint">W/S drive · A/D steer · E jack/exit · F punch/kick · G fire · Q switch weapon · B shop · SPACE brake</div>
+<div class="pill" id="ctrlHint">W/S drive · A/D steer · E jack/exit · F punch/kick · G fire · Q switch weapon · B shop · V talk to Vybz · SPACE brake</div>
 <div class="pill" id="missionPill" style="top:92px;left:24px;display:none;color:#ffd166;border-color:#ffd16666"></div>
 <div class="pill" id="weapPill" style="top:128px;left:24px;display:none;color:#ff9a3c;border-color:#ff9a3c66"></div>
 <div class="pill" id="farePill" style="top:164px;left:24px;display:none;color:#3cff88;border-color:#3cff8866"></div>
@@ -751,7 +751,7 @@ function bubble(text) {
 
 // ─── State ────────────────────────────────────────────────
 const keys = {};
-document.addEventListener("keydown", e => { keys[e.code] = true; if (e.code === "KeyE") tryJack(); if (e.code === "KeyF") meleeAttack(); if (e.code === "KeyG") fireGun(); if (e.code === "KeyQ") switchWeapon(1); if (e.code === "KeyB") tryShop(); });
+document.addEventListener("keydown", e => { keys[e.code] = true; if (e.code === "KeyE") tryJack(); if (e.code === "KeyF") meleeAttack(); if (e.code === "KeyG") fireGun(); if (e.code === "KeyQ") switchWeapon(1); if (e.code === "KeyB") tryShop(); if (e.code === "KeyV") talkVybz(); });
 document.addEventListener("keyup", e => keys[e.code] = false);
 
 const S = {
@@ -1501,6 +1501,106 @@ function spawnGangs() {
   }
 }
 
+// ─── VYBZ — Street Boss of the Graffiti District ───────────
+const VYBZ_SPOT = { x: -72, z: 72 };
+const VYBZ_LINES = {
+  idle: ["VYBZ: You don't know this block like I do.", "VYBZ: Every wall you see? That's mine.", "VYBZ: Stay sharp. Rivals don't sleep.", "VYBZ: Chain stays shining regardless."],
+  greet: "VYBZ: Aye — you lost? This ain't tourist territory. (V TO TALK)",
+  done: "VYBZ: You family now. The whole district knows your name.",
+};
+const VYBZ_MISSIONS = [
+  { title: "MARK YOUR TERRITORY", brief: "VYBZ: Redline boys been tagging my walls. Run off 3 of them. F to swing.", reward: 800,
+    success: "VYBZ: That's permanent now. They'll see it every morning.  +$800" },
+  { title: "WHEELS FOR THE CREW", brief: "VYBZ: I need a MUSCLE CAR for a job tonight. Bring it to my ring. No damage talk.", reward: 1400,
+    success: "VYBZ: Now that's a garage. Real clean.  +$1400" },
+  { title: "STREET KING", brief: "VYBZ: Make noise. Hold WANTED ★★ or higher for 45 seconds, then get back to me alive.", reward: 3000,
+    success: "VYBZ: The whole city heard that. We run this now.  +$3000" },
+];
+let vybz = null;
+function vybzSaved() { try { return parseInt(localStorage.getItem("frasberg-streets-vybz") || "0", 10); } catch (_) { return 0; } }
+function spawnVybz() {
+  if (vybz) { scene.remove(vybz.mesh); scene.remove(vybz.ring); scene.remove(vybz.beam); vybz.taggers.forEach(t => scene.remove(t.mesh)); }
+  const m = makePed(); scene.add(m);
+  m.position.set(VYBZ_SPOT.x, 0, VYBZ_SPOT.z);
+  if (m.userData.limbs) {
+    const chain = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.045, 6, 14), new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.2 }));
+    chain.position.set(0, 1.28, 0.16); chain.rotation.x = 0.4; m.add(chain);
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.12, 0.4), new THREE.MeshStandardMaterial({ color: 0x8b1538 }));
+    cap.position.set(0, 1.82, 0.02); m.add(cap);
+  }
+  const b = bubble("👑 VYBZ"); m.add(b);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(5, 0.25, 8, 40), new THREE.MeshBasicMaterial({ color: 0xc084fc }));
+  ring.rotation.x = -Math.PI / 2; ring.position.set(VYBZ_SPOT.x, 0.15, VYBZ_SPOT.z); scene.add(ring);
+  const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 40, 8, 1, true),
+    new THREE.MeshBasicMaterial({ color: 0xc084fc, transparent: true, opacity: 0.18, side: THREE.DoubleSide }));
+  beam.position.set(VYBZ_SPOT.x, 20, VYBZ_SPOT.z); scene.add(beam);
+  vybz = { mesh: m, ring, beam, x: VYBZ_SPOT.x, z: VYBZ_SPOT.z, idx: Math.min(vybzSaved(), 3),
+    active: null, heatT: 0, stage: null, lineT: 4, greeted: false, intimT: 0, taggers: [] };
+}
+function spawnTaggers() {
+  vybz.taggers.forEach(t => scene.remove(t.mesh)); vybz.taggers = [];
+  for (let k = 0; k < 3; k++) {
+    const gm = makePed(); scene.add(gm);
+    const n = { mesh: gm, x: vybz.x + 8 + Math.random() * 8, z: vybz.z + (Math.random() - 0.5) * 14,
+      h: Math.random() * 6.28, flee: 0, down: false, bubble: null, bubbleT: 1e9,
+      phase: Math.random() * 6.28, gest: 0, gestT: 1e9, redline: true };
+    n.bubble = bubble("🔴 REDLINE"); gm.add(n.bubble);
+    npcs.push(n); vybz.taggers.push(n);
+  }
+}
+function talkVybz() {
+  if (!S.running || !vybz) return;
+  if (Math.hypot(S.x - vybz.x, S.z - vybz.z) > 7) return;
+  if (vybz.idx >= VYBZ_MISSIONS.length) { toast(VYBZ_LINES.done, "#c084fc"); return; }
+  if (vybz.active) { toast(`👑 VYBZ JOB ACTIVE: ${vybz.active.title} — handle it.`, "#c084fc"); return; }
+  vybz.active = VYBZ_MISSIONS[vybz.idx];
+  vybz.stage = vybz.idx === 0 ? "ko" : vybz.idx === 1 ? "car" : "heat";
+  vybz.heatT = 0;
+  if (vybz.stage === "ko") spawnTaggers();
+  toast(`👑 ${vybz.active.title} — ${vybz.active.brief}`, "#c084fc");
+  window.LuchiiAudio && LuchiiAudio.sfx("hit", 0.25);
+}
+function vybzComplete() {
+  S.cash += vybz.active.reward; S.missionsDone++;
+  toast(`👑 ${vybz.active.success}`, "#4ade80");
+  vybz.idx++; vybz.active = null; vybz.stage = null;
+  try { localStorage.setItem("frasberg-streets-vybz", String(vybz.idx)); } catch (_) {}
+  if (vybz.idx >= VYBZ_MISSIONS.length) {
+    S.cash += 5000;
+    toast("👑 DISTRICT CROWNED — YOU RIDE WITH THE VYBZ CREW NOW  +$5000 BONUS", "#ffd166");
+  }
+}
+function updateVybz(dt) {
+  if (!vybz) return;
+  const d = Math.hypot(S.x - vybz.x, S.z - vybz.z);
+  vybz.mesh.rotation.y = Math.atan2(S.x - vybz.x, S.z - vybz.z);
+  animatePed(vybz.mesh, flashT * 2, "idle");
+  vybz.lineT -= dt;
+  if (d < 10 && vybz.lineT <= 0) {
+    if (!vybz.greeted) { toast(VYBZ_LINES.greet, "#c084fc"); vybz.greeted = true; }
+    else toast(VYBZ_LINES.idle[Math.floor(Math.random() * VYBZ_LINES.idle.length)], "#c084fc");
+    vybz.lineT = 9;
+  }
+  vybz.intimT -= dt;
+  if (vybz.intimT <= 0) {
+    vybz.intimT = 1.5;
+    for (const n of npcs) if (!n.down && !n.redline && !n.farewait && Math.hypot(n.x - vybz.x, n.z - vybz.z) < 12) n.flee = 3;
+  }
+  if (!vybz.active) return;
+  if (vybz.stage === "ko") {
+    const downed = vybz.taggers.filter(t => t.down).length;
+    if (downed >= 3) vybzComplete();
+  } else if (vybz.stage === "car") {
+    if (S.inCar && S.carType === "muscle" && d < 7) vybzComplete();
+  } else if (vybz.stage === "heat") {
+    if (vybz.heatT < 45) {
+      if (S.wanted >= 2) vybz.heatT += dt;
+    } else if (vybz.heatT >= 45 && vybz.heatT < 46) {
+      vybz.heatT = 46; toast("👑 VYBZ: That's enough noise — get back to my ring ALIVE.", "#c084fc");
+    } else if (d < 7) vybzComplete();
+  }
+}
+
 // ─── Taxi day jobs — legit fares, zero heat ────────────────
 const fareRing = new THREE.Mesh(new THREE.TorusGeometry(4, 0.2, 8, 32), new THREE.MeshBasicMaterial({ color: 0x3cff88 }));
 fareRing.rotation.x = -Math.PI / 2; fareRing.position.y = 0.15; fareRing.visible = false; scene.add(fareRing);
@@ -1698,6 +1798,7 @@ function start() {
   ambulances.forEach(a => scene.remove(a.mesh)); ambulances.length = 0; ambT = 6;
   spawnPickups();
   spawnGangs();
+  spawnVybz();
   for (let i = 0; i < 3; i++) spawnFarePassenger();
   player.visible = true;
   rebuildPlayer();
@@ -1773,6 +1874,7 @@ function animate() {
     setTimeout(() => renderer.toneMappingExposure = 1.18, 190);
   }
   if (S.running) {
+    updateVybz(dt);
     const cfg = S.inCar ? CAR_TYPES[S.carType] : null;
     // ── movement
     const fwd = keys["KeyW"] || keys["ArrowUp"], back = keys["KeyS"] || keys["ArrowDown"];

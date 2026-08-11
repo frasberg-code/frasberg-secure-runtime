@@ -339,3 +339,12 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Glyph Sound Sigils: playSigil(i) pentatonic bell (sine + 2.76x inharmonic partial, 2s decay) on glyph card click + colored glow (lit state); /glyphs?glyph=⧩ deep-link scrolls + highlights card
 - Starfield template BG added: About.jsx & Software.jsx (replaced old inline Starfield divs w/ ParallaxSky), Pay.jsx, Linq.jsx (nav/main given relative z-[5])
 - iteration_46.json: backend + frontend 100%, no action items. TEST_ items + announcements cleaned by testing agent
+
+## 2026-06 (cont. 17): Ascension History + Constellation Search + Chord Mode + Codex Progress + VYBZ Game Boss — TESTED (iteration_47 + self-test)
+- Ascension History (/ascensions, AscensionHistory.jsx): timeline chronicle of every ceremony (GET /api/marketplace/announcements/history, top 200 + total); linked from marketplace Hall panel (marketplace-chronicle-link)
+- Constellation Search: input on /codex/constellation (constellation-search-input) — matches name or vNN, dropdown results, click/Enter flyTo() zooms map to star + fills hover card. NOTE: first attempt got lost during a file-corruption repair (duplicate JSX tail at EOF caused compile error); re-added + self-tested working
+- Shrine Chord Mode: /glyphs chord-mode-toggle + ring-chord-btn — select up to 5 sigils (persist glow), ring simultaneously as chord
+- Codex Reading Progress: localStorage codex_read_books, toggleBook/markRead, SVG completion ring "N/16 read" (codex-progress-ring/-count); deep-links count as read
+- STREET VYBZ GAME (/app/games/streets/index.html): VYBZ boss NPC — gold chain + maroon cap + 👑 bubble at (-72,72) w/ purple ring/beam; V key talks; 4 idle dialogue lines + greet; turf intimidation (peds flee within 12u); 3-mission chain persisted in localStorage frasberg-streets-vybz: 1) MARK YOUR TERRITORY (KO 3 REDLINE taggers, $800) 2) WHEELS FOR THE CREW (deliver muscle car to ring, $1400) 3) STREET KING (hold wanted≥2 for 45s + return, $3000) + $5000 crown bonus; registry description/controls updated in games_portal.py
+- Legal/Launch text fixes + logo policy maintained
+- iteration_47.json: backend 100%, frontend 5/6 (search UI was missing → fixed + screenshot-verified). TEST_ data cleaned

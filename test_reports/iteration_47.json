@@ -1,0 +1,27 @@
+{
+  "summary": "Iter47 tested 6 features. PASSED: (1) Backend GET /api/marketplace/announcements/history returns {announcements, total} sorted newest→oldest, capped at 200, no _id; empty state works; ascend inserts entry visible in history. (2) /ascensions page renders (ascension-history-page + ascensions-total + ascensions-empty when 0) with marketplace-chronicle-link navigating correctly from /marketplace. (3) /glyphs Chord Mode toggle text switches '○ Enter Chord Mode' ↔ '◉ Chord Mode — select sigils', 3 glyph cards selectable, ring-chord-btn shows '♫ Ring the Chord (3 sigils)' enabled, click doesn't error; toggle-off resets. (4) /codex reading progress: starts '0/16 read', opening 2 books → '2/16 read', persists across reload, deep link ?book=IX marks it read (localStorage=['I','II','IX']). (5) Street Vybz game (iframe /api/games/streets/play): ctrlHint contains 'V talk to Vybz'; spawnVybz/talkVybz/updateVybz are functions; VYBZ_MISSIONS.length===3; after start vybz is object with idx=0 and taggers array; simulated teleport (S.x=-72,S.z=66) + talkVybz() activates Mission 0 'MARK YOUR TERRITORY' and spawns 3 taggers (vybz.taggers.length===3); zero JS console errors during 5s+ gameplay. (6) Regression: /marketplace 200, /ops 200, frontend compiles (no ConstellationMap.jsx syntax errors). FAILED: /codex/constellation search UI is entirely missing — the state hooks (q, matches, flyTo) exist in ConstellationMap.jsx lines 39–46 but no <input data-testid='constellation-search-input'> or search-results dropdown is rendered anywhere in the JSX return. Constellation map itself still works (101 stars, zoom, hover card, drag-pan).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "ConstellationMap.jsx", "issue": "Search UI not rendered — the file defines q/setQ, matches, and flyTo() (lines 39-46) but never renders an <input data-testid='constellation-search-input'>, a results dropdown (constellation-search-results), or result items (constellation-search-result-N). Feature is dead code — user cannot search stars.", "selector": "[data-testid='constellation-search-input']", "priority": "HIGH"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_iter47_new_features.py", "/app/test_reports/pytest/iter47_results.xml"],
+  "action_items": [
+    "Add the constellation search input UI to /app/frontend/src/pages/ConstellationMap.jsx: an <input data-testid='constellation-search-input' value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==='Enter'&&matches[0]&&flyTo(matches[0])} /> + a dropdown container data-testid='constellation-search-results' rendering matches.map((t,i)=><div data-testid={`constellation-search-result-${t.v}`} onClick={()=>flyTo(t)}>...</div>). State + flyTo() logic already exists and is correct."
+  ],
+  "critical_code_review_comments": [
+    "ConstellationMap.jsx: search state/logic present but no UI — either add the input+dropdown or remove dead state to reduce noise.",
+    "AscensionHistory.jsx: single fetch with no auth header — works because the endpoint is public, but no loading-error state distinguished from empty (both show empty). Minor.",
+    "Codex.jsx toggleBook only calls markRead when opening a new book (open !== i), so clicking an already-open book to close it doesn't re-mark (fine, but subtle)."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter47_new_features.py", "/app/test_reports/iteration_47.json"],
+  "success_rate": {"backend": "100%", "frontend": "83% (5/6 — constellation search missing UI)"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026!",
+  "seed_data_creation": "Created 1 TEST_iter47_hist_* marketplace item + its ascension announcement; cleaned both from db.marketplace and db.announcements at end of test run.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iter47 shipped 5 features clean (history endpoint, /ascensions page, chronicle link, chord mode, codex progress, VYBZ game). The ONE missing piece is the constellation search UI — state + flyTo helper exist in ConstellationMap.jsx (~line 39-46) but no <input>/dropdown is in the JSX. After main agent adds the UI, re-test: type 'apex' → constellation-search-result-35 appears + click flies to CG-v35; type 'v121' → finds Omniversal-Absolute-Unbeing; Enter flies to first match. For game iframe testing, use `await page.query_selector('[data-testid=\"game-frame\"]')` then `content_frame()` — the direct page.frames indexing is unreliable; frame url is /api/games/streets/play."
+}

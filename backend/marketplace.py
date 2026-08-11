@@ -156,6 +156,14 @@ async def latest_announcements():
     return {"announcements": rows}
 
 
+@router.get("/announcements/history")
+async def announcements_history():
+    """Full ascension chronicle — every ceremony ever performed."""
+    rows = await db.announcements.find({}, {"_id": 0}).sort("at", -1).to_list(200)
+    total = await db.announcements.count_documents({})
+    return {"announcements": rows, "total": total}
+
+
 class PublishBody(BaseModel):
     type: str = Field(pattern=r"^(agent|model|extension|pipeline)$")
     name: str = Field(min_length=2, max_length=80)
