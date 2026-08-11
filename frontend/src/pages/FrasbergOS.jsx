@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Play, Pause, StepForward, RotateCcw, Cpu, Activity, Globe } from "lucide-react";
+import { ArrowLeft, Play, Pause, StepForward, RotateCcw, Cpu, Activity, Globe, Infinity as InfinityIcon } from "lucide-react";
 import { ParallaxSky } from "../components/site/ParallaxSky";
 import { RegionMap, RegionCards } from "../components/site/RegionMesh";
 
@@ -153,7 +153,11 @@ export default function FrasbergOS() {
     } catch {}
   }, []);
 
-  useEffect(() => { call("state"); }, [call]);
+  useEffect(() => {
+    const d = new URLSearchParams(window.location.search).get("depth");
+    if (d && DEPTHS.some(([k]) => k === d)) call("depth", "POST", { name: d });
+    else call("state");
+  }, [call]);
   useEffect(() => {
     if (running) timer.current = setInterval(() => call("tick", "POST"), 2000);
     return () => clearInterval(timer.current);
@@ -209,6 +213,13 @@ export default function FrasbergOS() {
               {label}
             </button>
           ))}
+          <button onClick={() => { call("eternal-cycle", "POST", { enabled: !state?.eternal_cycle }); if (!state?.eternal_cycle && !running) setRunning(true); }}
+            data-testid="os-eternal-cycle-btn"
+            title="Eternal-Cycle Engine — endlessly loops collapse → destruction → rebirth → infinity"
+            className={`flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[12.5px] font-600 transition-colors ${state?.eternal_cycle ? "border-fuchsia-400 bg-fuchsia-400/10 text-fuchsia-300" : "border-white/20 text-gray-400 hover:border-fuchsia-400 hover:text-fuchsia-300"}`}
+            style={state?.eternal_cycle ? { boxShadow: "0 0 18px rgba(232,121,249,0.35)" } : undefined}>
+            <InfinityIcon size={13} /> Eternal Cycle{state?.eternal_cycle && state?.cycle_loops > 0 ? ` · loop ${state.cycle_loops}` : ""}
+          </button>
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="os-depth-row">

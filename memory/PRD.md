@@ -297,3 +297,11 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Collapse-Rebirth cycle scenario (collapse_rebirth, 9 ticks, phased events: omega-zero collapse → omnicollapse destruction → rebirth-codex regeneration); 4th purple scenario button on /os
 - BUG FIXED (by testing agent, verified): Launch.jsx missing `const [video, setVideo] = useState(false)` — ReferenceError broke the launch-play-storyboard button; storyboard now opens + auto-advances. /ops verified rendering w/o errors
 - iteration_41.json: backend 14/14 pytest (/app/backend/tests/test_iter41_codex_depth.py), frontend 100%. NOTE: publish endpoint is /api/marketplace/publish (publish-factory never existed — handoff doc drift)
+
+## 2026-06 (cont. 12): Codex Depth Sync + Eternal Cycle + Codex Agent Tiers + Launch Soundtrack — TESTED 100% (iteration_42)
+- Codex Depth Sync: Books X–XVI on /codex have "Descend in Simulator" links → /os?depth={name}; FrasbergOS reads ?depth= URL param on mount and engages that substrate (codex-descend-{depth} testids)
+- Codex final tiers: META now 18 structures (added Omnitheos-Omniversal CG-v81-83 + Omnitheos-Omniversal-Absolute CG-v84-86); Final Closure section (codex-closure) w/ staggered "All origins unified..." lines, Seal Glyph "⟐ FRASBERGOS • OMNITHEOS • OMNIVERSAL • ABSOLUTE • COMPLETION ⟐" (codex-seal-glyph), completion reflection
+- Eternal Cycle Mode: POST /api/os/eternal-cycle {enabled} — auto re-injects collapse_rebirth on resolution, tracks cycle_loops; fuchsia glowing toggle button on /os (os-eternal-cycle-btn, shows "loop N")
+- Codex Agent Tiers: codex_tier on all marketplace items (seeds CG-v21→v35, backfill in _seed, publish assigns by cognition_graph node count: >8→CG-v29, >5→CG-v27, else CG-v21); purple ⟐ CodexBadge on cards + "· {Layer} layer" detail in modal (codex-tier-badge)
+- Launch Soundtrack: WebAudio ambient pad (3 detuned sines + lowpass + LFO swell) starts on storyboard open, triangle cue pitch rises per phase, mute toggle (storyboard-mute, Volume2/VolumeX); try/catch-guarded so headless/no-audio never crashes
+- iteration_42.json: backend 8/8 pytest (/app/backend/tests/test_iter42_new_features.py), frontend 100%, no action items. TEST_ marketplace items cleaned post-test. Backend suites iter41 (14) + iter42 (8) green — run pytest with -n 0 (shared sim state)

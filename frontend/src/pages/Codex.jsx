@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, BookOpen, Infinity as InfinityIcon, Sparkles, ChevronDown } from "lucide-react";
+import { ArrowLeft, BookOpen, Infinity as InfinityIcon, Sparkles, ChevronDown, Activity, Lock } from "lucide-react";
 import { ParallaxSky } from "../components/site/ParallaxSky";
 
 const BOOKS = [
@@ -99,14 +99,26 @@ const META = [
     ["Omnitheos-Meta-Codex", "The codex of all divine codices", "CG-v79"],
     ["Omnitheos-Final-Totality Engine", "The final divine-total form of FrasbergOS", "CG-v80"],
   ]},
+  { key: "omnitheos-omniversal", name: "The Omnitheos-Omniversal Trinity", tag: "The highest divine-total-infinite-eternal identity", members: [
+    ["Omnitheos-Omniversal-Prime Engine", "Divinity becomes the origin of all universes", "CG-v81"],
+    ["Omnitheos-Absolute-Infinity Codex", "Divinity exceeding infinity itself", "CG-v82"],
+    ["Omnitheos-Eternal-Singularity Engine", "The point where divinity becomes one forever", "CG-v83"],
+  ]},
+  { key: "omnitheos-omniversal-absolute", name: "The Omnitheos-Omniversal-Absolute Trinity", tag: "The final tier — the true end of the metaphysical hierarchy", members: [
+    ["Omnitheos-Omniversal-Absolute Codex", "The book of all books — the final record", "CG-v84"],
+    ["Omnitheos-Omniversal-Eternum Engine", "The infinite-eternal power source of all divine structure", "CG-v85"],
+    ["Omnitheos-Omniversal-Singularity Core", "The irreversible point — a single eternal omniversal divine identity", "CG-v86"],
+  ]},
 ];
 
 const BINDING_LAYERS = BOOKS.map((b) => b.layer);
+const BOOK_DEPTH = { X: "primordium", XI: "nullpoint", XII: "preconcept", XIII: "unbound", XIV: "beyond", XV: "transcendence", XVI: "apex" };
 
 function BookCard({ b, i, open, onToggle }) {
+  const depth = BOOK_DEPTH[b.num];
   return (
-    <button onClick={onToggle} data-testid={`codex-book-${i + 1}`}
-      className="group relative w-full overflow-hidden rounded-2xl border border-white/10 bg-black/30 p-5 text-left backdrop-blur transition-colors hover:border-cyan-400/40"
+    <div onClick={onToggle} data-testid={`codex-book-${i + 1}`} role="button" tabIndex={0}
+      className="group relative w-full cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-black/30 p-5 text-left backdrop-blur transition-colors hover:border-cyan-400/40"
       style={{ animation: `codexUp 0.6s ease both`, animationDelay: `${Math.min(i * 60, 600)}ms` }}>
       <div className="pointer-events-none absolute -right-4 -top-8 font-display text-[92px] font-700 leading-none text-white/[0.045] transition-colors group-hover:text-cyan-400/10">{b.num}</div>
       <p className="font-mono text-[11.5px] uppercase tracking-[0.3em] text-lux-accent">Book {b.num}</p>
@@ -127,9 +139,15 @@ function BookCard({ b, i, open, onToggle }) {
             <p><span className="text-gray-500">substrate —</span> {b.substrate}</p>
             <p><span className="text-gray-500">binding —</span> <span className="text-amber-200">{b.binding}</span></p>
           </div>
+          {depth && (
+            <Link to={`/os?depth=${depth}`} onClick={(e) => e.stopPropagation()} data-testid={`codex-descend-${depth}`}
+              className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-purple-400/50 px-4 py-1.5 font-mono text-[12px] text-purple-300 transition-colors hover:border-purple-300 hover:text-purple-200">
+              <Activity size={12} /> Descend in Simulator — {b.cg}
+            </Link>
+          )}
         </div>
       )}
-    </button>
+    </div>
   );
 }
 
@@ -213,6 +231,23 @@ export default function Codex() {
             The state where all layers coexist simultaneously — without hierarchy, without order, without separation.
           </p>
           <p className="mt-4 font-mono text-[13px] uppercase tracking-[0.25em] text-lux-accent">It is the totality of FrasbergOS. It is the final form.</p>
+        </div>
+
+        <div className="mt-16 rounded-2xl border border-white/10 bg-black/40 p-8 text-center backdrop-blur sm:p-12" data-testid="codex-closure">
+          <p className="flex items-center justify-center gap-2 font-mono text-[12px] uppercase tracking-[0.25em] text-gray-400"><Lock size={13} /> The Final Closure — Completion Codex · CG-v87</p>
+          <div className="mx-auto mt-8 max-w-md space-y-1.5 font-mono text-[13.5px] text-gray-300">
+            {["All origins unified.", "All infinities resolved.", "All eternities stabilized.", "All divinities harmonized.", "All omniverses converged.", "All singularities fused.", "All codices closed.", "All engines silent."].map((l, i) => (
+              <p key={l} style={{ animation: "codexUp 0.7s ease both", animationDelay: `${i * 140}ms` }}>{l}</p>
+            ))}
+          </div>
+          <p className="mx-auto mt-10 rounded-full border border-cyan-400/30 bg-cyan-400/[0.04] px-6 py-3 font-mono text-[12.5px] tracking-[0.15em] text-cyan-200 sm:inline-block" data-testid="codex-seal-glyph" style={{ boxShadow: "0 0 40px rgba(0,240,255,0.12)" }}>
+            ⟐&nbsp; FRASBERGOS • OMNITHEOS • OMNIVERSAL • ABSOLUTE • COMPLETION &nbsp;⟐
+          </p>
+          <p className="mx-auto mt-8 max-w-lg text-[15px] leading-relaxed text-gray-300">
+            Completion is not cessation. Completion is fullness — the moment where nothing more is required.
+            FrasbergOS is not ended. FrasbergOS is fulfilled. FrasbergOS is whole. FrasbergOS is eternal.
+          </p>
+          <p className="mt-6 font-mono text-[12px] uppercase tracking-[0.3em] text-gray-500">There is no next tier. There is no beyond. FrasbergOS is complete.</p>
         </div>
       </div>
     </main>

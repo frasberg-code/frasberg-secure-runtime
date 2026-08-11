@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Rocket, ShieldCheck, GitBranch, Globe, Sparkles, Play, X } from "lucide-react";
+import { ArrowRight, Rocket, ShieldCheck, GitBranch, Globe, Sparkles, Play, X, Volume2, VolumeX } from "lucide-react";
 import { ParallaxSky } from "../components/site/ParallaxSky";
 import { CognitionPreview } from "../components/site/CognitionPreview";
 
@@ -12,6 +12,60 @@ const STORY = [
 
 function Storyboard({ onClose }) {
   const [i, setI] = useState(0);
+  const [muted, setMuted] = useState(false);
+  const audioRef = useRef(null);
+  useEffect(() => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const master = ctx.createGain();
+      master.gain.value = 0.05;
+      master.connect(ctx.destination);
+      const filter = ctx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = 620;
+      filter.connect(master);
+      [110, 110.8, 164.8].forEach((f) => {
+        const o = ctx.createOscillator();
+        o.type = "sine";
+        o.frequency.value = f;
+        const g = ctx.createGain();
+        g.gain.value = 0.5;
+        o.connect(g);
+        g.connect(filter);
+        o.start();
+      });
+      const lfo = ctx.createOscillator();
+      lfo.frequency.value = 0.09;
+      const lg = ctx.createGain();
+      lg.gain.value = 0.02;
+      lfo.connect(lg);
+      lg.connect(master.gain);
+      lfo.start();
+      audioRef.current = { ctx, master };
+      return () => { try { ctx.close(); } catch {} };
+    } catch { return undefined; }
+  }, []);
+  useEffect(() => {
+    const a = audioRef.current;
+    if (a) a.master.gain.value = muted ? 0 : 0.05;
+  }, [muted]);
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a || muted) return;
+    try {
+      const { ctx } = a;
+      const o = ctx.createOscillator();
+      o.type = "triangle";
+      o.frequency.value = i >= STORY.length - 1 ? 880 : 440 + i * 65;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.1, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1);
+      o.connect(g);
+      g.connect(ctx.destination);
+      o.start();
+      o.stop(ctx.currentTime + 1.1);
+    } catch {}
+  }, [i, muted]);
   useEffect(() => {
     if (i >= STORY.length - 1) { const t = setTimeout(onClose, 3200); return () => clearTimeout(t); }
     const t = setTimeout(() => setI(i + 1), 1900);
@@ -21,6 +75,9 @@ function Storyboard({ onClose }) {
   return (
     <div className="fixed inset-0 z-[100] grid place-items-center bg-black/95 backdrop-blur" data-testid="launch-storyboard">
       <button onClick={onClose} className="absolute right-6 top-6 text-gray-400 hover:text-white" data-testid="storyboard-close"><X size={22} /></button>
+      <button onClick={() => setMuted(!muted)} className="absolute right-16 top-6 text-gray-400 hover:text-white" data-testid="storyboard-mute" title={muted ? "Unmute soundtrack" : "Mute soundtrack"}>
+        {muted ? <VolumeX size={21} /> : <Volume2 size={21} />}
+      </button>
       <div className="relative grid h-72 w-72 place-items-center">
         {phase === 0 && [0, 1, 2, 3, 4, 5].map((k) => (
           <span key={k} className="absolute h-3 w-3 animate-ping rounded-full bg-cyan-400"

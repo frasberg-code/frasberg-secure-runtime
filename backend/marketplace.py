@@ -10,31 +10,31 @@ db = None
 router = APIRouter(prefix="/marketplace")
 
 SEED = [
-    {"type": "agent", "name": "Luchii Builder", "description": "Full-stack coding agent — builds live HTML apps from a prompt.", "owner": "Frasberg", "version": "1.2.0", "installs": 4210, "safety_score": 92,
+    {"type": "agent", "name": "Luchii Builder", "description": "Full-stack coding agent — builds live HTML apps from a prompt.", "owner": "Frasberg", "version": "1.2.0", "installs": 4210, "safety_score": 92, "codex_tier": "CG-v27",
      "history": [
          {"version": "1.0.0", "date": "2026-01-14", "note": "Initial release — prompt-to-HTML pipeline with sandboxed preview.", "safety_score": 84},
          {"version": "1.1.0", "date": "2026-03-02", "note": "Added live code editing sync and tool permission boundaries.", "safety_score": 88},
          {"version": "1.2.0", "date": "2026-05-20", "note": "Validated cycle: 18% faster builds, mutation classifier v2 integrated.", "safety_score": 92}]},
-    {"type": "agent", "name": "Luchii Realtime", "description": "Realtime multimodal agent with voice, vision and audio streaming.", "owner": "Frasberg", "version": "1.0.3", "installs": 2894, "safety_score": 88,
+    {"type": "agent", "name": "Luchii Realtime", "description": "Realtime multimodal agent with voice, vision and audio streaming.", "owner": "Frasberg", "version": "1.0.3", "installs": 2894, "safety_score": 88, "codex_tier": "CG-v24",
      "history": [
          {"version": "1.0.0", "date": "2026-02-10", "note": "Initial release — LiveKit audio/vision streams.", "safety_score": 80},
          {"version": "1.0.3", "date": "2026-04-28", "note": "Validated cycle: latency down 22%, region-aware safety routing added.", "safety_score": 88}]},
-    {"type": "agent", "name": "Zion Support", "description": "Customer support agent with live chat, transcripts and inbox handoff.", "owner": "Frasberg", "version": "1.1.0", "installs": 1187, "safety_score": 95,
+    {"type": "agent", "name": "Zion Support", "description": "Customer support agent with live chat, transcripts and inbox handoff.", "owner": "Frasberg", "version": "1.1.0", "installs": 1187, "safety_score": 95, "codex_tier": "CG-v22",
      "history": [
          {"version": "1.0.0", "date": "2026-03-15", "note": "Initial release — live chat with SSE streaming.", "safety_score": 90},
          {"version": "1.1.0", "date": "2026-05-30", "note": "Validated cycle: transcripts to admin inbox, identity membrane hardened.", "safety_score": 95}]},
-    {"type": "model", "name": "Luchii-70b", "description": "Frontier reasoning model — 32K context, constellation layer.", "owner": "Frasberg", "version": "12.0", "installs": 9640, "safety_score": 96,
+    {"type": "model", "name": "Luchii-70b", "description": "Frontier reasoning model — 32K context, constellation layer.", "owner": "Frasberg", "version": "12.0", "installs": 9640, "safety_score": 96, "codex_tier": "CG-v35",
      "history": [
          {"version": "11.0", "date": "2025-11-01", "note": "Constellation layer preview.", "safety_score": 91},
          {"version": "12.0", "date": "2026-04-01", "note": "Validated cycle: +14% reasoning benchmark, GSS-2 certification passed.", "safety_score": 96}]},
-    {"type": "model", "name": "Luchii-7b", "description": "Fast general model for chat, code generation and tooling.", "owner": "Frasberg", "version": "12.0", "installs": 15320, "safety_score": 94,
+    {"type": "model", "name": "Luchii-7b", "description": "Fast general model for chat, code generation and tooling.", "owner": "Frasberg", "version": "12.0", "installs": 15320, "safety_score": 94, "codex_tier": "CG-v29",
      "history": [
          {"version": "11.0", "date": "2025-11-01", "note": "Distilled from Luchii-70b for low-latency chat.", "safety_score": 89},
          {"version": "12.0", "date": "2026-04-01", "note": "Validated cycle: tool-calling accuracy +9%, safety score band Fully Safe.", "safety_score": 94}]},
-    {"type": "extension", "name": "Frasberg SDK", "description": "Agent runtime SDK — tools, memory, realtime streams (@frasbergai/sdk).", "owner": "Frasberg", "version": "1.0.0", "installs": 6013, "safety_score": 90,
+    {"type": "extension", "name": "Frasberg SDK", "description": "Agent runtime SDK — tools, memory, realtime streams (@frasbergai/sdk).", "owner": "Frasberg", "version": "1.0.0", "installs": 6013, "safety_score": 90, "codex_tier": "CG-v21",
      "history": [
          {"version": "1.0.0", "date": "2026-05-01", "note": "Initial release — createAgent, memory API, realtime streams.", "safety_score": 90}]},
-    {"type": "pipeline", "name": "GitHub Agent Sync", "description": "Push/PR-triggered pipeline that syncs agent.json from your repos.", "owner": "Frasberg", "version": "0.9.1", "installs": 742, "safety_score": 78,
+    {"type": "pipeline", "name": "GitHub Agent Sync", "description": "Push/PR-triggered pipeline that syncs agent.json from your repos.", "owner": "Frasberg", "version": "0.9.1", "installs": 742, "safety_score": 78, "codex_tier": "CG-v21",
      "history": [
          {"version": "0.9.0", "date": "2026-05-15", "note": "Beta — webhook ingestion with HMAC verification.", "safety_score": 74},
          {"version": "0.9.1", "date": "2026-06-01", "note": "Validated cycle: delegation limits added, moved to Safe with monitoring band.", "safety_score": 78}]},
@@ -77,9 +77,17 @@ async def _seed():
                 {"name": item["name"], "safety_score": {"$exists": False}},
                 {"$set": {"safety_score": item["safety_score"], "history": item["history"]}},
             )
+            await db.marketplace.update_one(
+                {"name": item["name"], "codex_tier": {"$exists": False}},
+                {"$set": {"codex_tier": item.get("codex_tier", "CG-v21")}},
+            )
         await db.marketplace.update_many(
             {"safety_score": {"$exists": False}},
             {"$set": {"safety_score": 75}},
+        )
+        await db.marketplace.update_many(
+            {"codex_tier": {"$exists": False}},
+            {"$set": {"codex_tier": "CG-v21"}},
         )
 
 
@@ -118,12 +126,14 @@ async def publish_item(body: PublishBody, request: Request):
         raise HTTPException(status_code=400, detail=f'"{hit}" is a Frasberg trademark — agents may not use Frasberg trademarks in their names (see Trademark Guidelines). Try "Built for Frasberg" in the description instead.')
     if await db.marketplace.find_one({"name": body.name}):
         raise HTTPException(status_code=409, detail="An item with this name already exists.")
+    graph_nodes = len((body.cognition_graph or {}).get("nodes", []))
+    codex_tier = "CG-v29" if graph_nodes > 8 else ("CG-v27" if graph_nodes > 5 else "CG-v21")
     item = {
         "id": str(uuid.uuid4()), "type": body.type, "name": body.name,
         "description": body.description, "version": body.version,
         "owner": user.get("name") or user["email"].split("@")[0],
         "owner_id": user["id"], "installs": 0, "official": False,
-        "safety_score": 75,
+        "safety_score": 75, "codex_tier": codex_tier,
         "cognition_graph": body.cognition_graph,
         "history": [{"version": body.version, "date": datetime.now(timezone.utc).date().isoformat(),
                      "note": "Initial publication — passed marketplace validation (security scan, tool permission audit).",
@@ -178,7 +188,7 @@ async def deploy_from_github(body: DeployBody, request: Request):
         "id": str(uuid.uuid4()), "type": "agent", "name": name, "description": description,
         "version": "1.0.0", "owner": user.get("name") or user["email"].split("@")[0],
         "owner_id": user["id"], "installs": 0, "official": False,
-        "model": agent.get("model"), "source_repo": body.repo, "safety_score": 75,
+        "model": agent.get("model"), "source_repo": body.repo, "safety_score": 75, "codex_tier": "CG-v21",
         "history": [{"version": "1.0.0", "date": now.date().isoformat(),
                      "note": f"Deployed from github.com/{body.repo} — passed marketplace validation (security scan, tool permission audit).",
                      "safety_score": 75}],

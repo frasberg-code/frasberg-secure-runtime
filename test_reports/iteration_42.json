@@ -1,0 +1,28 @@
+{
+  "summary": "Iteration 42 — verified 4 new features: (1) Codex Depth Sync, (2) Eternal Cycle Mode (frontend+backend), (3) Codex tier badges on Marketplace, (4) Launch Soundtrack storyboard with mute toggle. Plus final Codex tiers (18 meta-structures + Closure/Seal Glyph). All 8 new pytest cases pass in /app/backend/tests/test_iter42_new_features.py. Frontend Playwright verified: /codex renders codex-book-10..16 with descend links to primordium/nullpoint/preconcept/unbound/beyond/transcendence/apex; books 1-9 have no descend links. META section shows 18 codex-meta-* items ending with codex-meta-omnitheos-omniversal and codex-meta-omnitheos-omniversal-absolute. codex-closure and codex-seal-glyph render with '⟐ FRASBERGOS • OMNITHEOS • OMNIVERSAL • ABSOLUTE • COMPLETION ⟐'. Clicking codex-descend-primordium navigates to /os?depth=primordium and os-depth-chip reads 'substrate: Primordium · CG-v29 · pre-existence'. Eternal Cycle: clicking os-eternal-cycle-btn switches class to border-fuchsia-400/bg-fuchsia-400/10/text-fuchsia-300, os-scenario-banner shows 'Collapse-Rebirth cycle active — N ticks remaining', after ~13s button text becomes 'Eternal Cycle · loop 4', event log contains 'eternal-cycle: loop N complete', second click disengages (event 'kernel: eternal-cycle engine disengaged after 4 loop(s)'). Backend POST /api/os/eternal-cycle {enabled:true} sets eternal_cycle=true + scenario=collapse_rebirth; 12 ticks produce cycle_loops>=1; {enabled:false} disengages; missing/invalid body returns 422. Marketplace: 12/12 visible cards show data-testid='codex-tier-badge' (⟐ CG-v29, CG-v35, CG-v21, CG-v27, CG-v24, CG-v22, CG-v21 for the 7 seed items, extras CG-v21 for TEST_ published items). Detail modal opens with badge '⟐ CG-v27 · Omniversal layer' for Luchii Builder. Publish endpoint /api/marketplace/publish (as doctester1) returns codex_tier=CG-v21 when no graph supplied. Launch storyboard opens, storyboard-mute toggles icon (Volume2 ↔ VolumeX) SVG paths change, captions auto-advance from 'Cognition nodes ignite.' to 'Region rings pulse.', NO AudioContext page errors (only pre-existing 401 from /api/auth/me guest poll). State left clean: eternal_cycle disengaged, depth=baseline (null).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_iter42_new_features.py", "/app/test_reports/pytest/iter42.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Non-blocking: Marketplace CodexBadge component reuses the same data-testid='codex-tier-badge' for both card and detail-modal badges. Card badge shows just '⟐ CG-vNN' while the detailed variant appends ' · {Layer} layer'. If tests want to target only the detail badge, they must query inside [data-testid=marketplace-detail-badge] scope. Consider adding an explicit data-testid='codex-tier-badge-detail' when `detailed` is true for cleaner selection.",
+    "Non-blocking: /os and /launch continue to emit /api/auth/me 401 polling noise for guest users (pre-existing from iter41).",
+    "Non-blocking: Eternal cycle button 'off' variant still contains 'hover:border-fuchsia-400 hover:text-fuchsia-300' in class list, so simple substring 'fuchsia' checks are ambiguous. Prefer checking for 'bg-fuchsia-400/10' (only present when engaged) or reading button innerText for the 'loop N' suffix."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter42_new_features.py (new, 8 tests all pass)",
+    "/app/test_reports/iteration_42.json",
+    "/app/test_reports/pytest/iter42.xml"
+  ],
+  "success_rate": {"backend": "100% (8/8)", "frontend": "100% of requested flows (Codex depth sync, Eternal cycle UI, Marketplace badges, Launch storyboard + mute)"},
+  "test_credentials": "doctester1@frasberg.com / DocTester2026! used for TestMarketplaceCodexTiers.test_publish_assigns_default_tier — succeeds.",
+  "seed_data_creation": "TestMarketplaceCodexTiers.test_publish_assigns_default_tier publishes a marketplace item named TEST_iter42_<8 hex chars>. These are safe to leave (marketplace shows them in the grid). Simulator state cleaned up: eternal_cycle=false, depth=baseline.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "iter42 features all green. Key new testids: codex-descend-{primordium|nullpoint|preconcept|unbound|beyond|transcendence|apex} (only on codex-book-10..16), codex-meta-omnitheos-omniversal, codex-meta-omnitheos-omniversal-absolute, codex-closure, codex-seal-glyph, os-eternal-cycle-btn (engaged state has 'bg-fuchsia-400/10' class; button text 'Eternal Cycle · loop N' once loops >=1), storyboard-mute (SVG toggles Volume2/VolumeX). Backend endpoints: POST /api/os/eternal-cycle {enabled:bool}. Marketplace codex-tier field on every item. Backend suite /app/backend/tests/test_iter42_new_features.py (8 tests) and /app/backend/tests/test_iter41_codex_depth.py (14 tests) should remain green. Run with -n 0 to avoid xdist parallel state races on the shared /api/os/* mock simulator.",
+  "rca of the issue": "No issues found."
+}

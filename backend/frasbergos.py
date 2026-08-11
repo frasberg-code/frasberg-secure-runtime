@@ -248,10 +248,18 @@ def _tick(state):
     if spec:
         sc["remaining"] -= 1
         if sc["remaining"] <= 0:
-            state["scenario"] = None
-            k["region"] = "us-west"
-            events.insert(0, {"at": datetime.now(timezone.utc).isoformat(), "tick": k["tick"],
-                              "text": f"kernel: {spec['label'].lower()} resolved — steady state restored"})
+            if state.get("eternal_cycle") and sc["name"] == "collapse_rebirth":
+                state["cycle_loops"] = state.get("cycle_loops", 0) + 1
+                state["scenario"] = {"name": "collapse_rebirth", "remaining": SCENARIOS["collapse_rebirth"]["duration"]}
+                events.insert(0, {"at": datetime.now(timezone.utc).isoformat(), "tick": k["tick"],
+                                  "text": f"eternal-cycle: loop {state['cycle_loops']} complete — collapse → destruction → rebirth → infinity (cycle continues)"})
+            else:
+                state["scenario"] = None
+                k["region"] = "us-west"
+                events.insert(0, {"at": datetime.now(timezone.utc).isoformat(), "tick": k["tick"],
+                                  "text": f"kernel: {spec['label'].lower()} resolved — steady state restored"})
+    elif state.get("eternal_cycle"):
+        state["scenario"] = {"name": "collapse_rebirth", "remaining": SCENARIOS["collapse_rebirth"]["duration"]}
     state["events"] = (events + state["events"])[:40]
     return state
 
@@ -274,6 +282,7 @@ def _public(state):
     return {"kernel": k, "nodes": state["nodes"], "pulses": state["pulses"],
             "edges": EDGES, "agents": state["agents"], "events": state["events"],
             "scenario": scenario, "depth": depth,
+            "eternal_cycle": bool(state.get("eternal_cycle")), "cycle_loops": state.get("cycle_loops", 0),
             "node_stats": state.get("node_stats", {}),
             "regions": state.get("regions", _fresh_regions())}
 
@@ -306,6 +315,29 @@ class ScenarioBody(BaseModel):
 
 class DepthBody(BaseModel):
     name: str = Field(pattern=r"^(baseline|primordium|nullpoint|preconcept|unbound|beyond|transcendence|apex)$")
+
+
+class EternalCycleBody(BaseModel):
+    enabled: bool
+
+
+@router.post("/eternal-cycle")
+async def eternal_cycle(body: EternalCycleBody):
+    state = await _load()
+    k = state["kernel"]
+    if body.enabled:
+        state["eternal_cycle"] = True
+        state.setdefault("cycle_loops", 0)
+        if not state.get("scenario"):
+            state["scenario"] = {"name": "collapse_rebirth", "remaining": SCENARIOS["collapse_rebirth"]["duration"]}
+        text = "kernel: ETERNAL-CYCLE ENGINE ENGAGED — collapse → destruction → rebirth → infinity (loops until disengaged)"
+    else:
+        state["eternal_cycle"] = False
+        text = f"kernel: eternal-cycle engine disengaged after {state.get('cycle_loops', 0)} loop(s) — current cycle will resolve normally"
+    state["events"] = ([{"at": datetime.now(timezone.utc).isoformat(), "tick": k["tick"], "text": text}]
+                       + state["events"])[:40]
+    await db.os_sim.replace_one({"id": "global"}, state, upsert=True)
+    return _public(state)
 
 
 @router.post("/depth")

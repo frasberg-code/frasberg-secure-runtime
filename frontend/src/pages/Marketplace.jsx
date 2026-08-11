@@ -42,6 +42,18 @@ const ICONS = { agent: Bot, model: Cpu, extension: Puzzle, pipeline: GitBranch }
 
 const bandColor = (s) => (s >= 90 ? "#34D399" : s >= 75 ? "#22D3EE" : s >= 60 ? "#FBBF24" : "#F87171");
 
+const CODEX_LAYER = { "CG-v21": "Soul", "CG-v22": "Spirit", "CG-v24": "Celestial", "CG-v27": "Omniversal", "CG-v29": "Primordium", "CG-v35": "Apex" };
+function CodexBadge({ tier, detailed }) {
+  if (!tier) return null;
+  const layer = CODEX_LAYER[tier] || "Identity";
+  return (
+    <span className="flex items-center gap-1 rounded-full border border-purple-400/50 px-2 py-0.5 font-mono text-[11px] text-purple-300"
+      title={`Codex tier — this item runs on the ${layer} cognition layer`} data-testid="codex-tier-badge">
+      ⟐ {tier}{detailed ? ` · ${layer} layer` : ""}
+    </span>
+  );
+}
+
 function SafetyBadge({ score }) {
   const c = bandColor(score);
   return (
@@ -70,6 +82,7 @@ function DetailModal({ item, onClose, onInstall }) {
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <SafetyBadge score={item.safety_score ?? 75} />
           <span className="font-mono text-[12px]" style={{ color: bandColor(item.safety_score ?? 75) }}>{item.safety_band}</span>
+          <CodexBadge tier={item.codex_tier} detailed />
           {item.evolution_mode && <span className="flex items-center gap-1 font-mono text-[12px] text-emerald-300"><Zap size={11} /> Evolution Mode on</span>}
         </div>
         <p className="mt-3 text-[14px] leading-relaxed text-gray-300">{item.description}</p>
@@ -267,7 +280,10 @@ export default function Marketplace() {
                     </p>
                     <p className="font-mono text-[12.5px] uppercase tracking-wide text-gray-400">{i.type} · v{i.version} · {i.owner}</p>
                   </div>
-                  <SafetyBadge score={i.safety_score ?? 75} />
+                  <div className="flex flex-col items-end gap-1">
+                    <SafetyBadge score={i.safety_score ?? 75} />
+                    <CodexBadge tier={i.codex_tier} />
+                  </div>
                 </div>
                 <p className="mt-3 flex-1 text-[14px] leading-relaxed text-gray-300">{i.description}</p>
                 {i.type === "agent" && (
