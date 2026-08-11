@@ -44,7 +44,7 @@ export default function CloudConsole() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
           <Link to="/" className="flex items-center gap-2.5" data-testid="console-home-link">
             <ArrowLeft size={16} className="text-gray-400" />
-            <img src="/luchii-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
+            <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Cloud Console</span>
           </Link>
           <button onClick={() => setLive(!live)} data-testid="console-live-toggle"

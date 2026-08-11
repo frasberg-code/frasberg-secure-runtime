@@ -97,7 +97,7 @@ export default function Legal() {
       </header>
 
       <div className="mx-auto max-w-4xl px-5 py-12 sm:px-8" data-testid="legal-page">
-        <p className="font-mono text-[13.5px] uppercase tracking-[0.3em] text-lux-accent">FrasbergAI — Official Documents · Version 1.0 — August 2026</p>
+        <p className="font-mono text-[13.5px] uppercase tracking-[0.3em] text-lux-accent">Frasberg — Official Documents · Version 1.0 — August 2026</p>
         <h1 className="mt-3 font-display text-4xl font-700 tracking-tighter">{active.title}</h1>
 
         <div className="mt-6 flex flex-wrap gap-2">

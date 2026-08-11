@@ -1,0 +1,32 @@
+{
+  "summary": "Iteration 41 — Verified Singularity Codex page (/codex), FrasbergOS substrate depth selector + Collapse-Rebirth scenario, Navbar Codex link, plus PENDING items (Launch storyboard, Ops Center). Backend pytest 14/14 pass in /app/backend/tests/test_iter41_codex_depth.py: POST /api/os/depth accepts all 8 valid depth names (baseline/primordium/nullpoint/preconcept/unbound/beyond/transcendence/apex) and rejects invalid with 422; GET /api/os/state returns depth object {name:'apex', cg:'CG-v35', field:'terminal-absolute'} after set; POST /api/os/scenario accepts collapse_rebirth (422 on invalid); state.scenario persists after 5 ticks. Frontend Playwright: /codex renders 16/16 book cards (codex-book-1..16), clicking book 1 expands codex-book-detail-1, 11/11 meta-structures render (omnis-quad, meta-trinity, meta-absolute, meta-omega, collapse-rebirth, cycle-omega, omega-prime, prime-eternal, omni-eternal, eternum-prime, omnitheos), codex-binding finale visible. Navbar Explore dropdown exposes 'Singularity Codex' link (href=/codex), click navigates to /codex correctly. /os shows os-depth-row with all 8 depth buttons; clicking os-depth-apex shows os-depth-chip 'substrate: Apex · CG-v35 · terminal-absolute' + membrane chip 'Membrane v41 · Hinge v41'; clicking os-depth-baseline clears the chip. os-scenario-collapse_rebirth button injects banner 'Collapse-Rebirth cycle active — 8 ticks remaining' and stepping via os-step-btn produces phased events containing 'omega-zero', 'omnicollapse', 'rebirth-codex' keywords. PENDING VERIFIED: /launch storyboard button (launch-play-storyboard) now works — opens storyboard-caption 'Cognition nodes ignite.' → advances to 'Region rings pulse.' via auto-timer (2s cadence). /ops loads without errors, shows Tenants/Region Mesh/Safety Envelope/Evolution Tracker panels + tick counter incrementing. Playground already verified in iter40 — publish flow uses POST /api/marketplace/publish (not /publish-factory as review noted) and correctly returns 401 for guest.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_iter41_codex_depth.py", "/app/test_reports/pytest/iter41.xml"],
+  "action_items": [
+    "FIXED BY TESTER: Launch.jsx used setVideo(true) and `{video && ...}` but never declared the state — page threw 'video is not defined' pageerror and the Play storyboard button did not render. Added `const [video, setVideo] = useState(false);` at Launch component top. Storyboard now opens and auto-advances phases as designed. Please review the fix.",
+    "REVIEW NOTE: The review request mentions POST /api/marketplace/publish-factory but the backend and Playground.jsx actually use /api/marketplace/publish with cognition_graph in body. No publish-factory route exists. If publish-factory is a distinct feature the main agent still wants, it needs to be implemented; otherwise treat as documentation drift."
+  ],
+  "critical_code_review_comments": [
+    "BUG (fixed): Launch.jsx missing useState for `video` — classic ReferenceError that white-screened the hero CTAs. Discovered via pageerror listener.",
+    "Non-blocking: /os and /ops still emit /api/auth/me 401 polling noise for guest users. Consider gating those pollers behind an auth-first check.",
+    "Non-blocking: Codex.jsx BOOKS/META arrays are large inline data blobs — could be extracted to /data/codex.json for maintainability.",
+    "Non-blocking: FrasbergOS depth chip is coupled to hard-coded string 'GSS-2 enforced' fallback; if new safety spec ships, membrane chip logic needs updating."
+  ],
+  "updated_files": [
+    "/app/frontend/src/pages/Launch.jsx (added missing `const [video, setVideo] = useState(false);`)",
+    "/app/backend/tests/test_iter41_codex_depth.py (new pytest suite, 14 tests)",
+    "/app/test_reports/iteration_41.json"
+  ],
+  "success_rate": {"backend": "100% (14/14)", "frontend": "100% of requested flows after Launch fix"},
+  "test_credentials": "Not used — all tested pages (/codex, /os, /launch, /ops) are public. admin@frasberg.com / LuchiiAdmin2026! remains available per /app/memory/test_credentials.md.",
+  "seed_data_creation": "None. TestOSDepth.test_baseline_clears_depth left depth in baseline state; TestOSScenario.test_scenario_events_after_ticks left scenario=collapse_rebirth in the simulator state. Simulator mock state auto-decays or can be reset via subsequent scenario/tick calls.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iter41 fully verified. Key testids: codex-book-{1..16}, codex-book-detail-{N}, codex-meta-{omnis-quad|meta-trinity|meta-absolute|meta-omega|collapse-rebirth|cycle-omega|omega-prime|prime-eternal|omni-eternal|eternum-prime|omnitheos}, codex-binding, codex-books-heading, codex-meta-heading; os-depth-row, os-depth-{baseline|primordium|nullpoint|preconcept|unbound|beyond|transcendence|apex}, os-depth-chip, os-step-btn, os-scenario-{threat_surge|evolution_burst|region_failover|collapse_rebirth}, os-scenario-banner; launch-play-storyboard, launch-storyboard, storyboard-caption, storyboard-close. Navbar 'Singularity Codex' is inside the Explore dropdown (click-to-open). Publish flow endpoint is /api/marketplace/publish (not /publish-factory). Backend pytest suite in /app/backend/tests/test_iter41_codex_depth.py should remain green.",
+  "rca of the issue": "Root cause of Launch page failure: Launch.jsx destructured `[on, setOn] = useState(false)` but not `[video, setVideo]`, yet lines 90 and 96 referenced `setVideo` and `video`. React rendering the JSX expression `{video && <Storyboard />}` triggered a ReferenceError at first paint, causing the CTA row to fail and the 'Play storyboard' button to never mount. Reproduction: navigate to /launch and observe pageerror 'video is not defined'. Fix: added `const [video, setVideo] = useState(false);` next to the existing state hook. Verified button renders, click opens fixed-overlay storyboard with auto-advancing captions."
+}

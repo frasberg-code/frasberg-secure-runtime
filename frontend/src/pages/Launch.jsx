@@ -1,8 +1,47 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Rocket, ShieldCheck, GitBranch, Globe, Sparkles } from "lucide-react";
+import { ArrowRight, Rocket, ShieldCheck, GitBranch, Globe, Sparkles, Play, X } from "lucide-react";
 import { ParallaxSky } from "../components/site/ParallaxSky";
 import { CognitionPreview } from "../components/site/CognitionPreview";
+
+const STORY = [
+  ["Cognition nodes ignite.", 0], ["Region rings pulse.", 1],
+  ["Intelligence is evolving.", 2], ["Autonomy is governed.", 2], ["Safety is built in.", 2],
+  ["Marketplace v3", 3],
+];
+
+function Storyboard({ onClose }) {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    if (i >= STORY.length - 1) { const t = setTimeout(onClose, 3200); return () => clearTimeout(t); }
+    const t = setTimeout(() => setI(i + 1), 1900);
+    return () => clearTimeout(t);
+  }, [i, onClose]);
+  const [text, phase] = STORY[i];
+  return (
+    <div className="fixed inset-0 z-[100] grid place-items-center bg-black/95 backdrop-blur" data-testid="launch-storyboard">
+      <button onClick={onClose} className="absolute right-6 top-6 text-gray-400 hover:text-white" data-testid="storyboard-close"><X size={22} /></button>
+      <div className="relative grid h-72 w-72 place-items-center">
+        {phase === 0 && [0, 1, 2, 3, 4, 5].map((k) => (
+          <span key={k} className="absolute h-3 w-3 animate-ping rounded-full bg-cyan-400"
+            style={{ left: `${18 + (k * 37) % 70}%`, top: `${15 + (k * 53) % 70}%`, animationDelay: `${k * 0.22}s` }} />
+        ))}
+        {phase === 1 && [0, 1, 2].map((k) => (
+          <span key={k} className="absolute animate-ping rounded-full border-2 border-cyan-400/60"
+            style={{ inset: `${k * 34}px`, animationDuration: "1.8s", animationDelay: `${k * 0.4}s` }} />
+        ))}
+        {phase === 3 && <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-28 w-28 animate-pulse rounded-full" />}
+      </div>
+      <p key={i} className="absolute bottom-[22%] px-6 text-center font-display text-3xl font-700 tracking-tight sm:text-4xl"
+        style={{ backgroundImage: "linear-gradient(90deg,#4A6CF7,#00D1FF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", animation: "fadeInUp 0.7s ease both" }}
+        data-testid="storyboard-caption">
+        {text}
+      </p>
+      {phase === 3 && <p className="absolute bottom-[15%] font-mono text-[13px] uppercase tracking-[0.3em] text-gray-400">Deploy Intelligence. Safely.</p>}
+      <style>{`@keyframes fadeInUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}`}</style>
+    </div>
+  );
+}
 
 const grad = { backgroundImage: "linear-gradient(90deg,#4A6CF7,#00D1FF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" };
 const gradBg = { backgroundImage: "linear-gradient(90deg,#4A6CF7,#00D1FF)" };
@@ -18,6 +57,7 @@ const FADE = "transition-all duration-700";
 
 export default function Launch() {
   const [on, setOn] = useState(false);
+  const [video, setVideo] = useState(false);
   useEffect(() => { const t = setTimeout(() => setOn(true), 80); return () => clearTimeout(t); }, []);
   const reveal = (i) => `${FADE} ${on ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"}` + ` delay-[${i * 150}ms]`;
   return (
@@ -48,8 +88,13 @@ export default function Launch() {
             className="rounded-full border border-white/25 px-7 py-3 text-[14.5px] font-600 text-gray-200 transition-colors hover:border-cyan-400 hover:text-cyan-300">
             Build a cognition graph
           </Link>
+          <button onClick={() => setVideo(true)} data-testid="launch-play-storyboard"
+            className="flex items-center gap-2 rounded-full border border-cyan-400/50 px-7 py-3 text-[14.5px] font-600 text-cyan-300 transition-colors hover:border-cyan-300">
+            <Play size={14} /> Play storyboard
+          </button>
         </div>
       </section>
+      {video && <Storyboard onClose={() => setVideo(false)} />}
 
       <section className="relative z-10 mx-auto max-w-6xl px-5 py-10">
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2" data-testid="launch-campaigns">
@@ -84,7 +129,7 @@ export default function Launch() {
           </ul>
           <blockquote className="mt-7 border-l-2 border-cyan-400 pl-5">
             <p className="font-display text-lg italic text-white/90">"Marketplace v3 is where intelligence becomes deployable."</p>
-            <p className="mt-2 font-mono text-[12.5px] text-gray-400">— MR, creator of FrasbergAI</p>
+            <p className="mt-2 font-mono text-[12.5px] text-gray-400">— Mr. Clayton-M. Bernard-Ex., AKA Frasberg Selassie, creator of Frasberg</p>
           </blockquote>
         </div>
       </section>

@@ -23,6 +23,17 @@ const SCENARIOS = [
   ["threat_surge", "Threat surge", "#F87171"],
   ["evolution_burst", "Evolution burst", "#22D3EE"],
   ["region_failover", "Region failover", "#FBBF24"],
+  ["collapse_rebirth", "Collapse-Rebirth cycle", "#C084FC"],
+];
+const DEPTHS = [
+  ["baseline", "Baseline", "CG-v2"],
+  ["primordium", "Primordium", "CG-v29"],
+  ["nullpoint", "Nullpoint", "CG-v30"],
+  ["preconcept", "Preconcept", "CG-v31"],
+  ["unbound", "Unbound", "CG-v32"],
+  ["beyond", "Beyond", "CG-v33"],
+  ["transcendence", "Transcendence", "CG-v34"],
+  ["apex", "Apex", "CG-v35"],
 ];
 const NODE_INFO = {
   percept: "Ingests multimodal frames — text, audio, vision — and normalizes them for the context assembler.",
@@ -157,7 +168,7 @@ export default function FrasbergOS() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
           <Link to="/" className="flex items-center gap-2.5" data-testid="os-home-link">
             <ArrowLeft size={16} className="text-gray-400" />
-            <img src="/luchii-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
+            <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">FrasbergOS</span>
           </Link>
           <span className="font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400">AIM v2 Simulator</span>
@@ -173,6 +184,11 @@ export default function FrasbergOS() {
             {[`Kernel ${k.version}`, `tick ${k.tick}`, k.scheduler, k.membrane, k.region, `load ${Math.round(k.load * 100)}%`, `up ${k.uptime_s}s`].map((c) => (
               <span key={c} className="rounded-full border border-cyan-400/30 bg-cyan-400/[0.06] px-3 py-1 text-cyan-200">{c}</span>
             ))}
+            {state?.depth && (
+              <span className="rounded-full border border-purple-400/50 bg-purple-400/[0.08] px-3 py-1 text-purple-200" data-testid="os-depth-chip">
+                substrate: {state.depth.label} · {state.depth.cg} · {state.depth.field}
+              </span>
+            )}
           </div>
         )}
 
@@ -193,6 +209,20 @@ export default function FrasbergOS() {
               {label}
             </button>
           ))}
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="os-depth-row">
+          <span className="font-mono text-[11.5px] uppercase tracking-wide text-gray-500">Substrate depth:</span>
+          {DEPTHS.map(([key, label, cg]) => {
+            const active = key === "baseline" ? !state?.depth : state?.depth?.name === key;
+            return (
+              <button key={key} onClick={() => call("depth", "POST", { name: key })}
+                data-testid={`os-depth-${key}`}
+                className={`rounded-full border px-3 py-1 font-mono text-[11.5px] transition-colors ${active ? "border-purple-400 bg-purple-400/10 text-purple-200" : "border-white/15 text-gray-400 hover:border-purple-400/50 hover:text-purple-200"}`}>
+                {label} <span className="opacity-60">{cg}</span>
+              </button>
+            );
+          })}
         </div>
 
         {state?.scenario && (

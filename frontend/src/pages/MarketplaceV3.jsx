@@ -267,7 +267,7 @@ export default function MarketplaceV3() {
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-4">
           <Link to="/marketplace" className="flex items-center gap-2.5" data-testid="mv3-back-link">
             <ArrowLeft size={16} className="text-gray-400" />
-            <img src="/luchii-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
+            <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Marketplace</span>
           </Link>
           <nav className="flex flex-wrap gap-1.5" data-testid="mv3-subnav">

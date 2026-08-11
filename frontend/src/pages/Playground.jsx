@@ -142,7 +142,7 @@ export default function Playground() {
     try {
       const r = await fetch(`${API}/marketplace/publish`, {
         method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "agent", name: agentJson.name, description: agentJson.description }),
+        body: JSON.stringify({ type: "agent", name: agentJson.name, description: agentJson.description, cognition_graph: agentJson.cognitionGraph }),
       });
       const d = await r.json();
       if (r.status === 401) throw new Error("Log in to publish agents to the Marketplace");
@@ -162,7 +162,7 @@ export default function Playground() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
           <Link to="/" className="flex items-center gap-2.5" data-testid="playground-home-link">
             <ArrowLeft size={16} className="text-gray-400" />
-            <img src="/luchii-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
+            <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Cognition Playground</span>
           </Link>
           <span className="font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400">Graph v2 Editor</span>

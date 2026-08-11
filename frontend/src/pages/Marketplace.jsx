@@ -7,8 +7,36 @@ import { CognitionPreview } from "../components/site/CognitionPreview";
 import { useAuth } from "../context/AuthContext";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const TYPE_COL = { perception: 0, interpretation: 1, reasoning: 2, decision: 3, action: 4 };
+function RealGraph({ graph }) {
+  const cols = {};
+  const pos = {};
+  (graph.nodes || []).forEach((n) => {
+    const c = TYPE_COL[n.type] ?? 2;
+    cols[c] = (cols[c] || 0) + 1;
+    pos[n.id] = { x: 30 + c * 47, y: 16 + (cols[c] - 1) * 26, t: n.type };
+  });
+  const h = Math.max(58, 16 + Math.max(0, ...Object.values(cols)) * 26);
+  return (
+    <svg viewBox={`0 0 250 ${h}`} style={{ width: "100%", height: "auto" }} data-testid="real-cognition-graph">
+      {(graph.edges || []).map(([a, b], i) => {
+        const A = pos[a], B = pos[b];
+        return A && B ? <line key={i} x1={A.x} y1={A.y} x2={B.x} y2={B.y} stroke="rgba(0,240,255,0.35)" strokeWidth="1" strokeDasharray="2 3" /> : null;
+      })}
+      {Object.entries(pos).map(([id, p]) => (
+        <g key={id}>
+          <circle cx={p.x} cy={p.y} r="9" fill="#0d1418" stroke="#00F0FF" strokeWidth="1.1" />
+          <text x={p.x} y={p.y + 3} textAnchor="middle" fill="#9adbe3" fontSize="7.5" fontFamily="monospace">{p.t[0].toUpperCase()}</text>
+          <text x={p.x} y={p.y + 20} textAnchor="middle" fill="#8A8F98" fontSize="6.5">{id}</text>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
 const TYPES = [
-  ["all", "All"], ["agent", "Agents"], ["model", "Models"], ["extension", "Extensions"], ["pipeline", "Pipelines"],
+  ["all", "All"],
+  ["agent", "Agents"], ["model", "Models"], ["extension", "Extensions"], ["pipeline", "Pipelines"],
 ];
 const ICONS = { agent: Bot, model: Cpu, extension: Puzzle, pipeline: GitBranch };
 
@@ -54,8 +82,8 @@ function DetailModal({ item, onClose, onInstall }) {
 
         {item.type === "agent" && (
           <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-3">
-            <p className="font-mono text-[11.5px] uppercase tracking-wide text-gray-500">How this agent thinks</p>
-            <CognitionPreview seed={item.id} labels />
+            <p className="font-mono text-[11.5px] uppercase tracking-wide text-gray-500">How this agent thinks{item.cognition_graph ? " — real cognition graph" : ""}</p>
+            {item.cognition_graph ? <RealGraph graph={item.cognition_graph} /> : <CognitionPreview seed={item.id} labels />}
           </div>
         )}
         <p className="mt-6 font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400">Evolution history</p>
@@ -193,7 +221,7 @@ export default function Marketplace() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
           <Link to="/" className="flex items-center gap-2.5" data-testid="marketplace-home-link">
             <ArrowLeft size={16} className="text-gray-400" />
-            <img src="/luchii-mark-circle.png" alt="Frasberg Luchii" className="h-8 w-8 rounded-full" />
+            <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Marketplace</span>
           </Link>
           <button onClick={() => user ? setShowPublish(true) : toast.error("Sign in to publish")} data-testid="marketplace-publish-btn"

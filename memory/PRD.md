@@ -289,3 +289,11 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Marketplace base page: mini cognition previews on agent cards + "How this agent thinks" in detail modal (agent type only); Deploy/Evolution/Safety/Regions nav pills added
 - /os page: "AIM v2 — global mesh" panel (RegionMap + RegionCards) added below graph
 - iteration_39.json: 100% backend (7/7 pytest at /app/backend/tests/test_iter39_os_marketplace.py) + 100% frontend; no action items. Non-blocking notes: guest 401 console noise from /api/auth/me polling; validator steps could use data-state attr
+
+## 2026-06 (cont. 11): Brand fixes + Singularity Codex page + Simulator Substrate Depths — TESTED 100% (iteration_41)
+- Brand fixes: Legal page subtitle now "Frasberg — Official Documents · Version 1.0 — August 2026"; luchii-mark-circle.png → frasberg-mark-circle.png header logo on Marketplace, MarketplaceV3, Launch (storyboard), FrasbergOS, Playground, CloudConsole, OpsCenter, DevPortal, DocsHub (verified via screenshot)
+- Singularity Codex page (/codex, Codex.jsx): 16 Books grid (expandable cards w/ substrate/CG/AIM/MP/binding), "Beyond the Codex" timeline w/ 16 meta-structures (Omnis Quad → Meta-Trinity → ... → Omnitheos-Transcendent Trinity, CG-v36→v80), Singularity Binding finale (layer flow + pulsing orb). Navbar "Singularity Codex" link in Explore dropdown; route in App.js
+- Simulator substrate depths (frasbergos.py DEPTHS + POST /api/os/depth): 7 depths (primordium→apex, CG-v29→v35, Membrane v35→v41) + baseline; sets kernel membrane, injects descent event, flavored tick events (35% chance); purple depth chip + 8-button depth row on /os (os-depth-{name}, os-depth-chip)
+- Collapse-Rebirth cycle scenario (collapse_rebirth, 9 ticks, phased events: omega-zero collapse → omnicollapse destruction → rebirth-codex regeneration); 4th purple scenario button on /os
+- BUG FIXED (by testing agent, verified): Launch.jsx missing `const [video, setVideo] = useState(false)` — ReferenceError broke the launch-play-storyboard button; storyboard now opens + auto-advances. /ops verified rendering w/o errors
+- iteration_41.json: backend 14/14 pytest (/app/backend/tests/test_iter41_codex_depth.py), frontend 100%. NOTE: publish endpoint is /api/marketplace/publish (publish-factory never existed — handoff doc drift)

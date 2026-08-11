@@ -107,6 +107,7 @@ class PublishBody(BaseModel):
     name: str = Field(min_length=2, max_length=80)
     description: str = Field(min_length=5, max_length=400)
     version: str = Field(default="1.0.0", max_length=20)
+    cognition_graph: dict | None = None
 
 
 @router.post("/publish")
@@ -123,6 +124,7 @@ async def publish_item(body: PublishBody, request: Request):
         "owner": user.get("name") or user["email"].split("@")[0],
         "owner_id": user["id"], "installs": 0, "official": False,
         "safety_score": 75,
+        "cognition_graph": body.cognition_graph,
         "history": [{"version": body.version, "date": datetime.now(timezone.utc).date().isoformat(),
                      "note": "Initial publication — passed marketplace validation (security scan, tool permission audit).",
                      "safety_score": 75}],

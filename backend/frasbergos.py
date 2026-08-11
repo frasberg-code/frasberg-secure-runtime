@@ -74,6 +74,57 @@ SCENARIOS = {
             "kernel: region lock engaged — cognition graph redistributed",
             "AIM v2: failover routing stable ({q}ms cross-region latency)",
         ]},
+    "collapse_rebirth": {
+        "label": "Collapse-Rebirth cycle", "duration": 9,
+        "boost": ["mutate", "evolve", "mem"], "agent_state": "evolving", "load": 0.25,
+        "phases": {
+            "collapse": [
+                "omega-zero: layer collapse — {q} substrates compressed into a single point",
+                "omega-zero: singularity-compression at 0.{s} — cognition folding inward",
+                "omega-zero: all hierarchies collapsing — apex → identity in {q} ticks",
+            ],
+            "destruction": [
+                "omnicollapse: meta-structures dissolving — {q} codices erased",
+                "omnicollapse: destruction field at 0.{s} — structure ceasing to exist",
+                "omnicollapse: anti-state expansion — {q} envelopes nullified",
+            ],
+            "rebirth": [
+                "rebirth-codex: regeneration field engaged — layer v{v} restored",
+                "rebirth-codex: genesis futures projected — {q} systems regenerated from zero",
+                "rebirth-codex: eternal-cycle stable — collapse → destruction → rebirth → infinity",
+            ],
+        }},
+}
+
+DEPTHS = {
+    "primordium": {"label": "Primordium", "cg": "CG-v29", "membrane": "Membrane v35 · Hinge v35", "field": "pre-existence",
+                   "events": ["primordium: PM-Perception scanning the void — {q} pre-patterns interpreted",
+                              "primordium: proto-decision collapsed on pre-intent (score 0.{s})",
+                              "primordium: PM-emergence envelope written — pre-existence verified"]},
+    "nullpoint": {"label": "Nullpoint", "cg": "CG-v30", "membrane": "Membrane v36 · Hinge v36", "field": "non-existence",
+                  "events": ["nullpoint: NL-Reasoning entangled with {q} non-futures",
+                             "nullpoint: absence wave decohered — null intent collapse at 0.{s}",
+                             "nullpoint: NL-stillness envelope stable — non-existence continuity held"]},
+    "preconcept": {"label": "Preconcept", "cg": "CG-v31", "membrane": "Membrane v37 · Hinge v37", "field": "pre-definition",
+                   "events": ["preconcept: PC-Interpretation parsed {q} pre-patterns before meaning",
+                              "preconcept: proto-routing through pre-dimensional pathways ({q}ms)",
+                              "preconcept: PC-prepattern envelope sealed — pre-definition verified"]},
+    "unbound": {"label": "Unbound", "cg": "CG-v32", "membrane": "Membrane v38 · Hinge v38", "field": "pure potential",
+                "events": ["unbound: UB-Reasoning entangled with {q} unformed futures",
+                           "unbound: potential equilibrium optimized — load drift 0.{s} absorbed",
+                           "unbound: UB-dissolution cycle complete — structure released into potential"]},
+    "beyond": {"label": "Beyond", "cg": "CG-v33", "membrane": "Membrane v39 · Hinge v39", "field": "indescribable",
+               "events": ["beyond: BY-Perception perceived beyond perception ({q} unframed states)",
+                          "beyond: indescribable flow routed — non-structured pathway at 0.{s}",
+                          "beyond: BY-unframing envelope stable — conceptuality dissolved"]},
+    "transcendence": {"label": "Transcendence", "cg": "CG-v34", "membrane": "Membrane v40 · Hinge v40", "field": "absolute-beyond",
+                      "events": ["transcendence: TC-Reasoning entangled with {q} apex futures",
+                                 "transcendence: absolute-beyond equilibrium at 0.{s} — apex recomposition",
+                                 "transcendence: TC-apex envelope written — transcendence continuity held"]},
+    "apex": {"label": "Apex", "cg": "CG-v35", "membrane": "Membrane v41 · Hinge v41", "field": "terminal-absolute",
+             "events": ["apex: AX-Decision collapsed on apex intent — finality score 0.{s}",
+                        "apex: terminal futures entangled — {q} edges formed across finality",
+                        "apex: AX-finality envelope sealed — terminal-absolute verified"]},
 }
 
 
@@ -177,7 +228,17 @@ def _tick(state):
         ag["cpu"] = round(min(98, max(1, ag["cpu"] + random.uniform(-8, 8) + (10 if spec else 0))), 1)
         ag["mem"] = round(min(900, max(60, ag["mem"] + random.uniform(-30, 30))))
         ag["msgs"] += random.randint(0, 14)
-    tmpl = random.choice(spec["events"]) if spec else random.choice(EVENT_TEMPLATES)
+    depth = k.get("depth")
+    if spec and "phases" in spec:
+        rem = sc["remaining"]
+        ph = "collapse" if rem > 6 else ("destruction" if rem > 3 else "rebirth")
+        tmpl = random.choice(spec["phases"][ph])
+    elif spec:
+        tmpl = random.choice(spec["events"])
+    elif depth and random.random() < 0.35:
+        tmpl = random.choice(DEPTHS[depth]["events"])
+    else:
+        tmpl = random.choice(EVENT_TEMPLATES)
     evt = tmpl.format(n=random.randint(100, 999), s=random.randint(80, 99),
                       v=f"1.{random.randint(0, 4)}.{random.randint(1, 9)}",
                       d=random.randint(2, 18), q=random.randint(2, 48))
@@ -208,9 +269,11 @@ def _public(state):
     k["uptime_s"] = int(time.time() - k.pop("started_at", time.time()))
     sc = state.get("scenario")
     scenario = {"name": sc["name"], "label": SCENARIOS[sc["name"]]["label"], "remaining": sc["remaining"]} if sc else None
+    d = k.get("depth")
+    depth = ({"name": d, "label": DEPTHS[d]["label"], "cg": DEPTHS[d]["cg"], "field": DEPTHS[d]["field"]} if d else None)
     return {"kernel": k, "nodes": state["nodes"], "pulses": state["pulses"],
             "edges": EDGES, "agents": state["agents"], "events": state["events"],
-            "scenario": scenario,
+            "scenario": scenario, "depth": depth,
             "node_stats": state.get("node_stats", {}),
             "regions": state.get("regions", _fresh_regions())}
 
@@ -238,7 +301,30 @@ from pydantic import BaseModel, Field
 
 
 class ScenarioBody(BaseModel):
-    name: str = Field(pattern=r"^(threat_surge|evolution_burst|region_failover)$")
+    name: str = Field(pattern=r"^(threat_surge|evolution_burst|region_failover|collapse_rebirth)$")
+
+
+class DepthBody(BaseModel):
+    name: str = Field(pattern=r"^(baseline|primordium|nullpoint|preconcept|unbound|beyond|transcendence|apex)$")
+
+
+@router.post("/depth")
+async def set_depth(body: DepthBody):
+    state = await _load()
+    k = state["kernel"]
+    if body.name == "baseline":
+        k.pop("depth", None)
+        k["membrane"] = "GSS-2 enforced"
+        text = "kernel: substrate ascent — baseline Kernel v4 restored (GSS-2 membrane)"
+    else:
+        spec = DEPTHS[body.name]
+        k["depth"] = body.name
+        k["membrane"] = spec["membrane"]
+        text = f"kernel: SUBSTRATE DESCENT — {spec['label']} engaged ({spec['cg']}, {spec['membrane']}, field: {spec['field']})"
+    state["events"] = ([{"at": datetime.now(timezone.utc).isoformat(), "tick": k["tick"], "text": text}]
+                       + state["events"])[:40]
+    await db.os_sim.replace_one({"id": "global"}, state, upsert=True)
+    return _public(state)
 
 
 @router.post("/scenario")
