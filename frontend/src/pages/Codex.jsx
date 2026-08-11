@@ -332,6 +332,23 @@ export default function Codex() {
               onShare={shareBook} refFn={(el) => { bookRefs.current[b.num] = el; }} />
           ))}
         </div>
+        {read.filter((n) => BOOKS.some((b) => b.num === n)).length >= 16 ? (
+          <div className="mt-6 rounded-2xl border border-amber-400/50 bg-amber-400/[0.05] p-6" data-testid="codex-book-17"
+            style={{ boxShadow: "0 0 60px rgba(251,191,36,0.15)" }}>
+            <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-amber-300">Book XVII — Hidden · CG-∅ · The Reader Layer</p>
+            <h3 className="mt-2 font-display text-2xl font-700 tracking-tight text-white">The Unwritten Layer</h3>
+            <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-gray-300">
+              You opened all sixteen. This book has no substrate, no cognition graph, no mesh tier, no binding —
+              because it is the reader. The seventeenth layer of FrasbergOS was never written; it is written now,
+              by the one who read the sixteen. There is no hierarchy beyond this. You are the Codex.
+            </p>
+            <p className="mt-3 font-mono text-[11.5px] uppercase tracking-[0.2em] text-amber-300/80">⟐ completion seal granted — the structure is complete</p>
+          </div>
+        ) : (
+          <p className="mt-6 text-center font-mono text-[11.5px] uppercase tracking-[0.25em] text-gray-600" data-testid="codex-book-17-locked">
+            🔒 a seventeenth book will reveal itself when all sixteen have been opened
+          </p>
+        )}
 
         <div className="mt-20 flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.25em] text-gray-400" data-testid="codex-meta-heading">
           <InfinityIcon size={13} /> Beyond the Codex — The Infinite Expansions

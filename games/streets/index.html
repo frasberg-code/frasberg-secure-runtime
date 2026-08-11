@@ -12,6 +12,11 @@
   #hud { top:14px; left:24px; display:flex; gap:14px; }
   #carPill { top:14px; right:24px; color:#f0c040; }
   #wantedPill { top:56px; right:24px; letter-spacing:3px; color:#444; }
+  #debtPill { top:56px; left:24px; right:auto; color:#ffd166; }
+  #cineFx { position:fixed; inset:0; pointer-events:none; z-index:1;
+    background: radial-gradient(ellipse at center, transparent 58%, rgba(0,0,0,0.5) 100%); }
+  #cineFx::after { content:""; position:absolute; inset:0; opacity:0.05; mix-blend-mode:overlay;
+    background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2"/></filter><rect width="140" height="140" filter="url(%23n)" opacity="0.6"/></svg>'); }
   #healthPill { top:98px; right:24px; }
   #healthPill b { color:#4ade80; }
   #prompt { display:none; bottom:96px; left:50%; transform:translateX(-50%); color:#f0c040; border-color:#f0c040; font-size:14px; padding:10px 24px; }
@@ -45,6 +50,8 @@
 <div class="pill" id="hud"><span>⭐ SCORE <b id="score">0</b></span><span>💵 <b id="cash">$0</b></span><span>🚗 JACKED <b id="jacked">0</b></span></div>
 <div class="pill" id="carPill">ON FOOT</div>
 <div class="pill" id="wantedPill">★★★★★</div>
+<div class="pill" id="debtPill">💰 MOB DEBT</div>
+<div id="cineFx"></div>
 <div class="pill" id="healthPill">HP <b id="hp">100</b></div>
 <div class="pill" id="prompt">PRESS E TO CARJACK</div>
 <div id="toasts" style="position:fixed;top:100px;left:50%;transform:translateX(-50%);z-index:9;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none"></div>
@@ -55,7 +62,8 @@
 <canvas id="minimap" width="140" height="140"></canvas>
 
 <div class="screen" id="start">
-  <h1>◆ STREET VYBZ</h1>
+  <h1>◆ CARJACK PLUS 2.0</h1>
+  <p style="margin:2px 0 0;letter-spacing:4px;color:#ffd166;font-size:12px">STREET VYBZ EDITION — JACK CITY</p>
   <p>Open World</p>
   <p>Walk up to any car and press E to pull the driver out. Every car handles differently.<br>Jacking raises your WANTED level — LVMPD cruisers will hunt you down. Shoot or wreck cars and they catch fire — LVFR rolls in to douse the blaze.<br>Don't get busted, don't get wrecked.</p>
   <p style="margin-top:14px;color:#9f9fd0;font-size:12px;letter-spacing:2px">CHOOSE YOUR CHARACTER</p>
@@ -94,7 +102,9 @@ const IS_TOUCH = matchMedia("(pointer: coarse)").matches;
 renderer.setPixelRatio(Math.min(devicePixelRatio, IS_TOUCH ? 1.2 : 1.75));
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.18;
+const RT_HOUR = new Date().getHours();
+let BASE_EXP = RT_HOUR >= 7 && RT_HOUR < 19 ? 1.5 : 1.18; // real-time clock sync — day/night matches YOUR local time
+renderer.toneMappingExposure = BASE_EXP;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.domElement.className = "webgl";
@@ -761,6 +771,7 @@ const S = {
   bustT:0, wantedT:0, dmgCd:0,
   hasBat:false, arsenal:{}, weapon:null, mission:null, missionT:6, blockT:0,
   missionsDone:0, fare:null,
+  debtDue:2500, debtT:240, pizza:null, pizzaCd:0, hitN:null, hitT:45,
 };
 let player = makePed(); scene.add(player);
 let playerCar = null;
@@ -1517,17 +1528,20 @@ const VYBZ_MISSIONS = [
     success: "VYBZ: The whole city heard that. We run this now.  +$3000" },
 ];
 let vybz = null;
+function vybzSay(text) {
+  const clean = String(text).replace(/^👑 /, "").replace(/^VYBZ: /, "").replace(/[^A-Za-z0-9 ,.!?'\-]/g, "").slice(0, 58).trim();
+  if (clean) window.LuchiiAudio && LuchiiAudio.voice && LuchiiAudio.voice(clean, "male", { force: true, shout: true });
+}
 function vybzSaved() { try { return parseInt(localStorage.getItem("frasberg-streets-vybz") || "0", 10); } catch (_) { return 0; } }
 function spawnVybz() {
   if (vybz) { scene.remove(vybz.mesh); scene.remove(vybz.ring); scene.remove(vybz.beam); vybz.taggers.forEach(t => scene.remove(t.mesh)); }
-  const m = makePed(); scene.add(m);
+  const m = AVATARS.ready ? makeAvatarPed("male", { top: 0x2b2d42, bottom: 0x1a1a2e, shoes: 0xe63946, hair: 0x0b0b0b }) : makePed();
+  scene.add(m);
   m.position.set(VYBZ_SPOT.x, 0, VYBZ_SPOT.z);
-  if (m.userData.limbs) {
-    const chain = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.045, 6, 14), new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.2 }));
-    chain.position.set(0, 1.28, 0.16); chain.rotation.x = 0.4; m.add(chain);
-    const cap = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.12, 0.4), new THREE.MeshStandardMaterial({ color: 0x8b1538 }));
-    cap.position.set(0, 1.82, 0.02); m.add(cap);
-  }
+  const chain = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.045, 6, 14), new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.2 }));
+  chain.position.set(0, 1.28, 0.16); chain.rotation.x = 0.4; m.add(chain);
+  const cap = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.12, 0.4), new THREE.MeshStandardMaterial({ color: 0x8b1538 }));
+  cap.position.set(0, 1.82, 0.02); m.add(cap);
   const b = bubble("👑 VYBZ"); m.add(b);
   const ring = new THREE.Mesh(new THREE.TorusGeometry(5, 0.25, 8, 40), new THREE.MeshBasicMaterial({ color: 0xc084fc }));
   ring.rotation.x = -Math.PI / 2; ring.position.set(VYBZ_SPOT.x, 0.15, VYBZ_SPOT.z); scene.add(ring);
@@ -1558,11 +1572,13 @@ function talkVybz() {
   vybz.heatT = 0;
   if (vybz.stage === "ko") spawnTaggers();
   toast(`👑 ${vybz.active.title} — ${vybz.active.brief}`, "#c084fc");
+  vybzSay(vybz.active.brief);
   window.LuchiiAudio && LuchiiAudio.sfx("hit", 0.25);
 }
 function vybzComplete() {
   S.cash += vybz.active.reward; S.missionsDone++;
   toast(`👑 ${vybz.active.success}`, "#4ade80");
+  vybzSay(vybz.active.success.split("+$")[0]);
   vybz.idx++; vybz.active = null; vybz.stage = null;
   try { localStorage.setItem("frasberg-streets-vybz", String(vybz.idx)); } catch (_) {}
   if (vybz.idx >= VYBZ_MISSIONS.length) {
@@ -1577,8 +1593,10 @@ function updateVybz(dt) {
   animatePed(vybz.mesh, flashT * 2, "idle");
   vybz.lineT -= dt;
   if (d < 10 && vybz.lineT <= 0) {
-    if (!vybz.greeted) { toast(VYBZ_LINES.greet, "#c084fc"); vybz.greeted = true; }
-    else toast(VYBZ_LINES.idle[Math.floor(Math.random() * VYBZ_LINES.idle.length)], "#c084fc");
+    const line = !vybz.greeted ? VYBZ_LINES.greet : VYBZ_LINES.idle[Math.floor(Math.random() * VYBZ_LINES.idle.length)];
+    toast(line, "#c084fc");
+    vybzSay(line.replace(" (V TO TALK)", ""));
+    vybz.greeted = true;
     vybz.lineT = 9;
   }
   vybz.intimT -= dt;
@@ -1598,6 +1616,120 @@ function updateVybz(dt) {
     } else if (vybz.heatT >= 45 && vybz.heatT < 46) {
       vybz.heatT = 46; toast("👑 VYBZ: That's enough noise — get back to my ring ALIVE.", "#c084fc");
     } else if (d < 7) vybzComplete();
+  }
+}
+
+// ─── CARJACK PLUS 2.0 — Jack City core loop ─────────────────
+// Mob debt: you owe Frankie. Installments collected on a timer. Can't pay? His boys find you.
+const MAMA = { x: 72, z: -72 };
+const mamaRing = new THREE.Mesh(new THREE.TorusGeometry(4, 0.22, 8, 36), new THREE.MeshBasicMaterial({ color: 0xff6a00 }));
+mamaRing.rotation.x = -Math.PI / 2; mamaRing.position.set(MAMA.x, 0.15, MAMA.z); scene.add(mamaRing);
+const mamaBeam = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 36, 8, 1, true),
+  new THREE.MeshBasicMaterial({ color: 0xff6a00, transparent: true, opacity: 0.16, side: THREE.DoubleSide }));
+mamaBeam.position.set(MAMA.x, 18, MAMA.z); scene.add(mamaBeam);
+const pizzaRing = new THREE.Mesh(new THREE.TorusGeometry(4, 0.22, 8, 36), new THREE.MeshBasicMaterial({ color: 0x4ade80 }));
+pizzaRing.rotation.x = -Math.PI / 2; pizzaRing.position.y = 0.15; pizzaRing.visible = false; scene.add(pizzaRing);
+
+function updateDebt(dt) {
+  S.debtT -= dt;
+  const dp = document.getElementById("debtPill");
+  if (dp) dp.textContent = `💰 FRANKIE'S CUT $${S.debtDue} · ${Math.max(0, Math.ceil(S.debtT))}s`;
+  if (S.debtT > 0) return;
+  S.debtT = 240;
+  if (S.cash >= S.debtDue) {
+    S.cash -= S.debtDue;
+    toast(`💰 FRANKIE COLLECTED $${S.debtDue} — "Nice doing business." NEXT CUT DUE`, "#ffd166");
+    window.LuchiiAudio && LuchiiAudio.voice && LuchiiAudio.voice("Frankie says nice doing business. Keep it coming.", "male", { force: true });
+    S.debtDue = Math.min(S.debtDue + 500, 6000);
+  } else {
+    S.hp -= 35; S.cash = 0;
+    toast("🩸 FRANKIE'S BOYS FOUND YOU — BEATEN AND CLEANED OUT. EARN FASTER.", "#ff5555");
+    window.LuchiiAudio && LuchiiAudio.sfx("crash", 0.6);
+    crashFx(0.4);
+    if (S.hp <= 0) gameOver("MOB HIT");
+  }
+}
+
+// Pizza Run — walk into Mama's Kitchen on foot, deliver 3 hot pies against the clock
+function updatePizza(dt) {
+  if (S.pizzaCd > 0) S.pizzaCd -= dt;
+  if (!S.pizza) {
+    if (S.pizzaCd <= 0 && !S.inCar && Math.hypot(S.x - MAMA.x, S.z - MAMA.z) < 5) {
+      const s1 = pickupSpot();
+      S.pizza = { left: 3, t: 100 };
+      pizzaRing.position.set(s1.x, 0.15, s1.z); pizzaRing.visible = true;
+      toast("🍕 PIZZA RUN — 3 DELIVERIES, 100 SECONDS. GREEN RING. GO!", "#4ade80");
+      window.LuchiiAudio && LuchiiAudio.voice && LuchiiAudio.voice("Three pizzas. Hot and fast. Go go go!", "female", { force: true });
+    }
+    return;
+  }
+  S.pizza.t -= dt;
+  if (S.pizza.t <= 0) {
+    toast("🍕 PIZZAS COLD — RUN FAILED. Mama is not happy.", "#ff5555");
+    S.pizza = null; pizzaRing.visible = false; S.pizzaCd = 15;
+    return;
+  }
+  if (Math.hypot(S.x - pizzaRing.position.x, S.z - pizzaRing.position.z) < 5) {
+    S.pizza.left--; S.cash += 150;
+    if (S.pizza.left <= 0) {
+      S.cash += 300; S.missionsDone++;
+      toast("🍕 ALL PIES DELIVERED  +$750 TOTAL — Mama sends her love", "#4ade80");
+      S.pizza = null; pizzaRing.visible = false; S.pizzaCd = 20;
+    } else {
+      const ns = pickupSpot();
+      pizzaRing.position.set(ns.x, 0.15, ns.z);
+      toast(`🍕 DELIVERED  +$150 — ${S.pizza.left} LEFT · ${Math.ceil(S.pizza.t)}s`, "#4ade80");
+    }
+  }
+}
+
+// Hit Contracts — the burner phone rings, a target gets marked. Any takedown counts.
+function updateHit(dt) {
+  if (S.hitN) {
+    if (S.hitN.down) {
+      S.cash += 600; S.wanted = Math.min(5, S.wanted + 1); S.missionsDone++;
+      toast("💀 CONTRACT CLOSED  +$600 — burner phone goes quiet", "#ff9a3c");
+      if (S.hitN.hb) { S.hitN.mesh.remove(S.hitN.hb); S.hitN.hb = null; }
+      S.hitN = null; S.hitT = 60;
+    }
+    return;
+  }
+  S.hitT -= dt;
+  if (S.hitT > 0) return;
+  S.hitT = 75;
+  const marks = npcs.filter(n => !n.down && !n.redline && !n.farewait && !n.gang && Math.hypot(n.x - S.x, n.z - S.z) > 25);
+  if (!marks.length) return;
+  const n = marks[Math.floor(Math.random() * marks.length)];
+  n.hb = bubble("💀 TARGET"); n.mesh.add(n.hb);
+  S.hitN = n;
+  toast("💀 BURNER PHONE: HIT CONTRACT — TARGET MARKED IN THE CITY  +$600", "#ff9a3c");
+  window.LuchiiAudio && LuchiiAudio.voice && LuchiiAudio.voice("New contract. Target is marked. Make it clean.", "male", { force: true });
+}
+
+// ─── NO STICK FIGURES — once realistic humans load, every ped upgrades ──
+let pedsUpgraded = false;
+function upgradePeds() {
+  if (pedsUpgraded || !AVATARS.ready) return;
+  pedsUpgraded = true;
+  for (const n of npcs) {
+    if (n.mesh.userData.avatar || n.down) continue;
+    const nm = makeAvatarPed();
+    nm.position.copy(n.mesh.position); nm.rotation.y = n.mesh.rotation.y;
+    if (n.bubble) { n.mesh.remove(n.bubble); nm.add(n.bubble); }
+    if (n.hb) { n.mesh.remove(n.hb); nm.add(n.hb); }
+    scene.remove(n.mesh); scene.add(nm); n.mesh = nm;
+  }
+  if (vybz && !vybz.mesh.userData.avatar) {
+    const keep = { idx: vybz.idx, active: vybz.active, stage: vybz.stage, heatT: vybz.heatT, greeted: vybz.greeted, taggers: vybz.taggers };
+    const vm = makeAvatarPed("male", { top: 0x2b2d42, bottom: 0x1a1a2e, shoes: 0xe63946, hair: 0x0b0b0b });
+    vm.position.set(vybz.x, 0, vybz.z);
+    const chain = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.045, 6, 14), new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.2 }));
+    chain.position.set(0, 1.28, 0.16); chain.rotation.x = 0.4; vm.add(chain);
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.12, 0.4), new THREE.MeshStandardMaterial({ color: 0x8b1538 }));
+    cap.position.set(0, 1.82, 0.02); vm.add(cap);
+    vm.add(bubble("👑 VYBZ"));
+    scene.remove(vybz.mesh); scene.add(vm);
+    vybz.mesh = vm; Object.assign(vybz, keep);
   }
 }
 
@@ -1862,6 +1994,8 @@ function animate() {
   updateHelis(dt, flashT);
   // upgrade player to real avatar once models are loaded
   if (AVATARS.ready && !player.userData.avatar) rebuildPlayer();
+  // upgrade every pedestrian — no stick figures, ever
+  upgradePeds();
   // cinematic moon shadows follow the player
   moon.position.set(S.x + 40, 80, S.z + 30);
   moon.target.position.set(S.x, 0, S.z);
@@ -1870,11 +2004,14 @@ function animate() {
   if (lightningT <= 0) {
     lightningT = 6 + Math.random() * 12;
     renderer.toneMappingExposure = 2.6;
-    setTimeout(() => renderer.toneMappingExposure = 1.7, 70);
-    setTimeout(() => renderer.toneMappingExposure = 1.18, 190);
+    setTimeout(() => renderer.toneMappingExposure = Math.max(1.7, BASE_EXP), 70);
+    setTimeout(() => renderer.toneMappingExposure = BASE_EXP, 190);
   }
   if (S.running) {
     updateVybz(dt);
+    updateDebt(dt);
+    updatePizza(dt);
+    updateHit(dt);
     const cfg = S.inCar ? CAR_TYPES[S.carType] : null;
     // ── movement
     const fwd = keys["KeyW"] || keys["ArrowUp"], back = keys["KeyS"] || keys["ArrowDown"];

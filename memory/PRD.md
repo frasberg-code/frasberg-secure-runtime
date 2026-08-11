@@ -348,3 +348,9 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - STREET VYBZ GAME (/app/games/streets/index.html): VYBZ boss NPC — gold chain + maroon cap + 👑 bubble at (-72,72) w/ purple ring/beam; V key talks; 4 idle dialogue lines + greet; turf intimidation (peds flee within 12u); 3-mission chain persisted in localStorage frasberg-streets-vybz: 1) MARK YOUR TERRITORY (KO 3 REDLINE taggers, $800) 2) WHEELS FOR THE CREW (deliver muscle car to ring, $1400) 3) STREET KING (hold wanted≥2 for 45s + return, $3000) + $5000 crown bonus; registry description/controls updated in games_portal.py
 - Legal/Launch text fixes + logo policy maintained
 - iteration_47.json: backend 100%, frontend 5/6 (search UI was missing → fixed + screenshot-verified). TEST_ data cleaned
+
+## 2026-06 (cont. 18): Carjack Plus systems + honest stop on game work
+- USER DIRECTIVE (IMPORTANT): User wanted a true "Carjack Plus 2.0" clone with studio-grade realistic graphics. Agent was honest that browser Three.js cannot match commercial quality. USER SAID STOP ALL GAME WORK — do NOT build or polish the game further unless user explicitly asks again.
+- Game changes that shipped before the stop (working, syntax-verified, left as-is): mob debt loop (Frankie's cut on 240s timer, beaten if unpaid), pizza runs (Mama's Kitchen, 3 deliveries/100s), hit contracts (burner phone marks targets, $600), Vybz + NPCs speak via natural TTS /api/games/voice (endpoint verified 200, 31KB mp3), no-stick-figures upgrade pass (all peds swap to RPM realistic humans once loaded), real-time day/night exposure, cinematic vignette+grain overlay, title screen + registry renamed "Street Vybz: Carjack Plus 2.0" (user unhappy w/ the rename — offer to revert if raised again)
+- Codex hidden Book XVII "The Unwritten Layer" (codex-book-17) unlocks when all 16 books read; locked teaser (codex-book-17-locked) otherwise — frontend compiles, NOT deep-tested
+- Frontend 200 OK, backend restarted OK

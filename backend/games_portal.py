@@ -62,9 +62,9 @@ GAMES_DIR = Path(__file__).parent.parent / "games"
 GAME_REGISTRY = [
     {
         "id": "streets",
-        "title": "Street Vybz",
+        "title": "Street Vybz: Carjack Plus 2.0",
         "genre": "Open World",
-        "description": "Street Vybz. Play as a realistic male or female character, pull drivers from moving cars, outrun LVMPD, run missions and taxi fares. Meet VYBZ — the street boss of the Graffiti District — and run his 3-mission chain to get crowned into the crew. Shoot or wreck cars and they burn — LVFR fire crews respond. Every car handles differently.",
+        "description": "Carjack Plus 2.0 — Jack City. You owe Frankie the mob boss: his cut gets collected on a timer, and if you can't pay, his boys find you. Earn it any way you can — carjacking, hit contracts from the burner phone, pizza runs from Mama's Kitchen, taxi fares, or VYBZ's 3-mission street chain. Realistic human characters, natural spoken voices, real-time day/night synced to your clock, LVMPD wanted stars and LVFR fire crews.",
         "thumbnail": "/games-thumbs/streets.jpg",
         "controls": "WASD drive · E carjack/exit · F bat · G pistol · V talk to Vybz · Space brake · Shift sprint",
         "engine": "",
