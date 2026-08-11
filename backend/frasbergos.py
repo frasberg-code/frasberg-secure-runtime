@@ -26,6 +26,7 @@ REGION_SEED = [
     {"id": "us-east", "name": "US East", "x": 225, "y": 148},
     {"id": "eu-central", "name": "EU Central", "x": 415, "y": 108},
     {"id": "ap-south", "name": "AP South", "x": 590, "y": 215},
+    {"id": "sa-east", "name": "SA East", "x": 265, "y": 250},
 ]
 STATES = ["running", "running", "running", "waiting", "evolving", "sandboxed"]
 EVENT_TEMPLATES = [
@@ -110,6 +111,7 @@ def _tick(state):
     stats = state.setdefault("node_stats", {n: {"traffic": 0, "safety": random.randint(82, 98), "last_pulse_tick": None} for n in NODES})
     regions = state.setdefault("regions", _fresh_regions())
     failover_active = bool(spec and sc["name"] == "region_failover")
+    heal_events = []
     for r in regions:
         bias = 0
         if failover_active:
@@ -121,6 +123,21 @@ def _tick(state):
                 bias = 0.18
             else:
                 r["status"] = "healthy"
+            r.pop("healing_in", None)
+        elif r.get("healing_in"):
+            r["healing_in"] -= 1
+            if r["healing_in"] <= 0:
+                r["status"] = "healthy"
+                r.pop("healing_in", None)
+                heal_events.append(f"mesh-ai: {r['id']} recovered — routing restored, safety envelope reinforced")
+            else:
+                r["status"] = "degraded"
+                bias = 0.1
+                heal_events.append(f"mesh-ai: rerouting {random.randint(6, 40)} tasks away from {r['id']} ({r['healing_in']} ticks to recovery)")
+        elif random.random() < 0.06:
+            r["status"] = "degraded"
+            r["healing_in"] = random.randint(2, 3)
+            heal_events.append(f"mesh-ai: ANOMALY detected in {r['id']} (load drift 0.{random.randint(70, 95)}) — self-healing engaged")
         else:
             r["status"] = "healthy"
         r["load"] = round(min(0.97, max(0.08, r["load"] + random.uniform(-0.06, 0.06) + bias * 0.4)), 2)
@@ -165,6 +182,8 @@ def _tick(state):
                       v=f"1.{random.randint(0, 4)}.{random.randint(1, 9)}",
                       d=random.randint(2, 18), q=random.randint(2, 48))
     events = [{"at": datetime.now(timezone.utc).isoformat(), "tick": k["tick"], "text": evt}]
+    for he in heal_events[:2]:
+        events.insert(0, {"at": datetime.now(timezone.utc).isoformat(), "tick": k["tick"], "text": he})
     if spec:
         sc["remaining"] -= 1
         if sc["remaining"] <= 0:

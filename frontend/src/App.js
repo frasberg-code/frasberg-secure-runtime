@@ -50,6 +50,10 @@ import Linq from "./pages/Linq";
 import FrasbergCloud from "./pages/FrasbergCloud";
 import Marketplace from "./pages/Marketplace";
 import MarketplaceV3 from "./pages/MarketplaceV3";
+import Playground from "./pages/Playground";
+import CloudConsole from "./pages/CloudConsole";
+import DevPortal from "./pages/DevPortal";
+import Launch from "./pages/Launch";
 import FrasbergOS from "./pages/FrasbergOS";
 import DocsHub from "./pages/DocsHub";
 
@@ -125,6 +129,10 @@ function App() {
               <Route path="/marketplace" element={<Marketplace />} />
               <Route path="/marketplace/:page" element={<MarketplaceV3 />} />
               <Route path="/os" element={<FrasbergOS />} />
+              <Route path="/playground" element={<Playground />} />
+              <Route path="/console" element={<CloudConsole />} />
+              <Route path="/developers/portal" element={<DevPortal />} />
+              <Route path="/launch" element={<Launch />} />
               <Route path="/developers/docs" element={<DocsHub />} />
               <Route path="/developers/docs/:doc" element={<DocsHub />} />
             </Routes>

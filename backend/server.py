@@ -1429,6 +1429,63 @@ async def admin_tenant_detail(user_id: str, admin: dict = Depends(require_admin)
     return {"tenant": u, "keys": keys, "daily": list(by_day.values()), "purchases": purchases}
 
 
+HOSTING_REGIONS = ["us-west", "us-east", "eu-central", "ap-south", "sa-east"]
+
+
+@api_router.get("/admin/hosting")
+async def admin_hosting(admin: dict = Depends(require_admin)):
+    """Enterprise multi-tenant hosting view — isolation, safety, evolution, regions, billing meters."""
+    users = await db.users.find({}, {"_id": 0, "id": 1, "email": 1, "name": 1, "plan": 1, "role": 1,
+                                     "suspended": 1, "region_permissions": 1, "credit_balance": 1}).to_list(1000)
+    keys = await db.api_keys.find({}, {"_id": 0, "user_id": 1, "request_count": 1, "token_count": 1}).to_list(5000)
+    agg: dict = {}
+    for k in keys:
+        a = agg.setdefault(k.get("user_id"), {"keys": 0, "requests": 0, "tokens": 0})
+        a["keys"] += 1
+        a["requests"] += k.get("request_count", 0)
+        a["tokens"] += k.get("token_count", 0)
+    evo_by_owner: dict = {}
+    async for m in db.marketplace.find({"owner_id": {"$exists": True}}, {"owner_id": 1, "history": 1, "evolution_mode": 1}):
+        e = evo_by_owner.setdefault(m["owner_id"], {"items": 0, "evolution_events": 0, "evolution_on": 0})
+        e["items"] += 1
+        e["evolution_events"] += len(m.get("history", []))
+        e["evolution_on"] += 1 if m.get("evolution_mode") else 0
+    tenants = []
+    for u in users:
+        a = agg.get(u["id"], {"keys": 0, "requests": 0, "tokens": 0})
+        e = evo_by_owner.get(u["id"], {"items": 0, "evolution_events": 0, "evolution_on": 0})
+        plan = u.get("plan", "free")
+        tenants.append({
+            "id": u["id"], "email": u.get("email"), "name": u.get("name"), "plan": plan,
+            "role": u.get("role", "user"), "suspended": bool(u.get("suspended")),
+            "isolation": "dedicated sandbox" if plan in ("scale", "enterprise") else "shared pool",
+            "safety_profile": {
+                "membrane": "enforced", "hinge": "policy-driven" if plan != "free" else "standard",
+                "classifier": "v3-enterprise" if plan in ("scale", "enterprise") else "v3",
+                "ethics": "compliance profile" if plan == "enterprise" else "default",
+            },
+            "evolution_policy": "audited pipelines" if e["evolution_on"] else ("mutation-ready" if e["items"] else "disabled"),
+            "region_permissions": u.get("region_permissions") or (HOSTING_REGIONS if plan in ("scale", "enterprise") else ["us-west"]),
+            "billing": {"cognition_cycles": a["requests"], "tokens": a["tokens"], "keys": a["keys"],
+                        "evolution_events": e["evolution_events"], "marketplace_items": e["items"],
+                        "wallet": u.get("credit_balance", 0)},
+        })
+    tenants.sort(key=lambda t: -t["billing"]["cognition_cycles"])
+    return {"tenants": tenants, "regions": HOSTING_REGIONS}
+
+
+@api_router.post("/admin/tenants/{user_id}/regions")
+async def admin_set_tenant_regions(user_id: str, body: dict, admin: dict = Depends(require_admin)):
+    regions = [r for r in (body.get("regions") or []) if r in HOSTING_REGIONS]
+    if not regions:
+        raise HTTPException(status_code=400, detail="At least one valid region required.")
+    res = await db.users.update_one({"id": user_id}, {"$set": {"region_permissions": regions}})
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+    await _audit(admin, "set_region_permissions", {"tenant_id": user_id, "regions": regions})
+    return {"ok": True, "regions": regions}
+
+
 @api_router.post("/admin/tenants/{user_id}/grant-credits")
 async def admin_grant_credits(user_id: str, body: dict, admin: dict = Depends(require_admin)):
     amount = max(1, min(int(body.get("amount", 0)), 1000000))

@@ -97,6 +97,23 @@ Awwwards-level cinematic landing page + platform for the "Luchii" multi-tier int
 - Official documents archived in /app/provider-kit/: partner-api-agreement.md, provider-sla-contract.md, enterprise-compliance-packet.md, branding-kit-and-launch.md, enterprise-contract-and-clusters.md, partner-program-and-pricing.md, developer-handbook.md
 
 
+## 2026-06 (cont. 11): Playground + Cloud Console + Enterprise Hosting + Dev Portal — TESTED 100% (iteration_40)
+- Cognition Playground /playground (Playground.jsx, client-side sim): P/I/R/D/A palette, drag nodes, link/select/delete modes, live safety scoring (flow-order violations -8, missing types -6, orphans -4) w/ GSS-2 band + issue list, Step/Run animated execution trace (membrane block if score<60), compiled bytecode viewer (PERC/INTP/REAS/DECI/SAFE/ACTN)
+- AIM v2 Cloud Console /console (CloudConsole.jsx): mesh map, autoscale decisions (load>0.65 up/<0.25 down/hold), failover panel+inject, cognition distribution bars (data-testid cognition-bar-{n}), federation sync pairs, deploy wizard link card, live toggle (3s auto-tick), event stream
+- Enterprise Hosting: GET /api/admin/hosting (isolation/safety_profile/evolution_policy/region_permissions/billing meters per tenant) + POST /api/admin/tenants/{id}/regions (validated, audited); AdminHosting.jsx panel in Admin console w/ clickable region permission chips. HOSTING_REGIONS = 5
+- Developer Portal /developers/portal (DevPortal.jsx): Kernel v4 hero, quickstart code block, 6 concept cards, 10-week training course (5 phases), 6-step certification timeline, CTA links
+- sa-east 5th region added to REGION_SEED + HOSTING_REGIONS (per user's Global Cloud spec: "SA-East — autoscale overflow zone")
+- Navbar Products: Cognition Playground / Cloud Console / Developer Portal links added
+- iteration_40.json: 100% backend (7/7 pytest test_iter40_hosting_regions.py) + 100% frontend. Testing agent added missing AdminHosting import to Admin.jsx (audited, correct)
+- User continues dumping specs (Ops Center, Region Director, Mesh AI v4/v5, Agent Factory, OS theme, hardware device) — reference lore, no explicit asks
+
+## 2026-06 (cont. 12): Launch Page + Self-Healing Mesh + Agent Factory — SELF-TESTED e2e
+- Launch page /launch (Launch.jsx): cinematic staggered-reveal hero "Deploy Intelligence. Safely.", animated cognition preview, 4 campaign tagline cards (Deploy/Governed Autonomy/Agents that Grow/Intelligence Everywhere → link to v3 pages), full press release section w/ MR quote, footer CTA. Navbar "Launch — Marketplace v3" link added
+- Self-healing mesh (frasbergos.py _tick): 6%/tick anomaly chance per region → status degraded + healing_in 2-3 ticks → mesh-ai events (ANOMALY detected → rerouting N tasks → recovered/envelope reinforced) → auto-restore. RegionCards show "healing Nt"; console failover panel shows cyan "self-healing: region (Nt)" status. Verified via 25-tick curl loop (17 heal events)
+- Agent Factory (Playground.jsx): "Generate agent.json" builds full agent spec (name Autogen-N, model luchii-6-mini, cognitionGraph nodes/edges, live safety score+band, evolution constraints, region) → JSON viewer + Download + "Publish to Marketplace" (POST /marketplace/publish, blocked when score<60, 401→login toast). Verified logged-in publish e2e (toast + marketplace insert)
+- BUG FOUND+FIXED: build instrumentation mangles multi-child SVG <text> nodes — {a} x{b} renders only static part. Fix: single template literals. Fixed in Playground node labels + RegionMesh status text. RULE: always use one template-literal expression inside SVG <text>
+- Marketplace now contains user-published "Autogen-743" (live factory demo output by doctester1)
+
 ## Known Constraints
 - WebGL/Three.js cannot reach Cyberpunk 2077 path-traced fidelity; using ACES tonemapping, env reflections, soft shadows, neon emissives
 - Production frasberg.com is a SEPARATE deployment — user must redeploy to see preview changes (recurring confusion, Cloudflare 520 history)

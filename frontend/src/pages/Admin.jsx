@@ -10,6 +10,7 @@ import Starfield from "../components/site/Starfield";
 import Seo from "../components/site/Seo";
 
 import { ParallaxSky } from "../components/site/ParallaxSky";
+import { AdminHosting } from "../components/site/AdminHosting";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const ax = { withCredentials: true };
@@ -711,6 +712,8 @@ export default function Admin() {
                 </div>
               </div>
             </section>
+
+            <AdminHosting />
 
             <section className="mt-12" data-testid="admin-team-panel">
               <div className="flex flex-wrap items-center justify-between gap-3">

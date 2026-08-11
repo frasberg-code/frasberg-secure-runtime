@@ -35,9 +35,7 @@ export function RegionMap({ regions }) {
             <circle cx={r.x} cy={r.y} r="7" fill="#0d1418" stroke={c} strokeWidth="2" />
             <circle cx={r.x} cy={r.y} r="2.5" fill={c} />
             <text x={r.x} y={r.y - 16} textAnchor="middle" fill="#EDEDED" fontSize="12" fontWeight="600">{r.name}</text>
-            <text x={r.x} y={r.y + 22} textAnchor="middle" fill="#8A8F98" fontSize="10.5" fontFamily="monospace">
-              {r.status} · {Math.round(r.load * 100)}%
-            </text>
+            <text x={r.x} y={r.y + 22} textAnchor="middle" fill="#8A8F98" fontSize="10.5" fontFamily="monospace">{`${r.status} · ${Math.round(r.load * 100)}%`}</text>
           </g>
         );
       })}
@@ -54,7 +52,7 @@ export function RegionCards({ regions }) {
           <div key={r.id} className="rounded-xl border border-white/10 bg-black/30 p-4" data-testid={`region-card-${r.id}`}>
             <div className="flex items-center justify-between">
               <p className="text-[14px] font-700">{r.name}</p>
-              <span className="rounded-full border px-2 py-0.5 font-mono text-[11px]" style={{ borderColor: c, color: c }}>{r.status}</span>
+              <span className="rounded-full border px-2 py-0.5 font-mono text-[11px]" style={{ borderColor: c, color: c }}>{r.status}{r.healing_in ? ` · healing ${r.healing_in}t` : ""}</span>
             </div>
             <div className="mt-3 space-y-2 font-mono text-[12px] text-gray-400">
               <p className="flex items-center gap-2">load
