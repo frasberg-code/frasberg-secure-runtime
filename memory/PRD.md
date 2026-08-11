@@ -332,3 +332,10 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - LOGO POLICY (user): Luchii mark on Luchii-branded pages (Chat, LuchiiCode, CodingAgents, Builder, PlayGame "Built with Luchii", Navbar, Footer, Brand header); Frasberg logo on ecosystem/dashboard/Frasberg-AI pages (AiModels, Gallery, Docs, Profile, Status, etc.)
 - Launch page: centered Frasberg logo above "Frasberg presents" hero (launch-hero-logo); quote fixed "AKA, Frasberg Selassie"
 - iteration_45.json: backend 6/6 pytest (test_iter45_new_features.py), frontend 100%, no action items. TEST_ items pruned post-test
+
+## 2026-06 (cont. 16): Constellation Deep Links + Ascension Announcements + Glyph Sound Sigils + Starfield Audit — TESTED 100% (iteration_46)
+- Constellation Deep Links: each star has tier.link — Books era → /codex?book={ROMAN} (auto-expands), other eras → /glyphs?glyph={char}; openTier() with 6px drag threshold (pan never navigates); hover card shows "click → open …" hint
+- Ascension Announcements: ascend endpoint inserts into db.announcements; GET /api/marketplace/announcements/latest (top 10, newest first). Global AscensionBanner.jsx mounted in App.js — polls 15s, fixed top z-[90] purple banner (ascension-banner/-text/-link/-dismiss), auto-dismiss 12s, localStorage frasberg_seen_announcement prevents repeats; dismiss X given 32px hit target post-test
+- Glyph Sound Sigils: playSigil(i) pentatonic bell (sine + 2.76x inharmonic partial, 2s decay) on glyph card click + colored glow (lit state); /glyphs?glyph=⧩ deep-link scrolls + highlights card
+- Starfield template BG added: About.jsx & Software.jsx (replaced old inline Starfield divs w/ ParallaxSky), Pay.jsx, Linq.jsx (nav/main given relative z-[5])
+- iteration_46.json: backend + frontend 100%, no action items. TEST_ items + announcements cleaned by testing agent

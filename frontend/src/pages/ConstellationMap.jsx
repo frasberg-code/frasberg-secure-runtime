@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, ZoomIn, ZoomOut, RotateCcw, Sparkles } from "lucide-react";
 import { ParallaxSky } from "../components/site/ParallaxSky";
 
@@ -15,15 +15,17 @@ const ERAS = [
   { key: "omni", label: "Omniversal Unbeing", color: "#F0ABFC", names: OMNI_NAMES },
 ];
 const GLYPHS = ["⟐", "⟡", "⟜", "⟞", "⧇", "⧈", "⧉", "⧏", "⧒", "⧓", "⧔", "⧩", "⧪", "⧫", "⧬", "⧭", "⧮", "⧯", "⧰", "⧱", "⧲", "⧳", "⧴", "⧵"];
+const BOOK_ROMANS = ["II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI"];
 
 const TIERS = (() => {
   const out = [];
   let v = 21;
-  ERAS.forEach((era) => era.names.forEach((name) => {
+  ERAS.forEach((era) => era.names.forEach((name, ei) => {
     const i = out.length;
     const a = i * 2.39996; // golden angle
     const r = 26 + i * 5.3;
     out.push({ v, name, era: era.key, color: era.color, glyph: GLYPHS[i % GLYPHS.length],
+      link: era.key === "books" ? `/codex?book=${BOOK_ROMANS[ei]}` : `/glyphs?glyph=${encodeURIComponent(GLYPHS[i % GLYPHS.length])}`,
       x: Math.cos(a) * r, y: Math.sin(a) * r });
     v += 1;
   }));
@@ -35,16 +37,21 @@ export default function ConstellationMap() {
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [hover, setHover] = useState(null);
   const drag = useRef(null);
+  const moved = useRef(false);
+  const navigate = useNavigate();
 
   const wheel = (e) => {
     setZoom((z) => Math.min(6, Math.max(0.4, z * (e.deltaY < 0 ? 1.12 : 0.89))));
   };
-  const down = (e) => { drag.current = { x: e.clientX, y: e.clientY, px: pan.x, py: pan.y }; };
+  const down = (e) => { moved.current = false; drag.current = { x: e.clientX, y: e.clientY, px: pan.x, py: pan.y }; };
   const move = (e) => {
     if (!drag.current) return;
-    setPan({ x: drag.current.px + (e.clientX - drag.current.x), y: drag.current.py + (e.clientY - drag.current.y) });
+    const dx = e.clientX - drag.current.x, dy = e.clientY - drag.current.y;
+    if (Math.abs(dx) + Math.abs(dy) > 6) moved.current = true;
+    setPan({ x: drag.current.px + dx, y: drag.current.py + dy });
   };
   const up = () => { drag.current = null; };
+  const openTier = (t) => { if (!moved.current) navigate(t.link); };
 
   return (
     <main className="relative min-h-screen text-white" style={{ background: "#08090A" }} data-testid="constellation-page">
@@ -98,7 +105,7 @@ export default function ConstellationMap() {
               {TIERS.map((t, i) => {
                 const active = hover?.v === t.v;
                 return (
-                  <g key={t.v} data-testid={`constellation-star-${t.v}`}
+                  <g key={t.v} data-testid={`constellation-star-${t.v}`} onClick={() => openTier(t)}
                     onMouseEnter={() => setHover(t)} onMouseLeave={() => setHover(null)} style={{ cursor: "pointer" }}>
                     {active && <circle cx={t.x} cy={t.y} r={22} fill={t.color} opacity="0.18" />}
                     <circle cx={t.x} cy={t.y} r={active ? 9 : 4.5 + (i % 3)} fill={t.color}
@@ -121,6 +128,9 @@ export default function ConstellationMap() {
                 </p>
                 <p className="mt-1 font-display text-[17px] font-700 tracking-tight text-white">{hover.name}</p>
                 <p className="mt-0.5 font-mono text-[11px] text-gray-400">{ERAS.find((e) => e.key === hover.era)?.label}</p>
+                <p className="mt-1.5 font-mono text-[10.5px] uppercase tracking-[0.15em] text-cyan-300">
+                  click → {hover.era === "books" ? "open Codex book" : "open Glyph Shrine"}
+                </p>
               </>
             ) : (
               <p className="flex items-center gap-2 font-mono text-[12px] text-gray-500"><Sparkles size={12} /> Hover a star to read its tier…</p>

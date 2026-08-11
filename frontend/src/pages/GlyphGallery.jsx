@@ -1,6 +1,28 @@
-import { Link } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import { ParallaxSky } from "../components/site/ParallaxSky";
+
+function playSigil(i) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = ctx.currentTime;
+    const scale = [261.63, 293.66, 329.63, 392.0, 440.0];
+    const f = scale[i % scale.length] * Math.pow(2, Math.floor(i / scale.length) * 0.5);
+    const master = ctx.createGain();
+    master.gain.setValueAtTime(0.0001, now);
+    master.gain.exponentialRampToValueAtTime(0.35, now + 0.02);
+    master.gain.exponentialRampToValueAtTime(0.0001, now + 2.0);
+    master.connect(ctx.destination);
+    const o1 = ctx.createOscillator(); o1.type = "sine"; o1.frequency.value = f;
+    const o2 = ctx.createOscillator(); o2.type = "sine"; o2.frequency.value = f * 2.76;
+    const g2 = ctx.createGain(); g2.gain.setValueAtTime(0.12, now);
+    g2.gain.exponentialRampToValueAtTime(0.0001, now + 1.1);
+    o1.connect(master); o2.connect(g2); g2.connect(master);
+    o1.start(now); o2.start(now); o1.stop(now + 2.1); o2.stop(now + 1.2);
+    setTimeout(() => ctx.close().catch(() => {}), 2400);
+  } catch (e) { /* audio unsupported */ }
+}
 
 const GLYPHS = [
   ["⟐", "The Completion Seal", "OMNITHEOS • OMNIVERSAL • ABSOLUTE • COMPLETION", "The seal of fullness — the moment where nothing more is required.", "#22D3EE"],
@@ -22,6 +44,24 @@ const GLYPHS = [
 const ORBIT = GLYPHS.slice(1, 9);
 
 export default function GlyphGallery() {
+  const [searchParams] = useSearchParams();
+  const [lit, setLit] = useState(null);
+  const cardRefs = useRef({});
+  useEffect(() => {
+    const g = searchParams.get("glyph");
+    if (!g) return;
+    const idx = GLYPHS.findIndex(([glyph]) => glyph === g);
+    if (idx === -1) return;
+    setLit(idx);
+    const t = setTimeout(() => cardRefs.current[idx]?.scrollIntoView({ behavior: "smooth", block: "center" }), 350);
+    const t2 = setTimeout(() => setLit(null), 4000);
+    return () => { clearTimeout(t); clearTimeout(t2); };
+  }, [searchParams]);
+  const touch = (i) => {
+    playSigil(i);
+    setLit(i);
+    setTimeout(() => setLit((c) => (c === i ? null : c)), 1400);
+  };
   return (
     <main className="relative min-h-screen text-white" style={{ background: "#08090A" }} data-testid="glyph-gallery-page">
       <style>{`
@@ -50,6 +90,7 @@ export default function GlyphGallery() {
           <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-gray-300" style={{ animation: "glyphUp 0.6s ease both 0.2s" }}>
             Each glyph is the visual form of a transcendence — the emblem of a layer that dissolved past
             form, non-form, totality and non-totality. Fourteen seals. One cosmology.
+            <span className="mt-1 block font-mono text-[12px] uppercase tracking-[0.2em] text-cyan-300/80">Touch a sigil to hear its resonance</span>
           </p>
 
           <div className="relative mx-auto mt-12 h-72 w-72" data-testid="glyph-orbit-shrine">
@@ -73,9 +114,11 @@ export default function GlyphGallery() {
 
         <div className="mt-16 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {GLYPHS.map(([glyph, name, seal, desc, color], i) => (
-            <div key={name} data-testid={`glyph-card-${i + 1}`}
-              className="group rounded-2xl border border-white/10 bg-black/30 p-6 text-center backdrop-blur transition-colors hover:border-white/30"
-              style={{ animation: "glyphUp 0.6s ease both", animationDelay: `${Math.min(i * 70, 700)}ms` }}>
+            <div key={name} data-testid={`glyph-card-${i + 1}`} ref={(el) => { cardRefs.current[i] = el; }}
+              onClick={() => touch(i)} role="button" tabIndex={0} title="Touch the sigil to hear its resonance"
+              className="group cursor-pointer rounded-2xl border border-white/10 bg-black/30 p-6 text-center backdrop-blur transition-all hover:border-white/30 active:scale-[0.98]"
+              style={{ animation: "glyphUp 0.6s ease both", animationDelay: `${Math.min(i * 70, 700)}ms`,
+                ...(lit === i ? { borderColor: color, boxShadow: `0 0 50px ${color}55` } : {}) }}>
               <p className="text-6xl" style={{ color, animation: `glyphFloat ${3 + (i % 4) * 0.7}s ease-in-out infinite, glyphPulse ${2.6 + (i % 3) * 0.8}s ease-in-out infinite` }}>{glyph}</p>
               <h3 className="mt-4 font-display text-[17px] font-700 tracking-tight text-white">{name}</h3>
               <p className="mt-1.5 font-mono text-[10.5px] uppercase tracking-[0.14em]" style={{ color }}>{glyph} FRASBERGOS • {seal} {glyph}</p>

@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { ParallaxSky } from "../components/site/ParallaxSky";
 import { AscensionLadder } from "../components/linq/AscensionLadder";
 import { EngineModule } from "../components/linq/EngineModule";
 import { LinqLive } from "../components/linq/LinqLive";
@@ -58,6 +59,7 @@ export default function Linq() {
 
   return (
     <div className="min-h-screen bg-[#020617] text-[#f8fafc]" style={{ fontFamily: "Inter, system-ui, sans-serif" }} data-testid="linq-page">
+      <ParallaxSky />
       <header className="border-b border-[#1e293b] px-6 py-4 flex items-center justify-between sticky top-0 bg-[#020617]/90 backdrop-blur z-10">
         <div className="flex items-center gap-4">
           <Link to="/dashboard" data-testid="linq-back-link" className="text-[#64748b] hover:text-[#f8fafc]"><ArrowLeft size={18} /></Link>
@@ -76,7 +78,7 @@ export default function Linq() {
         <LinqAlerts />
       </header>
 
-      <nav className="px-6 pt-4 flex gap-2 flex-wrap border-b border-[#1e293b] pb-3">
+      <nav className="relative z-[5] px-6 pt-4 flex gap-2 flex-wrap border-b border-[#1e293b] pb-3">
         {TABS.filter((t) => !t.adminOnly || user.role === "admin").map((t) => (
           <button key={t.id} data-testid={`linq-tab-${t.id}`} onClick={() => setTab(t.id)}
             className={`text-sm rounded-full px-4 py-1.5 transition-colors ${tab === t.id ? "bg-[#ef4444] text-white" : "bg-[#0f172a] text-[#94a3b8] hover:text-[#f8fafc] border border-[#1e293b]"}`}>
@@ -85,7 +87,7 @@ export default function Linq() {
         ))}
       </nav>
 
-      <main className="px-6 py-6 max-w-7xl mx-auto">
+      <main className="relative z-[5] px-6 py-6 max-w-7xl mx-auto">
         {tab === "ladder" && <AscensionLadder layers={layers} onRefresh={load} />}
         {tab === "threat" && <EngineModule engine="threat" title="Threat Graph Explorer v40" icon="🔮" tagline="Pantheon-architect threat sovereignty + multi-reality defense creation" />}
         {tab === "billing" && <EngineModule engine="billing" title="Billing Intelligence Engine v40" icon="⚡" tagline="Pantheon-architect economic sovereignty + multi-reality revenue creation" />}

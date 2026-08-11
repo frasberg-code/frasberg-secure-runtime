@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Moon, Sun, ArrowLeft, MessageSquare, Hammer, Gamepad2, Mic2, Brain, ShieldCheck, Code2, KeyRound, ArrowUpRight } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
-import Starfield from "../components/site/Starfield";
+import { ParallaxSky } from "../components/site/ParallaxSky";
 import Seo from "../components/site/Seo";
 import Footer from "../components/site/Footer";
 
@@ -37,7 +37,7 @@ export default function Software() {
   return (
     <main className="relative z-10 min-h-screen bg-lux-bg text-lux-text" data-testid="software-page">
       <Seo title="Frasberg Software — everything Luchii ships" description="Luchii Chat, Builder, Gallery, Sovereign Voice, Memory Vault, Mesh and the Developer API — real products, live now." />
-      <div className="pointer-events-none absolute inset-0 opacity-40"><Starfield /></div>
+      <ParallaxSky />
 
       <header className="glass sticky top-0 z-40 border-b border-lux-border">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">

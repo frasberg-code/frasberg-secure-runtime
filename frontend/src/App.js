@@ -58,6 +58,7 @@ import OpsCenter from "./pages/OpsCenter";
 import Codex from "./pages/Codex";
 import ConstellationMap from "./pages/ConstellationMap";
 import GlyphGallery from "./pages/GlyphGallery";
+import { AscensionBanner } from "./components/site/AscensionBanner";
 import FrasbergOS from "./pages/FrasbergOS";
 import DocsHub from "./pages/DocsHub";
 
@@ -90,6 +91,7 @@ function App() {
         <div className="App grain">
           <BrowserRouter>
             <ScrollToHash />
+            <AscensionBanner />
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/luchii" element={<Landing />} />

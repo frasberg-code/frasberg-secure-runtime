@@ -1,0 +1,28 @@
+{
+  "summary": "Iter46 — All 4 new features verified end-to-end. Backend: POST /api/marketplace/{id}/ascend now inserts an announcement doc and GET /api/marketplace/announcements/latest returns the newest first (max 10, no _id leak, all required fields present). Frontend: Constellation deep links work (star-21 → /codex?book=II; star-50 → /glyphs?glyph=...); drag-pan does NOT navigate (threshold works); hover card shows 'click → open ...' hint. Glyph deep link (?glyph=%E2%A7%A9) scrolls to glyph-card-2 and applies lit highlight (border-color + box-shadow); glyph card click doesn't error (WebAudio sigil not asserted headless). Ascension banner e2e: cleared localStorage → publish+ascend TEST_ agent → reloaded / → banner appeared with 'ascended' text, link points to /marketplace, dismiss hides it, localStorage persists so banner does NOT reappear on reload. Starfield present on /about, /pay, /software, /linq with page content intact. Regression: constellation still shows 101 stars + zoom buttons; /marketplace Hall of Ascension renders; /ops cycle feed panel renders.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "AscensionBanner dismiss button", "issues": ["X icon size=13 caused Playwright 'element outside viewport' error on native click; JS click works fine. Consider slightly larger hit target (e.g., padding around the X or size>=16) for reliability on real devices."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter46_new_features.py",
+    "/app/test_reports/pytest/iter46_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "AscensionBanner: the 12s auto-dismiss + 15s poll interval means a fresh announcement will re-appear on the next poll if the user let it auto-dismiss (localStorage is only set on manual dismiss / auto-timer, so this is actually fine — verified). No issue.",
+    "AscensionBanner dismiss button hit area is very small (X icon size 13, only ml-1); consider a larger padded target for accessibility/mobile.",
+    "openTier drag threshold 6px is very tight; a slightly larger threshold (e.g., 8-10px) may feel less trigger-happy on touchpads, but current behavior verified working."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter46_new_features.py", "/app/test_reports/iteration_46.json"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026!",
+  "seed_data_creation": "Created 2 throwaway TEST_iter46_* marketplace items + ascension announcements during tests; all cleaned up from db.marketplace and db.announcements after run.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iter46 shipped 4 features clean: constellation deep links (TIERS.link in ConstellationMap.jsx), ascension announcements (marketplace.py inserts into db.announcements, GET /announcements/latest endpoint), AscensionBanner with 15s polling + localStorage frasberg_seen_announcement, and ParallaxSky added to About/Pay/Software/Linq. When testing the banner in Playwright, the dismiss X button (size=13) requires JS .click() — regular page.click fails 'outside viewport'. To re-trigger banner: clear localStorage.frasberg_seen_announcement, publish + ascend a TEST_ agent, then reload the page (don't wait 15s for polling)."
+}

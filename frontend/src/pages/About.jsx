@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import Starfield from "../components/site/Starfield";
+import { ParallaxSky } from "../components/site/ParallaxSky";
 import Seo from "../components/site/Seo";
 import Reveal, { Overline } from "../components/site/Reveal";
 
@@ -155,7 +155,7 @@ export default function About() {
         title="About Frasberg Inc. — Advancing Artificial Intelligence"
         description="Frasberg Inc. is an American multinational technology company advancing artificial intelligence, intelligent computing, and digital transformation through the Frasberg platform and Luchii AI Models."
       />
-      <div className="pointer-events-none absolute inset-0 opacity-50"><Starfield /></div>
+      <ParallaxSky />
 
       <header className="glass sticky top-0 z-40 border-b border-lux-border">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">

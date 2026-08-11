@@ -135,13 +135,25 @@ async def ascend_item(item_id: str, request: Request):
         raise HTTPException(status_code=400, detail="Already at CG-v35 Apex — the terminal tier. There is no beyond.")
     new_tier = TIER_LADDER[idx + 1]
     new_safety = min(100, item.get("safety_score", 75) + 2)
-    entry = {"version": item.get("version", "1.0.0"), "date": datetime.now(timezone.utc).date().isoformat(),
+    now = datetime.now(timezone.utc)
+    entry = {"version": item.get("version", "1.0.0"), "date": now.date().isoformat(),
              "note": f"Ascension ceremony — evolved from {current} ({TIER_LAYER.get(current, 'Identity')}) to {new_tier} ({TIER_LAYER[new_tier]} layer). Substrate rebinding validated.",
              "safety_score": new_safety}
     await db.marketplace.update_one({"id": item_id}, {
         "$set": {"codex_tier": new_tier, "safety_score": new_safety},
         "$push": {"history": entry}})
+    await db.announcements.insert_one({
+        "id": str(uuid.uuid4()), "type": "ascension", "agent_name": item["name"],
+        "from_tier": current, "to_tier": new_tier, "layer": TIER_LAYER[new_tier],
+        "text": f"{item['name']} ascended — {current} → {new_tier} ({TIER_LAYER[new_tier]} layer)",
+        "at": now.isoformat()})
     return {"ok": True, "from_tier": current, "to_tier": new_tier, "layer": TIER_LAYER[new_tier], "safety_score": new_safety}
+
+
+@router.get("/announcements/latest")
+async def latest_announcements():
+    rows = await db.announcements.find({}, {"_id": 0}).sort("at", -1).to_list(10)
+    return {"announcements": rows}
 
 
 class PublishBody(BaseModel):

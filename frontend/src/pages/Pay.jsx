@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, ShieldCheck, Check, Loader2, Lock, BadgeCheck } from "lucide-react";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { toast } from "sonner";
+import { ParallaxSky } from "../components/site/ParallaxSky";
 import { useAuth } from "../context/AuthContext";
 import Seo from "../components/site/Seo";
 
@@ -28,6 +29,7 @@ export default function Pay() {
 
   return (
     <main className="relative min-h-screen bg-[#0a0a0f] text-white" data-testid="pay-page">
+      <ParallaxSky />
       <Seo title="Checkout — Luchii · FRASBERG, INC." description="Secure card checkout for Luchii subscriptions by Frasberg, Inc." />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_0%,rgba(59,130,246,0.12),transparent)]" />
 
