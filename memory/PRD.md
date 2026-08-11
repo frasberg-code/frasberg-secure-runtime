@@ -389,3 +389,9 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - NOTE: workspace route is /chat?agent=architect|builder|reviewer|debugger (NOT /workspace)
 - iteration_51.json: frontend 45/45 pass. Recurring console warning '<span> in <option>' — verified NO source culprit exists (all options plain text); third-party injected DOM
 
+## 2026-06 (fork, cont. 4): Command Palette Everywhere + Avatar Upload — TESTED 100% (iteration_52)
+- CommandPalette.jsx mounted globally in App.js (inside BrowserRouter): '/' or Ctrl/Cmd+K on ANY page → overlay palette, 18 pages w/ hints, filter + arrow keys + Enter navigate, Esc/backdrop close; input-focus guard ('/' types normally inside inputs/textareas). testids command-palette/-input/-results/-item-{i}
+- Avatar Upload: PATCH /api/auth/profile now accepts optional {name, avatar} (avatar must be data:image/* <300KB, ""=remove); _public + /auth/me include avatar. Settings modal Account tab: settings-avatar-upload (hidden file input settings-avatar-file, client canvas downscale 160px JPEG), settings-avatar-remove. Avatar shows in account-menu-btn, menu panel, settings-avatar-img; persists across reload
+- SOLVED MYSTERY: recurring '<span> in <option>' hydration warning = Emergent dev-mode visual-edit babel instrumentation wrapping dynamic option text in spans (x-component attrs in stack). DEV-ONLY, absent in prod builds — permanently a non-issue, tell future testing agents to ignore
+- iteration_52.json: frontend 100% (15+ checks), user state restored
+

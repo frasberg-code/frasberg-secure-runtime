@@ -47,8 +47,8 @@ export const AccountMenu = () => {
   return (
     <div className="relative" ref={ref}>
       <button onClick={() => setOpen((v) => !v)} data-testid="account-menu-btn" aria-label="Account menu"
-        className="grid h-8 w-8 place-items-center rounded-full border border-cyan-400/40 bg-cyan-400/10 font-mono text-[13px] font-600 text-cyan-200 transition-colors hover:border-cyan-300">
-        {user ? initial : "?"}
+        className="grid h-8 w-8 place-items-center overflow-hidden rounded-full border border-cyan-400/40 bg-cyan-400/10 font-mono text-[13px] font-600 text-cyan-200 transition-colors hover:border-cyan-300">
+        {user?.avatar ? <img src={user.avatar} alt="" className="h-full w-full object-cover" /> : (user ? initial : "?")}
       </button>
 
       {open && (
@@ -59,7 +59,7 @@ export const AccountMenu = () => {
             <>
               <p className="px-2 pt-1 font-mono text-[12px] text-gray-500" data-testid="account-menu-email">{user.email}</p>
               <div className="mt-2 flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                <img src="/frasberg-mark-circle.png" alt="" className="h-9 w-9 rounded-full" />
+                <img src={user.avatar || "/frasberg-mark-circle.png"} alt="" className="h-9 w-9 rounded-full object-cover" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-[14px] font-600 text-white">{user.name || "Frasberg member"}</p>
                   <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-gray-500">{user.role === "admin" ? "Admin" : "Owner"} · {user.plan || "free"} plan</p>

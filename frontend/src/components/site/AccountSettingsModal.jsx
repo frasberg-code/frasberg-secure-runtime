@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, User, Coins, Key, CreditCard, Pencil, Check, Loader2 } from "lucide-react";
+import { X, User, Coins, Key, CreditCard, Pencil, Check, Loader2, Camera } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
@@ -27,6 +27,36 @@ export const AccountSettingsModal = ({ open, onClose }) => {
   const [gift, setGift] = useState(null);
   const [ledger, setLedger] = useState(null);
   const [supportCode, setSupportCode] = useState("");
+  const [avatarSaving, setAvatarSaving] = useState(false);
+  const fileRef = useRef(null);
+
+  const onAvatarFile = (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { toast.error("Please choose an image file"); return; }
+    const img = new Image();
+    img.onload = async () => {
+      const size = 160;
+      const canvas = document.createElement("canvas");
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext("2d");
+      const s = Math.min(img.width, img.height);
+      ctx.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, size, size);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+      URL.revokeObjectURL(img.src);
+      setAvatarSaving(true);
+      try {
+        await axios.patch(`${API}/auth/profile`, { avatar: dataUrl }, { withCredentials: true });
+        await refreshUser?.();
+        toast.success("Profile picture updated");
+      } catch (err) {
+        toast.error(err?.response?.data?.detail || "Could not update picture");
+      } finally { setAvatarSaving(false); }
+    };
+    img.onerror = () => toast.error("Could not read that image");
+    img.src = URL.createObjectURL(file);
+  };
 
   useEffect(() => { if (open && user) setName(user.name || ""); }, [open, user]);
   useEffect(() => {
@@ -83,7 +113,29 @@ export const AccountSettingsModal = ({ open, onClose }) => {
           {tab === "account" && (
             <div className="mt-2">
               <Row label="Email" sub="The email address linked to your account"><span className="font-mono text-[13px] text-gray-300" data-testid="settings-email">{user.email}</span></Row>
-              <Row label="Profile picture" sub="Displayed publicly across Frasberg"><img src="/frasberg-mark-circle.png" alt="" className="h-9 w-9 rounded-full" /></Row>
+              <Row label="Profile picture" sub="Displayed publicly across Frasberg — click to upload">
+                <div className="flex items-center gap-3">
+                  <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onAvatarFile} data-testid="settings-avatar-file" />
+                  <button onClick={() => fileRef.current?.click()} disabled={avatarSaving} data-testid="settings-avatar-upload"
+                    className="group relative grid h-12 w-12 place-items-center overflow-hidden rounded-full border border-white/20 hover:border-cyan-400/60">
+                    <img src={user.avatar || "/frasberg-mark-circle.png"} alt="" className="h-full w-full object-cover" data-testid="settings-avatar-img" />
+                    <span className="absolute inset-0 grid place-items-center bg-black/55 opacity-0 transition-opacity group-hover:opacity-100">
+                      {avatarSaving ? <Loader2 size={14} className="animate-spin text-white" /> : <Camera size={14} className="text-white" />}
+                    </span>
+                  </button>
+                  {user.avatar && (
+                    <button data-testid="settings-avatar-remove"
+                      onClick={async () => {
+                        try {
+                          await axios.patch(`${API}/auth/profile`, { avatar: "" }, { withCredentials: true });
+                          await refreshUser?.();
+                          toast.success("Picture removed");
+                        } catch { toast.error("Could not remove picture"); }
+                      }}
+                      className="font-mono text-[11.5px] text-gray-500 underline hover:text-rose-300">remove</button>
+                  )}
+                </div>
+              </Row>
               <Row label="Name" sub="Your full name, as displayed everywhere">
                 {editing ? (
                   <div className="flex items-center gap-2">

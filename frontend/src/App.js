@@ -63,6 +63,7 @@ import VerifiedProvider from "./pages/VerifiedProvider";
 import CosmogenicKernels from "./pages/CosmogenicKernels";
 import TierBenchmark from "./pages/TierBenchmark";
 import { AscensionBanner } from "./components/site/AscensionBanner";
+import { CommandPalette } from "./components/site/CommandPalette";
 import FrasbergOS from "./pages/FrasbergOS";
 import DocsHub from "./pages/DocsHub";
 
@@ -96,6 +97,7 @@ function App() {
           <BrowserRouter>
             <ScrollToHash />
             <AscensionBanner />
+            <CommandPalette />
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/luchii" element={<Landing />} />

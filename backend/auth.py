@@ -63,7 +63,7 @@ def _public(user: dict) -> dict:
     return {"id": user["id"], "email": user["email"], "name": user.get("name", ""),
             "role": user.get("role", "user"), "plan": user.get("plan", "free"),
             "plan_expires": user.get("plan_expires"), "plan_started": user.get("plan_started"),
-            "tokens": user.get("tokens", 0)}
+            "tokens": user.get("tokens", 0), "avatar": user.get("avatar")}
 
 
 async def get_current_user(request: Request) -> dict:
@@ -371,7 +371,8 @@ async def refresh(request: Request, response: Response):
 
 
 class ProfileUpdate(BaseModel):
-    name: str
+    name: str | None = None
+    avatar: str | None = None
 
 
 class PasswordChange(BaseModel):
@@ -382,11 +383,23 @@ class PasswordChange(BaseModel):
 @router.patch("/profile")
 async def update_profile(body: ProfileUpdate, request: Request):
     user = await get_current_user(request)
-    name = body.name.strip()
-    if not name:
-        raise HTTPException(status_code=400, detail="Name cannot be empty")
-    await db.users.update_one({"id": user["id"]}, {"$set": {"name": name[:80]}})
-    user["name"] = name[:80]
+    updates = {}
+    if body.name is not None:
+        name = body.name.strip()
+        if not name:
+            raise HTTPException(status_code=400, detail="Name cannot be empty")
+        updates["name"] = name[:80]
+    if body.avatar is not None:
+        if body.avatar == "":
+            updates["avatar"] = None
+        else:
+            if not body.avatar.startswith("data:image/") or len(body.avatar) > 300_000:
+                raise HTTPException(status_code=400, detail="Avatar must be an image under ~200KB")
+            updates["avatar"] = body.avatar
+    if not updates:
+        raise HTTPException(status_code=400, detail="Nothing to update")
+    await db.users.update_one({"id": user["id"]}, {"$set": updates})
+    user.update(updates)
     return _public(user)
 
 
