@@ -6,6 +6,39 @@
 @tailwind utilities;
 
 :root {
+  --lux-bg: #1e2327;
+  --lux-surface: #161a1d;
+  --lux-surface-2: #2a3136;
+  --lux-text: #f8f9fa;
+  --lux-text-2: #a1aab0;
+  --lux-border: #2a3136;
+  --lux-accent: #00f0ff;
+  --lux-accent-2: #7c9cff;
+  --lux-glow: rgba(0, 240, 255, 0.2);
+
+  --background: 200 12% 14%;
+  --foreground: 210 17% 98%;
+  --card: 200 14% 10%;
+  --card-foreground: 210 17% 98%;
+  --popover: 200 14% 10%;
+  --popover-foreground: 210 17% 98%;
+  --primary: 184 100% 50%;
+  --primary-foreground: 200 12% 10%;
+  --secondary: 200 11% 19%;
+  --secondary-foreground: 210 17% 98%;
+  --muted: 200 11% 19%;
+  --muted-foreground: 204 8% 66%;
+  --accent: 200 11% 19%;
+  --accent-foreground: 210 17% 98%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 200 11% 19%;
+  --input: 200 11% 19%;
+  --ring: 184 100% 50%;
+  --radius: 0.75rem;
+}
+
+.light {
   --lux-bg: #f8f9fa;
   --lux-surface: #ffffff;
   --lux-surface-2: #e9ecef;

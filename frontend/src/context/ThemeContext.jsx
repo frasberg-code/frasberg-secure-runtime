@@ -15,6 +15,7 @@ export function ThemeProvider({ children }) {
   useEffect(() => {
     const root = document.documentElement;
     root.classList.toggle("dark", theme === "dark");
+    root.classList.toggle("light", theme === "light");
     localStorage.setItem("luchii-theme", theme);
   }, [theme]);
 

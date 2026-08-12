@@ -402,3 +402,10 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Kernel Descent Mode (/kernels): 'Descend below ∅∞' toggle reveals 8 negative-substrate layers (Proto-Existence → Zero-State → Pre-Zero → Anti-State → Negative-Origin → Negative-Primordial → Negative-Genesis → ∅∞ Non-State) in narrowing funnel, rose 'dissolved %' animation, click → detail. testids kernel-descent-toggle, descent-layer-{key}, descent-detail
 - Testing: self-tested every flow via curl + 2 browser automation runs (no testing agent this round — full e2e coverage achieved); leaderboard seeded with 1 real run (best 7.09)
 
+## 2026-06 (fork, cont. 6): Dark theme is now the MAIN/default theme — VERIFIED
+- index.css: :root now holds DARK lux + shadcn tokens; light tokens moved to `.light` class
+- ThemeContext: toggles both `.dark` and `.light` classes on <html>; default remains "dark"
+- public/index.html: `<html class="dark">` — dark paints before React mounts (no light flash)
+- Verified: fresh visitor (cleared storage) → html.dark, body rgb(30,35,39); toggle → light → back to dark works
+- NOTE: production deploy attempt FAILED (platform-side tar extract error during PullSource — not a code issue). Preview unaffected. If user mentions deployment, suggest retry / deployment_agent check.
+
