@@ -36,6 +36,13 @@ export const FrasbergGiftCard = ({ className = "" }) => {
 
   useEffect(() => { refresh(); }, [refresh]);
 
+  useEffect(() => {
+    if (window.location.hash === "#gift") {
+      setShowSend(true);
+      setTimeout(() => document.querySelector('[data-testid="frasberg-gift-card"]')?.scrollIntoView({ behavior: "smooth" }), 400);
+    }
+  }, []);
+
   const loadLedger = () => {
     if (!showLedger && ledger === null) {
       fetch(`${API}/auth/gift/ledger`, { credentials: "include" })

@@ -395,3 +395,10 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - SOLVED MYSTERY: recurring '<span> in <option>' hydration warning = Emergent dev-mode visual-edit babel instrumentation wrapping dynamic option text in spans (x-component attrs in stack). DEV-ONLY, absent in prod builds — permanently a non-issue, tell future testing agents to ignore
 - iteration_52.json: frontend 100% (15+ checks), user state restored
 
+## 2026-06 (fork, cont. 5): Notification Bell + Benchmark Leaderboard + Palette Actions + Kernel Descent — SELF-TESTED e2e
+- Notification Bell (NotificationBell.jsx, in workspace header icon strip): GET /api/auth/notifications (token_ledger gift_received/daily_grant/signup_grant, last 15), 30s poll, unread badge via localStorage frsb_notif_seen (verified: badge '3' when unseen, clears after open + persists across reload), dropdown panel + 'Open Frasberg Gift card' link. testids notification-bell/-badge/-panel/-item-{i}
+- Benchmark Leaderboard: /api/benchmark/run now persists db.benchmark_runs {user_name, prompt(200), totals per tier, best, ts}; GET /api/benchmark/leaderboard (public, top 15 by best). /benchmark bottom section: ranked wall w/ prompt, user, 4 tier chips, ★ best. testids benchmark-leaderboard/-board-row-{i}
+- Palette Actions (CommandPalette): 5 ⚡ actions ahead of pages — Claim daily gift (live /auth/gift fetch + toast), Send a token gift (→/dashboard#gift, FrasbergGiftCard auto-opens send form on #gift hash), Run a benchmark, Copy API base URL (clipboard), Sign out (POST logout + reload)
+- Kernel Descent Mode (/kernels): 'Descend below ∅∞' toggle reveals 8 negative-substrate layers (Proto-Existence → Zero-State → Pre-Zero → Anti-State → Negative-Origin → Negative-Primordial → Negative-Genesis → ∅∞ Non-State) in narrowing funnel, rose 'dissolved %' animation, click → detail. testids kernel-descent-toggle, descent-layer-{key}, descent-detail
+- Testing: self-tested every flow via curl + 2 browser automation runs (no testing agent this round — full e2e coverage achieved); leaderboard seeded with 1 real run (best 7.09)
+

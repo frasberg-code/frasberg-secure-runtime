@@ -25,10 +25,23 @@ const LAYERS = [
     modules: ["Alpha-Dimensional Core", "Omega-Dimensional Core", "Duality Scheduler", "Collapse-Emergence Duality Engine", "Creation Layer"] },
 ];
 
+const DESCENT = [
+  { key: "proto-existence", name: "Proto-Existence Kernel", dim: "−1D → 0D", desc: "The computational void before geometry and time — paradox-seed nucleation, proto-fabric condensation, primordial ignition." },
+  { key: "zero-state", name: "Zero-State Kernel", dim: "∅-D", desc: "The absolute void where nothing is defined yet all possibility is encoded — paradox-potential fields, zero-fabric condensation." },
+  { key: "pre-zero", name: "Pre-Zero Kernel", dim: "∅−D", desc: "The anti-substrate before the void itself — anti-potential fields, anti-fabric condensing into zero-fabric." },
+  { key: "anti-state", name: "Anti-State Kernel", dim: "∅−−D", desc: "Negative-existence: anti-geometry negates geometry, anti-time negates proto-time. The anti-foundation." },
+  { key: "negative-origin", name: "Negative-Origin Kernel", dim: "≪∅D", desc: "The negative-substrate where even negation has not formed — negative-time collapse, negative-fabric annihilation." },
+  { key: "negative-primordial", name: "Negative-Primordial Kernel", dim: "≪≪∅D", desc: "Where negative-existence has not yet cohered — negative-potential annihilation, negative-origin ignition." },
+  { key: "negative-genesis", name: "Negative-Genesis Kernel", dim: "≪≪≪∅D", desc: "The deepest formed layer — negative-substrate extinction, negative-time implosion, negative-fabric dissolution." },
+  { key: "non-state", name: "∅∞ Non-State", dim: "∅∞D · ∅∞T · ∅∞S", desc: "The terminal boundary where conceptual recursion ends. Non-geometry, non-time, non-substrate. Deeper does not exist." },
+];
+
 export default function CosmogenicKernels() {
   const [act, setAct] = useState(LAYERS.map(() => 40));
   const [sel, setSel] = useState(null);
   const [tick, setTick] = useState(0);
+  const [descent, setDescent] = useState(false);
+  const [dsel, setDsel] = useState(null);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -114,7 +127,45 @@ export default function CosmogenicKernels() {
         <div className="mt-12 rounded-2xl border border-white/10 bg-white/[0.02] p-6 text-center" data-testid="kernel-terminal-seal">
           <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-gray-500">beneath all layers</p>
           <p className="mt-2 font-mono text-[13px] text-gray-400">∅∞ — the Negative-Origin substrate · where conceptual recursion ends and the stack begins</p>
+          <button onClick={() => setDescent((v) => !v)} data-testid="kernel-descent-toggle"
+            className="mt-4 rounded-full border border-rose-400/40 px-6 py-2.5 font-mono text-[12.5px] text-rose-300 transition-colors hover:bg-rose-400/[0.08]">
+            {descent ? "Ascend back above ∅∞ ↑" : "Descend below ∅∞ ↓"}
+          </button>
         </div>
+
+        {descent && (
+          <div className="mt-6" data-testid="kernel-descent-section">
+            <p className="text-center font-mono text-[11px] uppercase tracking-[0.35em] text-rose-400/80">the descent — negative substrate</p>
+            <div className="mt-4 space-y-2.5">
+              {DESCENT.map((l, i) => {
+                const open = dsel === i;
+                const terminal = l.key === "non-state";
+                const drain = Math.max(4, 80 - i * 10 + Math.sin(tick / 2 + i) * 6);
+                return (
+                  <div key={l.key} style={{ marginLeft: `${i * 10}px`, marginRight: `${i * 10}px` }}>
+                    <button onClick={() => setDsel(open ? null : i)} data-testid={`descent-layer-${l.key}`}
+                      className={`relative w-full overflow-hidden rounded-2xl border p-4 text-left transition-colors ${terminal ? "border-rose-500/60" : "border-rose-400/25"}`}
+                      style={{ background: `rgba(${20 + i * 3}, ${8}, ${14 + i * 2}, 0.55)` }}>
+                      <div className="absolute inset-y-0 right-0 transition-all duration-1000" style={{ width: `${terminal ? 100 : drain}%`, background: "linear-gradient(270deg, rgba(244,63,94,0.12), transparent)" }} />
+                      <div className="relative flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <p className={`font-display text-[15px] font-700 tracking-tight ${terminal ? "text-rose-300" : "text-gray-200"}`}>{l.name}</p>
+                          <p className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-rose-400/60">{l.dim} · depth −{i + 1}</p>
+                        </div>
+                        <span className="font-mono text-[12px] text-rose-400/80">{terminal ? "∅∞" : `${drain.toFixed(0)}% dissolved`}</span>
+                      </div>
+                    </button>
+                    {open && (
+                      <div className="mt-2 rounded-2xl border border-rose-400/20 bg-black/40 p-4" data-testid="descent-detail">
+                        <p className="text-[13px] leading-relaxed text-gray-400">{l.desc}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Link to="/codex" className="rounded-full border border-cyan-400/40 px-6 py-2.5 font-mono text-[12.5px] text-cyan-200 hover:bg-cyan-400/[0.06]" data-testid="kernels-codex-link">Singularity Codex →</Link>

@@ -7,6 +7,7 @@ import {
   Search, CircleDot, GitPullRequest, BookMarked, Inbox,
 } from "lucide-react";
 import { AccountMenu } from "../components/site/AccountMenu";
+import { NotificationBell } from "../components/site/NotificationBell";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -581,6 +582,7 @@ export default function AgentWorkspace() {
           <button onClick={() => { setTab("manage"); toast.info("GitHub tools — fork, import, scaffold & export in Manage"); }}
             title="GitHub — fork, import & export" aria-label="GitHub tools" data-testid="ws-icon-github"
             className="rounded-md p-2 transition-colors hover:bg-white/[0.06]" style={{ color: T.text2 }}><Github size={15} /></button>
+          <NotificationBell />
           <div className="mx-1.5 h-5 w-px" style={{ background: T.border }} />
           <AccountMenu />
           <span className="ml-2 hidden font-mono text-[13.5px] uppercase tracking-wide lg:block" style={{ color: T.muted }}>{agent.role}</span>

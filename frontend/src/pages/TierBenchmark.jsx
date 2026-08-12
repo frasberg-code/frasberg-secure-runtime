@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Play, Loader2, Gauge } from "lucide-react";
+import { ArrowLeft, Play, Loader2, Gauge, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../context/AuthContext";
 import { ParallaxSky } from "../components/site/ParallaxSky";
@@ -38,6 +38,11 @@ export default function TierBenchmark() {
   const [prompt, setPrompt] = useState("");
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState(null);
+  const [board, setBoard] = useState([]);
+
+  const loadBoard = () =>
+    fetch(`${API}/benchmark/leaderboard`).then((r) => (r.ok ? r.json() : [])).then((d) => Array.isArray(d) && setBoard(d)).catch(() => {});
+  useEffect(() => { loadBoard(); }, []);
 
   const run = async () => {
     if (!user) { toast.error("Sign in to run the benchmark"); return; }
@@ -54,6 +59,7 @@ export default function TierBenchmark() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Benchmark failed");
       setResult(data);
+      loadBoard();
       toast.success(data.cost_tokens ? `Benchmark complete — ${data.cost_tokens} tokens spent` : "Benchmark complete");
     } catch (e) {
       toast.error(e.message);
@@ -165,6 +171,36 @@ export default function TierBenchmark() {
             </div>
           </>
         )}
+        <div className="mt-14 rounded-2xl border border-amber-400/20 bg-amber-400/[0.02] p-6" data-testid="benchmark-leaderboard">
+          <div className="flex items-center gap-2 font-mono text-[11.5px] uppercase tracking-[0.3em] text-amber-300">
+            <Trophy size={13} /> Benchmark leaderboard — top runs
+          </div>
+          {board.length === 0 ? (
+            <p className="mt-4 text-[13px] text-gray-500" data-testid="benchmark-leaderboard-empty">No runs yet — be the first on the wall.</p>
+          ) : (
+            <div className="mt-4 space-y-1.5">
+              {board.map((r, i) => (
+                <div key={r.id || i} className="flex flex-wrap items-center gap-3 rounded-xl border border-white/[0.07] bg-black/25 px-4 py-2.5" data-testid={`benchmark-board-row-${i}`}>
+                  <span className={`w-7 font-mono text-[13px] font-700 ${i === 0 ? "text-amber-300" : i < 3 ? "text-gray-200" : "text-gray-500"}`}>#{i + 1}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] text-gray-200">“{r.prompt}”</p>
+                    <p className="font-mono text-[10.5px] uppercase tracking-[0.15em] text-gray-600">{r.user_name} · {(r.ts || "").slice(0, 10)}</p>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {TIER_ORDER.map((t) => (
+                      <span key={t} className="rounded-full border border-white/10 px-2 py-0.5 font-mono text-[10.5px]" style={{ color: TIER_COLORS[t] }}>
+                        {t} {(r.totals?.[t] ?? 0).toFixed(1)}
+                      </span>
+                    ))}
+                    <span className="ml-1 rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-0.5 font-mono text-[11.5px] font-600 text-amber-300">
+                      ★ {(r.best ?? 0).toFixed(1)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );

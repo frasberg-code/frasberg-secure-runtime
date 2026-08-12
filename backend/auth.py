@@ -271,6 +271,25 @@ async def gift_ledger(request: Request):
     return await db.token_ledger.find({"user_id": user["id"]}, {"_id": 0}).sort("ts", -1).to_list(30)
 
 
+_NOTIF_TITLES = {
+    "gift_received": "🎁 Gift received",
+    "daily_grant": "✦ Daily tokens claimed",
+    "signup_grant": "✦ Welcome gift",
+}
+
+
+@router.get("/notifications")
+async def notifications(request: Request):
+    user = await get_current_user(request)
+    rows = await db.token_ledger.find(
+        {"user_id": user["id"], "kind": {"$in": list(_NOTIF_TITLES)}},
+        {"_id": 0, "id": 1, "kind": 1, "amount": 1, "note": 1, "ts": 1},
+    ).sort("ts", -1).to_list(15)
+    return [{"id": r["id"], "kind": r["kind"], "ts": r["ts"],
+             "title": f"{_NOTIF_TITLES[r['kind']]} — +{r['amount']:,} tokens",
+             "detail": r.get("note", "")} for r in rows]
+
+
 class GiftTransferBody(BaseModel):
     email: str
     amount: int

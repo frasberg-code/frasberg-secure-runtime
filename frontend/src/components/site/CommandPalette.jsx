@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, CornerDownLeft } from "lucide-react";
+import { Search, CornerDownLeft, Zap } from "lucide-react";
+import { toast } from "sonner";
+
+const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const PAGES = [
   { label: "Home", to: "/", hint: "landing" },
@@ -23,6 +26,45 @@ const PAGES = [
   { label: "Profile", to: "/profile", hint: "account" },
 ];
 
+const ACTIONS = [
+  {
+    label: "Claim daily gift", hint: "grab today's 100 free tokens", action: true,
+    run: async (navigate) => {
+      try {
+        const r = await fetch(`${API}/auth/gift`, { credentials: "include" });
+        if (!r.ok) { toast.error("Sign in to claim your daily gift"); navigate("/auth?mode=login"); return; }
+        const g = await r.json();
+        if (g.granted_today > 0) toast.success(`+${g.granted_today} tokens claimed — balance ${Number(g.tokens).toLocaleString()}`);
+        else toast.info(`Already claimed today — balance ${Number(g.tokens).toLocaleString()} tokens`);
+      } catch { toast.error("Could not reach the gift service"); }
+    },
+  },
+  {
+    label: "Send a token gift", hint: "gift purchased tokens to a friend", action: true,
+    run: (navigate) => navigate("/dashboard#gift"),
+  },
+  {
+    label: "Run a benchmark", hint: "1B vs 7B vs 70B vs X — 4 tokens", action: true,
+    run: (navigate) => navigate("/benchmark"),
+  },
+  {
+    label: "Copy API base URL", hint: "https://api.frasberg.com/v1", action: true,
+    run: async () => {
+      try { await navigator.clipboard.writeText("https://api.frasberg.com/v1"); toast.success("API base URL copied"); }
+      catch { toast.error("Clipboard unavailable"); }
+    },
+  },
+  {
+    label: "Sign out", hint: "end this session", action: true,
+    run: async (navigate) => {
+      try { await fetch(`${API}/auth/logout`, { method: "POST", credentials: "include" }); } catch {}
+      toast.success("Signed out");
+      navigate("/");
+      setTimeout(() => window.location.reload(), 400);
+    },
+  },
+];
+
 export const CommandPalette = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -30,9 +72,10 @@ export const CommandPalette = () => {
   const [idx, setIdx] = useState(0);
   const inputRef = useRef(null);
 
+  const all = [...ACTIONS, ...PAGES];
   const results = q.trim()
-    ? PAGES.filter((p) => (p.label + " " + p.hint).toLowerCase().includes(q.toLowerCase()))
-    : PAGES;
+    ? all.filter((p) => (p.label + " " + p.hint).toLowerCase().includes(q.toLowerCase()))
+    : all;
 
   const close = useCallback(() => { setOpen(false); setQ(""); setIdx(0); }, []);
 
@@ -51,7 +94,11 @@ export const CommandPalette = () => {
 
   if (!open) return null;
 
-  const go = (to) => { close(); navigate(to); };
+  const go = (item) => {
+    close();
+    if (item.action) item.run(navigate);
+    else navigate(item.to);
+  };
 
   return (
     <div className="fixed inset-0 z-[120] flex items-start justify-center px-4 pt-[14vh]" data-testid="command-palette">
@@ -64,7 +111,7 @@ export const CommandPalette = () => {
             onKeyDown={(e) => {
               if (e.key === "ArrowDown") { e.preventDefault(); setIdx((i) => Math.min(i + 1, results.length - 1)); }
               else if (e.key === "ArrowUp") { e.preventDefault(); setIdx((i) => Math.max(i - 1, 0)); }
-              else if (e.key === "Enter" && results[idx]) go(results[idx].to);
+              else if (e.key === "Enter" && results[idx]) go(results[idx]);
             }}
             placeholder="Jump to any page…"
             className="flex-1 bg-transparent text-[14.5px] text-white outline-none placeholder:text-gray-500" />
@@ -72,12 +119,13 @@ export const CommandPalette = () => {
         </div>
         <div className="max-h-80 overflow-y-auto p-2" data-testid="command-palette-results">
           {results.map((p, i) => (
-            <button key={p.label} onClick={() => go(p.to)} onMouseEnter={() => setIdx(i)}
+            <button key={p.label} onClick={() => go(p)} onMouseEnter={() => setIdx(i)}
               data-testid={`command-palette-item-${i}`}
               className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left transition-colors ${i === idx ? "bg-cyan-400/[0.1]" : "hover:bg-white/[0.05]"}`}>
-              <span>
+              <span className="flex items-center gap-2">
+                {p.action && <Zap size={12} className="text-amber-300" />}
                 <span className="text-[13.5px] text-white">{p.label}</span>
-                <span className="ml-2.5 font-mono text-[11px] text-gray-500">{p.hint}</span>
+                <span className="font-mono text-[11px] text-gray-500">{p.hint}</span>
               </span>
               {i === idx && <CornerDownLeft size={13} className="text-cyan-300" />}
             </button>

@@ -3104,8 +3104,23 @@ async def benchmark_run(body: BenchmarkBody, user: dict = Depends(auth_module.ge
         tiers[k] = {"name": BENCH_TIERS[k]["name"], "label": BENCH_TIERS[k]["label"], "output": out,
                     "scores": scores,
                     "weighted_total": round(sum(scores[m] * w for m, w in BENCH_WEIGHTS.items()), 2)}
+    totals = {k: v["weighted_total"] for k, v in tiers.items()}
+    try:
+        await db.benchmark_runs.insert_one({
+            "id": str(uuid.uuid4()), "user_id": user["id"],
+            "user_name": user.get("name") or user["email"].split("@")[0],
+            "prompt": prompt[:200], "totals": totals, "best": max(totals.values()),
+            "ts": datetime.now(timezone.utc).isoformat()})
+    except Exception:
+        pass
     return {"prompt": prompt, "tiers": tiers, "weights": BENCH_WEIGHTS,
             "cost_tokens": 0 if exempt else 4}
+
+
+@api_router.get("/benchmark/leaderboard")
+async def benchmark_leaderboard():
+    rows = await db.benchmark_runs.find({}, {"_id": 0, "user_id": 0}).sort("best", -1).to_list(15)
+    return rows
 
 
 @api_router.get("/provider/status")
