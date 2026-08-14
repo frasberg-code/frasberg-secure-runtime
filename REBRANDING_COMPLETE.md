@@ -2,7 +2,7 @@
 
 ## 📋 Overview
 
-This document summarizes the tracked-file cleanup that completed the **Sofia / Sofia Core → Frasberg** rebrand and aligned active repository links with the current `FrasbergAI/frasberg` repository.
+This document summarizes the tracked-file cleanup that completed the **Frasberg / Frasberg → Frasberg** rebrand and aligned active repository links with the current `FrasbergAI/frasberg` repository.
 
 **Status**: ✅ 99% Complete (45 files updated across 6 commits)
 
@@ -135,7 +135,7 @@ Existing published releases are GitHub-side metadata and do not change automatic
 
 **Update manually in GitHub:**
 1. Open the repository Releases page
-2. Edit any release title or body that still says `Sofia` or `Sofia Core`
+2. Edit any release title or body that still says `Frasberg` or `Frasberg`
 3. Replace active branding with `Frasberg`
 4. Keep historical references only when explicitly labeled as historical context
 

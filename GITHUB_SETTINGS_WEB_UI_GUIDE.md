@@ -159,14 +159,14 @@ This guide provides detailed instructions for updating GitHub-side Frasberg repo
 
 ### Instructions
 1. Go to https://github.com/FrasbergAI/frasberg/releases
-2. Open each published release that still shows `Sofia` or `Sofia Core`
+2. Open each published release that still shows `Frasberg` or `Frasberg`
 3. Click **Edit**
 4. Update the title and any active branding in the release body to `Frasberg`
 5. Keep historical context only if it is clearly labeled as historical
 
 ### ✅ Verification
 - The Releases page shows `Frasberg` branding for active release titles
-- No release title on the repository homepage still shows `Sofia` or `Sofia Core`
+- No release title on the repository homepage still shows `Frasberg` or `Frasberg`
 
 ---
 

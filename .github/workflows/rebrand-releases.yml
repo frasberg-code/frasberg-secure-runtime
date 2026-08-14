@@ -1,0 +1,58 @@
+name: Rebrand Releases to Frasberg
+
+on:
+  workflow_dispatch:
+
+jobs:
+  rebrand-releases:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Rebrand all Sofia Core releases to Frasberg
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+
+          OWNER="FrasbergAI"
+          REPO="Frasberg"
+
+          # Fetch all releases (up to 100)
+          releases=$(gh api "/repos/$OWNER/$REPO/releases?per_page=100" --jq '.[] | {id: .id, name: .name, body: .body}')
+
+          echo "$releases" | jq -c '.' | while IFS= read -r release; do
+            id=$(echo "$release" | jq -r '.id')
+            name=$(echo "$release" | jq -r '.name')
+            body=$(echo "$release" | jq -r '.body // ""')
+
+            # Check if any Sofia references exist in name or body
+            if echo "$name$body" | grep -qi "sofia"; then
+              new_name=$(echo "$name" | sed 's/Sofia Core/Frasberg/g; s/Sofia/Frasberg/g; s/SOFIA/FRASBERG/g')
+              new_body=$(echo "$body" | sed \
+                's/Sofia Core/Frasberg/g; \
+                 s/sofia-core/frasberg/g; \
+                 s/sofia_core/frasberg/g; \
+                 s/sofia\.core/frasberg/g; \
+                 s/SofiaClient/FrasbergClient/g; \
+                 s/sofia_identity/frasberg_identity/g; \
+                 s/sofia_directives/frasberg_directives/g; \
+                 s/Hello Sofia/Hello Frasberg/g; \
+                 s/sofia-api-key/frasberg-api-key/g; \
+                 s/SOFIA_API_KEY/FRASBERG_API_KEY/g; \
+                 s/Sofia AI/Frasberg AI/g; \
+                 s/Sofia/Frasberg/g; \
+                 s/SOFIA/FRASBERG/g')
+
+              echo "Updating release $id: '$name' -> '$new_name'"
+              gh api --method PATCH "/repos/$OWNER/$REPO/releases/$id" \
+                --field "name=$new_name" \
+                --field "body=$new_body" \
+                > /dev/null
+              echo "  Updated successfully."
+            else
+              echo "Release $id: '$name' - no Sofia references, skipping."
+            fi
+          done
+
+          echo "All releases rebranded to Frasberg."

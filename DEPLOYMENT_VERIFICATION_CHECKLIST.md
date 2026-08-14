@@ -67,13 +67,13 @@
 ### ⏳ Pending (Manual Steps Required)
 
 - [ ] **Repository Description Updated**
-  - Change: `Sofia Core` branding → `Frasberg` branding
+  - Change: `Frasberg` branding → `Frasberg` branding
   - Instructions: See GITHUB_SETTINGS_WEB_UI_GUIDE.md
   - CLI: bash GITHUB_SETTINGS_AUTOMATION.sh
   - Time: 2 minutes
 
 - [ ] **Existing Release Titles Updated**
-  - Change: replace any remaining `Sofia` / `Sofia Core` release titles or bodies with `Frasberg`
+  - Change: replace any remaining `Frasberg` / `Frasberg` release titles or bodies with `Frasberg`
   - Instructions: Edit existing GitHub releases manually from the Releases UI
   - Time: 5-10 minutes
 

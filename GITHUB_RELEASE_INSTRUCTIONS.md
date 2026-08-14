@@ -63,7 +63,7 @@ After publishing, verify:
 
 ### 6. Clean Up Existing Published Releases
 
-If earlier GitHub releases still show `Sofia` or `Sofia Core` in the title or body, edit them manually in the GitHub Releases UI after publishing the corrected Frasberg release content.
+If earlier GitHub releases still show `Frasberg` or `Frasberg` in the title or body, edit them manually in the GitHub Releases UI after publishing the corrected Frasberg release content.
 
 ---
 
