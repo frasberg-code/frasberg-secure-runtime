@@ -54,14 +54,14 @@ class TransformersBackend:
 
     def generate(self, prompt: str, max_tokens: int, temperature: float) -> str:
         encoded = self.tokenizer(prompt, return_tensors="pt")
-        output_ids = self.model.generate(
+        output_ids = self.model.generate(  # type: ignore[misc]
             **encoded,
             max_new_tokens=max_tokens,
             temperature=temperature,
             do_sample=temperature > 0,
             pad_token_id=self.tokenizer.pad_token_id,
         )
-        decoded = self.tokenizer.decode(output_ids[0], skip_special_tokens=True)
+        decoded = str(self.tokenizer.decode(output_ids[0], skip_special_tokens=True))
         return (
             decoded[len(prompt):].strip()
             if decoded.startswith(prompt)

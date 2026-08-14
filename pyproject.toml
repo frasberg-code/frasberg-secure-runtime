@@ -53,3 +53,20 @@ line-length = 100
 
 [tool.flake8]
 max-line-length = 100
+
+[tool.mypy]
+python_version = "3.11"
+exclude = ["setup\\.py$"]
+warn_unused_ignores = false
+
+[[tool.mypy.overrides]]
+module = [
+  "transformers.*",
+  "torch.*",
+  "sentencepiece.*",
+  "tqdm.*",
+  "openapi_spec_validator.*",
+  "numpy.*",
+]
+ignore_missing_imports = true
+ignore_errors = true
