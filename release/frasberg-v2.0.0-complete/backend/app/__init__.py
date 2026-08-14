@@ -1,0 +1,1 @@
+"""Frasberg Backend Application."""
