@@ -339,6 +339,6 @@ PORT=9000 python server.py
 
 ## See Also
 
-- [DEVELOPMENT.md](../DEVELOPMENT.md) - Development workflow guide
+- DEVELOPMENT.md - Development workflow guide
 - [CI/CD Overview](./CI_CD_OVERVIEW.md) - Deployment pipelines
 - [Architecture](./architecture.md) - System design

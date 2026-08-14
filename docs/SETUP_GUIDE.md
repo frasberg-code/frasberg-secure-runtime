@@ -316,6 +316,6 @@ npm install
 
 ## Additional Resources
 
-- [DEVELOPMENT.md](../DEVELOPMENT.md) - Full development guide
-- [Architecture](../docs/architecture.md) - System architecture
-- [API Reference](../docs/api-reference.md) - API documentation
+- DEVELOPMENT.md - Full development guide
+- [Architecture](architecture.md) - System architecture
+- [API Reference](api-reference.md) - API documentation

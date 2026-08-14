@@ -11,7 +11,7 @@ pytestmark = pytest.mark.anyio
 
 @pytest.fixture
 async def client() -> AsyncIterator[httpx.AsyncClient]:
-    transport = httpx.ASGITransport(app=app)
+    transport = httpx.ASGITransport(app=app)  # type: ignore[arg-type]
     async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
         yield client
 
