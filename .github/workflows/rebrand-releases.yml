@@ -30,19 +30,19 @@ jobs:
             if echo "$name$body" | grep -qi "sofia"; then
               new_name=$(echo "$name" | sed 's/Sofia Core/Frasberg/g; s/Sofia/Frasberg/g; s/SOFIA/FRASBERG/g')
               new_body=$(echo "$body" | sed \
-                's/Sofia Core/Frasberg/g; \
-                 s/sofia-core/frasberg/g; \
-                 s/sofia_core/frasberg/g; \
-                 s/sofia\.core/frasberg/g; \
-                 s/SofiaClient/FrasbergClient/g; \
-                 s/sofia_identity/frasberg_identity/g; \
-                 s/sofia_directives/frasberg_directives/g; \
-                 s/Hello Sofia/Hello Frasberg/g; \
-                 s/sofia-api-key/frasberg-api-key/g; \
-                 s/SOFIA_API_KEY/FRASBERG_API_KEY/g; \
-                 s/Sofia AI/Frasberg AI/g; \
-                 s/Sofia/Frasberg/g; \
-                 s/SOFIA/FRASBERG/g')
+                -e 's/Sofia Core/Frasberg/g' \
+                -e 's/sofia-core/frasberg/g' \
+                -e 's/sofia_core/frasberg/g' \
+                -e 's/sofia\.core/frasberg/g' \
+                -e 's/SofiaClient/FrasbergClient/g' \
+                -e 's/sofia_identity/frasberg_identity/g' \
+                -e 's/sofia_directives/frasberg_directives/g' \
+                -e 's/Hello Sofia/Hello Frasberg/g' \
+                -e 's/sofia-api-key/frasberg-api-key/g' \
+                -e 's/SOFIA_API_KEY/FRASBERG_API_KEY/g' \
+                -e 's/Sofia AI/Frasberg AI/g' \
+                -e 's/Sofia/Frasberg/g' \
+                -e 's/SOFIA/FRASBERG/g')
 
               echo "Updating release $id: '$name' -> '$new_name'"
               gh api --method PATCH "/repos/$OWNER/$REPO/releases/$id" \
