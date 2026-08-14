@@ -119,7 +119,7 @@ Go to: https://github.com/FrasbergAI/frasberg/settings
 
 #### 1. **Update Repository Description**
 ```
-OLD: "Behavioral governance engine for Sofia Core. Includes tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules. Used across Emerald Estates® and Orbit systems for identity-preserving conversational output."
+OLD: "Behavioral governance engine for Frasberg. Includes tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules. Used across Emerald Estates® and Orbit systems for identity-preserving conversational output."
 
 NEW: "Behavioral governance engine for Frasberg. Includes tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules. Used across Emerald Estates® and Orbit systems for identity-preserving conversational output."
 ```
