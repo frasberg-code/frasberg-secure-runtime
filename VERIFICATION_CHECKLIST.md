@@ -5,14 +5,14 @@
 **Last Updated:** 2026-08-10  
 **Status:** ✅ All automated checks passing
 
-This document is the canonical acceptance checklist confirming the Sofia → Frasberg rebrand is complete and the repository is fully aligned.
+This document is the canonical acceptance checklist confirming the Frasberg → Frasberg rebrand is complete and the repository is fully aligned.
 
 ---
 
 ## 1. Brand Text Cleanup
 
-- [x] No `Sofia`, `sofia`, `SOFIA`, or `Sofia Core` references remain in any tracked source, config, or doc file
-- [x] No `sofia-core` package or import references remain
+- [x] No old branding references remain in any tracked source, config, or doc file
+- [x] No `frasberg-core` legacy package or import references remain
 - [x] All package scopes use `@frasberg/*`
 - [x] All environment variables use `FRASBERG_*` prefix
 - [x] Creator attribution is set to Frasberg AI
@@ -40,7 +40,7 @@ This document is the canonical acceptance checklist confirming the Sofia → Fra
 ## 3. Path & Directory Structure
 
 - [x] No duplicated `supabase/supabase/...` nested paths exist in tracked files
-- [x] Canonical directory is `supabase/frasberg_ai/` (not `supabase/sofia_core/` or `supabase/frasberg_core/`)
+- [x] Canonical directory is `supabase/frasberg_ai/` (not any legacy path)
 - [x] `supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_manifest.json` is valid JSON
 - [x] CI workflow `ci.yml` validates the correct `supabase/frasberg_ai/` structure
 
