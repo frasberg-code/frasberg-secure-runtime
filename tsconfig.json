@@ -14,7 +14,7 @@
 
     "baseUrl": ".",
     "paths": {
-      "*": ["supabase/frasberg_ai/*"]
+      "*": ["supabase/frasberg/*"]
     },
 
     "outDir": "./dist",
@@ -28,21 +28,21 @@
     "tests/**/*",
     "config/**/*",
     "supabase/frasberg_ai",
-    "supabase/frasberg_ai/frasberg_ai_application_shell/**/*",
-    "supabase/frasberg_ai/frasberg_ai_bootstrap.ts"
+    "supabase/frasberg/frasberg_application_shell/**/*",
+    "supabase/frasberg/frasberg_bootstrap.ts"
   ],
 
   "exclude": [
     "node_modules",
     "dist",
 
-    "tests/frasberg_ai_application_shell/execution",
-    "tests/frasberg_ai_application_shell/pipeline",
+    "tests/frasberg_application_shell/execution",
+    "tests/frasberg_application_shell/pipeline",
 
-    "supabase/frasberg_ai/deviation_engine/index.ts",
-    "supabase/frasberg_ai/identity_filter/identity_filter.test.ts",
-    "supabase/frasberg_ai/membrane_engine/membrane_engine.test.ts",
+    "supabase/frasberg/deviation_engine/index.ts",
+    "supabase/frasberg/identity_filter/identity_filter.test.ts",
+    "supabase/frasberg/membrane_engine/membrane_engine.test.ts",
 
-    "**/supabase/frasberg_ai/**/supabase/**"
+    "**/supabase/frasberg/**/supabase/**"
   ]
 }
