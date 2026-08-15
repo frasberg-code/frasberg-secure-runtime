@@ -1,4 +1,4 @@
-# Frasberg AI — Post-Rebrand Verification Checklist
+# Frasberg — Post-Rebrand Verification Checklist
 
 **Repository:** `FrasbergAI/frasberg`  
 **Version:** 7.0.0+  
@@ -15,7 +15,7 @@ This document is the canonical acceptance checklist confirming the Frasberg → 
 - [x] No `frasberg-core` legacy package or import references remain
 - [x] All package scopes use `@frasberg/*`
 - [x] All environment variables use `FRASBERG_*` prefix
-- [x] Creator attribution is set to Frasberg AI
+- [x] Creator attribution is set to Frasberg
 
 ---
 
@@ -40,15 +40,15 @@ This document is the canonical acceptance checklist confirming the Frasberg → 
 ## 3. Path & Directory Structure
 
 - [x] No duplicated `supabase/supabase/...` nested paths exist in tracked files
-- [x] Canonical directory is `supabase/frasberg_ai/` (not any legacy path)
+- [x] Canonical directory is `supabase/frasberg/` (not any legacy path)
 - [x] `supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_manifest.json` is valid JSON
-- [x] CI workflow `ci.yml` validates the correct `supabase/frasberg_ai/` structure
+- [x] CI workflow `ci.yml` validates the correct `supabase/frasberg/` structure
 
 ---
 
 ## 4. Verification Docs Consistency
 
-All of the following docs agree on `FrasbergAI/frasberg` as the canonical repo and `frasberg_ai` as the canonical module prefix:
+All of the following docs agree on `FrasbergAI/frasberg` as the canonical repo and `frasberg` as the canonical module prefix:
 
 - [x] `REBRANDING_COMPLETE.md`
 - [x] `DEPLOYMENT_VERIFICATION_CHECKLIST.md`
@@ -78,7 +78,7 @@ All of the following docs agree on `FrasbergAI/frasberg` as the canonical repo a
 ## 6. CI / Build Health
 
 - [x] `build.yml` workflow passes — pnpm build + governance engine tests
-- [x] `ci.yml` workflow passes — `supabase/frasberg_ai/` directory structure validated
+- [x] `ci.yml` workflow passes — `supabase/frasberg/` directory structure validated
 - [x] `app_shell_manifest.json` is valid JSON (CI-checked)
 - [x] Python tests (`pytest`) pass with ≥70% coverage
 - [x] TypeScript type-check (`pnpm typecheck`) passes
@@ -97,5 +97,5 @@ The repository is considered **fully aligned** when all items above are checked,
 
 ## Known Intentional Exceptions
 
-- `FRASBERG_CONFIGURATION.md` Supabase function URL contains `frasberg-ai-backend` as the **deployed function name** — this is the live Supabase Edge Function endpoint name and must not be changed here without a corresponding Supabase deployment rename.
+- `FRASBERG_CONFIGURATION.md` Supabase function URL contains `frasberg-backend` as the **deployed function name** — this is the live Supabase Edge Function endpoint name and must not be changed here without a corresponding Supabase deployment rename.
 - `release/` subdirectory contains historical release snapshots; legacy naming within those archives is preserved intentionally.
