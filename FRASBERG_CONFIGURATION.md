@@ -9,7 +9,7 @@
 
 The FRASBERG custom model endpoint has been successfully configured with the following environment variables:
 
-> Note: the Supabase function path currently remains `/functions/v1/frasberg-ai-backend` for compatibility with the deployed runtime. That endpoint identifier is infrastructure-specific and separate from the repository's Frasberg branding.
+> Note: the Supabase function path currently remains `/functions/v1/frasberg-backend` for compatibility with the deployed runtime. That endpoint identifier is infrastructure-specific and separate from the repository's Frasberg branding.
 
 ### Environment Variables Set
 
@@ -47,7 +47,7 @@ GITHUB_REPO_URL=https://github.com/FrasbergAI/frasberg
 3. **`SECRETS_SETUP.md`** - Added FRASBERG documentation
 
 ### Created Files
-1. **`activate-frasberg-ai.sh`** - Activation and verification script
+1. **`activate-frasberg.sh`** - Activation and verification script
 2. **`setup-frasberg-secrets.sh`** - Supabase Vault configuration script
 3. **`FRASBERG_CONFIGURATION.md`** - This summary document
 
@@ -57,7 +57,7 @@ GITHUB_REPO_URL=https://github.com/FrasbergAI/frasberg
 
 ### Verify Configuration
 ```bash
-./activate-frasberg-ai.sh
+./activate-frasberg.sh
 ```
 
 ### Configure Supabase Vault (Production)
@@ -67,7 +67,7 @@ GITHUB_REPO_URL=https://github.com/FrasbergAI/frasberg
 
 ### Test the Endpoint
 ```bash
-curl -X POST https://sdtilgpppwhwtbxlbmik.supabase.co/functions/v1/frasberg-ai-backend \
+curl -X POST https://sdtilgpppwhwtbxlbmik.supabase.co/functions/v1/frasberg-backend \
   -H "Authorization: Bearer 432b7dc816f959da644b66c1afe14993300d3e1f839b2b6235ea75552c9082ce" \
   -H "Content-Type: application/json" \
   -d '{"message": "Hello FRASBERG"}'
@@ -113,7 +113,7 @@ supabase functions deploy
 │              Supabase Edge Functions                    │
 │      https://sdtilgpppwhwtbxlbmik.supabase.co          │
 │                                                         │
-│  • /functions/v1/frasberg-ai-backend (Main Endpoint)    │
+│  • /functions/v1/frasberg-backend (Main Endpoint)    │
 │  • /functions/v1/chat/completions                      │
 │  • /functions/v1/images/generate                       │
 │  • /functions/v1/videos/generate                       │
@@ -135,7 +135,7 @@ supabase functions deploy
 ## 🧪 Testing Checklist
 
 - [x] Environment variables set in `.env`
-- [x] Configuration verified with `activate-frasberg-ai.sh`
+- [x] Configuration verified with `activate-frasberg.sh`
 - [ ] Supabase secrets deployed (run `./setup-frasberg-secrets.sh`)
 - [ ] Edge functions deployed (run `supabase functions deploy`)
 - [ ] Endpoint tested with curl
@@ -159,7 +159,7 @@ supabase functions deploy
 
 **Solution:**
 1. Verify `.env` file exists: `ls -la .env`
-2. Check environment variables are set: `./activate-frasberg-ai.sh`
+2. Check environment variables are set: `./activate-frasberg.sh`
 3. Reload environment: `source .env`
 
 ### Issue: "403 Forbidden" when calling endpoint
