@@ -1,4 +1,4 @@
-# Contributing to Frasberg AI 🚀
+# Contributing to Frasberg 🚀
 
 Welcome! We're building the future of AI together.
 
@@ -13,10 +13,10 @@ Welcome! We're building the future of AI together.
 
 ## 💬 Community
 
-- **Discord**: https://discord.gg/frasberg-ai
+- **Discord**: https://discord.gg/frasbergai
 - **GitHub Discussions**: For long-form conversations  
-- **Twitter**: @frasberg_ai_ai
-- **Email**: hello@frasberg-ai.ai
+- **Twitter**: @frasbergai
+- **Email**: hello@frasberg-ai.com
 
 ## 🎯 Ways to Contribute
 
