@@ -1,0 +1,115 @@
+name: Mesh-Aware Release Tagger
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  role-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate provider role
+        run: |
+          CFG=$(cat governance.config.json)
+          PROVIDER=$(echo "$CFG" | jq -r '.license.roles.llmProvider')
+
+          if [ "$PROVIDER" != "true" ]; then
+            echo "ERROR: Only LLM Providers may create mesh-aware release tags"
+            exit 1
+          fi
+          echo "✓ Provider role validated"
+
+  mesh-tag:
+    runs-on: ubuntu-latest
+    needs: role-check
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract tag version
+        id: tag
+        run: |
+          TAG="${GITHUB_REF##refs/tags/}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Extracted tag: $TAG"
+
+      - name: Update mesh registry from tag
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          FILE="governance/mesh-registry.json"
+
+          if [ -f "$FILE" ]; then
+            node - << 'EOF'
+            const fs = require("fs");
+            const path = "governance/mesh-registry.json";
+            const tag = process.env.TAG;
+
+            const registry = JSON.parse(fs.readFileSync(path, "utf8"));
+            
+            // Add history entry
+            registry.history.push({
+              meshVersion: registry.current.meshVersion,
+              raftTerm: registry.current.raftTerm,
+              snapshotVersion: registry.current.snapshotVersion,
+              timestamp: new Date().toISOString(),
+              reason: `release tag ${tag}`
+            });
+
+            // Update current
+            registry.current.meshVersion = tag;
+            registry.current.snapshotVersion = tag;
+
+            fs.writeFileSync(path, JSON.stringify(registry, null, 2));
+            console.log(`✓ Updated meshVersion to ${tag}`);
+            EOF
+          fi
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+
+      - name: Commit mesh update
+        run: |
+          git config user.name "frasberg-mesh-bot"
+          git config user.email "mesh-bot@frasbergai.github.com"
+          git add governance/mesh-registry.json
+          git commit -m "chore(mesh): align meshVersion with ${{ steps.tag.outputs.tag }}" --allow-empty || echo "No changes to commit"
+          git push origin HEAD:${GITHUB_REF#refs/tags/} --force-with-lease || echo "Push skipped"
+
+      - name: Create release notes
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          MESH=$(cat governance/mesh-registry.json)
+          MESH_VERSION=$(echo "$MESH" | jq -r '.current.meshVersion')
+          
+          cat > release-notes.md << EOF
+          # Release $TAG
+
+          ## Mesh Versioning
+          - **Mesh Version**: $MESH_VERSION
+          - **Release Tag**: $TAG
+          - **Timestamp**: $(date -u +'%Y-%m-%dT%H:%M:%SZ')
+
+          ## Governance
+          - LLM Provider: Frasberg
+          - Licensing: MIT
+          - Mesh Status: Aligned
+          
+          ## Artifacts
+          - Governance manifest: governance/mesh-registry.json
+          - Certification: llm-certification.json
+          EOF
+
+      - name: Publish Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release-notes.md
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -13,7 +13,18 @@
     "test:codex": "jest tests/codex_architecture",
     "test:packages": "pnpm -r test",
     "typecheck": "tsc --noEmit",
-    "lint": "pnpm -r lint"
+    "lint": "pnpm -r lint",
+    "governance:mesh": "node cli/frasberg-governance.js mesh:status",
+    "governance:bump": "node cli/frasberg-governance.js mesh:bump-version",
+    "governance:raft": "node cli/frasberg-governance.js mesh:bump-raft",
+    "governance:snapshot": "node cli/frasberg-governance.js mesh:set-snapshot",
+    "governance:sync": "node cli/frasberg-governance.js sync:status",
+    "license:audit": "node scripts/repo-license-auditor.js",
+    "release:manifest": "node scripts/generate-release-manifest.js",
+    "release:bundle": "node scripts/package-release.js",
+    "release:hash": "node scripts/hash-release.js",
+    "release:provenance": "node scripts/generate-provenance.js",
+    "release:all": "npm run release:manifest && npm run release:bundle && npm run release:hash && npm run release:provenance"
   },
   "dependencies": {
     "react": "^18.0.0",

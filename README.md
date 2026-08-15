@@ -42,6 +42,53 @@ pnpm test
 - [API Reference](docs/api.md)
 - [Deployment Guide](CLOUD_DEPLOYMENT.md)
 - [Contributing Guide](CONTRIBUTING.md)
+- [Governance Guide](GOVERNANCE_GUIDE.md)
+
+## 🔐 Governance & Compliance
+
+Frasberg implements unified governance covering licensing, mesh versioning, and release integrity.
+
+### Governance Quick Links
+
+- **Governance Specification**: [governance/GOVERNANCE.md](governance/GOVERNANCE.md)
+- **Organization Charter**: [governance/CHARTER.md](governance/CHARTER.md)
+- **Release Handbook**: [governance/HANDBOOK.md](governance/HANDBOOK.md)
+- **Org Architecture**: [governance/ARCHITECTURE.md](governance/ARCHITECTURE.md)
+
+### Governance Features
+
+- ✅ **Identity Preservation** - Behavioral constraints across all systems
+- ✅ **Licensing Compliance** - MIT license with SPDX headers
+- ✅ **Reproducible Releases** - Hash-verified, provenance-tracked artifacts
+- ✅ **Mesh Governance** - Versioning and state management
+- ✅ **Role-Based Access** - LLM Provider / Bearer / Distributor roles
+
+### Release Pipeline
+
+[![Frasberg Release Pipeline](https://img.shields.io/github/actions/workflow/status/FrasbergAI/Frasberg/frasberg-ci.yml?label=Frasberg%20Release%20Pipeline&logo=github)](https://github.com/FrasbergAI/Frasberg/actions/workflows/frasberg-ci.yml)
+
+### Mesh Versioning
+
+Current mesh version: **2.0.0** ([View Details](governance/mesh-registry.json))
+
+```bash
+# Check mesh status
+npm run governance:mesh
+
+# View release history
+npm run governance:sync
+
+# Full governance checks
+make governance-all
+```
+
+### LLM Roles
+
+| Role | Repos | Authority |
+|------|-------|-----------|
+| **Provider** | Frasberg, Luchii | Define governance; promote releases |
+| **Bearer** | Frasberg, LINQ | Enforce identity; consume metadata |
+| **Distributor** | sdk-* | Package & distribute; ensure compliance |
 
 ## 🔧 Technologies
 

@@ -1,0 +1,23 @@
+{
+  "version": "1.0.0",
+  "timestamp": "2026-08-14T15:08:26Z",
+  "status": "aligned",
+  "syncs": [
+    {
+      "source": "FrasbergAI/Frasberg",
+      "target": "FrasbergAI/Luchii",
+      "type": "governance-mesh",
+      "status": "aligned",
+      "lastSync": "2026-08-14T12:00:00Z",
+      "meshVersion": "2.0.0",
+      "raftTerm": 42,
+      "notes": "Full synchronization of governance mesh"
+    }
+  ],
+  "rules": {
+    "meshVersionMustAlign": true,
+    "releaseTagsMustMatch": true,
+    "licensesMustBeIdentical": true,
+    "raftTermMustProgress": true
+  }
+}

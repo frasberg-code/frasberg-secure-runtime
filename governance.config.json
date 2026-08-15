@@ -1,0 +1,42 @@
+{
+  "version": "1.0.0",
+  "license": {
+    "type": "MIT",
+    "spdx": "MIT",
+    "roles": {
+      "llmProvider": true,
+      "llmBearer": true,
+      "llmDistributor": false
+    }
+  },
+  "requirements": {
+    "rootLicense": true,
+    "subpackageLicense": true,
+    "spdxHeaders": true
+  },
+  "mesh": {
+    "enabled": true,
+    "registryPath": "governance/mesh-registry.json",
+    "embedInManifest": true,
+    "embedInProvenance": true
+  },
+  "release": {
+    "manifest": "release-manifest.json",
+    "bundle": "release-bundle.tar.gz",
+    "hashes": "release-hashes.json",
+    "provenance": "provenance.json"
+  },
+  "ci": {
+    "workflows": {
+      "ci": ".github/workflows/frasberg-ci.yml",
+      "release": ".github/workflows/publish-release.yml"
+    },
+    "enforceLicense": true,
+    "enforceMesh": true
+  },
+  "sync": {
+    "mapFile": "release-sync-map.json",
+    "frasbergRepo": "FrasbergAI/Frasberg",
+    "luchiiRepo": "FrasbergAI/Luchii"
+  }
+}
