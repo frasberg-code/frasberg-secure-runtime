@@ -1,4 +1,4 @@
-# Frasberg AI SDK — Issue Triage Protocol
+# Frasberg SDK — Issue Triage Protocol
 
 ---
 
