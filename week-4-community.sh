@@ -1,5 +1,5 @@
 #!/bin/bash
-# Frasberg AI - Month 1 Week 4: Community Launch
+# Frasberg - Month 1 Week 4: Community Launch
 # Launch Discord, contributing guide, and community infrastructure
 
 set -e
@@ -53,7 +53,7 @@ echo "1. Go to: https://discord.com/create"
 echo ""
 echo "2. Choose 'Create My Own' → 'For a club or community'"
 echo ""
-echo "3. Server name: Frasberg AI"
+echo "3. Server name: Frasberg"
 echo ""
 echo "4. Upload icon (if you have one)"
 echo ""
@@ -203,7 +203,7 @@ Review CHANGELOG_v5.md and fix any typos or formatting issues.
 **Time**: 2 hours
 
 Create `docker-compose.yml` that sets up:
-- Frasberg AI backend
+- Frasberg backend
 - PostgreSQL
 - Redis
 - All in one command
@@ -303,9 +303,9 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 
 cat > community/launch-announcement.md << 'EOF'
-# Frasberg AI Community Launch! 🚀
+# Frasberg Community Launch! 🚀
 
-We're excited to announce the launch of the Frasberg AI community!
+We're excited to announce the launch of the Frasberg community!
 
 ## What's New
 
@@ -382,7 +382,7 @@ Contact: bounties@frasberg-ai.ai
 
 Thanks to everyone who's contributed so far. We're building something amazing together!
 
-Let's make Frasberg AI the best distributed AI system in the world. 🌟
+Let's make Frasberg the best distributed AI system in the world. 🌟
 
 ---
 
@@ -399,15 +399,15 @@ echo ""
 echo "Share this announcement on:"
 echo ""
 echo "✅ Twitter:"
-echo "   Tweet: '🚀 Frasberg AI Community Launch! Join our Discord, contribute to open-source AI, earn bounties ($100-$5000). #OpenSource #AI #Community'"
+echo "   Tweet: '🚀 Frasberg Community Launch! Join our Discord, contribute to open-source AI, earn bounties ($100-$5000). #OpenSource #AI #Community'"
 echo "   Link: [Discord invite]"
 echo ""
 echo "✅ Reddit:"
 echo "   r/opensource, r/python, r/artificial"
-echo "   Title: 'Frasberg AI Community Launch - Distributed AI System with Bounties'"
+echo "   Title: 'Frasberg Community Launch - Distributed AI System with Bounties'"
 echo ""
 echo "✅ HackerNews:"
-echo "   Title: 'Frasberg AI Community Launch – Distributed AI with contributor bounties'"
+echo "   Title: 'Frasberg Community Launch – Distributed AI with contributor bounties'"
 echo ""
 echo "✅ LinkedIn:"
 echo "   Professional announcement about community and bounty program"
