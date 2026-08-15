@@ -1,4 +1,4 @@
-# Changelog - Frasberg AI v2.0.0
+# Changelog - Frasberg v2.0.0
 
 ## [2.0.0] - 2026-02-08
 
