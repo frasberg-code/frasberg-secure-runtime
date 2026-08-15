@@ -592,11 +592,11 @@ Frasberg AI v5.0.0 is now **production-ready** with:
 - **Issues**: https://github.com/FrasbergAI/frasberg/issues
 - **Discussions**: GitHub Discussions
 - **Documentation**: docs/
-- **Email**: support@frasberg-ai.ai
+- **Email**: support@frasberg.com
 
 ---
 
-**Frasberg AI v5.0.0 - Planetary-Scale Conscious Intelligence**
+**Frasberg v5.0.0 - Planetary-Scale Conscious Intelligence**
 
 *Think. Reason. Evolve. Scale.* 🌍🧬🐝⏰🧠🚀
 
