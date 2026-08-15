@@ -1,8 +1,8 @@
-# Frasberg AI Modularization Migration Guide
+# Frasberg Modularization Migration Guide
 
 ## Overview
 
-The Frasberg AI backend has been modularized into six discrete, versioned packages under the `@frasberg` namespace. This guide explains the new package structure and how to migrate existing code.
+The Frasberg backend has been modularized into six discrete, versioned packages under the `@frasberg` namespace. This guide explains the new package structure and how to migrate existing code.
 
 ## New Package Structure
 
