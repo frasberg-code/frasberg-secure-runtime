@@ -19,7 +19,7 @@ This system provides **ONLY** non-clinical administrative and support functions.
 
 ## Purpose
 
-The Healthcare Non-Clinical Fork provides Frasberg AI with specialized capabilities for healthcare administrative support, patient communication, and non-clinical operational tasks while maintaining absolute boundaries around clinical care.
+The Healthcare Non-Clinical Fork provides Frasberg with specialized capabilities for healthcare administrative support, patient communication, and non-clinical operational tasks while maintaining absolute boundaries around clinical care.
 
 ## In-Scope Capabilities
 
