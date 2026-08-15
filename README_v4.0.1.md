@@ -1,4 +1,4 @@
-# 🚀 Frasberg AI v4.0.1
+# 🚀 Frasberg v4.0.1
 
 ![Release](https://img.shields.io/badge/release-v4.0.1-blue?style=for-the-badge) 
 ![Tests](https://img.shields.io/badge/tests-passing-success?style=for-the-badge) 
@@ -25,9 +25,9 @@ This release addresses all technical debt from rapid development (v1→v4), prov
 
 ```bash
 # Download v4.0.1
-wget https://github.com/FrasbergAI/frasberg/releases/download/v4.0.1/frasberg-ai-v4.0.1-stable.zip
-unzip frasberg-ai-v4.0.1-stable.zip
-cd frasberg-ai-v4.0.1-stable
+wget https://github.com/FrasbergAI/frasberg/releases/download/v4.0.1/frasberg-v4.0.1-stable.zip
+unzip frasberg-v4.0.1-stable.zip
+cd frasberg-v4.0.1-stable
 
 # One-command deployment
 ./quick-start.sh
@@ -126,5 +126,5 @@ MIT License - See LICENSE
 🤝 Contributing
 See CONTRIBUTING.md for development setup, code style, testing, and PR process.
 
-Frasberg AI v4.0.1 - Stable. Tested. Documented. Production Ready.
+Frasberg v4.0.1 - Stable. Tested. Documented. Production Ready.
 Build with confidence. 🛠️✅📖
