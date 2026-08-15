@@ -1,4 +1,4 @@
-# 🚀 Frasberg AI v2.0.0
+# 🚀 Frasberg v2.0.0
 
 [![Release](https://img.shields.io/badge/release-v2.0.0-blue?style=for-the-badge)](https://github.com/FrasbergAI/frasberg/releases/tag/v2.0.0)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
@@ -28,11 +28,11 @@
 
 ```bash
 # Download v2.0.0
-wget https://github.com/FrasbergAI/frasberg/releases/download/v2.0.0/frasberg-ai-v2.0.0-complete.zip
+wget https://github.com/FrasbergAI/frasberg/releases/download/v2.0.0/frasberg-v2.0.0-complete.zip
 
 # Extract and deploy
-unzip frasberg-ai-v2.0.0-complete.zip
-cd frasberg-ai-v2.0.0-complete
+unzip frasberg-v2.0.0-complete.zip
+cd frasberg-v2.0.0-complete
 
 # Deploy all services
 ./deploy-all-v2.sh
@@ -132,5 +132,5 @@ MIT License - See [LICENSE](LICENSE) file
 
 ---
 
-**Frasberg AI v2.0.0 - Voice-Enabled Institution-Grade Intelligence**  
+**Frasberg v2.0.0 - Voice-Enabled Institution-Grade Intelligence**  
 *Speak. Listen. Document. Verify.*
