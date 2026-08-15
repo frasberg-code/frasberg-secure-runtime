@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
-    title="Frasberg AI - Finance Fork",
+    title="Frasberg - Finance Fork",
     description="Financial compliance, risk analysis, and fraud detection (v4.0.0)",
     version="4.0.0"
 )
