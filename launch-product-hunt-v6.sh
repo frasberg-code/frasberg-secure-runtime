@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Frasberg AI 6.0.0 Product Hunt Launch Script
+# Frasberg 6.0.0 Product Hunt Launch Script
 # Launch at midnight PT (12:01am PT)
 
 set -e
 
-echo "🚀 Frasberg AI 6.0.0 Product Hunt Launch"
+echo "🚀 Frasberg 6.0.0 Product Hunt Launch"
 echo "========================================"
 echo ""
 
@@ -69,7 +69,7 @@ echo "=============================="
 echo ""
 
 echo "🏷️  Product Name:"
-echo "Frasberg AI"
+echo "Frasberg"
 echo ""
 
 echo "📝 Tagline:"
@@ -87,7 +87,7 @@ echo ""
 echo "📱 First Comment (Copy this):"
 echo "----------------------------"
 cat << 'EOF'
-Launching Frasberg AI 6.0.0! 🚀
+Launching Frasberg 6.0.0! 🚀
 
 Major Release - 3X the features:
 
@@ -365,7 +365,7 @@ echo ""
 
 # Final confirmation
 echo ""
-echo -e "${YELLOW}Ready to launch Frasberg AI 6.0.0?${NC}"
+echo -e "${YELLOW}Ready to launch Frasberg 6.0.0?${NC}"
 read -p "Launch now? (y/n) " -n 1 -r
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
