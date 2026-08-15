@@ -19,27 +19,27 @@ case $choice in
         echo ""
         echo "═══ AWS DEPLOYMENT ═══"
         echo ""
-        ./cloud-deploy/aws-deploy-frasberg-ai.sh
+        ./cloud-deploy/aws-deploy-frasberg.sh
         ;;
     2)
         echo ""
         echo "═══ GCP DEPLOYMENT ═══"
         echo ""
-        ./cloud-deploy/gcp-deploy-frasberg-ai.sh
+        ./cloud-deploy/gcp-deploy-frasberg.sh
         ;;
     3)
         echo ""
         echo "═══ AZURE DEPLOYMENT ═══"
         echo ""
-        ./cloud-deploy/azure-deploy-frasberg-ai.sh
+        ./cloud-deploy/azure-deploy-frasberg.sh
         ;;
     4)
         echo ""
         echo "═══ MULTI-CLOUD DEPLOYMENT ═══"
         echo ""
-        ./cloud-deploy/aws-deploy-frasberg-ai.sh
-        ./cloud-deploy/gcp-deploy-frasberg-ai.sh
-        ./cloud-deploy/azure-deploy-frasberg-ai.sh
+        ./cloud-deploy/aws-deploy-frasberg.sh
+        ./cloud-deploy/gcp-deploy-frasberg.sh
+        ./cloud-deploy/azure-deploy-frasberg.sh
         ;;
     5)
         echo ""
