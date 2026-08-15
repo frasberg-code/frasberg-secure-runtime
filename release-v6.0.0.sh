@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Frasberg AI 6.0.0 Release Script
-# This script prepares and releases Frasberg AI 6.0.0
+# Frasberg 6.0.0 Release Script
+# This script prepares and releases Frasberg 6.0.0
 
 set -e
 
-echo "🚀 Frasberg AI 6.0.0 Release Process"
+echo "🚀 Frasberg 6.0.0 Release Process"
 echo "===================================="
 echo ""
 
@@ -73,7 +73,7 @@ echo ""
 
 # Step 5: Commit changes
 echo -e "${BLUE}Step 5: Committing changes...${NC}"
-git commit -m "Release Frasberg AI 6.0.0 - Enterprise Evolution
+git commit -m "Release Frasberg 6.0.0 - Enterprise Evolution
 
 Major release combining enterprise features, advanced AI, and ecosystem integrations:
 
@@ -115,7 +115,7 @@ if [ -n "$TAG_EXISTS" ]; then
     echo ""
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         git tag -d v6.0.0
-        git tag -a v6.0.0 -m "Frasberg AI 6.0.0 - Enterprise Evolution
+        git tag -a v6.0.0 -m "Frasberg 6.0.0 - Enterprise Evolution
 
 Major features:
 ✅ Enterprise: RBAC, observability, Kubernetes operator
@@ -133,7 +133,7 @@ Full changelog: https://github.com/FrasbergAI/frasberg/blob/main/CHANGELOG_v6.0.
         echo -e "${GREEN}✓ Tag recreated${NC}"
     fi
 else
-    git tag -a v6.0.0 -m "Frasberg AI 6.0.0 - Enterprise Evolution
+    git tag -a v6.0.0 -m "Frasberg 6.0.0 - Enterprise Evolution
 
 Major features:
 ✅ Enterprise: RBAC, observability, Kubernetes operator
@@ -211,7 +211,7 @@ echo "Create a GitHub release at:"
 echo "https://github.com/FrasbergAI/frasberg/releases/new?tag=v6.0.0"
 echo ""
 echo "Use this title:"
-echo "Frasberg AI 6.0.0 - Enterprise Evolution"
+echo "Frasberg 6.0.0 - Enterprise Evolution"
 echo ""
 echo "Use CHANGELOG_v6.0.0.md for release notes"
 echo ""
