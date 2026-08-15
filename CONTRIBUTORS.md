@@ -1,4 +1,4 @@
-# Frasberg AI Contributors 🌟
+# Frasberg Contributors 🌟
 
 Thank you to everyone who has contributed!
 
