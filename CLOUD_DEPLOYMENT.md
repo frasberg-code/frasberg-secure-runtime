@@ -1,4 +1,4 @@
-# ☁️ Frasberg AI v1.0.0 - Cloud Deployment Guide
+# ☁️ Frasberg v1.0.0 - Cloud Deployment Guide
 
 Complete deployment guides for AWS, GCP, and Azure.
 
@@ -10,7 +10,7 @@ Complete deployment guides for AWS, GCP, and Azure.
 
 **1. Create ECS Cluster:**
 ```bash
-aws ecs create-cluster --cluster-name frasberg-ai-prod
+aws ecs create-cluster --cluster-name frasberg-prod
 ```
 
 **2. Register Task Definitions:**
@@ -31,7 +31,7 @@ aws ecs register-task-definition --cli-input-json file://aws/analytics-task.json
 **3. Create Services:**
 ```bash
 aws ecs create-service \
-  --cluster frasberg-ai-prod \
+  --cluster frasberg-prod \
   --service-name canonical-core \
   --task-definition canonical-core:1 \
   --desired-count 2 \
@@ -71,20 +71,20 @@ cd ../../analytics && docker-compose up -d
 **1. Build and Push Images:**
 ```bash
 # Configure gcloud
-gcloud config set project frasberg-ai-prod
+gcloud config set project frasberg-prod
 
 # Build images
-gcloud builds submit --tag gcr.io/frasberg-ai-prod/canonical-core:v1 deploy/canonical-core
-gcloud builds submit --tag gcr.io/frasberg-ai-prod/education-fork:v1 deploy/forks/education
-gcloud builds submit --tag gcr.io/frasberg-ai-prod/healthcare-fork:v1 deploy/forks/healthcare-nonclinical
-gcloud builds submit --tag gcr.io/frasberg-ai-prod/analytics:v1 deploy/analytics
+gcloud builds submit --tag gcr.io/frasberg-prod/canonical-core:v1 deploy/canonical-core
+gcloud builds submit --tag gcr.io/frasberg-prod/education-fork:v1 deploy/forks/education
+gcloud builds submit --tag gcr.io/frasberg-prod/healthcare-fork:v1 deploy/forks/healthcare-nonclinical
+gcloud builds submit --tag gcr.io/frasberg-prod/analytics:v1 deploy/analytics
 ```
 
 **2. Deploy to Cloud Run:**
 ```bash
 # Canonical Core
 gcloud run deploy canonical-core \
-  --image gcr.io/frasberg-ai-prod/canonical-core:v1 \
+  --image gcr.io/frasberg-prod/canonical-core:v1 \
   --port 8000 \
   --platform managed \
   --region us-central1 \
@@ -94,7 +94,7 @@ gcloud run deploy canonical-core \
 
 # Education Fork
 gcloud run deploy education-fork \
-  --image gcr.io/frasberg-ai-prod/education-fork:v1 \
+  --image gcr.io/frasberg-prod/education-fork:v1 \
   --port 8001 \
   --platform managed \
   --region us-central1 \
@@ -102,7 +102,7 @@ gcloud run deploy education-fork \
 
 # Healthcare Fork
 gcloud run deploy healthcare-fork \
-  --image gcr.io/frasberg-ai-prod/healthcare-fork:v1 \
+  --image gcr.io/frasberg-prod/healthcare-fork:v1 \
   --port 8002 \
   --platform managed \
   --region us-central1 \
@@ -110,7 +110,7 @@ gcloud run deploy healthcare-fork \
 
 # Analytics
 gcloud run deploy analytics \
-  --image gcr.io/frasberg-ai-prod/analytics:v1 \
+  --image gcr.io/frasberg-prod/analytics:v1 \
   --port 5000 \
   --platform managed \
   --region us-central1 \
@@ -127,14 +127,14 @@ gcloud run deploy analytics \
 
 **1. Create Resource Group:**
 ```bash
-az group create --name frasberg-ai-rg --location eastus
+az group create --name frasberg-rg --location eastus
 ```
 
 **2. Deploy Containers:**
 ```bash
 # Canonical Core
 az container create \
-  --resource-group frasberg-ai-rg \
+  --resource-group frasberg-rg \
   --name canonical-core \
   --image <your-registry>/canonical-core:v1 \
   --dns-name-label frasberg-canonical \
@@ -144,7 +144,7 @@ az container create \
 
 # Education Fork
 az container create \
-  --resource-group frasberg-ai-rg \
+  --resource-group frasberg-rg \
   --name education-fork \
   --image <your-registry>/education-fork:v1 \
   --dns-name-label frasberg-education \
@@ -152,7 +152,7 @@ az container create \
 
 # Healthcare Fork
 az container create \
-  --resource-group frasberg-ai-rg \
+  --resource-group frasberg-rg \
   --name healthcare-fork \
   --image <your-registry>/healthcare-fork:v1 \
   --dns-name-label frasberg-healthcare \
@@ -160,7 +160,7 @@ az container create \
 
 # Analytics
 az container create \
-  --resource-group frasberg-ai-rg \
+  --resource-group frasberg-rg \
   --name analytics \
   --image <your-registry>/analytics:v1 \
   --dns-name-label frasberg-analytics \
@@ -181,7 +181,7 @@ az container create \
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: frasberg-ai
+  name: frasberg
 ```
 
 **2. Canonical Core Deployment:**
@@ -191,7 +191,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: canonical-core
-  namespace: frasberg-ai
+  namespace: frasberg
 spec:
   replicas: 2
   selector:
@@ -204,7 +204,7 @@ spec:
     spec:
       containers:
       - name: canonical-core
-        image: frasberg-ai/canonical-core:v1
+        image: frasberg/canonical-core:v1
         ports:
         - containerPort: 8000
         livenessProbe:
@@ -231,7 +231,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: canonical-core-service
-  namespace: frasberg-ai
+  namespace: frasberg
 spec:
   selector:
     app: canonical-core
@@ -259,7 +259,7 @@ kubectl apply -f kubernetes/analytics.yaml
 
 **Let's Encrypt:**
 ```bash
-certbot certonly --standalone -d frasberg-ai.yourdomain.com
+certbot certonly --standalone -d frasberg.yourdomain.com
 ```
 
 **Cloud Provider Managed:**
@@ -272,7 +272,7 @@ certbot certonly --standalone -d frasberg-ai.yourdomain.com
 **AWS Secrets Manager:**
 ```bash
 aws secretsmanager create-secret \
-  --name frasberg-ai/api-keys \
+  --name frasberg/api-keys \
   --secret-string file://secrets.json
 ```
 
@@ -295,8 +295,8 @@ az keyvault secret set \
 
 ### AWS CloudWatch
 ```bash
-aws logs create-log-group --log-group-name /ecs/frasberg-ai
-aws logs put-retention-policy --log-group-name /ecs/frasberg-ai --retention-in-days 30
+aws logs create-log-group --log-group-name /ecs/frasberg
+aws logs put-retention-policy --log-group-name /ecs/frasberg --retention-in-days 30
 ```
 
 ### GCP Cloud Logging
@@ -309,7 +309,7 @@ gcloud logging read "resource.type=cloud_run_revision AND resource.labels.servic
 az monitor app-insights component create \
   --app frasberg-ai-insights \
   --location eastus \
-  --resource-group frasberg-ai-rg
+  --resource-group frasberg-rg
 ```
 
 ---
@@ -368,21 +368,21 @@ az monitor app-insights component create \
 
 **AWS Route 53:**
 ```bash
-aws route53 create-hosted-zone --name frasberg-ai.com --caller-reference $(date +%s)
+aws route53 create-hosted-zone --name frasberg.com --caller-reference $(date +%s)
 ```
 
 **GCP Cloud DNS:**
 ```bash
-gcloud dns managed-zones create frasberg-ai \
-  --dns-name=frasberg-ai.com \
-  --description="Frasberg AI DNS zone"
+gcloud dns managed-zones create frasberg \
+  --dns-name=frasberg.com \
+  --description="Frasberg DNS zone"
 ```
 
 **Azure DNS:**
 ```bash
 az network dns zone create \
-  --resource-group frasberg-ai-rg \
-  --name frasberg-ai.com
+  --resource-group frasberg-rg \
+  --name frasberg.com
 ```
 
 ---
@@ -413,7 +413,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: canonical-core-hpa
-  namespace: frasberg-ai
+  namespace: frasberg
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
