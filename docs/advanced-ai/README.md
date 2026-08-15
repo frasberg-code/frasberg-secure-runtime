@@ -1,8 +1,8 @@
-# Advanced AI Features - Frasberg AI 6.0.0
+# Advanced AI Features - Frasberg 6.0.0
 
 ## Overview
 
-Frasberg AI 6.0.0 introduces cutting-edge AI capabilities including Neural-DNA hybrid computing, distributed intelligence, and advanced temporal reasoning.
+Frasberg 6.0.0 introduces cutting-edge AI capabilities including Neural-DNA hybrid computing, distributed intelligence, and advanced temporal reasoning.
 
 ## Table of Contents
 
@@ -19,7 +19,7 @@ Combine neural networks with DNA computing for unprecedented computational effic
 ### Basic Usage
 
 ```python
-from frasberg_ai.hybrid import NeuralDNAHybrid
+from frasberg.hybrid import NeuralDNAHybrid
 
 # Create a hybrid model
 hybrid = NeuralDNAHybrid(
@@ -75,7 +75,7 @@ hybrid.fine_tune(
 Deploy swarm intelligence across multiple data centers:
 
 ```python
-from frasberg_ai.distributed import CrossDatacenterSwarm
+from frasberg.distributed import CrossDatacenterSwarm
 
 # Create a global swarm
 swarm = CrossDatacenterSwarm(
@@ -97,7 +97,7 @@ result = swarm.execute(
 Train models across distributed data without centralizing data:
 
 ```python
-from frasberg_ai.federated import FederatedLearning
+from frasberg.federated import FederatedLearning
 
 # Setup federated learning
 federated = FederatedLearning(
@@ -123,7 +123,7 @@ final_model = federated.get_global_model()
 Create peer-to-peer networks of intelligent agents:
 
 ```python
-from frasberg_ai.p2p import P2PAgentNetwork
+from frasberg.p2p import P2PAgentNetwork
 
 # Initialize P2P network
 p2p = P2PAgentNetwork(
@@ -152,7 +152,7 @@ result = p2p.execute_distributed(
 Ensure agreement across distributed agents:
 
 ```python
-from frasberg_ai.consensus import BlockchainConsensus
+from frasberg.consensus import BlockchainConsensus
 
 # Configure consensus
 consensus = BlockchainConsensus(
@@ -175,7 +175,7 @@ result = consensus.reach_consensus(
 Leverage quantum-inspired algorithms for complex temporal reasoning:
 
 ```python
-from frasberg_ai.temporal import QuantumTemporalLogic
+from frasberg.temporal import QuantumTemporalLogic
 
 # Initialize quantum temporal logic
 temporal = QuantumTemporalLogic(
@@ -197,7 +197,7 @@ result = temporal.query(
 Automatically discover causal relationships in time-series data:
 
 ```python
-from frasberg_ai.causal import CausalDiscovery
+from frasberg.causal import CausalDiscovery
 
 # Initialize causal discovery
 causal = CausalDiscovery()
@@ -221,7 +221,7 @@ causes = causal.get_causes(effect="sales", graph=causal_graph)
 Advanced forecasting with transformer-based models:
 
 ```python
-from frasberg_ai.forecasting import TemporalForecaster
+from frasberg.forecasting import TemporalForecaster
 
 # Create forecaster
 forecaster = TemporalForecaster(
@@ -248,7 +248,7 @@ predictions = forecaster.predict(
 Simulate alternative historical scenarios:
 
 ```python
-from frasberg_ai.temporal import HistoricalSimulator
+from frasberg.temporal import HistoricalSimulator
 
 # Initialize simulator
 simulator = HistoricalSimulator()
@@ -277,7 +277,7 @@ comparison = simulator.compare_timelines(
 Reason about "what if" scenarios:
 
 ```python
-from frasberg_ai.temporal import CounterfactualReasoning
+from frasberg.temporal import CounterfactualReasoning
 
 # Initialize counterfactual reasoning
 counterfactual = CounterfactualReasoning()
