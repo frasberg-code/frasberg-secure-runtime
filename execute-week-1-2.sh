@@ -1,12 +1,12 @@
 #!/bin/bash
-# Frasberg AI - Month 1 Week 1-2: v5.1.0 Real Integrations
+# Frasberg - Month 1 Week 1-2: v5.1.0 Real Integrations
 # Execute real production-ready integrations
 
 set -e
 
 echo "════════════════════════════════════════════════════════════════"
 echo "  FRASBERG CORE - WEEK 1-2: v5.1.0 REAL INTEGRATIONS"
-echo "  Making Frasberg AI Production-Ready"
+echo "  Making Frasberg Production-Ready"
 echo "════════════════════════════════════════════════════════════════"
 echo ""
 
@@ -154,11 +154,11 @@ echo "Create database initialization script..."
 echo ""
 
 cat > backend/init_db.py << 'EOF'
-"""Initialize Frasberg AI database"""
+"""Initialize Frasberg database"""
 from app.database import init_db, check_db_connection
 import sys
 
-print("Initializing Frasberg AI database...")
+print("Initializing Frasberg database...")
 
 if not check_db_connection():
     print("❌ Cannot connect to database. Check DATABASE_URL in .env")
@@ -195,7 +195,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-print("Testing Frasberg AI v5.1.0 Integrations")
+print("Testing Frasberg v5.1.0 Integrations")
 print("=" * 50)
 print("")
 
@@ -291,7 +291,7 @@ echo "  cd backend && python test_integrations.py"
 echo ""
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  STEP 7: Start Frasberg AI Server"
+echo "  STEP 7: Start Frasberg Server"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 echo "Start the server:"
