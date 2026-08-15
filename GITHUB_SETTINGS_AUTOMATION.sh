@@ -2,7 +2,7 @@
 
 ################################################################################
 # GITHUB SETTINGS AUTOMATION SCRIPT
-# Frasberg AI - Repository Configuration
+# Frasberg - Repository Configuration
 #
 # This script automates all GitHub repository settings changes using the GitHub CLI
 # Prerequisites: gh CLI installed and authenticated (gh auth login)
@@ -292,7 +292,7 @@ rename_repository() {
 
 show_menu() {
     echo ""
-    echo -e "${YELLOW}FRASBERG AI - GitHub Settings Configuration${NC}"
+    echo -e "${YELLOW}FRASBERG - GitHub Settings Configuration${NC}"
     echo ""
     echo "1) Update Repository Description"
     echo "2) Make Repository Private"
@@ -314,7 +314,7 @@ show_menu() {
 
 main() {
     clear
-    print_header "FRASBERG AI - GITHUB SETTINGS AUTOMATION"
+    print_header "FRASBERG - GITHUB SETTINGS AUTOMATION"
     
     # Check prerequisites
     check_prerequisites
@@ -327,7 +327,7 @@ main() {
         disable_forking
         verify_changes
         print_header "ALL STEPS COMPLETED"
-        print_success "Frasberg AI repository is now configured!"
+        print_success "Frasberg repository is now configured!"
         exit 0
     elif [ "$1" = "--quick" ]; then
         # Quick setup (skip rename)
@@ -336,7 +336,7 @@ main() {
         disable_forking
         verify_changes
         print_header "QUICK SETUP COMPLETED"
-        print_success "Frasberg AI repository is now configured!"
+        print_success "Frasberg repository is now configured!"
         exit 0
     fi
     
@@ -379,7 +379,7 @@ main() {
                 verify_changes
                 rename_repository
                 print_header "ALL STEPS COMPLETED"
-                print_success "Frasberg AI repository is fully configured!"
+                print_success "Frasberg repository is fully configured!"
                 pause_script
                 clear
                 ;;
@@ -391,7 +391,7 @@ main() {
                 disable_forking
                 verify_changes
                 print_header "QUICK SETUP COMPLETED"
-                print_success "Frasberg AI repository is now configured!"
+                print_success "Frasberg repository is now configured!"
                 pause_script
                 clear
                 ;;
