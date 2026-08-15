@@ -1,5 +1,5 @@
 #!/bin/bash
-# Frasberg AI - Month 1 Complete Execution Script
+# Frasberg - Month 1 Complete Execution Script
 # Path F: Hybrid Approach - Foundation Phase
 
 set -e
@@ -352,13 +352,13 @@ echo ""
 echo "Support:"
 echo "  • GitHub Issues: Report bugs, request features"
 echo "  • Discord: Live chat and support (coming soon)"
-echo "  • Email: hello@frasberg-ai.ai"
+echo "  • Email: hello@frasberg.com"
 echo ""
 
 echo ""
 echo -e "${PURPLE}╔════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${PURPLE}║                                                            ║${NC}"
-echo -e "${PURPLE}║  Thank you for building Frasberg AI! 🙏                    ║${NC}"
+echo -e "${PURPLE}║  Thank you for building Frasberg 🙏                       ║${NC}"
 echo -e "${PURPLE}║                                                            ║${NC}"
 echo -e "${PURPLE}║  Together, we're creating the future of distributed AI.   ║${NC}"
 echo -e "${PURPLE}║                                                            ║${NC}"
