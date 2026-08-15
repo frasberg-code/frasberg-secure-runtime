@@ -8,9 +8,9 @@
 
 **GitHub Release:** https://github.com/FrasbergAI/frasberg/releases/tag/v1.0.0
 
-**Download ZIP:** https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
+**Download ZIP:** https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-v1.0.0-public-final.zip
 
-**SHA256 Checksum:** https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip.sha256
+**SHA256 Checksum:** https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-v1.0.0-public-final.zip.sha256
 
 ---
 
@@ -23,11 +23,11 @@ wget https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai
 
 # Verify checksum
 wget https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip.sha256
-sha256sum -c frasberg-ai-v1.0.0-public-final.zip.sha256
+sha256sum -c frasberg-v1.0.0-public-final.zip.sha256
 
 # Extract
 unzip frasberg-ai-v1.0.0-public-final.zip
-cd frasberg-ai-v1.0.0-public-final
+cd frasberg-v1.0.0-public-final
 ```
 
 ### Run Verification Scripts
@@ -48,9 +48,9 @@ cd frasberg-ai-v1.0.0-public-final
 ./deploy-to-cloud.sh
 
 # Or deploy directly:
-./cloud-deploy/aws-deploy-frasberg-ai.sh     # AWS
-./cloud-deploy/gcp-deploy-frasberg-ai.sh     # GCP
-./cloud-deploy/azure-deploy-frasberg-ai.sh   # Azure
+./cloud-deploy/aws-deploy-frasberg.sh     # AWS
+./cloud-deploy/gcp-deploy-frasberg.sh     # GCP
+./cloud-deploy/azure-deploy-frasberg.sh   # Azure
 ```
 
 ### Local Deployment
@@ -94,9 +94,9 @@ npm start
 
 ### Cloud Deployment
 - `deploy-to-cloud.sh` - Multi-cloud orchestrator
-- `cloud-deploy/aws-deploy-frasberg-ai.sh` - AWS deployment
-- `cloud-deploy/gcp-deploy-frasberg-ai.sh` - GCP deployment
-- `cloud-deploy/azure-deploy-frasberg-ai.sh` - Azure deployment
+- `cloud-deploy/aws-deploy-frasberg.sh` - AWS deployment
+- `cloud-deploy/gcp-deploy-frasberg.sh` - GCP deployment
+- `cloud-deploy/azure-deploy-frasberg.sh` - Azure deployment
 
 ### Documentation
 - `GLOBAL_DEPLOYMENT_COMPLETE.md` - Comprehensive status
@@ -139,7 +139,7 @@ npm start
 
 ## 🔒 Package Details
 
-**File:** frasberg-ai-v1.0.0-public-final.zip
+**File:** frasberg-v1.0.0-public-final.zip
 **Size:** 217.23 MB
 **SHA256:** `29115fc23aa29f0db250bc183790f2b63d2913c51065de00830185ffb9f44aa7`
 **License:** MIT
@@ -155,6 +155,6 @@ npm start
 
 ---
 
-**🌟 Frasberg AI v1.0.0 - Institutional-Grade Operational Intelligence**
+**🌟 Frasberg v1.0.0 - Institutional-Grade Operational Intelligence**
 
 *Production-ready. Fork-isolated. Globally accessible.*
