@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Deploying Frasberg AI to AWS..."
+echo "Deploying Frasberg to AWS..."
 echo ""
 
 # Check AWS CLI
@@ -15,8 +15,8 @@ echo ""
 
 # Configuration
 REGION="us-east-1"
-CLUSTER_NAME="frasberg-ai-prod"
-ECR_REPO="frasberg-ai"
+CLUSTER_NAME="frasberg-prod"
+ECR_REPO="frasberg"
 
 echo "AWS Deployment Configuration:"
 echo "  Region: $REGION"
@@ -34,7 +34,7 @@ echo ""
 echo "Step 1: Creating ECR repositories..."
 for service in canonical-core education-fork healthcare-fork analytics; do
     aws ecr create-repository \
-        --repository-name frasberg-ai/$service \
+        --repository-name frasberg/$service \
         --region $REGION \
         --image-scanning-configuration scanOnPush=true 2>/dev/null || echo "Repository frasberg-ai/$service already exists"
 done
