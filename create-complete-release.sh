@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RELEASE_NAME="frasberg-ai-v1.0.0-public-final"
+RELEASE_NAME="frasberg-v1.0.0-public-final"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 echo "════════════════════════════════════════════"
@@ -24,7 +24,7 @@ cp ACTIVATION_REPORT.md release/${RELEASE_NAME}/ 2>/dev/null || true
 
 # Create comprehensive README
 cat > release/${RELEASE_NAME}/README.md << 'EOF'
-# 🚀 Frasberg AI v1.0.0 - Public Release
+# 🚀 Frasberg v1.0.0 - Public Release
 
 **Institution-Grade Operational Intelligence System**
 
@@ -34,9 +34,9 @@ cat > release/${RELEASE_NAME}/README.md << 'EOF'
 
 ---
 
-## 🎯 What is Frasberg AI?
+## 🎯 What is Frasberg?
 
-Frasberg AI is a complete operational intelligence system featuring:
+Frasberg is a complete operational intelligence system featuring:
 
 - **Multi-service architecture** (5 containerized services)
 - **Voice synthesis capabilities** (multi-speaker, multi-language)
@@ -51,8 +51,8 @@ Frasberg AI is a complete operational intelligence system featuring:
 
 ```bash
 # 1. Extract release
-unzip frasberg-ai-v1.0.0-public-final.zip
-cd frasberg-ai-v1.0.0-public-final
+unzip frasberg-v1.0.0-public-final.zip
+cd frasberg-v1.0.0-public-final
 
 # 2. Deploy Canonical Core
 cd deploy/canonical-core
@@ -182,7 +182,7 @@ docker logs frasberg_healthcare_fork
 ## 📦 What's Included
 
 ```
-frasberg-ai-v1.0.0-public-final/
+frasberg-v1.0.0-public-final/
 ├── backend/              # FastAPI applications
 ├── frontend/             # React admin UI
 ├── deploy/               # Docker configurations
@@ -200,13 +200,13 @@ frasberg-ai-v1.0.0-public-final/
 
 ## 🎊 Acknowledgments
 
-Frasberg AI v1.0.0 represents complete institutional-grade operational intelligence architecture.
+Frasberg v1.0.0 represents complete institutional-grade operational intelligence architecture.
 
 **45 layers. 5 services. Production ready.**
 
 ---
 
-**Frasberg AI** - Institution-Grade Intelligence  
+**Frasberg** - Institution-Grade Intelligence  
 *Manifested in code. Ready for deployment.*
 EOF
 
@@ -214,7 +214,7 @@ EOF
 cat > release/${RELEASE_NAME}/LICENSE << 'EOF'
 MIT License
 
-Copyright (c) 2026 Frasberg AI
+Copyright (c) 2026 Mr. Clayton-M. Bernard-Ex., AKA, Frasberg Selassie
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
