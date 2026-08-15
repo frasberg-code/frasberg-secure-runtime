@@ -13,6 +13,6 @@
       "orgRoleAlignment": true,
       "identityPreservation": true
     },
-    "notes": "Frasberg is the authoritative governance repo for the FrasbergAI organization. All other repos inherit and enforce rules from this repo."
+    "notes": "Frasberg is the authoritative governance repo for the Frasberg organization. All other repos inherit and enforce rules from this repo."
   }
 }
