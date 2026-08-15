@@ -21,9 +21,9 @@ This document summarizes the tracked-file cleanup that completed the **Frasberg 
 ### 🐳 Infrastructure (6 files)
 - ✅ Docker compose files renamed and updated
 - ✅ Cloud deployment scripts:
-  - `aws-deploy-frasberg-ai.sh`
-  - `gcp-deploy-frasberg-ai.sh`
-  - `azure-deploy-frasberg-ai.sh`
+  - `aws-deploy-frasberg.sh`
+  - `gcp-deploy-frasberg.sh`
+  - `azure-deploy-frasberg.sh`
 - ✅ Container names use the `frasberg_*` prefix
 - ✅ Service endpoints updated
 
