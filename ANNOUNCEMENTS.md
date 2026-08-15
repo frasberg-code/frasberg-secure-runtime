@@ -1,9 +1,9 @@
-# 📣 Frasberg AI v1.0.0 - Public Announcements
+# 📣 Frasberg v1.0.0 - Public Announcements
 
 ## 🐦 Twitter/X Announcement
 
 ```
-🚀 Frasberg AI v1.0.0 is now LIVE!
+🚀 Frasberg v1.0.0 is now LIVE!
 
 Institution-grade operational intelligence system with:
 ✅ 5 containerized services
@@ -13,15 +13,15 @@ Institution-grade operational intelligence system with:
 
 Download: https://github.com/FrasbergAI/frasberg/releases/tag/v1.0.0
 
-#OpenSource #OperationalIntelligence #Docker #Kubernetes #FrasbergAI
+#OpenSource #OperationalIntelligence #Docker #Kubernetes #Frasberg
 ```
 
 ## 💼 LinkedIn Announcement
 
 ```
-Excited to announce the release of Frasberg AI v1.0.0! 🚀
+Excited to announce the release of Frasberg v1.0.0! 🚀
 
-Frasberg AI is an institutional-grade operational intelligence system built for production environments. After months of development, we're releasing it as open source.
+Frasberg is an institutional-grade operational intelligence system built for production environments. After months of development, we're releasing it as open source.
 
 **Key Features:**
 • 5 containerized microservices
@@ -52,14 +52,14 @@ Contributions, feedback, and discussions welcome!
 ## 📧 Email Announcement (Stakeholders)
 
 ```
-Subject: Frasberg AI v1.0.0 - Public Release Available
+Subject: Frasberg v1.0.0 - Public Release Available
 
 Dear [Stakeholder],
 
-I'm pleased to announce that Frasberg AI v1.0.0 has been publicly released and is now available for download.
+I'm pleased to announce that Frasberg v1.0.0 has been publicly released and is now available for download.
 
 **What's New:**
-Frasberg AI v1.0.0 is a complete institutional-grade operational intelligence system featuring 5 containerized services, production-ready deployment infrastructure, and complete API documentation.
+Frasberg v1.0.0 is a complete institutional-grade operational intelligence system featuring 5 containerized services, production-ready deployment infrastructure, and complete API documentation.
 
 **Key Features:**
 • 5 operational microservices (all verified and tested)
@@ -89,15 +89,15 @@ Thank you for your continued support.
 
 Best regards,
 [Your Name]
-Frasberg AI Team
+Frasberg Team
 ```
 
 ## 🎯 GitHub Discussions Post
 
 ```markdown
-# 🎉 Frasberg AI v1.0.0 Released!
+# 🎉 Frasberg v1.0.0 Released!
 
-I'm thrilled to announce that **Frasberg AI v1.0.0 is now publicly available**!
+I'm thrilled to announce that **Frasberg v1.0.0 is now publicly available**!
 
 ## 🚀 What's Included
 
@@ -114,9 +114,9 @@ I'm thrilled to announce that **Frasberg AI v1.0.0 is now publicly available**!
 ## 🧪 Quick Test
 
 \`\`\`bash
-wget https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
-unzip frasberg-ai-v1.0.0-public-final.zip
-cd frasberg-ai-v1.0.0-public-final
+wget https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-v1.0.0-public-final.zip
+unzip frasberg-v1.0.0-public-final.zip
+cd frasberg-v1.0.0-public-final
 # Follow README.md
 \`\`\`
 
