@@ -1,4 +1,4 @@
-# Frasberg AI SDK — Code Review Rubric
+# Frasberg SDK — Code Review Rubric
 
 This rubric is the canonical evaluation framework for all pull requests.  
 A PR may only be approved when it satisfies every relevant criterion.
