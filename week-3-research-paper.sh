@@ -1,5 +1,5 @@
 #!/bin/bash
-# Frasberg AI - Month 1 Week 3: Research Paper Preparation
+# Frasberg - Month 1 Week 3: Research Paper Preparation
 # Prepare and submit DNA Computing research paper
 
 set -e
@@ -264,9 +264,9 @@ We integrated DNA computing into a planetary-scale distributed system, achieving
 #DNAcomputing #AI #DistributedSystems
 
 ## Reddit (r/MachineLearning)
-Title: [R] DNA Computing Integration in Distributed Intelligence Systems: The Frasberg AI Approach
+Title: [R] DNA Computing Integration in Distributed Intelligence Systems: The Frasberg Approach
 
-We present Frasberg AI, a distributed AI system integrating DNA computing principles at planetary scale. 
+We present Frasberg, a distributed AI system integrating DNA computing principles at planetary scale. 
 
 Key results:
 - 10^6x storage density vs traditional systems
@@ -296,7 +296,7 @@ Code: https://github.com/FrasbergAI/frasberg
 ## LinkedIn
 I'm excited to share our latest research on integrating DNA computing into distributed systems!
 
-Our team built Frasberg AI, a planetary-scale AI system that leverages biological computing principles to achieve remarkable improvements:
+Our team built Frasberg, a planetary-scale AI system that leverages biological computing principles to achieve remarkable improvements:
 
 📊 Results:
 • 1,000,000× storage density increase
