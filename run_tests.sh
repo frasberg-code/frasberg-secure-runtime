@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "════════════════════════════════════════════════"
-echo "  Running Frasberg AI v4.0.1 Test Suite"
+echo "  Running Frasberg v4.0.1 Test Suite"
 echo "════════════════════════════════════════════════"
 echo ""
 
