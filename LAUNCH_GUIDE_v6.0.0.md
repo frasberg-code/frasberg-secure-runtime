@@ -1,4 +1,4 @@
-# Frasberg AI 6.0.0 Launch Guide
+# Frasberg 6.0.0 Launch Guide
 
 **Version:** 6.0.0 "Enterprise Evolution"  
 **Release Date:** February 9, 2026  
@@ -6,7 +6,7 @@
 
 ## 🎯 Overview
 
-Frasberg AI 6.0.0 is our biggest release yet, combining three major feature sets:
+Frasberg 6.0.0 is our biggest release yet, combining three major feature sets:
 - **Option A:** Enterprise Features (RBAC, observability, scalability)
 - **Option C:** Advanced AI Features (Neural-DNA hybrid, distributed intelligence)
 - **Option D:** Ecosystem & Integrations (LLM support, framework plugins, cloud platforms)
@@ -56,7 +56,7 @@ Frasberg AI 6.0.0 is our biggest release yet, combining three major feature sets
    ```
 
 2. **Create GitHub Release:**
-   - Title: "Frasberg AI 6.0.0 - Enterprise Evolution"
+   - Title: "Frasberg 6.0.0 - Enterprise Evolution"
    - Tag: v6.0.0
    - Description: Use CHANGELOG_v6.0.0.md
 
@@ -75,7 +75,7 @@ Frasberg AI 6.0.0 is our biggest release yet, combining three major feature sets
 
 2. **Post First Comment on Product Hunt:**
    ```
-   Launching Frasberg AI 6.0.0! 🚀
+   Launching Frasberg 6.0.0! 🚀
 
    Major Release - 3X the features:
 
@@ -104,7 +104,7 @@ Frasberg AI 6.0.0 is our biggest release yet, combining three major feature sets
    • SOC2 compliance ready
 
    Try it:
-   pip install frasberg-ai==6.0.0
+   pip install frasberg==6.0.0
    frasberg-cli quickstart
 
    100% MIT licensed. Production-ready TODAY.
@@ -199,7 +199,7 @@ Frasberg AI 6.0.0 is our biggest release yet, combining three major feature sets
 
 **Question: "How does this compare to X?"**
 ```
-Great question! Frasberg AI is unique in combining:
+Great question! Frasberg is unique in combining:
 1. DNA computing (biological algorithms)
 2. Swarm intelligence (multi-agent systems)
 3. Temporal reasoning (time-aware logic)
@@ -291,7 +291,7 @@ Benchmark suite included - run `frasberg-cli benchmark` to test on your hardware
 - **GitHub Issues:** https://github.com/FrasbergAI/frasberg/issues
 - **Discord:** #support channel
 - **Product Hunt:** Comments section
-- **Email:** support@frasberg-ai.io
+- **Email:** support@frasberg.com
 
 ### Enterprise Support
 - **Email:** enterprise@frasberg-ai.io
@@ -362,11 +362,11 @@ Benchmark suite included - run `frasberg-cli benchmark` to test on your hardware
 ### Release
 - **GitHub Release:** https://github.com/FrasbergAI/frasberg/releases/tag/v6.0.0
 - **CHANGELOG:** [CHANGELOG_v6.0.0.md](CHANGELOG_v6.0.0.md)
-- **PyPI:** https://pypi.org/project/frasberg-ai/6.0.0/
+- **PyPI:** https://pypi.org/project/frasberg/6.0.0/
 
 ### Community
 - **Discord:** [Your Discord invite]
-- **Twitter/X:** [Your Twitter handle]
+- **Twitter/X:** @frasbergai
 - **Product Hunt:** [Your PH page]
 
 ## ✅ Launch Day Checklist
