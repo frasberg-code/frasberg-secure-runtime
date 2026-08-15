@@ -30,7 +30,7 @@
 
 ## 🎯 Immediate Actions (Pick Your Path)
 
-### Path A: Developer (Want to Use Frasberg AI)
+### Path A: Developer (Want to Use Frasberg)
 
 ```bash
 # 1. Install dependencies
@@ -117,7 +117,7 @@ cd backend && python server.py
 # 1. Join/create Discord
 cat community/DISCORD_SETUP.md
 
-# 2. Share Frasberg AI
+# 2. Share Frasberg
 cat community/launch-announcement.md
 
 # 3. Create good first issues
@@ -249,7 +249,7 @@ Earn money for contributions!
 
 - **Documentation**: Start with [MONTH_1_COMPLETE.md](MONTH_1_COMPLETE.md)
 - **GitHub Issues**: https://github.com/FrasbergAI/frasberg/issues
-- **Email**: hello@frasberg-ai.ai
+- **Email**: hello@frasberg.com
 - **Discord**: Coming soon (see community/DISCORD_SETUP.md)
 
 ---
@@ -288,7 +288,7 @@ Earn money for contributions!
 
 ## 🎉 You're Ready!
 
-Pick your path above and start building with Frasberg AI v5.1.0!
+Pick your path above and start building with Frasberg v5.1.0!
 
 **Questions?** See [MONTH_1_COMPLETE.md](MONTH_1_COMPLETE.md) for full details.
 
