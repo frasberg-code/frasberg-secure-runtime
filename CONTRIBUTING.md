@@ -1,6 +1,6 @@
-# Contributing to Frasberg AI
+# Contributing to Frasberg
 
-Thank you for your interest in contributing to Frasberg AI v4.0.1!
+Thank you for your interest in contributing to Frasberg v4.0.1!
 
 ## Development Setup
 
