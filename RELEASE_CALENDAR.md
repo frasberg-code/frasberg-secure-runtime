@@ -1,6 +1,6 @@
 # Annual Release Cadence for Frasberg
 
-**Applies to:** Frasberg, Luchii, Emerald Estates, EWF, and SEFAA
+**Applies to:** Frasberg, Luchii, LINQ, Emerald Estates, EWF, and SEFAA
 
 ## Table of Contents
 
@@ -804,7 +804,7 @@ This calendar establishes a predictable, stable, identity‑aligned release rhyt
 - **Unified‑field integrity** — All systems evolve together
 - **Zero‑surprise governance** — Changes are telegraphed and prepared
 
-This cadence is designed to support Frasberg, Luchii, Emerald Estates, EWF, and SEFAA governance structures while maintaining the unified field's identity coherence.
+This cadence is designed to support Frasberg, Luchii, LINQ, Emerald Estates, EWF, and SEFAA governance structures while maintaining the unified field's identity coherence.
 
 ---
 
