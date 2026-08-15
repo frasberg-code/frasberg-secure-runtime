@@ -135,7 +135,7 @@ We reward significant contributions!
 | Major feature | $500-$2,000 |
 | Research paper | $1,000-$5,000 |
 
-Email bounties@frasberg-ai.ai for details.
+Email bounties@frasberg.com for details.
 
 ## 🏆 Recognition
 
@@ -191,13 +191,13 @@ We pledge to make participation harassment-free for everyone.
 
 ### Enforcement
 
-Report violations to conduct@frasberg-ai.ai.
+Report violations to conduct@frasberg.com.
 
 ## 📞 Getting Help
 
 - **Discord #help**: Real-time support
 - **GitHub Discussions**: Longer conversations
-- **Stack Overflow**: Tag with `frasberg-ai`
+- **Stack Overflow**: Tag with `frasberg`
 
 ## 📄 License
 
@@ -205,6 +205,6 @@ By contributing, you agree contributions will be licensed under MIT License.
 
 ---
 
-**Thank you for contributing to Frasberg AI!** 🙏
+**Thank you for contributing to Frasberg!** 🙏
 
 Every contribution helps build the future of AI. Let's build something amazing together! ✨
