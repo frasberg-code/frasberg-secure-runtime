@@ -21,7 +21,7 @@ NC='\033[0m'
 echo -e "${BLUE}Step 1:${NC} Verifying release package..."
 if [ -f "release/frasberg-ai-v1.0.0-public-final.zip" ]; then
     echo -e "${GREEN}✓${NC} Release package found"
-    ls -lh release/frasberg-ai-v1.0.0-public-final.zip
+    ls -lh release/frasberg-v1.0.0-public-final.zip
 else
     echo "ERROR: Release package not found!"
     exit 1
@@ -30,9 +30,9 @@ fi
 # Step 2: Verify checksum
 echo ""
 echo -e "${BLUE}Step 2:${NC} Verifying package integrity..."
-if [ -f "release/frasberg-ai-v1.0.0-public-final.zip.sha256" ]; then
+if [ -f "release/frasberg-v1.0.0-public-final.zip.sha256" ]; then
     cd release
-    if sha256sum -c frasberg-ai-v1.0.0-public-final.zip.sha256; then
+    if sha256sum -c frasberg-v1.0.0-public-final.zip.sha256; then
         echo -e "${GREEN}✓${NC} Checksum verified"
     else
         echo "ERROR: Checksum verification failed!"
@@ -90,8 +90,8 @@ git push origin v1.0.0
 **Option A: Using GitHub CLI (gh)**
 ```bash
 gh release create v1.0.0 \
-  release/frasberg-ai-v1.0.0-public-final.zip \
-  release/frasberg-ai-v1.0.0-public-final.zip.sha256 \
+  release/frasberg-v1.0.0-public-final.zip \
+  release/frasberg-v1.0.0-public-final.zip.sha256 \
   --title "Frasberg v1.0.0 - Public Release" \
   --notes-file RELEASE_NOTES.md
 ```
@@ -102,8 +102,8 @@ gh release create v1.0.0 \
 3. Release title: `Frasberg v1.0.0 - Public Release`
 4. Copy content from RELEASE_NOTES.md into description
 5. Attach files:
-   - `release/frasberg-ai-v1.0.0-public-final.zip`
-   - `release/frasberg-ai-v1.0.0-public-final.zip.sha256`
+   - `release/frasberg-v1.0.0-public-final.zip`
+   - `release/frasberg-v1.0.0-public-final.zip.sha256`
 6. Check "Set as the latest release"
 7. Click "Publish release"
 
@@ -142,7 +142,7 @@ After publishing, announce on:
 - Social media (if applicable)
 
 Share the download link:
-`https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip`
+`https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-v1.0.0-public-final.zip`
 
 EOF
 
@@ -155,8 +155,8 @@ echo "✅ Release Preparation Complete!"
 echo "=========================================="
 echo ""
 echo "Files prepared:"
-echo "  • release/frasberg-ai-v1.0.0-public-final.zip (218 MB)"
-echo "  • release/frasberg-ai-v1.0.0-public-final.zip.sha256"
+echo "  • release/frasberg-v1.0.0-public-final.zip (218 MB)"
+echo "  • release/frasberg-v1.0.0-public-final.zip.sha256"
 echo "  • RELEASE_NOTES.md"
 echo "  • CLOUD_DEPLOYMENT.md"
 echo "  • GITHUB_RELEASE_INSTRUCTIONS.md"
