@@ -8,9 +8,9 @@
 
 ## Executive Summary
 
-Frasberg AI Month 1 Foundation Phase is complete! We've successfully built production-ready integrations, drafted a groundbreaking research paper, and established comprehensive community infrastructure.
+Frasberg Month 1 Foundation Phase is complete! We've successfully built production-ready integrations, drafted a groundbreaking research paper, and established comprehensive community infrastructure.
 
-**What Changed**: Frasberg AI evolved from v5.0.0 (simulation-focused) to v5.1.0 (production-ready) with real API integrations, database management, caching, and authentication.
+**What Changed**: Frasberg evolved from v5.0.0 (simulation-focused) to v5.1.0 (production-ready) with real API integrations, database management, caching, and authentication.
 
 ---
 
@@ -79,7 +79,7 @@ Frasberg AI Month 1 Foundation Phase is complete! We've successfully built produ
 #### Main Paper
 **File**: [research/papers/dna-computing/paper.md](research/papers/dna-computing/paper.md)
 
-**Title**: DNA Computing Integration in Distributed Intelligence Systems: The Frasberg AI Approach
+**Title**: DNA Computing Integration in Distributed Intelligence Systems: The Frasberg Approach
 
 **Sections**:
 1. Introduction & Contributions
@@ -228,7 +228,7 @@ cp backend/.env.example backend/.env
 docker run -d --name frasberg-postgres \
   -e POSTGRES_USER=frasberg \
   -e POSTGRES_PASSWORD=frasberg \
-  -e POSTGRES_DB=frasberg_ai \
+  -e POSTGRES_DB=frasberg \
   -p 5432:5432 postgres:15
 
 docker run -d --name frasberg-redis \
@@ -344,9 +344,9 @@ gh issue create --title "[GOOD FIRST ISSUE] ..." --label "good-first-issue"
 
 - **GitHub**: https://github.com/FrasbergAI/frasberg
 - **Issues**: https://github.com/FrasbergAI/frasberg/issues
-- **Email**: hello@frasberg-ai.ai
-- **Research**: research@frasberg-ai.ai
-- **Bounties**: bounties@frasberg-ai.ai
+- **Email**: hello@frasberg.com
+- **Research**: research@frasberg.com
+- **Bounties**: bounties@frasberg.com
 - **Discord**: Coming soon (create with instructions in community/)
 
 ---
@@ -416,4 +416,4 @@ You've completed Month 1 of building a groundbreaking distributed AI system!
 
 ---
 
-*This document was generated as part of the Frasberg AI Month 1 execution. For questions, see CONTRIBUTING-ENHANCED.md or contact hello@frasberg-ai.ai*
+*This document was generated as part of the Frasberg AI Month 1 execution. For questions, see CONTRIBUTING-ENHANCED.md or contact hello@frasberg.com*
