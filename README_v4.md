@@ -1,4 +1,4 @@
-# 🚀 Frasberg AI v4.0.0
+# 🚀 Frasberg v4.0.0
 
 [![Release](https://img.shields.io/badge/release-v4.0.0-blue?style=for-the-badge)](https://github.com/FrasbergAI/frasberg/releases/tag/v4.0.0)
 [![Quantum Safe](https://img.shields.io/badge/Quantum-Safe-purple?style=for-the-badge)]()
@@ -45,8 +45,8 @@
 wget https://github.com/FrasbergAI/frasberg/releases/download/v4.0.0/frasberg-ai-v4.0.0-distributed.zip
 
 # Extract
-unzip frasberg-ai-v4.0.0-distributed.zip
-cd frasberg-ai-v4.0.0-distributed
+unzip frasberg-v4.0.0-distributed.zip
+cd frasberg-v4.0.0-distributed
 
 # Deploy all services
 ./deploy-all-v4.sh
@@ -230,6 +230,6 @@ MIT License - See [LICENSE](LICENSE) for details
 
 ---
 
-**Frasberg AI v4.0.0 - Distributed. Quantum-Ready. Unstoppable.**
+**Frasberg v4.0.0 - Distributed. Quantum-Ready. Unstoppable.**
 
 **Scale. Secure. Verify. Distribute.** 🌐🔐🧩🌟
