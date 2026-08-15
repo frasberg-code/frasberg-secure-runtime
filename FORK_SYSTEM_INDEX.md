@@ -1,4 +1,4 @@
-# Frasberg AI Fork System - Documentation Index
+# Frasberg Fork System - Documentation Index
 
 Quick reference guide to all Fork System documentation and components.
 
@@ -249,4 +249,4 @@ For new forks or modifications:
 ---
 
 **Last Updated:** 2024  
-**Maintained By:** Frasberg AI Team
+**Maintained By:** Frasberg Team
