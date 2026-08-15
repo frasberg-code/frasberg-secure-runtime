@@ -70,4 +70,4 @@ voice-gateway/.env
 backend/.env
 supabase/.env
 release/*.zip
-release/frasberg-ai-v1.0.0-public-final/
+release/frasberg-v1.0.0-public-final/
