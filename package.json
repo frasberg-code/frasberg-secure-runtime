@@ -1,8 +1,8 @@
 {
-  "name": "frasberg-ai-monorepo",
+  "name": "frasberg-monorepo",
   "private": true,
   "version": "6.5.0",
-  "description": "Frasberg AI Backend — Behavioral Governance and Codex Architecture",
+  "description": "Frasberg Backend — Behavioral Governance and Codex Architecture",
   "type": "module",
   "workspaces": [
     "packages/*"
