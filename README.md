@@ -1,6 +1,6 @@
 # Frasberg
 
-**Behavioral governance engine for Frasberg. Includes tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules. Used across Emerald Estates® and Orbit systems for identity-preserving conversational output.**
+**Behavioral governance engine for Frasberg. Includes tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules. Used across Luchii®. LINQ®, Emerald Estates® and Emerald Orbit systems for identity-preserving conversational output.**
 
 ## 🚀 Quick Start
 
