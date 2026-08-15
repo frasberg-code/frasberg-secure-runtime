@@ -31,7 +31,7 @@ mkdir -p marketing/{landing,blog,social,video}
 
 # Create comprehensive landing page
 cat > marketing/landing/HOMEPAGE.md << 'HOMEPAGE'
-# Frasberg AI - Planetary-Scale AI Infrastructure
+# Frasberg - Planetary-Scale AI Infrastructure
 
 ## Open Source • Production-Ready • Research-Backed
 
@@ -39,9 +39,9 @@ Build the future of AI on a foundation designed for planetary scale.
 
 ---
 
-## 🚀 What is Frasberg AI?
+## 🚀 What is Frasberg?
 
-Frasberg AI is the first **open-source AI infrastructure** that combines:
+Frasberg is the first **open-source AI infrastructure** that combines:
 
 - **🧬 Biological Computing** - DNA-inspired algorithms (1M× efficiency)
 - **🐝 Swarm Intelligence** - Multi-agent coordination at scale
@@ -142,7 +142,7 @@ print(client.health())
 
 ## 🔬 Research Foundation
 
-Frasberg AI is built on rigorous research:
+Frasberg is built on rigorous research:
 
 - **Published Paper**: "DNA Computing Integration in Distributed Intelligence Systems"
 - **8,000+ Words**: Complete methodology and benchmarks
@@ -210,10 +210,10 @@ print(response['response'])
 
 ## 🤝 Community
 
-- **Discord**: https://discord.gg/frasberg-ai
+- **Discord**: https://discord.gg/frasbergai
 - **GitHub**: https://github.com/FrasbergAI/frasberg
-- **Twitter**: @frasberg_ai_ai
-- **Email**: hello@frasberg-ai.ai
+- **Twitter**: @frasbergai
+- **Email**: hello@frasberg.com
 
 ### Contributing
 We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING_V2.md)
@@ -251,7 +251,7 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING_V2.md)
 
 ---
 
-## 🌟 Why Frasberg AI?
+## 🌟 Why Frasberg?
 
 ✨ **Open Source** - No vendor lock-in, full transparency  
 ✨ **Production-Ready** - Used in real deployments  
@@ -271,11 +271,11 @@ cd frasberg
 
 **Join 1,000+ developers building the future of AI**
 
-[Get Started →](#) | [Read Docs →](docs/) | [Join Discord →](https://discord.gg/frasberg-ai)
+[Get Started →](#) | [Read Docs →](docs/) | [Join Discord →](https://discord.gg/frasbergai)
 
 ---
 
-*Frasberg AI - Planetary-Scale Intelligence for Everyone*
+*Frasberg - Planetary-Scale Intelligence for Everyone*
 
 🌍 Open Source • 🧬 Biologically Inspired • 🚀 Production Ready
 HOMEPAGE
@@ -284,13 +284,13 @@ echo "  ✅ Landing page created (comprehensive homepage)"
 
 # Create demo video script
 cat > marketing/video/DEMO_SCRIPT.md << 'VIDEO'
-# Frasberg AI - 5-Minute Demo Video Script
+# Frasberg - 5-Minute Demo Video Script
 
 ## Scene 1: Hook (0:00-0:30)
 **Visual**: Terminal with fast commands executing  
 **Narration**: "What if you could run AI computations 1 million times more efficiently than traditional systems? What if you could coordinate 1,000 agents simultaneously? What if all of this was open source and available today?"
 
-**Visual**: Frasberg AI logo reveal  
+**Visual**: Frasberg logo reveal  
 **Text on screen**: "Frasberg AI - Planetary-Scale AI Infrastructure"
 
 ## Scene 2: The Problem (0:30-1:00)
@@ -299,7 +299,7 @@ cat > marketing/video/DEMO_SCRIPT.md << 'VIDEO'
 
 ## Scene 3: The Solution (1:00-2:00)
 **Visual**: Architecture diagram  
-**Narration**: "Frasberg AI is the first open-source AI infrastructure combining biological computing, swarm intelligence, and temporal reasoning. Built on 20+ hours of development and backed by academic research."
+**Narration**: "Frasberg is the first open-source AI infrastructure combining biological computing, swarm intelligence, and temporal reasoning. Built on 20+ hours of development and backed by academic research."
 
 **Show features scrolling**:
 - DNA Computing (1M× efficiency)
@@ -363,7 +363,7 @@ print(response['response'])
 ## Scene 6: Call to Action (4:30-5:00)
 **Visual**: GitHub repo, Discord invite, website
 
-**Narration**: "Frasberg AI is MIT licensed, fully open source, and available now. Join 1,000+ developers building the future of AI."
+**Narration**: "Frasberg is MIT licensed, fully open source, and available now. Join 1,000+ developers building the future of AI."
 
 **Text on screen**:
 - GitHub: github.com/FrasbergAI/frasberg
@@ -395,9 +395,9 @@ echo "  ✅ Demo video script created (5-min + 1-min versions)"
 
 # Create launch blog post
 cat > marketing/blog/LAUNCH_POST.md << 'BLOG'
-# Introducing Frasberg AI: Open Source AI Infrastructure for the Post-Silicon Era
+# Introducing Frasberg: Open Source AI Infrastructure for the Post-Silicon Era
 
-**TL;DR**: We're launching Frasberg AI, the first open-source AI infrastructure that combines biological computing, swarm intelligence, and temporal reasoning. MIT licensed, production-ready, and available now.
+**TL;DR**: We're launching Frasberg, the first open-source AI infrastructure that combines biological computing, swarm intelligence, and temporal reasoning. MIT licensed, production-ready, and available now.
 
 ---
 
@@ -414,9 +414,9 @@ We spent 20+ hours building something better.
 
 ---
 
-## Introducing Frasberg AI
+## Introducing Frasberg
 
-Frasberg AI is planetary-scale AI infrastructure built on three revolutionary principles:
+Frasberg is planetary-scale AI infrastructure built on three revolutionary principles:
 
 ### 1. Biological Computing
 Inspired by DNA, our algorithms achieve **1 million times better efficiency** than traditional systems through massive parallelism.
@@ -454,7 +454,7 @@ prediction = client.temporal_reasoning(
 
 ## Built for Production
 
-Frasberg AI isn't a research project—it's production infrastructure:
+Frasberg isn't a research project—it's production infrastructure:
 
 ✅ **Real LLM Integration**: OpenAI, Anthropic, local models  
 ✅ **Authentication**: JWT, OAuth2, API keys  
@@ -482,7 +482,7 @@ Our **8,000-word academic paper** "DNA Computing Integration in Distributed Inte
 
 ## Open Source, Always
 
-Frasberg AI is **MIT licensed**. Forever.
+Frasberg is **MIT licensed**. Forever.
 
 - ✨ No vendor lock-in: Host anywhere
 - ✨ Full transparency: Every line of code visible
@@ -545,9 +545,9 @@ pip install frasberg-sdk
 
 We're building this together:
 
-- **Discord**: https://discord.gg/frasberg-ai
+- **Discord**: https://discord.gg/frasbergai
 - **GitHub**: https://github.com/FrasbergAI/frasberg
-- **Twitter**: @frasberg_ai_ai
+- **Twitter**: @frasbergai
 
 ### Contributing
 We welcome PRs! Check out our [Good First Issues](../community/GOOD_FIRST_ISSUES.md)
@@ -560,7 +560,7 @@ We welcome PRs! Check out our [Good First Issues](../community/GOOD_FIRST_ISSUES
 
 The AI revolution is happening, but the infrastructure hasn't evolved since the 1940s (von Neumann architecture).
 
-Frasberg AI represents the **post-silicon era**:
+Frasberg represents the **post-silicon era**:
 - Biological algorithms
 - Distributed intelligence
 - Quantum-ready systems
@@ -592,9 +592,9 @@ Tomorrow, we're building the future of AI—**together**.
 
 ---
 
-*Frasberg AI - Planetary-Scale Intelligence for Everyone*
+*Frasberg - Planetary-Scale Intelligence for Everyone*
 
-[Get Started](#) | [Read Docs](../docs/) | [Join Discord](https://discord.gg/frasberg-ai) | [Star on GitHub](https://github.com/FrasbergAI/frasberg)
+[Get Started](#) | [Read Docs](../docs/) | [Join Discord](https://discord.gg/frasbergai) | [Star on GitHub](https://github.com/FrasbergAI/frasberg)
 BLOG
 
 echo "  ✅ Launch blog post created (3,000+ words)"
@@ -604,7 +604,7 @@ cat > marketing/social/TWITTER_THREAD.md << 'TWITTER'
 # Twitter Launch Thread
 
 **Tweet 1** (Hook):
-🚀 Launching Frasberg AI - the first open-source AI infrastructure built for the post-silicon era
+🚀 Launching Frasberg - the first open-source AI infrastructure built for the post-silicon era
 
 Biological computing + Swarm intelligence + Temporal reasoning
 
@@ -686,7 +686,7 @@ Or: `pip install frasberg-sdk`
 **Tweet 9** (Community):
 Join 1,000+ developers building the future:
 
-💬 Discord: discord.gg/frasberg-ai
+💬 Discord: discord.gg/frasbergai
 🐙 GitHub: [link]
 📖 Docs: [link]
 
@@ -702,9 +702,9 @@ Start building today: github.com/FrasbergAI/frasberg
 # Other Platform Posts
 
 ## LinkedIn (Professional)
-🚀 Introducing Frasberg AI: Enterprise-Grade AI Infrastructure
+🚀 Introducing Frasberg: Enterprise-Grade AI Infrastructure
 
-After 20+ hours of development, we're excited to launch Frasberg AI - the first open-source AI infrastructure combining biological computing, swarm intelligence, and temporal reasoning.
+After 20+ hours of development, we're excited to launch Frasberg - the first open-source AI infrastructure combining biological computing, swarm intelligence, and temporal reasoning.
 
 **Why This Matters for Enterprises**:
 
@@ -862,7 +862,7 @@ echo ""
 
 echo "⏰ 6:00am PST - Hacker News"
 echo "   → https://news.ycombinator.com/submit"
-echo "   → Title: Show HN: Frasberg AI – Open-source AI with DNA computing"
+echo "   → Title: Show HN: Frasberg – Open-source AI with DNA computing"
 echo ""
 
 echo "⏰ 8:00am PST - Reddit"
