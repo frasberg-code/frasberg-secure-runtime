@@ -1,4 +1,4 @@
-# Frasberg AI v4.1.0 - Exploratory Subsystems Release
+# Frasberg v4.1.0 - Exploratory Subsystems Release
 
 **Release Date:** February 8, 2026  
 **Type:** Feature Release  
@@ -8,7 +8,7 @@
 
 ## 🎯 Overview
 
-Frasberg AI v4.1.0 resolves **Issue #5 - Exploratory Subsystem Candidates** that was deferred from v4.0.1. This release introduces cutting-edge exploratory technologies while maintaining the stability foundation established in v4.0.1.
+Frasberg v4.1.0 resolves **Issue #5 - Exploratory Subsystem Candidates** that was deferred from v4.0.1. This release introduces cutting-edge exploratory technologies while maintaining the stability foundation established in v4.0.1.
 
 ---
 
