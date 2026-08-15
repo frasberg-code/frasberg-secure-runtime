@@ -1,6 +1,6 @@
 # 🔐 Secrets Management Guide
 
-This guide explains how to securely configure API keys and secrets for the Frasberg AI Backend.
+This guide explains how to securely configure API keys and secrets for the Frasberg Backend.
 
 ## ⚠️ Security Best Practices
 
@@ -69,7 +69,7 @@ Edit each `.env` file and replace the placeholder values with your actual API ke
 
 **Configuration:** These are automatically configured to point to your Supabase Functions endpoint
 
-> Note: the deployed Supabase function path may still use `frasberg-ai-backend` as a compatibility identifier. Treat that as infrastructure naming, not active repository branding.
+> Note: the deployed Supabase function path may still use `frasberg-backend` as a compatibility identifier. Treat that as infrastructure naming, not active repository branding.
 
 ### Other Services (Optional)
 - **MONGO_API_KEY**: MongoDB Atlas API key
