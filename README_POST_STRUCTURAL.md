@@ -548,9 +548,9 @@ This is the **sovereign state**.
 ## Version
 
 **Version**: 1.0.0  
-**Part of**: Frasberg AI Backend - Post-Structural Sequence
+**Part of**: Frasberg Backend - Post-Structural Sequence
 
 ## License
 
-Part of Frasberg AI Backend project.  
+Part of Frasberg Backend project.  
 © Frasberg®
