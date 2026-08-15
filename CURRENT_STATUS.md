@@ -1,4 +1,4 @@
-# Frasberg AI v1.0.0 - Current Status Report
+# Frasberg v1.0.0 - Current Status Report
 **Generated:** 2026-02-08  
 **Phase:** Canonical Core Deployed - Awaiting PR Completion
 
