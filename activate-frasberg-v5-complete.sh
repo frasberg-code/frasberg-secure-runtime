@@ -25,7 +25,7 @@ echo -e "${BLUE}[TRACK 1]${NC} Starting Local Deployment..."
         exit 0
     fi
     
-    echo "  • Starting Frasberg AI v5.0.0..."
+    echo "  • Starting Frasberg v5.0.0..."
     # Use simple python server for testing
     echo -e "${GREEN}  ✓ Would deploy via Docker (devcontainer limitation)${NC}"
     echo -e "${GREEN}  ✓ Services configured for ports 8000-8007, 3000, 5000${NC}"
@@ -41,7 +41,7 @@ echo -e "${BLUE}[TRACK 2]${NC} Starting GitHub Push..."
     git add cli/frasberg/main.py
     
     echo "  • Creating final commit..."
-    git commit -m "Frasberg AI v5.0.0 - Complete CLI activation" 2>&1 | grep -v "^On branch" || echo "  Already committed"
+    git commit -m "Frasberg v5.0.0 - Complete CLI activation" 2>&1 | grep -v "^On branch" || echo "  Already committed"
     
     echo "  • Pushing to GitHub..."
     git push origin main 2>&1 | tail -3
@@ -202,7 +202,7 @@ echo ""
 
 echo -e "${BLUE}═══════════════════════════════════════════════════════${NC}"
 echo ""
-echo "Frasberg AI v5.0.0 Ecosystem:"
+echo "Frasberg v5.0.0 Ecosystem:"
 echo "  ✅ CLI installed (frasberg-cli)"
 echo "  ✅ SDK installed (frasberg-sdk)"
 echo "  ✅ Code pushed to GitHub"
