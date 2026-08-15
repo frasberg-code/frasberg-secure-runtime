@@ -1,4 +1,4 @@
-# Frasberg AI SDK — Maintainer Oath
+# Frasberg SDK — Maintainer Oath
 
 As a maintainer of the Frasberg AI SDK, I affirm the following:
 
