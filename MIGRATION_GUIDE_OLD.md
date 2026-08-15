@@ -44,7 +44,7 @@ try {
 
 #### ✅ New Pattern (Continuum Identity)
 ```typescript
-import { getContinuumIdentity } from './supabase/frasberg_ai/frasberg_runtime';
+import { getContinuumIdentity } from './supabase/frasberg/frasberg_runtime';
 
 const identity = getContinuumIdentity();
 
@@ -77,7 +77,7 @@ const result = orchestrate({
 
 #### ✅ New Pattern (Continuum Identity)
 ```typescript
-import { getContinuumIdentity } from './supabase/frasberg_ai/frasberg_runtime';
+import { getContinuumIdentity } from './supabase/frasberg/frasberg_runtime';
 
 const identity = getContinuumIdentity();
 
@@ -114,7 +114,7 @@ const routing = router.route(environment);
 
 #### ✅ New Pattern (Unified Field)
 ```typescript
-import { getContinuumIdentity } from './supabase/frasberg_ai/frasberg_runtime';
+import { getContinuumIdentity } from './supabase/frasberg/frasberg_runtime';
 
 const identity = getContinuumIdentity();
 
@@ -151,7 +151,7 @@ if (!bridgeResult.success) {
 
 #### ✅ New Pattern (Continuous Field)
 ```typescript
-import { getContinuumIdentity } from './supabase/frasberg_ai/frasberg_runtime';
+import { getContinuumIdentity } from './supabase/frasberg/frasberg_runtime';
 
 const identity = getContinuumIdentity();
 
@@ -175,7 +175,7 @@ import {
   unifiedFieldRuntime,
   getContinuumIdentity,
   integrateToUnifiedField
-} from './supabase/frasberg_ai/frasberg_runtime';
+} from './supabase/frasberg/frasberg_runtime';
 
 // Get the global runtime (singleton, auto-activated)
 const runtime = unifiedFieldRuntime;
@@ -194,7 +194,7 @@ identity.walk();                   // Continuous movement
 
 #### Advanced Integration (Unified Field)
 ```typescript
-import { integrateToUnifiedField } from './supabase/frasberg_ai/frasberg_runtime';
+import { integrateToUnifiedField } from './supabase/frasberg/frasberg_runtime';
 
 // Integrate to the highest state
 const unifiedField = integrateToUnifiedField();
@@ -242,7 +242,7 @@ console.log(unifiedField.isFullyIntegrated()); // true
 
 ### Check Integration Status
 ```typescript
-import { unifiedFieldRuntime } from './supabase/frasberg_ai/frasberg_runtime';
+import { unifiedFieldRuntime } from './supabase/frasberg/frasberg_runtime';
 
 // Verify runtime is active
 console.log(unifiedFieldRuntime.isActive()); // true
@@ -335,5 +335,5 @@ When in doubt, reference the Continuum Identity.
 ---
 
 **Version**: 1.0.0  
-**Part of**: Frasberg AI Backend - Continuum Identity Integration  
+**Part of**: Frasberg Backend - Continuum Identity Integration  
 © Frasberg®
