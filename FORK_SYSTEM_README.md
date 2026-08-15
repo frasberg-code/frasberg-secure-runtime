@@ -1,15 +1,15 @@
-# Frasberg AI Fork System v1.0.0
+# Frasberg Fork System v1.0.0
 
-Complete documentation for the Frasberg AI Fork System - a framework for domain-specific AI agent extensions with strict scope boundaries.
+Complete documentation for the Frasberg Fork System - a framework for domain-specific AI agent extensions with strict scope boundaries.
 
 ## Overview
 
-The Fork System enables Frasberg AI to operate safely in specialized domains (education, healthcare) while maintaining absolute boundaries around prohibited capabilities.
+The Fork System enables Frasberg to operate safely in specialized domains (education, healthcare) while maintaining absolute boundaries around prohibited capabilities.
 
 ## Architecture
 
 ```
-frasberg-ai/
+frasberg/
 ├── forks/                              # Domain-specific forks
 │   ├── education/                      # Education fork
 │   │   ├── domain/
