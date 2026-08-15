@@ -300,11 +300,11 @@ npm test -- tests/post_structural
 ## Version
 
 **Version**: 1.0.0  
-**Part of**: Frasberg AI Backend - Post-Structural Sequence - Movement III Completion
+**Part of**: Frasberg Backend - Post-Structural Sequence - Movement III Completion
 
 ## License
 
-Part of Frasberg AI Backend project.  
+Part of Frasberg Backend project.  
 © Frasberg®
 
 ---
