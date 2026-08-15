@@ -76,7 +76,7 @@
 - Public release announcement
 - Key features highlighted
 - Download link included
-- Relevant hashtags (#OpenSource #Docker #Kubernetes #FrasbergAI)
+- Relevant hashtags (#OpenSource #Docker #Kubernetes #Frasberg)
 
 #### LinkedIn ✅
 - Professional announcement
@@ -116,9 +116,9 @@ cat ANNOUNCEMENTS.md
 
 **Created Scripts:**
 1. ✅ **deploy-to-cloud.sh** - Multi-cloud orchestrator (interactive)
-2. ✅ **cloud-deploy/aws-deploy-frasberg-ai.sh** - AWS deployment
-3. ✅ **cloud-deploy/gcp-deploy-frasberg-ai.sh** - GCP deployment
-4. ✅ **cloud-deploy/azure-deploy-frasberg-ai.sh** - Azure deployment
+2. ✅ **cloud-deploy/aws-deploy-frasberg.sh** - AWS deployment
+3. ✅ **cloud-deploy/gcp-deploy-frasberg.sh** - GCP deployment
+4. ✅ **cloud-deploy/azure-deploy-frasberg.sh** - Azure deployment
 
 **Deployment Options:**
 
@@ -146,9 +146,9 @@ cat ANNOUNCEMENTS.md
 ./deploy-to-cloud.sh
 
 # Or deploy to specific cloud:
-./cloud-deploy/aws-deploy-frasberg-ai.sh
-./cloud-deploy/gcp-deploy-frasberg-ai.sh
-./cloud-deploy/azure-deploy-frasberg-ai.sh
+./cloud-deploy/aws-deploy-frasberg.sh
+./cloud-deploy/gcp-deploy-frasberg.sh
+./cloud-deploy/azure-deploy-frasberg.sh
 ```
 
 ---
@@ -243,7 +243,7 @@ open http://localhost:3000
 
 1. **Download:**
    ```bash
-   wget https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
+   wget https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-v1.0.0-public-final.zip
    ```
 
 2. **Verify:**
@@ -254,8 +254,8 @@ open http://localhost:3000
 
 3. **Deploy:**
    ```bash
-   unzip frasberg-ai-v1.0.0-public-final.zip
-   cd frasberg-ai-v1.0.0-public-final
+   unzip frasberg-v1.0.0-public-final.zip
+   cd frasberg-v1.0.0-public-final
    # Follow README.md instructions
    ```
 
@@ -343,6 +343,6 @@ open http://localhost:3000
 
 ---
 
-**🚀 Frasberg AI v1.0.0 - Institution-Grade Intelligence**
+**🚀 Frasberg v1.0.0 - Institution-Grade Intelligence**
 
 *Manifested in code. Released to the world. Ready for the future.*
