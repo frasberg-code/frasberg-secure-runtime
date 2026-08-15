@@ -1,4 +1,4 @@
-# Frasberg AI Modularization - Implementation Complete
+# Frasberg Modularization - Implementation Complete
 
 ## Executive Summary
 
@@ -124,7 +124,7 @@ Features:
 **Status**: ⚠️ Partial (Requires Additional Work)
 
 Extracts:
-- `frasberg_ai_runtime.ts` - Main runtime
+- `frasberg_runtime.ts` - Main runtime
 - `post_structural/` - Post-structural components
 
 Features:
@@ -134,7 +134,7 @@ Features:
 - Continuum identity coordination
 - Dependencies on all other packages
 
-**Note**: This package requires resolution of field module imports from the original `supabase/frasberg_ai/` structure. The imports have been partially updated but need complete migration of all 44+ field triads.
+**Note**: This package requires resolution of field module imports from the original `supabase/frasberg/` structure. The imports have been partially updated but need complete migration of all 44+ field triads.
 
 ## Workspace Commands
 
@@ -176,7 +176,7 @@ import { deviationEngine } from '@frasberg/governance-engine';
 
 ### Backward Compatibility
 
-The original `supabase/frasberg_ai/` structure is **preserved** and unchanged. Existing code continues to work without modification.
+The original `supabase/frasberg/` structure is **preserved** and unchanged. Existing code continues to work without modification.
 
 ## Repository Structure
 
@@ -189,7 +189,7 @@ frasberg/
 │   ├── frasberg-hinge-logic/                ✅
 │   ├── frasberg-continuum-identity/         ✅
 │   └── frasberg-unified-field-runtime/      ⚠️
-├── supabase/frasberg_ai/                  (Preserved)
+├── supabase/frasberg/                  (Preserved)
 ├── pnpm-workspace.yaml
 ├── tsconfig.base.json
 ├── MIGRATION_GUIDE.md
@@ -237,7 +237,7 @@ frasberg/
 
 ## Conclusion
 
-The Frasberg AI modularization has been **successfully implemented** with 5 of 6 packages fully operational and production-ready. The architecture preserves the unified-field identity behavior while providing clear functional boundaries and enabling independent versioning of components.
+The Frasberg modularization has been **successfully implemented** with 5 of 6 packages fully operational and production-ready. The architecture preserves the unified-field identity behavior while providing clear functional boundaries and enabling independent versioning of components.
 
 The remaining work on `frasberg-unified-field-runtime` is well-defined and can be completed in a follow-up task.
 
