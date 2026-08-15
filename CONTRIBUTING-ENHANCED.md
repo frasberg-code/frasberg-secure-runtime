@@ -1,6 +1,6 @@
-# Contributing to Frasberg AI 🚀
+# Contributing to Frasberg 🚀
 
-Welcome to Frasberg AI! We're building the future of distributed AI systems together, and we're thrilled you're here.
+Welcome to Frasberg! We're building the future of distributed AI systems together, and we're thrilled you're here.
 
 ## Quick Links
 
@@ -356,7 +356,7 @@ A: Yes! It's MIT licensed - use freely in commercial projects.
 - [Git Guide](https://github.com/git-guides)
 - [Open Source Guide](https://opensource.guide/)
 
-### Frasberg AI Specific
+### Frasberg Specific
 - [Architecture Overview](docs/ARCHITECTURE.md)
 - [API Reference](docs/API.md)
 - [Development Setup](docs/DEVELOPMENT.md)
@@ -365,20 +365,20 @@ A: Yes! It's MIT licensed - use freely in commercial projects.
 
 ## Contact
 
-- 💬 **Discord**: https://discord.gg/frasberg-ai
-- 📧 **Email**: hello@frasberg-ai.ai
-- 🐦 **Twitter**: [@frasberg_ai_ai](https://twitter.com/frasberg_ai_ai)
-- 💼 **LinkedIn**: [Frasberg AI](https://linkedin.com/company/frasberg-ai)
+- 💬 **Discord**: https://discord.gg/frasbergai
+- 📧 **Email**: hello@frasberg.com
+- 🐦 **Twitter**: [@frasbergai] (https://twitter.com/frasbergai)
+- 💼 **LinkedIn**: [Frasberg](https://linkedin.com/company/frasbergai)
 
 ---
 
 ## Thank You! 🙏
 
-Every contribution, no matter how small, makes Frasberg AI better. We appreciate your time and effort in helping build the future of distributed AI systems.
+Every contribution, no matter how small, makes Frasberg better. We appreciate your time and effort in helping build the future of distributed AI systems.
 
 **Together, we're building something amazing.** ✨
 
 ---
 
 *Last updated: February 2026*
-*For questions about this guide: docs@frasberg-ai.ai*
+*For questions about this guide: docs@frasberg.com*
