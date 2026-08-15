@@ -1,6 +1,6 @@
 # Codex Architecture
 
-The Codex Architecture represents the next major architectural layer of the Frasberg AI system, providing a multi-engine execution model with environmental routing, fallback authority, and self-renewing pipelines.
+The Codex Architecture represents the next major architectural layer of the Frasberg system, providing a multi-engine execution model with environmental routing, fallback authority, and self-renewing pipelines.
 
 ## Architecture Overview
 
