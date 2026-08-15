@@ -1,13 +1,13 @@
 # GitHub Release Instructions
 
-## 📦 Ready to Release: Frasberg AI v1.0.0
+## 📦 Ready to Release: Frasberg v1.0.0
 
 All files have been prepared for GitHub release. Follow these steps:
 
 ### 1. Commit Release Files
 ```bash
 git add .
-git commit -m "Frasberg AI v1.0.0 - Complete institutional-grade operational intelligence system
+git commit -m "Frasberg v1.0.0 - Complete institutional-grade operational intelligence system
 
 - 5 production services deployed
 - Canonical Core + Education & Healthcare Forks
@@ -21,7 +21,7 @@ Production-ready. Fork-isolated. Institution-grade."
 
 ### 2. Create Git Tag
 ```bash
-git tag -a v1.0.0 -m "Frasberg AI v1.0.0 - Public Release"
+git tag -a v1.0.0 -m "Frasberg v1.0.0 - Public Release"
 ```
 
 ### 3. Push to GitHub
@@ -35,20 +35,20 @@ git push origin v1.0.0
 **Option A: Using GitHub CLI (gh)**
 ```bash
 gh release create v1.0.0 \
-  release/frasberg-ai-v1.0.0-public-final.zip \
-  release/frasberg-ai-v1.0.0-public-final.zip.sha256 \
-  --title "Frasberg AI v1.0.0 - Public Release" \
+  release/frasberg-v1.0.0-public-final.zip \
+  release/frasberg-v1.0.0-public-final.zip.sha256 \
+  --title "Frasberg v1.0.0 - Public Release" \
   --notes-file RELEASE_NOTES.md
 ```
 
 **Option B: Using GitHub Web Interface**
 1. Go to: https://github.com/FrasbergAI/frasberg/releases/new
 2. Tag version: `v1.0.0`
-3. Release title: `Frasberg AI v1.0.0 - Public Release`
+3. Release title: `Frasberg v1.0.0 - Public Release`
 4. Copy content from RELEASE_NOTES.md into description
 5. Attach files:
-   - `release/frasberg-ai-v1.0.0-public-final.zip`
-   - `release/frasberg-ai-v1.0.0-public-final.zip.sha256`
+   - `release/frasberg-v1.0.0-public-final.zip`
+   - `release/frasberg-v1.0.0-public-final.zip.sha256`
 6. Check "Set as the latest release"
 7. Click "Publish release"
 
@@ -91,4 +91,4 @@ After publishing, announce on:
 - Social media (if applicable)
 
 Share the download link:
-`https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip`
+`https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-v1.0.0-public-final.zip`
