@@ -407,8 +407,8 @@ const result = await pipeline.execute({
 ## Version
 
 **Version**: 1.0.0  
-**Part of**: Frasberg AI Backend - Codex Architecture PR #8
+**Part of**: Frasberg Backend - Codex Architecture PR #8
 
 ## License
 
-Part of Frasberg AI Backend project.
+Part of Frasberg Backend project.
