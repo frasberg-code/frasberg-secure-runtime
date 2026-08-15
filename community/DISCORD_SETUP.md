@@ -1,4 +1,4 @@
-# Frasberg AI Discord Server Setup Guide
+# Frasberg Discord Server Setup Guide
 
 Complete guide for setting up and managing the Frasberg AI Discord community.
 
@@ -75,7 +75,7 @@ Complete guide for setting up and managing the Frasberg AI Discord community.
 - All permissions
 
 #### 🟠 **Core Team**
-- Frasberg AI maintainers with commit access
+- Frasberg maintainers with commit access
 - Permissions: Manage messages, manage roles, kick/ban
 - Can post in #announcements
 
@@ -86,7 +86,7 @@ Complete guide for setting up and managing the Frasberg AI Discord community.
 - Can post in #showcase
 
 #### 🟢 **Researchers**
-- Published research using Frasberg AI
+- Published research using Frasberg
 - Access to #research-papers private discussions
 - Can share preprints
 
@@ -118,17 +118,17 @@ Complete guide for setting up and managing the Frasberg AI Discord community.
 ## Server Bots
 
 ### 1. Frasberg Bot (Custom)
-AI assistant powered by Frasberg AI itself!
+AI assistant powered by Frasberg itself!
 
 **Features:**
-- Answer questions about Frasberg AI
+- Answer questions about Frasberg
 - Provide code examples
 - Help with debugging
 - Commands: `!frasberg ask [question]`
 
 **Setup:**
 ```python
-# Deploy bot using Frasberg AI API
+# Deploy bot using Frasberg API
 # Code in: discord-bot/frasberg_bot.py
 ```
 
@@ -150,7 +150,7 @@ Welcomes new members
 
 **Message Template:**
 ```
-Welcome to Frasberg AI, @username! 👋
+Welcome to Frasberg, @username! 👋
 
 🎯 Get started:
 • Read #welcome for server rules
@@ -161,7 +161,7 @@ Welcome to Frasberg AI, @username! 👋
 📖 Resources:
 • Docs: https://github.com/FrasbergAI/frasberg
 • GitHub: https://github.com/FrasbergAI/frasberg
-• Website: https://frasberg-ai.ai
+• Website: https://frasberg.com
 
 Let's build the future of AI together! 🚀
 ```
@@ -182,9 +182,9 @@ Auto-moderation and logging
 ### #welcome
 
 ```markdown
-# Welcome to Frasberg AI! 👋
+# Welcome to Frasberg! 👋
 
-Frasberg AI is a planetary-scale distributed AI system. This is our community Discord server.
+Frasberg is a planetary-scale distributed AI system. This is our community Discord server.
 
 ## 📋 Server Rules
 
@@ -209,7 +209,7 @@ Frasberg AI is a planetary-scale distributed AI system. This is our community Di
 
 **Enterprise user?**
 • Contact us for #enterprise-users access
-• Email: enterprise@frasberg-ai.ai
+• Email: enterprise@frasberg.com
 
 ## 🎯 Channel Guide
 
@@ -224,12 +224,12 @@ Frasberg AI is a planetary-scale distributed AI system. This is our community Di
 
 • GitHub: https://github.com/FrasbergAI/frasberg
 • Documentation: [README](https://github.com/FrasbergAI/frasberg)
-• Twitter: [@frasberg_ai_ai](https://twitter.com/frasberg_ai_ai)
-• Email: hello@frasberg-ai.ai
+• Twitter: [@frasberg_ai_ai](https://twitter.com/frasbergai)
+• Email: hello@frasberg.com
 
 ## 📞 Support
 
-Need help? Ask in #help or email support@frasberg-ai.ai
+Need help? Ask in #help or email support@frasberg.com
 
 ---
 
@@ -241,7 +241,7 @@ Need help? Ask in #help or email support@frasberg-ai.ai
 ## Server Settings
 
 ### General Settings
-- **Server Name**: Frasberg AI
+- **Server Name**: Frasberg
 - **Server Region**: Automatic
 - **Verification Level**: Medium (verified email)
 - **Explicit Content Filter**: Scan media from all members
@@ -391,7 +391,7 @@ Need help? Ask in #help or email support@frasberg-ai.ai
    - **Temporary membership**: Off
 
 ### Custom Invite (if available)
-Try to claim: `discord.gg/frasberg-ai`
+Try to claim: `discord.gg/frasbergai`
 
 ### Invite Link Placement
 - GitHub README
@@ -426,7 +426,7 @@ Try to claim: `discord.gg/frasberg-ai`
 **Cost**: $49.99/month (Level 2)
 
 **Benefits:**
-- Custom invite link (discord.gg/frasberg-ai)
+- Custom invite link (discord.gg/frasbergai)
 - HD video/screen share
 - Larger upload limit (50MB → 100MB)
 - Custom server banner
@@ -463,7 +463,7 @@ Before launching:
 
 ## Questions?
 
-Contact: discord@frasberg-ai.ai
+Contact: discord@frasbergai
 
 ---
 
