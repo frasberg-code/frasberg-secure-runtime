@@ -16,7 +16,7 @@ Welcome! We're building the future of AI together.
 - **Discord**: https://discord.gg/frasbergai
 - **GitHub Discussions**: For long-form conversations  
 - **Twitter**: @frasbergai
-- **Email**: hello@frasberg-ai.com
+- **Email**: hello@frasberg.com
 
 ## 🎯 Ways to Contribute
 
