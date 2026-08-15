@@ -1,18 +1,18 @@
 {
   "ai": {
-    "provider": "frasberg-ai",
+    "provider": "frasberg",
     "apiKeySource": "github",
     "fallbackProviders": [],
     "allowExternalProviders": false
   },
   "imageGeneration": {
-    "provider": "frasberg-ai",
+    "provider": "frasberg",
     "apiKeySource": "github",
     "fallbackProviders": [],
     "allowExternalProviders": false
   },
   "videoGeneration": {
-    "provider": "frasberg-ai",
+    "provider": "frasberg",
     "apiKeySource": "github",
     "fallbackProviders": [],
     "allowExternalProviders": false
