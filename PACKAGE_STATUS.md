@@ -1,4 +1,4 @@
-# Frasberg AI Packages - Quick Status Reference
+# Frasberg Packages - Quick Status Reference
 
 ## Package Build Status
 
