@@ -7,7 +7,7 @@ echo ""
 
 REPO="FrasbergAI/frasberg"
 TAG="v1.0.0"
-RELEASE_NAME="frasberg-ai-v1.0.0-public-final"
+RELEASE_NAME="frasberg-v1.0.0-public-final"
 TEST_DIR="test-release-download"
 
 # Create test directory
@@ -103,8 +103,8 @@ done
 
 echo ""
 echo "Step 6: Verifying documentation..."
-if grep -q "Frasberg AI" README.md; then
-    echo "✅ README contains Frasberg AI reference"
+if grep -q "Frasberg" README.md; then
+    echo "✅ README contains Frasberg reference"
 fi
 
 if grep -q "MIT License" LICENSE; then
