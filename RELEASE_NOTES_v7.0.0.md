@@ -1,4 +1,4 @@
-# 🚀 Frasberg AI v7.0.0 - Policy Resolution & Enterprise Governance
+# 🚀 Frasberg v7.0.0 - Policy Resolution & Enterprise Governance
 
 **Release Date:** June 12, 2026  
 **Status:** Stable  
@@ -8,7 +8,7 @@
 
 ## 📋 Executive Summary
 
-Frasberg AI v7.0.0 introduces a **complete overhaul of the governance and policy system**, featuring a **constitutional hierarchy of policy layers**, **immutable audit-trail versioning**, and a comprehensive **FRASBERG Governance Studio** — a production-grade workspace for exploring, testing, analyzing, and deploying governance policies with complete transparency. This release includes a **full React component tree**, **event-driven backend architecture**, **real-time WebSocket evaluator**, and a **governance Domain-Specific Language (DSL)** for writing human-readable, versionable rules.
+Frasberg v7.0.0 introduces a **complete overhaul of the governance and policy system**, featuring a **constitutional hierarchy of policy layers**, **immutable audit-trail versioning**, and a comprehensive **FRASBERG Governance Studio** — a production-grade workspace for exploring, testing, analyzing, and deploying governance policies with complete transparency. This release includes a **full React component tree**, **event-driven backend architecture**, **real-time WebSocket evaluator**, and a **governance Domain-Specific Language (DSL)** for writing human-readable, versionable rules.
 
 ### Key Highlights
 - ✅ **Constitutional Policy Hierarchy** — Plan → Org → User → Session
@@ -797,6 +797,6 @@ npm run migrate:policies:v7
 
 ---
 
-**Frasberg AI v7.0.0** — Enterprise-Grade Governance Platform
+**Frasberg v7.0.0** — Enterprise-Grade Governance Platform
 
 *Institution-Grade Intelligence. Production-Ready Blueprint.*
