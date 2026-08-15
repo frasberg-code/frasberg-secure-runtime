@@ -19,14 +19,14 @@
 ### Download and Verify
 ```bash
 # Download
-wget https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip
+wget https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-v1.0.0-public-final.zip
 
 # Verify checksum
-wget https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-ai-v1.0.0-public-final.zip.sha256
+wget https://github.com/FrasbergAI/frasberg/releases/download/v1.0.0/frasberg-v1.0.0-public-final.zip.sha256
 sha256sum -c frasberg-v1.0.0-public-final.zip.sha256
 
 # Extract
-unzip frasberg-ai-v1.0.0-public-final.zip
+unzip frasberg-v1.0.0-public-final.zip
 cd frasberg-v1.0.0-public-final
 ```
 
