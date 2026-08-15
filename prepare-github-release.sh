@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Frasberg AI v1.0.0 - GitHub Release Preparation Script
+# Frasberg v1.0.0 - GitHub Release Preparation Script
 # This script prepares everything for GitHub release but does NOT push
 # (User must authenticate and push manually)
 
 set -e
 
 echo "=========================================="
-echo "Frasberg AI v1.0.0 - Release Preparation"
+echo "Frasberg v1.0.0 - Release Preparation"
 echo "=========================================="
 echo ""
 
@@ -55,14 +55,14 @@ echo -e "${BLUE}Step 4:${NC} Preparing release notes..."
 cat > GITHUB_RELEASE_INSTRUCTIONS.md << 'EOF'
 # GitHub Release Instructions
 
-## 📦 Ready to Release: Frasberg AI v1.0.0
+## 📦 Ready to Release: Frasberg v1.0.0
 
 All files have been prepared for GitHub release. Follow these steps:
 
 ### 1. Commit Release Files
 ```bash
 git add .
-git commit -m "Frasberg AI v1.0.0 - Complete institutional-grade operational intelligence system
+git commit -m "Frasberg v1.0.0 - Complete institutional-grade operational intelligence system
 
 - 5 production services deployed
 - Canonical Core + Education & Healthcare Forks
@@ -76,7 +76,7 @@ Production-ready. Fork-isolated. Institution-grade."
 
 ### 2. Create Git Tag
 ```bash
-git tag -a v1.0.0 -m "Frasberg AI v1.0.0 - Public Release"
+git tag -a v1.0.0 -m "Frasberg v1.0.0 - Public Release"
 ```
 
 ### 3. Push to GitHub
@@ -92,14 +92,14 @@ git push origin v1.0.0
 gh release create v1.0.0 \
   release/frasberg-ai-v1.0.0-public-final.zip \
   release/frasberg-ai-v1.0.0-public-final.zip.sha256 \
-  --title "Frasberg AI v1.0.0 - Public Release" \
+  --title "Frasberg v1.0.0 - Public Release" \
   --notes-file RELEASE_NOTES.md
 ```
 
 **Option B: Using GitHub Web Interface**
 1. Go to: https://github.com/FrasbergAI/frasberg/releases/new
 2. Tag version: `v1.0.0`
-3. Release title: `Frasberg AI v1.0.0 - Public Release`
+3. Release title: `Frasberg v1.0.0 - Public Release`
 4. Copy content from RELEASE_NOTES.md into description
 5. Attach files:
    - `release/frasberg-ai-v1.0.0-public-final.zip`
@@ -164,8 +164,8 @@ echo ""
 echo -e "${YELLOW}Next Steps:${NC}"
 echo "1. Review GITHUB_RELEASE_INSTRUCTIONS.md"
 echo "2. Commit changes: git add . && git commit -m 'Release v1.0.0'"
-echo "3. Create tag: git tag -a v1.0.0 -m 'Frasberg AI v1.0.0'"
+echo "3. Create tag: git tag -a v1.0.0 -m 'Frasberg v1.0.0'"
 echo "4. Push: git push origin main && git push origin v1.0.0"
 echo "5. Create GitHub release (see instructions)"
 echo ""
-echo -e "${GREEN}Frasberg AI v1.0.0 is ready for release! 🚀${NC}"
+echo -e "${GREEN}Frasberg v1.0.0 is ready for release! 🚀${NC}"
