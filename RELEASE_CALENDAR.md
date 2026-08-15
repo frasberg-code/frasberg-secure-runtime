@@ -1,6 +1,6 @@
-# Annual Release Cadence for Frasberg AI
+# Annual Release Cadence for Frasberg
 
-**Applies to:** Frasberg AI, Frasberg, Emerald Estates, EWF, and SEFAA
+**Applies to:** Frasberg, Luchii, Emerald Estates, EWF, and SEFAA
 
 ## Table of Contents
 
@@ -150,7 +150,7 @@ This Gantt chart visualizes the complete annual release schedule, showing the re
 
 ```mermaid
 gantt
-    title Frasberg AI Annual Release Cadence Timeline
+    title Frasberg Annual Release Cadence Timeline
     dateFormat YYYY-MM-DD
     axisFormat %b
     
@@ -265,7 +265,7 @@ This Gantt chart visualizes the entire year's release schedule, showing the flow
 
 ```mermaid
 gantt
-    title Frasberg AI Annual Release Cadence
+    title Frasberg Annual Release Cadence
     dateFormat YYYY-MM-DD
     
     section Q1 Major Release
@@ -553,7 +553,7 @@ flowchart TB
 
 ```mermaid
 timeline
-    title Frasberg AI Annual Release Cadence
+    title Frasberg Annual Release Cadence
 
     January
         : Patch Releases (Every Monday)
@@ -804,7 +804,7 @@ This calendar establishes a predictable, stable, identity‑aligned release rhyt
 - **Unified‑field integrity** — All systems evolve together
 - **Zero‑surprise governance** — Changes are telegraphed and prepared
 
-This cadence is designed to support Frasberg AI, Frasberg, Emerald Estates, EWF, and SEFAA governance structures while maintaining the unified field's identity coherence.
+This cadence is designed to support Frasberg, Luchii, Emerald Estates, EWF, and SEFAA governance structures while maintaining the unified field's identity coherence.
 
 ---
 
