@@ -1,8 +1,8 @@
 # Deployment Verification Checklist
 
-## 🚀 Frasberg AI - Complete Deployment Readiness Checklist
+## 🚀 Frasberg - Complete Deployment Readiness Checklist
 
-**Project:** Frasberg AI Backend  
+**Project:** Frasberg Backend  
 **Version:** 6.5.0  
 **Status:** Ready for Deployment  
 **Last Updated:** 2026-05-29  
@@ -40,7 +40,7 @@
 ### Phase 3: Infrastructure Verification (✅ COMPLETE)
 
 - [x] Docker Compose files updated
-- [x] Container names use the `frasberg_*` prefix
+- [x] Container names use the `frasberg*` prefix
 - [x] Network names use the `frasberg-network` convention
 - [x] AWS deployment script created
 - [x] GCP deployment script created
@@ -159,7 +159,7 @@
 
 - [ ] Verify environment variables
   ```bash
-  bash activate-frasberg-ai.sh
+  bash activate-frasberg.sh
   ```
 
 ---
@@ -242,7 +242,7 @@
 
 - [ ] Run deployment script
   ```bash
-  bash cloud-deploy/aws-deploy-frasberg-ai.sh
+  bash cloud-deploy/aws-deploy-frasberg.sh
   ```
 
 - [ ] Verify ECR repositories created
@@ -269,7 +269,7 @@
 
 - [ ] Run deployment script
   ```bash
-  bash cloud-deploy/gcp-deploy-frasberg-ai.sh
+  bash cloud-deploy/gcp-deploy-frasberg.sh
   ```
 
 - [ ] Verify Cloud Run service
@@ -296,7 +296,7 @@
 
 - [ ] Run deployment script
   ```bash
-  bash cloud-deploy/azure-deploy-frasberg-ai.sh
+  bash cloud-deploy/azure-deploy-frasberg.sh
   ```
 
 - [ ] Verify container instances
@@ -428,7 +428,7 @@
 
 - [ ] AWS CloudWatch logs reviewed
   ```bash
-  aws logs tail /aws/ecs/frasberg-ai --follow
+  aws logs tail /aws/ecs/frasberg --follow
   ```
 
 - [ ] GCP Cloud Logging reviewed
@@ -459,24 +459,24 @@
 
 - [ ] Create deployment branch
   ```bash
-  git checkout -b deployment/frasberg-ai-v6.5.0
+  git checkout -b deployment/frasberg-v6.5.0
   ```
 
 - [ ] Tag release
   ```bash
-  git tag -a v6.5.0 -m "Frasberg AI v6.5.0 - Complete Rebranding"
+  git tag -a v6.5.0 -m "Frasberg v6.5.0 - Complete Rebranding"
   git push origin v6.5.0
   ```
 
 - [ ] Create GitHub Release
   - See: https://github.com/FrasbergAI/frasberg/releases/new
   - Tag: v6.5.0
-  - Title: "Frasberg AI v6.5.0"
+  - Title: "Frasberg v6.5.0"
   - Description: Complete rebranding and system integration
 
 - [ ] Deploy to production
   ```bash
-  bash cloud-deploy/aws-deploy-frasberg-ai.sh  # or GCP/Azure
+  bash cloud-deploy/aws-deploy-frasberg.sh  # or GCP/Azure
   ```
 
 - [ ] Verify production deployment
