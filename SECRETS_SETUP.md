@@ -111,9 +111,9 @@ IMAGE_MODEL_ENDPOINT=https://api.runwayml.com/v1/images
 VIDEO_MODEL_ENDPOINT=https://api.runwayml.com/v1/videos
 
 # FRASBERG Model Configuration
-FRASBERG_MODEL_ENDPOINT=https://YOUR_PROJECT.supabase.co/functions/v1/frasberg-ai-backend
+FRASBERG_MODEL_ENDPOINT=https://YOUR_PROJECT.supabase.co/functions/v1/frasberg-backend
 FRASBERG_MODEL_API_KEY=your_frasberg_api_key_here
-MODEL_ENDPOINT=https://YOUR_PROJECT.supabase.co/functions/v1/frasberg-ai-backend
+MODEL_ENDPOINT=https://YOUR_PROJECT.supabase.co/functions/v1/frasberg-backend
 MODEL_API_KEY=your_model_api_key_here
 
 # GitHub Integration
