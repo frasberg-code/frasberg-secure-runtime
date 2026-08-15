@@ -20,18 +20,18 @@ echo "  → Creating research paper..."
     mkdir -p research/papers/dna-computing
 
     cat > research/papers/dna-computing/PAPER.md << 'PAPER'
-# DNA Computing Integration in Distributed Intelligence Systems: The Frasberg AI Approach
+# DNA Computing Integration in Distributed Intelligence Systems: The Frasberg Approach
 
 **Authors:** Frasberg AI Research Team
-**Affiliation:** Frasberg AI Project
-**Contact:** research@frasberg-ai.ai
+**Affiliation:** Frasberg Project
+**Contact:** research@frasberg.com
 **Code:** https://github.com/FrasbergAI/frasberg
 
 ---
 
 ## Abstract
 
-We present Frasberg AI, a production distributed intelligence system integrating DNA computing paradigms into a planetary-scale architecture. Our approach demonstrates practical application of biological computing principles—massive parallelism, ultra-high density storage, and energy-efficient computation—within traditional silicon-based distributed systems. We provide an open-source implementation and performance analysis comparing DNA-inspired algorithms against conventional approaches.
+We present Frasberg, a production distributed intelligence system integrating DNA computing paradigms into a planetary-scale architecture. Our approach demonstrates practical application of biological computing principles—massive parallelism, ultra-high density storage, and energy-efficient computation—within traditional silicon-based distributed systems. We provide an open-source implementation and performance analysis comparing DNA-inspired algorithms against conventional approaches.
 
 **Keywords:** DNA Computing, Distributed Systems, Biological Computing, Hybrid Architecture, Open Source
 
@@ -39,7 +39,7 @@ We present Frasberg AI, a production distributed intelligence system integrating
 
 ## 1. Introduction
 
-DNA computing, since Adleman's seminal 1994 work, has remained largely theoretical. Frasberg AI bridges this gap by providing a production-ready framework that incorporates DNA computing principles into distributed systems architecture.
+DNA computing, since Adleman's seminal 1994 work, has remained largely theoretical. Frasberg bridges this gap by providing a production-ready framework that incorporates DNA computing principles into distributed systems architecture.
 
 ### 1.1 Contributions
 
@@ -87,7 +87,7 @@ DNA molecules store information in sequences of nucleotides (A, T, G, C). Key pr
 
 ### 2.2 System Architecture
 
-Frasberg AI implements a hybrid silicon-DNA architecture with graceful degradation:
+Frasberg implements a hybrid silicon-DNA architecture with graceful degradation:
 
 ```
 ┌─────────────────────────────────────────┐
@@ -249,7 +249,7 @@ async def generate(request: GenerateRequest):
 
 ## 7. Conclusion
 
-Frasberg AI demonstrates that DNA computing principles can be practically integrated into production distributed systems. Our open-source implementation provides:
+Frasberg demonstrates that DNA computing principles can be practically integrated into production distributed systems. Our open-source implementation provides:
 
 - **Immediate Value**: 300× speedup in parallel tasks
 - **Future Path**: Clear roadmap to real DNA integration
@@ -264,7 +264,7 @@ Frasberg AI demonstrates that DNA computing principles can be practically integr
 
 **Code:** https://github.com/FrasbergAI/frasberg
 **License:** MIT (fully open)
-**Documentation:** https://docs.frasberg-ai.ai
+**Documentation:** https://docs.frasberg.com
 
 **To Reproduce:**
 
@@ -365,7 +365,7 @@ echo "  → Creating community infrastructure..."
 
     # CONTRIBUTING.md already exists from previous work, enhance it
     cat > CONTRIBUTING_V2.md << 'CONTRIB'
-# Contributing to Frasberg AI 🚀
+# Contributing to Frasberg 🚀
 
 Welcome! We're building the future of AI together.
 
@@ -380,10 +380,10 @@ Welcome! We're building the future of AI together.
 
 ## 💬 Community
 
-- **Discord**: https://discord.gg/frasberg-ai
+- **Discord**: https://discord.gg/frasbergai
 - **GitHub Discussions**: For long-form conversations
-- **Twitter**: @frasberg_ai_ai
-- **Email**: hello@frasberg-ai.ai
+- **Twitter**: @frasbergai
+- **Email**: hello@frasberg.com
 
 ## 🎯 Ways to Contribute
 
@@ -558,13 +558,13 @@ We pledge to make participation harassment-free for everyone.
 
 ### Enforcement
 
-Report violations to conduct@frasberg-ai.ai.
+Report violations to conduct@frasberg.com
 
 ## 📞 Getting Help
 
 - **Discord #help**: Real-time support
 - **GitHub Discussions**: Longer conversations
-- **Stack Overflow**: Tag with `frasberg-ai`
+- **Stack Overflow**: Tag with `frasberg`
 
 ## 📄 License
 
@@ -572,13 +572,13 @@ By contributing, you agree contributions will be licensed under MIT License.
 
 ---
 
-**Thank you for contributing to Frasberg AI!** 🙏
+**Thank you for contributing to Frasberg!** 🙏
 
 Every contribution helps build the future of AI. Let's build something amazing together! ✨
 CONTRIB
 
     cat > CONTRIBUTORS.md << 'CONTRIBUTORS'
-# Frasberg AI Contributors 🌟
+# Frasberg Contributors 🌟
 
 Thank you to everyone who has contributed!
 
@@ -715,10 +715,10 @@ Perfect for first-time contributors!
 ISSUES
 
     cat > community/discord/SETUP_GUIDE.md << 'DISCORD'
-# Frasberg AI Discord Server Setup Guide
+# Frasberg Discord Server Setup Guide
 
 ## Server Name
-**Frasberg AI - Building the Future of AI**
+**Frasberg - Building the Future of AI**
 
 ## Categories & Channels
 
@@ -780,13 +780,13 @@ ISSUES
 ## Welcome Message
 
 ```
-Welcome to Frasberg AI! 👋
+Welcome to Frasberg! 👋
 
 Building planetary-scale AI infrastructure, open source and accessible.
 
 🔗 **Quick Links:**
 - GitHub: https://github.com/FrasbergAI/frasberg
-- Docs: https://docs.frasberg-ai.ai
+- Docs: https://docs.frasberg.com
 
 🎯 **Get Started:**
 1. Read rules in #welcome
@@ -802,7 +802,7 @@ Let's build the future together! 🚀
 ## Rules
 
 ```
-**Frasberg AI Community Rules** 📜
+**Frasberg Community Rules** 📜
 
 1️⃣ **Be Respectful** - No harassment or hate speech
 2️⃣ **Stay On Topic** - Keep discussions relevant
@@ -838,7 +838,7 @@ Let's build the future together! 🚀
 
 ## Invite Link
 
-`discord.gg/frasberg-ai` (custom URL after verification)
+`discord.gg/frasbergai` (custom URL after verification)
 
 **Ready to launch!** 🚀
 DISCORD
@@ -914,7 +914,7 @@ echo "╚═══════════════════════�
 echo ""
 
 git add -A 2>/dev/null
-git commit -m "Frasberg AI v5.1.0 - Month 1 Complete (All Tracks)
+git commit -m "Frasberg v5.1.0 - Month 1 Complete (All Tracks)
 
 ✅ WEEK 1-2: Real Integrations
 - OpenAI + Anthropic LLM integration
