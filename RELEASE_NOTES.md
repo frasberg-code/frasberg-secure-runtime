@@ -1,4 +1,4 @@
-# 🚀 Frasberg AI v1.0.0 - Public Release
+# 🚀 Frasberg v1.0.0 - Public Release
 
 **Release Date:** February 8, 2026  
 **Version:** v1.0.0  
@@ -6,9 +6,9 @@
 
 ---
 
-## 🎯 What is Frasberg AI?
+## 🎯 What is Frasberg?
 
-Frasberg AI is a complete institutional-grade operational intelligence system built on a 45-layer sovereign field architecture. This release marks the first production-ready version with 5 fully operational services.
+Frasberg is a complete institutional-grade operational intelligence system built on a 45-layer sovereign field architecture. This release marks the first production-ready version with 5 fully operational services.
 
 ---
 
@@ -82,8 +82,8 @@ Frasberg AI is a complete institutional-grade operational intelligence system bu
 ### Quick Start (Local)
 ```bash
 # Extract release package
-unzip frasberg-ai-v1.0.0-public-final.zip
-cd frasberg-ai-v1.0.0
+unzip frasberg-v1.0.0-public-final.zip
+cd frasberg-v1.0.0
 
 # Deploy all services
 ./deploy/post-pr-activation.sh
@@ -206,17 +206,17 @@ Future releases will include:
 ## ✅ Verification
 
 **Package Integrity:**
-- File: `frasberg-ai-v1.0.0-public-final.zip`
+- File: `frasberg-v1.0.0-public-final.zip`
 - Size: 218 MB
 - SHA256: `29115fc23aa29f0db250bc183790f2b63d2913c51065de00830185ffb9f44aa7`
 
 **Verify checksum:**
 ```bash
-sha256sum -c frasberg-ai-v1.0.0-public-final.zip.sha256
+sha256sum -c frasberg-v1.0.0-public-final.zip.sha256
 ```
 
 ---
 
-**🌟 Frasberg AI v1.0.0 - Institutional-Grade Operational Intelligence**
+**🌟 Frasberg v1.0.0 - Institutional-Grade Operational Intelligence**
 
 *Production-ready. Fork-isolated. Institution-grade.*
