@@ -416,4 +416,4 @@ You've completed Month 1 of building a groundbreaking distributed AI system!
 
 ---
 
-*This document was generated as part of the Frasberg AI Month 1 execution. For questions, see CONTRIBUTING-ENHANCED.md or contact hello@frasberg.com*
+*This document was generated as part of the Frasberg Month 1 execution. For questions, see CONTRIBUTING-ENHANCED.md or contact hello@frasberg.com*
