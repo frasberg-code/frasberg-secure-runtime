@@ -42,7 +42,7 @@
 
 ### Release Details
 
-**File:** `frasberg-ai-v1.0.0-public-final.zip`  
+**File:** `frasberg-v1.0.0-public-final.zip`  
 **Size:** 218 MB  
 **SHA256:** `29115fc23aa29f0db250bc183790f2b63d2913c51065de00830185ffb9f44aa7`  
 **Location:** `/workspaces/frasberg/release/`
