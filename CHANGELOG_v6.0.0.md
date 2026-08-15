@@ -1,4 +1,4 @@
-# Frasberg AI 6.0.0 "Enterprise Evolution"
+# Frasberg 6.0.0 "Enterprise Evolution"
 Release Date: February 9, 2026
 
 ## 🚨 Breaking Changes
