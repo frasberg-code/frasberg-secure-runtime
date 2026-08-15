@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "╔════════════════════════════════════════════════╗"
-echo "║  Frasberg AI v4.0.1 - Quick Start Script       ║"
+echo "║  Frasberg v4.0.1 - Quick Start Script       ║"
 echo "╚════════════════════════════════════════════════╝"
 echo ""
 
@@ -21,7 +21,7 @@ fi
 echo "✅ Docker Compose found"
 
 echo ""
-echo "Starting Frasberg AI v4.0.1..."
+echo "Starting Frasberg v4.0.1..."
 echo ""
 
 # Deploy Canonical Core
@@ -38,16 +38,16 @@ cd deploy/canonical-core 2>/dev/null || {
     sleep 5
     
     if curl -s http://localhost:8000/health > /dev/null; then
-        echo "✅ Frasberg AI is healthy"
+        echo "✅ Frasberg is healthy"
     else
-        echo "❌ Frasberg AI failed to start"
+        echo "❌ Frasberg failed to start"
         kill $SERVER_PID 2>/dev/null
         exit 1
     fi
     
     echo ""
     echo "╔════════════════════════════════════════════════╗"
-    echo "║  ✅ Frasberg AI v4.0.1 is now running!         ║"
+    echo "║  ✅ Frasberg v4.0.1 is now running!         ║"
     echo "╚════════════════════════════════════════════════╝"
     echo ""
     echo "Services:"
@@ -77,7 +77,7 @@ cd ../..
 
 echo ""
 echo "╔════════════════════════════════════════════════╗"
-echo "║  ✅ Frasberg AI v4.0.1 is now running!         ║"
+echo "║  ✅ Frasberg v4.0.1 is now running!         ║"
 echo "╚════════════════════════════════════════════════╝"
 echo ""
 echo "Services:"
