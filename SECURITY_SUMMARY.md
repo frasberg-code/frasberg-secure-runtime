@@ -124,7 +124,7 @@ Security analysis conducted for the Frasberg Provider Architecture implementatio
 ## Vulnerability Disclosure
 
 ### Reporting Process
-- Email: security@emeraldestates.com
+- Email: security@frasberg.com
 - Response time: Within 48 hours
 - Fix timeline: Based on severity
 - Public disclosure: After fix is available
