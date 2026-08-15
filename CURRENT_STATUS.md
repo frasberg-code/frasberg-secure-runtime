@@ -18,7 +18,7 @@
 **Container:**
 ```
 CONTAINER ID   IMAGE                       STATUS         PORTS
-51555df697eb   canonical-core-frasberg-ai   Up X minutes   0.0.0.0:8000->8000/tcp
+51555df697eb   canonical-core-frasberg     Up X minutes   0.0.0.0:8000->8000/tcp
 ```
 
 **Test Commands:**
