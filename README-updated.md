@@ -1,4 +1,4 @@
-# 🚀 Frasberg AI v1.0.0
+# 🚀 Frasberg v1.0.0
 
 [![Release](https://img.shields.io/github/v/release/FrasbergAI/frasberg?style=for-the-badge)](https://github.com/FrasbergAI/frasberg/releases/latest)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
@@ -8,9 +8,9 @@
 
 ---
 
-## 🎯 What is Frasberg AI?
+## 🎯 What is Frasberg?
 
-Frasberg AI is a complete operational intelligence system featuring:
+Frasberg is a complete operational intelligence system featuring:
 
 - **5 Containerized Services** - Canonical Core, Education Fork, Healthcare Fork, Analytics, Admin UI
 - **Production-Ready Deployment** - Docker, Kubernetes, multi-cloud support
@@ -24,11 +24,11 @@ Frasberg AI is a complete operational intelligence system featuring:
 
 ```bash
 # Download latest release
-wget https://github.com/FrasbergAI/frasberg/releases/latest/download/frasberg-ai-v1.0.0-public-final.zip
+wget https://github.com/FrasbergAI/frasberg/releases/latest/download/frasberg-v1.0.0-public-final.zip
 
 # Extract
-unzip frasberg-ai-v1.0.0-public-final.zip
-cd frasberg-ai-v1.0.0-public-final
+unzip frasberg-v1.0.0-public-final.zip
+cd frasberg-v1.0.0-public-final
 
 # Deploy
 cd deploy/canonical-core && docker-compose up -d
@@ -52,7 +52,7 @@ cd ../../frontend/admin && npm install && npm start
 
 ## 📦 Latest Release
 
-**[Download Frasberg AI v1.0.0](https://github.com/FrasbergAI/frasberg/releases/tag/v1.0.0)**
+**[Download Frasberg v1.0.0](https://github.com/FrasbergAI/frasberg/releases/tag/v1.0.0)**
 
 What's included:
 
@@ -126,6 +126,6 @@ MIT License - See [LICENSE](LICENSE) file for details
 
 ---
 
-**Frasberg AI - Institution-Grade Intelligence**
+**Frasberg - Institution-Grade Intelligence**
 
 *Manifested in code. Ready for deployment.*
