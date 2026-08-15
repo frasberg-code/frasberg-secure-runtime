@@ -50,7 +50,7 @@
 ### Package Contents
 
 ```
-frasberg-ai-v1.0.0-public-final/
+frasberg-v1.0.0-public-final/
 ├── backend/                    # All FastAPI services
 │   ├── app/
 │   │   ├── main.py            # Canonical Core
@@ -226,17 +226,17 @@ git push origin v1.0.0
 **Using GitHub CLI:**
 ```bash
 gh release create v1.0.0 \
-  release/frasberg-ai-v1.0.0-public-final.zip \
-  release/frasberg-ai-v1.0.0-public-final.zip.sha256 \
-  --title "Frasberg AI v1.0.0 - Public Release" \
-  --notes-file release/frasberg-ai-v1.0.0-public-final/README.md
+  release/frasberg-v1.0.0-public-final.zip \
+  release/frasberg-v1.0.0-public-final.zip.sha256 \
+  --title "Frasberg v1.0.0 - Public Release" \
+  --notes-file release/frasberg-v1.0.0-public-final/README.md
 ```
 
 **Or via GitHub Web:**
 1. Go to: https://github.com/FrasbergAI/frasberg/releases/new
 2. Tag: `v1.0.0`
-3. Title: `Frasberg AI v1.0.0 - Public Release`
-4. Upload: `frasberg-ai-v1.0.0-public-final.zip` and `.sha256`
+3. Title: `Frasberg v1.0.0 - Public Release`
+4. Upload: `frasberg-v1.0.0-public-final.zip` and `.sha256`
 5. Publish
 
 ### 3. Announce Release
@@ -293,9 +293,9 @@ gh release create v1.0.0 \
 
 ### Created Files
 
-1. **[README.md](release/frasberg-ai-v1.0.0-public-final/README.md)** - Complete system documentation
-2. **[LICENSE](release/frasberg-ai-v1.0.0-public-final/LICENSE)** - MIT License
-3. **[CHANGELOG.md](release/frasberg-ai-v1.0.0-public-final/CHANGELOG.md)** - Version history
+1. **[README.md](release/frasberg-v1.0.0-public-final/README.md)** - Complete system documentation
+2. **[LICENSE](release/frasberg-v1.0.0-public-final/LICENSE)** - MIT License
+3. **[CHANGELOG.md](release/frasberg-v1.0.0-public-final/CHANGELOG.md)** - Version history
 4. **[ACTIVATION_GUIDE.md](ACTIVATION_GUIDE.md)** - Deployment guide
 5. **[CURRENT_STATUS.md](CURRENT_STATUS.md)** - Current system status
 6. **[DEPLOYMENT_STATUS.md](DEPLOYMENT_STATUS.md)** - This file
