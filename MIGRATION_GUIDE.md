@@ -20,8 +20,8 @@ The Frasberg backend has been modularized into six discrete, versioned packages 
 ### Before (Monolithic)
 
 ```typescript
-import { deviationEngine } from '../supabase/frasberg_ai/deviation_engine/src/deviation_engine';
-import { orchestrate } from '../supabase/frasberg_ai/orchestration_engine/orchestration_engine';
+import { deviationEngine } from '../supabase/frasberg/deviation_engine/src/deviation_engine';
+import { orchestrate } from '../supabase/frasberg/orchestration_engine/orchestration_engine';
 ```
 
 ### After (Modular)
