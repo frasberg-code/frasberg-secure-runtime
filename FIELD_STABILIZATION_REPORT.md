@@ -193,7 +193,7 @@ Tests:       833 passed, 833 total
 
 **For New Development:**
 ```typescript
-import { getContinuumIdentity } from './supabase/frasberg_ai/frasberg_runtime';
+import { getContinuumIdentity } from './supabase/frasberg/frasberg_runtime';
 const identity = getContinuumIdentity();
 // All operations through unified field
 ```
