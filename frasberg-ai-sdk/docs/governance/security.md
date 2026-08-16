@@ -1,6 +1,6 @@
 # Security Policy
 
-Security guidelines, vulnerability reporting, and secure coding practices for the Frasberg AI SDK.
+Security guidelines, vulnerability reporting, and secure coding practices for the Frasberg SDK.
 
 ## Reporting Security Vulnerabilities
 
@@ -17,7 +17,7 @@ Security guidelines, vulnerability reporting, and secure coding practices for th
 2. **Include Following Information**
 
    ```
-   Subject: [SECURITY] Frasberg AI SDK - [Brief Description]
+   Subject: [SECURITY] Frasberg SDK - [Brief Description]
 
    **Vulnerability Type:**
    [e.g., Authentication bypass, SQL injection, XSS, etc.]
@@ -117,8 +117,8 @@ const client = createFrasbergClient({
 **Create `.env` file:**
 
 ```bash
-FRASBERG_AI_API_KEY=your-secure-key-here
-FRASBERG_AI_API_URL=https://api.frasberg-ai.yourdomain.com
+FRASBERG_API_KEY=your-secure-key-here
+FRASBERG_API_URL=https://api.frasberg.yourdomain.com
 ```
 
 **Add to `.gitignore`:**
@@ -289,7 +289,7 @@ git diff --cached | grep -i "api[_-]key\|secret\|password"
 // tests/setup.ts
 if (process.env.CI) {
   // Use secrets from CI environment
-  process.env.FRASBERG_AI_API_KEY = process.env.CI_API_KEY;
+  process.env.FRASBERG_API_KEY = process.env.CI_API_KEY;
 } else {
   // Load from .env for local development
   dotenv.config({ path: '.env.test' });
