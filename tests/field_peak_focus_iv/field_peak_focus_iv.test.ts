@@ -1,4 +1,4 @@
-import { focusFieldPeakIV } from '../../supabase/frasberg_ai/field_peak_focus_iv/field_peak_focus_iv';
+import { focusFieldPeakIV } from '../../supabase/frasberg/field_peak_focus_iv/field_peak_focus_iv';
 
 describe('field_peak_focus_iv', () => {
   test('focuses fourth-order peak numerically', () => {
