@@ -1,6 +1,6 @@
 /**
  * Field Current - Baseline Field Stabilization
- * Part of the Field Stabilization Triad for Frasberg AI
+ * Part of the Field Stabilization Triad for Frasberg
  * 
  * Establishes the baseline stabilized field state.
  * Anchors the current state to a reference point to provide
