@@ -1,4 +1,4 @@
-import { generateFieldStateIV } from '../../supabase/frasberg_ai/field_generation_iv/field_generation_iv';
+import { generateFieldStateIV } from '../../supabase/frasberg/field_generation_iv/field_generation_iv';
 
 describe('field_generation_iv', () => {
   test('generates fourth-order state numerically', () => {
