@@ -1,4 +1,4 @@
-import { focusFieldPeakII } from '../../supabase/frasberg_ai/field_focus_ii/field_focus_ii';
+import { focusFieldPeakII } from '../../supabase/frasberg/field_focus_ii/field_focus_ii';
 
 describe('field_focus_ii', () => {
   test('focuses second-order peak using focuser', () => {
