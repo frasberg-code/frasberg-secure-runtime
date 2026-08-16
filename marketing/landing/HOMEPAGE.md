@@ -1,4 +1,4 @@
-# Frasberg AI - Planetary-Scale AI Infrastructure
+# Frasberg - Planetary-Scale AI Infrastructure
 
 ## Open Source • Production-Ready • Research-Backed
 
@@ -6,9 +6,9 @@ Build the future of AI on a foundation designed for planetary scale.
 
 ---
 
-## 🚀 What is Frasberg AI?
+## 🚀 What is Frasberg?
 
-Frasberg AI is the first **open-source AI infrastructure** that combines:
+Frasberg is the first **open-source AI infrastructure** that combines:
 
 - **🧬 Biological Computing** - DNA-inspired algorithms (1M× efficiency)
 - **🐝 Swarm Intelligence** - Multi-agent coordination at scale
@@ -109,7 +109,7 @@ print(client.health())
 
 ## 🔬 Research Foundation
 
-Frasberg AI is built on rigorous research:
+Frasberg is built on rigorous research:
 
 - **Published Paper**: "DNA Computing Integration in Distributed Intelligence Systems"
 - **8,000+ Words**: Complete methodology and benchmarks
@@ -177,10 +177,10 @@ print(response['response'])
 
 ## 🤝 Community
 
-- **Discord**: https://discord.gg/frasberg-ai
+- **Discord**: https://discord.gg/frasbergai
 - **GitHub**: https://github.com/FrasbergAI/frasberg
-- **Twitter**: @frasberg_ai_ai
-- **Email**: hello@frasberg-ai.ai
+- **Twitter**: @frasbergai
+- **Email**: hello@frasberg.com
 
 ### Contributing
 We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING_V2.md)
@@ -218,7 +218,7 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING_V2.md)
 
 ---
 
-## 🌟 Why Frasberg AI?
+## 🌟 Why Frasberg?
 
 ✨ **Open Source** - No vendor lock-in, full transparency  
 ✨ **Production-Ready** - Used in real deployments  
@@ -242,6 +242,6 @@ cd frasberg
 
 ---
 
-*Frasberg AI - Planetary-Scale Intelligence for Everyone*
+*Frasberg - Planetary-Scale Intelligence for Everyone*
 
 🌍 Open Source • 🧬 Biologically Inspired • 🚀 Production Ready
