@@ -1,6 +1,6 @@
 /**
  * Field Origin-II - Second-Order Origin-State Reinstatement
- * Part of the Field Genesis-II Triad for Frasberg AI
+ * Part of the Field Genesis-II Triad for Frasberg
  * 
  * Returns the horizon-II-continuous field to its second-order origin-seed state.
  * Accepts horizon-II-continuity values, applies origin-reduction logic,
