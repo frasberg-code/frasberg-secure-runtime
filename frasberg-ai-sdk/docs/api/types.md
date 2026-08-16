@@ -1,6 +1,6 @@
 # Types API Reference
 
-TypeScript type definitions for the Frasberg AI SDK.
+TypeScript type definitions for the Frasberg SDK.
 
 ## Exported Types
 
@@ -386,11 +386,11 @@ interface ConfigBuilder {
 
 const config: ConfigBuilder = {
   setApiKey(key: string) {
-    process.env.FRASBERG_AI_API_KEY = key;
+    process.env.FRASBERG_API_KEY = key;
     return this;
   },
   setApiUrl(url: string) {
-    process.env.FRASBERG_AI_API_URL = url;
+    process.env.FRASBERG_API_URL = url;
     return this;
   },
   build() {
