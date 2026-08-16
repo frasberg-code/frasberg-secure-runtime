@@ -307,7 +307,7 @@ gcloud logging read "resource.type=cloud_run_revision AND resource.labels.servic
 ### Azure Monitor
 ```bash
 az monitor app-insights component create \
-  --app frasberg-ai-insights \
+  --app frasberg-insights \
   --location eastus \
   --resource-group frasberg-rg
 ```
@@ -393,7 +393,7 @@ az network dns zone create \
 ```bash
 aws application-autoscaling register-scalable-target \
   --service-namespace ecs \
-  --resource-id service/frasberg-ai-prod/canonical-core \
+  --resource-id service/frasberg-prod/canonical-core \
   --scalable-dimension ecs:service:DesiredCount \
   --min-capacity 2 \
   --max-capacity 10
@@ -447,6 +447,6 @@ spec:
 
 ---
 
-**Choose your cloud provider and deploy Frasberg AI v1.0.0 globally!**
+**Choose your cloud provider and deploy Frasberg v1.0.0 globally!**
 
 🌍 **Production-ready | Multi-cloud | Scalable | Secure**
