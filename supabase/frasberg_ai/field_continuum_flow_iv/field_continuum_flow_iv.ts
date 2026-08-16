@@ -1,6 +1,6 @@
 /**
  * Field Continuum Flow IV - Fourth-Order Continuum Flow
- * Part of the Field Continuum-IV Triad for Frasberg AI
+ * Part of the Field Continuum-IV Triad for Frasberg
  * 
  * Flows the fourth-order continuum state.
  * Accepts initiated-IV values, applies flow logic,
