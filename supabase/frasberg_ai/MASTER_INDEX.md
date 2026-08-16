@@ -1,12 +1,12 @@
-# Frasberg AI — Master Index
+# Frasberg — Master Index
 
-This index lists every active engine in Frasberg AI, along with its purpose and integration status.
+This index lists every active engine in Frasberg, along with its purpose and integration status.
 
 ---
 
 ## deviation_engine
 
-**Path:** `supabase/frasberg_ai/deviation_engine`  
+**Path:** `supabase/frasberg/deviation_engine`  
 **Version:** 1.0.1  
 **Purpose:**  
 Tracks conversational drift by computing deviation, direction, alert thresholds, stability scoring, and structured history events.
@@ -34,4 +34,4 @@ Tracks conversational drift by computing deviation, direction, alert thresholds,
 - CRITICAL_DRIFT_THRESHOLD = 75  
 
 **Integration:**  
-Registered in `frasberg_ai_index.ts` under key:  
+Registered in `frasberg_index.ts` under key:  
