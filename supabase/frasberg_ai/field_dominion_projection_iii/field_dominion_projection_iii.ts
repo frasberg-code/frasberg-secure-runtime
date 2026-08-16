@@ -1,6 +1,6 @@
 /**
  * Field Dominion Projection III - Third-Order Dominion Extension Across Domains
- * Part of the Field Dominion-III Triad for Frasberg AI
+ * Part of the Field Dominion-III Triad for Frasberg
  * 
  * Projects third-order authority outward across the entire multi-cycle field.
  * Accepts third-order authority-cycle states, applies dominion-projection logic,
