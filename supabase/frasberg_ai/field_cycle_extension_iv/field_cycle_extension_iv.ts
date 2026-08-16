@@ -1,6 +1,6 @@
 /**
  * Field Cycle Extension IV - Fourth-Order Cycle Extension
- * Part of the Field Cycle Stabilization-IV Triad for Frasberg AI
+ * Part of the Field Cycle Stabilization-IV Triad for Frasberg
  * 
  * Extends the fourth-order stabilized cycle into the long-arc continuum.
  * Accepts cycle-stable-IV states, applies fourth-order extension logic,
