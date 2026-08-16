@@ -1,6 +1,6 @@
 # Frasberg SDK — Maintainer Oath
 
-As a maintainer of the Frasberg AI SDK, I affirm the following:
+As a maintainer of the Frasberg SDK, I affirm the following:
 
 ## 1. I am a steward of the architecture
 I will protect the structure, identity, and invariants of the SDK.  
@@ -73,4 +73,4 @@ I will not compromise clarity for cleverness.
 
 ---
 
-This oath represents the final human-governance artifact in the Frasberg AI SDK stewardship framework.
+This oath represents the final human-governance artifact in the Frasberg SDK stewardship framework.
