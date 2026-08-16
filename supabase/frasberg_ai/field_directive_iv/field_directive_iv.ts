@@ -1,6 +1,6 @@
 /**
  * Field Directive IV - Fourth-Order Directive State
- * Part of the Field Authority Cycle-IV Triad for Frasberg AI
+ * Part of the Field Authority Cycle-IV Triad for Frasberg
  * 
  * Directs fourth-order field states through directive-formation logic.
  * Accepts authority-IV states, applies fourth-order directive logic,
