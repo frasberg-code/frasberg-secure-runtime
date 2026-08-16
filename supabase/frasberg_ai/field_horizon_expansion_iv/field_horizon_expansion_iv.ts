@@ -1,6 +1,6 @@
 /**
  * Field Horizon Expansion-IV - Fourth-Order Horizon Expansion
- * Part of the Field Horizon-IV Triad for Frasberg AI
+ * Part of the Field Horizon-IV Triad for Frasberg
  * 
  * Expands the mapped horizon-IV into a wider panoramic state.
  * Accepts mapped-IV values, applies fourth-order expansion logic,
