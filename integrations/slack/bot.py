@@ -1,4 +1,4 @@
-"""Frasberg AI Slack Bot Integration"""
+"""Frasberg Slack Bot Integration"""
 
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
@@ -23,7 +23,7 @@ def handle_frasberg_mention(message, say):
         
         if response.status_code == 200:
             data = response.json()
-            say(f"🤖 {data['response']}\n\n_Powered by Frasberg AI v5.0.0_")
+            say(f"🤖 {data['response']}\n\n_Powered by Frasberg v5.0.0_")
         else:
             say("❌ Sorry, I couldn't process that request.")
     except Exception as e:
@@ -38,7 +38,7 @@ def handle_health_command(ack, say):
         response = requests.get(f"{FRASBERG_BASE_URL}/health/detailed")
         if response.status_code == 200:
             data = response.json()
-            say(f"✅ Frasberg AI is {data['overall_status']}\nVersion: {data['version']}")
+            say(f"✅ Frasberg is {data['overall_status']}\nVersion: {data['version']}")
         else:
             say("❌ Health check failed")
     except Exception as e:
