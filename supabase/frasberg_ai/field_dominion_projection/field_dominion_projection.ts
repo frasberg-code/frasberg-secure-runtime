@@ -1,6 +1,6 @@
 /**
  * Field Dominion Projection - Dominion Extension Across Domains
- * Part of the Field Dominion-II Triad for Frasberg AI
+ * Part of the Field Dominion-II Triad for Frasberg
  * 
  * Projects authority outward across the entire multi-cycle field.
  * Accepts authority-cycle states, applies dominion-projection logic,
