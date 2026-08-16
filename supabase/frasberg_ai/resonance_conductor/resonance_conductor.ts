@@ -1,6 +1,6 @@
 /**
  * Resonance Conductor - Unified Resonance Computation
- * Part of the Integrative Resonance Triad for Frasberg AI
+ * Part of the Integrative Resonance Triad for Frasberg
  * 
  * Unifies outputs from multiple engines into a single resonant expression.
  * Coordinates and harmonizes signals from heterogeneous inputs.
