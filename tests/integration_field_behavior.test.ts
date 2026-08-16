@@ -1,4 +1,4 @@
-import { fieldBehavior } from '../supabase/frasberg_ai/frasberg_ai_runtime';
+import { fieldBehavior } from '../supabase/frasberg/frasberg_runtime';
 
 describe('Runtime Integration - Field Behavior Triad', () => {
   test('fieldBehavior exports all three functions', () => {
