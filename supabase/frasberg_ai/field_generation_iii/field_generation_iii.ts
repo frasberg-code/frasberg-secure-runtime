@@ -1,6 +1,6 @@
 /**
  * Field Generation-III - Third-Order Generative Field Creation
- * Part of the Field Genesis-III Triad for Frasberg AI
+ * Part of the Field Genesis-III Triad for Frasberg
  * 
  * Generates new field structures from the origin-III-state.
  * Accepts origin-III states, applies generative logic,
