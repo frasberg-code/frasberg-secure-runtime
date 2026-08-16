@@ -22,7 +22,7 @@ echo "  → Creating research paper..."
     cat > research/papers/dna-computing/PAPER.md << 'PAPER'
 # DNA Computing Integration in Distributed Intelligence Systems: The Frasberg Approach
 
-**Authors:** Frasberg AI Research Team
+**Authors:** Frasberg Research Team
 **Affiliation:** Frasberg Project
 **Contact:** research@frasberg.com
 **Code:** https://github.com/FrasbergAI/frasberg
@@ -502,7 +502,7 @@ We reward significant contributions!
 | Major feature | $500-$2,000 |
 | Research paper | $1,000-$5,000 |
 
-Email bounties@frasberg-ai.ai for details.
+Email bounties@frasberg.com for details.
 
 ## 🏆 Recognition
 
