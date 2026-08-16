@@ -1,4 +1,4 @@
-import { continueHorizonStateII } from '../../supabase/frasberg_ai/field_horizon_continuity_ii/field_horizon_continuity_ii';
+import { continueHorizonStateII } from '../../supabase/frasberg/field_horizon_continuity_ii/field_horizon_continuity_ii';
 
 describe('field_horizon_continuity_ii', () => {
   test('continues horizon-II using continuer', () => {
