@@ -6,7 +6,7 @@ Please include a summary of the changes made to FRASBERG:
 
 - What problem does this FRASBERG PR solve?
 - What changes were made to FRASBERG?
-- Are there any breaking changes in FRASBERG AI?
+- Are there any breaking changes in FRASBERG?
 
 ## 🎯 Type of Change
 
@@ -107,6 +107,6 @@ Any additional information about this FRASBERG PR?
 ---
 
 **FRASBERG** - Institution-Grade Intelligence  
-Luchii® / Emerald Estates® / Emerald Orbit Systems
+Luchii® / LINQ® / Emerald Estates® / Emerald Orbit® Systems
 
 Thank you for contributing to FRASBERG! 🚀
