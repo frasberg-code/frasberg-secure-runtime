@@ -1,6 +1,6 @@
 /**
  * app_shell_runtime.ts
- * Engine loader and manifest resolver for Frasberg AI Application Shell.
+ * Engine loader and manifest resolver for Frasberg Application Shell.
  * This is the core orchestration layer that coordinates engine loading and lifecycle.
  */
 
