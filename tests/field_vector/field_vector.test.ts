@@ -1,4 +1,4 @@
-import { computeVector } from '../../supabase/frasberg_ai/field_vector/field_vector';
+import { computeVector } from '../../supabase/frasberg/field_vector/field_vector';
 
 describe('field_vector', () => {
   test('computes vector components', () => {
