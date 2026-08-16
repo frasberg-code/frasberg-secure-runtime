@@ -46,7 +46,7 @@
       "version": "1.0.0",
       "path": "../frasberg_api",
       "registration_key": "frasberg_api",
-      "description": "Public API interface for Frasberg AI operations",
+      "description": "Public API interface for Frasberg operations",
       "dependencies": [],
       "enabled": true
     }
@@ -54,6 +54,6 @@
   "metadata": {
     "version": "1.0.0",
     "maintainer": "Emerald Estates® — Frasberg AI Governance",
-    "description": "Declarative engine registry for Frasberg AI Application Shell"
+    "description": "Declarative engine registry for Frasberg Application Shell"
   }
 }
