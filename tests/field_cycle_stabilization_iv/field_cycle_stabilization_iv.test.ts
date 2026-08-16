@@ -1,4 +1,4 @@
-import { stabilizeFieldCycleIV } from '../../supabase/frasberg_ai/field_cycle_stabilization_iv/field_cycle_stabilization_iv';
+import { stabilizeFieldCycleIV } from '../../supabase/frasberg/field_cycle_stabilization_iv/field_cycle_stabilization_iv';
 
 describe('field_cycle_stabilization_iv', () => {
   test('stabilizes fourth-order cycle numerically', () => {
