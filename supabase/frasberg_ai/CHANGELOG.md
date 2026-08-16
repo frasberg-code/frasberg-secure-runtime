@@ -19,7 +19,7 @@ This file follows semantic versioning and records engine additions, refinements,
 - Complete specification file (`deviation_engine_spec.json`)
 - Full test suite (`deviation_engine.test.ts`)
 - Export wrapper (`index.ts`)
-- Global registration in `frasberg_ai_index.ts`
+- Global registration in `frasberg_index.ts`
 - Documentation updates in `GLOBAL_README.md` and `MASTER_INDEX.md`
 
 ### Notes

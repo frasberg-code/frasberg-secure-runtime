@@ -2,7 +2,7 @@ import { resonateIdentity } from '../../supabase/frasberg/identity_resonator/ide
 
 describe('identity_resonator', () => {
   test('resonates identity with amplitude', () => {
-    expect(resonateIdentity('Frasberg Selassie', 3)).toBe('MR::~~~');
+    expect(resonateIdentity('Frasberg Selassie', 3)).toBe('Frasberg Selassie::~~~');
   });
 
   test('resonates with amplitude of 1', () => {

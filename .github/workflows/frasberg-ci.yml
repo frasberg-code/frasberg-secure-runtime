@@ -50,7 +50,7 @@ jobs:
         id: cfg
         run: |
           if [ -f governance.config.json ]; then
-            CFG=$(cat governance.config.json)
+            CFG=$(jq -c . governance.config.json)
             echo "config=$CFG" >> $GITHUB_OUTPUT
           else
             echo "No governance.config.json found"
