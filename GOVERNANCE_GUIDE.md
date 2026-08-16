@@ -83,7 +83,7 @@ Frasberg enforces three license roles:
 - **governance.config.json** - Repository governance configuration (license roles, mesh settings)
 - **llm-certification.json** - Repo certification status and criteria
 - **governance/mesh-registry.json** - Mesh versioning history and state
-- **governance/org-role-matrix.json** - FrasbergAI org-wide role assignments
+- **governance/org-role-matrix.json** - Frasberg org-wide role assignments
 
 ### Documentation
 - **governance/GOVERNANCE.md** - Complete governance specification
