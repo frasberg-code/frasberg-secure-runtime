@@ -1,6 +1,6 @@
 /**
  * Continuum Modulator - Runtime-Aware Continuity Shaping
- * Part of the Final Modulation Triad for Frasberg AI
+ * Part of the Final Modulation Triad for Frasberg
  * 
  * Provides dynamic continuity flow adjustment based on runtime context,
  * enabling refined state transitions and context-aware modulation.
