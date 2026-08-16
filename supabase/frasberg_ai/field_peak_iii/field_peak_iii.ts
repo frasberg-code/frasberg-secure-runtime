@@ -1,6 +1,6 @@
 /**
  * Field Peak III - Third-Order Apex Peak Formation
- * Part of the Field Apex-III Triad for Frasberg AI
+ * Part of the Field Apex-III Triad for Frasberg
  * 
  * Forms the third-order peak from dominion-III states.
  * Accepts third-order dominion states, applies peak-formation logic,
