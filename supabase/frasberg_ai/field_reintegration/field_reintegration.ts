@@ -1,6 +1,6 @@
 /**
  * Field Reintegration - Global Field Reintegration
- * Part of the Field Transformation Triad for Frasberg AI
+ * Part of the Field Transformation Triad for Frasberg
  * 
  * Reintegrates the reconfigured field back into the global field.
  * Accepts reconfigured states, applies reintegration logic,
