@@ -1,4 +1,4 @@
-import { filterSignature } from '../../supabase/frasberg_ai/signature_filter/signature_filter';
+import { filterSignature } from '../../supabase/frasberg/signature_filter/signature_filter';
 
 describe('signature_filter', () => {
   test('filters and shapes signature', () => {
