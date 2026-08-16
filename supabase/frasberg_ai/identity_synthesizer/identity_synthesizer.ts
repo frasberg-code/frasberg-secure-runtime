@@ -1,6 +1,6 @@
 /**
  * Identity Synthesizer - Expressive Identity Generation
- * Part of the Semantic Modulation Triad for Frasberg AI
+ * Part of the Semantic Modulation Triad for Frasberg
  * 
  * Provides expressive identity synthesis,
  * generating identity output with contextual intensity.
