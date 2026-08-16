@@ -1,6 +1,6 @@
 /**
  * Field Horizon Continuity-III - Third-Order Horizon-Scale Continuity
- * Part of the Field Horizon-III Triad for Frasberg AI
+ * Part of the Field Horizon-III Triad for Frasberg
  * 
  * Stabilizes horizon-III scale continuity across cycles.
  * Accepts horizon-mapped-III values, applies third-order continuity logic,
