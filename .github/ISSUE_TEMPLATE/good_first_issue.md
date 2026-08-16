@@ -48,7 +48,7 @@ pytest tests/test_specific.py
 ## 💬 Need Help?
 
 Ask questions in:
-- Discord `#contributors` channel: https://discord.gg/frasberg-ai
+- Discord `#contributors` channel: https://discord.gg/frasbergai
 - Comment on this issue
 
 ---
