@@ -275,7 +275,7 @@ This guide provides detailed instructions for updating GitHub-side Frasberg repo
 2. Inform team members of privacy changes
 3. Verify CI/CD pipelines still work
 4. Test deployment with new repository name (if renamed)
-5. Deploy Frasberg AI to production
+5. Deploy Frasberg to production
 
 ---
 
