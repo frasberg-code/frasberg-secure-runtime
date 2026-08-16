@@ -1,4 +1,4 @@
-import { evaluateField } from '../../supabase/frasberg_ai/field_evaluation/field_evaluation';
+import { evaluateField } from '../../supabase/frasberg/field_evaluation/field_evaluation';
 
 describe('field_evaluation', () => {
   test('evaluates field value using criteria', () => {
