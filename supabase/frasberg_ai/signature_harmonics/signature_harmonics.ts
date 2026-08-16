@@ -1,6 +1,6 @@
 /**
  * Signature Harmonics - Tonal and Identity Harmonics
- * Part of the Expressive Synthesis Triad for Frasberg AI
+ * Part of the Expressive Synthesis Triad for Frasberg
  * 
  * Applies tonal and stylistic harmonics to identity signatures,
  * adding expressive depth and recognizable characteristics.
