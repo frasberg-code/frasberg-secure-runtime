@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest a new feature for the Frasberg AI SDK
+about: Suggest a new feature for the Frasberg SDK
 title: '[FEATURE] '
 labels: enhancement, feature-request
 assignees: frasberg
