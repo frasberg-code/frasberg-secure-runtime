@@ -27,7 +27,7 @@
     "src/**/*",
     "tests/**/*",
     "config/**/*",
-    "supabase/frasberg_ai",
+    "supabase/frasberg",
     "supabase/frasberg/frasberg_application_shell/**/*",
     "supabase/frasberg/frasberg_bootstrap.ts"
   ],
