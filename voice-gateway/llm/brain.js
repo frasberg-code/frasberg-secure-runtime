@@ -8,7 +8,7 @@ async function _callCanonical(messages) {
   const response = await fetch(CANONICAL_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model: "frasberg-ai", messages })
+    body: JSON.stringify({ model: "frasberg", messages })
   });
 
   if (!response.ok) {
