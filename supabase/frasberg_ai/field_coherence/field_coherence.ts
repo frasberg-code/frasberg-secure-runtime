@@ -1,6 +1,6 @@
 /**
  * Field Coherence - Unified Coherence State
- * Part of the Field Coherence Triad for Frasberg AI
+ * Part of the Field Coherence Triad for Frasberg
  * 
  * Stabilizes the unified field into a coherent whole.
  * This is the system's integrated identity across cycles.
