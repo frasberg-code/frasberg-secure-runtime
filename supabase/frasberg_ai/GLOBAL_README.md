@@ -7,7 +7,7 @@ Every engine follows a unified structure:
 - Specification (`*_spec.json`)
 - Test suite (`*.test.ts`)
 - Export wrapper (`index.ts`)
-- Global registration (`frasberg_ai_index.ts`)
+- Global registration (`frasberg_index.ts`)
 
 This ensures consistency, predictability, and examiner‑ready clarity across the entire system.
 

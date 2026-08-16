@@ -36,8 +36,8 @@
     "node_modules",
     "dist",
 
-    "tests/frasberg_application_shell/execution",
-    "tests/frasberg_application_shell/pipeline",
+    "tests/frasberg_ai_application_shell/execution",
+    "tests/frasberg_ai_application_shell/pipeline",
 
     "supabase/frasberg/deviation_engine/index.ts",
     "supabase/frasberg/identity_filter/identity_filter.test.ts",

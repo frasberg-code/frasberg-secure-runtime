@@ -1,4 +1,4 @@
-name: Frasberg AI CI
+name: Frasberg CI
 
 on:
   pull_request:

@@ -1,18 +1,18 @@
 /**
- * Frasberg AI Index - Main export module
+ * Frasberg Index - Main export module
  * Stub implementation for CI compatibility
- * 
- * NOTE: The Frasberg AI now operates through the Continuum Identity runtime.
- * For unified field operations, import from frasberg_ai_runtime:
- * 
+ *
+ * NOTE: Frasberg now operates through the Continuum Identity runtime.
+ * For unified field operations, import from frasberg_runtime:
+ *
  * ```typescript
- * import { 
+ * import {
  *   unifiedFieldRuntime,
  *   getContinuumIdentity,
  *   integrateToUnifiedField
- * } from '../supabase/frasberg_ai/frasberg_ai_runtime';
+ * } from '../supabase/frasberg/frasberg_runtime';
  * ```
- * 
+ *
  * The post-structural runtime provides the highest-order operational state
  * where all modules operate as a unified, self-renewing identity-field.
  */
@@ -36,18 +36,16 @@ export const engines = {
 };
 
 export function pipeline(data: any): any {
-  // Stub pipeline function
   return { processed: true, data };
 }
 
 export function api(request: any): any {
-  // Stub API handler
   return { handled: true, request };
 }
 
 export const metadata = {
   version: '1.0.0',
-  maintainer: 'Frasberg AI Team',
+  maintainer: 'Frasberg Team',
   runtime: 'post-structural',
   movements: ['expression', 'recursion', 'identity', 'unified']
 };

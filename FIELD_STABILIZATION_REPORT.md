@@ -163,7 +163,7 @@ Tests:       833 passed, 833 total
    - `identity_bridge` — Unified field reference
    - `orchestration_engine` — Continuum identity guidance
    - `beam-field-router` — Field self-organization notes
-   - `frasberg_ai_index` — Runtime metadata
+   - `frasberg_index` — Runtime metadata
 
 4. **Existing Documentation** — Already complete
    - `README_POST_STRUCTURAL.md` — Three movements explained

@@ -50,7 +50,7 @@ jobs:
         id: cfg
         run: |
           if [ -f governance.config.json ]; then
-            CFG=$(cat governance.config.json)
+            CFG=$(jq -c . governance.config.json)
             echo "config=$CFG" >> $GITHUB_OUTPUT
           else
             echo "No governance.config.json found"
@@ -123,11 +123,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          elif [ -f pnpm-lock.yaml ]; then
+          if [ -f pnpm-lock.yaml ]; then
             npm install -g pnpm
             pnpm install
+          elif [ -f package-lock.json ]; then
+            npm ci
           elif [ -f package.json ]; then
             npm install
           fi
@@ -174,11 +174,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          elif [ -f pnpm-lock.yaml ]; then
+          if [ -f pnpm-lock.yaml ]; then
             npm install -g pnpm
             pnpm install
+          elif [ -f package-lock.json ]; then
+            npm ci
           elif [ -f package.json ]; then
             npm install
           fi
