@@ -22,7 +22,7 @@ def test_health_includes_service():
     """Test health endpoint includes service field"""
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json()["service"] == "frasberg-ai"
+    assert response.json()["service"] == "frasberg"
 
 def test_health_includes_integrations():
     """Test health endpoint includes integrations block"""
@@ -36,5 +36,5 @@ def test_root_endpoint():
     assert response.status_code == 200
     data = response.json()
     assert data["version"] == "5.1.0"
-    assert data["name"] == "Frasberg AI"
+    assert data["name"] == "Frasberg"
     assert data["status"] == "operational"
