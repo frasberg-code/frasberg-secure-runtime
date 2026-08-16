@@ -1,10 +1,10 @@
 # Client API Reference
 
-Complete API reference for the Frasberg AI SDK client.
+Complete API reference for the Frasberg SDK client.
 
 ## createFrasbergClient
 
-Creates and returns a Frasberg AI SDK client instance.
+Creates and returns a Frasberg SDK client instance.
 
 ### Signature
 
@@ -28,8 +28,8 @@ const client = createFrasbergClient();
 
 The client is configured via environment variables:
 
-- **`FRASBERG_AI_API_KEY`** (required): Your Frasberg AI API key
-- **`FRASBERG_AI_API_URL`** (optional): API base URL (default: `https://api.frasberg-ai.yourdomain.com`)
+- **`FRASBERG_AI_API_KEY`** (required): Your Frasberg API key
+- **`FRASBERG_AI_API_URL`** (optional): API base URL (default: `https://api.frasberg.yourdomain.com`)
 
 ### Throws
 
@@ -39,7 +39,7 @@ The client is configured via environment variables:
 
 ## FrasbergClient
 
-Interface representing the Frasberg AI SDK client.
+Interface representing the Frasberg SDK client.
 
 ### Type Definition
 
