@@ -3,7 +3,7 @@
  * Integration tests for Frasberg AI engine capabilities
  */
 
-import { validateEngineCapabilities, getEngineCapabilityGraph } from '../../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_lifecycle';
+import { validateEngineCapabilities, getEngineCapabilityGraph } from '../../../supabase/frasberg/frasberg_application_shell/app_shell_lifecycle';
 
 describe('Frasberg AI Application Shell — Capability Integration', () => {
   test('validates actual Frasberg AI engine capabilities', async () => {
