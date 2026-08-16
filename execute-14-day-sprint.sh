@@ -291,7 +291,7 @@ cat > marketing/video/DEMO_SCRIPT.md << 'VIDEO'
 **Narration**: "What if you could run AI computations 1 million times more efficiently than traditional systems? What if you could coordinate 1,000 agents simultaneously? What if all of this was open source and available today?"
 
 **Visual**: Frasberg logo reveal  
-**Text on screen**: "Frasberg AI - Planetary-Scale AI Infrastructure"
+**Text on screen**: "Frasberg - Planetary-Scale AI Infrastructure"
 
 ## Scene 2: The Problem (0:30-1:00)
 **Visual**: Graphs showing AI energy consumption, cost, complexity  
@@ -367,8 +367,8 @@ print(response['response'])
 
 **Text on screen**:
 - GitHub: github.com/FrasbergAI/frasberg
-- Discord: discord.gg/frasberg-ai
-- Docs: docs.frasberg-ai.ai
+- Discord: discord.gg/frasbergai
+- Docs: docs.frasberg.com
 
 **Final frame**: "Start building in 5 minutes"
 
@@ -588,7 +588,7 @@ Today, we're launching Frasberg AI to the world.
 
 Tomorrow, we're building the future of AI—**together**.
 
-**Join us**: https://discord.gg/frasberg-ai
+**Join us**: https://discord.gg/frasbergai
 
 ---
 
@@ -617,7 +617,7 @@ AI infrastructure hasn't evolved since the 1940s.
 
 We're still using von Neumann architecture while trying to build AGI.
 
-Frasberg AI changes that with biological algorithms that are 1,000,000× more efficient.
+Frasberg changes that with biological algorithms that are 1,000,000× more efficient.
 
 **Tweet 3** (DNA Computing):
 DNA Computing in production:
@@ -717,12 +717,12 @@ After 20+ hours of development, we're excited to launch Frasberg - the first ope
 [Full post in file...]
 
 ## Reddit (r/programming)
-**Title**: [Open Source] Frasberg AI - AI infrastructure with DNA computing, swarm intelligence
+**Title**: [Open Source] Frasberg - AI infrastructure with DNA computing, swarm intelligence
 
 [Full post in file...]
 
 ## Hacker News (Show HN)
-**Title**: Show HN: Frasberg AI – Open-source AI infrastructure with biological computing
+**Title**: Show HN: Frasberg – Open-source AI infrastructure with biological computing
 
 [Full post in file...]
 TWITTER
