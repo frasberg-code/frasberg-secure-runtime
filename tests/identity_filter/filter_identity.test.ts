@@ -1,4 +1,4 @@
-import { filterIdentity } from '../../supabase/frasberg_ai/identity_filter/identity_filter';
+import { filterIdentity } from '../../supabase/frasberg/identity_filter/identity_filter';
 
 describe('identity_filter - filterIdentity function', () => {
   test('filters identity input removing special characters', () => {
