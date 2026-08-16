@@ -1,10 +1,10 @@
 # Configuration API Reference
 
-API reference for the Frasberg AI SDK configuration system.
+API reference for the Frasberg SDK configuration system.
 
 ## loadFrasbergConfig
 
-Loads and validates the Frasberg AI SDK configuration.
+Loads and validates the Frasberg SDK configuration.
 
 ### Signature
 
@@ -70,27 +70,27 @@ Configuration is loaded from environment variables:
 
 ### Required Variables
 
-**`FRASBERG_AI_API_KEY`**
+**`FRASBERG_API_KEY`**
 
-Your Frasberg AI API authentication key.
+Your Frasberg API authentication key.
 
 ```bash
-export FRASBERG_AI_API_KEY="your-api-key-here"
+export FRASBERG_API_KEY="your-api-key-here"
 ```
 
 **Throws:** Error if not set
 
 ### Optional Variables
 
-**`FRASBERG_AI_API_URL`**
+**`FRASBERG_API_URL`**
 
 Base URL for the Frasberg AI API.
 
 ```bash
-export FRASBERG_AI_API_URL="https://api.frasberg-ai.yourdomain.com"
+export FRASBERG_API_URL="https://api.frasberg-ai.yourdomain.com"
 ```
 
-**Default:** `https://api.frasberg-ai.yourdomain.com`
+**Default:** `https://api.frasberg.yourdomain.com`
 
 ---
 
@@ -117,8 +117,8 @@ try {
 ### 1. Environment Variables (Recommended)
 
 ```bash
-export FRASBERG_AI_API_KEY="your-key"
-export FRASBERG_AI_API_URL="https://api.frasberg-ai.com"
+export FRASBERG_API_KEY="your-key"
+export FRASBERG_API_URL="https://api.frasberg.com"
 ```
 
 ### 2. .env File (Local Development)
@@ -126,8 +126,8 @@ export FRASBERG_AI_API_URL="https://api.frasberg-ai.com"
 Create `.env` file:
 
 ```env
-FRASBERG_AI_API_KEY=your-key
-FRASBERG_AI_API_URL=https://api.frasberg-ai.com
+FRASBERG_API_KEY=your-key
+FRASBERG_API_URL=https://api.frasberg-ai.com
 ```
 
 Load with dotenv:
@@ -147,7 +147,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      FRASBERG_AI_API_KEY: ${{ secrets.FRASBERG_AI_API_KEY }}
+      FRASBERG_API_KEY: ${{ secrets.FRASBERG_API_KEY }}
     steps:
       - uses: actions/checkout@v3
       - run: npm test
@@ -162,10 +162,10 @@ const supabase = createClient(url, key);
 
 async function getApiKey() {
   const { data } = await supabase.rpc('get_secret', {
-    secret_name: 'frasberg_ai_api_key'
+    secret_name: 'frasberg_api_key'
   });
   
-  process.env.FRASBERG_AI_API_KEY = data;
+  process.env.FRASBERG_API_KEY = data;
 }
 
 await getApiKey();
@@ -204,7 +204,7 @@ const client = createFrasbergClient();
 import { createFrasbergClient } from '@frasberg/core-sdk';
 
 function validateEnvironment() {
-  const required = ['FRASBERG_AI_API_KEY'];
+  const required = ['FRASBERG_API_KEY'];
   const missing = required.filter(key => !process.env[key]);
   
   if (missing.length > 0) {
@@ -229,10 +229,10 @@ validateEnvironment();
 
 ```typescript
 function ensureConfigured() {
-  if (!process.env.FRASBERG_AI_API_KEY) {
+  if (!process.env.FRASBERG_API_KEY) {
     throw new Error(
-      'FRASBERG_AI_API_KEY must be set. ' +
-      'See: https://docs.frasberg-ai.com/configuration'
+      'FRASBERG_API_KEY must be set. ' +
+      'See: https://docs.frasberg.com/configuration'
     );
   }
 }
@@ -249,22 +249,22 @@ const client = createFrasbergClient();
 
 ```typescript
 // test-setup.ts
-process.env.FRASBERG_AI_API_KEY = 'test-key';
-process.env.FRASBERG_AI_API_URL = 'https://test-api.frasberg-ai.com';
+process.env.FRASBERG_API_KEY = 'test-key';
+process.env.FRASBERG_API_URL = 'https://test-api.frasberg.com';
 ```
 
 ### Per-Test Configuration
 
 ```typescript
 describe('SDK Tests', () => {
-  const originalKey = process.env.FRASBERG_AI_API_KEY;
+  const originalKey = process.env.FRASBERG_API_KEY;
   
   beforeEach(() => {
-    process.env.FRASBERG_AI_API_KEY = 'test-key';
+    process.env.FRASBERG_API_KEY = 'test-key';
   });
   
   afterEach(() => {
-    process.env.FRASBERG_AI_API_KEY = originalKey;
+    process.env.FRASBERG_API_KEY = originalKey;
   });
   
   it('creates client', () => {
@@ -280,11 +280,11 @@ describe('SDK Tests', () => {
 
 ### Missing API Key
 
-**Error:** `FRASBERG_AI_API_KEY is missing`
+**Error:** `FRASBERG_API_KEY is missing`
 
 **Solution:**
 ```bash
-export FRASBERG_AI_API_KEY="your-key"
+export FRASBERG_API_KEY="your-key"
 ```
 
 ### Invalid Configuration
