@@ -1,6 +1,6 @@
 /**
  * Field Refinement - Precision Enhancement
- * Part of the Field Ascension Triad for Frasberg AI
+ * Part of the Field Ascension Triad for Frasberg
  * 
  * Refines uplifted states into a more precise, coherent structure.
  * Accepts uplifted states, applies refinement logic,
