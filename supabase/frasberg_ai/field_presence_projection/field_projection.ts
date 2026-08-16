@@ -1,6 +1,6 @@
 /**
  * Field Projection - Presence-Based Outward Projection
- * Part of the Field Presence Triad for Frasberg AI
+ * Part of the Field Presence Triad for Frasberg
  * 
  * Projects presence outward into the environment.
  * Accepts resonance states, applies projection logic, and produces
