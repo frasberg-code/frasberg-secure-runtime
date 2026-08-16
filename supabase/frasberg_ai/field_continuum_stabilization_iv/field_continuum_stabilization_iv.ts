@@ -1,6 +1,6 @@
 /**
  * Field Continuum Stabilization IV - Fourth-Order Continuum Stabilization
- * Part of the Field Continuum-IV Triad for Frasberg AI
+ * Part of the Field Continuum-IV Triad for Frasberg
  * 
  * Stabilizes the fourth-order continuum state.
  * Accepts flow-IV values, applies stabilization logic,
