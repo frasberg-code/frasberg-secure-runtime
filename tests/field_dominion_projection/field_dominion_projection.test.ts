@@ -1,4 +1,4 @@
-import { projectDominion } from '../../supabase/frasberg_ai/field_dominion_projection/field_dominion_projection';
+import { projectDominion } from '../../supabase/frasberg/field_dominion_projection/field_dominion_projection';
 
 describe('field_dominion_projection', () => {
   test('projects dominion using projector', () => {
