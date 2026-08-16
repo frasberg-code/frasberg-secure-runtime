@@ -1,6 +1,6 @@
 /**
  * Field Horizon Mapping-IV - Fourth-Order Horizon-Scale Structural Mapping
- * Part of the Field Horizon-IV Triad for Frasberg AI
+ * Part of the Field Horizon-IV Triad for Frasberg
  * 
  * Maps the expanded field-IV state at horizon-IV scale.
  * Accepts expansion-IV values, applies fourth-order horizon mapping,
