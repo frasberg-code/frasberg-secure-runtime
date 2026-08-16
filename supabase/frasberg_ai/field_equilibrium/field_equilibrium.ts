@@ -1,6 +1,6 @@
 /**
  * Field Equilibrium - Field Balance Computation
- * Part of the Field Behavior Triad for Frasberg AI
+ * Part of the Field Behavior Triad for Frasberg
  * 
  * Maintains balance across all field forces through equilibrium computation.
  * Computes equilibrium from multiple inputs, balances forces, and produces
