@@ -1,6 +1,6 @@
-# Frasberg AI — Changelog
+# Frasberg — Changelog
 
-All notable changes to the Frasberg AI system are documented here.  
+All notable changes to the Frasberg system are documented here.  
 This file follows semantic versioning and records engine additions, refinements, and structural updates.
 
 ---
