@@ -132,7 +132,7 @@
 **Environment Variable Replacements:**
 ```bash
 # BEFORE
-FRASBERG_AI_MODEL=llama3
+FRASBERG_MODEL=llama3
 FRASBERG_MODEL_ENDPOINT=http://...
 FRASBERG_MODEL_API_KEY=...
 
