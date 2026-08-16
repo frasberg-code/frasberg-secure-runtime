@@ -1,6 +1,6 @@
 /**
  * Field Dominion Continuity III - Third-Order Persistent Dominion Stability
- * Part of the Field Dominion-III Triad for Frasberg AI
+ * Part of the Field Dominion-III Triad for Frasberg
  * 
  * Stabilizes third-order dominion across cycles, ensuring persistent structural governance.
  * Accepts third-order dominion-projection states, applies dominion-continuity logic,
