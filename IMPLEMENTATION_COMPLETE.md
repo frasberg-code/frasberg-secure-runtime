@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-✅ **Successfully transformed the Frasberg AI monolithic backend into six discrete, versioned packages** while preserving unified-field identity behavior and maintaining full backward compatibility.
+✅ **Successfully transformed the Frasberg monolithic backend into six discrete, versioned packages** while preserving unified-field identity behavior and maintaining full backward compatibility.
 
 ## Package Overview
 
@@ -168,7 +168,7 @@ cd packages/frasberg-governance-engine && pnpm test
 
 ```typescript
 // Before (Monolithic)
-import { deviationEngine } from '../supabase/frasberg_ai/deviation_engine/src/deviation_engine';
+import { deviationEngine } from '../supabase/frasberg/deviation_engine/src/deviation_engine';
 
 // After (Modular)
 import { deviationEngine } from '@frasberg/governance-engine';
