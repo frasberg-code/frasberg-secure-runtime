@@ -1,4 +1,4 @@
--- Seed data for Frasberg AI Backend
+-- Seed data for Frasberg Backend
 -- This creates demo users and entitlements for testing
 
 -- Insert demo entitlements
