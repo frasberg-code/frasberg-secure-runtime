@@ -1,6 +1,6 @@
 # CODEOWNERS Guide
 
-Understanding and managing code ownership in the Frasberg AI SDK.
+Understanding and managing code ownership in the Frasberg SDK.
 
 ## Overview
 
@@ -11,14 +11,14 @@ The CODEOWNERS file defines individuals or teams responsible for code in the rep
 ### Location
 
 ```
-frasberg-ai-sdk/.github/CODEOWNERS
+frasberg-sdk/.github/CODEOWNERS
 ```
 
 ### Format
 
 ```bash
 # CODEOWNERS
-# This file defines code ownership for the Frasberg AI SDK
+# This file defines code ownership for the Frasberg SDK
 
 # Default owners for everything in the repo
 * @frasberg/ai-maintainers
