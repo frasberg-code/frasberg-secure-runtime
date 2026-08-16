@@ -1,6 +1,6 @@
 /**
  * Signature Synthesizer - Dynamic Identity Synthesis
- * Part of the Orchestration Synthesis Triad for Frasberg AI
+ * Part of the Orchestration Synthesis Triad for Frasberg
  * 
  * Enables dynamic identity expression based on operational mode,
  * synthesizing signatures that adapt to context.
