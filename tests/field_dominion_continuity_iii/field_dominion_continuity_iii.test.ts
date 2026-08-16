@@ -1,4 +1,4 @@
-import { continueDominionIII } from '../../supabase/frasberg_ai/field_dominion_continuity_iii/field_dominion_continuity_iii';
+import { continueDominionIII } from '../../supabase/frasberg/field_dominion_continuity_iii/field_dominion_continuity_iii';
 
 describe('field_dominion_continuity_iii', () => {
   test('continues third-order dominion numerically', () => {
