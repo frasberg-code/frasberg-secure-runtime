@@ -1,6 +1,6 @@
 /**
  * Coherence Binder - Structural and Semantic Coherence
- * Part of the Integrative Resonance Triad for Frasberg AI
+ * Part of the Integrative Resonance Triad for Frasberg
  * 
  * Ensures structural, semantic, and contextual coherence across all layers.
  * Detects mismatches, normalizes structure, and enforces cross-module consistency.
