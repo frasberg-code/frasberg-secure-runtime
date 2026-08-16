@@ -1,7 +1,7 @@
 /**
  * app_shell_index.ts
- * Public initialization entrypoint for Frasberg AI Application Shell.
- * Exposes the primary API for bootstrapping and managing the Frasberg AI runtime.
+ * Public initialization entrypoint for Frasberg Application Shell.
+ * Exposes the primary API for bootstrapping and managing the Frasberg runtime.
  */
 
 import {
@@ -34,7 +34,7 @@ import {
 } from './app_shell_lifecycle';
 
 /**
- * Primary initialization function - bootstraps the entire Frasberg AI
+ * Primary initialization function - bootstraps the entire Frasberg
  */
 export async function initialize(
   context: Record<string, any> = {},
