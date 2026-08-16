@@ -1,6 +1,6 @@
 /**
  * Field Continuum Synthesis III - Third-Order Continuum Synthesis
- * Part of the Field Continuum-III Triad for Frasberg AI
+ * Part of the Field Continuum-III Triad for Frasberg
  * 
  * Synthesizes multiple third-order cycles into a unified continuum.
  * Accepts continuum-extension-III states, applies third-order synthesis logic,
