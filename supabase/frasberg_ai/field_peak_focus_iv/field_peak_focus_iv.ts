@@ -1,6 +1,6 @@
 /**
  * Field Peak Focus IV - Fourth-Order Apex Precision Focusing
- * Part of the Field Peak-IV Triad for Frasberg AI
+ * Part of the Field Peak-IV Triad for Frasberg
  * 
  * Sharpens the fourth-order peak into apex-IV precision.
  * Accepts fourth-order peak states, applies focusing logic,
