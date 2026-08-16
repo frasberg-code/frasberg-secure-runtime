@@ -401,7 +401,7 @@ All dependencies from v4.1.0 are maintained. No new Python packages required for
 ## 🛡️ Ethical Considerations
 
 ### Consciousness Exploration
-Frasberg AI v5.0.0 explores consciousness **theories** for better AI design. We make **no claims** of actual consciousness, sentience, or subjective experience.
+Frasberg v5.0.0 explores consciousness **theories** for better AI design. We make **no claims** of actual consciousness, sentience, or subjective experience.
 
 ### Purpose
 Understanding consciousness theories helps design:
