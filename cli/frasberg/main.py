@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Frasberg AI CLI - Command-line interface for Frasberg AI"""
+"""Frasberg CLI - Command-line interface for Frasberg"""
 
 import click
 import requests
@@ -15,7 +15,7 @@ BASE_URL = "http://localhost:8000"
 @click.group()
 @click.version_option(version='5.0.0')
 def cli():
-    """Frasberg AI CLI - Manage your Frasberg AI instance"""
+    """Frasberg CLI - Manage your Frasberg instance"""
     pass
 
 @cli.command()
@@ -26,13 +26,13 @@ def health():
         data = response.json()
         
         if response.status_code == 200:
-            rprint(f"[green]✓[/green] Frasberg AI is healthy")
+            rprint(f"[green]✓[/green] Frasberg is healthy")
             rprint(f"Version: {data.get('version')}")
             rprint(f"Status: {data.get('status')}")
         else:
             rprint(f"[red]✗[/red] Health check failed")
     except Exception as e:
-        rprint(f"[red]✗[/red] Cannot connect to Frasberg AI: {e}")
+        rprint(f"[red]✗[/red] Cannot connect to Frasberg: {e}")
 
 @cli.command()
 def status():
@@ -85,7 +85,7 @@ def speak(text, language, emotion):
 
 @cli.command()
 @click.argument('prompt')
-@click.option('--model', default='frasberg-ai', help='Model name (frasberg-ai uses server defaults)')
+@click.option('--model', default='frasberg', help='Model name (frasberg uses server defaults)')
 def generate(prompt, model):
     """Generate AI response via canonical endpoint"""
     try:
@@ -126,7 +126,7 @@ def services():
         ("Admin UI", "3000", "Web dashboard")
     ]
     
-    table = Table(title="Frasberg AI Services")
+    table = Table(title="Frasberg Services")
     table.add_column("Service", style="cyan")
     table.add_column("Port", style="yellow")
     table.add_column("Description", style="green")
