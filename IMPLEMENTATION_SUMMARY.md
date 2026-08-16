@@ -137,7 +137,7 @@ frasberg-sdk/
 
 1. **`LICENSE`**
    - UNLICENSED proprietary license
-   - Copyright: Frasberg, Inc., Emerald Estates® and Mr. Clayton-M. Bernard-Ex., AKA, Frasberg Selassie
+   - Copyright: Frasberg, Inc. and Mr. Clayton-M. Bernard-Ex., AKA, Frasberg Selassie
 
 2. **`.github/CODEOWNERS`**
    - All files: @frasberg
@@ -356,4 +356,4 @@ The Frasberg Provider Architecture has been fully implemented with:
 **Version**: 1.0.0  
 **Date**: 2026-02-04  
 **Implemented By**: Mr. Clayton-M. Bernard-Ex., AKA, Frasberg Selassie  
-**Maintained By**: Frasberg, Inc., Emerald Estates® and Mr. Clayton-M. Bernard-Ex., AKA, Frasberg Selassie
+**Maintained By**: Frasberg, Inc. and Mr. Clayton-M. Bernard-Ex., AKA, Frasberg Selassie
