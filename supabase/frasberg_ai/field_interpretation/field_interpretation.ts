@@ -1,6 +1,6 @@
 /**
  * Field Interpretation - Perceptual Field Processing
- * Part of the Field Cognition Triad for Frasberg AI
+ * Part of the Field Cognition Triad for Frasberg
  * 
  * Transforms raw behavior into meaning through interpretation rules.
  * Takes behavioral outputs, applies interpretation rules, and produces
