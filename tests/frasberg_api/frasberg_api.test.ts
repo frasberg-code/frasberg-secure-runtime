@@ -21,7 +21,7 @@ describe("frasberg_api", () => {
     const res = await request(app)
       .post("/message")
       .send({
-        user: "MR",
+        user: "Frasberg Selassie",
         text: "Hello Frasberg"
       });
 
