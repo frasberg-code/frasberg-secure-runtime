@@ -1,7 +1,7 @@
 {
   "engine": "deviation_engine",
   "version": "1.0.1",
-  "description": "Computes deviation, drift direction, alert thresholds, stability scoring, and structured history events for Frasberg AI.",
+  "description": "Computes deviation, drift direction, alert thresholds, stability scoring, and structured history events for Frasberg.",
 
   "inputs": {
     "delta": {
