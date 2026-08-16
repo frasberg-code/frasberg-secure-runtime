@@ -1,4 +1,4 @@
-import { continueFieldEvolution } from '../../supabase/frasberg_ai/field_continuum/field_continuum';
+import { continueFieldEvolution } from '../../supabase/frasberg/field_continuum/field_continuum';
 
 describe('field_continuum', () => {
   test('continues evolution using continuer', () => {
