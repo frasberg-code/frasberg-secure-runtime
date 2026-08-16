@@ -1,4 +1,4 @@
-import { mapHorizonStateII } from '../../supabase/frasberg_ai/field_horizon_mapping_ii/field_horizon_mapping_ii';
+import { mapHorizonStateII } from '../../supabase/frasberg/field_horizon_mapping_ii/field_horizon_mapping_ii';
 
 describe('field_horizon_mapping_ii', () => {
   test('maps expansion-II using mapper', () => {
