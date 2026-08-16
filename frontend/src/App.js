@@ -65,6 +65,7 @@ import TierBenchmark from "./pages/TierBenchmark";
 import { AscensionBanner } from "./components/site/AscensionBanner";
 import { CommandPalette } from "./components/site/CommandPalette";
 import FrasbergOS from "./pages/FrasbergOS";
+import CreativeStudio from "./pages/CreativeStudio";
 import DocsHub from "./pages/DocsHub";
 
 function ScrollToHash() {
@@ -85,6 +86,13 @@ function CourtGate({ children }) {
   const { user } = useAuth();
   if (user === undefined) return null;
   if (!user || user.role !== "admin") return <Navigate to="/" replace />;
+  return children;
+}
+
+function AuthGate({ children }) {
+  const { user } = useAuth();
+  if (user === undefined) return null;
+  if (!user) return <Navigate to="/auth?mode=login" replace />;
   return children;
 }
 
@@ -114,7 +122,8 @@ function App() {
               <Route path="/chat" element={<ChatRoute />} />
               <Route path="/apps" element={<WorkspaceHome />} />
               <Route path="/contact" element={<Contact />} />
-              <Route path="/database" element={<DatabaseManager />} />
+              <Route path="/database" element={<AuthGate><DatabaseManager /></AuthGate>} />
+              <Route path="/create" element={<CreativeStudio />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin/mesh" element={<MeshControlCenter />} />

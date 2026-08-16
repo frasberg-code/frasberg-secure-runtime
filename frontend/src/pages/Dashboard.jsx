@@ -16,6 +16,7 @@ import UpgradePlanModal from "../components/site/UpgradePlanModal";
 import { NativeApps } from "../components/site/NativeApps";
 import { ParallaxSky } from "../components/site/ParallaxSky";
 import { FrasbergGiftCard } from "../components/site/FrasbergGiftCard";
+import { ApiKeyForge } from "../components/site/ApiKeyForge";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 

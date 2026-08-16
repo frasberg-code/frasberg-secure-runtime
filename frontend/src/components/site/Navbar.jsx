@@ -26,6 +26,7 @@ const EXPLORE_GROUPS = [
   {
     title: "Build",
     items: [
+      { label: "Creative Studio", to: "/create" },
       { label: "Website Builder", to: "/website-builder" },
       { label: "App Builder", to: "/app-builder" },
       { label: "Game Builder", to: "/game-builder" },
@@ -101,15 +102,21 @@ export default function Navbar() {
           </span>
         </a>
 
-        <div className="hidden items-center gap-7 md:flex">
-          <a href="#models" className="text-sm text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-models">Models</a>
-          <Link
-            to="/dashboard"
-            className="text-sm text-lux-text2 transition-colors duration-200 hover:text-lux-text"
-            data-testid="nav-developers"
-          >
-            Developers
-          </Link>
+        <div className="hidden items-center gap-4 lg:flex">
+          {user ? (
+            <button onClick={logout} data-testid="nav-signin" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text">Sign out</button>
+          ) : (
+            <Link to="/auth?mode=login" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-signin">Sign In</Link>
+          )}
+          <a href="/#models" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-models">Models</a>
+          <a href="/#realms" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-realms">Realms</a>
+          <a href="/#api" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-api">API</a>
+          <Link to="/brand" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-brand">Brand</Link>
+          <Link to="/ai-models" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-ai-models">AI Models</Link>
+          <Link to="/website-builder" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-website-builder">Website Builder</Link>
+          <Link to="/game-builder" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-game-builder">Game Builder</Link>
+          <Link to="/games" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-games">Games</Link>
+          <Link to="/os" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-frasbergos">FrasbergOS</Link>
           <div className="relative" ref={exploreRef}>
             <button
               onClick={() => setExploreOpen((o) => !o)}
@@ -145,23 +152,6 @@ export default function Navbar() {
               </div>
             )}
           </div>
-          {user ? (
-            <button
-              onClick={logout}
-              data-testid="nav-logout"
-              className="text-sm text-lux-text2 transition-colors duration-200 hover:text-lux-text"
-            >
-              Sign out
-            </button>
-          ) : (
-            <Link
-              to="/auth?mode=login"
-              className="text-sm text-lux-text2 transition-colors duration-200 hover:text-lux-text"
-              data-testid="nav-signin"
-            >
-              Sign In
-            </Link>
-          )}
           <AccountMenu />
         </div>
 
@@ -183,7 +173,7 @@ export default function Navbar() {
           </Link>
           <button
             onClick={() => setOpen((o) => !o)}
-            className="grid h-10 w-10 place-items-center rounded-full border border-lux-border text-lux-text md:hidden"
+            className="grid h-10 w-10 place-items-center rounded-full border border-lux-border text-lux-text lg:hidden"
             aria-label="Menu"
             data-testid="mobile-menu-toggle"
           >
@@ -193,37 +183,26 @@ export default function Navbar() {
       </nav>
 
       {open && (
-        <div className="glass max-h-[75vh] overflow-y-auto border-t border-lux-border md:hidden" data-testid="mobile-menu">
+        <div className="glass max-h-[75vh] overflow-y-auto border-t border-lux-border lg:hidden" data-testid="mobile-menu">
           <div className="px-6 py-4">
             <div className="grid grid-cols-2 gap-x-4">
-              {LINKS.map((l) => (
-                <a
-                  key={l.href}
-                  href={l.href}
-                  onClick={() => setOpen(false)}
-                  className="py-2 text-sm text-lux-text2 hover:text-lux-text"
-                >
-                  {l.label}
-                </a>
-              ))}
-              <Link to="/dashboard" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Developers</Link>
+              {user ? (
+                <button onClick={() => { logout(); setOpen(false); }} className="py-2 text-left text-sm text-lux-text2 hover:text-lux-text">Sign out</button>
+              ) : (
+                <Link to="/auth?mode=login" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Sign In</Link>
+              )}
+              <a href="/#models" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Models</a>
+              <a href="/#realms" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Realms</a>
+              <a href="/#api" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">API</a>
               <Link to="/brand" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Brand</Link>
-              <Link to="/about" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">About</Link>
               <Link to="/ai-models" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">AI Models</Link>
-              <Link to="/luchii-code" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Luchii Code</Link>
               <Link to="/website-builder" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Website Builder</Link>
-              <Link to="/app-builder" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">App Builder</Link>
               <Link to="/game-builder" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Game Builder</Link>
-              <Link to="/gallery" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Builder Gallery</Link>
               <Link to="/games" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Games</Link>
-              <Link to="/marketplace" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Marketplace</Link>
               <Link to="/os" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">FrasbergOS</Link>
+              <Link to="/create" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Creative Studio</Link>
+              <Link to="/dashboard" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Developers</Link>
             </div>
-            {user ? (
-              <button onClick={() => { logout(); setOpen(false); }} className="py-2 text-left text-sm text-lux-text2 hover:text-lux-text">Sign out</button>
-            ) : (
-              <Link to="/auth?mode=login" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Sign In</Link>
-            )}
           </div>
         </div>
       )}
