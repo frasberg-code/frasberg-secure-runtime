@@ -1,6 +1,6 @@
-# Frasberg AI CLI
+# Frasberg CLI
 
-Command-line interface for Frasberg AI v5.0.0.
+Command-line interface for Frasberg v5.0.0.
 
 ## Installation
 
@@ -61,7 +61,7 @@ export FRASBERG_BASE_URL=http://localhost:8000
 ## Requirements
 
 - Python 3.11+
-- Frasberg AI v5.0.0 running
+- Frasberg v5.0.0 running
 
 ## License
 
