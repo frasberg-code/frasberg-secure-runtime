@@ -28,12 +28,12 @@ const client = createFrasbergClient();
 
 The client is configured via environment variables:
 
-- **`FRASBERG_AI_API_KEY`** (required): Your Frasberg API key
-- **`FRASBERG_AI_API_URL`** (optional): API base URL (default: `https://api.frasberg.yourdomain.com`)
+- **`FRASBERG_API_KEY`** (required): Your Frasberg API key
+- **`FRASBERG_API_URL`** (optional): API base URL (default: `https://api.frasberg.yourdomain.com`)
 
 ### Throws
 
-- **Error**: If `FRASBERG_AI_API_KEY` is not set
+- **Error**: If `FRASBERG_API_KEY` is not set
 
 ---
 
