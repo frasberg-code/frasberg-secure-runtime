@@ -1,4 +1,4 @@
-import { synthesizeFieldCycleIV } from '../../supabase/frasberg_ai/field_cycle_synthesis_iv/field_cycle_synthesis_iv';
+import { synthesizeFieldCycleIV } from '../../supabase/frasberg/field_cycle_synthesis_iv/field_cycle_synthesis_iv';
 
 describe('field_cycle_synthesis_iv', () => {
   test('synthesizes fourth-order cycle numerically', () => {
