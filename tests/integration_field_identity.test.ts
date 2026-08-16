@@ -3,10 +3,10 @@
  * Tests the complete flow from signature to constancy to expression
  */
 
-import { computeFieldSignature } from '../supabase/frasberg_ai/field_signature/field_signature';
-import { maintainFieldConstancy } from '../supabase/frasberg_ai/field_constancy/field_constancy';
-import { expressFieldIdentity } from '../supabase/frasberg_ai/field_expression/field_expression';
-import { fieldIdentity } from '../supabase/frasberg_ai/frasberg_ai_runtime';
+import { computeFieldSignature } from '../supabase/frasberg/field_signature/field_signature';
+import { maintainFieldConstancy } from '../supabase/frasberg/field_constancy/field_constancy';
+import { expressFieldIdentity } from '../supabase/frasberg/field_expression/field_expression';
+import { fieldIdentity } from '../supabase/frasberg/frasberg_runtime';
 
 describe('Field Identity Triad Integration', () => {
   test('complete identity flow: signature -> constancy -> expression', () => {
