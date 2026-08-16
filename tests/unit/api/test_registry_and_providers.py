@@ -211,7 +211,7 @@ def test_v51_rejects_cloud_provider_override():
 @pytest.mark.asyncio
 async def test_v51_delegates_to_canonical(monkeypatch):
     monkeypatch.setenv("LLM_PROVIDER", "local")
-    monkeypatch.setenv("FRASBERG_AI_MODEL", "llama3")
+    monkeypatch.setenv("FRASBERG_MODEL", "llama3")
 
     from fastapi import FastAPI
     from fastapi.testclient import TestClient
@@ -250,7 +250,7 @@ async def test_v51_delegates_to_canonical(monkeypatch):
 @pytest.mark.asyncio
 async def test_v3_delegates_to_canonical(monkeypatch):
     monkeypatch.setenv("LLM_PROVIDER", "local")
-    monkeypatch.setenv("FRASBERG_AI_MODEL", "llama3")
+    monkeypatch.setenv("FRASBERG_MODEL", "llama3")
 
     mock_provider = MagicMock()
     mock_provider.generate = AsyncMock(return_value=("v3 output", 4, 8))
