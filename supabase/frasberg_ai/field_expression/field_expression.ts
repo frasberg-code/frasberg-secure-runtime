@@ -1,6 +1,6 @@
 /**
  * Field Expression - Identity-Based Expression
- * Part of the Field Identity Triad for Frasberg AI
+ * Part of the Field Identity Triad for Frasberg
  * 
  * Expresses identity outward into behavior.
  * This is the system's "I act as myself" layer.
