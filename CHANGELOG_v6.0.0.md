@@ -128,11 +128,11 @@ Release Date: February 9, 2026
 
 ## 📦 New Packages
 
-- `frasberg-ai-enterprise` - Enterprise features
-- `frasberg-ai-hybrid` - Neural-DNA hybrid models
-- `frasberg-ai-distributed` - Cross-datacenter capabilities
-- `frasberg-ai-temporal-advanced` - Quantum temporal logic
-- `frasberg-ai-integrations` - Framework integrations
+- `frasberg-enterprise` - Enterprise features
+- `frasberg-hybrid` - Neural-DNA hybrid models
+- `frasberg-distributed` - Cross-datacenter capabilities
+- `frasberg-temporal-advanced` - Quantum temporal logic
+- `frasberg-integrations` - Framework integrations
 - `frasberg-sdk-typescript` - TypeScript SDK
 - `frasberg-sdk-rust` - Rust SDK
 - `frasberg-sdk-go` - Go SDK
@@ -175,7 +175,7 @@ See: docs/migration/v5-to-v6.md
 
 Quick upgrade:
 ```bash
-pip install --upgrade frasberg-ai==6.0.0
+pip install --upgrade frasberg==6.0.0
 frasberg-cli migrate --from=5.x --to=6.0.0
 ```
 
