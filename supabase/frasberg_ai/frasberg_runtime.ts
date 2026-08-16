@@ -1,8 +1,8 @@
 /**
- * Frasberg AI Runtime - Modulation Bridge Integration
+ * Frasberg Runtime - Modulation Bridge Integration
  * 
  * Integrates the Modulation Bridge Triad and Final Modulation Triad
- * into the Frasberg AI runtime, providing unified access to:
+ * into the Frasberg runtime, providing unified access to:
  * - Continuum bridging, signature filtering, and identity modulation
  * - Dynamic continuity shaping, cross-system identity bridging, and semantic filtering
  */
