@@ -1,6 +1,6 @@
 /**
  * Context Weaver - Contextual Thread Integration
- * Part of the Expressive Synthesis Triad for Frasberg AI
+ * Part of the Expressive Synthesis Triad for Frasberg
  * 
  * Interlaces contextual threads into a unified expression object,
  * ensuring continuity and coherence across modules.
