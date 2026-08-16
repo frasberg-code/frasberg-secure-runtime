@@ -1,6 +1,6 @@
 /**
  * Field Generation-II - Second-Order Generative Field Creation
- * Part of the Field Genesis-II Triad for Frasberg AI
+ * Part of the Field Genesis-II Triad for Frasberg
  * 
  * Generates new field structures from the origin-II-state.
  * Accepts origin-II states, applies generative logic,
