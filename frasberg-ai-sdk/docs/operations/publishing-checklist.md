@@ -1,6 +1,6 @@
 # NPM Publishing Checklist
 
-Complete checklist for publishing Frasberg AI SDK to NPM.
+Complete checklist for publishing Frasberg SDK to NPM.
 
 ## Pre-Publishing Requirements
 
