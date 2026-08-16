@@ -4,7 +4,7 @@
  */
 
 import { assertEquals, assertExists } from "https://deno.land/std@0.208.0/assert/mod.ts";
-import { CapabilityRouter } from "../../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_capability_router.ts";
+import { CapabilityRouter } from "../../../supabase/frasberg/frasberg_application_shell/app_shell_capability_router.ts";
 
 Deno.test("Context is passed to capability handlers", async () => {
   const testContext = {
