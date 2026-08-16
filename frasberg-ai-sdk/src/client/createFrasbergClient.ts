@@ -9,11 +9,11 @@ export interface FrasbergClient {
 export function createFrasbergClient(): FrasbergClient {
   const config = loadFrasbergConfig();
 
-  const apiKey = process.env.FRASBERG_AI_API_KEY || (() => {
-    throw new Error('FRASBERG_AI_API_KEY is missing');
+  const apiKey = process.env.FRASBERG_API_KEY || (() => {
+    throw new Error('FRASBERG_API_KEY is missing');
   })();
 
-  const baseUrl = process.env.FRASBERG_AI_API_URL || 'https://api.frasberg-ai.yourdomain.com';
+  const baseUrl = process.env.FRASBERG_API_URL || 'https://api.frasberg.yourdomain.com';
 
   return {
     async generateText(input: string) {
