@@ -1,6 +1,6 @@
 /**
  * Field Focus III - Third-Order Apex Precision Focusing
- * Part of the Field Apex-III Triad for Frasberg AI
+ * Part of the Field Apex-III Triad for Frasberg
  * 
  * Sharpens the third-order peak into apex-III precision.
  * Accepts third-order peak states, applies focusing logic,
