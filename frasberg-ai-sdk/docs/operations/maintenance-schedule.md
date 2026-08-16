@@ -1,6 +1,6 @@
 # Maintenance Schedule
 
-Regular maintenance tasks and schedules for the Frasberg AI SDK.
+Regular maintenance tasks and schedules for the Frasberg SDK.
 
 ## Overview
 
