@@ -3,7 +3,7 @@
  * Tests for capability graph generation and correctness
  */
 
-import { getCapabilityGraph, EngineCapabilities } from '../../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_capabilities';
+import { getCapabilityGraph, EngineCapabilities } from '../../../supabase/frasberg/frasberg_application_shell/app_shell_capabilities';
 
 describe('Frasberg AI Application Shell — Capability Graph', () => {
   test('generates correct nodes for all engines', () => {
