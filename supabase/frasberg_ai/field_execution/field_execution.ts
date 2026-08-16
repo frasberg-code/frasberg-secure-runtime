@@ -1,6 +1,6 @@
 /**
  * Field Execution - Decision Execution
- * Part of the Field Action Triad for Frasberg AI
+ * Part of the Field Action Triad for Frasberg
  * 
  * Executes the committed decision.
  * Accepts a committed state, applies an execution rule, and produces
