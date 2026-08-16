@@ -1,6 +1,6 @@
 /**
  * Application Shell Tests
- * Tests for the Frasberg AI Application Shell subsystem
+ * Tests for the Frasberg Application Shell subsystem
  */
 
 // Import all modules to test
@@ -13,7 +13,7 @@ import {
   registerEngineInContext,
   getEngineFromContext,
   listRegisteredEngines
-} from "../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_context";
+} from "../../supabase/frasberg/frasberg_application_shell/app_shell_context";
 
 import {
   getEngineDescriptors,
@@ -21,7 +21,7 @@ import {
   loadEngine,
   getEngineState,
   resetLifecycleState
-} from "../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_lifecycle";
+} from "../../supabase/frasberg/frasberg_application_shell/app_shell_lifecycle";
 
 import {
   initializeFrasbergAppShell,
@@ -31,11 +31,11 @@ import {
   getEngineRegistry,
   appShellMetadata,
   resetRuntime
-} from "../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_runtime";
+} from "../../supabase/frasberg/frasberg_application_shell/app_shell_runtime";
 
-import appShell from "../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_index";
+import appShell from "../../supabase/frasberg/frasberg_application_shell/app_shell_index";
 
-import { bootstrapFrasbergAI } from "../../supabase/frasberg_ai/frasberg_ai_bootstrap";
+import { bootstrapFrasberg } from "../../supabase/frasberg/frasberg_bootstrap";
 
 describe("Application Shell - Context Management", () => {
   beforeEach(() => {
@@ -294,23 +294,23 @@ describe("Bootstrap Integration", () => {
     resetRuntime();
   });
 
-  test("bootstrapFrasbergAI initializes runtime", async () => {
-    const result = await bootstrapFrasbergAI();
+  test("bootstrapFrasberg initializes runtime", async () => {
+    const result = await bootstrapFrasberg();
     
     expect(result).toBeDefined();
     expect(result.initialized).toBe(true);
   });
 
-  test("bootstrapFrasbergAI accepts initial context", async () => {
+  test("bootstrapFrasberg accepts initial context", async () => {
     const initialContext = { userId: "123" };
-    const result = await bootstrapFrasbergAI(initialContext);
+    const result = await bootstrapFrasberg(initialContext);
     
     expect(result).toBeDefined();
     expect(result.initialized).toBe(true);
   });
 
   test("bootstrap loads engines by default", async () => {
-    const result = await bootstrapFrasbergAI();
+    const result = await bootstrapFrasberg();
     
     expect(result.engines.size).toBeGreaterThan(0);
   });
