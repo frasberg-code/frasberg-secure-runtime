@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Report a bug in the Frasberg AI SDK
+about: Report a bug in the Frasberg SDK
 title: '[BUG] '
 labels: bug
 assignees: frasberg
