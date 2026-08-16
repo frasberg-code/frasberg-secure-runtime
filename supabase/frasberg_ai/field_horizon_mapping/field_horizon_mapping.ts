@@ -1,6 +1,6 @@
 /**
  * Field Horizon Mapping - Horizon-Scale Structural Mapping
- * Part of the Field Horizon Triad for Frasberg AI
+ * Part of the Field Horizon Triad for Frasberg
  * 
  * Maps the expanded field into a coherent horizon-scale structure.
  * Accepts expanded states, applies mapping logic,
