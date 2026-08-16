@@ -1,6 +1,6 @@
 /**
  * Field Authority Cycle III - Third-Order Authority Anchoring
- * Part of the Field Dominion-III Triad for Frasberg AI
+ * Part of the Field Dominion-III Triad for Frasberg
  * 
  * Establishes third-order authority over the unified multi-cycle continuum.
  * Accepts third-order continuum values, applies authority-formation logic,
