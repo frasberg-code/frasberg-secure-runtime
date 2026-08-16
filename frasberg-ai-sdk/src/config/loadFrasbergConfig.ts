@@ -11,19 +11,19 @@ export function loadFrasbergConfig(): FrasbergSystemConfig {
 
   return {
     ai: {
-      provider: 'frasberg-ai',
+      provider: 'frasberg',
       apiKeySource: required('AI_API_KEY_SOURCE') as 'github' | 'supabase',
       allowExternalProviders: false,
       fallbackProviders: []
     },
     imageGeneration: {
-      provider: 'frasberg-ai',
+      provider: 'frasberg',
       apiKeySource: required('IMAGE_API_KEY_SOURCE') as 'github' | 'supabase',
       allowExternalProviders: false,
       fallbackProviders: []
     },
     videoGeneration: {
-      provider: 'frasberg-ai',
+      provider: 'frasberg',
       apiKeySource: required('VIDEO_API_KEY_SOURCE') as 'github' | 'supabase',
       allowExternalProviders: false,
       fallbackProviders: []
