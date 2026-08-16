@@ -1,6 +1,6 @@
 /**
  * Field Horizon Mapping-II - Second-Order Horizon-Scale Structural Mapping
- * Part of the Field Horizon-II Triad for Frasberg AI
+ * Part of the Field Horizon-II Triad for Frasberg
  * 
  * Maps the expanded field-II state at horizon-II scale.
  * Accepts expansion-II values, applies second-order horizon mapping,
