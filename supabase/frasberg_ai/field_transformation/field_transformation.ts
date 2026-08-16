@@ -1,6 +1,6 @@
 /**
  * Field Transformation - Deep Field Transformation
- * Part of the Field Transformation Triad for Frasberg AI
+ * Part of the Field Transformation Triad for Frasberg
  * 
  * Applies transformative logic to the influenced/shifted field.
  * Accepts shifted or modulated field states, applies transformation rules,
