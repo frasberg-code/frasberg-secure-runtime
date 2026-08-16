@@ -1,6 +1,6 @@
 # Monitoring Guide
 
-Guidelines for monitoring the Frasberg AI SDK health, performance, and usage.
+Guidelines for monitoring the Frasberg SDK health, performance, and usage.
 
 ## Overview
 
@@ -377,7 +377,7 @@ curl "https://api.npmjs.org/downloads/range/last-month/@frasberg/core-sdk"
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│ Frasberg AI SDK - Health Dashboard                  │
+│ Frasberg SDK - Health Dashboard                     │
 ├─────────────────────────────────────────────────────┤
 │ Downloads                                           │
 │ ├─ Daily: 1,234 ↑ 12%                              │
@@ -416,7 +416,7 @@ curl "https://api.npmjs.org/downloads/range/last-month/@frasberg/core-sdk"
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <h1>Frasberg AI SDK Health</h1>
+  <h1>Frasberg SDK Health</h1>
   <canvas id="downloadsChart"></canvas>
   <canvas id="coverageChart"></canvas>
   
@@ -582,7 +582,7 @@ setInterval(syntheticTest, 60 * 60 * 1000);
 ### Weekly Report Template
 
 ```markdown
-# Frasberg AI SDK - Weekly Report
+# Frasberg SDK - Weekly Report
 
 **Week:** [Date Range]
 
