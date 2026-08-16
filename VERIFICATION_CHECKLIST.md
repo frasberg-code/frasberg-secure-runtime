@@ -41,7 +41,7 @@ This document is the canonical acceptance checklist confirming the Frasberg → 
 
 - [x] No duplicated `supabase/supabase/...` nested paths exist in tracked files
 - [x] Canonical directory is `supabase/frasberg/` (not any legacy path)
-- [x] `supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_manifest.json` is valid JSON
+- [x] `supabase/frasberg/frasberg_application_shell/app_shell_manifest.json` is valid JSON
 - [x] CI workflow `ci.yml` validates the correct `supabase/frasberg/` structure
 
 ---
