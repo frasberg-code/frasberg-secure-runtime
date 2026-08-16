@@ -1,6 +1,6 @@
 /**
  * Field Expression Apex III - Third-Order Highest-Order Apex Expression
- * Part of the Field Apex-III Triad for Frasberg AI
+ * Part of the Field Apex-III Triad for Frasberg
  * 
  * Expresses the third-order apex-III signal outward.
  * Accepts third-order focused states, applies apex-expression logic,
