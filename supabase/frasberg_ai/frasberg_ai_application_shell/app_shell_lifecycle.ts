@@ -1,6 +1,6 @@
 /**
  * app_shell_lifecycle.ts
- * Engine lifecycle manager for Frasberg AI Application Shell.
+ * Engine lifecycle manager for Frasberg Application Shell.
  * Handles loading, initialization, and state management of engines.
  */
 
