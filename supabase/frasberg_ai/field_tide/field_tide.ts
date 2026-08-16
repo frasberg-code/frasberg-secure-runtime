@@ -1,6 +1,6 @@
 /**
  * Field Tide - Rhythmic Field Modulation
- * Part of the Field Stabilization Triad for Frasberg AI
+ * Part of the Field Stabilization Triad for Frasberg
  * 
  * Applies rhythmic, directional modulation to the field.
  * Supports rising and falling phases for controlled,
