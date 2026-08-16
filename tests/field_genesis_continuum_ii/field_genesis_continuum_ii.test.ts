@@ -1,4 +1,4 @@
-import { continueGenesisII } from '../../supabase/frasberg_ai/field_genesis_continuum_ii/field_genesis_continuum_ii';
+import { continueGenesisII } from '../../supabase/frasberg/field_genesis_continuum_ii/field_genesis_continuum_ii';
 
 describe('field_genesis_continuum_ii', () => {
   test('continues genesis-II using continuer', () => {
