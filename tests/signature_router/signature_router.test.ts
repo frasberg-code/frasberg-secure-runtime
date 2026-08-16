@@ -1,8 +1,8 @@
-import { routeSignature } from '../../supabase/frasberg_ai/signature_router/signature_router';
+import { routeSignature } from '../../supabase/frasberg/signature_router/signature_router';
 
 describe('signature_router', () => {
   test('routes signature to destination', () => {
-    expect(routeSignature('MR', 'engine')).toBe('MR=>engine');
+    expect(routeSignature('Frasberg Selassie', 'engine')).toBe('Frasberg Selassie=>engine');
   });
 
   test('routes to bridge', () => {
@@ -18,6 +18,6 @@ describe('signature_router', () => {
   });
 
   test('handles complex signatures', () => {
-    expect(routeSignature('MR:CONTEXT', 'bridge')).toBe('MR:CONTEXT=>bridge');
+    expect(routeSignature('Frasberg Selassie:CONTEXT', 'bridge')).toBe('Frasberg Selassie:CONTEXT=>bridge');
   });
 });
