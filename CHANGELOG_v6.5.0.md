@@ -351,7 +351,7 @@ pip install --upgrade frasberg==6.5.0
 
 ```python
 # New integrations are opt-in
-from frasberg_ai.integrations import HuggingFaceTransformer
+from frasberg.integrations import HuggingFaceTransformer
 
 # New CLI commands are additive
 frasberg-cli interactive  # New command, old commands still work
