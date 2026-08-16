@@ -1,10 +1,10 @@
-# Frasberg AI SDK Documentation
+# Frasberg SDK Documentation
 
-Welcome to the official documentation for the Frasberg AI SDK.
+Welcome to the official documentation for the Frasberg SDK.
 
 ## Overview
 
-Frasberg AI SDK is a unified client for text, image, and video generation powered exclusively by the Frasberg AI API. This SDK enforces a strict, sovereign provider architecture with no external dependencies or fallback mechanisms.
+Frasberg SDK is a unified client for text, image, and video generation powered exclusively by the Frasberg API. This SDK enforces a strict, sovereign provider architecture with no external dependencies or fallback mechanisms.
 
 ## Key Features
 
@@ -24,7 +24,7 @@ Frasberg AI SDK is a unified client for text, image, and video generation powere
 
 ## Provider Policy
 
-All AI, LLM, image, and video operations use **Frasberg AI API exclusively**:
+All AI, LLM, image, and video operations use **Frasberg API exclusively**:
 - No OpenAI, Anthropic, Gemini, Stability AI, or Emergent LLM
 - No fallback providers
 - API keys from GitHub Secrets or Supabase Vault only
