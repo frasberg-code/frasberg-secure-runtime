@@ -1,4 +1,4 @@
-import { synthesizeFieldCycles } from '../../supabase/frasberg_ai/field_synthesis/field_synthesis';
+import { synthesizeFieldCycles } from '../../supabase/frasberg/field_synthesis/field_synthesis';
 
 describe('field_synthesis', () => {
   test('synthesizes cycles using synthesizer', () => {
