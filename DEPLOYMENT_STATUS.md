@@ -11,7 +11,7 @@
 
 ```
 ┌─────────────────────────────────────────────────┐
-│  FRASBERG CORE v1.0.0 - COMPLETE SYSTEM LIVE      │
+│  FRASBERG CORE v1.0.0 - COMPLETE SYSTEM LIVE    │
 │                                                 │
 │  ✅ Canonical Core     (Port 8000)  HEALTHY    │
 │  ✅ Education Fork     (Port 8001)  HEALTHY    │
@@ -211,10 +211,10 @@ cd /workspaces/frasberg
 
 # Commit all changes
 git add .
-git commit -m "Frasberg AI v1.0.0 - Complete 5-service system deployed"
+git commit -m "Frasberg v1.0.0 - Complete 5-service system deployed"
 
 # Tag release
-git tag -a v1.0.0 -m "Frasberg AI v1.0.0 - Public Release - Institution-Grade Intelligence"
+git tag -a v1.0.0 -m "Frasberg v1.0.0 - Public Release - Institution-Grade Intelligence"
 
 # Push to GitHub
 git push origin main
@@ -314,7 +314,7 @@ gh release create v1.0.0 \
 ```
 ╔═══════════════════════════════════════════════════╗
 ║                                                   ║
-║     🎉 FRASBERG CORE v1.0.0 - DEPLOYMENT COMPLETE   ║
+║  🎉 FRASBERG CORE v1.0.0 - DEPLOYMENT COMPLETE   ║
 ║                                                   ║
 ║  Status: ✅ PRODUCTION READY                     ║
 ║  Services: 5/5 OPERATIONAL                        ║
