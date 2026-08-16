@@ -1,6 +1,6 @@
 /**
  * Field Horizon Expansion-III - Third-Order Horizon Expansion
- * Part of the Field Horizon-III Triad for Frasberg AI
+ * Part of the Field Horizon-III Triad for Frasberg
  * 
  * Expands the mapped horizon-III into a wider panoramic state.
  * Accepts mapped-III values, applies third-order expansion logic,
