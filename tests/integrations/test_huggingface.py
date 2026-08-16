@@ -29,13 +29,13 @@ class TestHuggingFaceTransformer:
         assert True
     
     def test_cache_enabled(self):
-        """Test Frasberg AI caching is enabled"""
+        """Test Frasberg caching is enabled"""
         with patch.object(HuggingFaceTransformer, '_initialize_model'):
             model = HuggingFaceTransformer("gpt2", use_frasberg_cache=True)
             assert model.use_frasberg_cache is True
     
     def test_cache_disabled(self):
-        """Test Frasberg AI caching can be disabled"""
+        """Test Frasberg caching can be disabled"""
         with patch.object(HuggingFaceTransformer, '_initialize_model'):
             model = HuggingFaceTransformer("gpt2", use_frasberg_cache=False)
             assert model.use_frasberg_cache is False
