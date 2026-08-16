@@ -1,6 +1,6 @@
 /**
  * Field Peak IV - Fourth-Order Apex Peak Formation
- * Part of the Field Peak-IV Triad for Frasberg AI
+ * Part of the Field Peak-IV Triad for Frasberg
  * 
  * Forms the fourth-order peak from enforcement-IV states.
  * Accepts fourth-order enforcement states, applies peak-formation logic,
