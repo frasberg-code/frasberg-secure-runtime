@@ -3,7 +3,7 @@
  * Tests for detecting missing capability providers
  */
 
-import { validateCapabilities, EngineCapabilities } from '../../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_capabilities';
+import { validateCapabilities, EngineCapabilities } from '../../../supabase/frasberg/frasberg_application_shell/app_shell_capabilities';
 
 describe('Frasberg AI Application Shell — Missing Providers', () => {
   test('detects missing provider for consumed capability', () => {
