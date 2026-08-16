@@ -1,4 +1,4 @@
-import { computeEquilibrium } from '../../supabase/frasberg_ai/field_equilibrium/field_equilibrium';
+import { computeEquilibrium } from '../../supabase/frasberg/field_equilibrium/field_equilibrium';
 
 describe('field_equilibrium', () => {
   test('computes equilibrium point', () => {
