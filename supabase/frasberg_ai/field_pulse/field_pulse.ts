@@ -1,6 +1,6 @@
 /**
  * Field Pulse - Rhythmic Field Activation
- * Part of the Field Dynamics Triad for Frasberg AI
+ * Part of the Field Dynamics Triad for Frasberg
  * 
  * Introduces rhythmic, periodic activation within the field.
  * Generates pulses at defined intervals with modulated intensity
