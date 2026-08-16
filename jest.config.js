@@ -19,9 +19,7 @@ export default {
   ],
   testPathIgnorePatterns: [
     '/node_modules/',
-    '/dist/',
-    'tests/frasberg_ai_application_shell/execution/',
-    'tests/frasberg_ai_application_shell/pipeline/'
+    '/dist/'
   ],
   collectCoverageFrom: [
     'src/**/*.ts',
