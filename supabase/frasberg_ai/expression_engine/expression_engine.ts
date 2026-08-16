@@ -1,6 +1,6 @@
 /**
  * Expression Engine - Structured Multi-Layer Expression
- * Part of the Expressive Synthesis Triad for Frasberg AI
+ * Part of the Expressive Synthesis Triad for Frasberg
  * 
  * Generates structured, multi-layered expressions by applying
  * ordered transformation layers to a seed input.
