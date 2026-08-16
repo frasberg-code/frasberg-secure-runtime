@@ -1,6 +1,6 @@
 /**
  * Field Continuum Initiation IV - Fourth-Order Continuum Initiation
- * Part of the Field Continuum-IV Triad for Frasberg AI
+ * Part of the Field Continuum-IV Triad for Frasberg
  * 
  * Initiates the fourth-order continuum state.
  * Accepts input values, applies initiation logic,
