@@ -1,6 +1,6 @@
 /**
  * Field Harmonization - Cross-Cycle Harmonization
- * Part of the Field Integration Triad for Frasberg AI
+ * Part of the Field Integration Triad for Frasberg
  * 
  * Integrates multi-cycle field activity into coherent, long-arc patterns.
  * Harmonizes field states across multiple cycles to achieve coherent
