@@ -1,8 +1,8 @@
-import { synthesizeSignature } from '../../supabase/frasberg_ai/signature_synthesizer/signature_synthesizer';
+import { synthesizeSignature } from '../../supabase/frasberg/signature_synthesizer/signature_synthesizer';
 
 describe('signature_synthesizer', () => {
   test('synthesizes signature with mode', () => {
-    expect(synthesizeSignature('MR', 'direct')).toBe('MR::direct');
+    expect(synthesizeSignature('Frasberg Selassie', 'direct')).toBe('MR::direct');
   });
 
   test('synthesizes with different base', () => {
