@@ -1,6 +1,6 @@
 /**
  * Field Peak II - Second-Order Peak Formation
- * Part of the Field Apex-II Triad for Frasberg AI
+ * Part of the Field Apex-II Triad for Frasberg
  * 
  * Forms the second-order peak from dominion-continuity.
  * Accepts dominion-continuity values, applies second-order peak logic,
