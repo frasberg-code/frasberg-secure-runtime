@@ -1,6 +1,6 @@
 /**
  * Field Origin - Origin-State Reinstatement
- * Part of the Field Genesis Triad for Frasberg AI
+ * Part of the Field Genesis Triad for Frasberg
  * 
  * Returns the horizon-continuous field to its origin-seed state.
  * Accepts horizon-continuity values, applies origin-reduction logic,
