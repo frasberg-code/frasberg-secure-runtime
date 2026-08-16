@@ -1,6 +1,6 @@
 /**
  * Semantic Bridge - Contextual Semantic Alignment
- * Part of the Orchestration Synthesis Triad for Frasberg AI
+ * Part of the Orchestration Synthesis Triad for Frasberg
  * 
  * Enables contextual semantic linking between internal state
  * and external meaning, providing semantic coherence.
