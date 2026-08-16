@@ -176,16 +176,16 @@ cd /workspaces/frasberg/deploy
 
 **1. Release Package**
 - Copies all backend, frontend, docs, deploy files
-- Creates `release/frasberg-ai-v1.0.0-public-final/`
+- Creates `release/frasberg-v1.0.0-public-final/`
 - Includes RELEASE_NOTES.md
 - Packages everything needed for deployment
 
 **2. ZIP Archive**
-- `release/frasberg-ai-v1.0.0-public-final.zip`
+- `release/frasberg-v1.0.0-public-final.zip`
 - Ready for distribution
 
 **3. Checksum**
-- `release/frasberg-ai-v1.0.0-public-final.zip.sha256`
+- `release/frasberg-v1.0.0-public-final.zip.sha256`
 - For verification
 
 ### Create GitHub Release
@@ -193,10 +193,10 @@ cd /workspaces/frasberg/deploy
 **Option 1: GitHub CLI**
 ```bash
 gh release create v1.0.0-public-final \
-  release/frasberg-ai-v1.0.0-public-final.zip \
-  release/frasberg-ai-v1.0.0-public-final.zip.sha256 \
-  --title "Frasberg AI v1.0.0 - Public Release" \
-  --notes-file release/frasberg-ai-v1.0.0-public-final/RELEASE_NOTES.md
+  release/frasberg-v1.0.0-public-final.zip \
+  release/frasberg-v1.0.0-public-final.zip.sha256 \
+  --title "Frasberg v1.0.0 - Public Release" \
+  --notes-file release/frasberg-v1.0.0-public-final/RELEASE_NOTES.md
 ```
 
 **Option 2: GitHub Web UI**
@@ -204,12 +204,12 @@ gh release create v1.0.0-public-final \
 2. Tag: `v1.0.0-public-final`
 3. Title: "Frasberg AI v1.0.0 - Public Release"
 4. Upload ZIP and SHA256 files
-5. Copy release notes from `release/frasberg-ai-v1.0.0-public-final/RELEASE_NOTES.md`
+5. Copy release notes from `release/frasberg-v1.0.0-public-final/RELEASE_NOTES.md`
 6. Publish release
 
 ### Tag Repository
 ```bash
-git tag -a v1.0.0-public-final -m "Frasberg AI v1.0.0 - Institution-Grade Intelligence System"
+git tag -a v1.0.0-public-final -m "Frasberg v1.0.0 - Institution-Grade Intelligence System"
 git push origin v1.0.0-public-final
 ```
 
@@ -429,5 +429,5 @@ docker exec -it frasberg_canonical_core /bin/bash
 
 ---
 
-**Frasberg AI v1.0.0** - Institution-Grade Intelligence  
+**Frasberg v1.0.0** - Institution-Grade Intelligence  
 **Status:** Canonical Core OPERATIONAL 🟢 | Full System PENDING PR ⏳
