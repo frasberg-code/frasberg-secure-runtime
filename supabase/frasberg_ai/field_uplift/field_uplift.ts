@@ -1,6 +1,6 @@
 /**
  * Field Uplift - Higher-Order Field Elevation
- * Part of the Field Ascension Triad for Frasberg AI
+ * Part of the Field Ascension Triad for Frasberg
  * 
  * Elevates the evolved field into a higher-order configuration.
  * Accepts evolved field states, applies uplift logic,
