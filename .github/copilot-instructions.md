@@ -5,7 +5,7 @@
 Frasberg is a **behavioral governance engine** for the Frasberg platform. It is a **monorepo** combining:
 
 - A **Python FastAPI backend** (`backend/`) with MongoDB for the Frasberg API.
-- **TypeScript packages** (`packages/`, `supabase/frasberg_ai/`, `src/`) implementing tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules.
+- **TypeScript packages** (`packages/`, `supabase/frasberg/`, `src/`) implementing tonal modulation, hinge logic, membrane protocol, and runtime enforcement modules.
 - A **pnpm workspace** for the TypeScript packages.
 
 **Runtimes:** Python 3.11+, Node.js 18+, pnpm 8+
@@ -95,10 +95,10 @@ pnpm lint                  # runs pnpm lint in each workspace package
 Two workflows run on pull requests:
 
 1. **`build.yml`** (on every push/PR): installs pnpm, builds packages, runs governance engine tests.
-2. **`ci.yml`** (on PRs touching `src/**`, `supabase/frasberg_ai/**`, `tests/**`, `tsconfig.json`):
-   - Validates that all required directories under `supabase/frasberg_ai/` exist.
-   - Validates `supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_manifest.json` is valid JSON.
-   - **Never remove or rename directories under `supabase/frasberg_ai/`** without updating `ci.yml`.
+2. **`ci.yml`** (on PRs touching `src/**`, `supabase/frasberg/**`, `tests/**`, `tsconfig.json`):
+   - Validates that all required directories under `supabase/frasberg/` exist.
+   - Validates `supabase/frasberg/frasberg_application_shell/app_shell_manifest.json` is valid JSON.
+   - **Never remove or rename directories under `supabase/frasberg/`** without updating `ci.yml`.
 
 ---
 
