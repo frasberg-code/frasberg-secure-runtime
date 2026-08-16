@@ -1,6 +1,6 @@
-# Introducing Frasberg AI: Open Source AI Infrastructure for the Post-Silicon Era
+# Introducing Frasberg: Open Source AI Infrastructure for the Post-Silicon Era
 
-**TL;DR**: We're launching Frasberg AI, the first open-source AI infrastructure that combines biological computing, swarm intelligence, and temporal reasoning. MIT licensed, production-ready, and available now.
+**TL;DR**: We're launching Frasberg, the first open-source AI infrastructure that combines biological computing, swarm intelligence, and temporal reasoning. MIT licensed, production-ready, and available now.
 
 ---
 
@@ -17,9 +17,9 @@ We spent 20+ hours building something better.
 
 ---
 
-## Introducing Frasberg AI
+## Introducing Frasberg
 
-Frasberg AI is planetary-scale AI infrastructure built on three revolutionary principles:
+Frasberg is planetary-scale AI infrastructure built on three revolutionary principles:
 
 ### 1. Biological Computing
 Inspired by DNA, our algorithms achieve **1 million times better efficiency** than traditional systems through massive parallelism.
@@ -57,7 +57,7 @@ prediction = client.temporal_reasoning(
 
 ## Built for Production
 
-Frasberg AI isn't a research project—it's production infrastructure:
+Frasberg isn't a research project—it's production infrastructure:
 
 ✅ **Real LLM Integration**: OpenAI, Anthropic, local models  
 ✅ **Authentication**: JWT, OAuth2, API keys  
@@ -85,7 +85,7 @@ Our **8,000-word academic paper** "DNA Computing Integration in Distributed Inte
 
 ## Open Source, Always
 
-Frasberg AI is **MIT licensed**. Forever.
+Frasberg is **MIT licensed**. Forever.
 
 - ✨ No vendor lock-in: Host anywhere
 - ✨ Full transparency: Every line of code visible
@@ -148,9 +148,9 @@ pip install frasberg-sdk
 
 We're building this together:
 
-- **Discord**: https://discord.gg/frasberg-ai
+- **Discord**: https://discord.gg/frasbergai
 - **GitHub**: https://github.com/FrasbergAI/frasberg
-- **Twitter**: @frasberg_ai_ai
+- **Twitter**: @frasberg.com
 
 ### Contributing
 We welcome PRs! Check out our [Good First Issues](../community/GOOD_FIRST_ISSUES.md)
@@ -163,7 +163,7 @@ We welcome PRs! Check out our [Good First Issues](../community/GOOD_FIRST_ISSUES
 
 The AI revolution is happening, but the infrastructure hasn't evolved since the 1940s (von Neumann architecture).
 
-Frasberg AI represents the **post-silicon era**:
+Frasberg represents the **post-silicon era**:
 - Biological algorithms
 - Distributed intelligence
 - Quantum-ready systems
@@ -187,14 +187,14 @@ It takes 5 minutes to start. It takes a lifetime to master.
 
 ## What's Next?
 
-Today, we're launching Frasberg AI to the world.
+Today, we're launching Frasberg to the world.
 
 Tomorrow, we're building the future of AI—**together**.
 
-**Join us**: https://discord.gg/frasberg-ai
+**Join us**: https://discord.gg/frasbergai
 
 ---
 
-*Frasberg AI - Planetary-Scale Intelligence for Everyone*
+*Frasberg - Planetary-Scale Intelligence for Everyone*
 
 [Get Started](#) | [Read Docs](../docs/) | [Join Discord](https://discord.gg/frasberg-ai) | [Star on GitHub](https://github.com/FrasbergAI/frasberg)
