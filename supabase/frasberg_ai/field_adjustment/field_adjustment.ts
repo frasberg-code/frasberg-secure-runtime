@@ -1,6 +1,6 @@
 /**
  * Field Adjustment - Self-Tuning Field Correction
- * Part of the Field Behavior Triad for Frasberg AI
+ * Part of the Field Behavior Triad for Frasberg
  * 
  * Allows the field to correct or tune itself through adjustment factors.
  * Takes a dynamic state, applies correction factors, and returns a
