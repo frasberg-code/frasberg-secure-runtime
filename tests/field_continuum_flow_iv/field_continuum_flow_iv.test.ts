@@ -1,4 +1,4 @@
-import { flowContinuumStateIV } from '../../supabase/frasberg_ai/field_continuum_flow_iv/field_continuum_flow_iv';
+import { flowContinuumStateIV } from '../../supabase/frasberg/field_continuum_flow_iv/field_continuum_flow_iv';
 
 describe('field_continuum_flow_iv', () => {
   test('flows fourth-order continuum numerically', () => {
