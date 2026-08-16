@@ -1,4 +1,4 @@
-import { expandFieldStateII } from '../../supabase/frasberg_ai/field_expansion_ii/field_expansion_ii';
+import { expandFieldStateII } from '../../supabase/frasberg/field_expansion_ii/field_expansion_ii';
 
 describe('field_expansion_ii', () => {
   test('expands apex-II using expander', () => {
