@@ -86,7 +86,7 @@ pnpm lint                  # runs pnpm lint in each workspace package
 ```
 
 - Tests use ESM via `ts-jest`. The `moduleNameMapper` strips `.js` extensions.
-- Ignored test paths: `tests/frasberg_ai_application_shell/execution/` and `.../pipeline/`.
+- Ignored test paths: `tests/frasberg_application_shell/execution/` and `.../pipeline/`.
 
 ---
 
