@@ -3,11 +3,11 @@
  * Confirms engines shut down in reverse order, respecting dependency teardown.
  */
 
-import { initializeFrasbergAppShell, resetRuntime, shutdownFrasbergAppShell } from '../../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_runtime';
-import { resetContext } from '../../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_context';
-import { resetLifecycleState, getLifecycleLogs } from '../../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_lifecycle';
+import { initializeFrasbergAppShell, resetRuntime, shutdownFrasbergAppShell } from '../../../supabase/frasberg/frasberg_application_shell/app_shell_runtime';
+import { resetContext } from '../../../supabase/frasberg/frasberg_application_shell/app_shell_context';
+import { resetLifecycleState, getLifecycleLogs } from '../../../supabase/frasberg/frasberg_application_shell/app_shell_lifecycle';
 
-describe('Frasberg AI Application Shell — Shutdown Order', () => {
+describe('Frasberg Application Shell — Shutdown Order', () => {
   beforeEach(() => {
     resetContext();
     resetLifecycleState();
