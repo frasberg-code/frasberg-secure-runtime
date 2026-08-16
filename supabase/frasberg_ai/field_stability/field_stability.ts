@@ -1,6 +1,6 @@
 /**
  * Field Stability - Long-Arc Field Stability
- * Part of the Field Integration Triad for Frasberg AI
+ * Part of the Field Integration Triad for Frasberg
  * 
  * Integrates multi-cycle field activity into coherent, long-arc patterns.
  * Computes field stability over extended time periods to ensure consistent
