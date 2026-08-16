@@ -3,12 +3,12 @@
  * Ensures each engine receives initialized dependencies before its own init() runs.
  */
 
-import { initializeFrasbergAppShell, resetRuntime } from '../../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_runtime';
-import { resetContext } from '../../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_context';
-import { resetLifecycleState, getLifecycleLogs } from '../../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_lifecycle';
-import manifest from '../../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_manifest.json';
+import { initializeFrasbergAppShell, resetRuntime } from '../../../supabase/frasberg/frasberg_application_shell/app_shell_runtime';
+import { resetContext } from '../../../supabase/frasberg/frasberg_application_shell/app_shell_context';
+import { resetLifecycleState, getLifecycleLogs } from '../../../supabase/frasberg/frasberg_application_shell/app_shell_lifecycle';
+import manifest from '../../../supabase/frasberg/frasberg_application_shell/app_shell_manifest.json';
 
-describe('Frasberg AI Application Shell — Dependency Resolution', () => {
+describe('Frasberg Application Shell — Dependency Resolution', () => {
   beforeEach(() => {
     resetContext();
     resetLifecycleState();
