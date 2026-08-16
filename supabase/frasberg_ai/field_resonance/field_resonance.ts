@@ -1,6 +1,6 @@
 /**
  * Field Resonance - Presence-Field Resonance
- * Part of the Field Presence Triad for Frasberg AI
+ * Part of the Field Presence Triad for Frasberg
  * 
  * Allows presence to resonate with the surrounding field.
  * Accepts presence states, applies resonance logic, and produces
