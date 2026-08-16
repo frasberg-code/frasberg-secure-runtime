@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the Frasberg AI SDK will be documented in this file.
+All notable changes to the Frasberg SDK will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -35,11 +35,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive README
 
 ### Features
-- `createFrasbergClient()` - Creates authenticated Frasberg AI client
+- `createFrasbergClient()` - Creates authenticated Frasberg client
 - `loadFrasbergConfig()` - Loads and validates configuration
-- `generateText()` - Generate text using Frasberg AI AI
-- `generateImage()` - Generate images using Frasberg AI
-- `generateVideo()` - Generate videos using Frasberg AI
+- `generateText()` - Generate text using Frasberg
+- `generateImage()` - Generate images using Frasberg
+- `generateVideo()` - Generate videos using Frasberg
 
 ### Documentation
 - Installation guide
