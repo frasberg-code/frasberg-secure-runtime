@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Deploying Frasberg AI to Google Cloud Platform..."
+echo "Deploying Frasberg to Google Cloud Platform..."
 echo ""
 
 # Check gcloud CLI
@@ -46,7 +46,7 @@ cd ../..
 
 # Build and submit to Cloud Build
 gcloud builds submit \
-    --tag gcr.io/$PROJECT_ID/frasberg-ai/canonical-core:v1 \
+    --tag gcr.io/$PROJECT_ID/frasberg/canonical-core:v1 \
     --project=$PROJECT_ID \
     deploy/canonical-core
 
