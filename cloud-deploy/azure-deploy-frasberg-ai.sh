@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Deploying Frasberg AI to Microsoft Azure..."
+echo "Deploying Frasberg to Microsoft Azure..."
 echo ""
 
 # Check Azure CLI
@@ -14,7 +14,7 @@ echo "✅ Azure CLI found"
 echo ""
 
 # Configuration
-RESOURCE_GROUP="frasberg-ai-rg"
+RESOURCE_GROUP="frasberg-rg"
 LOCATION="eastus"
 ACR_NAME="frasbergarireg"
 
@@ -52,7 +52,7 @@ az acr login --name $ACR_NAME
 # Build and push
 az acr build \
     --registry $ACR_NAME \
-    --image frasberg-ai/canonical-core:v1 \
+    --image frasberg/canonical-core:v1 \
     deploy/canonical-core
 
 echo ""
@@ -60,8 +60,8 @@ echo "Step 4: Deploying to Azure Container Instances..."
 az container create \
     --resource-group $RESOURCE_GROUP \
     --name frasberg-canonical-core \
-    --image $ACR_NAME.azurecr.io/frasberg-ai/canonical-core:v1 \
-    --dns-name-label frasberg-ai-canonical \
+    --image $ACR_NAME.azurecr.io/frasberg/canonical-core:v1 \
+    --dns-name-label frasberg-canonical \
     --ports 8000 \
     --registry-login-server $ACR_NAME.azurecr.io \
     --registry-username $(az acr credential show --name $ACR_NAME --query username -o tsv) \
