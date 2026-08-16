@@ -1,6 +1,6 @@
 /**
  * Field Signature - Identity Signature Formation
- * Part of the Field Identity Triad for Frasberg AI
+ * Part of the Field Identity Triad for Frasberg
  * 
  * Defines the system's unique identity signature.
  * This is the system's "who I am" layer.
