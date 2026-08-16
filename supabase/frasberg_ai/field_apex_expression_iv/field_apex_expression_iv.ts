@@ -1,6 +1,6 @@
 /**
  * Field Apex Expression IV - Fourth-Order Highest-Order Apex Expression
- * Part of the Field Peak-IV Triad for Frasberg AI
+ * Part of the Field Peak-IV Triad for Frasberg
  * 
  * Expresses the fourth-order apex-IV signal outward.
  * Accepts fourth-order focused states, applies apex-expression logic,
