@@ -1,6 +1,6 @@
 /**
  * Field Continuum Extension - Long-Arc Continuum Extension
- * Part of the Field Continuum-II Triad for Frasberg AI
+ * Part of the Field Continuum-II Triad for Frasberg
  * 
  * Extends the stabilized cycle into the long-arc continuum.
  * Accepts cycle-stable states, applies extension logic,
