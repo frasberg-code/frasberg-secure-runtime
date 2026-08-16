@@ -1,6 +1,6 @@
 /**
  * Field Presence - Identity-Based Presence Formation
- * Part of the Field Presence Triad for Frasberg AI
+ * Part of the Field Presence Triad for Frasberg
  * 
  * Establishes the system's active presence in the field.
  * Accepts identity-expressive states, applies presence-formation logic,
