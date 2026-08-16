@@ -1,4 +1,4 @@
-import { computeFieldSignature } from '../../supabase/frasberg_ai/field_signature/field_signature';
+import { computeFieldSignature } from '../../supabase/frasberg/field_signature/field_signature';
 
 describe('field_signature', () => {
   test('computes identity signature using signer and validator', () => {
