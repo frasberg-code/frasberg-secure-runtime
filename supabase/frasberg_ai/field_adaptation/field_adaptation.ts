@@ -1,6 +1,6 @@
 /**
  * Field Adaptation - Adaptive Field Response
- * Part of the Field Evolution Triad for Frasberg AI
+ * Part of the Field Evolution Triad for Frasberg
  * 
  * Enables the field to adapt based on transformed and reintegrated states.
  * Accepts reintegrated field values, applies adaptation logic,
