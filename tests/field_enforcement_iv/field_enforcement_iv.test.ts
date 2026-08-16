@@ -1,4 +1,4 @@
-import { enforceFieldStateIV } from '../../supabase/frasberg_ai/field_enforcement_iv/field_enforcement_iv';
+import { enforceFieldStateIV } from '../../supabase/frasberg/field_enforcement_iv/field_enforcement_iv';
 
 describe('field_enforcement_iv', () => {
   test('enforces fourth-order state numerically', () => {
