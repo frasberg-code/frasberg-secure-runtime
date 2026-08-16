@@ -146,7 +146,7 @@ Each README includes:
 
 ## Backward Compatibility Verification
 
-✅ Original `supabase/frasberg_ai/` structure **preserved**
+✅ Original `supabase/frasberg/` structure **preserved**
 ✅ Existing imports **continue to work**
 ✅ No breaking changes introduced
 ✅ Migration path clearly documented
