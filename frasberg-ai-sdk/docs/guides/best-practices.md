@@ -1,6 +1,6 @@
 # Best Practices
 
-Production-ready patterns and recommendations for the Frasberg AI SDK.
+Production-ready patterns and recommendations for the Frasberg SDK.
 
 ## Configuration
 
@@ -9,7 +9,7 @@ Production-ready patterns and recommendations for the Frasberg AI SDK.
 **✅ DO:**
 ```typescript
 // Load from environment variables
-const apiKey = process.env.FRASBERG_AI_API_KEY;
+const apiKey = process.env.FRASBERG_API_KEY;
 
 // Use GitHub Secrets for CI/CD
 // Use Supabase Vault for production
@@ -28,12 +28,12 @@ const apiKey = 'sk-123456789...'; // NEVER DO THIS
 
 ```typescript
 // development.env
-FRASBERG_AI_API_KEY=dev-key-here
-FRASBERG_AI_API_URL=https://dev-api.frasberg-ai.com
+FRASBERG_API_KEY=dev-key-here
+FRASBERG_API_URL=https://dev-api.frasberg.com
 
 // production.env (keep secure!)
-FRASBERG_AI_API_KEY=prod-key-here
-FRASBERG_AI_API_URL=https://api.frasberg-ai.com
+FRASBERG_API_KEY=prod-key-here
+FRASBERG_API_URL=https://api.frasberg.com
 ```
 
 ## Error Handling
@@ -287,7 +287,7 @@ describe('Frasberg SDK Integration', () => {
   
   beforeAll(() => {
     // Use test API key
-    process.env.FRASBERG_AI_API_KEY = 'test-key';
+    process.env.FRASBERG_API_KEY = 'test-key';
     client = createFrasbergClient();
   });
   
