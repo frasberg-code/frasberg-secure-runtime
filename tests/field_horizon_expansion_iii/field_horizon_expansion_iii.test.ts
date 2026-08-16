@@ -1,4 +1,4 @@
-import { expandHorizonStateIII } from '../../supabase/frasberg_ai/field_horizon_expansion_iii/field_horizon_expansion_iii';
+import { expandHorizonStateIII } from '../../supabase/frasberg/field_horizon_expansion_iii/field_horizon_expansion_iii';
 
 describe('field_horizon_expansion_iii', () => {
   test('expands third-order horizon numerically', () => {
