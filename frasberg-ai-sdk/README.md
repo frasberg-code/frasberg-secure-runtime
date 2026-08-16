@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/License-UNLICENSED-red.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 
-The Frasberg SDK provides a simple, type-safe interface for interacting with the Frasberg AI platform. It enforces Frasberg as the sole provider with no external dependencies or fallback mechanisms.
+The Frasberg SDK provides a simple, type-safe interface for interacting with the Frasberg platform. It enforces Frasberg as the sole provider with no external dependencies or fallback mechanisms.
 
 ## Features
 
@@ -80,7 +80,7 @@ const videoBuffer = await client.generateVideo('A time-lapse of a sunset');
 
 ### `createFrasbergClient()`
 
-Creates a new Frasberg AI client instance.
+Creates a new Frasberg client instance.
 
 ```typescript
 function createFrasbergClient(): FrasbergClient
@@ -102,7 +102,7 @@ const client = createFrasbergClient();
 
 ### `FrasbergClient.generateText(input: string)`
 
-Generate text using Frasberg AI.
+Generate text using Frasberg.
 
 ```typescript
 async generateText(input: string): Promise<string>
@@ -126,7 +126,7 @@ console.log(response);
 
 ### `FrasbergClient.generateImage(prompt: string)`
 
-Generate an image using Frasberg AI.
+Generate an image using Frasberg.
 
 ```typescript
 async generateImage(prompt: string): Promise<Buffer>
@@ -152,7 +152,7 @@ await writeFile('output.png', imageBuffer);
 
 ### `FrasbergClient.generateVideo(prompt: string)`
 
-Generate a video using Frasberg AI.
+Generate a video using Frasberg.
 
 ```typescript
 async generateVideo(prompt: string): Promise<Buffer>
@@ -203,8 +203,8 @@ console.log(config.ai.provider); // 'frasberg-ai'
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `FRASBERG_AI_API_KEY` | ✅ | Your Frasberg API key |
-| `FRASBERG_AI_API_URL` | ❌ | API base URL (default: `https://api.frasberg-ai.yourdomain.com`) |
+| `FRASBERG_API_KEY` | ✅ | Your Frasberg API key |
+| `FRASBERG_API_URL` | ❌ | API base URL (default: `https://api.frasberg.yourdomain.com`) |
 | `AI_API_KEY_SOURCE` | ✅ | Key source: `github` or `supabase` |
 | `IMAGE_API_KEY_SOURCE` | ✅ | Key source: `github` or `supabase` |
 | `VIDEO_API_KEY_SOURCE` | ✅ | Key source: `github` or `supabase` |
