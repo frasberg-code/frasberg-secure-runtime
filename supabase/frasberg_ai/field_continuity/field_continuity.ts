@@ -1,6 +1,6 @@
 /**
  * Field Continuity - Cross-Cycle Continuity Maintenance
- * Part of the Field Continuity Triad for Frasberg AI
+ * Part of the Field Continuity Triad for Frasberg
  * 
  * Maintains continuity across cycles by carrying forward the temporal thread.
  * This is the system's temporal thread — the part that remembers the line it's walking.
