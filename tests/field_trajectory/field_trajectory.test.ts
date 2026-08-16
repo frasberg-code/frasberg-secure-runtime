@@ -1,4 +1,4 @@
-import { computeFieldTrajectory } from '../../supabase/frasberg_ai/field_trajectory/field_trajectory';
+import { computeFieldTrajectory } from '../../supabase/frasberg/field_trajectory/field_trajectory';
 
 describe('field_trajectory', () => {
   test('computes trajectory from origin and direction', () => {
