@@ -1,6 +1,6 @@
 /**
  * Field Genesis Continuum-III - Third-Order Renewal Continuity
- * Part of the Field Genesis-III Triad for Frasberg AI
+ * Part of the Field Genesis-III Triad for Frasberg
  * 
  * Integrates generated-III states into the ongoing third-order continuum.
  * Accepts generated-III states, applies genesis-continuity logic,
