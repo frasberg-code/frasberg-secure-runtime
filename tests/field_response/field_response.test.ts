@@ -1,4 +1,4 @@
-import { generateResponse } from '../../supabase/frasberg_ai/field_response/field_response';
+import { generateResponse } from '../../supabase/frasberg/field_response/field_response';
 
 describe('field_response', () => {
   test('applies response rule', () => {
