@@ -1,6 +1,6 @@
 /**
  * Field Expression Apex II - Highest-Order Multi-Cycle Expression
- * Part of the Field Apex-II Triad for Frasberg AI
+ * Part of the Field Apex-II Triad for Frasberg
  * 
  * Expresses the focused second-order apex as the highest-order multi-cycle signal.
  * Accepts focus-II states, applies apex-II expression logic,
