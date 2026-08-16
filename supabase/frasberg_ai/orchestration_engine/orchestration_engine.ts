@@ -1,6 +1,6 @@
 /**
  * Orchestration Engine - Runtime Module Coordination
- * Part of the Orchestration Synthesis Triad for Frasberg AI
+ * Part of the Orchestration Synthesis Triad for Frasberg
  * 
  * Enables runtime coordination of module execution,
  * orchestrating flow through multiple processing stages.
