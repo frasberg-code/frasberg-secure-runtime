@@ -1,6 +1,6 @@
 /**
  * Field Persistence - Persistence Across Disruptions
- * Part of the Field Continuity Triad for Frasberg AI
+ * Part of the Field Continuity Triad for Frasberg
  * 
  * Ensures persistence across disruptions by validating and stabilizing state.
  * This is the system's resilience layer — the part that keeps the line intact even when conditions shift.
