@@ -1,6 +1,6 @@
 /**
  * Field Intent - Proto-Intent Generation
- * Part of the Field Cognition Triad for Frasberg AI
+ * Part of the Field Cognition Triad for Frasberg
  * 
  * Generates proto-intent from evaluations.
  * Converts evaluations into directional tendencies, produces intent-like
