@@ -343,7 +343,7 @@ A: Absolutely! Documentation, design, community support, and research are all va
 ### Q: How do I get help?
 A: Ask in Discord `#contributors` channel or comment on the GitHub issue. We're here to help!
 
-### Q: Can I use Frasberg AI in my commercial product?
+### Q: Can I use Frasberg in my commercial product?
 A: Yes! It's MIT licensed - use freely in commercial projects.
 
 ---
