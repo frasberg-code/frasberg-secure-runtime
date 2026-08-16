@@ -1,6 +1,6 @@
 /**
  * Field Choice - Option Selection
- * Part of the Field Decision Triad for Frasberg AI
+ * Part of the Field Decision Triad for Frasberg
  * 
  * Selects between multiple interpreted options.
  * Accepts evaluated states, applies a choice rule, and produces
