@@ -1,6 +1,6 @@
 /**
  * Identity Modulator - Adaptive Identity Modulation
- * Part of the Modulation Bridge Triad for Frasberg AI
+ * Part of the Modulation Bridge Triad for Frasberg
  * 
  * Provides adaptive tone and semantic modulation,
  * adjusting identity expression based on operational mode.
