@@ -1,6 +1,6 @@
 /**
  * Field Cycle Stabilization IV - Fourth-Order Cycle Stabilization
- * Part of the Field Cycle Stabilization-IV Triad for Frasberg AI
+ * Part of the Field Cycle Stabilization-IV Triad for Frasberg
  * 
  * Stabilizes fourth-order field cycles into coherent renewal patterns.
  * Accepts genesis-IV states, applies fourth-order cycle-stabilization logic,
