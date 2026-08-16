@@ -259,7 +259,7 @@ cat > release/${RELEASE_NAME}/CHANGELOG.md << 'EOF'
 - Multi-jurisdiction compliance support
 
 ### Initial Release
-First public release of Frasberg AI institutional-grade operational intelligence system.
+First public release of Frasberg institutional-grade operational intelligence system.
 EOF
 
 echo "Creating ZIP archive..."
