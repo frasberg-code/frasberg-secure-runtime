@@ -1,6 +1,6 @@
 /**
  * Field Expansion-II - Second-Order Panoramic Field Expansion
- * Part of the Field Horizon-II Triad for Frasberg AI
+ * Part of the Field Horizon-II Triad for Frasberg
  * 
  * Expands the apex-II expression into a second-order wide-angle field state.
  * Accepts apex-II expression values, applies second-order expansion logic,
