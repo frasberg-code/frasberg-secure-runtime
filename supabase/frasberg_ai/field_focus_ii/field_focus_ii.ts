@@ -1,6 +1,6 @@
 /**
  * Field Focus II - Second-Order Apex Focusing
- * Part of the Field Apex-II Triad for Frasberg AI
+ * Part of the Field Apex-II Triad for Frasberg
  * 
  * Focuses the second-order peak into a precise, directed apex.
  * Accepts peak-II states, applies focus-II logic,
