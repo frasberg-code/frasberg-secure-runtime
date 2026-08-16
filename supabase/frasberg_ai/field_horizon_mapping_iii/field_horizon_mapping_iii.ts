@@ -1,6 +1,6 @@
 /**
  * Field Horizon Mapping-III - Third-Order Horizon-Scale Structural Mapping
- * Part of the Field Horizon-III Triad for Frasberg AI
+ * Part of the Field Horizon-III Triad for Frasberg
  * 
  * Maps the expanded field-III state at horizon-III scale.
  * Accepts expansion-III values, applies third-order horizon mapping,
