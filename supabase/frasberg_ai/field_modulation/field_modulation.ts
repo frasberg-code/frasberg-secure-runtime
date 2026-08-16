@@ -1,6 +1,6 @@
 /**
  * Field Modulation - Influence-Based Field Modulation
- * Part of the Field Influence Triad for Frasberg AI
+ * Part of the Field Influence Triad for Frasberg
  * 
  * Modulates the field in response to influence.
  * Accepts influence states, applies modulation rules,
