@@ -1,6 +1,6 @@
 /**
  * Field Projection - Action Projection
- * Part of the Field Action Triad for Frasberg AI
+ * Part of the Field Action Triad for Frasberg
  * 
  * Projects the executed action into the environment.
  * Takes an action output, applies projection logic, and produces
