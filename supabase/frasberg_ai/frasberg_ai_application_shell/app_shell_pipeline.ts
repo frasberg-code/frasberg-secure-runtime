@@ -1,5 +1,5 @@
 /**
- * Frasberg AI Pipeline Orchestration Layer
+ * Frasberg Pipeline Orchestration Layer
  * 
  * Provides declarative capability chaining with automatic data flow,
  * error handling, and context propagation.
