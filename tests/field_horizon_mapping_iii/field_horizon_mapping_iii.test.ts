@@ -1,4 +1,4 @@
-import { mapHorizonStateIII } from '../../supabase/frasberg_ai/field_horizon_mapping_iii/field_horizon_mapping_iii';
+import { mapHorizonStateIII } from '../../supabase/frasberg/field_horizon_mapping_iii/field_horizon_mapping_iii';
 
 describe('field_horizon_mapping_iii', () => {
   test('maps third-order horizon numerically', () => {
