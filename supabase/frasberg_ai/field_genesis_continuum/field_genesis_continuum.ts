@@ -1,6 +1,6 @@
 /**
  * Field Genesis Continuum - Renewal Continuity
- * Part of the Field Genesis Triad for Frasberg AI
+ * Part of the Field Genesis Triad for Frasberg
  * 
  * Integrates generated states into the ongoing continuum.
  * Accepts generated states, applies genesis-continuity logic,
