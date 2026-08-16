@@ -1,6 +1,6 @@
 /**
  * Field Feedback - Action Feedback Capture
- * Part of the Field Action Triad for Frasberg AI
+ * Part of the Field Action Triad for Frasberg
  * 
  * Captures the environment's response to the action.
  * Accepts projected effects, converts them into feedback signals,
