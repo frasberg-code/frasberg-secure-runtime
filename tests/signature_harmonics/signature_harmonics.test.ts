@@ -1,4 +1,4 @@
-import { applyHarmonics } from '../../supabase/frasberg_ai/signature_harmonics/signature_harmonics';
+import { applyHarmonics } from '../../supabase/frasberg/signature_harmonics/signature_harmonics';
 
 describe('signature_harmonics', () => {
   test('applies tonal harmonics to signature', () => {
