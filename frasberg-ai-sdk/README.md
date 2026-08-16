@@ -102,7 +102,7 @@ const client = createFrasbergClient();
 
 ### `FrasbergClient.generateText(input: string)`
 
-Generate text using Frasberg AI AI.
+Generate text using Frasberg AI.
 
 ```typescript
 async generateText(input: string): Promise<string>
