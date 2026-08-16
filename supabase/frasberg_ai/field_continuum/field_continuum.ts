@@ -1,6 +1,6 @@
 /**
  * Field Continuum - Evolutionary Continuity
- * Part of the Field Evolution Triad for Frasberg AI
+ * Part of the Field Evolution Triad for Frasberg
  * 
  * Integrates evolved states into a continuous evolutionary arc.
  * Accepts evolved states, applies continuum logic,
