@@ -1,4 +1,4 @@
-import { synthesizeFieldContinuum } from '../../supabase/frasberg_ai/field_continuum_synthesis/field_continuum_synthesis';
+import { synthesizeFieldContinuum } from '../../supabase/frasberg/field_continuum_synthesis/field_continuum_synthesis';
 
 describe('field_continuum_synthesis', () => {
   test('synthesizes continuum using synthesizer', () => {
