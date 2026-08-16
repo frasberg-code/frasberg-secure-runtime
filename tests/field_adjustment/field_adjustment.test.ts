@@ -1,4 +1,4 @@
-import { applyAdjustment } from '../../supabase/frasberg_ai/field_adjustment/field_adjustment';
+import { applyAdjustment } from '../../supabase/frasberg/field_adjustment/field_adjustment';
 
 describe('field_adjustment', () => {
   test('applies correction factor', () => {
