@@ -1,6 +1,6 @@
 /**
  * Field Shift - Directional Field Shifting
- * Part of the Field Influence Triad for Frasberg AI
+ * Part of the Field Influence Triad for Frasberg
  * 
  * Applies directional shifts to the modulated field.
  * Accepts modulated states, applies shift logic,
