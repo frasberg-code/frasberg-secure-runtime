@@ -8,7 +8,7 @@ import { resetContext } from '../../../supabase/frasberg/frasberg_application_sh
 import { resetLifecycleState, getLifecycleLogs } from '../../../supabase/frasberg/frasberg_application_shell/app_shell_lifecycle';
 import manifest from '../../../supabase/frasberg/frasberg_application_shell/app_shell_manifest.json';
 
-describe('Frasberg AI Application Shell — Init Order', () => {
+describe('Frasberg Application Shell — Init Order', () => {
   beforeEach(() => {
     resetContext();
     resetLifecycleState();
