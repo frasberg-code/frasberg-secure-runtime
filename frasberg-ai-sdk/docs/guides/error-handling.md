@@ -1,6 +1,6 @@
 # Error Handling
 
-Comprehensive guide to error handling in the Frasberg AI SDK.
+Comprehensive guide to error handling in the Frasberg SDK.
 
 ## Error Types
 
@@ -11,11 +11,11 @@ The SDK can throw errors in the following scenarios:
 Thrown when the SDK is misconfigured.
 
 ```typescript
-Error: FRASBERG_AI_API_KEY is missing
+Error: FRASBERG_API_KEY is missing
 ```
 
 **Cause:** Missing or undefined API key  
-**Solution:** Set `FRASBERG_AI_API_KEY` environment variable
+**Solution:** Set `FRASBERG_API_KEY` environment variable
 
 ### 2. HTTP Errors
 
@@ -191,7 +191,7 @@ async function safeGenerate(
   } catch (error) {
     const message = error.message;
     
-    if (message.includes('FRASBERG_AI_API_KEY')) {
+    if (message.includes('FRASBERG_API_KEY')) {
       return {
         success: false,
         error: {
