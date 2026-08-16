@@ -1,6 +1,6 @@
 /**
  * Field Influence - Presence-Based Field Influence
- * Part of the Field Influence Triad for Frasberg AI
+ * Part of the Field Influence Triad for Frasberg
  * 
  * Applies influence from presence into the surrounding field.
  * Accepts presence-projection or resonance states, applies influence logic,
