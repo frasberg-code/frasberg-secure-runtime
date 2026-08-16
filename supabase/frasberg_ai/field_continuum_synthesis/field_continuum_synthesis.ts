@@ -1,6 +1,6 @@
 /**
  * Field Continuum Synthesis - Multi-Cycle Continuum Synthesis
- * Part of the Field Continuum-II Triad for Frasberg AI
+ * Part of the Field Continuum-II Triad for Frasberg
  * 
  * Synthesizes multiple cycles into a unified continuum.
  * Accepts continuum-extension states, applies synthesis logic,
