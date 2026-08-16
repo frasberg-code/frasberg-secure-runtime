@@ -1,6 +1,6 @@
 /**
  * Field Authority IV - Fourth-Order Authority State
- * Part of the Field Authority Cycle-IV Triad for Frasberg AI
+ * Part of the Field Authority Cycle-IV Triad for Frasberg
  * 
  * Authorizes fourth-order field states through authority-formation logic.
  * Accepts cycle-synthesized-IV states, applies fourth-order authority logic,
