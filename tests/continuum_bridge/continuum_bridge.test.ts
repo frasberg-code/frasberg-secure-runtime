@@ -1,4 +1,4 @@
-import { bridgeState } from '../../supabase/frasberg_ai/continuum_bridge/continuum_bridge';
+import { bridgeState } from '../../supabase/frasberg/continuum_bridge/continuum_bridge';
 
 describe('continuum_bridge', () => {
   test('bridges state without mutation', () => {
