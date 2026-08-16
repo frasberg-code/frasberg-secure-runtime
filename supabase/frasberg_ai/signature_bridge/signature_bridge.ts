@@ -1,6 +1,6 @@
 /**
  * Signature Bridge - Cross-System Identity Bridging
- * Part of the Final Modulation Triad for Frasberg AI
+ * Part of the Final Modulation Triad for Frasberg
  * 
  * Provides identity coherence across system boundaries,
  * harmonizing local and external identity signatures.
