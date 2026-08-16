@@ -15,13 +15,13 @@ The FRASBERG custom model endpoint has been successfully configured with the fol
 
 #### FRASBERG Model Configuration
 ```bash
-FRASBERG_MODEL_ENDPOINT=https://sdtilgpppwhwtbxlbmik.supabase.co/functions/v1/frasberg-ai-backend
+FRASBERG_MODEL_ENDPOINT=https://sdtilgpppwhwtbxlbmik.supabase.co/functions/v1/frasberg-backend
 FRASBERG_MODEL_API_KEY=your_frasberg_model_api_key_here
 ```
 
 #### Generic Model Configuration (for Edge Functions)
 ```bash
-MODEL_ENDPOINT=https://sdtilgpppwhwtbxlbmik.supabase.co/functions/v1/frasberg-ai-backend
+MODEL_ENDPOINT=https://sdtilgpppwhwtbxlbmik.supabase.co/functions/v1/frasberg-backend
 MODEL_API_KEY=your_model_api_key_here
 ```
 
