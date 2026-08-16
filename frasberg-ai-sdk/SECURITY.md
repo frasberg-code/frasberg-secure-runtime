@@ -32,7 +32,7 @@ When reporting a vulnerability, please include:
 
 ## Security Best Practices
 
-When using the Frasberg AI SDK:
+When using the Frasberg SDK:
 
 1. **Never commit API keys** to version control
 2. **Use environment variables** for all sensitive configuration
@@ -58,5 +58,5 @@ When we receive a security report, we will:
 ## Contact
 
 For any security-related questions or concerns, contact:
-- Email: security@emeraldestates.com
+- Email: security@frasberg.com
 - Security Team: @frasberg
