@@ -27,7 +27,7 @@ echo ""
 
 echo "⏰ 6:00am PST - Hacker News"
 echo "   → https://news.ycombinator.com/submit"
-echo "   → Title: Show HN: Frasberg AI – Open-source AI with DNA computing"
+echo "   → Title: Show HN: Frasberg – Open-source AI with DNA computing"
 echo ""
 
 echo "⏰ 8:00am PST - Reddit"
