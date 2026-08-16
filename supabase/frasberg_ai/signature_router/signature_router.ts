@@ -1,6 +1,6 @@
 /**
  * Signature Router - Identity Signal Routing
- * Part of the Semantic Modulation Triad for Frasberg AI
+ * Part of the Semantic Modulation Triad for Frasberg
  * 
  * Provides routing for identity signals,
  * directing them to the correct subsystem destination.
