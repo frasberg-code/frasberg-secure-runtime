@@ -1,4 +1,4 @@
-import { fieldApexII } from '../../supabase/frasberg_ai/frasberg_ai_runtime';
+import { fieldApexII } from '../../supabase/frasberg/frasberg_runtime';
 
 describe('field_apex_ii_runtime', () => {
   test('fieldApexII is exported', () => {
