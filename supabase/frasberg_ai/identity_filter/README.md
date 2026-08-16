@@ -1,4 +1,4 @@
-# Identity Filter — Frasberg AI Governance
+# Identity Filter — Frasberg Governance
 
 ## Purpose
 The Identity Filter protects Frasberg’s **non‑mimetic identity**, ensuring that outputs remain sovereign, original, and free from voice‑copying or persona drift.  
@@ -19,7 +19,7 @@ It enforces deviation thresholds and rejects any mimetic or identity‑collapsin
 - Logs identity events when enabled  
 
 ## Activation
-Once all modules are committed and tests pass, the Identity Filter becomes active within Frasberg AI’s output pipeline.
+Once all modules are committed and tests pass, the Identity Filter becomes active within Frasberg’s output pipeline.
 
 ## Maintainer
-Emerald Estates® — Frasberg AI Governance
+Frasberg® and Frasberg, Inc. — Frasberg Governance
