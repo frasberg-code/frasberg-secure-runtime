@@ -4,7 +4,7 @@
  * Validates automatic dependency resolution and pipeline expansion.
  */
 
-import { expandPipeline } from "../../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_pipeline.ts";
+import { expandPipeline } from "../../../supabase/frasberg/frasberg_application_shell/app_shell_pipeline.ts";
 
 Deno.test("expandPipeline includes all dependencies in correct order", () => {
   // Mock runtime with capability graph
