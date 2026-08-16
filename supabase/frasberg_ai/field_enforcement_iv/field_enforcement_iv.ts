@@ -1,6 +1,6 @@
 /**
  * Field Enforcement IV - Fourth-Order Enforcement State
- * Part of the Field Authority Cycle-IV Triad for Frasberg AI
+ * Part of the Field Authority Cycle-IV Triad for Frasberg
  * 
  * Enforces fourth-order field states through enforcement logic.
  * Accepts directive-IV states, applies fourth-order enforcement logic,
