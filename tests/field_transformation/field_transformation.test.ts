@@ -1,4 +1,4 @@
-import { transformFieldState } from '../../supabase/frasberg_ai/field_transformation/field_transformation';
+import { transformFieldState } from '../../supabase/frasberg/field_transformation/field_transformation';
 
 describe('field_transformation', () => {
   test('transforms field using transformer', () => {
