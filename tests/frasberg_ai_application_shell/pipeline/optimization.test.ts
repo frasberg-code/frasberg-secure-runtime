@@ -5,7 +5,7 @@
  * dependency-preserving ordering, and engine-local grouping.
  */
 
-import { optimizePipeline } from "../../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_pipeline.ts";
+import { optimizePipeline } from "../../../supabase/frasberg/frasberg_application_shell/app_shell_pipeline.ts";
 
 Deno.test("Optimization removes duplicate capabilities", () => {
   const mockRuntime = {
@@ -195,7 +195,7 @@ Deno.test("Optimization works without engine grouping support", () => {
   }
 });
 
-Deno.test("Optimization integration - complete Frasberg AI pipeline", () => {
+Deno.test("Optimization integration - complete Frasberg pipeline", () => {
   const mockRuntime = {
     getCapabilityGraph: () => ({
       identity_filter: { provides: ["identity.resolve", "identity.normalize"], consumes: [] },
