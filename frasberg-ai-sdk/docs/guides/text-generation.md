@@ -1,6 +1,6 @@
 # Text Generation Guide
 
-Comprehensive guide to text generation with the Frasberg AI SDK.
+Comprehensive guide to text generation with the Frasberg SDK.
 
 ## Basic Usage
 
