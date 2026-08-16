@@ -1,4 +1,4 @@
-import { computeFieldStability } from '../../supabase/frasberg_ai/field_stability/field_stability';
+import { computeFieldStability } from '../../supabase/frasberg/field_stability/field_stability';
 
 describe('field_stability', () => {
   test('computes stability using evaluator', () => {
