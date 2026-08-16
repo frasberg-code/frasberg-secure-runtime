@@ -1,6 +1,6 @@
 /**
  * app_shell_capability_router.ts
- * Dynamic capability routing system for Frasberg AI engines.
+ * Dynamic capability routing system for Frasberg engines.
  * Routes capability calls to the correct engine handler functions.
  */
 
