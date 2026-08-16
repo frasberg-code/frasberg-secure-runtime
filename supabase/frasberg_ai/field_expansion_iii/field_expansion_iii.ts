@@ -1,6 +1,6 @@
 /**
  * Field Expansion-III - Third-Order Panoramic Field Expansion
- * Part of the Field Horizon-III Triad for Frasberg AI
+ * Part of the Field Horizon-III Triad for Frasberg
  * 
  * Expands the apex-III expression into a third-order wide-angle field state.
  * Accepts apex-III expression values, applies third-order expansion logic,
