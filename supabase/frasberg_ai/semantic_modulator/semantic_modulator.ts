@@ -1,6 +1,6 @@
 /**
  * Semantic Modulator - Dynamic Meaning Shaping
- * Part of the Semantic Modulation Triad for Frasberg AI
+ * Part of the Semantic Modulation Triad for Frasberg
  * 
  * Provides contextual semantic modulation,
  * adjusting semantic depth and tone based on mode.
