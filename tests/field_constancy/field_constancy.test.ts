@@ -1,4 +1,4 @@
-import { maintainFieldConstancy } from '../../supabase/frasberg_ai/field_constancy/field_constancy';
+import { maintainFieldConstancy } from '../../supabase/frasberg/field_constancy/field_constancy';
 
 describe('field_constancy', () => {
   test('maintains identity constancy using comparator', () => {
