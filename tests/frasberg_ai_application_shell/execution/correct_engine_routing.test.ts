@@ -4,12 +4,12 @@
  */
 
 import { assertEquals } from "https://deno.land/std@0.208.0/assert/mod.ts";
-import { createRouterWithHandlers } from "../../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_capability_router.ts";
-import { handlers as identityHandlers } from "../../../supabase/frasberg_ai/identity_filter/handlers.ts";
-import { handlers as deviationHandlers } from "../../../supabase/frasberg_ai/deviation_engine/handlers.ts";
-import { handlers as membraneHandlers } from "../../../supabase/frasberg_ai/membrane_engine/handlers.ts";
-import { handlers as tonalHandlers } from "../../../supabase/frasberg_ai/tonal_engine/handlers.ts";
-import { handlers as apiHandlers } from "../../../supabase/frasberg_ai/frasberg_api/handlers.ts";
+import { createRouterWithHandlers } from "../../../supabase/frasberg/frasberg_application_shell/app_shell_capability_router.ts";
+import { handlers as identityHandlers } from "../../../supabase/frasberg/identity_filter/handlers.ts";
+import { handlers as deviationHandlers } from "../../../supabase/frasberg/deviation_engine/handlers.ts";
+import { handlers as membraneHandlers } from "../../../supabase/frasberg/membrane_engine/handlers.ts";
+import { handlers as tonalHandlers } from "../../../supabase/frasberg/tonal_engine/handlers.ts";
+import { handlers as apiHandlers } from "../../../supabase/frasberg/frasberg_api/handlers.ts";
 
 Deno.test("Identity capabilities route to identity_filter engine", async () => {
   const router = createRouterWithHandlers([
