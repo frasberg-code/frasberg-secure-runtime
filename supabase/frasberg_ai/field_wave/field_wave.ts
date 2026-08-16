@@ -1,6 +1,6 @@
 /**
  * Field Wave - Oscillatory Field Stabilization
- * Part of the Field Stabilization Triad for Frasberg AI
+ * Part of the Field Stabilization Triad for Frasberg
  * 
  * Generates oscillatory field patterns.
  * Produces amplitude-based waveforms with frequency-driven
