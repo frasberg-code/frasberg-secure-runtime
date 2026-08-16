@@ -1,6 +1,6 @@
 /**
  * Field Expression Apex - Highest-Order Apex Expression
- * Part of the Field Apex Triad for Frasberg AI
+ * Part of the Field Apex Triad for Frasberg
  * 
  * Expresses the focused apex state outward as its highest-order signal.
  * Accepts focused states, applies apex-expression logic,
