@@ -1,16 +1,16 @@
-# Frasberg AI SDK
+# Frasberg SDK
 
-> Unified TypeScript client for Frasberg AI text, image, and video generation.
+> Unified TypeScript client for Frasberg text, image, and video generation.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/License-UNLICENSED-red.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 
-The Frasberg AI SDK provides a simple, type-safe interface for interacting with the Frasberg AI AI platform. It enforces Frasberg AI as the sole provider with no external dependencies or fallback mechanisms.
+The Frasberg SDK provides a simple, type-safe interface for interacting with the Frasberg AI platform. It enforces Frasberg as the sole provider with no external dependencies or fallback mechanisms.
 
 ## Features
 
-- 🔒 **Frasberg AI Only** - No external providers or fallbacks
+- 🔒 **Frasberg Only** - No external providers or fallbacks
 - 🎯 **Type-Safe** - Full TypeScript support with strict typing
 - 🚀 **Simple API** - Easy-to-use client interface
 - 🔐 **Secure** - Environment-based configuration with API key validation
@@ -42,9 +42,9 @@ yarn add @frasberg/core-sdk
 Create a `.env` file in your project root:
 
 ```bash
-# Frasberg AI API Configuration
-FRASBERG_AI_API_KEY=your-api-key-here
-FRASBERG_AI_API_URL=https://api.frasberg-ai.yourdomain.com
+# Frasberg API Configuration
+FRASBERG_API_KEY=your-api-key-here
+FRASBERG_API_URL=https://api.frasberg.yourdomain.com
 
 # Provider Configuration
 AI_API_KEY_SOURCE=github-or-supabase
@@ -89,7 +89,7 @@ function createFrasbergClient(): FrasbergClient
 **Returns:** A `FrasbergClient` instance with methods for content generation.
 
 **Throws:** 
-- `Error` if `FRASBERG_AI_API_KEY` is not set
+- `Error` if `FRASBERG_API_KEY` is not set
 - `Error` if required configuration variables are missing
 
 **Example:**
@@ -178,7 +178,7 @@ await writeFile('output.mp4', videoBuffer);
 
 ### `loadFrasbergConfig()`
 
-Load and validate Frasberg AI configuration from environment variables.
+Load and validate Frasberg configuration from environment variables.
 
 ```typescript
 function loadFrasbergConfig(): FrasbergSystemConfig
@@ -203,7 +203,7 @@ console.log(config.ai.provider); // 'frasberg-ai'
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `FRASBERG_AI_API_KEY` | ✅ | Your Frasberg AI API key |
+| `FRASBERG_AI_API_KEY` | ✅ | Your Frasberg API key |
 | `FRASBERG_AI_API_URL` | ❌ | API base URL (default: `https://api.frasberg-ai.yourdomain.com`) |
 | `AI_API_KEY_SOURCE` | ✅ | Key source: `github` or `supabase` |
 | `IMAGE_API_KEY_SOURCE` | ✅ | Key source: `github` or `supabase` |
@@ -211,24 +211,24 @@ console.log(config.ai.provider); // 'frasberg-ai'
 
 ### Configuration Object
 
-The SDK enforces a strict configuration where Frasberg AI is the only provider:
+The SDK enforces a strict configuration where Frasberg is the only provider:
 
 ```typescript
 interface FrasbergSystemConfig {
   ai: {
-    provider: 'frasberg-ai';
+    provider: 'frasberg';
     apiKeySource: 'github' | 'supabase';
     allowExternalProviders: false;
     fallbackProviders: [];
   };
   imageGeneration: {
-    provider: 'frasberg-ai';
+    provider: 'frasberg';
     apiKeySource: 'github' | 'supabase';
     allowExternalProviders: false;
     fallbackProviders: [];
   };
   videoGeneration: {
-    provider: 'frasberg-ai';
+    provider: 'frasberg';
     apiKeySource: 'github' | 'supabase';
     allowExternalProviders: false;
     fallbackProviders: [];
@@ -259,7 +259,7 @@ try {
 
 ```typescript
 // Set via environment variable
-process.env.FRASBERG_AI_API_URL = 'https://custom-api.example.com';
+process.env.FRASBERG_API_URL = 'https://custom-api.example.com';
 
 const client = createFrasbergClient();
 ```
@@ -316,7 +316,7 @@ app.listen(3000);
 ```bash
 # Clone the repository
 git clone https://github.com/FrasbergAI/frasberg.git
-cd frasberg/frasberg-ai-sdk
+cd frasberg/frasberg-sdk
 
 # Install dependencies
 npm install
@@ -331,7 +331,7 @@ npm test
 ### Project Structure
 
 ```
-frasberg-ai-sdk/
+frasberg-sdk/
 ├── src/
 │   ├── client/
 │   │   └── createFrasbergClient.ts    # Client implementation
@@ -380,13 +380,13 @@ See [CHANGELOG.md](CHANGELOG.md) for version history and release notes.
 
 UNLICENSED - This software is proprietary and confidential.
 
-Copyright (c) Emerald Estates® and Mr. Clayton-M. Bernard-Ex.
+Copyright (c) Frasberg, Inc. and Mr. Clayton-M. Bernard-Ex. (Frasberg Selassie)
 
 See [LICENSE](LICENSE) for full license text.
 
 ## Support
 
-- 📧 Email: support@emeraldestates.com
+- 📧 Email: support@frasberg.com
 - 📖 Documentation: [docs/FRASBERG_PROVIDER_ARCHITECTURE.md](../../docs/FRASBERG_PROVIDER_ARCHITECTURE.md)
 - 🐛 Issues: [GitHub Issues](https://github.com/FrasbergAI/frasberg/issues)
 
@@ -399,4 +399,4 @@ See [LICENSE](LICENSE) for full license text.
 
 ---
 
-Made with ⚡ by Emerald Estates®
+Made with ⚡ by Frasberg®
