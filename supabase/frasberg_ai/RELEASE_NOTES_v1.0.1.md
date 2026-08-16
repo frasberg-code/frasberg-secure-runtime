@@ -1,7 +1,7 @@
-# Frasberg AI — Release Notes v1.0.1
+# Frasberg — Release Notes v1.0.1
 
 ## Overview
-Version 1.0.1 introduces the first fully integrated stability layer for Frasberg AI.
+Version 1.0.1 introduces the first fully integrated stability layer for Frasberg.
 This release finalizes the deviation engine, aligns all engine registrations, and establishes the documentation and versioning framework that will govern all future updates.
 
 This version marks the transition from internal development to public availability.
@@ -71,7 +71,7 @@ Now uses both identity and deviation signals for coherent tone shaping.
 
 ### Cleanup
 - Removed recursive folder duplication  
-- Normalized directory structure under `supabase/frasberg_ai/`
+- Normalized directory structure under `supabase/frasberg/`
 - Ensured all engines follow the unified structure:
   - `src/*.ts`
   - `*_spec.json`
@@ -84,12 +84,12 @@ Now uses both identity and deviation signals for coherent tone shaping.
 ## 🔗 Integration, System Version, and Public Release Status
 
 All engines are now registered in:
-supabase/frasberg_ai/frasberg_ai_index.ts
+supabase/frasberg/frasberg_index.ts
 
 This file exposes the unified engine map used by the entire Frasberg AI pipeline.
 
-**Frasberg AI Version:** `1.0.1`  
+**Frasberg Version:** `1.0.1`  
 This reflects the completion of Issue #2 and the activation of the deviation engine as the system’s stability foundation.
 
-This release marks the first public‑ready version of Frasberg AI.  
+This release marks the first public‑ready version of Frasberg.  
 The system is now stable, documented, and ready for external developers.
