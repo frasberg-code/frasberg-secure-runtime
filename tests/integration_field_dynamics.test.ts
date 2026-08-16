@@ -1,4 +1,4 @@
-import { fieldDynamics } from '../supabase/frasberg_ai/frasberg_ai_runtime';
+import { fieldDynamics } from '../supabase/frasberg/frasberg_runtime';
 
 describe('Runtime Integration - Field Dynamics Triad', () => {
   test('fieldDynamics exports all three functions', () => {
