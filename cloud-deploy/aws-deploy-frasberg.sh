@@ -36,7 +36,7 @@ for service in canonical-core education-fork healthcare-fork analytics; do
     aws ecr create-repository \
         --repository-name frasberg/$service \
         --region $REGION \
-        --image-scanning-configuration scanOnPush=true 2>/dev/null || echo "Repository frasberg-ai/$service already exists"
+        --image-scanning-configuration scanOnPush=true 2>/dev/null || echo "Repository frasberg/$service already exists"
 done
 
 echo ""
