@@ -1,6 +1,6 @@
 /**
  * Identity Resonator - Identity Resonance Amplification
- * Part of the Integrative Resonance Triad for Frasberg AI
+ * Part of the Integrative Resonance Triad for Frasberg
  * 
  * Amplifies identity signals across the entire system.
  * Applies resonance curves to produce stable, recognizable identity signatures.
