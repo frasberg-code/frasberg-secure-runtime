@@ -1,6 +1,6 @@
 /**
  * Field Commitment - Decision Finalization
- * Part of the Field Decision Triad for Frasberg AI
+ * Part of the Field Decision Triad for Frasberg
  * 
  * Locks in a chosen direction.
  * Accepts a resolved decision, applies commitment logic, and produces
