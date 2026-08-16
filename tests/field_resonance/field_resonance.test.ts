@@ -1,4 +1,4 @@
-import { computeFieldResonance } from '../../supabase/frasberg_ai/field_resonance/field_resonance';
+import { computeFieldResonance } from '../../supabase/frasberg/field_resonance/field_resonance';
 
 describe('field_resonance', () => {
   test('computes resonance using resonator', () => {
