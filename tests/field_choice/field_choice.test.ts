@@ -1,4 +1,4 @@
-import { chooseFieldOption } from '../../supabase/frasberg_ai/field_choice/field_choice';
+import { chooseFieldOption } from '../../supabase/frasberg/field_choice/field_choice';
 
 describe('field_choice', () => {
   test('chooses option using selector', () => {
