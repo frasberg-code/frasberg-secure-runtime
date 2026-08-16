@@ -1,6 +1,6 @@
 # Deprecation Policy
 
-Guidelines for deprecating and removing features from the Frasberg AI SDK.
+Guidelines for deprecating and removing features from the Frasberg SDK.
 
 ## Overview
 
@@ -233,13 +233,13 @@ export function generateText(
 export function loadConfig(): Config {
   // Support both old and new environment variables
   const apiKey = 
-    process.env.FRASBERG_AI_API_KEY ??  // New
+    process.env.FRASBERG_API_KEY ??  // New
     process.env.FRASBERG_API_KEY;          // Old (deprecated)
   
   if (process.env.FRASBERG_API_KEY) {
     console.warn(
       'FRASBERG_API_KEY is deprecated. ' +
-      'Use FRASBERG_AI_API_KEY instead.'
+      'Use FRASBERG_API_KEY instead.'
     );
   }
   
