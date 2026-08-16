@@ -48,4 +48,3 @@ describe("identity_filter", () => {
     expect(masked).toContain("[masked]");
   });
 });
-.
