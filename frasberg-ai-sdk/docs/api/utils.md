@@ -1,10 +1,10 @@
 # Utils API Reference
 
-Utility functions and helpers for the Frasberg AI SDK.
+Utility functions and helpers for the Frasberg SDK.
 
 ## Overview
 
-The Frasberg AI SDK is designed with minimal dependencies and a small API surface. Currently, there are no exported utility functions in the public API.
+The Frasberg SDK is designed with minimal dependencies and a small API surface. Currently, there are no exported utility functions in the public API.
 
 ## Internal Utilities
 
