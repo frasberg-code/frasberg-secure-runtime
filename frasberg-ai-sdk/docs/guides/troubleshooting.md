@@ -1,6 +1,6 @@
 # Troubleshooting
 
-Common issues and solutions for the Frasberg AI SDK.
+Common issues and solutions for the Frasberg SDK.
 
 ## Installation Issues
 
@@ -70,19 +70,19 @@ Could not find a declaration file for module '@frasberg/core-sdk'
 
 **Error:**
 ```
-Error: FRASBERG_AI_API_KEY is missing
+Error: FRASBERG_API_KEY is missing
 ```
 
 **Solutions:**
 
 1. Set environment variable:
    ```bash
-   export FRASBERG_AI_API_KEY="your-api-key"
+   export FRASBERG_API_KEY="your-api-key"
    ```
 
 2. Create `.env` file:
    ```env
-   FRASBERG_AI_API_KEY=your-api-key
+   FRASBERG_API_KEY=your-api-key
    ```
 
 3. Load environment variables:
@@ -93,7 +93,7 @@ Error: FRASBERG_AI_API_KEY is missing
 
 4. For GitHub Actions, add secret:
    - Go to: Settings → Secrets → Actions
-   - Add `FRASBERG_AI_API_KEY`
+   - Add `FRASBERG_API_KEY`
 
 ### Invalid API Key
 
@@ -124,12 +124,12 @@ Error: network timeout
 
 1. Check internet connectivity:
    ```bash
-   curl https://api.frasberg-ai.yourdomain.com
+   curl https://api.frasberg.yourdomain.com
    ```
 
 2. Verify API URL is correct:
    ```bash
-   echo $FRASBERG_AI_API_URL
+   echo $FRASBERG_API_URL
    ```
 
 3. Check firewall settings
@@ -346,7 +346,7 @@ Error: Cannot find module './dist/index.js'
 
 1. Check network latency:
    ```bash
-   ping api.frasberg-ai.yourdomain.com
+   ping api.frasberg.yourdomain.com
    ```
 
 2. Verify API endpoint URL
@@ -420,7 +420,7 @@ node --version
 npx tsc --version
 
 # Check environment
-echo $FRASBERG_AI_API_KEY | head -c 20  # Shows first 20 chars only
+echo $FRASBERG_API_KEY | head -c 20  # Shows first 20 chars only
 
 # Test network connectivity
 curl -I https://api.frasberg-ai.yourdomain.com
