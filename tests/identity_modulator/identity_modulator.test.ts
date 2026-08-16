@@ -1,4 +1,4 @@
-import { modulateIdentity } from '../../supabase/frasberg_ai/identity_modulator/identity_modulator';
+import { modulateIdentity } from '../../supabase/frasberg/identity_modulator/identity_modulator';
 
 describe('identity_modulator', () => {
   test('modulates identity based on mode', () => {
