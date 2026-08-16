@@ -1,4 +1,4 @@
-import { ascendFieldState } from '../../supabase/frasberg_ai/field_ascent/field_ascent';
+import { ascendFieldState } from '../../supabase/frasberg/field_ascent/field_ascent';
 
 describe('field_ascent', () => {
   test('ascends field using ascender', () => {
