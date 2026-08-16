@@ -1,6 +1,6 @@
 /**
  * Continuum Bridge - Orchestration State Carryover
- * Part of the Modulation Bridge Triad for Frasberg AI
+ * Part of the Modulation Bridge Triad for Frasberg
  * 
  * Enables refined continuity across orchestration boundaries
  * by bridging state between different execution contexts.
