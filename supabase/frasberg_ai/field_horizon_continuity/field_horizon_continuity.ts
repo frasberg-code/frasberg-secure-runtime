@@ -1,6 +1,6 @@
 /**
  * Field Horizon Continuity - Stable Horizon Continuity
- * Part of the Field Horizon Triad for Frasberg AI
+ * Part of the Field Horizon Triad for Frasberg
  * 
  * Integrates the horizon map into a continuous, stable horizon field.
  * Accepts horizon map states, applies continuity logic,
