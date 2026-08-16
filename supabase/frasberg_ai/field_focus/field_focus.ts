@@ -1,6 +1,6 @@
 /**
  * Field Focus - Apex Precision Focusing
- * Part of the Field Apex Triad for Frasberg AI
+ * Part of the Field Apex Triad for Frasberg
  * 
  * Focuses the peak state into a precise, directed form.
  * Accepts peak states, applies focusing logic,
