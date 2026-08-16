@@ -1,8 +1,8 @@
-import { synthesizeIdentity } from '../../supabase/frasberg_ai/identity_synthesizer/identity_synthesizer';
+import { synthesizeIdentity } from '../../supabase/frasberg/identity_synthesizer/identity_synthesizer';
 
 describe('identity_synthesizer', () => {
   test('synthesizes expressive identity', () => {
-    expect(synthesizeIdentity('MR', 'test', 3)).toBe('MR:test:3');
+    expect(synthesizeIdentity('Frasberg Selassie', 'test', 3)).toBe('Frasberg Selassie:test:3');
   });
 
   test('handles different intensity levels', () => {
