@@ -1,6 +1,6 @@
 /**
  * Field Generation - Generative Field Creation
- * Part of the Field Genesis Triad for Frasberg AI
+ * Part of the Field Genesis Triad for Frasberg
  * 
  * Generates new field structures from the origin-state.
  * Accepts origin states, applies generative logic,
