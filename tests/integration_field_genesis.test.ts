@@ -1,4 +1,4 @@
-import { fieldGenesis } from '../supabase/frasberg_ai/frasberg_ai_runtime';
+import { fieldGenesis } from '../supabase/frasberg/frasberg_runtime';
 
 describe('Field Genesis Triad Runtime Integration', () => {
   test('fieldGenesis exports all three functions', () => {
