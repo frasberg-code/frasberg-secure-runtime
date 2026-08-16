@@ -1,6 +1,6 @@
 /**
  * Field Response - Reactive Field Behavior
- * Part of the Field Behavior Triad for Frasberg AI
+ * Part of the Field Behavior Triad for Frasberg
  * 
  * Enables the field to react to stimuli through response rules.
  * Accepts an input signal, applies a response rule, and produces
