@@ -1,6 +1,6 @@
 /**
  * Field Horizon Continuity-IV - Fourth-Order Horizon-Scale Continuity
- * Part of the Field Horizon-IV Triad for Frasberg AI
+ * Part of the Field Horizon-IV Triad for Frasberg
  * 
  * Stabilizes horizon-IV scale continuity across cycles.
  * Accepts horizon-mapped-IV values, applies fourth-order continuity logic,
