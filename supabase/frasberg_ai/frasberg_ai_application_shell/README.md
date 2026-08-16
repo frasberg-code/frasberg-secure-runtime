@@ -1,6 +1,6 @@
-# Frasberg AI Application Shell
+# Frasberg Application Shell
 
-The Application Shell is the top-level orchestration layer for Frasberg AI. It provides a unified runtime that manages engine loading, lifecycle, and coordination across the entire system.
+The Application Shell is the top-level orchestration layer for Frasberg. It provides a unified runtime that manages engine loading, lifecycle, and coordination across the entire system.
 
 ## Architecture
 
@@ -106,11 +106,11 @@ Comprehensive documentation of the Application Shell architecture, integration p
 
 ## Integration with Bootstrap
 
-The Application Shell fulfills the contract expected by `frasberg_ai_bootstrap.ts`:
+The Application Shell fulfills the contract expected by `frasberg_bootstrap.ts`:
 
 ```typescript
-// frasberg_ai_bootstrap.ts
-import { getAppEntry } from './frasberg_ai_application_shell/app_shell_runtime';
+// frasberg_bootstrap.ts
+import { getAppEntry } from './frasberg_application_shell/app_shell_runtime';
 
 export function bootstrapFrasbergAI(initialContext: object = {}) {
   const entry = getAppEntry();
@@ -176,7 +176,7 @@ The Application Shell provides comprehensive error handling:
 The current implementation uses a **placeholder-based engine loading** approach. When `loadEngine()` is called, it registers engine metadata (name, version, descriptor) rather than dynamically importing actual engine modules. This design decision:
 
 1. **Allows the Application Shell infrastructure to function immediately** without requiring complex module resolution
-2. **Provides a working contract** that `frasberg_ai_bootstrap.ts` can depend on
+2. **Provides a working contract** that `frasberg_bootstrap.ts` can depend on
 3. **Enables dependency validation and lifecycle management** without module imports
 4. **Simplifies testing** by avoiding filesystem and import dependencies
 
@@ -214,11 +214,11 @@ beforeEach(() => {
 
 **Current Version:** 1.0.0
 
-This is the initial implementation of the Application Shell subsystem, completing the architecture described in Frasberg AI v1.0.1.
+This is the initial implementation of the Application Shell subsystem, completing the architecture described in Frasberg v1.0.1.
 
 ## Maintainer
 
-**Emerald Estates® — Frasberg AI Governance**
+**Frasberg® and Frasberg, Inc. — Frasberg Governance**
 
 ---
 
@@ -299,7 +299,7 @@ const registry = appShell.manifest.getRegistry(); // Record<string, EngineDescri
 
 ## Future Enhancements
 
-As outlined in the Frasberg AI roadmap (v1.0.2), the Application Shell will evolve to support:
+As outlined in the Frasberg roadmap (v1.0.2), the Application Shell will evolve to support:
 
 1. **Engine Loader Refactor** - Enhanced validation and version compatibility checking
 2. **Manifest Consolidation** - Integration with VERSION_MAP.json and ENGINE_MANIFEST.md
@@ -310,4 +310,4 @@ As outlined in the Frasberg AI roadmap (v1.0.2), the Application Shell will evol
 
 ---
 
-This Application Shell subsystem completes the orchestration layer for Frasberg AI and provides a solid foundation for future architectural enhancements.
+This Application Shell subsystem completes the orchestration layer for Frasberg and provides a solid foundation for future architectural enhancements.
