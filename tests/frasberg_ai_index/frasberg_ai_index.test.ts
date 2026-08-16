@@ -1,6 +1,6 @@
-import * as index from "../../src/frasberg_ai_index";
+import * as index from "../../src/frasberg_index";
 
-describe("frasberg_ai_index", () => {
+describe("frasberg_index", () => {
   test("exports all engines", () => {
     expect(index.engines).toBeDefined();
     expect(index.engines.deviation_engine).toBeDefined();
