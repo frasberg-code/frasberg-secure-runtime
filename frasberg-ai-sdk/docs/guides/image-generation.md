@@ -1,6 +1,6 @@
 # Image Generation Guide
 
-Comprehensive guide to image generation with the Frasberg AI SDK.
+Comprehensive guide to image generation with the Frasberg SDK.
 
 ## Basic Usage
 
