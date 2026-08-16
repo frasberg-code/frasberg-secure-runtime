@@ -1,4 +1,4 @@
-import { generateFieldState } from '../../supabase/frasberg_ai/field_generation/field_generation';
+import { generateFieldState } from '../../supabase/frasberg/field_generation/field_generation';
 
 describe('field_generation', () => {
   test('generates new field using generator', () => {
