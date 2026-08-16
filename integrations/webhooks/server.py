@@ -1,4 +1,4 @@
-"""Frasberg AI Webhook Server"""
+"""Frasberg Webhook Server"""
 
 from fastapi import FastAPI, Request, BackgroundTasks
 import httpx
@@ -13,7 +13,7 @@ async def send_webhook(url: str, event: str, data: dict):
         await client.post(url, json={
             "event": event,
             "data": data,
-            "source": "frasberg-ai"
+            "source": "frasberg"
         })
 
 @app.post("/webhooks/register")
