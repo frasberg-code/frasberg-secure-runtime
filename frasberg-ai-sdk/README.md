@@ -194,7 +194,7 @@ function loadFrasbergConfig(): FrasbergSystemConfig
 import { loadFrasbergConfig } from '@frasberg/core-sdk';
 
 const config = loadFrasbergConfig();
-console.log(config.ai.provider); // 'frasberg-ai'
+console.log(config.ai.provider); // 'frasberg'
 ```
 
 ## Configuration
@@ -359,7 +359,7 @@ frasberg-sdk/
 
 ### Reporting Vulnerabilities
 
-If you discover a security vulnerability, please email security@emeraldestates.com. Do not open public issues for security vulnerabilities.
+If you discover a security vulnerability, please email security@frasberg.com. Do not open public issues for security vulnerabilities.
 
 See [SECURITY.md](SECURITY.md) for more details.
 
