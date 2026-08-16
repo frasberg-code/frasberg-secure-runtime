@@ -1,4 +1,4 @@
-import { generateExpression } from '../../supabase/frasberg_ai/expression_engine/expression_engine';
+import { generateExpression } from '../../supabase/frasberg/expression_engine/expression_engine';
 
 describe('expression_engine', () => {
   test('generates layered expression', () => {
