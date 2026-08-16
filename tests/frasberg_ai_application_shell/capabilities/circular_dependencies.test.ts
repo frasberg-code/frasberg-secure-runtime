@@ -3,7 +3,7 @@
  * Tests for detecting circular capability dependencies
  */
 
-import { validateCapabilities, EngineCapabilities } from '../../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_capabilities';
+import { validateCapabilities, EngineCapabilities } from '../../../supabase/frasberg/frasberg_application_shell/app_shell_capabilities';
 
 describe('Frasberg AI Application Shell — Circular Dependencies', () => {
   test('detects simple circular dependency (A -> B -> A)', () => {
