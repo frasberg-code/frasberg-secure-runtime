@@ -1,6 +1,6 @@
 # Project Policies
 
-Governance policies for the Frasberg AI SDK project including code review, merge requirements, and development standards.
+Governance policies for the Frasberg SDK project including code review, merge requirements, and development standards.
 
 ## Code Review Policy
 
