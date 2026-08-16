@@ -1,6 +1,6 @@
 /**
  * Field Resolution - Conflict Resolution
- * Part of the Field Decision Triad for Frasberg AI
+ * Part of the Field Decision Triad for Frasberg
  * 
  * Resolves ambiguity and conflicting tendencies.
  * Takes competing intents, applies resolution logic, and produces
