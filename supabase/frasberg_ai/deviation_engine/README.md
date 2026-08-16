@@ -1,7 +1,7 @@
 # Deviation Engine
 
 The Deviation Engine computes directional drift, magnitude, and historical
-deviation values for Frasberg AI. It provides three primary operations:
+deviation values for Frasberg. It provides three primary operations:
 
 ### initialize()
 Creates a new deviation state with baseline values.
