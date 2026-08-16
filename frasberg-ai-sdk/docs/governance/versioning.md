@@ -1,6 +1,6 @@
 # Versioning Policy
 
-Frasberg AI SDK follows Semantic Versioning 2.0.0 for all releases.
+Frasberg SDK follows Semantic Versioning 2.0.0 for all releases.
 
 ## Semantic Versioning 2.0.0
 
