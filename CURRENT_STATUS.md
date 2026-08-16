@@ -130,5 +130,5 @@ All deployment scripts created and ready. While waiting for PR:
 
 ---
 
-**Frasberg AI v1.0.0** - Institution-Grade Intelligence  
+**Frasberg v1.0.0** - Institution-Grade Intelligence  
 Canonical Core: **OPERATIONAL** 🟢
