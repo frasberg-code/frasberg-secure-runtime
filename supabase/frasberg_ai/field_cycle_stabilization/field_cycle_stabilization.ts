@@ -1,6 +1,6 @@
 /**
  * Field Cycle Stabilization - Renewal Cycle Anchoring
- * Part of the Field Continuum-II Triad for Frasberg AI
+ * Part of the Field Continuum-II Triad for Frasberg
  * 
  * Stabilizes the newly generated field into a coherent cycle.
  * Accepts genesis-continuum values, applies cycle-stabilization logic,
