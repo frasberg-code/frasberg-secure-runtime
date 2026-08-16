@@ -1,4 +1,4 @@
-import { applyFlow } from '../../supabase/frasberg_ai/field_flow/field_flow';
+import { applyFlow } from '../../supabase/frasberg/field_flow/field_flow';
 
 describe('field_flow', () => {
   test('applies forward flow', () => {
