@@ -1,6 +1,6 @@
 /**
  * Field Genesis Continuum-II - Second-Order Renewal Continuity
- * Part of the Field Genesis-II Triad for Frasberg AI
+ * Part of the Field Genesis-II Triad for Frasberg
  * 
  * Integrates generated-II states into the ongoing second-order continuum.
  * Accepts generated-II states, applies genesis-continuity logic,
