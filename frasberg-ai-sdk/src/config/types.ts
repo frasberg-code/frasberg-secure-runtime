@@ -1,18 +1,18 @@
 export interface FrasbergSystemConfig {
   ai: {
-    provider: 'frasberg-ai';
+    provider: 'frasberg';
     apiKeySource: 'github' | 'supabase';
     allowExternalProviders: false;
     fallbackProviders: [];
   };
   imageGeneration: {
-    provider: 'frasberg-ai';
+    provider: 'frasberg';
     apiKeySource: 'github' | 'supabase';
     allowExternalProviders: false;
     fallbackProviders: [];
   };
   videoGeneration: {
-    provider: 'frasberg-ai';
+    provider: 'frasberg';
     apiKeySource: 'github' | 'supabase';
     allowExternalProviders: false;
     fallbackProviders: [];
