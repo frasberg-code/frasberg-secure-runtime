@@ -1,6 +1,6 @@
 /**
  * Field Expansion - Panoramic Field Expansion
- * Part of the Field Horizon Triad for Frasberg AI
+ * Part of the Field Horizon Triad for Frasberg
  * 
  * Expands the apex expression into a wide-angle field state.
  * Accepts apex expression values, applies expansion logic,
