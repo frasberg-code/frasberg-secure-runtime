@@ -1,6 +1,6 @@
 /**
  * Field Flow - Directional Field Movement
- * Part of the Field Dynamics Triad for Frasberg AI
+ * Part of the Field Dynamics Triad for Frasberg
  * 
  * Introduces directional movement across the stabilized field.
  * Applies flow in forward, backward, or lateral directions
