@@ -1,7 +1,7 @@
-# Frasberg AI Discord Server Setup Guide
+# Frasberg Discord Server Setup Guide
 
 ## Server Name
-**Frasberg AI - Building the Future of AI**
+**Frasberg - Building the Future of AI**
 
 ## Categories & Channels
 
@@ -63,13 +63,13 @@
 ## Welcome Message
 
 ```
-Welcome to Frasberg AI! 👋
+Welcome to Frasberg! 👋
 
 Building planetary-scale AI infrastructure, open source and accessible.
 
 🔗 **Quick Links:**
 - GitHub: https://github.com/FrasbergAI/frasberg
-- Docs: https://docs.frasberg-ai.ai
+- Docs: https://docs.frasberg.com
 
 🎯 **Get Started:**
 1. Read rules in #welcome
@@ -85,7 +85,7 @@ Let's build the future together! 🚀
 ## Rules
 
 ```
-**Frasberg AI Community Rules** 📜
+**Frasberg Community Rules** 📜
 
 1️⃣ **Be Respectful** - No harassment or hate speech
 2️⃣ **Stay On Topic** - Keep discussions relevant
@@ -121,6 +121,6 @@ Let's build the future together! 🚀
 
 ## Invite Link
 
-`discord.gg/frasberg-ai` (custom URL after verification)
+`discord.gg/frasbergai` (custom URL after verification)
 
 **Ready to launch!** 🚀
