@@ -1,6 +1,6 @@
 /**
  * Field Synthesis - Multi-Cycle Field Synthesis
- * Part of the Field Integration Triad for Frasberg AI
+ * Part of the Field Integration Triad for Frasberg
  * 
  * Integrates multi-cycle field activity into coherent, long-arc patterns.
  * Synthesizes multiple field cycles into a unified representation using
