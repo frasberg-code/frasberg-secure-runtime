@@ -1,6 +1,6 @@
 # Frasberg Discord Server Setup Guide
 
-Complete guide for setting up and managing the Frasberg AI Discord community.
+Complete guide for setting up and managing the Frasberg Discord community.
 
 ---
 
