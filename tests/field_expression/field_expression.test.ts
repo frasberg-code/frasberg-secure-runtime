@@ -1,4 +1,4 @@
-import { expressFieldIdentity } from '../../supabase/frasberg_ai/field_expression/field_expression';
+import { expressFieldIdentity } from '../../supabase/frasberg/field_expression/field_expression';
 
 describe('field_expression', () => {
   test('expresses identity using expressor', () => {
