@@ -3,11 +3,11 @@
  * Confirms shared context object is passed consistently to all engines.
  */
 
-import { initializeFrasbergAppShell, resetRuntime } from '../../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_runtime';
-import { resetContext } from '../../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_context';
-import { resetLifecycleState, getLifecycleLogs } from '../../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_lifecycle';
+import { initializeFrasbergAppShell, resetRuntime } from '../../../supabase/frasberg/frasberg_application_shell/app_shell_runtime';
+import { resetContext } from '../../../supabase/frasberg/frasberg_application_shell/app_shell_context';
+import { resetLifecycleState, getLifecycleLogs } from '../../../supabase/frasberg/frasberg_application_shell/app_shell_lifecycle';
 
-describe('Frasberg AI Application Shell — Context Propagation', () => {
+describe('Frasberg Application Shell — Context Propagation', () => {
   beforeEach(() => {
     resetContext();
     resetLifecycleState();
