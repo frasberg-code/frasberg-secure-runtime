@@ -84,7 +84,7 @@ OPENAI_API_KEY=sk-...your-key-here
 ANTHROPIC_API_KEY=sk-ant-...your-key-here
 
 # Database Configuration
-DATABASE_URL=postgresql://frasberg:frasberg@localhost:5432/frasberg_ai
+DATABASE_URL=postgresql://frasberg:frasberg@localhost:5432/frasberg
 # Or for SQLite (development only):
 # USE_SQLITE=true
 
@@ -116,7 +116,7 @@ echo "  docker run -d \\"
 echo "    --name frasberg-postgres \\"
 echo "    -e POSTGRES_USER=frasberg \\"
 echo "    -e POSTGRES_PASSWORD=frasberg \\"
-echo "    -e POSTGRES_DB=frasberg_ai \\"
+echo "    -e POSTGRES_DB=frasberg \\"
 echo "    -p 5432:5432 \\"
 echo "    postgres:15"
 echo ""
@@ -124,7 +124,7 @@ echo "Option B: Install PostgreSQL locally:"
 echo "  # Ubuntu/Debian"
 echo "  sudo apt-get install postgresql postgresql-contrib"
 echo "  sudo -u postgres createuser frasberg"
-echo "  sudo -u postgres createdb frasberg_ai"
+echo "  sudo -u postgres createdb frasberg"
 echo ""
 echo "Option C: Use SQLite (development only):"
 echo "  Set USE_SQLITE=true in .env"
