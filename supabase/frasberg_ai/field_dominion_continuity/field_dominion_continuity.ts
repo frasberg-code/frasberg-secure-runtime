@@ -1,6 +1,6 @@
 /**
  * Field Dominion Continuity - Persistent Dominion Stability
- * Part of the Field Dominion-II Triad for Frasberg AI
+ * Part of the Field Dominion-II Triad for Frasberg
  * 
  * Stabilizes dominion across cycles, ensuring persistent structural governance.
  * Accepts dominion-projection states, applies dominion-continuity logic,
