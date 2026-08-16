@@ -1,6 +1,6 @@
 /**
  * Field Reconfiguration - Structural Field Reconfiguration
- * Part of the Field Transformation Triad for Frasberg AI
+ * Part of the Field Transformation Triad for Frasberg
  * 
  * Reconfigures the transformed field into a new structural pattern.
  * Accepts transformed states, applies reconfiguration logic,
