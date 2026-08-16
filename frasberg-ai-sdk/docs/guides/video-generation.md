@@ -1,6 +1,6 @@
 # Video Generation Guide
 
-Comprehensive guide to video generation with the Frasberg AI SDK.
+Comprehensive guide to video generation with the Frasberg SDK.
 
 ## Basic Usage
 
