@@ -1,6 +1,6 @@
 /**
  * Field Authority Cycle - Multi-Cycle Authority Anchoring
- * Part of the Field Dominion-II Triad for Frasberg AI
+ * Part of the Field Dominion-II Triad for Frasberg
  * 
  * Establishes authority over the unified multi-cycle continuum.
  * Accepts continuum-synthesis values, applies authority-formation logic,
