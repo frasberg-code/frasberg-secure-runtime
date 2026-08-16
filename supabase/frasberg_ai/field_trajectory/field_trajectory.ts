@@ -1,6 +1,6 @@
 /**
  * Field Trajectory - Long-Arc Trajectory Shaping
- * Part of the Field Continuity Triad for Frasberg AI
+ * Part of the Field Continuity Triad for Frasberg
  * 
  * Shapes the long-arc direction of the field by computing trajectory from origin and direction.
  * This is the system's momentum vector — the part that defines where the line is going.
