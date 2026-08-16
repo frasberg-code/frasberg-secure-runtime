@@ -4,9 +4,9 @@
  */
 
 import { assertEquals } from "https://deno.land/std@0.208.0/assert/mod.ts";
-import { createRouterWithHandlers } from "../../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_capability_router.ts";
-import { handlers as identityHandlers } from "../../../supabase/frasberg_ai/identity_filter/handlers.ts";
-import { handlers as deviationHandlers } from "../../../supabase/frasberg_ai/deviation_engine/handlers.ts";
+import { createRouterWithHandlers } from "../../../supabase/frasberg/frasberg_application_shell/app_shell_capability_router.ts";
+import { handlers as identityHandlers } from "../../../supabase/frasberg/identity_filter/handlers.ts";
+import { handlers as deviationHandlers } from "../../../supabase/frasberg/deviation_engine/handlers.ts";
 
 Deno.test("Router reports all registered capabilities", () => {
   const router = createRouterWithHandlers([
