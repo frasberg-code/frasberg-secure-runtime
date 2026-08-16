@@ -1,6 +1,6 @@
 /**
  * Field Constancy - Identity Constancy Across Cycles
- * Part of the Field Identity Triad for Frasberg AI
+ * Part of the Field Identity Triad for Frasberg
  * 
  * Maintains identity constancy across cycles.
  * This is the system's "I remain myself" layer.
