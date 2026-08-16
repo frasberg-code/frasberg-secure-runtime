@@ -1,4 +1,4 @@
-import { computeFieldCoherence } from '../../supabase/frasberg_ai/field_coherence/field_coherence';
+import { computeFieldCoherence } from '../../supabase/frasberg/field_coherence/field_coherence';
 
 describe('field_coherence', () => {
   test('computes coherence using validator', () => {
