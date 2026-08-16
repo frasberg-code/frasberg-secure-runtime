@@ -1,6 +1,6 @@
 /**
  * Field Alignment - Continuity Alignment
- * Part of the Field Coherence Triad for Frasberg AI
+ * Part of the Field Coherence Triad for Frasberg
  * 
  * Aligns multiple continuity streams into a unified orientation.
  * This is where the system's threads begin to converge.
