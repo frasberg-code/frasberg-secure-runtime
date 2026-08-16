@@ -1,6 +1,6 @@
-# Frasberg AI — Engine Manifest
+# Frasberg — Engine Manifest
 
-This manifest provides a unified, human‑readable overview of every engine in Frasberg AI.  
+This manifest provides a unified, human‑readable overview of every engine in Frasberg.  
 It complements `VERSION_MAP.json` by offering descriptive, examiner‑ready context for each module.
 
 Each engine listed here includes:
@@ -18,7 +18,7 @@ Each engine listed here includes:
 
 **Name:** deviation_engine  
 **Version:** 1.0.1  
-**Directory:** `supabase/frasberg_ai/deviation_engine`  
+**Directory:** `supabase/frasberg/deviation_engine`  
 **Registration Key:** `deviation_engine`
 
 ### Purpose
@@ -43,7 +43,7 @@ All other engines rely on its deviation and stability metrics.
 
 **Name:** identity_filter  
 **Version:** 1.0.0  
-**Directory:** `supabase/frasberg_ai/identity_filter`  
+**Directory:** `supabase/frasberg/identity_filter`  
 **Registration Key:** `identity_filter`
 
 ### Purpose
@@ -61,7 +61,7 @@ Acts as the final gatekeeper before output leaves the system.
 
 **Name:** membrane_engine  
 **Version:** 1.0.0  
-**Directory:** `supabase/frasberg_ai/membrane_engine`  
+**Directory:** `supabase/frasberg/membrane_engine`  
 **Registration Key:** `membrane_engine`
 
 ### Purpose
@@ -79,7 +79,7 @@ Serves as the boundary layer between internal reasoning and external context.
 
 **Name:** tonal_engine  
 **Version:** 1.0.0  
-**Directory:** `supabase/frasberg_ai/tonal_engine`  
+**Directory:** `supabase/frasberg/tonal_engine`  
 **Registration Key:** `tonal_engine`
 
 ### Purpose
@@ -98,7 +98,7 @@ Ensures expressive coherence while respecting identity constraints.
 
 All engines are registered in:
 
-`supabase/frasberg_ai/frasberg_ai_index.ts`
+`supabase/frasberg/frasberg_index.ts`
 
 This file exposes the unified engine map used by the entire Frasberg AI pipeline.
 
@@ -116,6 +116,6 @@ Human‑readable versions:
 
 # System Version
 
-**Frasberg AI Version:** 1.0.1
+**Frasberg Version:** 1.0.1
 
 This reflects the integration of the deviation engine and completion of Issue #2.
