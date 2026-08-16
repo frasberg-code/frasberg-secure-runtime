@@ -1,4 +1,4 @@
-import { bridgeSignature } from '../../supabase/frasberg_ai/signature_bridge/signature_bridge';
+import { bridgeSignature } from '../../supabase/frasberg/signature_bridge/signature_bridge';
 
 describe('signature_bridge', () => {
   test('bridges local and external signatures', () => {
