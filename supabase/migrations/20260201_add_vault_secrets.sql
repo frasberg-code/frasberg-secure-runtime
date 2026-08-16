@@ -47,4 +47,4 @@
 
 SELECT 'Vault secrets must be configured manually through Supabase Dashboard' AS reminder;
 
-COMMENT ON EXTENSION vault IS 'Stores encrypted API keys and secrets for Frasberg AI Backend';
+COMMENT ON EXTENSION vault IS 'Stores encrypted API keys and secrets for Frasberg Backend';
