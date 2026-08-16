@@ -1,6 +1,6 @@
 /**
  * Field Evolution - Evolutionary Progression
- * Part of the Field Evolution Triad for Frasberg AI
+ * Part of the Field Evolution Triad for Frasberg
  * 
  * Applies evolutionary progression to adaptive states.
  * Accepts adaptive states, applies evolutionary rules,
