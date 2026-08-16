@@ -1,6 +1,6 @@
 /**
  * Field Peak - Apex Peak Formation
- * Part of the Field Apex Triad for Frasberg AI
+ * Part of the Field Apex Triad for Frasberg
  * 
  * Concentrates refined ascending states into a peak configuration.
  * Accepts refined or ascending values, applies peak-formation logic,
