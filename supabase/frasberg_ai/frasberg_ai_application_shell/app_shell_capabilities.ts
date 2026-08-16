@@ -1,6 +1,6 @@
 /**
  * app_shell_capabilities.ts
- * Capability contract system for Frasberg AI engines.
+ * Capability contract system for Frasberg engines.
  * Defines what each engine provides and consumes for dependency validation.
  */
 
