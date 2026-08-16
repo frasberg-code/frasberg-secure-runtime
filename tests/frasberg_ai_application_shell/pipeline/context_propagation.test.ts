@@ -1,4 +1,4 @@
-import { runPipeline } from "../../../supabase/frasberg_ai/frasberg_ai_application_shell/app_shell_pipeline.ts";
+import { runPipeline } from "../../../supabase/frasberg/frasberg_application_shell/app_shell_pipeline.ts";
 import { assertEquals } from "https://deno.land/std@0.208.0/assert/mod.ts";
 
 Deno.test("Pipeline maintains runtime context", async () => {
