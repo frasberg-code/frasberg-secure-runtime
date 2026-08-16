@@ -1,8 +1,8 @@
-import { resonateIdentity } from '../../supabase/frasberg_ai/identity_resonator/identity_resonator';
+import { resonateIdentity } from '../../supabase/frasberg/identity_resonator/identity_resonator';
 
 describe('identity_resonator', () => {
   test('resonates identity with amplitude', () => {
-    expect(resonateIdentity('MR', 3)).toBe('MR::~~~');
+    expect(resonateIdentity('Frasberg Selassie', 3)).toBe('MR::~~~');
   });
 
   test('resonates with amplitude of 1', () => {
