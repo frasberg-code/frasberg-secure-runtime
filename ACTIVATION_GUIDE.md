@@ -44,7 +44,7 @@ curl http://localhost:8000/openapi.json
 {"status":"healthy","service":"canonical-core","version":"v1.0.0"}
 
 // GET /
-{"name":"Frasberg AI","version":"v1.0.0","status":"operational","architecture":"45-layer sovereign intelligence"}
+{"name":"Frasberg","version":"v1.0.0","status":"operational","architecture":"45-layer sovereign intelligence"}
 
 // GET /api/v1/status
 {"service":"canonical-core","version":"v1.0.0","status":"operational","components":{"field_architecture":"active","sovereign_intelligence":"operational"}}
@@ -261,7 +261,7 @@ ALL SERVICES OPERATIONAL ✅
 
 RUN: ./deploy/create-release-package.sh
   │
-  └─ ZIP created: release/frasberg-ai-v1.0.0-public-final.zip
+  └─ ZIP created: release/frasberg-v1.0.0-public-final.zip
 
   ↓ [5 minutes]
 
