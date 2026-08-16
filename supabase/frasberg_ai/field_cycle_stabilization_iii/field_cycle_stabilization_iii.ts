@@ -1,6 +1,6 @@
 /**
  * Field Cycle Stabilization III - Third-Order Cycle Stabilization
- * Part of the Field Continuum-III Triad for Frasberg AI
+ * Part of the Field Continuum-III Triad for Frasberg
  * 
  * Stabilizes third-order field cycles into coherent renewal patterns.
  * Accepts genesis-II states, applies third-order cycle-stabilization logic,
