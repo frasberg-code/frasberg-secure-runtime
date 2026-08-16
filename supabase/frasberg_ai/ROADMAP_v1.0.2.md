@@ -1,4 +1,4 @@
-Frasberg AI — Roadmap v1.0.2
+Frasberg — Roadmap v1.0.2
 This roadmap defines the next development cycle following the completion of the deviation engine (v1.0.1).
 It focuses on strengthening cross‑engine integration, expanding system‑level capabilities, and preparing for v1.1.0.
 
@@ -30,7 +30,7 @@ exposes a typed engine registry
 Merge:
 ENGINE_MANIFEST.md
 VERSION_MAP.json
-frasberg_ai_manifest.json
+frasberg_manifest.json
 into a single canonical manifest with both human and machine layers.
 Phase 3 — New Engine Foundations
 6. Resonance Engine (v1.1.0 milestone)
@@ -50,23 +50,26 @@ Outputs:
 resonance score (0–1)
 phase vector
 coherence delta
+
 7. Context Horizon Engine
 Controls:
-
 how far back context is considered
 how aggressively context decays
 how drift affects context retention
 Phase 4 — Tooling & Automation
+
 8. Test Harness Expansion
 Add cross‑engine integration tests
 Add snapshot tests for multi‑engine pipelines
 Add drift‑simulation test suite
+
 9. Release Automation
 Auto‑generate:
 CHANGELOG entries
 version bumps
 manifest updates
 Validate engine versions before release
+
 Phase 5 — Documentation & Developer Experience
 10. Developer Guide
 Add a full guide explaining:
@@ -75,6 +78,7 @@ how to write specs
 how to write tests
 how to register engines
 how to update manifests
+
 11. Architecture Diagram
 Produce a visual map of:
 all engines
@@ -85,4 +89,4 @@ Version Target
 Next Release: v1.0.2
 Milestone Release: v1.1.0 (Resonance Engine)
 
-This roadmap ensures Frasberg AI continues evolving with clarity, structure, and examiner‑ready precision.
+This roadmap ensures Frasberg continues evolving with clarity, structure, and examiner‑ready precision.
