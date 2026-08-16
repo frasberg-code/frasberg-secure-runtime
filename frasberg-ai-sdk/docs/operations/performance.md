@@ -1,6 +1,6 @@
 # Performance Guidelines
 
-Best practices and guidelines for optimizing Frasberg AI SDK performance.
+Best practices and guidelines for optimizing Frasberg SDK performance.
 
 ## Overview
 
@@ -82,9 +82,9 @@ export function loadEnvConfig(): Config {
   }
   
   cachedConfig = {
-    apiKey: process.env.FRASBERG_AI_API_KEY || '',
-    apiUrl: process.env.FRASBERG_AI_API_URL || DEFAULT_API_URL,
-    timeout: parseInt(process.env.FRASBERG_AI_TIMEOUT || '30000', 10)
+    apiKey: process.env.FRASBERG_API_KEY || '',
+    apiUrl: process.env.FRASBERG_API_URL || DEFAULT_API_URL,
+    timeout: parseInt(process.env.FRASBERG_TIMEOUT || '30000', 10)
   };
   
   return cachedConfig;
@@ -96,8 +96,8 @@ export function loadEnvConfig(): Config {
 export function loadEnvConfig(): Config {
   // Inefficient: Re-reads environment every time
   return {
-    apiKey: process.env.FRASBERG_AI_API_KEY || '',
-    apiUrl: process.env.FRASBERG_AI_API_URL || DEFAULT_API_URL,
+    apiKey: process.env.FRASBERG_API_KEY || '',
+    apiUrl: process.env.FRASBERG_API_URL || DEFAULT_API_URL,
     timeout: parseInt(process.env.FRASBERG_AI_TIMEOUT || '30000', 10)
   };
 }
