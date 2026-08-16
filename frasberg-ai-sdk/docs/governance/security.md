@@ -99,7 +99,7 @@ Security guidelines, vulnerability reporting, and secure coding practices for th
 ```typescript
 // Use environment variables
 const client = createFrasbergClient({
-  apiKey: process.env.FRASBERG_AI_API_KEY
+  apiKey: process.env.FRASBERG_API_KEY
 });
 ```
 
