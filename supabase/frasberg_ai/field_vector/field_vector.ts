@@ -1,6 +1,6 @@
 /**
  * Field Vector - Magnitude and Direction Computation
- * Part of the Field Dynamics Triad for Frasberg AI
+ * Part of the Field Dynamics Triad for Frasberg
  * 
  * Defines magnitude and direction for field behavior.
  * Computes vector outputs combining amplitude, direction, and momentum
