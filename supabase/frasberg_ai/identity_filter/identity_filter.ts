@@ -1,6 +1,6 @@
 /**
  * Identity Filter - Semantic Identity Input Filtering
- * Part of the Final Modulation Triad for Frasberg AI
+ * Part of the Final Modulation Triad for Frasberg
  * 
  * Provides semantic clarity through noise reduction and signal shaping,
  * filtering identity input for clean processing.
