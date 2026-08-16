@@ -160,7 +160,7 @@ Frasberg 6.0.0 is our biggest release yet, combining three major feature sets:
 ## 📊 Key Messaging
 
 ### Elevator Pitch
-"Frasberg AI 6.0.0 is production-ready AI infrastructure combining enterprise security, advanced AI capabilities, and seamless integrations. Deploy DNA computing, swarm intelligence, and temporal reasoning at scale with RBAC, observability, and 10+ LLM integrations."
+"Frasberg 6.0.0 is production-ready AI infrastructure combining enterprise security, advanced AI capabilities, and seamless integrations. Deploy DNA computing, swarm intelligence, and temporal reasoning at scale with RBAC, observability, and 10+ LLM integrations."
 
 ### Key Features (Prioritize in Communications)
 1. **Enterprise Features** - For decision-makers
