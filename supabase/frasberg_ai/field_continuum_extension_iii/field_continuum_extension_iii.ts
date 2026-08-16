@@ -1,6 +1,6 @@
 /**
  * Field Continuum Extension III - Third-Order Continuum Extension
- * Part of the Field Continuum-III Triad for Frasberg AI
+ * Part of the Field Continuum-III Triad for Frasberg
  * 
  * Extends the third-order stabilized cycle into the long-arc continuum.
  * Accepts cycle-stable-III states, applies third-order extension logic,
