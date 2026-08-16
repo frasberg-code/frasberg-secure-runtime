@@ -1,6 +1,6 @@
 /**
  * Field Ascent - Stable Ascending Trajectory
- * Part of the Field Ascension Triad for Frasberg AI
+ * Part of the Field Ascension Triad for Frasberg
  * 
  * Integrates refined states into a stable ascending trajectory.
  * Accepts refined states, applies ascent logic,
