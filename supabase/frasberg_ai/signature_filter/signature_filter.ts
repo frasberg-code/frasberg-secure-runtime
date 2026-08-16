@@ -1,6 +1,6 @@
 /**
  * Signature Filter - Identity Input Validation and Shaping
- * Part of the Modulation Bridge Triad for Frasberg AI
+ * Part of the Modulation Bridge Triad for Frasberg
  * 
  * Provides identity input validation and shaping,
  * filtering and refining incoming identity signals.
