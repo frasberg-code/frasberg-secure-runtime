@@ -1,6 +1,6 @@
 /**
  * app_shell_context.ts
- * Shared runtime context for the Frasberg AI Application Shell.
+ * Shared runtime context for the Frasberg Application Shell.
  * Manages state and configuration across the engine lifecycle.
  */
 
@@ -31,7 +31,7 @@ export function createContext(config: Record<string, any> = {}): AppShellContext
     config,
     metadata: {
       version: "1.0.0",
-      maintainer: "Emerald Estates® — Frasberg AI Governance"
+      maintainer: "Frasberg® and Frasberg, Inc. — Frasberg Governance"
     },
     ...config  // Merge custom properties into root context
   };
