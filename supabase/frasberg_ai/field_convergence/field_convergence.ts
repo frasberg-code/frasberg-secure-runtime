@@ -1,6 +1,6 @@
 /**
  * Field Convergence - Aligned State Convergence
- * Part of the Field Coherence Triad for Frasberg AI
+ * Part of the Field Coherence Triad for Frasberg
  * 
  * Brings aligned states into a single coherent center.
  * This is the system's unification layer.
