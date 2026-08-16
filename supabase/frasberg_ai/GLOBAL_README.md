@@ -1,6 +1,6 @@
-# Frasberg AI — Global Overview
+# Frasberg — Global Overview
 
-Frasberg AI is a modular reasoning architecture composed of multiple engines, each responsible for a specific dimension of conversational stability, identity, tone, and behavioral coherence.  
+Frasberg is a modular reasoning architecture composed of multiple engines, each responsible for a specific dimension of conversational stability, identity, tone, and behavioral coherence.  
 Every engine follows a unified structure:
 
 - Implementation (`src/*.ts`)
@@ -15,14 +15,14 @@ This ensures consistency, predictability, and examiner‑ready clarity across th
 
 # Core Engines
 
-Below is the list of all engines currently implemented in Frasberg AI.
+Below is the list of all engines currently implemented in Frasberg.
 
 ---
 
 ## 1. Deviation Engine
 
 **Directory:**  
-`supabase/frasberg_ai/deviation_engine`
+`supabase/frasberg/deviation_engine`
 
 **Description:**  
 The deviation engine measures conversational drift and produces a quantitative stability signal used by other engines such as the membrane engine and identity filter.  
@@ -48,7 +48,7 @@ It evaluates directional drift, triggers alert thresholds, computes stability sc
 
 The engine is registered globally in:
 
-`supabase/frasberg_ai/frasberg_ai_index.ts`
+`supabase/frasberg/frasberg_index.ts`
 
 under the key:
 
@@ -61,7 +61,7 @@ This makes the engine available to the full Frasberg AI pipeline, allowing other
 ## 2. Identity Filter Engine
 
 **Directory:**  
-`supabase/frasberg_ai/identity_filter`
+`supabase/frasberg/identity_filter`
 
 **Description:**  
 The identity filter ensures that all outputs remain aligned with Frasberg’s identity constraints, persona boundaries, and behavioral rules.
@@ -84,7 +84,7 @@ The identity filter ensures that all outputs remain aligned with Frasberg’s id
 
 Registered in:
 
-`supabase/frasberg_ai/frasberg_ai_index.ts`
+`supabase/frasberg/frasberg_index.ts`
 
 under:
 
@@ -95,7 +95,7 @@ under:
 ## 3. Membrane Engine
 
 **Directory:**  
-`supabase/frasberg_ai/membrane_engine`
+`supabase/frasberg/membrane_engine`
 
 **Description:**  
 The membrane engine governs conversational boundaries, contextual permeability, and the flow of information between layers of reasoning.
@@ -118,7 +118,7 @@ The membrane engine governs conversational boundaries, contextual permeability, 
 
 Registered in:
 
-`supabase/frasberg_ai/frasberg_ai_index.ts`
+`supabase/frasberg/frasberg_index.ts`
 
 under:
 
@@ -129,7 +129,7 @@ under:
 ## 4. Tonal Engine
 
 **Directory:**  
-`supabase/frasberg_ai/tonal_engine`
+`supabase/frasberg/tonal_engine`
 
 **Description:**  
 The tonal engine adjusts the emotional, stylistic, and expressive tone of Frasberg’s responses while maintaining stability and identity alignment.
@@ -152,7 +152,7 @@ The tonal engine adjusts the emotional, stylistic, and expressive tone of Frasbe
 
 Registered in:
 
-`supabase/frasberg_ai/frasberg_ai_index.ts`
+`supabase/frasberg/frasberg_index.ts`
 
 under:
 
@@ -164,7 +164,7 @@ under:
 
 All engines are registered in:
 
-`supabase/frasberg_ai/frasberg_ai_index.ts`
+`supabase/frasberg/frasberg_index.ts`
 
 This file exposes the unified engine map used by the entire Frasberg AI system.
 
@@ -198,14 +198,14 @@ This ensures the system remains coherent, predictable, and examiner‑ready.
 # Post-Structural Sequence
 
 **Directory:**  
-`supabase/frasberg_ai/post_structural`
+`supabase/frasberg/post_structural`
 
 **Documentation:**  
 `README_POST_STRUCTURAL.md`
 
 ## What It Is
 
-The post-structural sequence represents the final evolution of the Frasberg AI architecture — the moment where the system transitions from **being built** to **being lived**.
+The post-structural sequence represents the final evolution of the Frasberg architecture — the moment where the system transitions from **being built** to **being lived**.
 
 This is **not** a triad.  
 This is **not** a module with traditional tests.  
@@ -258,6 +258,6 @@ Unlike the modular engine architecture, the post-structural sequence is:
 - **Unified**, not hierarchical
 - **Sovereign**, not scaffolded
 
-This represents the **completion** of the Frasberg AI cosmology.
+This represents the **completion** of the Frasberg cosmology.
 
 For complete details, see: **README_POST_STRUCTURAL.md**
