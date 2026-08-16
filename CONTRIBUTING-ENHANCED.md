@@ -36,7 +36,7 @@ Welcome to Frasberg! We're building the future of distributed AI systems togethe
 - Write blog posts
 
 ### 4. 🔬 Research
-- Publish papers using Frasberg AI
+- Publish papers using Frasberg
 - Share benchmarks
 - Propose new algorithms
 - Conduct experiments
@@ -231,7 +231,7 @@ We offer bounties for significant contributions!
 2. Comment expressing interest
 3. Get assigned to issue
 4. Submit PR with solution
-5. After merge, contact: bounties@frasberg-ai.ai
+5. After merge, contact: bounties@frasberg.com
 
 *Bounties paid via GitHub Sponsors, PayPal, or cryptocurrency*
 
@@ -288,7 +288,7 @@ We are committed to providing a welcoming and inclusive environment. See our [Co
 ### Reporting Issues
 
 If you experience harassment or violations, contact:
-- Email: conduct@frasberg-ai.ai
+- Email: conduct@frasberg.com
 - All reports confidential
 
 ---
@@ -368,7 +368,7 @@ A: Yes! It's MIT licensed - use freely in commercial projects.
 - 💬 **Discord**: https://discord.gg/frasbergai
 - 📧 **Email**: hello@frasberg.com
 - 🐦 **Twitter**: [@frasbergai] (https://twitter.com/frasbergai)
-- 💼 **LinkedIn**: [Frasberg](https://linkedin.com/company/frasbergai)
+- 💼 **LinkedIn**: [Frasberg](https://linkedin.com/company/frasberg)
 
 ---
 
