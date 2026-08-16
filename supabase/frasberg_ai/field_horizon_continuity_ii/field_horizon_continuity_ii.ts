@@ -1,6 +1,6 @@
 /**
  * Field Horizon Continuity-II - Second-Order Horizon-Scale Continuity
- * Part of the Field Horizon-II Triad for Frasberg AI
+ * Part of the Field Horizon-II Triad for Frasberg
  * 
  * Stabilizes horizon-II scale continuity across cycles.
  * Accepts horizon-mapped-II values, applies second-order continuity logic,
