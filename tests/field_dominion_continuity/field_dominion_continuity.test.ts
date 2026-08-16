@@ -1,4 +1,4 @@
-import { continueDominion } from '../../supabase/frasberg_ai/field_dominion_continuity/field_dominion_continuity';
+import { continueDominion } from '../../supabase/frasberg/field_dominion_continuity/field_dominion_continuity';
 
 describe('field_dominion_continuity', () => {
   test('continues dominion using continuer', () => {
