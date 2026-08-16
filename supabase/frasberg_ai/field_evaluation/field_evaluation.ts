@@ -1,6 +1,6 @@
 /**
  * Field Evaluation - Evaluative Scoring of Field States
- * Part of the Field Cognition Triad for Frasberg AI
+ * Part of the Field Cognition Triad for Frasberg
  * 
  * Assesses interpreted signals through evaluative criteria.
  * Scores or ranks field states by applying evaluative criteria
