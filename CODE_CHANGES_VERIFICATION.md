@@ -21,7 +21,7 @@
 | cli/README.md | Current Frasberg CLI copy | ✅ | CLI documentation rebranded |
 | cli/setup.py | Package name, author | ✅ | Entry points verified |
 | sdk/python/setup.py | Package name, author | ✅ | SDK metadata updated |
-| frasberg-ai-sdk/package.json | Package scope | ✅ | `@frasberg/core-sdk` |
+| frasberg-sdk/package.json | Package scope | ✅ | `@frasberg/core-sdk` |
 
 ### TIER 2: Package Module Files (6 × 2 = 12 files)
 
