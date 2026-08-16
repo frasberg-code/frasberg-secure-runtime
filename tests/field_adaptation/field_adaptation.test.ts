@@ -1,4 +1,4 @@
-import { adaptFieldState } from '../../supabase/frasberg_ai/field_adaptation/field_adaptation';
+import { adaptFieldState } from '../../supabase/frasberg/field_adaptation/field_adaptation';
 
 describe('field_adaptation', () => {
   test('adapts field using adapter', () => {
