@@ -1,6 +1,6 @@
 /**
  * Field Cycle Synthesis IV - Fourth-Order Cycle Synthesis
- * Part of the Field Cycle Stabilization-IV Triad for Frasberg AI
+ * Part of the Field Cycle Stabilization-IV Triad for Frasberg
  * 
  * Synthesizes multiple fourth-order cycles into a unified continuum.
  * Accepts cycle-extension-IV states, applies fourth-order synthesis logic,
