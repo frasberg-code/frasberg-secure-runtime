@@ -1,6 +1,6 @@
-# Contributing to Frasberg AI SDK
+# Contributing to Frasberg SDK
 
-Thank you for your interest in contributing to the Frasberg AI SDK. This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to the Frasberg SDK. This document provides guidelines and instructions for contributing.
 
 ## Code of Conduct
 
@@ -62,7 +62,7 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 ```bash
 # Clone your fork
 git clone https://github.com/your-username/frasberg.git
-cd frasberg/frasberg-ai-sdk
+cd frasberg/frasberg-sdk
 
 # Install dependencies
 npm install
@@ -77,7 +77,7 @@ npm test
 ### Project Structure
 
 ```
-frasberg-ai-sdk/
+frasberg-sdk/
 ├── src/
 │   ├── client/       # Client implementation
 │   ├── config/       # Configuration handling
