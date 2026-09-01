@@ -1,0 +1,159 @@
+# Frasberg Engine v2 Configuration
+# This is the canonical configuration file for all engine components.
+
+engine:
+  default_region: us-west
+  version: v2.0.0
+
+models:
+  frasberg-engine:
+    gpu_class: gpu-medium
+    endpoint: /v1/generate
+    default_region: us-west
+    credits_per_second: 1
+    max_duration: 3600
+    description: Default text-to-video
+
+  frasberg-engine-turbo:
+    gpu_class: gpu-small
+    endpoint: /v1/generate-turbo
+    default_region: us-west
+    credits_per_second: 0.5
+    max_duration: 3600
+    description: Faster, cheaper
+
+  frasberg-engine-cinema:
+    gpu_class: gpu-large
+    endpoint: /v1/generate-cinema
+    default_region: us-east
+    credits_per_second: 2
+    max_duration: 3600
+    description: Higher quality
+
+  frasberg-engine-veo:
+    gpu_class: gpu-large
+    endpoint: /v1/generate-veo
+    default_region: eu-west
+    credits_per_second: 3
+    max_duration: 3600
+    description: Experimental VEO model
+
+regions:
+  us-west:
+    primary: true
+    secondary: us-east
+    endpoint: https://video-us-west.frasberg.com
+    
+  us-east:
+    primary: true
+    secondary: eu-west
+    endpoint: https://video-us-east.frasberg.com
+    
+  eu-west:
+    primary: true
+    secondary: us-west
+    endpoint: https://video-eu-west.frasberg.com
+    
+  ap-southeast:
+    primary: true
+    secondary: us-west
+    endpoint: https://video-ap-southeast.frasberg.com
+
+autoscaler:
+  enabled: true
+  high_watermark: 50
+  low_watermark: 20
+  cooldown_seconds: 300
+  scale_up_increment: 2
+  scale_down_increment: 1
+
+storage:
+  replication:
+    us-west: us-east
+    us-east: eu-west
+    eu-west: us-west
+    ap-southeast: us-west
+  
+  bucket_prefix: video-output
+  object_layout: "{region}/{task_id}/output.mp4"
+  thumbnail_layout: "{region}/{task_id}/thumb.jpg"
+
+cdn:
+  domain: https://cdn.frasberg.com
+  cache_rules:
+    videos:
+      cache_control: "public, max-age=31536000, immutable"
+      ttl_seconds: 31536000
+    thumbnails:
+      cache_control: "public, max-age=86400"
+      ttl_seconds: 86400
+
+webhooks:
+  enabled: true
+  retries: 3
+  backoff_seconds: [5, 15, 45]
+  timeout_seconds: 30
+  max_payload_size: 1048576  # 1MB
+
+billing:
+  enabled: true
+  credits_per_second:
+    frasberg-engine: 1
+    frasberg-engine-turbo: 0.5
+    frasberg-engine-cinema: 2
+    frasberg-engine-veo: 3
+  
+  refund_policy:
+    failed_tasks: full
+    partial_failures: prorated
+  
+  billing_cycle: monthly
+
+rate_limiting:
+  enabled: true
+  default_tier:
+    tasks_per_minute: 60
+    concurrent_tasks: 10
+    burst_multiplier: 2
+  
+  enterprise_tier:
+    tasks_per_minute: 1000
+    concurrent_tasks: 100
+    burst_multiplier: 1.5
+
+logging:
+  level: info
+  format: json
+  components:
+    - scheduler
+    - gpu-worker
+    - api
+    - webhook
+
+metrics:
+  enabled: true
+  provider: prometheus
+  scrape_interval: 15s
+
+tracing:
+  enabled: true
+  provider: opentelemetry
+  sample_rate: 0.1
+
+security:
+  jwt:
+    algorithm: HS256
+    expiration_hours: 24
+  
+  api_keys:
+    hash_algorithm: sha256
+    rotation_days: 90
+  
+  mTLS:
+    enabled: false
+    required_for: admin
+
+observability:
+  dashboard_refresh_seconds: 10
+  alert_evaluation_seconds: 30
+  retention_days: 30
