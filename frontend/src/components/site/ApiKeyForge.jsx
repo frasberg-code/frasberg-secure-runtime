@@ -1,10 +1,9 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { AudioWaveform, SlidersHorizontal, Network, Folder, ShieldCheck, Users, Copy, Check, Plus, ShieldAlert, FlaskConical, Loader2, Clapperboard } from "lucide-react";
+import { T } from "../../lib/dashTheme";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
-
-const C = { base: "#05060a", panel: "#0b0c10", border: "#1f2933", primary: "#38bdf8", accent: "#a855f7", text: "#e5e7eb", muted: "#9ca3af", danger: "#f97373" };
 
 const GROUPS = [
   ["Core Audio", AudioWaveform, ["text_to_speech", "speech_to_text", "speech_to_speech", "sound_effects"]],
@@ -22,6 +21,7 @@ const label = (k) => k === "frasberg_agents" ? "Frasberg Agents" : k.replace(/_/
 const defaultPerms = () => Object.fromEntries(ALL_KEYS.map((k) => [k, k === "models" ? "read" : "no_access"]));
 
 export const ApiKeyForge = ({ onCreated }) => {
+  const C = { base: T.inset, panel: T.surface, border: T.border, primary: T.accent, accent: "#a855f7", text: T.text, muted: T.muted, danger: "#f97373" };
   const [name, setName] = useState("");
   const [workspace, setWorkspace] = useState("");
   const [expiresDays, setExpiresDays] = useState("");

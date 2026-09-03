@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
-  Key, Plus, Copy, Trash2, Activity, Cpu, Terminal, ArrowLeft, Check, Mail, Wallet, Gauge, Zap, ShieldCheck,
+  Key, Plus, Copy, Trash2, Activity, Cpu, Terminal, ArrowLeft, Check, Mail, Wallet, Gauge, Zap, ShieldCheck, RefreshCw,
 } from "lucide-react";
 import { Sun, Moon } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
@@ -156,6 +156,17 @@ export default function Dashboard() {
     refresh();
   };
 
+  const rotate = async (id) => {
+    try {
+      const res = await fetch(`${API}/keys/${id}/rotate`, { method: "POST", credentials: "include" });
+      if (!res.ok) { toast.error("Could not rotate key"); return; }
+      const data = await res.json();
+      setNewKey(data);
+      toast.success("Key rotated — permissions and credits preserved");
+      refresh();
+    } catch { toast.error("Could not rotate key"); }
+  };
+
   const quotaPct = quota && !quota.unlimited ? Math.min(100, (quota.monthly_tokens_used / Math.max(1, quota.monthly_token_limit)) * 100) : 0;
 
   return (
@@ -172,7 +183,8 @@ export default function Dashboard() {
           </Link>
           <div className="flex items-center gap-3">
             <Link to="/verified-provider" data-testid="verified-provider-badge"
-              className="hidden items-center gap-1.5 rounded-full border border-cyan-400/40 bg-cyan-400/[0.06] px-3 py-1.5 font-mono text-[12px] text-cyan-300 transition-colors hover:border-cyan-300 sm:flex">
+              className="hidden items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-[12px] transition-colors sm:flex"
+              style={{ borderColor: `${T.accent}66`, background: `${T.accent}10`, color: T.accent }}>
               <ShieldCheck size={12} /> Verified LLM Provider
             </Link>
             <button onClick={toggleTheme} aria-label="Toggle theme" data-testid="dashboard-theme-toggle"
@@ -310,6 +322,23 @@ export default function Dashboard() {
           <SectionTitle>API Key Forge</SectionTitle>
           <ApiKeyForge onCreated={(d) => { setNewKey(d); refresh(); }} />
 
+          {newKey?.rotated_at && (
+            <div className="mt-3 rounded-sm border p-4" style={{ borderColor: "rgba(0,240,255,0.4)", background: "rgba(0,240,255,0.04)" }} data-testid="rotated-key-banner">
+              <p className="font-mono text-[13.5px] uppercase tracking-[0.18em]" style={{ color: T.accent }}>
+                Key rotated — copy the new value now, it won't be shown in full again
+              </p>
+              <div className="mt-2.5 flex items-center justify-between gap-4">
+                <code className="truncate font-mono text-sm" style={{ color: T.text }}>{newKey.key}</code>
+                <button onClick={() => { navigator.clipboard.writeText(newKey.key).catch(() => {}); toast.success("Copied"); }}
+                  data-testid="copy-rotated-key"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-sm border px-3 py-1.5 font-mono text-[12px]"
+                  style={{ borderColor: T.border, color: T.text2 }}>
+                  <Copy size={12} /> Copy
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="mt-4 overflow-hidden rounded-sm border" style={{ borderColor: T.border }} data-testid="keys-table">
             {keys.length === 0 ? (
               <p className="p-5 text-sm" style={{ color: T.text2 }}>No keys yet. Generate your first key above.</p>
@@ -339,6 +368,11 @@ export default function Dashboard() {
                       <span className="hidden font-mono text-[13px] sm:inline" style={{ color: T.text2 }}>
                         {k.request_count} req · {k.token_count} tok
                       </span>
+                      <button onClick={() => rotate(k.id)} data-testid={`rotate-key-${k.id}`} aria-label="Rotate key" title="Rotate key — keeps permissions & credits"
+                        className="grid h-8 w-8 place-items-center rounded-sm border transition-colors hover:border-[#00F0FF] hover:text-[#00F0FF]"
+                        style={{ borderColor: T.border, color: T.text2 }}>
+                        <RefreshCw size={13} />
+                      </button>
                       <button onClick={() => revoke(k.id)} data-testid={`revoke-key-${k.id}`} aria-label="Revoke key"
                         className="grid h-8 w-8 place-items-center rounded-sm border transition-colors hover:border-[#EF4444] hover:text-[#EF4444]"
                         style={{ borderColor: T.border, color: T.text2 }}>

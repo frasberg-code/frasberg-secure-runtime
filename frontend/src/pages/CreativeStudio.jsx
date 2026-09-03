@@ -4,23 +4,29 @@ import { toast } from "sonner";
 import {
   ArrowLeft, AudioLines, Image as ImageIcon, Video as VideoIcon, Volume2, Music, Mic,
   AudioWaveform, Maximize2, MoreHorizontal, FileAudio, Languages, Radio, Clapperboard,
-  BookOpen, Loader2, Sparkles, Upload,
+  BookOpen, Loader2, Sparkles, Upload, Sun, Moon, RotateCw, Film,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { ParallaxSky } from "../components/site/ParallaxSky";
+import { T, applyDashTheme, isLightSaved } from "../lib/dashTheme";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
-const C = { base: "#05060a", panel: "#0b0c10", border: "#1f2933", primary: "#38bdf8", accent: "#a855f7", text: "#e5e7eb", muted: "#9ca3af" };
+
+const PRESETS = [
+  { id: "cinematic", label: "Cinematic", suffix: "cinematic film look, anamorphic lens, dramatic lighting, 35mm, shallow depth of field" },
+  { id: "anime", label: "Anime", suffix: "anime style, vibrant cel-shaded animation, expressive characters, studio-quality 2D" },
+  { id: "noir", label: "Noir", suffix: "film noir style, black and white, high-contrast shadows, moody 1940s atmosphere" },
+];
 
 const TOOLS = [
-  { id: "speech", label: "Speech", icon: AudioLines, kind: "tts", ph: "Start typing or paste text..." },
   { id: "image", label: "Image", icon: ImageIcon, kind: "image", ph: "Describe the image to generate..." },
   { id: "video", label: "Video", icon: VideoIcon, kind: "video", ph: "Describe the video scene..." },
   { id: "sound_effects", label: "Sound Effects", icon: Volume2, kind: "studio", ph: "Describe the sound effect (e.g. thunder rolling over a canyon)..." },
-  { id: "music", label: "Music", icon: Music, kind: "studio", ph: "Describe the track (e.g. epic orchestral score, 30s)..." },
+  { id: "music", label: "Music", icon: Music, kind: "studio", ph: "Describe the track (e.g. epic orchestral score, up to 5 minutes)..." },
   { id: "voice_changer", label: "Voice Changer", icon: Mic, kind: "studio", ph: "Describe the target voice transformation..." },
   { id: "voice_isolator", label: "Voice Isolator", icon: AudioWaveform, kind: "studio", ph: "Describe the audio to isolate vocals from..." },
   { id: "upscale", label: "Upscale", icon: Maximize2, kind: "studio", ph: "Describe the media to upscale..." },
+  { id: "speech", label: "Speech", icon: AudioLines, kind: "tts", ph: "Start typing or paste text..." },
 ];
 const MORE_TOOLS = [
   { id: "stt", label: "Speech to Text", icon: FileAudio, kind: "stt", ph: "Upload an audio file to transcribe" },
@@ -39,9 +45,25 @@ export default function CreativeStudio() {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState(null);
   const [jobs, setJobs] = useState([]);
+  const [gallery, setGallery] = useState([]);
+  const [preset, setPreset] = useState(null);
+  const [videoDuration, setVideoDuration] = useState(30);
+  const [musicDuration, setMusicDuration] = useState(180);
+  const [tabOrder, setTabOrder] = useState(TOOLS);
+  const [lightMode, setLightMode] = useState(isLightSaved());
   const moreRef = useRef(null);
   const fileRef = useRef(null);
   const pollRef = useRef(null);
+
+  const toggleTheme = () => {
+    const nl = !lightMode;
+    try { localStorage.setItem("dash-theme", nl ? "light" : "dark"); } catch {}
+    applyDashTheme(nl);
+    setLightMode(nl);
+  };
+  const C = { base: T.bg, panel: T.surface, border: T.border, primary: T.accent, accent: "#a855f7", text: T.text, muted: T.muted };
+
+  const rotateTabs = () => setTabOrder((o) => [...o.slice(1), o[0]]);
 
   useEffect(() => () => { if (pollRef.current) clearInterval(pollRef.current); }, []);
 
@@ -61,7 +83,13 @@ export default function CreativeStudio() {
       if (r.ok) setJobs(await r.json());
     } catch {}
   };
-  useEffect(() => { if (user) loadJobs(); }, [user]);
+  const loadGallery = async () => {
+    try {
+      const r = await fetch(`${API}/generate/video/gallery`, { credentials: "include" });
+      if (r.ok) setGallery(await r.json());
+    } catch {}
+  };
+  useEffect(() => { if (user) { loadJobs(); loadGallery(); } }, [user]);
 
   const generate = async () => {
     if (tool.kind !== "stt" && !prompt.trim()) { toast.error("Type something first"); return; }
@@ -86,9 +114,10 @@ export default function CreativeStudio() {
         const d = await r.json();
         setResult({ type: "image", src: `data:image/png;base64,${d.image_base64}` });
       } else if (tool.kind === "video") {
+        const styled = preset ? `${prompt.trim()} — ${preset.suffix}` : prompt;
         const r = await fetch(`${API}/generate/video`, {
           method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
-          body: JSON.stringify({ prompt, duration: 5, model: "frasberg-engine", ratio: "16:9", motion: "medium", guidance_scale: 7, seed: null, output_format: "mp4" }),
+          body: JSON.stringify({ prompt: styled, duration: videoDuration, model: "frasberg-engine", ratio: "16:9", motion: "medium", guidance_scale: 7, seed: null, output_format: "mp4" }),
         });
         if (r.status === 401) { toast.error("Please sign in to use the studio"); return; }
         if (!r.ok) { toast.error("Video request failed"); return; }
@@ -102,7 +131,10 @@ export default function CreativeStudio() {
               if (!pr.ok) { clearInterval(pollRef.current); return; }
               const pd = await pr.json();
               setResult({ type: "videotask", task: { ...d, ...pd } });
-              if (pd.status === "completed" || pd.status === "failed") clearInterval(pollRef.current);
+              if (pd.status === "completed" || pd.status === "failed") {
+                clearInterval(pollRef.current);
+                if (pd.status === "completed") loadGallery();
+              }
             } catch { clearInterval(pollRef.current); }
           }, 3000);
         } else {
@@ -111,7 +143,7 @@ export default function CreativeStudio() {
       } else {
         const r = await fetch(`${API}/studio/generate`, {
           method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
-          body: JSON.stringify({ tool: active, prompt }),
+          body: JSON.stringify({ tool: active, prompt, settings: active === "music" ? { duration_sec: musicDuration } : undefined }),
         });
         if (r.status === 401) { toast.error("Please sign in to use the studio"); return; }
         if (!r.ok) { toast.error("Generation failed"); return; }
@@ -152,22 +184,34 @@ export default function CreativeStudio() {
   return (
     <main className="relative min-h-screen" style={{ background: C.base, color: C.text }} data-testid="creative-studio-page">
       <ParallaxSky />
-      <header className="relative z-10 border-b backdrop-blur" style={{ borderColor: C.border, background: "rgba(5,6,10,0.7)" }}>
+      <header className="relative z-10 border-b backdrop-blur" style={{ borderColor: C.border, background: T.headerBg }}>
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
           <Link to="/" className="flex items-center gap-2.5" data-testid="studio-home-link">
             <ArrowLeft size={16} style={{ color: C.muted }} />
             <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Creative Studio</span>
           </Link>
-          <Link to="/dashboard" className="rounded-full border px-3.5 py-1.5 font-mono text-[12px]"
-            style={{ borderColor: C.border, color: C.muted }} data-testid="studio-dashboard-link">API Keys</Link>
+          <div className="flex items-center gap-2">
+            <button onClick={toggleTheme} data-testid="studio-theme-toggle" aria-label="Toggle theme"
+              className="grid h-8 w-8 place-items-center rounded-full border transition-colors"
+              style={{ borderColor: C.border, color: C.muted }}>
+              {lightMode ? <Moon size={14} /> : <Sun size={14} />}
+            </button>
+            <Link to="/dashboard" className="rounded-full border px-3.5 py-1.5 font-mono text-[12px]"
+              style={{ borderColor: C.border, color: C.muted }} data-testid="studio-dashboard-link">API Keys</Link>
+          </div>
         </div>
       </header>
 
       <div className="relative z-10 mx-auto max-w-6xl px-5 py-8">
         {/* Toolbar */}
         <div className="flex flex-wrap items-center gap-2" data-testid="studio-toolbar">
-          {TOOLS.map((t) => <TabBtn key={t.id} t={t} />)}
+          <button onClick={rotateTabs} data-testid="studio-rotate-tabs" aria-label="Rotate tabs" title="Rotate tool tabs"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-full border transition-colors"
+            style={{ borderColor: C.border, color: C.muted }}>
+            <RotateCw size={14} />
+          </button>
+          {tabOrder.map((t) => <TabBtn key={t.id} t={t} />)}
           <div className="relative" ref={moreRef}>
             <button onClick={() => setMoreOpen((o) => !o)} data-testid="studio-more-tools-btn"
               className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13px] transition-colors"
@@ -206,14 +250,57 @@ export default function CreativeStudio() {
             </div>
           ) : (
             <>
+              {tool.kind === "video" && (
+                <div className="mb-3 flex flex-wrap items-center gap-2 border-b pb-3" style={{ borderColor: C.border }} data-testid="studio-presets">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.18em]" style={{ color: C.muted }}>Style preset</span>
+                  {PRESETS.map((p) => (
+                    <button key={p.id} onClick={() => setPreset((cur) => cur?.id === p.id ? null : p)}
+                      data-testid={`studio-preset-${p.id}`}
+                      className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[12.5px] transition-colors"
+                      style={preset?.id === p.id
+                        ? { borderColor: C.accent, background: "rgba(168,85,247,0.14)", color: C.accent }
+                        : { borderColor: C.border, color: C.muted }}>
+                      <Film size={12} /> {p.label}
+                    </button>
+                  ))}
+                  {preset && <span className="font-mono text-[11px]" style={{ color: C.muted }} data-testid="studio-preset-hint">+ {preset.suffix.slice(0, 48)}…</span>}
+                </div>
+              )}
               <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder={tool.ph}
                 rows={5} data-testid="studio-prompt-input"
                 className="w-full resize-none bg-transparent text-[15px] outline-none placeholder:text-[#4b5563]"
                 style={{ color: C.text }} />
-              <div className="mt-3 flex items-center justify-between border-t pt-3" style={{ borderColor: C.border }}>
-                <span className="font-mono text-[11.5px] uppercase tracking-[0.18em]" style={{ color: C.muted }}>
-                  {tool.label} · Frasberg Gateway · api.frasberg.com
-                </span>
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t pt-3" style={{ borderColor: C.border }}>
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="font-mono text-[11.5px] uppercase tracking-[0.18em]" style={{ color: C.muted }}>
+                    {tool.label} · Frasberg Gateway · api.frasberg.com
+                  </span>
+                  {tool.kind === "video" && (
+                    <select value={videoDuration} onChange={(e) => setVideoDuration(Number(e.target.value))}
+                      data-testid="video-duration-select"
+                      className="rounded-md border px-2.5 py-1 font-mono text-[11.5px] outline-none"
+                      style={{ borderColor: C.border, background: C.panel, color: C.text }}>
+                      <option value="15">15 sec</option>
+                      <option value="30">30 sec</option>
+                      <option value="60">1 min</option>
+                      <option value="300">5 min</option>
+                      <option value="900">15 min</option>
+                      <option value="1800">30 min</option>
+                      <option value="3600">1 hour</option>
+                      <option value="7200">2 hours (max)</option>
+                    </select>
+                  )}
+                  {active === "music" && (
+                    <select value={musicDuration} onChange={(e) => setMusicDuration(Number(e.target.value))}
+                      data-testid="music-duration-select"
+                      className="rounded-md border px-2.5 py-1 font-mono text-[11.5px] outline-none"
+                      style={{ borderColor: C.border, background: C.panel, color: C.text }}>
+                      <option value="180">3 min</option>
+                      <option value="240">4 min</option>
+                      <option value="300">5 min (max)</option>
+                    </select>
+                  )}
+                </div>
                 <button onClick={generate} disabled={busy} data-testid="studio-generate-btn"
                   className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-700 text-black transition-opacity hover:opacity-85 disabled:opacity-50"
                   style={{ background: C.primary }}>
@@ -259,9 +346,32 @@ export default function CreativeStudio() {
               <div className="grid gap-1 font-mono text-[12.5px]" data-testid="studio-job-result">
                 <span style={{ color: "#34d399" }}>COMPLETED · {result.job.cluster}</span>
                 <span style={{ color: C.text }}>{result.job.output_url}</span>
-                <span style={{ color: C.muted }}>{result.job.duration_sec}s · {result.job.format.toUpperCase()} · {result.job.latency_ms}ms latency</span>
+                <span style={{ color: C.muted }}>{result.job.duration_sec >= 60 ? `${Math.floor(result.job.duration_sec / 60)}m ${Math.round(result.job.duration_sec % 60)}s` : `${result.job.duration_sec}s`} · {result.job.format.toUpperCase()} · {result.job.latency_ms}ms latency</span>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Video gallery */}
+        {gallery.length > 0 && (
+          <div className="mt-8" data-testid="studio-gallery">
+            <p className="mb-3 font-mono text-[11.5px] uppercase tracking-[0.2em]" style={{ color: C.muted }}>
+              My renders · {gallery.length} completed
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {gallery.map((g) => (
+                <div key={g.task_id} className="overflow-hidden rounded-xl border" style={{ borderColor: C.border, background: C.panel }}
+                  data-testid={`studio-gallery-item-${g.task_id}`}>
+                  <video controls preload="metadata" src={g.video_url} className="aspect-video w-full bg-black object-cover" />
+                  <div className="px-3.5 py-3">
+                    <p className="line-clamp-2 text-[12.5px] leading-relaxed" style={{ color: C.text }}>{g.prompt}</p>
+                    <p className="mt-1.5 font-mono text-[10.5px] uppercase tracking-wide" style={{ color: C.muted }}>
+                      {g.model} · {g.ratio} · {g.duration}s · {(g.created_at || "").slice(0, 10)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

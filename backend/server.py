@@ -1017,7 +1017,7 @@ async def generate_video(req: VideoGenRequest, user: dict = Depends(auth_module.
         raise HTTPException(status_code=400, detail={"error": "Invalid request body", "field": "ratio"})
     if req.motion not in ("low", "medium", "high"):
         raise HTTPException(status_code=400, detail={"error": "Invalid request body", "field": "motion"})
-    duration = max(1, min(int(req.duration or 5), 3600))
+    duration = max(1, min(int(req.duration or 5), 7200))  # up to 2 hours
     if ACTIVE_UPSTREAM and LUCHII_UPSTREAM_API_KEY:
         try:
             async with httpx.AsyncClient(timeout=180) as c:
@@ -1070,6 +1070,16 @@ async def video_task_status(task_id: str, user: dict = Depends(auth_module.get_c
             await db.video_tasks.update_one({"task_id": task_id}, {"$set": {"status": "running"}})
     return {"task_id": task_id, "status": doc["status"], "eta_seconds": doc.get("eta_seconds"),
             "video_url": doc.get("video_url"), "error": doc.get("error")}
+
+
+@api_router.get("/generate/video/gallery")
+async def video_gallery(user: dict = Depends(auth_module.get_current_user)):
+    docs = await db.video_tasks.find(
+        {"user_id": user["id"], "status": "completed", "video_url": {"$ne": None}},
+        {"_id": 0, "task_id": 1, "prompt": 1, "model": 1, "video_url": 1,
+         "created_at": 1, "duration": 1, "ratio": 1, "gpu_class": 1, "region": 1},
+    ).sort("created_at", -1).to_list(50)
+    return docs
 
 
 @api_router.post("/generate/video/task/{task_id}/cancel")
@@ -2075,6 +2085,21 @@ async def delete_key(key_id: str, user: dict = Depends(auth_module.get_current_u
     return {"deleted": key_id}
 
 
+@api_router.post("/keys/{key_id}/rotate")
+async def rotate_key(key_id: str, user: dict = Depends(auth_module.get_current_user)):
+    doc = await db.api_keys.find_one({"id": key_id, "user_id": user["id"]}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail={"code": "FK-005", "message": "Key not found or disabled"})
+    new_value = "frb_live_" + secrets.token_hex(20)
+    rotated_at = datetime.now(timezone.utc).isoformat()
+    await db.api_keys.update_one({"id": key_id}, {"$set": {
+        "key": new_value, "rotated_at": rotated_at, "status": "active"}})
+    doc["key"] = new_value
+    doc["status"] = "active"
+    doc["rotated_at"] = rotated_at
+    return doc  # full key returned once on rotation
+
+
 @api_router.post("/keys/{key_id}/test")
 async def test_api_key(key_id: str, user: dict = Depends(auth_module.get_current_user)):
     doc = await db.api_keys.find_one({"id": key_id, "user_id": user["id"]}, {"_id": 0})
@@ -2133,12 +2158,20 @@ async def studio_generate(req: StudioJobRequest, user: dict = Depends(auth_modul
     cluster, fmt = STUDIO_TOOLS[tool]
     job_id = str(uuid.uuid4())
     media = "audio" if fmt in ("wav", "mp3") else "media"
+    settings = req.settings or {}
+    if tool == "music":
+        try:
+            duration_sec = max(1, min(int(settings.get("duration_sec", 180)), 300))  # 3-5 min max
+        except (TypeError, ValueError):
+            duration_sec = 180
+    else:
+        duration_sec = round(4 + secrets.randbelow(56) + secrets.randbelow(100) / 100, 2)
     doc = {
         "id": job_id, "user_id": user["id"], "tool": tool, "prompt": prompt[:500],
-        "settings": req.settings or {}, "status": "completed", "cluster": cluster,
+        "settings": settings, "status": "completed", "cluster": cluster,
         "output_url": f"https://cdn.frasberg.com/{media}/workspace_{user['id'][:8]}/{tool}/{job_id}.{fmt}",
         "format": fmt, "latency_ms": 380 + secrets.randbelow(1400),
-        "duration_sec": round(4 + secrets.randbelow(56) + secrets.randbelow(100) / 100, 2),
+        "duration_sec": duration_sec,
         "created": datetime.now(timezone.utc).isoformat(),
     }
     await db.studio_jobs.insert_one({**doc})

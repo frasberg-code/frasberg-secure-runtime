@@ -123,7 +123,7 @@ function App() {
               <Route path="/apps" element={<WorkspaceHome />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/database" element={<AuthGate><DatabaseManager /></AuthGate>} />
-              <Route path="/create" element={<CreativeStudio />} />
+              <Route path="/create" element={<AuthGate><CreativeStudio /></AuthGate>} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin/mesh" element={<MeshControlCenter />} />
@@ -142,7 +142,7 @@ function App() {
               <Route path="/games" element={<GamesLibrary />} />
               <Route path="/games/profile" element={<PlayerProfile />} />
               <Route path="/games/play/:gameId" element={<GamePlayerPage />} />
-              <Route path="/studio" element={<CreativeStudio />} />
+              <Route path="/studio" element={<AuthGate><CreativeStudio /></AuthGate>} />
               <Route path="/visual-studio" element={<VisualStudio />} />
               <Route path="/studio/creatures" element={<CreatureLibrary />} />
               <Route path="/studio/characters" element={<CharacterCreator />} />

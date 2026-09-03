@@ -419,3 +419,15 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Hydration warning fix: dynamic <option> children → label attribute (NativeApps, ChatDemo) so dev visual-edit plugin can't inject spans
 - Created /app/frontend/eslint.config.js (flat config was missing, broke platform lint check)
 - iteration_54.json: frontend 100% pass (all 7 flows); backend key creation/test/video lifecycle verified via curl
+
+## 2026-06 (fork, cont. 8): Gallery + Key Rotation + Presets + Studio polish — TESTED (iteration_55, 6/7 → all fixed)
+- Video Gallery: GET /api/generate/video/gallery (completed tasks); "My renders" grid in CreativeStudio (video replay + prompt + model/ratio/duration/date), auto-refresh on job completion. Old dead gtv/cdn.frasberg URLs migrated in DB to working sample MP4s
+- Key Rotation: POST /api/keys/{id}/rotate (new frb_live_ value, keeps perms/credits/name, returns rotated_at). Dashboard rotate-key-{id} buttons + rotated-key-banner w/ copy. BUG FIXED after test: first rotation now includes rotated_at in response (was returning pre-update doc)
+- Studio Presets: Cinematic/Anime/Noir chips (video tab) append style suffix to prompt (studio-preset-{id}, hint shown)
+- Codex Reward: ALREADY EXISTED (localStorage codex_read_books, 16/16 → book-17 reveal) — regression-verified passing
+- Theme: ApiKeyForge + CreativeStudio converted to dashTheme T palette; studio-theme-toggle added (shares 'dash-theme' localStorage with Dashboard); Verified LLM Provider badge made theme-aware (light-mode contrast fix)
+- Auth: /studio and /create wrapped in AuthGate (redirect to /auth?mode=login)
+- Rotate tabs: studio-rotate-tabs button cycles the 8 tool tabs
+- USER REFINEMENTS (self-tested via curl + browser): default tab order = Image, Video, Sound Effects, Music, Voice Changer, Voice Isolator, Upscale, Speech, More tools; Music duration select 3/4/5 min (max 300s, backend clamps settings.duration_sec); Video duration select 15s→2 hours (backend clamp 7200s, was 3600)
+- KNOWN NON-ISSUE: headless Chromium lacks H.264 → <video> shows error state in automation; URLs return 200 and play in real browsers
+- iteration_55.json: 6/7 pass, rotate banner bug fixed + curl-verified after

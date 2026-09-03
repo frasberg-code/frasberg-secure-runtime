@@ -1,0 +1,37 @@
+{
+  "summary": "Frontend-only validation of the new batch: AuthGate on /studio & /create, Creative Studio rotate-tabs, style presets, video generation + gallery, Dashboard key rotation, theme toggles (Landing/Dashboard/Studio) and Codex 17th-book regression. 6 of 7 feature areas pass. One real bug found: the 'rotated-key-banner' does NOT appear on a key's FIRST rotation because POST /api/keys/{id}/rotate returns the pre-update document (no rotated_at field) and the UI gates the banner on newKey.rotated_at. Confirmed by rotating the same key a second time (banner then rendered with the new frb_live_ value).",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "POST /api/keys/{key_id}/rotate", "issue": "Response omits 'rotated_at' on first rotation (server.py:2088-2098 returns the doc fetched BEFORE $set). Dashboard banner is gated on newKey?.rotated_at, so the new full key is never shown to the user the first time a key is rotated — the user loses the only chance to copy it. On subsequent rotations a STALE rotated_at from the previous rotation is what makes the banner appear. Fix: set doc['rotated_at'] = the new timestamp before returning.", "priority": "HIGH"}
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "CreativeStudio video result", "issue": "studio-video-error ('The rendered video could not be loaded') is shown instead of studio-video-player in this environment. RCA: headless Chromium has no H.264 codec (video.canPlayType('video/mp4; codecs=avc1.42E01E') === '' and every <video> reports MediaError code 4), while all 4 sample MP4 URLs return HTTP 200 with content-type video/mp4. NOT an app bug — real browsers will play. Gallery <video> elements are affected the same way.", "selector": "[data-testid=\"studio-video-error\"]", "priority": "INFO"}
+    ],
+    "integration_issues": [
+      {"flow": "Dashboard key rotation", "issue": "Rotate POST succeeds and the masked key value in the table changes, but rotated-key-banner never renders on the first rotation of a key (backend response missing rotated_at). copy-rotated-key works once the banner does render.", "affected_selectors": ["[data-testid=\"rotate-key-{id}\"]", "[data-testid=\"rotated-key-banner\"]", "[data-testid=\"copy-rotated-key\"]"]}
+    ],
+    "design_issues": [
+      {"screen": "Dashboard light mode header", "issues": ["'Verified LLM Provider' badge uses cyan-300 text on the near-white light header — very low contrast; should switch to a darker cyan (T.accent #0891B2) in light mode"]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "server.py rotate_key: include the new rotated_at in the response (doc['rotated_at'] = ts) OR change Dashboard to show the banner whenever the rotate response returns a full frb_live_ key. Currently first-time rotation silently hides the new secret.",
+    "Dashboard light mode: make the Verified LLM Provider badge theme-aware (cyan-300 on white is unreadable)."
+  ],
+  "critical_code_review_comments": [
+    "server.py:2090-2098 rotate_key returns the document read before the $set — any field written by the update (rotated_at, status) can be stale/absent in the API response. Re-read with find_one_and_update(..., return_document=AFTER, projection={'_id':0}).",
+    "Dashboard.jsx reuses the single `newKey` state for both creation and rotation; gating the rotated banner on rotated_at makes the UI dependent on an undocumented backend field. Prefer an explicit `rotatedKey` state set from the rotate handler."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only run; rotate/gallery endpoints exercised via curl — gallery 200 with 2→3 items, rotate 200 and preserves permissions/credits 2500)", "frontend": "86% (6/7 feature areas pass)"},
+  "seed_data_creation": "No API keys created (used pre-existing 'Forge Test' + 'Free Starter Key'). One TEST_QA video render was generated for doctester1 and now appears in the gallery (task_20260903T054146Z_b3d86ecf) — delete if unwanted. Codex localStorage codex_read_books was populated with all 16 books in the test browser only.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "doctester1@frasberg.com / DocTester2026! (worked)",
+  "context_for_next_testing_agent": "VERIFIED PASSING (do not re-test): (1) /studio and /create redirect unauthenticated users to /auth?mode=login. (2) studio-rotate-tabs rotates the 8 tabs correctly (order after 3 clicks == order0[3:]+order0[:3]; after 8 clicks back to original) and tabs remain clickable/functional after rotation (music tab placeholder switched). (3) studio-presets: cinematic/anime/noir chips highlight (purple #a855f7), studio-preset-hint shows the suffix, second click deselects; POST /api/generate/video body confirmed to carry 'prompt — <preset suffix>'. (4) Video job QUEUED -> COMPLETED in ~15s with 3s polling; gallery auto-reloaded from 2 to 3 items with prompt + model/ratio/duration/date line. (5) Theme: landing theme-toggle switches html class dark<->light (body bg rgb(248,249,250)); dashboard-theme-toggle switches main bg #08090A -> rgb(246,247,249) and ApiKeyForge panels follow light mode (color rgb(17,24,39)); studio-theme-toggle -> rgb(246,247,249); dash-theme localStorage shared between Dashboard and Studio. (6) Codex: codex-progress-ring 0/16 -> 16/16, codex-book-17-locked disappears and codex-book-17 ('The Unwritten Layer') reveals after clicking all 16 books. OPEN: first-rotation banner bug above. Headless Chromium cannot decode H.264 — assert on <video> element presence/src, never on playback.",
+  "rca_of_the_issue": "POST /api/keys/{key_id}/rotate loads the key doc, performs update_one with {key, rotated_at, status}, then returns the ORIGINAL doc with only key/status patched in Python. rotated_at is therefore missing for a key that has never been rotated. Dashboard.jsx renders the rotated-key-banner only when newKey?.rotated_at is truthy, so the first rotation shows a success toast and refreshes the table (masked new key) but never reveals the full new frb_live_ secret. Reproduction: create a fresh key -> click rotate-key-{id} -> no rotated-key-banner; click rotate again -> banner appears. Mitigation: return the post-update document (or set doc['rotated_at']) from the backend."
+}
