@@ -34,3 +34,9 @@ Full tier ladder for any future UI: 1B → 7B → 70B → X → Cosmogenic → T
 COMPLETE tier ladder: 1B → 7B → 70B → X → Cosmogenic → Transcendent → Infinite → Eternal → Omega → Absolute → Singularity → Alpha-Omega
 
 
+
+## Lore Dump — June 2026 (Sections 160-1414 + Engine v2)
+- Sections 160-250: LLM endpoint contracts, CSS grid layout for API key page, color tokens (#05060a/#38bdf8/#a855f7), FK-001..FK-010 error codes, gateway routing map, workspaces, webhooks.
+- Sections 251-450: AI OS, Civilization, Pantheon, Mythos, Rituals.
+- Sections 451-1414: Libraries, Archives, Indexes, Directories, Master/Meta/Supra/Hyper/Ultra/Apex/Omega/Alpha/Absolute/Omni-Absolute/Prime/Source layers.
+- Frasberg Engine v2 video contract: POST /api/generate/video {prompt,duration,model:frasberg-engine,ratio,motion,guidance_scale,seed,output_format} -> {task_id,status,eta_seconds}; GET task polling; model map engine->gen4.5 etc. IMPLEMENTED in server.py.

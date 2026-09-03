@@ -1,0 +1,41 @@
+{
+  "summary": "Iteration 53: Backend fully verified via pytest (20/20 pass) for API Key Forge permission matrix + FK error codes, /api/keys/{id}/test gateway simulation, Creative Studio jobs, and Frasberg Engine v2 video task contract (queued->running->completed, cancel, 400s, 404s, auth). Frontend: navbar strict order PASS, /database auth guard PASS (redirect logged out, Database Manager logged in), /create Creative Studio fully working (all 8 tabs + More tools menu, music job COMPLETED with cluster+cdn URL, job history, video task QUEUED->COMPLETED with cdn video_url after polling, real TTS audio player rendered, dubbing job from More tools). CRITICAL BLOCKER: ApiKeyForge is imported in Dashboard.jsx but never rendered — /dashboard still shows the OLD single-input key form, so the whole permissions-matrix UI (api-key-forge, perm-* controls, key-json-preview, auto-disable-toggle, key-workspace-input, test-key-btn) does not exist in the DOM.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "CORS middleware (server.py:3558)", "issue": "allow_origin_regex='.*' combined with allow_credentials=True — playbook requires explicit origin list; ingress also returns Access-Control-Allow-Origin: * with credentials true"}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Dashboard.jsx (API Keys section)", "issue": "ApiKeyForge imported at line 19 but never rendered. /dashboard shows legacy form only. DOM scan on /dashboard: api-key-forge=false, perm-options-*=0, key-json-preview=false, auto-disable-toggle=false, key-workspace-input=false, test-key-btn=false. Entire feature #1 (permissions matrix, live JSON preview, auto-disable toggle, Test Key + FL-403 rows) is unreachable in the UI.", "selector": "[data-testid=\"api-key-forge\"]", "priority": "CRITICAL"},
+      {"component": "Dashboard.jsx vs ApiKeyForge.jsx", "issue": "Duplicate data-testids will collide once the forge is rendered: key-name-input, key-expiry-select, generate-key-btn, new-key-banner, copy-new-key exist in both. Legacy form must be removed/renamed when embedding ApiKeyForge.", "selector": "[data-testid=\"generate-key-btn\"]", "priority": "HIGH"},
+      {"component": "Dashboard.jsx (Native apps · Published app select)", "issue": "React console error: 'In HTML, <span> cannot be a child of <option>' — invalid DOM nesting inside the published-app <select>", "selector": "select (PUBLISHED APP)", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter53_new_features.py",
+    "/app/test_reports/pytest/iter53.xml"
+  ],
+  "action_items": [
+    "Render <ApiKeyForge onCreated={...}/> inside the API Keys section of /app/frontend/src/pages/Dashboard.jsx and delete the legacy key-name/expiry/generate form (avoids duplicate data-testids) — currently the whole API Key Forge feature is invisible to users.",
+    "Fix invalid DOM nesting (<span> inside <option>) in the Dashboard published-app select.",
+    "Optional: tighten CORS to explicit allowed origins instead of allow_origin_regex='.*' with credentials."
+  ],
+  "critical_code_review_comments": [
+    "Dashboard.jsx: unused import ApiKeyForge = feature shipped but not wired; also indicates no smoke check after the change.",
+    "server.py is 3618 lines — well over the 700-line guideline; split key/studio/video routers into modules.",
+    "video_task_status only advances state on GET (lazy simulation). Acceptable for simulated pipeline but note a task stays 'queued' forever if never polled; frontend polls at 3s so UI is fine.",
+    "/api/keys returns the full plaintext key on create (by design, shown once) — good; list endpoint masks correctly with bullet chars."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter53_new_features.py"],
+  "success_rate": {"backend": "100% (20/20 pytest)", "frontend": "75% (Creative Studio, navbar order, /database guard, legacy key CRUD pass; API Key Forge UI absent)"},
+  "seed_data_creation": "Created and deleted TEST_ prefixed API keys under admin@frasberg.com; a few TEST_ studio jobs and video tasks remain in studio_jobs/video_tasks (harmless simulated records).",
+  "should_call_test_agent_after_fix": true,
+  "should_main_agent_self_test": false,
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026! (cookie auth, unlimited keys)",
+  "context_for_next_testing_agent": "Backend for iteration 53 features is fully green — rerun /app/backend/tests/test_iter53_new_features.py as regression. Frontend still to verify after fix: ApiKeyForge on /dashboard (perm-{key}-{level} segmented controls for 26 permissions in 6 groups, perm-preset-full/read/clear, key-json-preview live updates, auto-disable-toggle Frasberg leak copy, generate-key-btn -> new-key-banner -> test-key-btn -> key-test-results with PASS/FL-403). Use viewport 1920 (nav is lg:flex). Creative Studio image tab (gpt-image-1) and STT upload were NOT exercised.",
+  "rca_of_the_issue": "ApiKeyForge.jsx was created and imported into Dashboard.jsx, but the JSX render call was never added; the pre-existing simple key form (lines 345-378) was left in place. Repro: log in as admin, open /dashboard, query document.querySelector('[data-testid=\"api-key-forge\"]') -> null. Mitigation: replace the legacy form block with <ApiKeyForge onCreated={(k)=>{setNewKey(k); loadKeys();}} /> and remove duplicate testids."
+}

@@ -480,7 +480,7 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
       className="w-full rounded-full border border-lux-border bg-lux-surface px-3 py-1 font-mono text-[13px] text-lux-text outline-none focus:border-lux-accent sm:w-auto"
     >
       {MODELS.map((m) => (
-        <option key={m.id} value={m.id}>{m.name}</option>
+        <option key={m.id} value={m.id} label={m.name} />
       ))}
     </select>
   );

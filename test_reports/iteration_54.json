@@ -1,0 +1,36 @@
+{
+  "summary": "Frontend-only retest of iteration_53 regressions. All 7 requested features verified on the public URL at 1920x1080: (1) ApiKeyForge is mounted in /dashboard with metadata + permissions panels, per-permission segmented controls, presets, JSON preview, auto-disable toggle; no old single-input key form remains. (2) Key creation returns frb_live_ prefixed key in new-key-banner; Copy works ('Copied'), Test Key returns key-test-results (PASS /llm/models, PASS /audio/tts, FL-403 /agents/run matching selected perms). (3) New key appeared in keys-table and was successfully revoked (row disappeared + 'Key revoked' toast). (4) /studio renders CreativeStudio; video tab -> prompt -> generate produced task RUNNING -> COMPLETED in ~9s with studio-video-player rendered. (5) /visual-studio still renders old Visual Realism Studio. (6) Landing nav tab order matches the exact required order. (7) /database redirects to /auth?mode=login when unauthenticated and renders Database Manager when logged in. Backend was intentionally not retested.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "GET /api/generate/video/task/{id}", "issue": "Sample video URLs returned on completion (https://storage.googleapis.com/gtv-videos-bucket/sample/*.mp4) now return HTTP 403 AccessDenied (bucket no longer anonymously readable). The <video> element renders but never loads media (readyState=0, duration=NaN, videoWidth=0) so the 'playable video' is a black frame. Verified working replacements: https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4 (200), https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4 (200), https://filesamples.com/samples/video/mp4/sample_640x360.mp4 (200)"}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "CreativeStudio video result", "issue": "Video player shows a black/blank frame because the backend sample MP4 URL 403s; no error state is shown to the user when the video fails to load (no onError handler on <video>)", "selector": "[data-testid=\"studio-video-player\"]", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/dashboard (Developer Console)", "issues": ["React hydration warning in console: '<span> cannot be a child of <option>' — an <option> element on the dashboard (likely the 'EMAIL ALERT @ 500' select or one of the package/app selects) contains a nested element; should render plain text only"]}
+    ]
+  },
+  "test_report_links": ["/app/test_reports/iteration_54.json"],
+  "action_items": [
+    "Replace the 403-ing gtv-videos-bucket sample URLs in server.py (~line 1060) with reachable MP4s (e.g. https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4) so the studio video actually plays",
+    "Add an onError fallback message on studio-video-player so a failed media load is visible to the user",
+    "Fix the <option> containing a <span> on /dashboard to clear the React hydration warning"
+  ],
+  "critical_code_review_comments": [
+    "CreativeStudio video polling interval is created inside generate() but is never cleared on component unmount — navigating away mid-job leaves a 3s interval running and calls setState on an unmounted component. Store the interval id in a ref and clear it in a useEffect cleanup.",
+    "ApiKeyForge sends the full permissions map including no_access entries to POST /api/keys while the JSON preview filters them out — preview and payload diverge (cosmetic but misleading)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (per request)", "frontend": "100% of requested flows passed (1 media-URL defect found)"},
+  "seed_data_creation": "Created API key 'TEST_QA_Key' on doctester1@frasberg.com and revoked it during the revoke test — no residual test data.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "doctester1@frasberg.com / DocTester2026! (worked); creds file /app/memory/test_credentials.md present and accurate",
+  "context_for_next_testing_agent": "All iteration_53 mounting regressions are resolved. Verified selectors: api-key-forge, forge-metadata-panel, forge-permissions-panel, perm-<key>-<level>, perm-preset-full/read/clear, key-json-preview, auto-disable-toggle, key-name-input, generate-key-btn, new-key-banner, copy-new-key, test-key-btn, key-test-results, keys-table, revoke-key-<uuid>, creative-studio-page, studio-tab-video, studio-prompt-input, studio-generate-btn, studio-video-task, studio-video-player. Video job completes in ~9-12s (faster than the 30s estimate). Only remaining defect is the dead sample video URL.",
+  "rca_of_the_issue": "Google's public gtv-videos-bucket sample objects now return 403 AccessDenied for anonymous callers, so the simulated video pipeline hands the frontend an unplayable URL. The UI logic (poll -> completed -> render <video src>) is correct; only the media source is dead."
+}

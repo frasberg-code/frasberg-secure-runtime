@@ -409,3 +409,13 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Verified: fresh visitor (cleared storage) → html.dark, body rgb(30,35,39); toggle → light → back to dark works
 - NOTE: production deploy attempt FAILED (platform-side tar extract error during PullSource — not a code issue). Preview unaffected. If user mentions deployment, suggest retry / deployment_agent check.
 
+
+## 2026-06 (fork, cont. 7): ApiKeyForge + Creative Studio mounted, frb_live_ keys, Visual Generation perms — TESTED (iteration_54, 100%)
+- Dashboard "API Key Forge" section: old single-input form REPLACED with <ApiKeyForge onCreated> (permissions matrix, presets, JSON preview, auto-disable toggle, Test Key). Keys table kept below
+- Backend: keys now prefixed `frb_live_` (was luchii-sk-); PERMISSION_MATRIX gained "visual_generation": [image_generation, video_generation]; /keys/{id}/test checks now include POST /generate/image + /generate/video
+- Routing: /studio → CreativeStudio (video gen w/ queued→running→completed polling + playable <video>); old VisualStudio moved to /visual-studio (Navbar Explore + back-links updated); /create stays alias
+- Video samples: gtv-videos-bucket URLs 403'd → replaced with mdn/test-videos/filesamples MP4s; onError fallback (studio-video-error); poll interval in pollRef cleared on unmount
+- Header tab order + /database AuthGate were ALREADY correct (verified, no change needed)
+- Hydration warning fix: dynamic <option> children → label attribute (NativeApps, ChatDemo) so dev visual-edit plugin can't inject spans
+- Created /app/frontend/eslint.config.js (flat config was missing, broke platform lint check)
+- iteration_54.json: frontend 100% pass (all 7 flows); backend key creation/test/video lifecycle verified via curl

@@ -142,7 +142,8 @@ function App() {
               <Route path="/games" element={<GamesLibrary />} />
               <Route path="/games/profile" element={<PlayerProfile />} />
               <Route path="/games/play/:gameId" element={<GamePlayerPage />} />
-              <Route path="/studio" element={<VisualStudio />} />
+              <Route path="/studio" element={<CreativeStudio />} />
+              <Route path="/visual-studio" element={<VisualStudio />} />
               <Route path="/studio/creatures" element={<CreatureLibrary />} />
               <Route path="/studio/characters" element={<CharacterCreator />} />
               <Route path="/linq" element={<Linq />} />

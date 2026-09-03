@@ -41,6 +41,9 @@ export default function CreativeStudio() {
   const [jobs, setJobs] = useState([]);
   const moreRef = useRef(null);
   const fileRef = useRef(null);
+  const pollRef = useRef(null);
+
+  useEffect(() => () => { if (pollRef.current) clearInterval(pollRef.current); }, []);
 
   const tool = ALL.find((t) => t.id === active);
   const inMore = MORE_TOOLS.some((t) => t.id === active);
@@ -85,11 +88,26 @@ export default function CreativeStudio() {
       } else if (tool.kind === "video") {
         const r = await fetch(`${API}/generate/video`, {
           method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
-          body: JSON.stringify({ prompt }),
+          body: JSON.stringify({ prompt, duration: 5, model: "frasberg-engine", ratio: "16:9", motion: "medium", guidance_scale: 7, seed: null, output_format: "mp4" }),
         });
         if (r.status === 401) { toast.error("Please sign in to use the studio"); return; }
+        if (!r.ok) { toast.error("Video request failed"); return; }
         const d = await r.json();
-        setResult({ type: "message", text: d.message || "Video job queued on the Video Cluster." });
+        if (d.task_id) {
+          setResult({ type: "videotask", task: d });
+          if (pollRef.current) clearInterval(pollRef.current);
+          pollRef.current = setInterval(async () => {
+            try {
+              const pr = await fetch(`${API}/generate/video/task/${d.task_id}`, { credentials: "include" });
+              if (!pr.ok) { clearInterval(pollRef.current); return; }
+              const pd = await pr.json();
+              setResult({ type: "videotask", task: { ...d, ...pd } });
+              if (pd.status === "completed" || pd.status === "failed") clearInterval(pollRef.current);
+            } catch { clearInterval(pollRef.current); }
+          }, 3000);
+        } else {
+          setResult({ type: "message", text: d.message || "Video job queued on the Video Cluster." });
+        }
       } else {
         const r = await fetch(`${API}/studio/generate`, {
           method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
@@ -218,6 +236,25 @@ export default function CreativeStudio() {
             {result.type === "image" && <img src={result.src} alt="Generated" className="max-h-[480px] rounded-lg" data-testid="studio-image-result" />}
             {result.type === "text" && <p className="text-[14.5px] leading-relaxed" data-testid="studio-text-result">{result.text}</p>}
             {result.type === "message" && <p className="text-[14px]" style={{ color: C.muted }} data-testid="studio-message-result">{result.text}</p>}
+            {result.type === "videotask" && (
+              <div className="grid gap-1 font-mono text-[12.5px]" data-testid="studio-video-task">
+                <span style={{ color: result.task.status === "completed" ? "#34d399" : C.primary }}>
+                  {result.task.status.toUpperCase()} · Frasberg Engine v2 · {result.task.gpu_class || "gpu-medium"} · {result.task.region || "us-west"}
+                </span>
+                <span style={{ color: C.text }}>{result.task.task_id}</span>
+                {result.task.status !== "completed" && <span style={{ color: C.muted }}>ETA ~{result.task.eta_seconds}s — polling task status...</span>}
+                {result.task.video_url && !result.task.video_error && (
+                  <video controls autoPlay muted src={result.task.video_url} className="mt-2 max-h-[420px] w-full rounded-lg"
+                    data-testid="studio-video-player"
+                    onError={() => setResult((r) => r?.type === "videotask" ? { ...r, task: { ...r.task, video_error: true } } : r)} />
+                )}
+                {result.task.video_error && (
+                  <span style={{ color: "#f97373" }} data-testid="studio-video-error">
+                    The rendered video could not be loaded — the asset may still be propagating. Try regenerating.
+                  </span>
+                )}
+              </div>
+            )}
             {result.type === "job" && (
               <div className="grid gap-1 font-mono text-[12.5px]" data-testid="studio-job-result">
                 <span style={{ color: "#34d399" }}>COMPLETED · {result.job.cluster}</span>

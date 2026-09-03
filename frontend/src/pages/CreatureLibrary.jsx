@@ -106,7 +106,7 @@ export default function CreatureLibrary() {
 
   return (
     <div style={styles.page} data-testid="creature-library-page">
-      <Link to="/studio" style={styles.backLink} data-testid="creature-library-back">
+      <Link to="/visual-studio" style={styles.backLink} data-testid="creature-library-back">
         ← Back to Visual Studio
       </Link>
       <h1 style={styles.title}>⚔️ Dungeon Creature Library</h1>

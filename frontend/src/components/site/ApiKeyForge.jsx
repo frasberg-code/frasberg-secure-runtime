@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { AudioWaveform, SlidersHorizontal, Network, Folder, ShieldCheck, Users, Copy, Check, Plus, ShieldAlert, FlaskConical, Loader2 } from "lucide-react";
+import { AudioWaveform, SlidersHorizontal, Network, Folder, ShieldCheck, Users, Copy, Check, Plus, ShieldAlert, FlaskConical, Loader2, Clapperboard } from "lucide-react";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -9,6 +9,7 @@ const C = { base: "#05060a", panel: "#0b0c10", border: "#1f2933", primary: "#38b
 const GROUPS = [
   ["Core Audio", AudioWaveform, ["text_to_speech", "speech_to_text", "speech_to_speech", "sound_effects"]],
   ["Advanced Audio", SlidersHorizontal, ["music_generation", "voice_changer", "voice_isolator", "dubbing", "audio_native", "audiobooks"]],
+  ["Visual Generation", Clapperboard, ["image_generation", "video_generation"]],
   ["Frasberg Agents", Network, ["frasberg_agents", "agent_memory", "agent_tools", "webhooks"]],
   ["Projects", Folder, ["projects", "productions", "history", "models"]],
   ["Administration", ShieldCheck, ["usage_analytics", "audit_log", "billing", "key_rotation"]],

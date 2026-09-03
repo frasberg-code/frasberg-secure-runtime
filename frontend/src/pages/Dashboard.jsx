@@ -150,40 +150,6 @@ export default function Dashboard() {
     return () => clearInterval(id);
   }, [user, refresh]);
 
-  const generate = async () => {
-    try {
-      const res = await fetch(`${API}/keys`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ name: name || "Default key", expires_days: expiresDays ? Number(expiresDays) : null }),
-      });
-      if (res.status === 401) { toast.error("Please sign in to generate keys"); return; }
-      if (res.status === 402) {
-        toast.error("Free accounts include 3 API keys — upgrade from $5/mo for unlimited keys");
-        setTimeout(() => window.location.assign("/pay"), 1500);
-        return;
-      }
-      const data = await res.json();
-      setNewKey(data);
-      setName("");
-      toast.success("API key generated");
-      refresh();
-    } catch {
-      toast.error("Could not generate key");
-    }
-  };
-
-  const copyKey = async (val) => {
-    try { await navigator.clipboard.writeText(val); }
-    catch {
-      const ta = document.createElement("textarea");
-      ta.value = val; document.body.appendChild(ta); ta.select();
-      try { document.execCommand("copy"); } catch {} ta.remove();
-    }
-    setCopied(true); toast.success("Copied"); setTimeout(() => setCopied(false), 1500);
-  };
-
   const revoke = async (id) => {
     await fetch(`${API}/keys/${id}`, { method: "DELETE" });
     toast.success("Key revoked");
@@ -341,41 +307,8 @@ export default function Dashboard() {
 
         {/* API keys */}
         <section className="mt-12">
-          <SectionTitle>API Keys</SectionTitle>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Key name (e.g. Production)"
-              data-testid="key-name-input"
-              className="flex-1 rounded-sm border bg-transparent px-4 py-2.5 text-sm outline-none transition-colors focus:border-[#00F0FF]"
-              style={{ borderColor: T.border, color: T.text }} />
-            <select value={expiresDays} onChange={(e) => setExpiresDays(e.target.value)} data-testid="key-expiry-select"
-              className="rounded-sm border px-4 py-2.5 font-mono text-[13px] outline-none focus:border-[#00F0FF]"
-              style={{ borderColor: T.border, background: T.surface, color: T.text }}>
-              <option value="">Never expires</option>
-              <option value="30">Expires in 30 days</option>
-              <option value="60">Expires in 60 days</option>
-              <option value="90">Expires in 90 days</option>
-            </select>
-            <button onClick={generate} data-testid="generate-key-btn"
-              className="inline-flex items-center justify-center gap-2 rounded-sm px-5 py-2.5 text-sm font-600 transition-opacity hover:opacity-85"
-              style={{ background: T.accent, color: "#08090A" }}>
-              <Plus size={15} /> Generate key
-            </button>
-          </div>
-
-          {newKey && (
-            <div className="mt-3 rounded-sm border p-4" style={{ borderColor: "rgba(0,240,255,0.4)", background: "rgba(0,240,255,0.04)" }} data-testid="new-key-banner">
-              <p className="font-mono text-[13.5px] uppercase tracking-[0.18em]" style={{ color: T.accent }}>
-                Copy this now — it won't be shown in full again
-              </p>
-              <div className="mt-2.5 flex items-center justify-between gap-4">
-                <code className="truncate font-mono text-sm" style={{ color: T.text }}>{newKey.key}</code>
-                <button onClick={() => copyKey(newKey.key)} data-testid="copy-new-key"
-                  className={`${ghostBtn} shrink-0`} style={{ borderColor: T.border, color: T.text2 }}>
-                  {copied ? <Check size={12} /> : <Copy size={12} />} {copied ? "Copied" : "Copy"}
-                </button>
-              </div>
-            </div>
-          )}
+          <SectionTitle>API Key Forge</SectionTitle>
+          <ApiKeyForge onCreated={(d) => { setNewKey(d); refresh(); }} />
 
           <div className="mt-4 overflow-hidden rounded-sm border" style={{ borderColor: T.border }} data-testid="keys-table">
             {keys.length === 0 ? (

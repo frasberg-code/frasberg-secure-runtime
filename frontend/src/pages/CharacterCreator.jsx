@@ -76,7 +76,7 @@ export default function CharacterCreator() {
   return (
     <div style={styles.page} data-testid="character-creator-page">
       <style>{`@keyframes cc-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-      <Link to="/studio" style={styles.backLink} data-testid="character-creator-back">
+      <Link to="/visual-studio" style={styles.backLink} data-testid="character-creator-back">
         ← Back to Visual Studio
       </Link>
       <h1 style={styles.title}>🧍 Character Creator</h1>

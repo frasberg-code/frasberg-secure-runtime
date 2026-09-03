@@ -26,7 +26,7 @@ const EXPLORE_GROUPS = [
   {
     title: "Build",
     items: [
-      { label: "Creative Studio", to: "/create" },
+      { label: "Creative Studio", to: "/studio" },
       { label: "Website Builder", to: "/website-builder" },
       { label: "App Builder", to: "/app-builder" },
       { label: "Game Builder", to: "/game-builder" },
@@ -51,7 +51,7 @@ const EXPLORE_GROUPS = [
       { label: "Ops Center", to: "/ops" },
       { label: "Developer Portal", to: "/developers/portal" },
       { label: "Developer Docs", to: "/developers/docs" },
-      { label: "Visual Studio", to: "/studio" },
+      { label: "Visual Studio", to: "/visual-studio" },
       { label: "Luchii Code", to: "/luchii-code" },
       { label: "Frasberg Software", to: "/software" },
     ],

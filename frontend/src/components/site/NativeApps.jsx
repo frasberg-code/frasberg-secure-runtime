@@ -266,7 +266,7 @@ export const NativeApps = () => {
             <span className="font-mono text-[13.5px] uppercase" style={{ color: T.muted }}>Published app</span>
             <select value={sel} onChange={(e) => pickApp(e.target.value)} className={input} style={{ ...inputStyle(), minWidth: 220 }} data-testid="native-app-select">
               <option value="">Select an app…</option>
-              {apps.map((a) => <option key={a.id} value={a.id}>{a.title} · v{a.version}</option>)}
+              {apps.map((a) => <option key={a.id} value={a.id} label={`${a.title} · v${a.version}`} />)}
             </select>
           </label>
           <label className="flex flex-col gap-1.5">

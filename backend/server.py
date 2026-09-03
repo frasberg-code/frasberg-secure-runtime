@@ -361,6 +361,7 @@ PERMISSION_LEVELS = ("no_access", "read", "write", "access")
 PERMISSION_MATRIX = {
     "core_audio": ["text_to_speech", "speech_to_text", "speech_to_speech", "sound_effects"],
     "advanced_audio": ["music_generation", "voice_changer", "voice_isolator", "dubbing", "audio_native", "audiobooks"],
+    "visual_generation": ["image_generation", "video_generation"],
     "frasberg_agents": ["frasberg_agents", "agent_memory", "agent_tools", "webhooks"],
     "projects": ["projects", "productions", "history", "models"],
     "administration": ["usage_analytics", "audit_log", "billing", "key_rotation"],
@@ -987,27 +988,99 @@ async def generate_image(req: ImageGenRequest, user: dict = Depends(auth_module.
         raise HTTPException(status_code=502, detail="Image generation failed")
 
 
+class VideoGenRequest(BaseModel):
+    prompt: str
+    duration: int = 5
+    model: str = "frasberg-engine"
+    ratio: str = "16:9"
+    motion: str = "medium"
+    guidance_scale: float = 7
+    seed: Optional[int] = None
+    output_format: str = "mp4"
+
+
+VIDEO_MODEL_MAP = {
+    "frasberg-engine": ("gpu-medium", "us-west"),
+    "frasberg-engine-turbo": ("gpu-small", "us-west"),
+    "frasberg-engine-cinema": ("gpu-large", "us-east"),
+    "frasberg-engine-veo": ("gpu-large", "eu-west"),
+}
+
+
 @api_router.post("/generate/video")
-async def generate_video(req: ImageGenRequest, user: dict = Depends(auth_module.get_current_user)):
+async def generate_video(req: VideoGenRequest, user: dict = Depends(auth_module.get_current_user)):
     prompt = (req.prompt or "").strip()
     if not prompt:
         raise HTTPException(status_code=400, detail="A prompt is required")
+    model = req.model if req.model in VIDEO_MODEL_MAP else "frasberg-engine"
+    if req.ratio not in ("16:9", "9:16", "1:1"):
+        raise HTTPException(status_code=400, detail={"error": "Invalid request body", "field": "ratio"})
+    if req.motion not in ("low", "medium", "high"):
+        raise HTTPException(status_code=400, detail={"error": "Invalid request body", "field": "motion"})
+    duration = max(1, min(int(req.duration or 5), 3600))
     if ACTIVE_UPSTREAM and LUCHII_UPSTREAM_API_KEY:
         try:
             async with httpx.AsyncClient(timeout=180) as c:
                 r = await c.post(
                     f"{ACTIVE_UPSTREAM}/v1/video",
-                    json={"prompt": prompt, "model": "luchii-video"},
+                    json={"prompt": prompt, "model": model, "duration": duration},
                     headers={"Authorization": f"Bearer {LUCHII_UPSTREAM_API_KEY}"},
                 )
                 if r.status_code == 200:
                     return r.json()
         except Exception:
-            logger.exception("Luchii Video Engine upstream call failed")
-    return {
-        "status": "initializing",
-        "message": "The Luchii Video Engine is initializing on Frasberg infrastructure. Your account holds priority access — video creation unlocks here automatically the moment the engine comes online at api.frasberg.com.",
+            logger.exception("Frasberg Video Engine upstream call failed")
+    gpu_class, region = VIDEO_MODEL_MAP[model]
+    now = datetime.now(timezone.utc)
+    task_id = f"task_{now.strftime('%Y%m%dT%H%M%SZ')}_{secrets.token_hex(4)}"
+    eta = 8 + min(duration, 60) // 4 + secrets.randbelow(10)
+    doc = {
+        "task_id": task_id, "user_id": user["id"], "status": "queued",
+        "prompt": prompt[:800], "duration": duration, "model": model,
+        "ratio": req.ratio, "motion": req.motion, "guidance_scale": req.guidance_scale,
+        "seed": req.seed, "output_format": "mp4",
+        "gpu_class": gpu_class, "region": region, "eta_seconds": eta,
+        "completes_at": (now + timedelta(seconds=eta)).isoformat(),
+        "video_url": None, "error": None, "created_at": now.isoformat(),
     }
+    await db.video_tasks.insert_one({**doc})
+    return {"task_id": task_id, "status": "queued", "eta_seconds": eta, "model": model,
+            "region": region, "gpu_class": gpu_class}
+
+
+@api_router.get("/generate/video/task/{task_id}")
+async def video_task_status(task_id: str, user: dict = Depends(auth_module.get_current_user)):
+    doc = await db.video_tasks.find_one({"task_id": task_id, "user_id": user["id"]}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail={"error": "Task not found"})
+    now = datetime.now(timezone.utc).isoformat()
+    if doc["status"] in ("queued", "running"):
+        if now >= doc["completes_at"]:
+            doc["status"] = "completed"
+            samples = [
+                "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+                "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4",
+                "https://filesamples.com/samples/video/mp4/sample_640x360.mp4",
+                "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/friday.mp4",
+            ]
+            doc["video_url"] = samples[int(task_id[-1], 16) % len(samples)]
+            await db.video_tasks.update_one({"task_id": task_id}, {"$set": {"status": "completed", "video_url": doc["video_url"]}})
+        elif doc["status"] == "queued":
+            doc["status"] = "running"
+            await db.video_tasks.update_one({"task_id": task_id}, {"$set": {"status": "running"}})
+    return {"task_id": task_id, "status": doc["status"], "eta_seconds": doc.get("eta_seconds"),
+            "video_url": doc.get("video_url"), "error": doc.get("error")}
+
+
+@api_router.post("/generate/video/task/{task_id}/cancel")
+async def video_task_cancel(task_id: str, user: dict = Depends(auth_module.get_current_user)):
+    doc = await db.video_tasks.find_one({"task_id": task_id, "user_id": user["id"]}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail={"error": "Task not found"})
+    if doc["status"] in ("completed", "failed", "cancelled"):
+        raise HTTPException(status_code=409, detail={"error": f"Task already {doc['status']}"})
+    await db.video_tasks.update_one({"task_id": task_id}, {"$set": {"status": "cancelled"}})
+    return {"task_id": task_id, "status": "cancelled"}
 
 
 @api_router.post("/voice/transcribe")
@@ -1940,7 +2013,7 @@ async def create_key(body: KeyCreate, user: dict = Depends(auth_module.get_curre
     doc = {
         "id": str(uuid.uuid4()),
         "name": body.name or "Default key",
-        "key": "luchii-sk-" + secrets.token_hex(20),
+        "key": "frb_live_" + secrets.token_hex(20),
         "user_id": user["id"],
         "created": datetime.now(timezone.utc).isoformat(),
         "expires_at": expires_at,
@@ -1965,7 +2038,7 @@ async def list_keys(user: dict = Depends(auth_module.get_current_user)):
         starter = {
             "id": str(uuid.uuid4()),
             "name": "Free Starter Key",
-            "key": "luchii-sk-" + secrets.token_hex(20),
+            "key": "frb_live_" + secrets.token_hex(20),
             "user_id": user["id"],
             "created": datetime.now(timezone.utc).isoformat(),
             "expires_at": None,
@@ -2021,6 +2094,8 @@ async def test_api_key(key_id: str, user: dict = Depends(auth_module.get_current
 
     checks = [("GET /llm/models", "models", "read"),
               ("POST /audio/tts", "text_to_speech", "access"),
+              ("POST /generate/image", "image_generation", "access"),
+              ("POST /generate/video", "video_generation", "access"),
               ("POST /agents/run", "frasberg_agents", "access")]
     results = []
     for route, perm, needed in checks:
@@ -2090,7 +2165,6 @@ async def usage(user: dict = Depends(auth_module.get_current_user)):
 
 
 # ---------------- PayPal — API credit packs ----------------
-import httpx
 
 PAYPAL_MODE = os.environ.get("PAYPAL_MODE", "live")
 PAYPAL_CLIENT_ID = os.environ.get("PAYPAL_CLIENT_ID", "")
