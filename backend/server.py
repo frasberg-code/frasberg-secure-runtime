@@ -1,5 +1,6 @@
 from fastapi import FastAPI, APIRouter, Header, HTTPException, Depends, Request, UploadFile, File, Response
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
+import subprocess
 from sse_utils import guard_stream
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -1022,6 +1023,23 @@ MUSIC_MODEL_MAP = {
 }
 
 
+_key_hits: dict = {}
+ENGINE_KEY_RATE_LIMIT = int(os.environ.get("FRASBERG_KEY_RATE_LIMIT", "60"))
+
+
+def _check_rate_limit(key_val: str, limit: int):
+    now = time.time()
+    hits = _key_hits.setdefault(key_val, [])
+    while hits and now - hits[0] > 60:
+        hits.pop(0)
+    if len(hits) >= limit:
+        retry = max(1, int(61 - (now - hits[0])))
+        raise HTTPException(status_code=429,
+                            detail={"code": "FK-429", "message": f"Rate limit exceeded: {limit} requests per minute"},
+                            headers={"Retry-After": str(retry)})
+    hits.append(now)
+
+
 def engine_auth_factory(required_perm=None):
     async def dep(request: Request) -> dict:
         auth_header = request.headers.get("Authorization", "")
@@ -1032,6 +1050,7 @@ def engine_auth_factory(required_perm=None):
             doc = await db.api_keys.find_one({"key": key_val, "status": {"$ne": "revoked"}}, {"_id": 0})
             if not doc:
                 raise HTTPException(status_code=401, detail={"code": "FK-001", "message": "Invalid API key"})
+            _check_rate_limit(key_val, int(doc.get("rate_limit_per_min") or ENGINE_KEY_RATE_LIMIT))
             if required_perm:
                 perms = doc.get("permissions") or {}
                 if perms.get(required_perm) in (None, "no_access"):
@@ -1148,6 +1167,93 @@ class AudioEnhanceRequest(BaseModel):
     mode: str = "enhance"
 
 
+ENHANCED_DIR = "/app/backend/enhanced"
+os.makedirs(ENHANCED_DIR, exist_ok=True)
+
+
+def _decode_audio_bytes(data: bytes):
+    try:
+        with wave_mod.open(io.BytesIO(data), "rb") as w:
+            sr, ch, sw = w.getframerate(), w.getnchannels(), w.getsampwidth()
+            frames = w.readframes(w.getnframes())
+        if sw == 2:
+            sig = np.frombuffer(frames, dtype=np.int16).astype(np.float64) / 32768.0
+        elif sw == 1:
+            sig = (np.frombuffer(frames, dtype=np.uint8).astype(np.float64) - 128) / 128.0
+        else:
+            raise ValueError("unsupported width")
+        if ch > 1:
+            sig = sig.reshape(-1, ch).mean(axis=1)
+        return sig, sr
+    except Exception:
+        pass
+    proc = subprocess.run(
+        ["ffmpeg", "-hide_banner", "-loglevel", "error", "-i", "pipe:0",
+         "-ac", "1", "-ar", "22050", "-f", "wav", "pipe:1"],
+        input=data, capture_output=True, timeout=60)
+    if proc.returncode != 0 or len(proc.stdout) < 100:
+        raise ValueError("Could not decode source audio")
+    with wave_mod.open(io.BytesIO(proc.stdout), "rb") as w:
+        frames = w.readframes(w.getnframes())
+        sr = w.getframerate()
+    return np.frombuffer(frames, dtype=np.int16).astype(np.float64) / 32768.0, sr
+
+
+def _enhance_signal(sig: np.ndarray, sr: int) -> np.ndarray:
+    sig = sig - np.mean(sig)
+    n = max(1, int(sr * 0.02))
+    env = np.convolve(np.abs(sig), np.ones(n) / n, mode="same")
+    floor = np.percentile(env, 10)
+    gate = np.clip((env - floor * 0.8) / (floor * 1.2 + 1e-9), 0.15, 1.0)
+    sig = sig * gate
+    presence = np.empty_like(sig)
+    presence[0] = 0
+    presence[1:] = sig[1:] - sig[:-1]
+    sig = sig + 0.25 * presence
+    peak = np.max(np.abs(sig)) + 1e-9
+    sig = np.tanh(sig / peak * 1.4) * 0.92
+    return sig
+
+
+def _write_wav_file(path: str, sig: np.ndarray, sr: int):
+    with wave_mod.open(path, "wb") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(sr)
+        w.writeframes((np.clip(sig, -1, 1) * 32767).astype(np.int16).tobytes())
+
+
+async def _run_enhance(doc: dict) -> str:
+    out_path = os.path.join(ENHANCED_DIR, f"{doc['task_id']}.wav")
+    if os.path.exists(out_path):
+        return out_path
+    src_url = doc["source_url"]
+    if "/api/generate/music/task/" in src_url:
+        mtid = src_url.split("/api/generate/music/task/")[1].split("/")[0]
+        mdoc = await db.music_tasks.find_one({"task_id": mtid}, {"_id": 0})
+        if not mdoc:
+            raise HTTPException(status_code=422, detail={"code": "FK-422", "message": "Source music task not found"})
+        buf = await asyncio.to_thread(_synth_wav, "music", mdoc["seed"], mdoc["duration"], mdoc.get("minor"), mdoc.get("bar"))
+        data = buf.read()
+    else:
+        try:
+            async with httpx.AsyncClient(timeout=25, follow_redirects=True) as client:
+                r = await client.get(src_url)
+                r.raise_for_status()
+                data = r.content[:25_000_000]
+        except HTTPException:
+            raise
+        except Exception:
+            raise HTTPException(status_code=422, detail={"code": "FK-422", "message": "Could not fetch source audio url"})
+    try:
+        sig, sr = await asyncio.to_thread(_decode_audio_bytes, data)
+    except Exception:
+        raise HTTPException(status_code=422, detail={"code": "FK-422", "message": "Source is not decodable audio"})
+    sig = await asyncio.to_thread(_enhance_signal, sig, sr)
+    await asyncio.to_thread(_write_wav_file, out_path, sig, sr)
+    return out_path
+
+
 @api_router.post("/audio/tools/enhance")
 async def audio_tools_enhance(req: AudioEnhanceRequest, user: dict = Depends(engine_auth_factory("audio_native"))):
     if not (req.url or "").strip():
@@ -1155,13 +1261,26 @@ async def audio_tools_enhance(req: AudioEnhanceRequest, user: dict = Depends(eng
     now = datetime.now(timezone.utc)
     job_id = f"atask_{now.strftime('%Y%m%dT%H%M%SZ')}_{secrets.token_hex(4)}"
     doc = {
-        "task_id": job_id, "user_id": user["id"], "status": "completed", "tool": "enhance",
-        "source_url": req.url[:500], "mode": req.mode,
-        "output_url": f"https://cdn.frasberg.com/audio/enhanced/{job_id}.wav",
-        "latency_ms": 240 + secrets.randbelow(900), "created_at": now.isoformat(),
+        "task_id": job_id, "user_id": user["id"], "status": "running", "tool": "enhance",
+        "source_url": req.url[:800], "mode": req.mode,
+        "output_url": f"/api/audio/tools/enhance/{job_id}/audio",
+        "created_at": now.isoformat(),
     }
     await db.audio_tool_jobs.insert_one({**doc})
-    return {"job_id": job_id, "status": "completed", "result": {"url": doc["output_url"]}, "latency_ms": doc["latency_ms"]}
+    t0 = time.time()
+    await _run_enhance(doc)
+    latency = int((time.time() - t0) * 1000)
+    await db.audio_tool_jobs.update_one({"task_id": job_id}, {"$set": {"status": "completed", "latency_ms": latency}})
+    return {"job_id": job_id, "status": "completed", "result": {"url": doc["output_url"]}, "latency_ms": latency}
+
+
+@api_router.get("/audio/tools/enhance/{job_id}/audio")
+async def audio_tools_enhance_audio(job_id: str, user: dict = Depends(engine_auth_read)):
+    doc = await db.audio_tool_jobs.find_one({"task_id": job_id, "user_id": user["id"]}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail={"error": "Job not found"})
+    path = await _run_enhance(doc)
+    return FileResponse(path, media_type="audio/wav", filename=f"enhanced_{job_id[:14]}.wav")
 
 
 @api_router.post("/generate/video")

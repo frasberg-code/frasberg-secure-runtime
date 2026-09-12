@@ -453,3 +453,9 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - NEW: POST /api/audio/tools/enhance (perm: audio_native, engine key or session) -> {job_id, status:completed, result:{url}} (MOCKED cdn url)
 - /api/jobs/{id} covers mtask_ (music) + task_ (video), adds job_id + result.url when completed
 - Verified live: login 200; valid frb_live_ key 200+job_id; invalid key 401 FK-001; no-perm 403 FK-003 (music + audio tools both directions); lifecycle queued->running->completed w/ result.url
+
+## 2026-06 (fork, cont. 12): Real Enhance Output + Per-Key Rate Limits — SELF-TESTED e2e
+- Enhance is REAL DSP now: downloads source (httpx, 25MB cap) or resolves internal /generate/music task (re-synth), decodes via stdlib wave or ffmpeg (mp3 etc), numpy pipeline (DC removal, noise gate, presence EQ, tanh limiter), writes WAV to /app/backend/enhanced/{job_id}.wav, served by GET /api/audio/tools/enhance/{job_id}/audio (FileResponse, owner check, regenerates if file missing). Bad source -> 422 FK-422
+- Verified: internal track enhanced (20s WAV, 84ms), external MP3 via ffmpeg (2.1s WAV), bad url 422
+- Rate limits: _check_rate_limit sliding 60s window per key inside engine_auth_factory (key-auth only); limit = key doc rate_limit_per_min else env FRASBERG_KEY_RATE_LIMIT (default 60). 429 {code:FK-429} + Retry-After header. Verified: limit 5 -> exactly 5x200 then 429
+- NOTE: rate limiter is in-memory per process (resets on restart)
