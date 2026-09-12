@@ -459,3 +459,8 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Verified: internal track enhanced (20s WAV, 84ms), external MP3 via ffmpeg (2.1s WAV), bad url 422
 - Rate limits: _check_rate_limit sliding 60s window per key inside engine_auth_factory (key-auth only); limit = key doc rate_limit_per_min else env FRASBERG_KEY_RATE_LIMIT (default 60). 429 {code:FK-429} + Retry-After header. Verified: limit 5 -> exactly 5x200 then 429
 - NOTE: rate limiter is in-memory per process (resets on restart)
+
+## 2026-06 (fork, cont. 13): API Docs Update — Engine endpoints published (screenshot verified)
+- /docs new section "4. Frasberg Engine — Music, Jobs & Audio Tools" (docs-engine-section): exact curl examples for POST /api/generate/music, GET /api/jobs/{job_id} (+ audio streaming), POST /api/audio/tools/enhance, each with real response samples
+- Engine error code table (docs-engine-errors): 401 FK-001, 403 FK-003, 422 FK-422, 429 FK-429 (+rate limit note 60 req/min)
+- Stale luchii-sk references in docs updated to frb_live_ (python snippet, bearer card, "get your key" copy)

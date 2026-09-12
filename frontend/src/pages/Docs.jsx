@@ -18,7 +18,7 @@ from openai import OpenAI
 
 client = OpenAI(
     base_url="${BASE}",
-    api_key="luchii-sk-...",  # your Frasberg key
+    api_key="frb_live_...",  # your Frasberg key
 )
 
 stream = client.chat.completions.create(
@@ -49,6 +49,63 @@ for await (const chunk of stream) {
   -H "Content-Type: application/json" \\
   -d '{"model": "luchii-6-embed", "input": "Intelligence, harmonized."}'`,
 };
+
+const ENGINE_SNIPPETS = {
+  music: `# Submit a music generation job (permission: music_generation)
+curl -X POST "$API_URL/api/generate/music" \\
+  -H "Authorization: Bearer frb_live_xxxxxxxxxxxxx" \\
+  -H "Content-Type: application/json" \\
+  -d '{"prompt": "haunting dark noir", "duration": 180, "model": "frasberg-music"}'
+
+# 200 OK
+# {
+#   "job_id": "mtask_20260912T045052Z_c93c6c52",
+#   "status": "queued",
+#   "eta_seconds": 15,
+#   "model": "frasberg-music",
+#   "mood": "minor"
+# }`,
+  jobs: `# Poll any engine job (music mtask_* or video task_*)
+curl -X GET "$API_URL/api/jobs/$JOB_ID" \\
+  -H "Authorization: Bearer frb_live_xxxxxxxxxxxxx"
+
+# States: queued -> running -> completed
+# On completion:
+# {
+#   "job_id": "mtask_...",
+#   "status": "completed",
+#   "result": { "url": "/api/generate/music/task/mtask_.../audio" }
+# }
+
+# Stream the final audio with the same key:
+curl -o track.wav "$API_URL/api/generate/music/task/$JOB_ID/audio" \\
+  -H "Authorization: Bearer frb_live_xxxxxxxxxxxxx"`,
+  enhance: `# Enhance any audio source — real DSP: noise gate, presence EQ, limiter
+# (permission: audio_native — accepts external URLs or your own track URLs)
+curl -X POST "$API_URL/api/audio/tools/enhance" \\
+  -H "Authorization: Bearer frb_live_xxxxxxxxxxxxx" \\
+  -H "Content-Type: application/json" \\
+  -d '{"url": "https://example.com/raw-recording.mp3"}'
+
+# 200 OK
+# {
+#   "job_id": "atask_20260912T095813Z_e23f6420",
+#   "status": "completed",
+#   "result": { "url": "/api/audio/tools/enhance/atask_.../audio" },
+#   "latency_ms": 84
+# }
+
+# Download the processed WAV:
+curl -o enhanced.wav "$API_URL/api/audio/tools/enhance/$JOB_ID/audio" \\
+  -H "Authorization: Bearer frb_live_xxxxxxxxxxxxx"`,
+};
+
+const ENGINE_ERRORS = [
+  ["401", "FK-001", "Invalid API key — the frb_live_ key does not exist or was revoked"],
+  ["403", "FK-003", "Missing permission — e.g. music_generation or audio_native not granted on this key"],
+  ["422", "FK-422", "Source is not decodable audio / source url could not be fetched"],
+  ["429", "FK-429", "Rate limit exceeded — default 60 req/min per key, Retry-After header included"],
+];
 
 const MODELS = [
   { id: "luchii-6-plus", kind: "chat", desc: "Flagship frontier reasoning — deepest cognition tier" },
@@ -101,7 +158,7 @@ export default function Docs() {
         </p>
 
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3" data-testid="docs-feature-cards">
-          {[{ icon: KeyRound, t: "Bearer auth", d: "Authorization: Bearer luchii-sk-…" },
+          {[{ icon: KeyRound, t: "Bearer auth", d: "Authorization: Bearer frb_live_…" },
             { icon: Radio, t: "SSE streaming", d: "stream: true — chat.completion.chunk" },
             { icon: ShieldCheck, t: "Verified provider", d: "/.well-known discovery manifests" }].map((c) => (
             <div key={c.t} className="rounded-2xl border border-lux-border bg-lux-surface p-5">
@@ -115,7 +172,7 @@ export default function Docs() {
         <section className="mt-14">
           <h2 className="flex items-center gap-2 font-display text-2xl font-600"><KeyRound size={18} className="text-lux-accent" /> 1. Get your key</h2>
           <p className="mt-2 text-sm text-lux-text2">
-            Create a free account and mint a <span className="font-mono text-lux-text">luchii-sk</span> key from the{" "}
+            Create a free account and forge a <span className="font-mono text-lux-text">frb_live_</span> key with the permissions matrix in the{" "}
             <Link to="/dashboard" className="text-lux-accent underline">Developer Dashboard</Link>.
             Every key ships with <span className="text-lux-text">2,500 trial tokens</span> — then top up with credit packs at{" "}
             <span className="text-lux-text">half the price of other providers</span> (from $5 / 10k tokens), or subscribe for unmetered usage.
@@ -138,6 +195,35 @@ export default function Docs() {
         <section className="mt-10">
           <h2 className="font-display text-2xl font-600">3. Embeddings</h2>
           <div className="mt-4"><Code id="embeddings" code={SNIPPETS.embeddings} /></div>
+        </section>
+
+        <section className="mt-14" data-testid="docs-engine-section">
+          <h2 className="flex items-center gap-2 font-display text-2xl font-600"><Radio size={18} className="text-lux-accent" /> 4. Frasberg Engine — Music, Jobs & Audio Tools</h2>
+          <p className="mt-2 max-w-2xl text-sm text-lux-text2">
+            Engine endpoints use your <span className="font-mono text-lux-text">frb_live_</span> keys with the granular permissions
+            matrix. Jobs run asynchronously: <span className="font-mono text-lux-text">queued → running → completed</span>, then the
+            result URL streams the final asset. All engine keys are rate-limited (default <span className="text-lux-text">60 req/min</span>).
+          </p>
+
+          <h3 className="mt-6 font-display text-lg font-600" data-testid="docs-engine-music-title">POST /api/generate/music</h3>
+          <div className="mt-3"><Code id="engine-music" code={ENGINE_SNIPPETS.music} /></div>
+
+          <h3 className="mt-6 font-display text-lg font-600" data-testid="docs-engine-jobs-title">GET /api/jobs/&#123;job_id&#125;</h3>
+          <div className="mt-3"><Code id="engine-jobs" code={ENGINE_SNIPPETS.jobs} /></div>
+
+          <h3 className="mt-6 font-display text-lg font-600" data-testid="docs-engine-enhance-title">POST /api/audio/tools/enhance</h3>
+          <div className="mt-3"><Code id="engine-enhance" code={ENGINE_SNIPPETS.enhance} /></div>
+
+          <h3 className="mt-6 font-display text-lg font-600">Engine error codes</h3>
+          <div className="mt-3 overflow-hidden rounded-2xl border border-lux-border" data-testid="docs-engine-errors">
+            {ENGINE_ERRORS.map(([status, code, desc]) => (
+              <div key={code} className="flex flex-wrap items-center gap-3 border-b border-lux-border bg-lux-surface px-5 py-3 last:border-0">
+                <span className="font-mono text-sm text-lux-text">{status}</span>
+                <span className="rounded-full bg-red-400/15 px-2 py-0.5 font-mono text-[12.5px] text-red-400">{code}</span>
+                <span className="flex-1 text-right text-[13px] text-lux-text2">{desc}</span>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="mt-10" data-testid="docs-models-table">
