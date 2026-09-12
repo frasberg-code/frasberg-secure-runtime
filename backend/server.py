@@ -1009,6 +1009,115 @@ VIDEO_MODEL_MAP = {
 }
 
 
+class MusicGenRequest(BaseModel):
+    prompt: str = ""
+    duration: int = 180
+    model: str = "frasberg-music"
+    output_format: str = "wav"
+
+
+MUSIC_MODEL_MAP = {
+    "frasberg-music": ("gpu-medium", "us-west"),
+    "frasberg-music-studio": ("gpu-large", "us-east"),
+}
+
+
+async def engine_auth(request: Request) -> dict:
+    auth_header = request.headers.get("Authorization", "")
+    key_val = request.headers.get("xi-api-key") or request.headers.get("X-API-Key")
+    if not key_val and auth_header.startswith("Bearer frb_"):
+        key_val = auth_header[7:]
+    if key_val:
+        doc = await db.api_keys.find_one({"key": key_val, "status": {"$ne": "revoked"}}, {"_id": 0})
+        if not doc:
+            raise HTTPException(status_code=401, detail={"code": "FK-001", "message": "Invalid token"})
+        perms = doc.get("permissions") or {}
+        if perms.get("music_generation") in (None, "no_access"):
+            raise HTTPException(status_code=403, detail={"code": "FK-003", "message": "Key lacks music_generation permission"})
+        u = await db.users.find_one({"id": doc["user_id"]}, {"_id": 0, "password": 0})
+        if not u:
+            raise HTTPException(status_code=401, detail={"code": "FK-001", "message": "Invalid token"})
+        return u
+    return await auth_module.get_current_user(request)
+
+
+def _music_params(prompt: str):
+    p = prompt.lower()
+    seed = int(hashlib.sha256(prompt.encode()).hexdigest()[:12], 16)
+    minor = any(w in p for w in ("sad", "dark", "noir", "melanchol", "moody", "epic", "cinematic", "tense", "haunting"))
+    if any(w in p for w in ("upbeat", "dance", "energetic", "fast", "edm", "hype", "party")):
+        bar = 1.0
+    elif any(w in p for w in ("lofi", "lo-fi", "chill", "slow", "ambient", "calm", "study", "sleep")):
+        bar = 2.5
+    else:
+        bar = 2.0
+    return seed, minor, bar
+
+
+@api_router.post("/generate/music")
+async def generate_music(req: MusicGenRequest, user: dict = Depends(engine_auth)):
+    prompt = (req.prompt or "").strip()
+    if not prompt:
+        raise HTTPException(status_code=400, detail="A prompt is required")
+    model = req.model if req.model in MUSIC_MODEL_MAP else "frasberg-music"
+    duration = max(10, min(int(req.duration or 180), 300))
+    gpu_class, region = MUSIC_MODEL_MAP[model]
+    now = datetime.now(timezone.utc)
+    task_id = f"mtask_{now.strftime('%Y%m%dT%H%M%SZ')}_{secrets.token_hex(4)}"
+    eta = 5 + duration // 30 + secrets.randbelow(6)
+    seed, minor, bar = _music_params(prompt)
+    doc = {
+        "task_id": task_id, "user_id": user["id"], "status": "queued",
+        "prompt": prompt[:800], "duration": duration, "model": model,
+        "seed": seed, "minor": minor, "bar": bar, "output_format": "wav",
+        "gpu_class": gpu_class, "region": region, "eta_seconds": eta,
+        "completes_at": (now + timedelta(seconds=eta)).isoformat(),
+        "audio_url": None, "error": None, "created_at": now.isoformat(),
+    }
+    await db.music_tasks.insert_one({**doc})
+    return {"task_id": task_id, "status": "queued", "eta_seconds": eta, "model": model,
+            "region": region, "gpu_class": gpu_class, "mood": "minor" if minor else "major"}
+
+
+@api_router.get("/generate/music/task/{task_id}")
+async def music_task_status(task_id: str, user: dict = Depends(engine_auth)):
+    doc = await db.music_tasks.find_one({"task_id": task_id, "user_id": user["id"]}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail={"error": "Task not found"})
+    now = datetime.now(timezone.utc).isoformat()
+    if doc["status"] in ("queued", "running"):
+        if now >= doc["completes_at"]:
+            doc["status"] = "completed"
+            doc["audio_url"] = f"/api/generate/music/task/{task_id}/audio"
+        elif doc["status"] == "queued":
+            doc["status"] = "running"
+        await db.music_tasks.update_one({"task_id": task_id}, {"$set": {"status": doc["status"], "audio_url": doc["audio_url"]}})
+    return {"task_id": task_id, "status": doc["status"], "audio_url": doc["audio_url"],
+            "prompt": doc["prompt"], "model": doc["model"], "duration": doc["duration"],
+            "eta_seconds": doc["eta_seconds"], "error": doc["error"]}
+
+
+@api_router.get("/generate/music/task/{task_id}/audio")
+async def music_task_audio(task_id: str, user: dict = Depends(engine_auth)):
+    doc = await db.music_tasks.find_one({"task_id": task_id, "user_id": user["id"]}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail={"error": "Task not found"})
+    if doc["status"] != "completed":
+        raise HTTPException(status_code=409, detail={"error": "Task not completed yet"})
+    buf = await asyncio.to_thread(_synth_wav, "music", doc["seed"], doc["duration"],
+                                  doc.get("minor"), doc.get("bar"))
+    return StreamingResponse(buf, media_type="audio/wav",
+                             headers={"Content-Disposition": f'inline; filename="frasberg_music_{task_id[:14]}.wav"'})
+
+
+@api_router.get("/generate/music/gallery")
+async def music_gallery(user: dict = Depends(engine_auth)):
+    return await db.music_tasks.find(
+        {"user_id": user["id"], "status": "completed"},
+        {"_id": 0, "task_id": 1, "prompt": 1, "model": 1, "audio_url": 1, "created_at": 1, "duration": 1},
+    ).sort("created_at", -1).to_list(50)
+
+
 @api_router.post("/generate/video")
 async def generate_video(req: VideoGenRequest, user: dict = Depends(auth_module.get_current_user)):
     prompt = (req.prompt or "").strip()
@@ -2190,16 +2299,16 @@ async def studio_generate(req: StudioJobRequest, user: dict = Depends(auth_modul
     return doc
 
 
-def _synth_wav(tool: str, seed: int, duration_sec) -> io.BytesIO:
+def _synth_wav(tool: str, seed: int, duration_sec, minor_override=None, bar_override=None) -> io.BytesIO:
     sr = 22050
     rng = np.random.default_rng(seed)
     if tool == "music":
         dur = max(10, min(int(duration_sec or 180), 300))
         root = 110 * 2 ** (int(rng.integers(0, 12)) / 12)
-        minor = bool(rng.integers(0, 2))
+        minor = bool(rng.integers(0, 2)) if minor_override is None else bool(minor_override)
         third = 3 if minor else 4
         degrees = [0, 5, 8 if minor else 7, 5]
-        bar = 2.0
+        bar = float(bar_override or 2.0)
         t_bar = np.arange(int(sr * bar)) / sr
         loop = np.zeros(int(sr * bar) * 4)
         for i, deg in enumerate(degrees):

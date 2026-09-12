@@ -1,0 +1,5 @@
+node_modules
+build
+plugins
+src/components/ui
+*.min.js

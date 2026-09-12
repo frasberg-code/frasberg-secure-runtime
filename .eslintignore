@@ -1,0 +1,13 @@
+node_modules
+build
+backend
+games
+mobile
+frasberg-carjack
+memory
+test_reports
+tests
+frontend/build
+frontend/node_modules
+frontend/plugins
+*.min.js

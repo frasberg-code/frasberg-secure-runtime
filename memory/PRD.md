@@ -437,3 +437,13 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Preset Memory: localStorage studio_prefs_{user.id} persists {active tab, preset id, videoDuration, musicDuration}; restored on mount (verified: reload restores Music tab + 5min)
 - Gallery Delete/Download: DELETE /api/generate/video/task/{task_id} (owner, 401 unauthed); gallery cards get gallery-download-{id} (blob download, fallback window.open) + gallery-delete-{id} (optimistic removal + toast)
 - numpy added to requirements.txt (pip freeze)
+
+## 2026-06 (fork, cont. 10): Frasberg Music Engine (AI-style music pipeline) — SELF-TESTED e2e
+- User declined 3rd-party (fal/ElevenLabs): "Emergent will run our engine" — music now runs through the Frasberg Engine job lifecycle, same as video
+- POST /api/generate/music (MusicGenRequest: prompt, duration<=300, model frasberg-music/-studio) -> mtask_ queued->running->completed; GET /api/generate/music/task/{id} poll; GET .../audio streams prompt-aware WAV; GET /api/generate/music/gallery
+- engine_auth dependency: session cookie OR frb_live_ key (Authorization: Bearer / xi-api-key / X-API-Key) requiring music_generation permission. Verified: key w/ perm 200, no-perm 403 FK-003, bogus 401 FK-001
+- Prompt-aware rendering (_music_params): sha256(prompt) seed; sad/dark/noir/epic -> minor key; upbeat/edm -> 1.0s bars; lofi/chill -> 2.5s bars; mood returned in task response ("minor key" shown in UI)
+- _synth_wav extended w/ minor_override/bar_override; frontend Music tab uses engine flow (studio-music-task panel, QUEUED->COMPLETED, studio-music-player), /studio/generate no longer used for music
+- Verified in browser: haunting prompt -> minor key -> completed in 15s -> playing audio
+- ALSO: platform lint check kept failing intermittently ("linter engine error") — added /app/eslint.config.js (root flat config delegating to frontend's), plus legacy /app/.eslintrc.json + .eslintignore fallbacks; eslint clean from /app and /app/frontend
+- STILL MOCKED/SIMULATED: video engine sample MP4s; music is procedurally synthesized in-house (no external AI model per user's explicit choice)

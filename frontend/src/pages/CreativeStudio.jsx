@@ -183,10 +183,29 @@ export default function CreativeStudio() {
         } else {
           setResult({ type: "message", text: d.message || "Video job queued on the Video Cluster." });
         }
+      } else if (active === "music") {
+        const r = await fetch(`${API}/generate/music`, {
+          method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+          body: JSON.stringify({ prompt, duration: musicDuration, model: "frasberg-music" }),
+        });
+        if (r.status === 401) { toast.error("Please sign in to use the studio"); return; }
+        if (!r.ok) { toast.error("Music request failed"); return; }
+        const d = await r.json();
+        setResult({ type: "musictask", task: d });
+        if (pollRef.current) clearInterval(pollRef.current);
+        pollRef.current = setInterval(async () => {
+          try {
+            const pr = await fetch(`${API}/generate/music/task/${d.task_id}`, { credentials: "include" });
+            if (!pr.ok) { clearInterval(pollRef.current); return; }
+            const pd = await pr.json();
+            setResult({ type: "musictask", task: { ...d, ...pd } });
+            if (pd.status === "completed" || pd.status === "failed") clearInterval(pollRef.current);
+          } catch { clearInterval(pollRef.current); }
+        }, 3000);
       } else {
         const r = await fetch(`${API}/studio/generate`, {
           method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
-          body: JSON.stringify({ tool: active, prompt, settings: active === "music" ? { duration_sec: musicDuration } : undefined }),
+          body: JSON.stringify({ tool: active, prompt }),
         });
         if (r.status === 401) { toast.error("Please sign in to use the studio"); return; }
         if (!r.ok) { toast.error("Generation failed"); return; }
@@ -382,6 +401,19 @@ export default function CreativeStudio() {
                   <span style={{ color: "#f97373" }} data-testid="studio-video-error">
                     The rendered video could not be loaded — the asset may still be propagating. Try regenerating.
                   </span>
+                )}
+              </div>
+            )}
+            {result.type === "musictask" && (
+              <div className="grid gap-1 font-mono text-[12.5px]" data-testid="studio-music-task">
+                <span style={{ color: result.task.status === "completed" ? "#34d399" : C.primary }}>
+                  {result.task.status.toUpperCase()} · Frasberg Music Engine · {result.task.gpu_class || "gpu-medium"} · {result.task.region || "us-west"}{result.task.mood ? ` · ${result.task.mood} key` : ""}
+                </span>
+                <span style={{ color: C.text }}>{result.task.task_id}</span>
+                {result.task.status !== "completed" && <span style={{ color: C.muted }}>ETA ~{result.task.eta_seconds}s — rendering your track...</span>}
+                {result.task.audio_url && (
+                  <audio controls autoPlay src={`${process.env.REACT_APP_BACKEND_URL}${result.task.audio_url}`}
+                    className="mt-2 w-full" data-testid="studio-music-player" />
                 )}
               </div>
             )}
