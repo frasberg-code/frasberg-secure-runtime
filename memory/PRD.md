@@ -447,3 +447,9 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Verified in browser: haunting prompt -> minor key -> completed in 15s -> playing audio
 - ALSO: platform lint check kept failing intermittently ("linter engine error") — added /app/eslint.config.js (root flat config delegating to frontend's), plus legacy /app/.eslintrc.json + .eslintignore fallbacks; eslint clean from /app and /app/frontend
 - STILL MOCKED/SIMULATED: video engine sample MP4s; music is procedurally synthesized in-house (no external AI model per user's explicit choice)
+
+## 2026-06 (fork, cont. 11): Engine API spec alignment + full test-plan run — ALL PASS
+- User ran formal 5-step test plan; aligned API to spec: responses now include job_id (alias of task_id); completed jobs include result:{url}; FK-001 message "Invalid API key"; FK-003 "Missing permission: {perm}"
+- NEW: POST /api/audio/tools/enhance (perm: audio_native, engine key or session) -> {job_id, status:completed, result:{url}} (MOCKED cdn url)
+- /api/jobs/{id} covers mtask_ (music) + task_ (video), adds job_id + result.url when completed
+- Verified live: login 200; valid frb_live_ key 200+job_id; invalid key 401 FK-001; no-perm 403 FK-003 (music + audio tools both directions); lifecycle queued->running->completed w/ result.url
