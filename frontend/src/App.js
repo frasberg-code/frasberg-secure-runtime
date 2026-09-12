@@ -66,6 +66,8 @@ import { AscensionBanner } from "./components/site/AscensionBanner";
 import { CommandPalette } from "./components/site/CommandPalette";
 import FrasbergOS from "./pages/FrasbergOS";
 import CreativeStudio from "./pages/CreativeStudio";
+import SecurityShield from "./pages/SecurityShield";
+import ShieldDashboard from "./pages/ShieldDashboard";
 import DocsHub from "./pages/DocsHub";
 
 function ScrollToHash() {
@@ -123,6 +125,8 @@ function App() {
               <Route path="/apps" element={<WorkspaceHome />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/database" element={<AuthGate><DatabaseManager /></AuthGate>} />
+              <Route path="/security-shield" element={<SecurityShield />} />
+              <Route path="/shield-dashboard" element={<AuthGate><ShieldDashboard /></AuthGate>} />
               <Route path="/create" element={<AuthGate><CreativeStudio /></AuthGate>} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/admin" element={<Admin />} />

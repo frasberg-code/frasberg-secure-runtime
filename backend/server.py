@@ -3901,6 +3901,155 @@ import realtime_core
 api_router.include_router(realtime_core.router)
 import linq_governance
 api_router.include_router(linq_governance.router)
+# ============ FRASBERG SECURITY SHIELD ============
+SHIELD_FLAGGED_EVENTS = {
+    "RIGHT_CLICK_BLOCKED", "COPY_BLOCKED", "CUT_BLOCKED",
+    "DEVTOOLS_OPEN_DETECTED", "DEVTOOLS_SHORTCUT_BLOCKED",
+}
+SHIELD_BREACH_THRESHOLD = int(os.environ.get("BREACH_THRESHOLD", "5"))
+SHIELD_CD_THRESHOLD = int(os.environ.get("CD_THRESHOLD", "10"))
+SHIELD_OWNER = {
+    "name": os.environ.get("OWNER_NAME", "Frasberg Selassie"),
+    "legal": os.environ.get("OWNER_LEGAL", "MR. CLAYTON-M. BERNARD-EX."),
+    "company": os.environ.get("OWNER_COMPANY", "FRASBERG INC."),
+    "email": os.environ.get("OWNER_EMAIL", "legal@frasberg.com"),
+}
+
+
+class SecurityLogBody(BaseModel):
+    session_id: Optional[str] = None
+    timestamp: Optional[str] = None
+    event: str = "UNKNOWN"
+    detail: Optional[str] = None
+    user_agent: Optional[str] = None
+    referrer: Optional[str] = None
+    url: Optional[str] = None
+
+
+def _generate_cease_desist(ip: str, breach_count: int, events: list) -> str:
+    o = SHIELD_OWNER
+    d = datetime.now(timezone.utc).strftime("%B %d, %Y")
+    ev_lines = "\n".join(f"  {i + 1}. {e}" for i, e in enumerate(events))
+    return f"""================================================================================
+                        CEASE AND DESIST NOTICE
+================================================================================
+Date: {d}
+
+FROM: {o['name']} ({o['legal']}) — Founder & Owner, {o['company']} — {o['email']}
+TO:   Unknown Actor / Operator — IP Address: {ip}
+
+RE: Unauthorized Access, Attempted Cloning, and Misappropriation of Protected
+    Intellectual Property — LUCHII AI & FRASBERG ENGINE
+
+I. OWNERSHIP: {o['company']} is the sole owner of LUCHII (model weights,
+architecture, identity, persona) and the FRASBERG ENGINE (source code,
+configurations, pipelines), protected under the Frasberg Public License (FPL),
+copyright law, trade secret law, and international IP treaties.
+
+II. YOUR CONDUCT: Security systems have logged {breach_count} unauthorized
+intrusion events from IP {ip}, including:
+{ev_lines}
+
+III. DEMANDS: You are ORDERED to immediately (1) CEASE all cloning or
+replication of LUCHII or the Frasberg Engine; (2) DESTROY all unauthorized
+copies; (3) CEASE all unauthorized access; (4) PROVIDE written confirmation
+of compliance within 72 hours.
+
+IV. NON-COMPLIANCE will result in civil litigation, criminal referral, and
+DMCA takedown filings. All rights of {o['company']} are expressly reserved.
+
+Signed, {o['name']} ({o['legal']}), Founder & Owner, {o['company']} — {d}
+================================================================================"""
+
+
+async def _shield_email(subject: str, html: str):
+    api_key_env = os.environ.get("RESEND_API_KEY", "")
+    if not api_key_env:
+        return
+    to = os.environ.get("ALERT_TO", "")
+    targets = [to] if to else [a["email"] for a in await db.users.find({"role": "admin"}, {"email": 1}).to_list(10)]
+    for t in targets:
+        try:
+            import resend
+            resend.api_key = api_key_env
+            await asyncio.to_thread(resend.Emails.send, {
+                "from": os.environ.get("SENDER_EMAIL", "onboarding@resend.dev"),
+                "to": [t], "subject": subject, "html": html})
+        except Exception as e:
+            logger.warning(f"shield email failed: {e}")
+
+
+@api_router.post("/security/log")
+async def shield_log(body: SecurityLogBody, request: Request):
+    ip = (request.headers.get("x-forwarded-for") or "").split(",")[0].strip() or (request.client.host if request.client else "unknown")
+    flagged = body.event in SHIELD_FLAGGED_EVENTS
+    now = datetime.now(timezone.utc).isoformat()
+    entry = {
+        "id": str(uuid.uuid4()), "session_id": body.session_id, "ip": ip,
+        "event": body.event[:80], "detail": (body.detail or "")[:300],
+        "user_agent": (body.user_agent or "")[:300], "referrer": (body.referrer or "")[:300],
+        "url": (body.url or "")[:300], "flagged": flagged, "created_at": body.timestamp or now,
+    }
+    await db.security_events.insert_one({**entry})
+    if flagged:
+        res = await db.ip_breach_summary.find_one_and_update(
+            {"ip": ip},
+            {"$inc": {"breach_count": 1}, "$set": {"last_seen": now},
+             "$setOnInsert": {"cd_triggered": False, "cd_triggered_at": None}},
+            upsert=True, return_document=True)
+        count = res["breach_count"]
+        if count == SHIELD_BREACH_THRESHOLD:
+            await _shield_email(
+                f"FRASBERG SHIELD — Breach Alert: {body.event} from {ip}",
+                f"<div style='font-family:monospace;background:#0a0a0a;color:#00ff88;padding:30px;border-radius:8px;'>"
+                f"<h2 style='color:#ff3333;'>SECURITY BREACH DETECTED</h2>"
+                f"<p style='color:#ccc;'>IP: <b>{ip}</b><br/>Event: <b style='color:#ff6666;'>{body.event}</b><br/>"
+                f"Detail: {entry['detail']}<br/>Total breaches: <b style='color:#ff3333;'>{count}</b></p>"
+                f"<p style='color:#888;font-size:11px;'>{SHIELD_OWNER['company']} Security Shield · Luchii Sovereign Intelligence</p></div>")
+        if count >= SHIELD_CD_THRESHOLD and not res.get("cd_triggered"):
+            ev_docs = await db.security_events.find(
+                {"ip": ip, "flagged": True}, {"_id": 0, "event": 1, "detail": 1, "created_at": 1},
+            ).sort("created_at", -1).to_list(10)
+            ev_list = [f"{e['event']} — {e.get('detail', '')} ({e['created_at'][:19]})" for e in ev_docs]
+            cd_text = _generate_cease_desist(ip, count, ev_list)
+            await db.cease_desist_log.insert_one({
+                "id": str(uuid.uuid4()), "ip": ip, "cd_text": cd_text,
+                "drafted_at": now, "sent": bool(os.environ.get("RESEND_API_KEY"))})
+            await db.ip_breach_summary.update_one(
+                {"ip": ip}, {"$set": {"cd_triggered": True, "cd_triggered_at": now}})
+            await _shield_email(
+                f"FRASBERG SHIELD — Cease & Desist Auto-Drafted for IP: {ip}",
+                f"<div style='font-family:monospace;background:#0a0a0a;color:#00ff88;padding:30px;border-radius:8px;'>"
+                f"<h2 style='color:#ff3333;'>CEASE &amp; DESIST AUTO-DRAFTED</h2>"
+                f"<p style='color:#ccc;'>IP <b style='color:#ff6666;'>{ip}</b> exceeded the breach threshold.</p>"
+                f"<pre style='color:#aaa;font-size:12px;white-space:pre-wrap;'>{cd_text}</pre></div>")
+    return {"status": "logged", "flagged": flagged, "ip": ip}
+
+
+async def _shield_admin(user: dict = Depends(auth_module.get_current_user)) -> dict:
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return user
+
+
+@api_router.get("/security/logs")
+async def shield_logs(user: dict = Depends(_shield_admin)):
+    logs = await db.security_events.find({}, {"_id": 0}).sort("created_at", -1).to_list(200)
+    return {"total": await db.security_events.count_documents({}), "logs": logs}
+
+
+@api_router.get("/security/breaches")
+async def shield_breaches(user: dict = Depends(_shield_admin)):
+    rows = await db.ip_breach_summary.find({}, {"_id": 0}).sort("breach_count", -1).to_list(200)
+    return {"total": len(rows), "breaches": rows}
+
+
+@api_router.get("/security/cease-desist")
+async def shield_cd(user: dict = Depends(_shield_admin)):
+    rows = await db.cease_desist_log.find({}, {"_id": 0}).sort("drafted_at", -1).to_list(100)
+    return {"total": len(rows), "records": rows}
+
+
 app.include_router(api_router)
 
 _PLATFORM_HOSTS = ("emergentagent.com", "frasberg", "localhost", "127.0.0.1")

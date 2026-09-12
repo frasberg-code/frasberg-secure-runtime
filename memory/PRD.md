@@ -464,3 +464,12 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - /docs new section "4. Frasberg Engine — Music, Jobs & Audio Tools" (docs-engine-section): exact curl examples for POST /api/generate/music, GET /api/jobs/{job_id} (+ audio streaming), POST /api/audio/tools/enhance, each with real response samples
 - Engine error code table (docs-engine-errors): 401 FK-001, 403 FK-003, 422 FK-422, 429 FK-429 (+rate limit note 60 req/min)
 - Stale luchii-sk references in docs updated to frb_live_ (python snippet, bearer card, "get your key" copy)
+
+## 2026-06 (fork, cont. 14): Frasberg Security Shield — SELF-TESTED e2e (adapted from Node/Postgres spec to FastAPI/Mongo/React)
+- Backend: POST /api/security/log (public, captures x-forwarded-for IP, flags RIGHT_CLICK/COPY/CUT/DEVTOOLS events) -> mongo security_events + ip_breach_summary upsert. At BREACH_THRESHOLD(5): Resend breach email to ALERT_TO; at CD_THRESHOLD(10): auto-drafts full Cease & Desist letter (env OWNER_*), stores cease_desist_log w/ cd_text, marks cd_triggered, emails it. Admin-only reads: GET /api/security/logs|breaches|cease-desist (403/401 otherwise)
+- .env additions: BREACH_THRESHOLD, CD_THRESHOLD, ALERT_TO, OWNER_NAME/LEGAL/COMPANY/EMAIL
+- /security-shield (public): protected-zone page w/ pulsing shield, IP alert, broadcast banner, LIVE log feed; client shield scoped to page: blocks right-click/copy/cut/select/devtools shortcuts, devtools size-delta detection (30s throttle), PAGE_ACCESS + SESSION_END (sendBeacon) reporting
+- /shield-dashboard (AuthGate + role=admin, denied screen otherwise): 4 stat cards, live event feed (4s poll), IP breach leaderboard (LOW/WARNING/CRITICAL, C&D badges), C&D records table w/ View letter
+- Navbar Explore: Security Shield + Shield Dashboard links
+- Verified: 11 flagged events -> breach count 11, cd_triggered true, C&D letter generated; unauthed/non-admin 401; both pages screenshot-verified (dashboard: 14 events, CRITICAL + C&D SENT badges)
+- SKIPPED (not applicable to platform): Docker/docker-compose, GitHub Actions CI/CD, PostgreSQL (used Mongo), standalone Express server (integrated into FastAPI)

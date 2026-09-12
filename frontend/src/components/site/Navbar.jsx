@@ -54,6 +54,8 @@ const EXPLORE_GROUPS = [
       { label: "Visual Studio", to: "/visual-studio" },
       { label: "Luchii Code", to: "/luchii-code" },
       { label: "Frasberg Software", to: "/software" },
+      { label: "Security Shield", to: "/security-shield" },
+      { label: "Shield Dashboard", to: "/shield-dashboard" },
     ],
   },
   {
