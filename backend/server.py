@@ -33,6 +33,8 @@ import ontology
 import mesh_ws
 import hmac
 import hashlib
+import wave as wave_mod
+import numpy as np
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -1080,6 +1082,14 @@ async def video_gallery(user: dict = Depends(auth_module.get_current_user)):
          "created_at": 1, "duration": 1, "ratio": 1, "gpu_class": 1, "region": 1},
     ).sort("created_at", -1).to_list(50)
     return docs
+
+
+@api_router.delete("/generate/video/task/{task_id}")
+async def video_task_delete(task_id: str, user: dict = Depends(auth_module.get_current_user)):
+    res = await db.video_tasks.delete_one({"task_id": task_id, "user_id": user["id"]})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail={"error": "Task not found"})
+    return {"deleted": task_id}
 
 
 @api_router.post("/generate/video/task/{task_id}/cancel")
@@ -2174,8 +2184,65 @@ async def studio_generate(req: StudioJobRequest, user: dict = Depends(auth_modul
         "duration_sec": duration_sec,
         "created": datetime.now(timezone.utc).isoformat(),
     }
+    if tool in ("music", "sound_effects"):
+        doc["output_url"] = f"/api/studio/jobs/{job_id}/audio"
     await db.studio_jobs.insert_one({**doc})
     return doc
+
+
+def _synth_wav(tool: str, seed: int, duration_sec) -> io.BytesIO:
+    sr = 22050
+    rng = np.random.default_rng(seed)
+    if tool == "music":
+        dur = max(10, min(int(duration_sec or 180), 300))
+        root = 110 * 2 ** (int(rng.integers(0, 12)) / 12)
+        minor = bool(rng.integers(0, 2))
+        third = 3 if minor else 4
+        degrees = [0, 5, 8 if minor else 7, 5]
+        bar = 2.0
+        t_bar = np.arange(int(sr * bar)) / sr
+        loop = np.zeros(int(sr * bar) * 4)
+        for i, deg in enumerate(degrees):
+            base = root * 2 ** (deg / 12)
+            seg = np.zeros_like(t_bar)
+            for interval, amp in ((0, .5), (third, .35), (7, .3), (12, .2)):
+                seg += amp * np.sin(2 * np.pi * base * 2 ** (interval / 12) * t_bar)
+            env = np.minimum(1, t_bar * 8) * np.exp(-t_bar * 0.7)
+            arp = 0.15 * np.sin(2 * np.pi * base * 4 * t_bar) * (np.sin(2 * np.pi * 4 * t_bar) > 0.6)
+            loop[i * len(t_bar):(i + 1) * len(t_bar)] = seg * env + arp
+        beat_t = np.arange(len(loop)) / sr
+        loop += 0.4 * np.sin(2 * np.pi * 55 * beat_t) * (np.mod(beat_t, 0.5) < 0.08) * np.exp(-np.mod(beat_t, 0.5) * 30)
+        sig = np.tile(loop, int(np.ceil(dur * sr / len(loop))))[: int(dur * sr)]
+    else:
+        dur = max(1, min(int(duration_sec or 4), 30))
+        t = np.arange(int(sr * dur)) / sr
+        k = int(rng.integers(3, 40))
+        noise = np.convolve(rng.standard_normal(len(t)), np.ones(k) / k, mode="same")
+        sweep = np.sin(2 * np.pi * float(rng.uniform(80, 1200)) * t * np.exp(-t * float(rng.uniform(0.2, 1.5))))
+        sig = (0.6 * noise[:len(t)] + 0.5 * sweep) * np.exp(-t * float(rng.uniform(0.8, 3)))
+    sig = sig / (np.max(np.abs(sig)) + 1e-9) * 0.85
+    buf = io.BytesIO()
+    with wave_mod.open(buf, "wb") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(sr)
+        w.writeframes((sig * 32767).astype(np.int16).tobytes())
+    buf.seek(0)
+    return buf
+
+
+@api_router.get("/studio/jobs/{job_id}/audio")
+async def studio_job_audio(job_id: str, user: dict = Depends(auth_module.get_current_user)):
+    doc = await db.studio_jobs.find_one({"id": job_id, "user_id": user["id"]}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Job not found")
+    if doc["tool"] not in ("music", "sound_effects"):
+        raise HTTPException(status_code=400, detail="Job has no audio output")
+    seed = int(job_id.replace("-", "")[:12], 16)
+    dur = (doc.get("settings") or {}).get("duration_sec") or doc.get("duration_sec")
+    buf = await asyncio.to_thread(_synth_wav, doc["tool"], seed, dur)
+    return StreamingResponse(buf, media_type="audio/wav",
+                             headers={"Content-Disposition": f'inline; filename="{doc["tool"]}_{job_id[:8]}.wav"'})
 
 
 @api_router.get("/studio/jobs")

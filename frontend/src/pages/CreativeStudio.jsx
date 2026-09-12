@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import {
   ArrowLeft, AudioLines, Image as ImageIcon, Video as VideoIcon, Volume2, Music, Mic,
   AudioWaveform, Maximize2, MoreHorizontal, FileAudio, Languages, Radio, Clapperboard,
-  BookOpen, Loader2, Sparkles, Upload, Sun, Moon, RotateCw, Film,
+  BookOpen, Loader2, Sparkles, Upload, Sun, Moon, RotateCw, Film, Download, Trash2,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { ParallaxSky } from "../components/site/ParallaxSky";
@@ -65,6 +65,26 @@ export default function CreativeStudio() {
 
   const rotateTabs = () => setTabOrder((o) => [...o.slice(1), o[0]]);
 
+  const prefsKey = user ? `studio_prefs_${user.id}` : null;
+  const prefsLoaded = useRef(false);
+  useEffect(() => {
+    if (!prefsKey || prefsLoaded.current) return;
+    prefsLoaded.current = true;
+    try {
+      const p = JSON.parse(localStorage.getItem(prefsKey) || "{}");
+      if (p.active && ALL.some((t) => t.id === p.active)) setActive(p.active);
+      if (p.preset) setPreset(PRESETS.find((x) => x.id === p.preset) || null);
+      if (p.videoDuration) setVideoDuration(p.videoDuration);
+      if (p.musicDuration) setMusicDuration(p.musicDuration);
+    } catch {}
+  }, [prefsKey]);
+  useEffect(() => {
+    if (!prefsKey || !prefsLoaded.current) return;
+    try {
+      localStorage.setItem(prefsKey, JSON.stringify({ active, preset: preset?.id || null, videoDuration, musicDuration }));
+    } catch {}
+  }, [prefsKey, active, preset, videoDuration, musicDuration]);
+
   useEffect(() => () => { if (pollRef.current) clearInterval(pollRef.current); }, []);
 
   const tool = ALL.find((t) => t.id === active);
@@ -90,6 +110,29 @@ export default function CreativeStudio() {
     } catch {}
   };
   useEffect(() => { if (user) { loadJobs(); loadGallery(); } }, [user]);
+
+  const deleteRender = async (taskId) => {
+    try {
+      const r = await fetch(`${API}/generate/video/task/${taskId}`, { method: "DELETE", credentials: "include" });
+      if (!r.ok) { toast.error("Could not delete render"); return; }
+      toast.success("Render deleted");
+      setGallery((g) => g.filter((x) => x.task_id !== taskId));
+    } catch { toast.error("Could not delete render"); }
+  };
+
+  const downloadRender = async (g) => {
+    try {
+      const r = await fetch(g.video_url);
+      if (!r.ok) throw new Error();
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `frasberg_${g.task_id}.mp4`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      toast.success("Download started");
+    } catch { window.open(g.video_url, "_blank"); }
+  };
 
   const generate = async () => {
     if (tool.kind !== "stt" && !prompt.trim()) { toast.error("Type something first"); return; }
@@ -343,9 +386,14 @@ export default function CreativeStudio() {
               </div>
             )}
             {result.type === "job" && (
-              <div className="grid gap-1 font-mono text-[12.5px]" data-testid="studio-job-result">
+              <div className="grid gap-2 font-mono text-[12.5px]" data-testid="studio-job-result">
                 <span style={{ color: "#34d399" }}>COMPLETED · {result.job.cluster}</span>
-                <span style={{ color: C.text }}>{result.job.output_url}</span>
+                {result.job.output_url?.startsWith("/api/") ? (
+                  <audio controls autoPlay src={`${process.env.REACT_APP_BACKEND_URL}${result.job.output_url}`}
+                    className="w-full" data-testid="studio-job-audio-player" />
+                ) : (
+                  <span style={{ color: C.text }}>{result.job.output_url}</span>
+                )}
                 <span style={{ color: C.muted }}>{result.job.duration_sec >= 60 ? `${Math.floor(result.job.duration_sec / 60)}m ${Math.round(result.job.duration_sec % 60)}s` : `${result.job.duration_sec}s`} · {result.job.format.toUpperCase()} · {result.job.latency_ms}ms latency</span>
               </div>
             )}
@@ -365,9 +413,23 @@ export default function CreativeStudio() {
                   <video controls preload="metadata" src={g.video_url} className="aspect-video w-full bg-black object-cover" />
                   <div className="px-3.5 py-3">
                     <p className="line-clamp-2 text-[12.5px] leading-relaxed" style={{ color: C.text }}>{g.prompt}</p>
-                    <p className="mt-1.5 font-mono text-[10.5px] uppercase tracking-wide" style={{ color: C.muted }}>
-                      {g.model} · {g.ratio} · {g.duration}s · {(g.created_at || "").slice(0, 10)}
-                    </p>
+                    <div className="mt-1.5 flex items-center justify-between gap-2">
+                      <p className="font-mono text-[10.5px] uppercase tracking-wide" style={{ color: C.muted }}>
+                        {g.model} · {g.ratio} · {g.duration}s · {(g.created_at || "").slice(0, 10)}
+                      </p>
+                      <div className="flex shrink-0 gap-1.5">
+                        <button onClick={() => downloadRender(g)} data-testid={`gallery-download-${g.task_id}`} aria-label="Download video" title="Download video"
+                          className="grid h-7 w-7 place-items-center rounded-md border transition-colors"
+                          style={{ borderColor: C.border, color: C.muted }}>
+                          <Download size={12} />
+                        </button>
+                        <button onClick={() => deleteRender(g.task_id)} data-testid={`gallery-delete-${g.task_id}`} aria-label="Delete render" title="Delete render"
+                          className="grid h-7 w-7 place-items-center rounded-md border transition-colors hover:border-[#f97373] hover:text-[#f97373]"
+                          style={{ borderColor: C.border, color: C.muted }}>
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -381,11 +443,17 @@ export default function CreativeStudio() {
             <p className="mb-3 font-mono text-[11.5px] uppercase tracking-[0.2em]" style={{ color: C.muted }}>Recent studio jobs</p>
             <div className="overflow-hidden rounded-xl border" style={{ borderColor: C.border }}>
               {jobs.slice(0, 8).map((j) => (
-                <div key={j.id} className="flex flex-wrap items-center justify-between gap-2 border-b px-4 py-2.5 last:border-0"
+                <div key={j.id} className="border-b px-4 py-2.5 last:border-0"
                   style={{ borderColor: C.border }} data-testid={`studio-job-${j.id}`}>
-                  <span className="text-[13px]" style={{ color: C.text }}>{ALL.find((t) => t.id === j.tool)?.label || j.tool}</span>
-                  <span className="max-w-[40%] truncate font-mono text-[11.5px]" style={{ color: C.muted }}>{j.prompt}</span>
-                  <span className="font-mono text-[11.5px]" style={{ color: "#34d399" }}>{j.status} · {j.cluster}</span>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-[13px]" style={{ color: C.text }}>{ALL.find((t) => t.id === j.tool)?.label || j.tool}</span>
+                    <span className="max-w-[40%] truncate font-mono text-[11.5px]" style={{ color: C.muted }}>{j.prompt}</span>
+                    <span className="font-mono text-[11.5px]" style={{ color: "#34d399" }}>{j.status} · {j.cluster}</span>
+                  </div>
+                  {j.output_url?.startsWith("/api/") && (
+                    <audio controls preload="none" src={`${process.env.REACT_APP_BACKEND_URL}${j.output_url}`}
+                      className="mt-2 h-8 w-full" data-testid={`studio-job-audio-${j.id}`} />
+                  )}
                 </div>
               ))}
             </div>

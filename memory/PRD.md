@@ -431,3 +431,9 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - USER REFINEMENTS (self-tested via curl + browser): default tab order = Image, Video, Sound Effects, Music, Voice Changer, Voice Isolator, Upscale, Speech, More tools; Music duration select 3/4/5 min (max 300s, backend clamps settings.duration_sec); Video duration select 15s→2 hours (backend clamp 7200s, was 3600)
 - KNOWN NON-ISSUE: headless Chromium lacks H.264 → <video> shows error state in automation; URLs return 200 and play in real browsers
 - iteration_55.json: 6/7 pass, rotate banner bug fixed + curl-verified after
+
+## 2026-06 (fork, cont. 9): Real Audio Playback + Preset Memory + Gallery Delete/Download — SELF-TESTED e2e
+- Audio Playback: music & sound_effects jobs now output REAL synthesized WAV audio (numpy chord-progression synth w/ bass+arp for music, noise/sweep envelope for SFX; deterministic per job id). GET /api/studio/jobs/{id}/audio streams audio/wav (auth, owner-only). output_url = /api/studio/jobs/{id}/audio; frontend renders <audio controls> in result (studio-job-audio-player) + job history rows (studio-job-audio-{id}). Verified: 180s music WAV @22050Hz, 30s SFX WAV
+- Preset Memory: localStorage studio_prefs_{user.id} persists {active tab, preset id, videoDuration, musicDuration}; restored on mount (verified: reload restores Music tab + 5min)
+- Gallery Delete/Download: DELETE /api/generate/video/task/{task_id} (owner, 401 unauthed); gallery cards get gallery-download-{id} (blob download, fallback window.open) + gallery-delete-{id} (optimistic removal + toast)
+- numpy added to requirements.txt (pip freeze)
