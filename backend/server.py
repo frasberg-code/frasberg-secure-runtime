@@ -1022,23 +1022,30 @@ MUSIC_MODEL_MAP = {
 }
 
 
-async def engine_auth(request: Request) -> dict:
-    auth_header = request.headers.get("Authorization", "")
-    key_val = request.headers.get("xi-api-key") or request.headers.get("X-API-Key")
-    if not key_val and auth_header.startswith("Bearer frb_"):
-        key_val = auth_header[7:]
-    if key_val:
-        doc = await db.api_keys.find_one({"key": key_val, "status": {"$ne": "revoked"}}, {"_id": 0})
-        if not doc:
-            raise HTTPException(status_code=401, detail={"code": "FK-001", "message": "Invalid token"})
-        perms = doc.get("permissions") or {}
-        if perms.get("music_generation") in (None, "no_access"):
-            raise HTTPException(status_code=403, detail={"code": "FK-003", "message": "Key lacks music_generation permission"})
-        u = await db.users.find_one({"id": doc["user_id"]}, {"_id": 0, "password": 0})
-        if not u:
-            raise HTTPException(status_code=401, detail={"code": "FK-001", "message": "Invalid token"})
-        return u
-    return await auth_module.get_current_user(request)
+def engine_auth_factory(required_perm=None):
+    async def dep(request: Request) -> dict:
+        auth_header = request.headers.get("Authorization", "")
+        key_val = request.headers.get("xi-api-key") or request.headers.get("X-API-Key")
+        if not key_val and auth_header.startswith("Bearer frb_"):
+            key_val = auth_header[7:]
+        if key_val:
+            doc = await db.api_keys.find_one({"key": key_val, "status": {"$ne": "revoked"}}, {"_id": 0})
+            if not doc:
+                raise HTTPException(status_code=401, detail={"code": "FK-001", "message": "Invalid token"})
+            if required_perm:
+                perms = doc.get("permissions") or {}
+                if perms.get(required_perm) in (None, "no_access"):
+                    raise HTTPException(status_code=403, detail={"code": "FK-003", "message": f"Key lacks {required_perm} permission"})
+            u = await db.users.find_one({"id": doc["user_id"]}, {"_id": 0, "password": 0})
+            if not u:
+                raise HTTPException(status_code=401, detail={"code": "FK-001", "message": "Invalid token"})
+            return u
+        return await auth_module.get_current_user(request)
+    return dep
+
+
+engine_auth = engine_auth_factory("music_generation")
+engine_auth_read = engine_auth_factory(None)
 
 
 def _music_params(prompt: str):
@@ -1080,7 +1087,7 @@ async def generate_music(req: MusicGenRequest, user: dict = Depends(engine_auth)
 
 
 @api_router.get("/generate/music/task/{task_id}")
-async def music_task_status(task_id: str, user: dict = Depends(engine_auth)):
+async def music_task_status(task_id: str, user: dict = Depends(engine_auth_read)):
     doc = await db.music_tasks.find_one({"task_id": task_id, "user_id": user["id"]}, {"_id": 0})
     if not doc:
         raise HTTPException(status_code=404, detail={"error": "Task not found"})
@@ -1098,7 +1105,7 @@ async def music_task_status(task_id: str, user: dict = Depends(engine_auth)):
 
 
 @api_router.get("/generate/music/task/{task_id}/audio")
-async def music_task_audio(task_id: str, user: dict = Depends(engine_auth)):
+async def music_task_audio(task_id: str, user: dict = Depends(engine_auth_read)):
     doc = await db.music_tasks.find_one({"task_id": task_id, "user_id": user["id"]}, {"_id": 0})
     if not doc:
         raise HTTPException(status_code=404, detail={"error": "Task not found"})
@@ -1111,11 +1118,21 @@ async def music_task_audio(task_id: str, user: dict = Depends(engine_auth)):
 
 
 @api_router.get("/generate/music/gallery")
-async def music_gallery(user: dict = Depends(engine_auth)):
+async def music_gallery(user: dict = Depends(engine_auth_read)):
     return await db.music_tasks.find(
         {"user_id": user["id"], "status": "completed"},
         {"_id": 0, "task_id": 1, "prompt": 1, "model": 1, "audio_url": 1, "created_at": 1, "duration": 1},
     ).sort("created_at", -1).to_list(50)
+
+
+@api_router.get("/jobs/{task_id}")
+async def engine_job_status(task_id: str, user: dict = Depends(engine_auth_read)):
+    if task_id.startswith("mtask_"):
+        return await music_task_status(task_id, user)
+    doc = await db.video_tasks.find_one({"task_id": task_id, "user_id": user["id"]}, {"_id": 0})
+    if doc:
+        return await video_task_status(task_id, user)
+    raise HTTPException(status_code=404, detail={"error": "Job not found"})
 
 
 @api_router.post("/generate/video")
