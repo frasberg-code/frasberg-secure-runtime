@@ -115,7 +115,7 @@ export const CommandPalette = () => {
             }}
             placeholder="Jump to any page…"
             className="flex-1 bg-transparent text-[14.5px] text-white outline-none placeholder:text-gray-500" />
-          <kbd className="rounded border border-white/15 px-1.5 py-0.5 font-mono text-[10px] text-gray-500">esc</kbd>
+          <kbd className="rounded border border-white/15 px-1.5 py-0.5 font-mono text-[13px] text-gray-500">esc</kbd>
         </div>
         <div className="max-h-80 overflow-y-auto p-2" data-testid="command-palette-results">
           {results.map((p, i) => (
@@ -124,15 +124,15 @@ export const CommandPalette = () => {
               className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left transition-colors ${i === idx ? "bg-cyan-400/[0.1]" : "hover:bg-white/[0.05]"}`}>
               <span className="flex items-center gap-2">
                 {p.action && <Zap size={12} className="text-amber-300" />}
-                <span className="text-[13.5px] text-white">{p.label}</span>
-                <span className="font-mono text-[11px] text-gray-500">{p.hint}</span>
+                <span className="text-[15.5px] text-white">{p.label}</span>
+                <span className="font-mono text-[13.5px] text-gray-500">{p.hint}</span>
               </span>
               {i === idx && <CornerDownLeft size={13} className="text-cyan-300" />}
             </button>
           ))}
-          {results.length === 0 && <p className="px-4 py-6 text-center text-[13px] text-gray-500" data-testid="command-palette-empty">No pages match "{q}"</p>}
+          {results.length === 0 && <p className="px-4 py-6 text-center text-[15px] text-gray-500" data-testid="command-palette-empty">No pages match "{q}"</p>}
         </div>
-        <div className="border-t border-white/10 px-4 py-2 font-mono text-[10.5px] uppercase tracking-[0.2em] text-gray-600">
+        <div className="border-t border-white/10 px-4 py-2 font-mono text-[13px] uppercase tracking-[0.2em] text-gray-600">
           ↑↓ navigate · enter open · / or ctrl-k anywhere
         </div>
       </div>

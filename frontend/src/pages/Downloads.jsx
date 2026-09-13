@@ -70,7 +70,7 @@ export default function Downloads() {
         </p>
 
         {entitlement && (
-          <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-lux-border px-4 py-2 font-mono text-[13px] uppercase tracking-[0.2em] text-lux-text2" data-testid="downloads-balance">
+          <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-lux-border px-4 py-2 font-mono text-[15px] uppercase tracking-[0.2em] text-lux-text2" data-testid="downloads-balance">
             {entitlement.pro ? (<><BadgeCheck size={13} className="text-lux-accent" /> Pro — unlimited downloads</>) : (<>{entitlement.doc_credits} download credit{entitlement.doc_credits === 1 ? "" : "s"} remaining</>)}
           </p>
         )}
@@ -88,8 +88,8 @@ export default function Downloads() {
               <p className="font-display text-lg font-600">No certified downloads yet</p>
               <p className="mt-1 text-sm text-lux-text2">Documents you download from the Court or Laws library will appear here.</p>
               <div className="mt-4 flex justify-center gap-2">
-                <Link to="/laws" className="rounded-full border border-lux-accent px-5 py-2.5 text-[13px] font-600 text-lux-accent">Laws library</Link>
-                <Link to="/court" className="rounded-full border border-lux-border px-5 py-2.5 text-[13px] text-lux-text2">Court docket</Link>
+                <Link to="/laws" className="rounded-full border border-lux-accent px-5 py-2.5 text-[15px] font-600 text-lux-accent">Laws library</Link>
+                <Link to="/court" className="rounded-full border border-lux-border px-5 py-2.5 text-[15px] text-lux-text2">Court docket</Link>
               </div>
             </div>
           ) : (
@@ -99,7 +99,7 @@ export default function Downloads() {
                   <img src="/court-seal.png" alt="AI World Court seal" className="h-10 w-10 shrink-0 rounded-full object-contain" />
                   <div className="min-w-0">
                     <p className="truncate text-sm text-lux-text">{p.title || (p.kind === "law" ? LAW_BY_ID[p.doc_id]?.title : p.doc_id) || p.doc_id}</p>
-                    <p className="mt-0.5 font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">
+                    <p className="mt-0.5 font-mono text-[15.5px] uppercase tracking-wide text-lux-text2">
                       {p.kind === "law" ? "Laws library" : `Docket ${p.doc_id}`} · {(p.ts || "").slice(0, 10)}
                     </p>
                   </div>
@@ -108,7 +108,7 @@ export default function Downloads() {
                   onClick={() => redownload(p)}
                   disabled={!available(p)}
                   data-testid={`download-btn-${p.doc_id}`}
-                  className="inline-flex shrink-0 items-center gap-2 rounded-full border border-lux-accent px-4 py-2 text-[13px] font-600 text-lux-accent transition-transform hover:-translate-y-0.5 disabled:opacity-40"
+                  className="inline-flex shrink-0 items-center gap-2 rounded-full border border-lux-accent px-4 py-2 text-[15px] font-600 text-lux-accent transition-transform hover:-translate-y-0.5 disabled:opacity-40"
                 >
                   <Download size={13} /> PDF
                 </button>

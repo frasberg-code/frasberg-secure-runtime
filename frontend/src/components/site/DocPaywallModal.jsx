@@ -28,7 +28,7 @@ export default function DocPaywallModal({ open, onClose, onPurchased, docTitle }
             <span className="grid h-11 w-11 place-items-center rounded-full border border-lux-accent/50 text-lux-accent"><FileText size={18} /></span>
             <div>
               <p className="font-display text-lg font-700 tracking-tight text-lux-text">Certified PDF download</p>
-              {docTitle && <p className="mt-0.5 line-clamp-1 text-[13px] text-lux-text2">{docTitle}</p>}
+              {docTitle && <p className="mt-0.5 line-clamp-1 text-[15px] text-lux-text2">{docTitle}</p>}
             </div>
           </div>
           <button onClick={onClose} aria-label="Close" data-testid="doc-paywall-close" className="text-lux-text2 hover:text-lux-text"><X size={17} /></button>
@@ -42,13 +42,13 @@ export default function DocPaywallModal({ open, onClose, onPurchased, docTitle }
           </Link>
         </div>
 
-        <p className="mt-5 font-mono text-[13.5px] uppercase tracking-[0.25em] text-lux-text2">Or pay per document</p>
+        <p className="mt-5 font-mono text-[15.5px] uppercase tracking-[0.25em] text-lux-text2">Or pay per document</p>
         <div className="mt-3 grid grid-cols-2 gap-2">
           {plans.map((p) => (
             <button key={p.id} onClick={() => setPlanId(p.id)} data-testid={`doc-paywall-plan-${p.id}`}
               className={`rounded-2xl border p-3 text-left transition-colors ${active?.id === p.id ? "border-lux-accent bg-lux-surface2" : "border-lux-border"}`}>
               <p className="font-display text-lg font-700 text-lux-text">${p.price}</p>
-              <p className="mt-0.5 text-[13px] leading-snug text-lux-text2">{p.doc_credits} download{p.doc_credits > 1 ? "s" : ""}</p>
+              <p className="mt-0.5 text-[15px] leading-snug text-lux-text2">{p.doc_credits} download{p.doc_credits > 1 ? "s" : ""}</p>
             </button>
           ))}
         </div>
@@ -86,7 +86,7 @@ export default function DocPaywallModal({ open, onClose, onPurchased, docTitle }
             </PayPalScriptProvider>
           </div>
         ) : (
-          <p className="mt-4 font-mono text-[13px] text-lux-text2">Checkout unavailable — PayPal not configured.</p>
+          <p className="mt-4 font-mono text-[15px] text-lux-text2">Checkout unavailable — PayPal not configured.</p>
         )}
       </div>
     </div>

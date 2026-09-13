@@ -1,18 +1,41 @@
 import { useState, useEffect } from "react";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { toast } from "sonner";
-import { Check, Sparkles } from "lucide-react";
+import { Check, Sparkles, CreditCard, Loader2 } from "lucide-react";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 export default function Pricing({ keys = [], onPurchased, walletId }) {
   const [config, setConfig] = useState(null);
+  const [stripeReady, setStripeReady] = useState(false);
   const [selectedKey, setSelectedKey] = useState("");
   const [activePlan, setActivePlan] = useState(null);
+  const [stripeBusy, setStripeBusy] = useState(null);
 
   useEffect(() => {
     fetch(`${API}/paypal/config`).then((r) => r.json()).then(setConfig).catch(() => setConfig({ configured: false, plans: [] }));
+    fetch(`${API}/payments/config`).then((r) => r.json()).then((d) => setStripeReady(!!d.configured)).catch(() => {});
   }, []);
+
+  const stripeCheckout = async (planId) => {
+    setStripeBusy(planId);
+    try {
+      const res = await fetch(`${API}/payments/checkout`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+        body: JSON.stringify({ plan_id: planId, key_id: selectedKey || null, origin_url: window.location.origin }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok || !d.checkout_url) {
+        toast.error(typeof d.detail === "string" ? d.detail : "Could not start Stripe checkout");
+        setStripeBusy(null);
+        return;
+      }
+      window.location.href = d.checkout_url;
+    } catch {
+      toast.error("Could not start Stripe checkout");
+      setStripeBusy(null);
+    }
+  };
 
   useEffect(() => {
     if (keys.length && !selectedKey) setSelectedKey(keys[0].id);
@@ -26,13 +49,13 @@ export default function Pricing({ keys = [], onPurchased, walletId }) {
         <Sparkles size={20} className="text-lux-accent" /> Buy API Credits
       </h2>
       <p className="mt-2 text-sm text-lux-text2">
-        Top up a key with token credits. Secure checkout via PayPal
+        Top up a key with token credits. Secure checkout via card (Stripe) or PayPal
         {config.mode ? ` (${config.mode})` : ""}.
       </p>
 
       {keys.length > 0 && (
         <div className="mt-5 flex items-center gap-3">
-          <span className="font-mono text-[13px] text-lux-text2">Credit key:</span>
+          <span className="font-mono text-[15px] text-lux-text2">Credit key:</span>
           <select
             value={selectedKey}
             onChange={(e) => setSelectedKey(e.target.value)}
@@ -40,7 +63,7 @@ export default function Pricing({ keys = [], onPurchased, walletId }) {
             className="rounded-full border border-lux-border bg-lux-surface px-4 py-2 text-sm outline-none focus:border-lux-accent"
           >
             {keys.map((k) => (
-              <option key={k.id} value={k.id}>{k.name} ({k.credits || 0} credits)</option>
+              <option key={k.id} value={k.id}>{`${k.name} (${k.credits || 0} credits)`}</option>
             ))}
             {walletId && <option value={`wallet-${walletId}`}>💰 My wallet (auto top-up pool)</option>}
           </select>
@@ -57,7 +80,7 @@ export default function Pricing({ keys = [], onPurchased, walletId }) {
             }`}
           >
             {p.id === "pro" && (
-              <span className="mb-3 inline-block rounded-full bg-lux-accent px-3 py-1 font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-bg">
+              <span className="mb-3 inline-block rounded-full bg-lux-accent px-3 py-1 font-mono text-[15.5px] uppercase tracking-[0.2em] text-lux-bg">
                 Most popular
               </span>
             )}
@@ -71,6 +94,18 @@ export default function Pricing({ keys = [], onPurchased, walletId }) {
               <li className="flex items-center gap-2"><Check size={15} className="text-lux-accent" /> All four model tiers</li>
               <li className="flex items-center gap-2"><Check size={15} className="text-lux-accent" /> 60 req/min</li>
             </ul>
+
+            {stripeReady && (
+              <button
+                onClick={() => stripeCheckout(p.id)}
+                disabled={stripeBusy === p.id}
+                data-testid={`stripe-buy-${p.id}`}
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-lux-accent px-6 py-3 text-sm font-600 text-lux-bg transition-transform hover:-translate-y-0.5 disabled:opacity-60"
+              >
+                {stripeBusy === p.id ? <Loader2 size={15} className="animate-spin" /> : <CreditCard size={15} />}
+                Pay with Card
+              </button>
+            )}
 
             {config.configured ? (
               activePlan === p.id ? (
@@ -106,7 +141,7 @@ export default function Pricing({ keys = [], onPurchased, walletId }) {
                       onError={() => toast.error("PayPal error — please try again")}
                     />
                   </PayPalScriptProvider>
-                  <button onClick={() => setActivePlan(null)} className="mt-2 w-full text-center font-mono text-[13px] text-lux-text2 hover:text-lux-text">
+                  <button onClick={() => setActivePlan(null)} className="mt-2 w-full text-center font-mono text-[15px] text-lux-text2 hover:text-lux-text">
                     cancel
                   </button>
                 </div>
@@ -114,13 +149,13 @@ export default function Pricing({ keys = [], onPurchased, walletId }) {
                 <button
                   onClick={() => setActivePlan(p.id)}
                   data-testid={`buy-${p.id}`}
-                  className="mt-6 w-full rounded-full bg-lux-accent px-6 py-3 text-sm font-600 text-lux-bg transition-transform hover:-translate-y-0.5"
+                  className={`mt-3 w-full rounded-full border border-lux-border px-6 py-3 text-sm font-600 text-lux-text transition-transform hover:-translate-y-0.5 ${stripeReady ? "" : "mt-6 bg-lux-accent text-lux-bg border-transparent"}`}
                 >
-                  Buy {p.name}
+                  Pay with PayPal
                 </button>
               )
             ) : (
-              <p className="mt-6 font-mono text-[13px] text-lux-text2">Checkout unavailable — PayPal not configured.</p>
+              !stripeReady && <p className="mt-6 font-mono text-[15px] text-lux-text2">Checkout unavailable — payments not configured.</p>
             )}
           </div>
         ))}

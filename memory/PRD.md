@@ -1,5 +1,13 @@
 # Frasberg / Luchii Platform — PRD
 
+## June 2026 — Stripe checkout + global font bump + fixes
+- Stripe (Flow B, user's own LIVE key in backend/.env STRIPE_API_KEY, emergentintegrations StripeCheckout): POST /api/payments/checkout {plan_id,key_id,origin_url}, GET /api/payments/status/{session_id} (poll + idempotent fulfil), POST /api/webhook/stripe, GET /api/payments/config. _fulfill_stripe_txn credits key/wallet + db.purchases (provider=stripe) + receipt. Pages /payment/success (polls status) + /payment/cancel; Pricing.jsx "Pay with Card" (stripe-buy-{id}) beside PayPal. BLOCKER: user's Stripe account NOT activated for live charges → checkout returns 409 "Stripe account not yet activated" (JSON passes CF; toast shows real reason). Works once user completes activation at dashboard.stripe.com.
+- Restrict-on-create: Key Forge left panel toggle + usage limit + refresh period (forge-restrict-toggle / forge-usage-limit-input / forge-refresh-period-select), included in KeyCreate + JSON preview.
+- GLOBAL FONT BUMP (user: text too small): all arbitrary px text classes +~2px sitewide (nothing below 13px), text-xs→text-sm, recharts tick fontSize 10/11→12/13. html base already 17px/18px.
+- Ecosystem marquee label "Frasberg AI"→"Frasberg".
+- Minor fixes: 409 instead of 502 for unactivated Stripe (CF strips 5xx bodies), edit-key-cancel testid, Pricing option single-string child (hydration warning).
+- Testing: iteration_56.json — 100% backend (8/8) + 100% frontend (matrix groups, restrict flows, FK-429 enforcement, Stripe graceful errors, font-bump regression on 8 pages).
+
 ## June 2026 — Permissions matrix restructure + Edit API Key
 - PERMISSION_MATRIX (server.py + ApiKeyForge.jsx): Visual Generation merged to single `image_video_generation` ("Image & Video Generation"); Advanced Audio += voices, forced_alignment, ads_engine; Projects += user, pronunciation_dictionaries; Workspace Members = workspace, workspace_analytics, workspace_webhooks (label "Webhooks"), group_members, service_accounts, workspace_members_read/invite/remove. Old image_generation/video_generation keys rejected FK-003 on create; key test routes updated.
 - Edit API Key modal (Dashboard.jsx EditKeyModal, pencil btn per row data-testid=edit-key-btn-{id}): Name, Expire After (Keep current/Never/30/60/90), Restrict Key toggle, Usage Limits (Credits), Per credit refresh period (Unlimited/Daily/Weekly/Monthly). PATCH /api/keys/{key_id} (KeyEdit model). Restricted badge in key row (key-restricted-{id}).

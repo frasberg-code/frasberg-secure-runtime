@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="8" time="5.743" timestamp="2026-09-13T11:26:44.732811+00:00" hostname="agent-env-4793a44b-b33b-4076-b55d-f272d88ffb4f"><testcase classname="tests.test_iter56_stripe_restrict" name="test_permission_matrix_via_create_key" time="0.850" /><testcase classname="tests.test_iter56_stripe_restrict" name="test_create_key_with_restrict" time="0.420" /><testcase classname="tests.test_iter56_stripe_restrict" name="test_edit_key_patch_persists" time="0.382" /><testcase classname="tests.test_iter56_stripe_restrict" name="test_restrict_key_fk429_enforcement" time="2.389" /><testcase classname="tests.test_iter56_stripe_restrict" name="test_stripe_config" time="0.057" /><testcase classname="tests.test_iter56_stripe_restrict" name="test_stripe_checkout_returns_502_not_activated" time="0.483"><failure message="requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)">/root/.venv/lib/python3.11/site-packages/requests/models.py:1116: in json
+    return complexjson.loads(self.text, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/json/__init__.py:346: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/json/decoder.py:337: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.11/json/decoder.py:355: in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+E   json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+backend/tests/test_iter56_stripe_restrict.py:170: in test_stripe_checkout_returns_502_not_activated
+    detail = r.json().get("detail", "")
+             ^^^^^^^^
+/root/.venv/lib/python3.11/site-packages/requests/models.py:1120: in json
+    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+E   requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)</failure></testcase><testcase classname="tests.test_iter56_stripe_restrict" name="test_stripe_status_unknown_404" time="0.085" /><testcase classname="tests.test_iter56_stripe_restrict" name="test_paypal_config_still_works" time="0.106" /></testsuite></testsuites>

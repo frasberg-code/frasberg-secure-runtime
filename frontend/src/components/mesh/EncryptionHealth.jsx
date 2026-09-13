@@ -101,5 +101,5 @@ const styles = {
   regionCard: { background: "#0d0d1a", borderRadius: 10, padding: 14, border: "1px solid #1a1a2e" },
   regionName: { color: "#fff", fontWeight: "bold", marginBottom: 8, fontSize: 13 },
   regionChecks: { display: "flex", flexWrap: "wrap", gap: 6 },
-  badge: { background: "#0a2a0a", color: "#00e676", fontSize: 11, padding: "2px 8px", borderRadius: 10 },
+  badge: { background: "#0a2a0a", color: "#00e676", fontSize: 13, padding: "2px 8px", borderRadius: 10 },
 };

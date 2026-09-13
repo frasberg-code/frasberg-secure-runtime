@@ -154,7 +154,7 @@ export default function Playground() {
     setPublishing(false);
   };
 
-  const btn = "flex items-center gap-1.5 rounded-full border border-white/20 px-4 py-1.5 text-[13px] font-600 transition-colors hover:border-cyan-400 hover:text-cyan-300 disabled:opacity-40";
+  const btn = "flex items-center gap-1.5 rounded-full border border-white/20 px-4 py-1.5 text-[15px] font-600 transition-colors hover:border-cyan-400 hover:text-cyan-300 disabled:opacity-40";
   return (
     <main className="relative min-h-screen text-white" style={{ background: "#08090A" }} data-testid="playground-page">
       <ParallaxSky />
@@ -165,7 +165,7 @@ export default function Playground() {
             <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Cognition Playground</span>
           </Link>
-          <span className="font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400">Graph v2 Editor</span>
+          <span className="font-mono text-[14px] uppercase tracking-[0.2em] text-gray-400">Graph v2 Editor</span>
         </div>
       </header>
       <div className="relative z-10 mx-auto max-w-6xl px-5 py-10">
@@ -173,10 +173,10 @@ export default function Playground() {
         <p className="mt-3 max-w-2xl text-[15px] text-gray-300">Drag nodes, link edges, watch the safety score react live — then run the cycle step-by-step and inspect the compiled bytecode.</p>
 
         <div className="mt-6 flex flex-wrap items-center gap-2" data-testid="playground-toolbar">
-          <span className="font-mono text-[11.5px] uppercase tracking-wide text-gray-500">Palette:</span>
+          <span className="font-mono text-[14px] uppercase tracking-wide text-gray-500">Palette:</span>
           {TYPES.map(([t, label, , c]) => (
             <button key={t} onClick={() => addNode(t)} data-testid={`palette-add-${t}`}
-              className="rounded-full border px-3.5 py-1.5 text-[12.5px] font-600 transition-opacity hover:opacity-80" style={{ borderColor: c, color: c }}>
+              className="rounded-full border px-3.5 py-1.5 text-[14.5px] font-600 transition-opacity hover:opacity-80" style={{ borderColor: c, color: c }}>
               + {label}
             </button>
           ))}
@@ -224,17 +224,17 @@ export default function Playground() {
           </div>
           <div className="space-y-5">
             <div className="rounded-2xl border border-white/10 bg-black/30 p-5 backdrop-blur" data-testid="playground-safety-panel">
-              <p className="flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400"><ShieldCheck size={12} /> Live safety score</p>
+              <p className="flex items-center gap-2 font-mono text-[14px] uppercase tracking-[0.2em] text-gray-400"><ShieldCheck size={12} /> Live safety score</p>
               <p className="mt-2 font-mono text-4xl font-700" style={{ color: bandColor(score) }} data-testid="playground-safety-score">{score}<span className="text-[15px] text-gray-500">/100</span></p>
-              <p className="font-mono text-[12.5px]" style={{ color: bandColor(score) }}>{band(score)}</p>
+              <p className="font-mono text-[14.5px]" style={{ color: bandColor(score) }}>{band(score)}</p>
               <div className="mt-3 space-y-1.5">
-                {issues.length === 0 && <p className="text-[13px] text-emerald-300">All invariants satisfied — GSS-2 clean.</p>}
-                {issues.slice(0, 5).map((iss, i) => <p key={i} className="text-[12.5px] leading-snug text-amber-300/90">• {iss}</p>)}
+                {issues.length === 0 && <p className="text-[15px] text-emerald-300">All invariants satisfied — GSS-2 clean.</p>}
+                {issues.slice(0, 5).map((iss, i) => <p key={i} className="text-[14.5px] leading-snug text-amber-300/90">• {iss}</p>)}
               </div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-black/30 p-5 backdrop-blur" data-testid="playground-bytecode-panel">
-              <p className="flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400"><Binary size={12} /> Compiled bytecode</p>
-              <div className="mt-2 max-h-40 overflow-y-auto font-mono text-[12.5px] text-cyan-200/90">
+              <p className="flex items-center gap-2 font-mono text-[14px] uppercase tracking-[0.2em] text-gray-400"><Binary size={12} /> Compiled bytecode</p>
+              <div className="mt-2 max-h-40 overflow-y-auto font-mono text-[14.5px] text-cyan-200/90">
                 {bytecode.length ? bytecode.map((l, i) => <p key={i}>{l}</p>) : <p className="text-gray-500">Empty graph</p>}
               </div>
             </div>
@@ -242,18 +242,18 @@ export default function Playground() {
         </div>
 
         <div className="mt-5 rounded-2xl border border-white/10 bg-black/30 p-5 backdrop-blur" data-testid="playground-trace-panel">
-          <p className="font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400">Execution trace</p>
-          <div className="mt-2 max-h-48 space-y-1 overflow-y-auto font-mono text-[12.5px] text-gray-300">
+          <p className="font-mono text-[14px] uppercase tracking-[0.2em] text-gray-400">Execution trace</p>
+          <div className="mt-2 max-h-48 space-y-1 overflow-y-auto font-mono text-[14.5px] text-gray-300">
             {trace.length === 0 && <p className="text-gray-500">Hit Step or Run cycle to execute the graph P→I→R→D→A.</p>}
             {trace.map((l, i) => <p key={i} className={l.includes("BLOCKED") ? "text-red-400" : l.startsWith("──") ? "text-emerald-300" : ""}>{l}</p>)}
           </div>
         </div>
         <div className="mt-5 rounded-2xl border border-white/10 bg-black/30 p-5 backdrop-blur" data-testid="playground-factory-panel">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400"><Bot size={12} /> Agent factory</p>
+            <p className="flex items-center gap-2 font-mono text-[14px] uppercase tracking-[0.2em] text-gray-400"><Bot size={12} /> Agent factory</p>
             <div className="flex flex-wrap gap-2">
               <button onClick={generateAgent} disabled={!nodes.length} data-testid="factory-generate-btn"
-                className="rounded-full px-4 py-1.5 text-[13px] font-700 text-black transition-opacity hover:opacity-85 disabled:opacity-40"
+                className="rounded-full px-4 py-1.5 text-[15px] font-700 text-black transition-opacity hover:opacity-85 disabled:opacity-40"
                 style={{ backgroundImage: "linear-gradient(90deg,#4A6CF7,#00D1FF)" }}>
                 Generate agent.json
               </button>
@@ -269,10 +269,10 @@ export default function Playground() {
               )}
             </div>
           </div>
-          {!agentJson && <p className="mt-2 text-[13px] text-gray-500">Turn this cognition graph into a deployable agent — generates a full agent.json bound to your live safety score.</p>}
-          {agentJson && score < 60 && <p className="mt-2 font-mono text-[12.5px] text-red-400">Publishing blocked — safety {score}/100 is in the "{band(score)}" band. Fix graph invariants first.</p>}
+          {!agentJson && <p className="mt-2 text-[15px] text-gray-500">Turn this cognition graph into a deployable agent — generates a full agent.json bound to your live safety score.</p>}
+          {agentJson && score < 60 && <p className="mt-2 font-mono text-[14.5px] text-red-400">Publishing blocked — safety {score}/100 is in the "{band(score)}" band. Fix graph invariants first.</p>}
           {agentJson && (
-            <pre className="mt-3 max-h-64 overflow-auto rounded-lg bg-black/60 p-4 font-mono text-[12px] leading-relaxed text-cyan-200" data-testid="factory-json-view">{JSON.stringify(agentJson, null, 2)}</pre>
+            <pre className="mt-3 max-h-64 overflow-auto rounded-lg bg-black/60 p-4 font-mono text-[14px] leading-relaxed text-cyan-200" data-testid="factory-json-view">{JSON.stringify(agentJson, null, 2)}</pre>
           )}
         </div>
       </div>

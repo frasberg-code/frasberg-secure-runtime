@@ -235,7 +235,7 @@ export default function CreativeStudio() {
   const TabBtn = ({ t }) => (
     <button onClick={() => { setActive(t.id); setMoreOpen(false); setResult(null); }}
       data-testid={`studio-tab-${t.id}`}
-      className="inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13px] transition-colors"
+      className="inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[15px] transition-colors"
       style={active === t.id
         ? { borderColor: C.primary, background: "rgba(56,189,248,0.12)", color: C.primary }
         : { borderColor: C.border, color: C.muted }}>
@@ -259,7 +259,7 @@ export default function CreativeStudio() {
               style={{ borderColor: C.border, color: C.muted }}>
               {lightMode ? <Moon size={14} /> : <Sun size={14} />}
             </button>
-            <Link to="/dashboard" className="rounded-full border px-3.5 py-1.5 font-mono text-[12px]"
+            <Link to="/dashboard" className="rounded-full border px-3.5 py-1.5 font-mono text-[14px]"
               style={{ borderColor: C.border, color: C.muted }} data-testid="studio-dashboard-link">API Keys</Link>
           </div>
         </div>
@@ -276,7 +276,7 @@ export default function CreativeStudio() {
           {tabOrder.map((t) => <TabBtn key={t.id} t={t} />)}
           <div className="relative" ref={moreRef}>
             <button onClick={() => setMoreOpen((o) => !o)} data-testid="studio-more-tools-btn"
-              className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13px] transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[15px] transition-colors"
               style={inMore ? { borderColor: C.accent, background: "rgba(168,85,247,0.12)", color: C.accent } : { borderColor: C.border, color: C.muted }}>
               <MoreHorizontal size={14} /> More tools
             </button>
@@ -286,7 +286,7 @@ export default function CreativeStudio() {
                 {MORE_TOOLS.map((t) => (
                   <button key={t.id} onClick={() => { setActive(t.id); setMoreOpen(false); setResult(null); }}
                     data-testid={`studio-tab-${t.id}`}
-                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] transition-colors hover:bg-white/5"
+                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[15px] transition-colors hover:bg-white/5"
                     style={{ color: active === t.id ? C.accent : C.text }}>
                     <t.icon size={15} style={{ color: C.muted }} /> {t.label}
                   </button>
@@ -314,18 +314,18 @@ export default function CreativeStudio() {
             <>
               {tool.kind === "video" && (
                 <div className="mb-3 flex flex-wrap items-center gap-2 border-b pb-3" style={{ borderColor: C.border }} data-testid="studio-presets">
-                  <span className="font-mono text-[11px] uppercase tracking-[0.18em]" style={{ color: C.muted }}>Style preset</span>
+                  <span className="font-mono text-[13.5px] uppercase tracking-[0.18em]" style={{ color: C.muted }}>Style preset</span>
                   {PRESETS.map((p) => (
                     <button key={p.id} onClick={() => setPreset((cur) => cur?.id === p.id ? null : p)}
                       data-testid={`studio-preset-${p.id}`}
-                      className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[12.5px] transition-colors"
+                      className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[14.5px] transition-colors"
                       style={preset?.id === p.id
                         ? { borderColor: C.accent, background: "rgba(168,85,247,0.14)", color: C.accent }
                         : { borderColor: C.border, color: C.muted }}>
                       <Film size={12} /> {p.label}
                     </button>
                   ))}
-                  {preset && <span className="font-mono text-[11px]" style={{ color: C.muted }} data-testid="studio-preset-hint">+ {preset.suffix.slice(0, 48)}…</span>}
+                  {preset && <span className="font-mono text-[13.5px]" style={{ color: C.muted }} data-testid="studio-preset-hint">+ {preset.suffix.slice(0, 48)}…</span>}
                 </div>
               )}
               <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder={tool.ph}
@@ -334,13 +334,13 @@ export default function CreativeStudio() {
                 style={{ color: C.text }} />
               <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t pt-3" style={{ borderColor: C.border }}>
                 <div className="flex flex-wrap items-center gap-3">
-                  <span className="font-mono text-[11.5px] uppercase tracking-[0.18em]" style={{ color: C.muted }}>
+                  <span className="font-mono text-[14px] uppercase tracking-[0.18em]" style={{ color: C.muted }}>
                     {tool.label} · Frasberg Gateway · api.frasberg.com
                   </span>
                   {tool.kind === "video" && (
                     <select value={videoDuration} onChange={(e) => setVideoDuration(Number(e.target.value))}
                       data-testid="video-duration-select"
-                      className="rounded-md border px-2.5 py-1 font-mono text-[11.5px] outline-none"
+                      className="rounded-md border px-2.5 py-1 font-mono text-[14px] outline-none"
                       style={{ borderColor: C.border, background: C.panel, color: C.text }}>
                       <option value="15">15 sec</option>
                       <option value="30">30 sec</option>
@@ -355,7 +355,7 @@ export default function CreativeStudio() {
                   {active === "music" && (
                     <select value={musicDuration} onChange={(e) => setMusicDuration(Number(e.target.value))}
                       data-testid="music-duration-select"
-                      className="rounded-md border px-2.5 py-1 font-mono text-[11.5px] outline-none"
+                      className="rounded-md border px-2.5 py-1 font-mono text-[14px] outline-none"
                       style={{ borderColor: C.border, background: C.panel, color: C.text }}>
                       <option value="180">3 min</option>
                       <option value="240">4 min</option>
@@ -378,7 +378,7 @@ export default function CreativeStudio() {
           <div className="mt-4 rounded-xl border px-5 py-4" style={{ background: C.panel, borderColor: "rgba(56,189,248,0.35)" }} data-testid="studio-result">
             {result.type === "audio" && (
               <div>
-                <p className="mb-2 font-mono text-[11.5px] uppercase tracking-[0.18em]" style={{ color: C.primary }}>Generated audio · {result.engine}</p>
+                <p className="mb-2 font-mono text-[14px] uppercase tracking-[0.18em]" style={{ color: C.primary }}>Generated audio · {result.engine}</p>
                 <audio controls autoPlay src={result.src} className="w-full" data-testid="studio-audio-player" />
               </div>
             )}
@@ -386,7 +386,7 @@ export default function CreativeStudio() {
             {result.type === "text" && <p className="text-[14.5px] leading-relaxed" data-testid="studio-text-result">{result.text}</p>}
             {result.type === "message" && <p className="text-[14px]" style={{ color: C.muted }} data-testid="studio-message-result">{result.text}</p>}
             {result.type === "videotask" && (
-              <div className="grid gap-1 font-mono text-[12.5px]" data-testid="studio-video-task">
+              <div className="grid gap-1 font-mono text-[14.5px]" data-testid="studio-video-task">
                 <span style={{ color: result.task.status === "completed" ? "#34d399" : C.primary }}>
                   {result.task.status.toUpperCase()} · Frasberg Engine v2 · {result.task.gpu_class || "gpu-medium"} · {result.task.region || "us-west"}
                 </span>
@@ -405,7 +405,7 @@ export default function CreativeStudio() {
               </div>
             )}
             {result.type === "musictask" && (
-              <div className="grid gap-1 font-mono text-[12.5px]" data-testid="studio-music-task">
+              <div className="grid gap-1 font-mono text-[14.5px]" data-testid="studio-music-task">
                 <span style={{ color: result.task.status === "completed" ? "#34d399" : C.primary }}>
                   {result.task.status.toUpperCase()} · Frasberg Music Engine · {result.task.gpu_class || "gpu-medium"} · {result.task.region || "us-west"}{result.task.mood ? ` · ${result.task.mood} key` : ""}
                 </span>
@@ -418,7 +418,7 @@ export default function CreativeStudio() {
               </div>
             )}
             {result.type === "job" && (
-              <div className="grid gap-2 font-mono text-[12.5px]" data-testid="studio-job-result">
+              <div className="grid gap-2 font-mono text-[14.5px]" data-testid="studio-job-result">
                 <span style={{ color: "#34d399" }}>COMPLETED · {result.job.cluster}</span>
                 {result.job.output_url?.startsWith("/api/") ? (
                   <audio controls autoPlay src={`${process.env.REACT_APP_BACKEND_URL}${result.job.output_url}`}
@@ -435,7 +435,7 @@ export default function CreativeStudio() {
         {/* Video gallery */}
         {gallery.length > 0 && (
           <div className="mt-8" data-testid="studio-gallery">
-            <p className="mb-3 font-mono text-[11.5px] uppercase tracking-[0.2em]" style={{ color: C.muted }}>
+            <p className="mb-3 font-mono text-[14px] uppercase tracking-[0.2em]" style={{ color: C.muted }}>
               My renders · {gallery.length} completed
             </p>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -444,9 +444,9 @@ export default function CreativeStudio() {
                   data-testid={`studio-gallery-item-${g.task_id}`}>
                   <video controls preload="metadata" src={g.video_url} className="aspect-video w-full bg-black object-cover" />
                   <div className="px-3.5 py-3">
-                    <p className="line-clamp-2 text-[12.5px] leading-relaxed" style={{ color: C.text }}>{g.prompt}</p>
+                    <p className="line-clamp-2 text-[14.5px] leading-relaxed" style={{ color: C.text }}>{g.prompt}</p>
                     <div className="mt-1.5 flex items-center justify-between gap-2">
-                      <p className="font-mono text-[10.5px] uppercase tracking-wide" style={{ color: C.muted }}>
+                      <p className="font-mono text-[13px] uppercase tracking-wide" style={{ color: C.muted }}>
                         {g.model} · {g.ratio} · {g.duration}s · {(g.created_at || "").slice(0, 10)}
                       </p>
                       <div className="flex shrink-0 gap-1.5">
@@ -472,15 +472,15 @@ export default function CreativeStudio() {
         {/* Job history */}
         {jobs.length > 0 && (
           <div className="mt-8" data-testid="studio-job-history">
-            <p className="mb-3 font-mono text-[11.5px] uppercase tracking-[0.2em]" style={{ color: C.muted }}>Recent studio jobs</p>
+            <p className="mb-3 font-mono text-[14px] uppercase tracking-[0.2em]" style={{ color: C.muted }}>Recent studio jobs</p>
             <div className="overflow-hidden rounded-xl border" style={{ borderColor: C.border }}>
               {jobs.slice(0, 8).map((j) => (
                 <div key={j.id} className="border-b px-4 py-2.5 last:border-0"
                   style={{ borderColor: C.border }} data-testid={`studio-job-${j.id}`}>
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="text-[13px]" style={{ color: C.text }}>{ALL.find((t) => t.id === j.tool)?.label || j.tool}</span>
-                    <span className="max-w-[40%] truncate font-mono text-[11.5px]" style={{ color: C.muted }}>{j.prompt}</span>
-                    <span className="font-mono text-[11.5px]" style={{ color: "#34d399" }}>{j.status} · {j.cluster}</span>
+                    <span className="text-[15px]" style={{ color: C.text }}>{ALL.find((t) => t.id === j.tool)?.label || j.tool}</span>
+                    <span className="max-w-[40%] truncate font-mono text-[14px]" style={{ color: C.muted }}>{j.prompt}</span>
+                    <span className="font-mono text-[14px]" style={{ color: "#34d399" }}>{j.status} · {j.cluster}</span>
                   </div>
                   {j.output_url?.startsWith("/api/") && (
                     <audio controls preload="none" src={`${process.env.REACT_APP_BACKEND_URL}${j.output_url}`}

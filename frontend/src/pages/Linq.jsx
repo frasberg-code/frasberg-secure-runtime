@@ -65,11 +65,11 @@ export default function Linq() {
           <Link to="/dashboard" data-testid="linq-back-link" className="text-[#64748b] hover:text-[#f8fafc]"><ArrowLeft size={18} /></Link>
           <div>
             <h1 className="text-xl tracking-tight">LINQ <span className="text-[#ef4444]">·</span> Command Center</h1>
-            <p className="text-[13.5px] text-[#64748b] uppercase tracking-[0.25em]">Frasberg Sovereign Governance</p>
+            <p className="text-[15.5px] text-[#64748b] uppercase tracking-[0.25em]">Frasberg Sovereign Governance</p>
           </div>
         </div>
         {overview && (
-          <div className="hidden md:flex gap-6 text-[13px] text-[#94a3b8] items-center" data-testid="linq-overview-stats">
+          <div className="hidden md:flex gap-6 text-[15px] text-[#94a3b8] items-center" data-testid="linq-overview-stats">
             <span><span className="text-[#f8fafc] font-mono">{overview.layersActivated}</span>/{overview.totalLayers} layers</span>
             <span><span className="text-[#f8fafc] font-mono">{overview.artifacts}</span> artifacts</span>
             <span><span className="text-[#f8fafc] font-mono">{overview.engineRuns}</span> engine runs</span>
@@ -100,7 +100,7 @@ export default function Linq() {
             <div className="flex items-center justify-between">
               <p className="text-sm text-[#94a3b8]">LINQ streaming app — separate Frasberg product, embedded below.</p>
               <a href={LINQ_APP_URL} target="_blank" rel="noreferrer" data-testid="linq-app-open-link"
-                className="text-[13px] text-[#ef4444] flex items-center gap-1 hover:underline">Open full app <ExternalLink size={12} /></a>
+                className="text-[15px] text-[#ef4444] flex items-center gap-1 hover:underline">Open full app <ExternalLink size={12} /></a>
             </div>
             <iframe title="LINQ App" src={LINQ_APP_URL} className="w-full rounded-lg border border-[#1e293b]" style={{ height: "75vh", background: "#000" }} />
           </div>

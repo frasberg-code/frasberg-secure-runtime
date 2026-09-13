@@ -58,10 +58,10 @@ export default function WorkspaceHome() {
       <ParallaxSky />
       {/* Tab bar */}
       <div className="flex h-12 items-center gap-2 border-b px-3" style={{ borderColor: T.borderSub, background: T.inset }}>
-        <Link to="/" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors hover:bg-white/[0.05]" style={{ color: T.text2 }} data-testid="apps-site-link">
+        <Link to="/" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[15px] transition-colors hover:bg-white/[0.05]" style={{ color: T.text2 }} data-testid="apps-site-link">
           <Home size={14} /> Home
         </Link>
-        <div className="flex items-center gap-2 rounded-t-md border border-b-0 px-3.5 py-2 text-[13px]" style={{ borderColor: T.border, background: T.surface }}>
+        <div className="flex items-center gap-2 rounded-t-md border border-b-0 px-3.5 py-2 text-[15px]" style={{ borderColor: T.border, background: T.surface }}>
           <Sparkles size={12} style={{ color: T.accent }} /> My Apps
         </div>
         <Link to="/chat?model=luchii-70b&agent=architect" className="rounded-md p-1.5 transition-colors hover:bg-white/[0.05]" style={{ color: T.text2 }} aria-label="New build" data-testid="apps-new-tab">
@@ -73,7 +73,7 @@ export default function WorkspaceHome() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-2xl font-700 tracking-tight">Your builds</h1>
           <Link to="/chat?model=luchii-70b&agent=architect" data-testid="apps-new-build-btn"
-            className="flex items-center gap-1.5 rounded-full px-5 py-2 text-[13px] font-600" style={{ background: T.text, color: T.bg }}>
+            className="flex items-center gap-1.5 rounded-full px-5 py-2 text-[15px] font-600" style={{ background: T.text, color: T.bg }}>
             <Plus size={14} /> New build
           </Link>
         </div>
@@ -82,7 +82,7 @@ export default function WorkspaceHome() {
         <div className="mt-5 flex gap-2" data-testid="apps-filters">
           {[["all", `All (${list.length})`], ["apps", "Apps"], ["published", "Published"]].map(([k, label]) => (
             <button key={k} onClick={() => setFilter(k)} data-testid={`apps-filter-${k}`}
-              className="rounded-full border px-4 py-1.5 text-[13.5px] transition-colors"
+              className="rounded-full border px-4 py-1.5 text-[15.5px] transition-colors"
               style={filter === k ? { background: "rgba(255,255,255,0.1)", borderColor: T.border, color: T.text } : { borderColor: T.border, color: T.text2 }}>
               {label}
             </button>
@@ -91,11 +91,11 @@ export default function WorkspaceHome() {
 
         {/* App list */}
         <div className="mt-6 space-y-3" data-testid="apps-list">
-          {apps === null && <p className="font-mono text-[13px]" style={{ color: T.muted }}>Loading…</p>}
+          {apps === null && <p className="font-mono text-[15px]" style={{ color: T.muted }}>Loading…</p>}
           {apps !== null && shown.length === 0 && (
             <div className="rounded-lg border p-10 text-center" style={{ borderColor: T.border, background: T.surface }}>
               <p className="text-sm" style={{ color: T.text2 }}>No published apps yet.</p>
-              <Link to="/chat?model=luchii-7b&agent=builder" className="mt-4 inline-block rounded-full px-5 py-2 text-[13px] font-600" style={{ background: T.accent, color: T.bg }}>
+              <Link to="/chat?model=luchii-7b&agent=builder" className="mt-4 inline-block rounded-full px-5 py-2 text-[15px] font-600" style={{ background: T.accent, color: T.bg }}>
                 Build your first app →
               </Link>
             </div>
@@ -109,18 +109,18 @@ export default function WorkspaceHome() {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[14px] font-600">{a.title}</p>
-                <p className="mt-0.5 font-mono text-[13px]" style={{ color: T.muted }}>
+                <p className="mt-0.5 font-mono text-[15px]" style={{ color: T.muted }}>
                   Updated {timeAgo(a.updated)} · v{a.version} · {a.hash} · {a.agent}
                 </p>
                 {a.custom_url && (
                   <a href={`${BASE}${a.slug_url}`} target="_blank" rel="noreferrer" data-testid={`app-custom-url-${a.id}`}
-                    className="mt-1 inline-flex items-center gap-1.5 font-mono text-[13px] hover:underline" style={{ color: T.accent }}>
+                    className="mt-1 inline-flex items-center gap-1.5 font-mono text-[15px] hover:underline" style={{ color: T.accent }}>
                     <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: T.accent }} />
                     {a.custom_url.replace("https://", "")}
                   </a>
                 )}
               </div>
-              <span className="flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[13.5px] uppercase tracking-wide"
+              <span className="flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[15.5px] uppercase tracking-wide"
                 style={{ borderColor: "rgba(16,185,129,0.5)", color: "#10B981" }}>
                 <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#10B981" }} /> Published
               </span>

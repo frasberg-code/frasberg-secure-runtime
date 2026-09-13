@@ -7,7 +7,7 @@ import { RegionMap, RegionCards } from "../components/site/RegionMesh";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const card = "rounded-2xl border border-white/10 bg-black/30 p-5 backdrop-blur";
-const label = "flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400";
+const label = "flex items-center gap-2 font-mono text-[14px] uppercase tracking-[0.2em] text-gray-400";
 const safetyColor = (s) => (s >= 90 ? "#34D399" : s >= 75 ? "#22D3EE" : s >= 60 ? "#FBBF24" : "#F87171");
 const PHASES = ["collapse", "destruction", "rebirth", "infinity"];
 const phaseColor = { collapse: "text-amber-300", destruction: "text-red-300", rebirth: "text-emerald-300" };
@@ -83,7 +83,7 @@ export default function OpsCenter() {
             <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Kernel v4 Ops Center</span>
           </Link>
-          <span className="flex items-center gap-1.5 font-mono text-[12px] uppercase tracking-wide text-emerald-300"><span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" /> live</span>
+          <span className="flex items-center gap-1.5 font-mono text-[14px] uppercase tracking-wide text-emerald-300"><span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" /> live</span>
         </div>
       </header>
       <div className="relative z-10 mx-auto max-w-6xl px-5 py-10">
@@ -96,7 +96,7 @@ export default function OpsCenter() {
               ["Regions healthy", `${(os.regions || []).filter((r) => r.status === "healthy").length}/${(os.regions || []).length}`],
               ["Tenants", hosting ? hosting.tenants.length : "—"]].map(([k, v]) => (
               <div key={k} className={card}>
-                <p className="font-mono text-[11.5px] uppercase text-gray-500">{k}</p>
+                <p className="font-mono text-[14px] uppercase text-gray-500">{k}</p>
                 <p className="mt-1 font-mono text-2xl font-700 text-cyan-200">{v}</p>
               </div>
             ))}
@@ -113,7 +113,7 @@ export default function OpsCenter() {
               <p className={label}><ShieldCheck size={12} /> Safety envelope</p>
               <div className="mt-3 space-y-2">
                 {Object.entries(os.node_stats || {}).map(([n, s]) => (
-                  <p key={n} className="flex items-center justify-between font-mono text-[12px]" data-testid={`ops-safety-${n}`}>
+                  <p key={n} className="flex items-center justify-between font-mono text-[14px]" data-testid={`ops-safety-${n}`}>
                     <span className="text-gray-300">{n}</span>
                     <span style={{ color: safetyColor(s.safety) }}>{s.safety}/100 · {s.traffic} pulses</span>
                   </p>
@@ -129,25 +129,25 @@ export default function OpsCenter() {
             <div className="mt-3 space-y-2.5">
               {evolving.slice(0, 8).map((i) => (
                 <div key={i.id} className="flex flex-wrap items-center justify-between gap-2" data-testid={`ops-evo-${i.id}`}>
-                  <span className="text-[13.5px] font-600">{i.name}</span>
-                  <span className="font-mono text-[11.5px] text-gray-400">
+                  <span className="text-[15.5px] font-600">{i.name}</span>
+                  <span className="font-mono text-[14px] text-gray-400">
                     {(i.history || []).length} cycles · <span style={{ color: safetyColor(i.safety_score) }}>{i.safety_score}/100</span>
                     {i.evolution_mode && <span className="ml-2 rounded-full border border-cyan-400/50 px-2 py-0.5 text-cyan-300">evolving</span>}
                   </span>
                 </div>
               ))}
-              {evolving.length === 0 && <p className="text-[13px] text-gray-500">No evolving agents yet.</p>}
+              {evolving.length === 0 && <p className="text-[15px] text-gray-500">No evolving agents yet.</p>}
             </div>
           </div>
           <div className={card} data-testid="ops-tenants-panel">
             <p className={label}><Users size={12} /> Tenants</p>
-            {denied && <p className="mt-3 text-[13.5px] text-amber-300">Admin login required for tenant governance — <Link to="/auth?mode=login" className="underline">sign in</Link>.</p>}
+            {denied && <p className="mt-3 text-[15.5px] text-amber-300">Admin login required for tenant governance — <Link to="/auth?mode=login" className="underline">sign in</Link>.</p>}
             {hosting && (
               <div className="mt-3 space-y-2.5">
                 {hosting.tenants.slice(0, 8).map((t) => (
                   <div key={t.id} className="flex flex-wrap items-center justify-between gap-2" data-testid={`ops-tenant-${t.id}`}>
-                    <span className="truncate text-[13px] font-600">{t.email}</span>
-                    <span className="font-mono text-[11.5px] text-gray-400">{t.plan} · {t.isolation} · {t.billing.cognition_cycles.toLocaleString()} cycles · {t.region_permissions.length} regions</span>
+                    <span className="truncate text-[15px] font-600">{t.email}</span>
+                    <span className="font-mono text-[14px] text-gray-400">{t.plan} · {t.isolation} · {t.billing.cognition_cycles.toLocaleString()} cycles · {t.region_permissions.length} regions</span>
                   </div>
                 ))}
               </div>
@@ -162,7 +162,7 @@ export default function OpsCenter() {
               data-flash={flash ? "true" : "false"}>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className={label}><InfinityIcon size={12} /> Eternal cycle feed</p>
-                <span className="flex items-center gap-3 font-mono text-[12px]">
+                <span className="flex items-center gap-3 font-mono text-[14px]">
                   <button onClick={() => { setAlertsOn(!alertsOn); if (!alertsOn) playCycleChime(); }} data-testid="ops-cycle-alerts-btn"
                     title="Cycle alerts — chime when a loop completes"
                     className={`flex items-center gap-1.5 rounded-full border px-3 py-1 transition-colors ${alertsOn ? "border-purple-400 bg-purple-400/10 text-purple-200" : "border-white/15 text-gray-500 hover:border-purple-400/50 hover:text-purple-200"}`}>
@@ -174,7 +174,7 @@ export default function OpsCenter() {
                   <span className="text-cyan-200" data-testid="ops-cycle-loops">{os.cycle_loops || 0} loop{(os.cycle_loops || 0) === 1 ? "" : "s"} completed</span>
                 </span>
               </div>
-              <div className="mt-3 flex flex-wrap items-center gap-2 font-mono text-[11.5px]" data-testid="ops-cycle-phases">
+              <div className="mt-3 flex flex-wrap items-center gap-2 font-mono text-[14px]" data-testid="ops-cycle-phases">
                 {PHASES.map((p, i) => (
                   <span key={p} className="flex items-center gap-2">
                     <span className={`rounded-full border px-3 py-1 transition-colors ${phase === p ? "border-purple-400 bg-purple-400/10 text-purple-200" : "border-white/10 text-gray-500"}`}>{p}</span>
@@ -182,7 +182,7 @@ export default function OpsCenter() {
                   </span>
                 ))}
               </div>
-              <div className="mt-3 max-h-44 space-y-1 overflow-y-auto font-mono text-[12px]" data-testid="ops-cycle-trace">
+              <div className="mt-3 max-h-44 space-y-1 overflow-y-auto font-mono text-[14px]" data-testid="ops-cycle-trace">
                 {loopEvents.map((e, i) => (
                   <p key={`ev-${i}`} className="text-purple-300/90"><span className="text-purple-400/60">[t{e.tick}]</span> {e.text}</p>
                 ))}
@@ -199,7 +199,7 @@ export default function OpsCenter() {
             <div className="mt-5"><RegionCards regions={os.regions || []} /></div>
             <div className={`${card} mt-5`} data-testid="ops-event-panel">
               <p className={label}><Activity size={12} /> Kernel event stream</p>
-              <div className="mt-2 max-h-40 space-y-1 overflow-y-auto font-mono text-[12.5px] text-gray-300">
+              <div className="mt-2 max-h-40 space-y-1 overflow-y-auto font-mono text-[14.5px] text-gray-300">
                 {(os.events || []).map((e, i) => <p key={i}><span className="text-cyan-300/70">[t{e.tick}]</span> {e.text}</p>)}
               </div>
             </div>

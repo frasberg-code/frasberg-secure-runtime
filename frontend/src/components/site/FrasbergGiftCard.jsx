@@ -93,18 +93,18 @@ export const FrasbergGiftCard = ({ className = "" }) => {
 
       <div className="relative flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 font-mono text-[11.5px] uppercase tracking-[0.3em] text-amber-300">
+          <div className="flex items-center gap-2 font-mono text-[14px] uppercase tracking-[0.3em] text-amber-300">
             <Gift size={14} /> Frasberg Gift
           </div>
           <p className="mt-4 font-mono text-4xl font-600 tracking-tighter text-white" data-testid="gift-token-balance">
             {Number(gift.tokens).toLocaleString()}
             <span className="ml-2 text-sm text-cyan-300/80">free tokens</span>
           </p>
-          <p className="mt-1.5 font-mono text-[13px] text-gray-400" data-testid="gift-paid-balance">
+          <p className="mt-1.5 font-mono text-[15px] text-gray-400" data-testid="gift-paid-balance">
             + {Number(gift.paid_tokens).toLocaleString()} purchased tokens <span className="text-gray-600">· giftable</span>
           </p>
           {gift.granted_today > 0 && (
-            <span data-testid="gift-daily-claimed" className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 font-mono text-[12px] text-emerald-300">
+            <span data-testid="gift-daily-claimed" className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 font-mono text-[14px] text-emerald-300">
               <Sparkles size={12} /> +{gift.granted_today} daily tokens claimed
             </span>
           )}
@@ -113,15 +113,15 @@ export const FrasbergGiftCard = ({ className = "" }) => {
           <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-10 w-10 rounded-full opacity-90" />
           <div className="flex flex-wrap justify-end gap-2">
             <button onClick={toggleBuy} data-testid="gift-buy-toggle"
-              className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 px-3 py-1.5 font-mono text-[12px] text-emerald-300 transition-colors hover:bg-emerald-400/[0.08]">
+              className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 px-3 py-1.5 font-mono text-[14px] text-emerald-300 transition-colors hover:bg-emerald-400/[0.08]">
               <CreditCard size={12} /> Buy tokens
             </button>
             <button onClick={loadLedger} data-testid="gift-ledger-toggle"
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5 font-mono text-[12px] text-gray-300 transition-colors hover:border-cyan-400/50 hover:text-cyan-200">
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5 font-mono text-[14px] text-gray-300 transition-colors hover:border-cyan-400/50 hover:text-cyan-200">
               <History size={12} /> History
             </button>
             <button onClick={() => setShowSend((v) => !v)} data-testid="gift-send-toggle"
-              className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 px-3 py-1.5 font-mono text-[12px] text-amber-300 transition-colors hover:bg-amber-400/[0.08]">
+              className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 px-3 py-1.5 font-mono text-[14px] text-amber-300 transition-colors hover:bg-amber-400/[0.08]">
               <Send size={12} /> Send a gift
             </button>
           </div>
@@ -130,16 +130,16 @@ export const FrasbergGiftCard = ({ className = "" }) => {
 
       {showBuy && (
         <div className="relative mt-5 rounded-xl border border-emerald-400/25 bg-black/25 p-4" data-testid="gift-buy-panel">
-          <p className="font-mono text-[11.5px] uppercase tracking-[0.2em] text-emerald-300">Buy token packs — purchased tokens are giftable</p>
+          <p className="font-mono text-[14px] uppercase tracking-[0.2em] text-emerald-300">Buy token packs — purchased tokens are giftable</p>
           <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
             {packs.map((p) => (
               <button key={p.id} onClick={() => setPack(pack === p.id ? null : p.id)} data-testid={`gift-pack-${p.id}`}
                 className={`rounded-xl border px-4 py-3 text-left transition-colors ${pack === p.id ? "border-emerald-300 bg-emerald-400/[0.08]" : "border-white/15 hover:border-emerald-400/50"}`}>
-                <p className="font-mono text-[13px] font-600 text-white">${p.price} — {p.name}</p>
-                <p className="mt-0.5 font-mono text-[11.5px] text-gray-400">{p.credits.toLocaleString()} tokens</p>
+                <p className="font-mono text-[15px] font-600 text-white">${p.price} — {p.name}</p>
+                <p className="mt-0.5 font-mono text-[14px] text-gray-400">{p.credits.toLocaleString()} tokens</p>
               </button>
             ))}
-            {packs.length === 0 && <p className="col-span-3 font-mono text-[12px] text-gray-500">{paypal === null ? "Loading packs…" : "Token packs unavailable right now."}</p>}
+            {packs.length === 0 && <p className="col-span-3 font-mono text-[14px] text-gray-500">{paypal === null ? "Loading packs…" : "Token packs unavailable right now."}</p>}
           </div>
           {pack && paypal?.configured && user && (
             <div className="mt-4" data-testid="gift-buy-paypal">
@@ -177,20 +177,20 @@ export const FrasbergGiftCard = ({ className = "" }) => {
 
       {showSend && (
         <form onSubmit={sendGift} className="relative mt-5 rounded-xl border border-amber-400/25 bg-black/25 p-4" data-testid="gift-send-form">
-          <p className="font-mono text-[11.5px] uppercase tracking-[0.2em] text-amber-300">Send purchased tokens to a friend</p>
+          <p className="font-mono text-[14px] uppercase tracking-[0.2em] text-amber-300">Send purchased tokens to a friend</p>
           <div className="mt-3 flex flex-col gap-2.5 sm:flex-row">
             <input type="email" required value={sendEmail} onChange={(e) => setSendEmail(e.target.value)}
               placeholder="friend@email.com" data-testid="gift-send-email"
-              className="flex-1 rounded-full border border-white/15 bg-transparent px-4 py-2 text-[13px] text-white outline-none focus:border-amber-400/60" />
+              className="flex-1 rounded-full border border-white/15 bg-transparent px-4 py-2 text-[15px] text-white outline-none focus:border-amber-400/60" />
             <input type="number" required min="1" value={sendAmount} onChange={(e) => setSendAmount(e.target.value)}
               placeholder="Amount" data-testid="gift-send-amount"
-              className="w-full rounded-full border border-white/15 bg-transparent px-4 py-2 text-[13px] text-white outline-none focus:border-amber-400/60 sm:w-32" />
+              className="w-full rounded-full border border-white/15 bg-transparent px-4 py-2 text-[15px] text-white outline-none focus:border-amber-400/60 sm:w-32" />
             <button type="submit" disabled={sending} data-testid="gift-send-btn"
-              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-amber-300 px-5 py-2 font-mono text-[12.5px] font-600 text-[#0B1220] transition-opacity hover:opacity-85 disabled:opacity-50">
+              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-amber-300 px-5 py-2 font-mono text-[14.5px] font-600 text-[#0B1220] transition-opacity hover:opacity-85 disabled:opacity-50">
               {sending ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />} Send
             </button>
           </div>
-          <p className="mt-2.5 font-mono text-[11.5px] text-gray-500" data-testid="gift-send-rule">
+          <p className="mt-2.5 font-mono text-[14px] text-gray-500" data-testid="gift-send-rule">
             Only purchased tokens can be gifted — free daily tokens stay on your account.
           </p>
         </form>
@@ -198,24 +198,24 @@ export const FrasbergGiftCard = ({ className = "" }) => {
 
       {showLedger && (
         <div className="relative mt-5 rounded-xl border border-white/10 bg-black/25 p-4" data-testid="gift-ledger">
-          <p className="font-mono text-[11.5px] uppercase tracking-[0.2em] text-cyan-300">Token history</p>
+          <p className="font-mono text-[14px] uppercase tracking-[0.2em] text-cyan-300">Token history</p>
           {ledger === null ? (
-            <p className="mt-3 font-mono text-[12.5px] text-gray-500">Loading…</p>
+            <p className="mt-3 font-mono text-[14.5px] text-gray-500">Loading…</p>
           ) : ledger.length === 0 ? (
-            <p className="mt-3 font-mono text-[12.5px] text-gray-500" data-testid="gift-ledger-empty">No activity yet — grants and spends will appear here.</p>
+            <p className="mt-3 font-mono text-[14.5px] text-gray-500" data-testid="gift-ledger-empty">No activity yet — grants and spends will appear here.</p>
           ) : (
             <div className="mt-2 max-h-56 space-y-1 overflow-y-auto">
               {ledger.map((row, i) => (
                 <div key={row.id || i} className="flex items-center justify-between gap-3 border-b border-white/[0.06] py-2 last:border-0" data-testid={`gift-ledger-row-${i}`}>
                   <div className="min-w-0">
-                    <p className="font-mono text-[12.5px] text-gray-200">{KIND_LABEL[row.kind] || row.kind}</p>
-                    <p className="truncate font-mono text-[11px] text-gray-500">{row.note}</p>
+                    <p className="font-mono text-[14.5px] text-gray-200">{KIND_LABEL[row.kind] || row.kind}</p>
+                    <p className="truncate font-mono text-[13.5px] text-gray-500">{row.note}</p>
                   </div>
                   <div className="flex shrink-0 items-center gap-3">
-                    <span className={`font-mono text-[13px] font-600 ${row.amount >= 0 ? "text-emerald-300" : "text-rose-300"}`}>
+                    <span className={`font-mono text-[15px] font-600 ${row.amount >= 0 ? "text-emerald-300" : "text-rose-300"}`}>
                       {row.amount >= 0 ? "+" : ""}{row.amount.toLocaleString()}
                     </span>
-                    <span className="font-mono text-[11px] text-gray-600">{(row.ts || "").slice(0, 10)}</span>
+                    <span className="font-mono text-[13.5px] text-gray-600">{(row.ts || "").slice(0, 10)}</span>
                   </div>
                 </div>
               ))}
@@ -225,10 +225,10 @@ export const FrasbergGiftCard = ({ className = "" }) => {
       )}
 
       <div className="relative mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
-        <p className="font-mono text-[12px] uppercase tracking-[0.18em] text-gray-400" data-testid="gift-card-terms">
+        <p className="font-mono text-[14px] uppercase tracking-[0.18em] text-gray-400" data-testid="gift-card-terms">
           {gift.signup_grant} tokens on signup · {gift.daily_grant} free every day · chat {gift.chat_cost} tok · build {gift.build_cost} tok
         </p>
-        <p className="font-mono text-[12px] tracking-[0.25em] text-cyan-300/70">FRSB •••• {year}</p>
+        <p className="font-mono text-[14px] tracking-[0.25em] text-cyan-300/70">FRSB •••• {year}</p>
       </div>
     </div>
   );

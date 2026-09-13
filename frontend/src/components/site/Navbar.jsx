@@ -99,26 +99,26 @@ export default function Navbar() {
         <a href="#top" className="flex items-center gap-2.5" data-testid="brand-logo">
           <img src="/luchii-mark-circle.png" alt="Frasberg Luchii" className="h-9 w-9 rounded-full" />
           <span className="font-display text-lg font-700 tracking-tight text-lux-text">Luchii</span>
-          <span className="hidden font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2 sm:inline">
+          <span className="hidden font-mono text-[15.5px] uppercase tracking-[0.2em] text-lux-text2 sm:inline">
             by Frasberg
           </span>
         </a>
 
         <div className="hidden items-center gap-4 lg:flex">
           {user ? (
-            <button onClick={logout} data-testid="nav-signin" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text">Sign out</button>
+            <button onClick={logout} data-testid="nav-signin" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text">Sign out</button>
           ) : (
-            <Link to="/auth?mode=login" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-signin">Sign In</Link>
+            <Link to="/auth?mode=login" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-signin">Sign In</Link>
           )}
-          <a href="/#models" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-models">Models</a>
-          <a href="/#realms" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-realms">Realms</a>
-          <a href="/#api" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-api">API</a>
-          <Link to="/brand" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-brand">Brand</Link>
-          <Link to="/ai-models" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-ai-models">AI Models</Link>
-          <Link to="/website-builder" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-website-builder">Website Builder</Link>
-          <Link to="/game-builder" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-game-builder">Game Builder</Link>
-          <Link to="/games" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-games">Games</Link>
-          <Link to="/os" className="text-[13px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-frasbergos">FrasbergOS</Link>
+          <a href="/#models" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-models">Models</a>
+          <a href="/#realms" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-realms">Realms</a>
+          <a href="/#api" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-api">API</a>
+          <Link to="/brand" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-brand">Brand</Link>
+          <Link to="/ai-models" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-ai-models">AI Models</Link>
+          <Link to="/website-builder" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-website-builder">Website Builder</Link>
+          <Link to="/game-builder" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-game-builder">Game Builder</Link>
+          <Link to="/games" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-games">Games</Link>
+          <Link to="/os" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-frasbergos">FrasbergOS</Link>
           <div className="relative" ref={exploreRef}>
             <button
               onClick={() => setExploreOpen((o) => !o)}
@@ -132,7 +132,7 @@ export default function Navbar() {
                 <div className="grid grid-cols-2 gap-x-4 gap-y-4">
                   {EXPLORE_GROUPS.map((g) => (
                     <div key={g.title}>
-                      <div className="px-2 pb-1 font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2">{g.title}</div>
+                      <div className="px-2 pb-1 font-mono text-[15.5px] uppercase tracking-[0.2em] text-lux-text2">{g.title}</div>
                       {g.items.map((l) =>
                         l.to ? (
                           <Link key={l.label} to={l.to} onClick={() => setExploreOpen(false)}

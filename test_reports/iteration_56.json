@@ -1,0 +1,36 @@
+{
+  "summary": "Iter56 both-mode testing: verified new permissions matrix (7 groups, all sub-perms present), restrict-on-create (forge toggle enables inputs, JSON preview reflects restrict_key + usage_limit + credit_refresh), Edit API Key modal (all 4 controls present + save), backend PATCH /api/keys/{id} persistence, and FK-429 enforcement on /api/v1/chat/completions with a preloaded api_key_usage doc (10 credit limit, 50 tokens used -> 429 FK-429; unrestrict -> non-FK-429). Stripe: /api/payments/config configured=true with 3 plans; /api/payments/checkout returns 502 with 'not yet activated' message from FastAPI, but the public URL sees Cloudflare's HTML 502 page (CF intercepts 5xx responses). Frontend handles this gracefully — Pricing.jsx `stripeCheckout` uses try/catch on await res.json() and falls back to toast.error, so no crash. Global regression: /, /docs, /dashboard, /create, /games, /shield-dashboard, /payment/success, /payment/cancel all render without JS errors after the font bump. PayPal /api/paypal/config still returns plans.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/payments/checkout", "issue": "Cloudflare intercepts the FastAPI 502 response and replaces the JSON body ({detail: 'Stripe account not yet activated...'}) with a Cloudflare HTML 'Bad gateway' page. Frontend can no longer surface the specific reason. Consider returning a non-5xx status (e.g., 400 or 409) with the same JSON body so CF passes it through and the toast can show the real reason instead of a generic 'Could not start Stripe checkout'."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Pricing key select (pricing-key-select)", "issue": "React hydration warning: '<span> cannot be a child of <option>' — same warning was flagged in iteration_54 and is still present. The <option> in Pricing.jsx L62 wraps its dynamic key-name text in a <span>. Should render plain text only.", "selector": "[data-testid='pricing-key-select'] option", "priority": "LOW"},
+      {"component": "EditKeyModal footer", "issue": "'edit-key-cancel' data-testid is missing on the Cancel button (edit-key-save exists). Blocks automated close/cancel tests.", "selector": "[data-testid='edit-key-cancel']", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_iter56_stripe_restrict.py", "/app/test_reports/pytest/iter56.xml"],
+  "action_items": [
+    "Consider changing POST /api/payments/checkout 'account not activated' response from 502 to a 400/409 with the same JSON — CF strips 5xx bodies on the public URL so the specific reason never reaches the frontend toast.",
+    "Add data-testid='edit-key-cancel' to the Cancel button in EditKeyModal for parity with edit-key-save.",
+    "Fix Pricing.jsx L62 option: render {k.name} directly instead of wrapping it in a <span> to clear the React hydration warning (open since iter54)."
+  ],
+  "critical_code_review_comments": [
+    "Pricing.jsx stripeCheckout swallows the backend error detail — catch block uses generic 'Could not start Stripe checkout'. Attempt to read d?.detail before falling back to a generic message so users see the real reason (e.g. 'Stripe account not yet activated').",
+    "server.py:2984 raises 502 for a business-state condition (account not activated). 5xx is reserved for server faults and gets replaced by CF/edge proxies; a 400/409 with structured detail is more appropriate and reaches the client body intact.",
+    "PERMISSION_MATRIX uses key 'workspace_webhooks' but the review_request spec lists 'Webhooks' twice (once in Frasberg Agents and once in Workspace Members). Confirmed: backend key names differ ('webhooks' vs 'workspace_webhooks') — correct and unambiguous; UI copy shows both as 'Webhooks' which could confuse users. Consider labeling the workspace one as 'Workspace Webhooks'."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter56_stripe_restrict.py"],
+  "success_rate": {"backend": "100% (8/8)", "frontend": "100% (all required selectors + flows verified, no crashes)"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026! (worked); doctester1@frasberg.com / DocTester2026! (worked)",
+  "seed_data_creation": "test_iter56_stripe_restrict.py creates temporary keys prefixed TEST_iter56_* and deletes them at the end; inserts one api_key_usage doc during the FK-429 test and removes it in the teardown. No residual data.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "VERIFIED: PERMISSION_MATRIX groups + all sub-permission items render exactly as spec'd. Restrict-on-create controls (forge-restrict-toggle -> forge-usage-limit-input + forge-refresh-period-select) update key-json-preview correctly (contains restrict_key, usage_limit_credits, credit_refresh_period). Edit modal opens with edit-key-modal, restrict-key-toggle, usage-limit-input, refresh-period-select, edit-key-save. Backend: PATCH /api/keys/{id} persists all restrict fields; POST /api/v1/chat/completions returns 429 with detail.code == 'FK-429' when a restricted key has period usage >= limit; unrestrict via PATCH clears FK-429. Stripe: /api/payments/config configured=true (3 plans), /api/payments/checkout backend returns 502 JSON 'not yet activated' but CF masks it as HTML on the public URL — frontend catches JSON parse failure and toasts a generic error (no crash). /api/paypal/config still returns plans. Payment success/cancel routes render. No layout crashes after global font bump on /, /docs, /dashboard, /create, /games, /shield-dashboard. Missing/minor: edit-key-cancel data-testid, unfixed <span> in Pricing <option> hydration warning (iter54), CF strips 5xx bodies (recommend 400/409).",
+  "rca_of_the_issue": "N/A — all requested features work. Two minor deltas: (1) Cloudflare replaces the FastAPI 502 body on the public URL, hiding the 'not yet activated' message from the frontend; the UI still handles it gracefully with try/catch. (2) React <option><span>...</span></option> hydration warning in Pricing.jsx persists from iter54."
+}

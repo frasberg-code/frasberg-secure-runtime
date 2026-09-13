@@ -52,7 +52,7 @@ export default function Auth() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
-          <Link to="/" className="mb-8 inline-flex items-center gap-2 font-mono text-[13px] text-lux-text2 hover:text-lux-text" data-testid="auth-home-link">
+          <Link to="/" className="mb-8 inline-flex items-center gap-2 font-mono text-[15px] text-lux-text2 hover:text-lux-text" data-testid="auth-home-link">
             <ArrowLeft size={14} /> Back to Luchii
           </Link>
 
@@ -63,7 +63,7 @@ export default function Auth() {
                 <h1 className="font-display text-2xl font-700 tracking-tight">
                   {mode === "signup" ? "Create your account" : "Sign in"}
                 </h1>
-                <p className="text-[13px] text-lux-text2">Unlimited free chat with Luchii</p>
+                <p className="text-[15px] text-lux-text2">Unlimited free chat with Luchii</p>
               </div>
             </div>
 
@@ -95,7 +95,7 @@ export default function Auth() {
                 data-testid="auth-password-input"
                 className="w-full rounded-full border border-lux-border bg-lux-surface px-5 py-3 text-sm outline-none focus:border-lux-accent"
               />
-              {error && <p className="px-2 text-[13px] text-red-400" data-testid="auth-error">{error}</p>}
+              {error && <p className="px-2 text-[15px] text-red-400" data-testid="auth-error">{error}</p>}
               <button
                 type="submit"
                 disabled={busy}
@@ -109,7 +109,7 @@ export default function Auth() {
 
             <div className="mt-5 flex items-center gap-3">
               <span className="h-px flex-1 bg-lux-border" />
-              <span className="font-mono text-[12px] uppercase tracking-[0.2em] text-lux-text2">or</span>
+              <span className="font-mono text-[14px] uppercase tracking-[0.2em] text-lux-text2">or</span>
               <span className="h-px flex-1 bg-lux-border" />
             </div>
             <button
@@ -125,13 +125,13 @@ export default function Auth() {
             <button
               onClick={() => { setMode(mode === "signup" ? "login" : "signup"); setError(""); }}
               data-testid="auth-toggle-mode"
-              className="mt-5 w-full text-center text-[13px] text-lux-text2 hover:text-lux-text"
+              className="mt-5 w-full text-center text-[15px] text-lux-text2 hover:text-lux-text"
             >
               {mode === "signup" ? "Already have an account? Sign in" : "New to Luchii? Create a free account"}
             </button>
           </div>
 
-          <p className="mt-6 text-center font-mono text-[13px] text-lux-text2">
+          <p className="mt-6 text-center font-mono text-[15px] text-lux-text2">
             Signing in unlocks Luchii Image Creator, voice, attachments and API keys.
           </p>
         </motion.div>

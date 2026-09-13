@@ -178,13 +178,13 @@ export const LinqLive = ({ identity }) => {
   return (
     <div className="space-y-6" data-testid="linq-live">
       <div className="flex flex-wrap items-center gap-2" data-testid="live-now-strip">
-        <span className="flex items-center gap-1.5 text-xs text-[#94a3b8]">
+        <span className="flex items-center gap-1.5 text-sm text-[#94a3b8]">
           <span className="inline-block w-2 h-2 rounded-full bg-[#ef4444] animate-pulse" /> Live now
         </span>
-        {rooms.length === 0 && <span className="text-xs text-[#64748b]">No live rooms</span>}
+        {rooms.length === 0 && <span className="text-sm text-[#64748b]">No live rooms</span>}
         {rooms.map((r) => (
           <button key={r.roomId} data-testid={`live-room-${r.roomId}`} onClick={() => setRoomName(r.roomId)}
-            className={`text-xs rounded-full px-3 py-1.5 border transition-colors ${roomName === r.roomId ? "bg-[#ef4444] border-[#ef4444] text-white" : "bg-[#0f172a] border-[#1e293b] text-[#cbd5e1] hover:border-[#ef4444]"}`}>
+            className={`text-sm rounded-full px-3 py-1.5 border transition-colors ${roomName === r.roomId ? "bg-[#ef4444] border-[#ef4444] text-white" : "bg-[#0f172a] border-[#1e293b] text-[#cbd5e1] hover:border-[#ef4444]"}`}>
             🔴 {r.roomId} · {r.viewerCount} watching
           </button>
         ))}
@@ -209,7 +209,7 @@ export const LinqLive = ({ identity }) => {
             ) : (
               <button data-testid="live-leave-btn" onClick={leave} className="bg-[#1e293b] hover:bg-[#334155] text-white text-sm rounded-full px-5 py-2">Leave</button>
             )}
-            {agentPresent && <span className="text-xs text-[#4ade80]" data-testid="agent-badge">• Luchii active</span>}
+            {agentPresent && <span className="text-sm text-[#4ade80]" data-testid="agent-badge">• Luchii active</span>}
             <button data-testid="luchii-voice-toggle" onClick={() => setVoiceOn((v) => !v)}
               title={voiceOn ? "Luchii voice on" : "Luchii voice off"}
               className={`grid h-9 w-9 place-items-center rounded-full border transition-colors ${voiceOn ? "border-[#4ade80]/60 text-[#4ade80]" : "border-[#1e293b] text-[#64748b]"}`}>
@@ -274,7 +274,7 @@ export const LinqLive = ({ identity }) => {
                   </PayPalScriptProvider>
                 </div>
               ) : (
-                <p className="text-xs text-[#64748b]">Payments not configured.</p>
+                <p className="text-sm text-[#64748b]">Payments not configured.</p>
               )}
             </div>
           )}
@@ -286,7 +286,7 @@ export const LinqLive = ({ identity }) => {
                 <div key={t.id} className="linq-tip-burst" style={{ left: `${18 + ((i * 23) % 60)}%` }}>
                   <span className="text-3xl">💸</span>
                   <span className="ml-1 font-mono text-[#facc15] text-lg drop-shadow">${t.amount}</span>
-                  <div className="text-[10px] text-[#f8fafc]/80 text-center">{t.from}</div>
+                  <div className="text-[13px] text-[#f8fafc]/80 text-center">{t.from}</div>
                 </div>
               ))}
             </div>
@@ -306,25 +306,25 @@ export const LinqLive = ({ identity }) => {
           </div>
 
           <div className="bg-[#0f172a] border border-[#1e293b] rounded-lg p-3 space-y-2">
-            <div className="flex items-center gap-2 text-xs text-[#94a3b8]"><MessageSquare size={12} /> Room chat & Luchii</div>
+            <div className="flex items-center gap-2 text-sm text-[#94a3b8]"><MessageSquare size={12} /> Room chat & Luchii</div>
             <div className="flex flex-wrap gap-2">
               <button data-testid="luchii-run-threat-btn" onClick={() => runEngine("threat", "threat scan")} disabled={thinking}
-                className="text-[11px] rounded-full px-3 py-1 border border-[#a78bfa]/50 text-[#a78bfa] hover:bg-[#a78bfa]/10 disabled:opacity-40">🔮 Run Threat Scan</button>
+                className="text-[13.5px] rounded-full px-3 py-1 border border-[#a78bfa]/50 text-[#a78bfa] hover:bg-[#a78bfa]/10 disabled:opacity-40">🔮 Run Threat Scan</button>
               <button data-testid="luchii-run-billing-btn" onClick={() => runEngine("billing", "billing report")} disabled={thinking}
-                className="text-[11px] rounded-full px-3 py-1 border border-[#facc15]/50 text-[#facc15] hover:bg-[#facc15]/10 disabled:opacity-40">⚡ Pull Billing Data</button>
+                className="text-[13.5px] rounded-full px-3 py-1 border border-[#facc15]/50 text-[#facc15] hover:bg-[#facc15]/10 disabled:opacity-40">⚡ Pull Billing Data</button>
               <button data-testid="luchii-run-compliance-btn" onClick={() => runEngine("compliance", "compliance check")} disabled={thinking}
-                className="text-[11px] rounded-full px-3 py-1 border border-[#4ade80]/50 text-[#4ade80] hover:bg-[#4ade80]/10 disabled:opacity-40">🧠 Compliance Check</button>
-              {thinking && <span className="text-[11px] text-[#94a3b8] flex items-center gap-1" data-testid="luchii-thinking"><Loader2 size={11} className="animate-spin" /> Luchii is working…</span>}
+                className="text-[13.5px] rounded-full px-3 py-1 border border-[#4ade80]/50 text-[#4ade80] hover:bg-[#4ade80]/10 disabled:opacity-40">🧠 Compliance Check</button>
+              {thinking && <span className="text-[13.5px] text-[#94a3b8] flex items-center gap-1" data-testid="luchii-thinking"><Loader2 size={11} className="animate-spin" /> Luchii is working…</span>}
             </div>
             <div className="max-h-60 overflow-y-auto space-y-1 text-sm" data-testid="chat-messages">
-              {messages.length === 0 && <div className="text-[#64748b] text-xs">No messages yet — ask Luchii to "run a threat scan" or "pull billing data"</div>}
+              {messages.length === 0 && <div className="text-[#64748b] text-sm">No messages yet — ask Luchii to "run a threat scan" or "pull billing data"</div>}
               {messages.map((m, i) => (
                 <div key={i}>
                   <span className={m.from === "luchii" ? "text-[#4ade80]" : m.tip ? "text-[#facc15]" : "text-[#f87171]"}>{m.from}</span>: <span className={m.tip ? "text-[#facc15]" : "text-[#e2e8f0]"}>{m.text}</span>
                   {m.artifact && (
-                    <div className="mt-1 mb-2 ml-4 rounded-lg border border-[#1e293b] bg-[#020617] p-2.5 text-xs space-y-1" data-testid={`engine-artifact-${m.artifact.engine}`}>
+                    <div className="mt-1 mb-2 ml-4 rounded-lg border border-[#1e293b] bg-[#020617] p-2.5 text-sm space-y-1" data-testid={`engine-artifact-${m.artifact.engine}`}>
                       <div className="flex items-center justify-between">
-                        <span className="text-[#a78bfa] uppercase tracking-widest text-[10px]">{m.artifact.engine} engine</span>
+                        <span className="text-[#a78bfa] uppercase tracking-widest text-[13px]">{m.artifact.engine} engine</span>
                         <span className="font-mono text-[#facc15]">{m.artifact.score}/100</span>
                       </div>
                       <div className="text-[#f8fafc]">{m.artifact.tag}</div>
@@ -353,42 +353,42 @@ export const LinqLive = ({ identity }) => {
         <div className="bg-[#0f172a] border border-[#1e293b] rounded-lg p-4 space-y-4 max-h-[560px] overflow-y-auto" data-testid="preview-panel">
           <h4 className="text-[#f8fafc] text-sm">Realtime Core Preview</h4>
           <div>
-            <div className="text-[10px] text-[#94a3b8] uppercase tracking-widest mb-1">Rooms</div>
+            <div className="text-[13px] text-[#94a3b8] uppercase tracking-widest mb-1">Rooms</div>
             {(preview?.rooms || []).slice(0, 6).map((r) => (
-              <div key={r.roomId} className="text-xs text-[#cbd5e1]">{r.status === "live" ? "🔴" : "⚫"} {r.roomId} · {r.viewerCount} viewers</div>
+              <div key={r.roomId} className="text-sm text-[#cbd5e1]">{r.status === "live" ? "🔴" : "⚫"} {r.roomId} · {r.viewerCount} viewers</div>
             ))}
-            {(!preview || preview.rooms.length === 0) && <div className="text-xs text-[#64748b]">None</div>}
+            {(!preview || preview.rooms.length === 0) && <div className="text-sm text-[#64748b]">None</div>}
           </div>
           <div>
-            <div className="text-[10px] text-[#94a3b8] uppercase tracking-widest mb-1">Recent events</div>
+            <div className="text-[13px] text-[#94a3b8] uppercase tracking-widest mb-1">Recent events</div>
             {(preview?.events || []).slice(0, 10).map((e) => (
-              <div key={e.id} className="text-[11px] text-[#94a3b8] truncate"><span className="text-[#f87171]">{e.type}</span> · {e.identity}</div>
+              <div key={e.id} className="text-[13.5px] text-[#94a3b8] truncate"><span className="text-[#f87171]">{e.type}</span> · {e.identity}</div>
             ))}
-            {(!preview || preview.events.length === 0) && <div className="text-xs text-[#64748b]">None</div>}
+            {(!preview || preview.events.length === 0) && <div className="text-sm text-[#64748b]">None</div>}
           </div>
           <div>
-            <div className="text-[10px] text-[#94a3b8] uppercase tracking-widest mb-1">Summaries</div>
+            <div className="text-[13px] text-[#94a3b8] uppercase tracking-widest mb-1">Summaries</div>
             {(preview?.summaries || []).slice(0, 4).map((s) => (
-              <div key={s.id} className="text-[11px] text-[#cbd5e1] truncate">{s.roomId}: {(s.summary?.topics || []).join(", ")}</div>
+              <div key={s.id} className="text-[13.5px] text-[#cbd5e1] truncate">{s.roomId}: {(s.summary?.topics || []).join(", ")}</div>
             ))}
-            {(!preview || preview.summaries.length === 0) && <div className="text-xs text-[#64748b]">None</div>}
+            {(!preview || preview.summaries.length === 0) && <div className="text-sm text-[#64748b]">None</div>}
           </div>
           <div>
-            <div className="text-[10px] text-[#94a3b8] uppercase tracking-widest mb-1">💸 Top tippers — {roomName}</div>
+            <div className="text-[13px] text-[#94a3b8] uppercase tracking-widest mb-1">💸 Top tippers — {roomName}</div>
             {(leaderboard || []).map((t, i) => (
-              <div key={t.from} className="flex items-center justify-between text-[11px]" data-testid={`tip-leader-${i}`}>
+              <div key={t.from} className="flex items-center justify-between text-[13.5px]" data-testid={`tip-leader-${i}`}>
                 <span className="text-[#cbd5e1] truncate">{["🥇", "🥈", "🥉"][i] || "·"} {t.from}</span>
                 <span className="font-mono text-[#facc15]">${t.total}</span>
               </div>
             ))}
-            {(!leaderboard || leaderboard.length === 0) && <div className="text-xs text-[#64748b]">No tips yet</div>}
+            {(!leaderboard || leaderboard.length === 0) && <div className="text-sm text-[#64748b]">No tips yet</div>}
           </div>
           <div>
-            <div className="text-[10px] text-[#94a3b8] uppercase tracking-widest mb-1">Luchii actions</div>
+            <div className="text-[13px] text-[#94a3b8] uppercase tracking-widest mb-1">Luchii actions</div>
             {(preview?.agentActions || []).slice(0, 5).map((a) => (
-              <div key={a.id} className="text-[11px] text-[#4ade80] truncate">{a.action} · {a.from}</div>
+              <div key={a.id} className="text-[13.5px] text-[#4ade80] truncate">{a.action} · {a.from}</div>
             ))}
-            {(!preview || preview.agentActions.length === 0) && <div className="text-xs text-[#64748b]">None</div>}
+            {(!preview || preview.agentActions.length === 0) && <div className="text-sm text-[#64748b]">None</div>}
           </div>
         </div>
       </div>

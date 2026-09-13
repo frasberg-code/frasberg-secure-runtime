@@ -400,11 +400,11 @@ export default function Builder({ type = "website" }) {
             ))}
           </div>
           {quota && (
-            <p className="mt-3 font-mono text-[13px] uppercase tracking-[0.2em] text-lux-text2" data-testid="builder-quota">
+            <p className="mt-3 font-mono text-[15px] uppercase tracking-[0.2em] text-lux-text2" data-testid="builder-quota">
               {quota.used} / {quota.limit} builds used today {quota.pro ? "· Pro" : ""}
             </p>
           )}
-          <p className="mt-2 font-mono text-[13.5px] uppercase tracking-[0.25em] text-lux-accent" data-testid="builder-engine-badge">
+          <p className="mt-2 font-mono text-[15.5px] uppercase tracking-[0.25em] text-lux-accent" data-testid="builder-engine-badge">
             ◈ Powered by Luchii 70B — Frasberg sovereign engine
           </p>
         </div>
@@ -418,9 +418,9 @@ export default function Builder({ type = "website" }) {
                   className="flex w-full items-center justify-center gap-2 rounded-full bg-lux-text px-5 py-2.5 text-sm font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
                   <Sparkles size={15} /> New build
                 </Link>
-                <p className="mt-6 px-1 font-mono text-[13px] uppercase tracking-[0.2em] text-lux-text2">My {type === "website" ? "websites" : type === "game" ? "games" : type === "landing" ? "landing pages" : "apps"}</p>
+                <p className="mt-6 px-1 font-mono text-[15px] uppercase tracking-[0.2em] text-lux-text2">My {type === "website" ? "websites" : type === "game" ? "games" : type === "landing" ? "landing pages" : "apps"}</p>
                 <div className="mt-3 max-h-[55vh] space-y-1.5 overflow-y-auto pr-1" data-testid="builder-projects-list">
-                  {projects.length === 0 && <p className="px-1 text-[13px] text-lux-text2">Nothing built yet — describe your first {type} above.</p>}
+                  {projects.length === 0 && <p className="px-1 text-[15px] text-lux-text2">Nothing built yet — describe your first {type} above.</p>}
                   {projects.map((p) => (
                     <div key={p.id} onClick={() => openProject(p)} data-testid={`builder-project-${p.id}`}
                       className={`cursor-pointer rounded-xl border px-4 py-3 transition-colors ${current?.id === p.id ? "border-lux-accent bg-lux-surface" : "border-lux-border bg-lux-surface/60 hover:border-lux-accent/50"}`}>
@@ -429,7 +429,7 @@ export default function Builder({ type = "website" }) {
                         <button onClick={(e) => deleteProject(p, e)} aria-label="Delete project" data-testid={`builder-delete-${p.id}`}
                           className="shrink-0 text-lux-text2 transition-colors hover:text-red-500"><Trash2 size={13} /></button>
                       </div>
-                      <p className="mt-1 font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">
+                      <p className="mt-1 font-mono text-[15.5px] uppercase tracking-wide text-lux-text2">
                         {p.published ? "● live" : "draft"}{p.custom_domain ? ` · ${p.custom_domain}` : ""}
                       </p>
                     </div>
@@ -439,7 +439,7 @@ export default function Builder({ type = "website" }) {
             ) : (
               <div className="rounded-2xl border border-lux-border bg-lux-surface p-6" data-testid="builder-signin-card">
                 <p className="font-display text-lg font-700 tracking-tight">Sign in to build</p>
-                <p className="mt-2 text-[13px] leading-relaxed text-lux-text2">
+                <p className="mt-2 text-[15px] leading-relaxed text-lux-text2">
                   Create a free account to build with Luchii, save your builds and publish them with Pro.
                 </p>
                 <Link to={`/auth?mode=login&next=%2F${type}-builder`} data-testid="builder-signin-cta"
@@ -455,11 +455,11 @@ export default function Builder({ type = "website" }) {
             <div className="glass rounded-3xl p-5">
               {type === "game" && !current && !busy && (
                 <div className="mb-3 flex flex-wrap items-center gap-2" data-testid="builder-game-templates">
-                  <span className="font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2">One-click starters:</span>
+                  <span className="font-mono text-[15.5px] uppercase tracking-[0.2em] text-lux-text2">One-click starters:</span>
                   {GAME_TEMPLATES.map((t) => (
                     <button key={t.id} type="button" data-testid={`builder-template-${t.id}`}
                       onClick={() => { setPrompt(t.prompt); generate(t.prompt); }}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-lux-accent/50 bg-lux-accent/10 px-3.5 py-1.5 text-[13px] font-600 text-lux-text transition-all hover:-translate-y-0.5 hover:border-lux-accent">
+                      className="inline-flex items-center gap-1.5 rounded-full border border-lux-accent/50 bg-lux-accent/10 px-3.5 py-1.5 text-[15px] font-600 text-lux-text transition-all hover:-translate-y-0.5 hover:border-lux-accent">
                       <Sparkles size={12} className="text-lux-accent" /> {t.label}
                     </button>
                   ))}
@@ -467,7 +467,7 @@ export default function Builder({ type = "website" }) {
               )}
               {genAssets.length > 0 && (
                 <div className="mb-3 flex flex-wrap items-center gap-3" data-testid="builder-assets-strip">
-                  <span className="font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2">Visual assets:</span>
+                  <span className="font-mono text-[15.5px] uppercase tracking-[0.2em] text-lux-text2">Visual assets:</span>
                   {genAssets.map((a) => (
                     <div key={a.url} className="relative flex flex-col items-center gap-1">
                       <img src={`${process.env.REACT_APP_BACKEND_URL}${a.url}`} alt={a.key}
@@ -478,7 +478,7 @@ export default function Builder({ type = "website" }) {
                         className="absolute -right-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-full bg-lux-accent text-lux-bg shadow transition-transform hover:scale-110">
                         <RefreshCw size={10} className={regenBusy === a.url ? "animate-spin" : ""} />
                       </button>
-                      <span className="text-[13.5px] uppercase tracking-wider text-lux-text2">{a.kind.replace("_", " ")}</span>
+                      <span className="text-[15.5px] uppercase tracking-wider text-lux-text2">{a.kind.replace("_", " ")}</span>
                     </div>
                   ))}
                 </div>
@@ -495,7 +495,7 @@ export default function Builder({ type = "website" }) {
                 <div className="flex flex-wrap gap-2">
                   {c.examples.map((ex) => (
                     <button key={ex} type="button" onClick={() => setPrompt(ex)} data-testid="builder-example"
-                      className="rounded-full border border-lux-border px-3 py-1.5 text-[13px] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
+                      className="rounded-full border border-lux-border px-3 py-1.5 text-[15px] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
                       {ex.length > 44 ? ex.slice(0, 44) + "…" : ex}
                     </button>
                   ))}
@@ -507,7 +507,7 @@ export default function Builder({ type = "website" }) {
                 </button>
               </div>
               {busy && (
-                <p className="mt-3 font-mono text-[13px] uppercase tracking-[0.2em] text-lux-text2" data-testid="builder-progress">
+                <p className="mt-3 font-mono text-[15px] uppercase tracking-[0.2em] text-lux-text2" data-testid="builder-progress">
                   Frasberg engine · <span className="text-lux-accent">Luchii 70B</span> writing code · {chars.toLocaleString()} characters…
                 </p>
               )}
@@ -517,7 +517,7 @@ export default function Builder({ type = "website" }) {
 
             {demos.length > 0 && !busy && (
               <div className="mt-6" data-testid="builder-demos-strip">
-                <p className="font-mono text-[13px] uppercase tracking-[0.2em] text-lux-text2">Real builds by Luchii — tap one to run it instantly</p>
+                <p className="font-mono text-[15px] uppercase tracking-[0.2em] text-lux-text2">Real builds by Luchii — tap one to run it instantly</p>
                 <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                   {[...demos.filter((b) => b.type === type), ...demos.filter((b) => b.type !== type)].slice(0, 8).map((b) => (
                     <button key={b.slug} type="button" onClick={() => openDemo(b)} data-testid={`builder-demo-${b.slug}`}
@@ -536,8 +536,8 @@ export default function Builder({ type = "website" }) {
                         />
                       </div>
                       <div className="px-3 py-2">
-                        <p className="truncate text-[13px] font-600 text-lux-text">{b.title}</p>
-                        <p className="mt-0.5 flex items-center gap-1.5 font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">
+                        <p className="truncate text-[15px] font-600 text-lux-text">{b.title}</p>
+                        <p className="mt-0.5 flex items-center gap-1.5 font-mono text-[15.5px] uppercase tracking-wide text-lux-text2">
                           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                           {b.type}{typeof b.plays === "number" && b.plays > 0 ? ` · ${b.plays} plays` : ""}
                         </p>
@@ -551,21 +551,21 @@ export default function Builder({ type = "website" }) {
             {html && !busy && (
               <div className="mt-6" ref={previewRef} data-testid="builder-preview-wrap">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <p className="font-mono text-[13px] uppercase tracking-[0.2em] text-lux-text2">Live preview{current ? ` — ${current.title}` : demo ? ` — ${demo.title} (Luchii build)` : ""}</p>
+                  <p className="font-mono text-[15px] uppercase tracking-[0.2em] text-lux-text2">Live preview{current ? ` — ${current.title}` : demo ? ` — ${demo.title} (Luchii build)` : ""}</p>
                   <div className="flex flex-wrap gap-2">
                     <button onClick={openFull} data-testid="builder-open-btn"
-                      className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-2 text-[13px] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
+                      className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-2 text-[15px] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
                       <ExternalLink size={12} /> Open
                     </button>
                     <button onClick={downloadHtml} data-testid="builder-download-btn"
-                      className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-2 text-[13px] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
+                      className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-2 text-[15px] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
                       <Download size={12} /> Download
                     </button>
                     {type === "game" && current?.published && current?.slug && (
                       <button
                         onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/play/${current.slug}`).catch(() => {}); toast.success("Play link copied — share it anywhere"); }}
                         data-testid="builder-share-play-btn"
-                        className="inline-flex items-center gap-1.5 rounded-full border border-lux-accent px-4 py-2 text-[13px] text-lux-accent transition-colors hover:bg-lux-accent/10"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-lux-accent px-4 py-2 text-[15px] text-lux-accent transition-colors hover:bg-lux-accent/10"
                       >
                         <Share2 size={12} /> Copy play link{typeof current.plays === "number" ? ` · ${current.plays} plays` : ""}
                       </button>
@@ -574,17 +574,17 @@ export default function Builder({ type = "website" }) {
                       <button
                         onClick={() => { if (!user) { navigate(`/auth?mode=login&next=%2F${type}-builder%3Fremix%3D${demo.slug}`); return; } remixDone.current = false; setSearchParams({ remix: demo.slug }); }}
                         data-testid="builder-remix-demo-btn"
-                        className="inline-flex items-center gap-1.5 rounded-full bg-lux-text px-4 py-2 text-[13px] font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
+                        className="inline-flex items-center gap-1.5 rounded-full bg-lux-text px-4 py-2 text-[15px] font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
                         <Sparkles size={12} /> Remix this build
                       </button>
                     ) : current?.published && liveUrl ? (
                       <a href={liveUrl} target="_blank" rel="noreferrer" data-testid="builder-live-link"
-                        className="inline-flex items-center gap-1.5 rounded-full border border-lux-accent px-4 py-2 text-[13px] text-lux-accent">
+                        className="inline-flex items-center gap-1.5 rounded-full border border-lux-accent px-4 py-2 text-[15px] text-lux-accent">
                         <BadgeCheck size={12} /> Live site
                       </a>
                     ) : (
                       <button onClick={publish} data-testid="builder-publish-btn"
-                        className="inline-flex items-center gap-1.5 rounded-full bg-lux-text px-4 py-2 text-[13px] font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
+                        className="inline-flex items-center gap-1.5 rounded-full bg-lux-text px-4 py-2 text-[15px] font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
                         <Rocket size={12} /> Publish to Gallery
                       </button>
                     )}
@@ -600,23 +600,23 @@ export default function Builder({ type = "website" }) {
 
                 {current?.published && (
                   <div className="mt-4 rounded-2xl border border-lux-border bg-lux-surface/60 p-5" data-testid="builder-domain-card">
-                    <p className="flex items-center gap-2 font-mono text-[13px] uppercase tracking-[0.2em] text-lux-text2"><Link2 size={13} /> Custom domain (Pro)</p>
+                    <p className="flex items-center gap-2 font-mono text-[15px] uppercase tracking-[0.2em] text-lux-text2"><Link2 size={13} /> Custom domain (Pro)</p>
                     <div className="mt-3 flex gap-2">
                       <input value={domainInput} onChange={(e) => setDomainInput(e.target.value)} placeholder={current.custom_domain || "yourdomain.com"}
                         data-testid="builder-domain-input"
                         className="w-full rounded-xl border border-lux-border bg-lux-surface px-4 py-2.5 text-sm outline-none focus:border-lux-accent" />
                       <button onClick={attachDomain} data-testid="builder-domain-attach-btn"
-                        className="shrink-0 rounded-full border border-lux-accent px-5 py-2 text-[13px] font-600 text-lux-accent transition-transform hover:-translate-y-0.5">
+                        className="shrink-0 rounded-full border border-lux-accent px-5 py-2 text-[15px] font-600 text-lux-accent transition-transform hover:-translate-y-0.5">
                         Attach
                       </button>
                     </div>
                     {current.custom_domain && (
                       <div className="mt-4 flex flex-wrap items-center gap-2" data-testid="builder-domain-status">
-                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-[13.5px] uppercase tracking-wide ${current.domain_verified ? "border-lux-accent text-lux-accent" : "border-lux-border text-lux-text2"}`}>
+                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-[15.5px] uppercase tracking-wide ${current.domain_verified ? "border-lux-accent text-lux-accent" : "border-lux-border text-lux-text2"}`}>
                           <ShieldCheck size={11} /> {current.custom_domain} — {current.domain_verified ? "verified · live" : "pending verification"}
                         </span>
                         <button onClick={verifyDomain} disabled={verifyBusy} data-testid="builder-domain-verify-btn"
-                          className="inline-flex items-center gap-1.5 rounded-full bg-lux-text px-4 py-1.5 text-[13px] font-600 text-lux-bg transition-transform hover:-translate-y-0.5 disabled:opacity-50">
+                          className="inline-flex items-center gap-1.5 rounded-full bg-lux-text px-4 py-1.5 text-[15px] font-600 text-lux-bg transition-transform hover:-translate-y-0.5 disabled:opacity-50">
                           {verifyBusy ? <Loader2 size={11} className="animate-spin" /> : <ShieldCheck size={11} />} Verify DNS
                         </button>
                       </div>
@@ -624,7 +624,7 @@ export default function Builder({ type = "website" }) {
                     {verifyChecks && (
                       <div className="mt-3 space-y-1.5" data-testid="builder-verify-results">
                         {verifyChecks.map((c) => (
-                          <p key={c.type} className={`rounded-xl px-3 py-2 font-mono text-[13px] ${c.ok ? "bg-lux-accent/10 text-lux-accent" : "bg-lux-surface2 text-lux-text2"}`}>
+                          <p key={c.type} className={`rounded-xl px-3 py-2 font-mono text-[15px] ${c.ok ? "bg-lux-accent/10 text-lux-accent" : "bg-lux-surface2 text-lux-text2"}`}>
                             {c.ok ? "✓" : "✗"} {c.type} {c.host} → expected {c.expected}{c.found?.length ? ` · found ${c.found.join(", ")}` : " · no record found"}
                           </p>
                         ))}
@@ -632,9 +632,9 @@ export default function Builder({ type = "website" }) {
                     )}
                     {dns && (
                       <div className="mt-4 space-y-2" data-testid="builder-dns-records">
-                        <p className="text-[13px] text-lux-text2">{dns.note}</p>
+                        <p className="text-[15px] text-lux-text2">{dns.note}</p>
                         {dns.dns.map((r) => (
-                          <p key={r.host} className="rounded-xl bg-lux-surface2 px-3 py-2 font-mono text-[13px] text-lux-text">
+                          <p key={r.host} className="rounded-xl bg-lux-surface2 px-3 py-2 font-mono text-[15px] text-lux-text">
                             {r.type} · {r.host} → {r.value}
                           </p>
                         ))}

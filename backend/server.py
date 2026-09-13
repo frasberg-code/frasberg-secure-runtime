@@ -22,6 +22,7 @@ from datetime import datetime, timezone, timedelta
 
 from emergentintegrations.llm.chat import LlmChat, UserMessage, TextDelta, StreamDone, ImageContent
 from emergentintegrations.llm.openai.image_generation import OpenAIImageGeneration
+from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionRequest
 from emergentintegrations.llm.openai import OpenAISpeechToText, OpenAITextToSpeech
 import base64
 import tempfile
@@ -380,6 +381,9 @@ class KeyCreate(BaseModel):
     permissions: Optional[dict] = None
     auto_disable_if_leaked: bool = True
     workspace_name: Optional[str] = None
+    restrict_key: bool = False
+    usage_limit_credits: Optional[int] = None
+    credit_refresh_period: Optional[str] = None
 
 
 def _fallback_reply(message: str, model: str) -> str:
@@ -2319,6 +2323,9 @@ async def create_key(body: KeyCreate, user: dict = Depends(auth_module.get_curre
         "permissions": permissions,
         "auto_disable_if_leaked": bool(body.auto_disable_if_leaked),
         "workspace_name": (body.workspace_name or "").strip()[:80] or None,
+        "restrict_key": bool(body.restrict_key),
+        "usage_limit_credits": int(body.usage_limit_credits) if (body.usage_limit_credits and int(body.usage_limit_credits) > 0) else None,
+        "credit_refresh_period": body.credit_refresh_period if (body.credit_refresh_period or "").lower() in REFRESH_PERIODS else None,
         "status": "active",
     }
     await db.api_keys.insert_one({**doc})
@@ -2933,6 +2940,122 @@ async def paypal_capture_order(order_id: str, body: OrderCapture):
     except Exception:
         logger.exception("paypal capture error")
         raise HTTPException(status_code=502, detail="PayPal is unavailable")
+
+
+STRIPE_API_KEY = os.environ.get("STRIPE_API_KEY", "")
+
+
+def _stripe_client(request: Request) -> StripeCheckout:
+    host_url = str(request.base_url)
+    return StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=f"{host_url}api/webhook/stripe")
+
+
+class StripeCheckoutBody(BaseModel):
+    plan_id: str
+    key_id: Optional[str] = None
+    origin_url: str
+
+
+@api_router.get("/payments/config")
+async def stripe_config():
+    return {"configured": bool(STRIPE_API_KEY), "plans": list(PLANS.values())}
+
+
+@api_router.post("/payments/checkout")
+async def stripe_create_checkout(body: StripeCheckoutBody, request: Request):
+    if not STRIPE_API_KEY:
+        raise HTTPException(status_code=503, detail="Stripe not configured")
+    plan = PLANS.get(body.plan_id)
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    amount = float(plan["price"])
+    checkout_req = CheckoutSessionRequest(
+        amount=amount, currency="usd",
+        success_url=f"{body.origin_url}/payment/success?session_id={{CHECKOUT_SESSION_ID}}",
+        cancel_url=f"{body.origin_url}/payment/cancel",
+        metadata={"plan_id": plan["id"], "key_id": body.key_id or "none"},
+    )
+    try:
+        session = await _stripe_client(request).create_checkout_session(checkout_req)
+    except Exception as e:
+        logger.exception("stripe checkout create failed")
+        msg = str(e)
+        if "cannot currently make live charges" in msg:
+            raise HTTPException(status_code=409, detail="Stripe account not yet activated for live charges — complete activation at dashboard.stripe.com")
+        raise HTTPException(status_code=502, detail="Stripe is unavailable")
+    now_iso = datetime.now(timezone.utc).isoformat()
+    await db.payment_transactions.insert_one({
+        "session_id": session.session_id, "plan_id": plan["id"],
+        "key_id": body.key_id or None, "amount": amount, "currency": "usd",
+        "credits": plan["credits"], "status": "initiated", "payment_status": "pending",
+        "created_at": now_iso, "updated_at": now_iso,
+    })
+    return {"checkout_url": session.url, "session_id": session.session_id}
+
+
+async def _fulfill_stripe_txn(session_id: str, payer_email: str = ""):
+    txn = await db.payment_transactions.find_one_and_update(
+        {"session_id": session_id, "payment_status": {"$ne": "paid"}},
+        {"$set": {"status": "completed", "payment_status": "paid",
+                  "updated_at": datetime.now(timezone.utc).isoformat()}})
+    if not txn:
+        return
+    key_id = txn.get("key_id")
+    credited = int(txn.get("credits", 0))
+    if key_id:
+        if key_id.startswith("wallet-"):
+            await db.users.update_one({"id": key_id[7:]}, {"$inc": {"credit_balance": credited}})
+        else:
+            await db.api_keys.update_one({"id": key_id}, {"$inc": {"credits": credited}})
+    await db.purchases.insert_one({
+        "id": str(uuid.uuid4()), "order_id": session_id, "plan": txn.get("plan_id"),
+        "credits": credited, "key_id": key_id, "status": "COMPLETED",
+        "provider": "stripe", "email": payer_email,
+        "ts": datetime.now(timezone.utc).isoformat(),
+    })
+    plan = PLANS.get(txn.get("plan_id"))
+    if plan and payer_email:
+        try:
+            await _send_receipt(payer_email, plan, session_id)
+        except Exception:
+            logger.exception("stripe receipt failed")
+
+
+@api_router.get("/payments/status/{session_id}")
+async def stripe_payment_status(session_id: str, request: Request):
+    txn = await db.payment_transactions.find_one({"session_id": session_id}, {"_id": 0})
+    if not txn:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    if txn.get("payment_status") != "paid":
+        try:
+            status = await _stripe_client(request).get_checkout_status(session_id)
+            if status.payment_status == "paid" or status.status == "complete":
+                email = (status.metadata or {}).get("email", "")
+                await _fulfill_stripe_txn(session_id, email)
+                txn = await db.payment_transactions.find_one({"session_id": session_id}, {"_id": 0})
+            elif status.status == "expired":
+                await db.payment_transactions.update_one(
+                    {"session_id": session_id},
+                    {"$set": {"status": "expired", "payment_status": "expired",
+                              "updated_at": datetime.now(timezone.utc).isoformat()}})
+                txn["status"] = txn["payment_status"] = "expired"
+        except Exception:
+            logger.warning("stripe status poll failed for %s", session_id)
+    return {"session_id": session_id, "status": txn.get("status"),
+            "payment_status": txn.get("payment_status"), "credits": txn.get("credits", 0)}
+
+
+@api_router.post("/webhook/stripe")
+async def stripe_webhook(request: Request):
+    body = await request.body()
+    sig = request.headers.get("Stripe-Signature", "")
+    try:
+        wr = await _stripe_client(request).handle_webhook(body, sig)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid webhook")
+    if wr.payment_status == "paid":
+        await _fulfill_stripe_txn(wr.session_id, (wr.metadata or {}).get("email", ""))
+    return {"status": "ok"}
 
 
 @api_router.get("/wallet")

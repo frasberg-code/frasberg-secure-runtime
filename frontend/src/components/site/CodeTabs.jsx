@@ -71,7 +71,7 @@ export default function CodeTabs({ apiKey }) {
               key={t}
               onClick={() => setActive(t)}
               data-testid={`quickstart-tab-${t.toLowerCase()}`}
-              className={`rounded-full px-4 py-1.5 font-mono text-[13px] transition-colors ${
+              className={`rounded-full px-4 py-1.5 font-mono text-[15px] transition-colors ${
                 active === t ? "bg-lux-accent text-lux-bg" : "text-white/55 hover:text-white"
               }`}
             >
@@ -82,16 +82,16 @@ export default function CodeTabs({ apiKey }) {
         <button
           onClick={copy}
           data-testid="quickstart-copy"
-          className="inline-flex items-center gap-1.5 font-mono text-[13px] text-white/75 transition-colors hover:text-white"
+          className="inline-flex items-center gap-1.5 font-mono text-[15px] text-white/75 transition-colors hover:text-white"
         >
           {copied ? <Check size={13} /> : <Copy size={13} />} {copied ? "Copied" : "Copy"}
         </button>
       </div>
-      <pre className="overflow-x-auto p-5 font-mono text-[13.5px] leading-relaxed text-[#c8f7ff]">
+      <pre className="overflow-x-auto p-5 font-mono text-[15.5px] leading-relaxed text-[#c8f7ff]">
         <code>{snippets[active]}</code>
       </pre>
       {!apiKey && (
-        <p className="border-t border-white/10 px-5 py-3 font-mono text-[13px] text-white/70">
+        <p className="border-t border-white/10 px-5 py-3 font-mono text-[15px] text-white/70">
           Generate a key above to auto-fill it here — or replace YOUR_API_KEY.
         </p>
       )}

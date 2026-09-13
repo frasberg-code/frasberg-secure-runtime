@@ -23,9 +23,9 @@ export default function Benchmarks() {
             <table className="w-full min-w-[560px] border-collapse text-left">
               <thead>
                 <tr className="border-b border-lux-border">
-                  <th className="py-4 font-mono text-[13px] uppercase tracking-[0.2em] text-lux-text2">Benchmark</th>
+                  <th className="py-4 font-mono text-[15px] uppercase tracking-[0.2em] text-lux-text2">Benchmark</th>
                   {COLS.map((c) => (
-                    <th key={c.key} className="py-4 font-mono text-[13px] uppercase tracking-[0.2em] text-lux-text2">
+                    <th key={c.key} className="py-4 font-mono text-[15px] uppercase tracking-[0.2em] text-lux-text2">
                       {c.label}
                     </th>
                   ))}
@@ -51,7 +51,7 @@ export default function Benchmarks() {
             </table>
           </div>
         </Reveal>
-        <p className="mt-6 font-mono text-[13px] text-lux-text2">
+        <p className="mt-6 font-mono text-[15px] text-lux-text2">
           * Representative figures from standard suites — reproducible scripts on request.
         </p>
       </div>

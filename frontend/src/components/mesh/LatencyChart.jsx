@@ -22,8 +22,8 @@ export default function LatencyChart({ regions, metrics }) {
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={history}>
           <CartesianGrid strokeDasharray="3 3" stroke="#1a1a2e" />
-          <XAxis dataKey="time" stroke="#444" tick={{ fill: "#555", fontSize: 11 }} />
-          <YAxis stroke="#444" tick={{ fill: "#555", fontSize: 11 }} unit="ms" />
+          <XAxis dataKey="time" stroke="#444" tick={{ fill: "#555", fontSize: 13 }} />
+          <YAxis stroke="#444" tick={{ fill: "#555", fontSize: 13 }} unit="ms" />
           <Tooltip contentStyle={{ background: "#111122", border: "1px solid #6c63ff", borderRadius: 8 }} labelStyle={{ color: "#aaa" }} />
           <Legend wrapperStyle={{ color: "#aaa", fontSize: 12 }} />
           {regions.map((r, i) => (
@@ -38,8 +38,8 @@ export default function LatencyChart({ regions, metrics }) {
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={metrics?.latency_history || []}>
           <CartesianGrid strokeDasharray="3 3" stroke="#1a1a2e" />
-          <XAxis dataKey="time" stroke="#444" tick={{ fill: "#555", fontSize: 10 }} />
-          <YAxis stroke="#444" tick={{ fill: "#555", fontSize: 11 }} />
+          <XAxis dataKey="time" stroke="#444" tick={{ fill: "#555", fontSize: 12 }} />
+          <YAxis stroke="#444" tick={{ fill: "#555", fontSize: 13 }} />
           <Tooltip contentStyle={{ background: "#111122", border: "1px solid #00e676", borderRadius: 8 }} labelStyle={{ color: "#aaa" }} />
           <Bar dataKey="latency" fill="#00e676" radius={[4, 4, 0, 0]} />
         </BarChart>
@@ -77,7 +77,7 @@ const styles = {
   row: { display: "flex", alignItems: "center", gap: 12, background: "#0d0d1a", borderRadius: 10, padding: "10px 16px" },
   colorDot: { width: 10, height: 10, borderRadius: 5 },
   regionName: { color: "#fff", flex: 1, fontSize: 14 },
-  realm: { color: "#555", fontSize: 11 },
+  realm: { color: "#555", fontSize: 13 },
   latency: { fontWeight: "bold", fontSize: 15, minWidth: 60, textAlign: "right" },
-  statusBadge: { padding: "3px 10px", borderRadius: 12, fontSize: 11, fontWeight: 600 },
+  statusBadge: { padding: "3px 10px", borderRadius: 12, fontSize: 13, fontWeight: 600 },
 };

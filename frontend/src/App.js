@@ -34,6 +34,8 @@ import Admin from "./pages/Admin";
 import MeshControlCenter from "./pages/MeshControlCenter";
 import Laws from "./pages/Laws";
 import Pay from "./pages/Pay";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCancel from "./pages/PaymentCancel";
 import Builder from "./pages/Builder";
 import Gallery from "./pages/Gallery";
 import PlayGame from "./pages/PlayGame";
@@ -133,6 +135,8 @@ function App() {
               <Route path="/admin/mesh" element={<MeshControlCenter />} />
               <Route path="/laws" element={<CourtGate><Laws /></CourtGate>} />
               <Route path="/pay" element={<Pay />} />
+              <Route path="/payment/success" element={<PaymentSuccess />} />
+              <Route path="/payment/cancel" element={<PaymentCancel />} />
               <Route path="/website-builder" element={<Builder type="website" />} />
               <Route path="/game-builder" element={<Builder type="game" />} />
               <Route path="/app-builder" element={<Builder type="app" />} />

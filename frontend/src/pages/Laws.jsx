@@ -110,7 +110,7 @@ export default function Laws() {
             )}
           </div>
           {query && (
-            <p className="mt-3 font-mono text-[13px] uppercase tracking-[0.2em] text-lux-text2" data-testid="laws-search-count">
+            <p className="mt-3 font-mono text-[15px] uppercase tracking-[0.2em] text-lux-text2" data-testid="laws-search-count">
               {results.length} document{results.length === 1 ? "" : "s"} match “{q.trim()}”
             </p>
           )}
@@ -124,7 +124,7 @@ export default function Laws() {
           )}
           {LAW_CATEGORIES.filter((cat) => results.some((d) => d.category === cat)).map((cat) => (
             <div key={cat} data-testid={`laws-category-${cat.toLowerCase().replace(/[^a-z]+/g, "-")}`}>
-              <p className="font-mono text-[13px] uppercase tracking-[0.25em] text-lux-accent">{cat}</p>
+              <p className="font-mono text-[15px] uppercase tracking-[0.25em] text-lux-accent">{cat}</p>
               <div className="mt-4 space-y-3">
                 {results.filter((d) => d.category === cat).map((d) => (
                   <div key={d.id} className="overflow-hidden rounded-2xl border border-lux-border bg-lux-surface/60" data-testid={`law-doc-${d.id}`}>
@@ -136,7 +136,7 @@ export default function Laws() {
                       <span className="min-w-0">
                         <span className="block font-display text-lg font-600 tracking-tight">{d.title}</span>
                         {citation(d) && (
-                          <span className="mt-1 block truncate text-[13px] text-lux-text2" data-testid={`law-citation-${d.id}`}>{citation(d)}</span>
+                          <span className="mt-1 block truncate text-[15px] text-lux-text2" data-testid={`law-citation-${d.id}`}>{citation(d)}</span>
                         )}
                       </span>
                       <ChevronDown size={17} className={`shrink-0 text-lux-text2 transition-transform ${open === d.id ? "rotate-180" : ""}`} />
@@ -147,7 +147,7 @@ export default function Laws() {
                         <button
                           onClick={() => requestDownload(d)}
                           data-testid={`law-download-${d.id}`}
-                          className="mt-5 inline-flex items-center gap-2 rounded-full border border-lux-border px-5 py-2 text-[13px] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text"
+                          className="mt-5 inline-flex items-center gap-2 rounded-full border border-lux-border px-5 py-2 text-[15px] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text"
                         >
                           <Download size={13} /> Download certified PDF · $1 (free with Pro)
                         </button>

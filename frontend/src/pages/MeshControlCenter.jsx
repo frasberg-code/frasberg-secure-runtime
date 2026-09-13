@@ -124,7 +124,7 @@ const styles = {
   quickStats: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 16, marginBottom: 28 },
   quickCard: { background: "#111122", borderRadius: 14, padding: "16px 20px", border: "1px solid", display: "flex", flexDirection: "column", gap: 6 },
   quickIcon: { fontSize: 22 },
-  quickLabel: { color: "#555", fontSize: 11 },
+  quickLabel: { color: "#555", fontSize: 13 },
   tabBar: { display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 24 },
   tab: { padding: "8px 18px", borderRadius: 20, border: "1px solid", cursor: "pointer", fontSize: 13, fontWeight: 600, transition: "background-color 0.2s, color 0.2s" },
   tabContent: { background: "#111122", borderRadius: 16, padding: 24, border: "1px solid #1a1a2e" },

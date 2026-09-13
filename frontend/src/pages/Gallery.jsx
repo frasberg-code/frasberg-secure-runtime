@@ -95,7 +95,7 @@ export default function Gallery() {
 
         <div className="mt-8 pb-16">
           {items === null ? (
-            <p className="text-center font-mono text-[13px] uppercase tracking-[0.2em] text-lux-text2">Loading gallery…</p>
+            <p className="text-center font-mono text-[15px] uppercase tracking-[0.2em] text-lux-text2">Loading gallery…</p>
           ) : (() => {
             const shown = items.filter((p) => !query || p.title.toLowerCase().includes(query.toLowerCase()));
             return shown.length === 0 ? (
@@ -109,7 +109,7 @@ export default function Gallery() {
               {shown.map((p) => (
                 <div key={p.id} className="relative overflow-hidden rounded-2xl border border-lux-border bg-lux-surface/60 transition-transform hover:-translate-y-1" data-testid={`gallery-card-${p.slug}`}>
                   {p.featured && (
-                    <span className="absolute right-3 top-3 z-10 inline-flex items-center gap-1 rounded-full bg-lux-accent px-2.5 py-1 font-mono text-[13.5px] font-600 uppercase tracking-wide text-lux-bg" data-testid={`gallery-featured-${p.slug}`}>
+                    <span className="absolute right-3 top-3 z-10 inline-flex items-center gap-1 rounded-full bg-lux-accent px-2.5 py-1 font-mono text-[15.5px] font-600 uppercase tracking-wide text-lux-bg" data-testid={`gallery-featured-${p.slug}`}>
                       <Star size={10} /> Featured
                     </span>
                   )}
@@ -126,7 +126,7 @@ export default function Gallery() {
                   <div className="p-5">
                     <div className="flex items-center justify-between gap-3">
                       <p className="min-w-0 truncate font-display text-base font-600 tracking-tight">{p.title}</p>
-                      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-lux-border px-2.5 py-1 font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">
+                      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-lux-border px-2.5 py-1 font-mono text-[15.5px] uppercase tracking-wide text-lux-text2">
                         {p.type === "game" ? <Gamepad2 size={11} /> : p.type === "app" ? <AppWindow size={11} /> : <Globe size={11} />} {p.type}
                       </span>
                     </div>
@@ -134,17 +134,17 @@ export default function Gallery() {
                       <div className="flex items-center gap-2">
                         {p.type === "game" ? (
                           <Link to={`/play/${p.slug}`} data-testid={`gallery-play-${p.slug}`}
-                            className="inline-flex items-center gap-1.5 rounded-full bg-lux-accent px-4 py-2 text-[13px] font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
+                            className="inline-flex items-center gap-1.5 rounded-full bg-lux-accent px-4 py-2 text-[15px] font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
                             <Play size={12} /> Play
                           </Link>
                         ) : (
                           <a href={`${process.env.REACT_APP_BACKEND_URL}/api/p/${p.slug}`} target="_blank" rel="noreferrer" data-testid={`gallery-visit-${p.slug}`}
-                            className="inline-flex items-center gap-1.5 rounded-full bg-lux-accent px-4 py-2 text-[13px] font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
+                            className="inline-flex items-center gap-1.5 rounded-full bg-lux-accent px-4 py-2 text-[15px] font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
                             <ExternalLink size={12} /> {p.type === "app" ? "Open app" : "Visit site"}
                           </a>
                         )}
                         <Link to={`/${p.type}-builder?remix=${p.slug}`} data-testid={`gallery-remix-${p.slug}`}
-                          className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-2 text-[13px] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
+                          className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-2 text-[15px] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
                           <GitFork size={12} /> Remix
                         </Link>
                         <button type="button" data-testid={`gallery-share-${p.slug}`} aria-label="Copy share link"
@@ -157,7 +157,7 @@ export default function Gallery() {
                         </button>
                       </div>
                       {p.type === "game" && (
-                        <span className="font-mono text-[13px] uppercase tracking-wide text-lux-text2" data-testid={`gallery-plays-${p.slug}`}>
+                        <span className="font-mono text-[15px] uppercase tracking-wide text-lux-text2" data-testid={`gallery-plays-${p.slug}`}>
                           {p.plays || 0} play{(p.plays || 0) === 1 ? "" : "s"}
                         </span>
                       )}
@@ -179,9 +179,9 @@ export default function Gallery() {
             {board.spotlight && (
               <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-lux-accent/50 bg-lux-accent/5 p-6" data-testid="leaderboard-spotlight">
                 <div>
-                  <p className="font-mono text-[13.5px] uppercase tracking-[0.25em] text-lux-accent">Most played this week · {board.week}</p>
+                  <p className="font-mono text-[15.5px] uppercase tracking-[0.25em] text-lux-accent">Most played this week · {board.week}</p>
                   <p className="mt-2 font-display text-xl font-700 tracking-tight">{board.spotlight.title}</p>
-                  <p className="mt-1 font-mono text-[13px] uppercase tracking-wide text-lux-text2">{board.spotlight.weekly_plays} play{board.spotlight.weekly_plays === 1 ? "" : "s"} this week · {board.spotlight.plays} all-time</p>
+                  <p className="mt-1 font-mono text-[15px] uppercase tracking-wide text-lux-text2">{board.spotlight.weekly_plays} play{board.spotlight.weekly_plays === 1 ? "" : "s"} this week · {board.spotlight.plays} all-time</p>
                 </div>
                 <Link to={`/play/${board.spotlight.slug}`} data-testid="leaderboard-spotlight-play"
                   className="inline-flex items-center gap-2 rounded-full bg-lux-accent px-6 py-3 text-sm font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
@@ -197,8 +197,8 @@ export default function Gallery() {
                     <p className="truncate text-sm text-lux-text">{g.title}</p>
                   </div>
                   <div className="flex shrink-0 items-center gap-4">
-                    <span className="font-mono text-[13px] uppercase tracking-wide text-lux-text2">{g.plays} plays</span>
-                    <Link to={`/play/${g.slug}`} className="rounded-full border border-lux-accent px-4 py-1.5 text-[13px] font-600 text-lux-accent" data-testid={`leaderboard-play-${g.slug}`}>Play</Link>
+                    <span className="font-mono text-[15px] uppercase tracking-wide text-lux-text2">{g.plays} plays</span>
+                    <Link to={`/play/${g.slug}`} className="rounded-full border border-lux-accent px-4 py-1.5 text-[15px] font-600 text-lux-accent" data-testid={`leaderboard-play-${g.slug}`}>Play</Link>
                   </div>
                 </div>
               ))}

@@ -42,35 +42,35 @@ function DeployPage({ regions }) {
   return (
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
       <div className={card} data-testid="deploy-config-panel">
-        <p className="font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400">Deployment configuration</p>
-        <label className="mt-4 block text-[13px] text-gray-300">Agent
+        <p className="font-mono text-[14px] uppercase tracking-[0.2em] text-gray-400">Deployment configuration</p>
+        <label className="mt-4 block text-[15px] text-gray-300">Agent
           <select value={agent?.id || ""} onChange={(e) => { setAgent(agents.find((a) => a.id === e.target.value)); setStep(-1); setDeployed(false); }}
             className="mt-1.5 w-full rounded-lg border border-white/20 bg-white/[0.06] px-4 py-2.5 text-[14px] text-white outline-none focus:border-cyan-400" data-testid="deploy-agent-select">
             {agents.map((a) => <option key={a.id} value={a.id} className="bg-black">{a.name} — safety {a.safety_score}/100</option>)}
           </select>
         </label>
-        <p className="mt-5 text-[13px] text-gray-300">Region selector</p>
+        <p className="mt-5 text-[15px] text-gray-300">Region selector</p>
         <div className="mt-2 grid grid-cols-2 gap-2" data-testid="deploy-region-selector">
           {regions.map((r) => (
             <button key={r.id} onClick={() => setRegion(r.id)} data-testid={`deploy-region-${r.id}`}
               className={`rounded-lg border px-3 py-2.5 text-left transition-colors ${region === r.id ? "border-cyan-400 bg-cyan-400/10" : "border-white/15 hover:border-white/35"}`}>
-              <p className="text-[13px] font-600">{r.name}</p>
-              <p className="font-mono text-[11.5px] text-gray-400">{r.status} · load {Math.round(r.load * 100)}%</p>
+              <p className="text-[15px] font-600">{r.name}</p>
+              <p className="font-mono text-[14px] text-gray-400">{r.status} · load {Math.round(r.load * 100)}%</p>
             </button>
           ))}
         </div>
         {agent && (
           <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.03] p-4">
-            <p className="font-mono text-[11.5px] uppercase tracking-wide text-gray-500">Cognition inspector</p>
+            <p className="font-mono text-[14px] uppercase tracking-wide text-gray-500">Cognition inspector</p>
             <CognitionPreview seed={agent.id} labels />
           </div>
         )}
       </div>
       <div className={card} data-testid="deploy-validator-panel">
-        <p className="font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400">Safety validator</p>
+        <p className="font-mono text-[14px] uppercase tracking-[0.2em] text-gray-400">Safety validator</p>
         <div className="mt-4 space-y-3">
           {VALIDATOR_STEPS.map((s, i) => (
-            <p key={s} className="flex items-center gap-2.5 text-[13.5px]" data-testid={`validator-step-${i}`}>
+            <p key={s} className="flex items-center gap-2.5 text-[15.5px]" data-testid={`validator-step-${i}`}>
               {step > i ? <CheckCircle2 size={15} className="text-emerald-400" />
                 : step === i ? <Loader2 size={15} className="animate-spin text-cyan-300" />
                 : <span className="grid h-[15px] w-[15px] place-items-center rounded-full border border-white/25" />}
@@ -80,8 +80,8 @@ function DeployPage({ regions }) {
         </div>
         {done && agent && (
           <div className="mt-5 rounded-xl border border-emerald-400/30 bg-emerald-400/[0.06] p-4" data-testid="deploy-summary">
-            <p className="text-[13.5px] font-700 text-emerald-300">Validation passed — ready to deploy</p>
-            <p className="mt-1 font-mono text-[12.5px] text-gray-300">{agent.name} v{agent.version} → {region} · GSS-2 band: {agent.safety_band || "verified"}</p>
+            <p className="text-[15.5px] font-700 text-emerald-300">Validation passed — ready to deploy</p>
+            <p className="mt-1 font-mono text-[14.5px] text-gray-300">{agent.name} v{agent.version} → {region} · GSS-2 band: {agent.safety_band || "verified"}</p>
           </div>
         )}
         <button onClick={() => { if (!done) { validate(); } else { setDeployed(true); toast.success(`${agent?.name} deployed to ${region} — governed autonomy active`); } }}
@@ -111,13 +111,13 @@ function EvolutionPage() {
   return (
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
       <div className={card}>
-        <p className="font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400">Lineages</p>
+        <p className="font-mono text-[14px] uppercase tracking-[0.2em] text-gray-400">Lineages</p>
         <div className="mt-3 space-y-1.5">
           {items.map((i) => (
             <button key={i.id} onClick={() => setSel(i)} data-testid={`lineage-select-${i.id}`}
               className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left transition-colors ${sel?.id === i.id ? "border-cyan-400 bg-cyan-400/10" : "border-white/10 hover:border-white/30"}`}>
-              <span className="text-[13.5px] font-600">{i.name}</span>
-              <span className="font-mono text-[11.5px]" style={{ color: bandColor(i.safety_score) }}>{i.safety_score}/100</span>
+              <span className="text-[15.5px] font-600">{i.name}</span>
+              <span className="font-mono text-[14px]" style={{ color: bandColor(i.safety_score) }}>{i.safety_score}/100</span>
             </button>
           ))}
         </div>
@@ -127,7 +127,7 @@ function EvolutionPage() {
           <>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-[16px] font-700">{sel.name} — lineage timeline</p>
-              <span className="flex items-center gap-1.5 font-mono text-[12px] text-emerald-300"><Zap size={12} /> {hist.length} validated cycle{hist.length === 1 ? "" : "s"}{delta > 0 ? ` · safety +${delta}` : ""}</span>
+              <span className="flex items-center gap-1.5 font-mono text-[14px] text-emerald-300"><Zap size={12} /> {hist.length} validated cycle{hist.length === 1 ? "" : "s"}{delta > 0 ? ` · safety +${delta}` : ""}</span>
             </div>
             <div className="mt-5 space-y-0">
               {hist.map((h, idx) => {
@@ -136,17 +136,17 @@ function EvolutionPage() {
                 return (
                   <div key={h.version} className="relative border-l border-white/15 pb-5 pl-5">
                     <span className="absolute -left-[5px] top-1 h-2.5 w-2.5 rounded-full" style={{ background: bandColor(h.safety_score) }} />
-                    <p className="flex flex-wrap items-center gap-2 text-[13.5px] font-700">
+                    <p className="flex flex-wrap items-center gap-2 text-[15.5px] font-700">
                       v{h.version}
-                      <span className="font-mono text-[11.5px] font-400 text-gray-400">{h.date}</span>
-                      <span className="font-mono text-[11.5px] font-400" style={{ color: bandColor(h.safety_score) }}>safety {h.safety_score}{d > 0 ? ` (+${d})` : ""}</span>
+                      <span className="font-mono text-[14px] font-400 text-gray-400">{h.date}</span>
+                      <span className="font-mono text-[14px] font-400" style={{ color: bandColor(h.safety_score) }}>safety {h.safety_score}{d > 0 ? ` (+${d})` : ""}</span>
                     </p>
-                    <p className="mt-1 text-[13.5px] leading-relaxed text-gray-300">{h.note}</p>
+                    <p className="mt-1 text-[15.5px] leading-relaxed text-gray-300">{h.note}</p>
                   </div>
                 );
               })}
             </div>
-            <div className="mt-2 grid grid-cols-3 gap-3 font-mono text-[12px]">
+            <div className="mt-2 grid grid-cols-3 gap-3 font-mono text-[14px]">
               {[["Mutations", hist.length], ["Benchmark Δ", delta > 0 ? `+${delta}%` : "—"], ["Band", sel.safety_band || "—"]].map(([k, v]) => (
                 <div key={k} className="rounded-lg border border-white/10 bg-white/[0.03] p-3 text-center">
                   <p className="text-gray-500">{k}</p>
@@ -175,13 +175,13 @@ function SafetyPage() {
         {SAFETY_SECTIONS.map(([t, body]) => (
           <div key={t} className={card} data-testid={`safety-section-${t.split(" ")[0].toLowerCase()}`}>
             <p className="flex items-center gap-2 text-[15px] font-700"><ShieldCheck size={15} className="text-cyan-300" /> {t}</p>
-            <p className="mt-2.5 text-[13.5px] leading-relaxed text-gray-300">{body}</p>
+            <p className="mt-2.5 text-[15.5px] leading-relaxed text-gray-300">{body}</p>
           </div>
         ))}
       </div>
       <div className={`${card} mt-5`} data-testid="gss2-bands">
-        <p className="font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400">GSS-2 scoring bands</p>
-        <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-4 font-mono text-[12.5px]">
+        <p className="font-mono text-[14px] uppercase tracking-[0.2em] text-gray-400">GSS-2 scoring bands</p>
+        <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-4 font-mono text-[14.5px]">
           {[["90–100", "Fully safe", "#34D399"], ["75–89", "Safe with monitoring", "#22D3EE"], ["60–74", "Restricted evolution", "#FBBF24"], ["0–59", "Evolution disabled", "#F87171"]].map(([r, l, c]) => (
             <div key={r} className="rounded-lg border px-3 py-2.5" style={{ borderColor: c }}>
               <p style={{ color: c }}>{r}</p>
@@ -199,15 +199,15 @@ function RegionsPage({ regions, onFailover, failoverBusy, scenario }) {
     <>
       <div className={card} data-testid="regions-map-panel">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400">AIM v2 — global mesh · live</p>
+          <p className="font-mono text-[14px] uppercase tracking-[0.2em] text-gray-400">AIM v2 — global mesh · live</p>
           <div className="flex items-center gap-3">
             {scenario?.name === "region_failover" && (
-              <span className="flex items-center gap-1.5 font-mono text-[12px] text-amber-300" data-testid="regions-failover-active">
+              <span className="flex items-center gap-1.5 font-mono text-[14px] text-amber-300" data-testid="regions-failover-active">
                 <span className="h-2 w-2 animate-pulse rounded-full bg-amber-400" /> failover active — {scenario.remaining} ticks
               </span>
             )}
             <button onClick={onFailover} disabled={failoverBusy || scenario?.name === "region_failover"} data-testid="simulate-failover-btn"
-              className="rounded-full border border-amber-400 px-4 py-1.5 text-[12.5px] font-600 text-amber-300 transition-opacity hover:opacity-80 disabled:opacity-40">
+              className="rounded-full border border-amber-400 px-4 py-1.5 text-[14.5px] font-600 text-amber-300 transition-opacity hover:opacity-80 disabled:opacity-40">
               Simulate failover
             </button>
           </div>
@@ -273,7 +273,7 @@ export default function MarketplaceV3() {
           <nav className="flex flex-wrap gap-1.5" data-testid="mv3-subnav">
             {PAGES.map(([k, label, Icon]) => (
               <Link key={k} to={`/marketplace/${k}`} data-testid={`mv3-tab-${k}`}
-                className={`flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-[13px] transition-colors ${active === k ? "border-cyan-400 bg-cyan-400/10 text-cyan-300" : "border-white/15 text-gray-300 hover:border-white/40"}`}>
+                className={`flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-[15px] transition-colors ${active === k ? "border-cyan-400 bg-cyan-400/10 text-cyan-300" : "border-white/15 text-gray-300 hover:border-white/40"}`}>
                 <Icon size={12} /> {label}
               </Link>
             ))}

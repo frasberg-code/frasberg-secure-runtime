@@ -49,18 +49,18 @@ function QuickSearch({ T, navigate }) {
           onFocus={() => setFocus(true)} onBlur={() => setTimeout(() => setFocus(false), 150)}
           onKeyDown={(e) => { if (e.key === "Enter" && results[0]) navigate(results[0].to); }}
           placeholder="Type / to search" data-testid="ws-quick-search"
-          className="w-36 bg-transparent text-[12.5px] outline-none" style={{ color: T.text }} />
-        <kbd className="rounded border px-1 font-mono text-[10px]" style={{ borderColor: T.border, color: T.muted }}>/</kbd>
+          className="w-36 bg-transparent text-[14.5px] outline-none" style={{ color: T.text }} />
+        <kbd className="rounded border px-1 font-mono text-[13px]" style={{ borderColor: T.border, color: T.muted }}>/</kbd>
       </div>
       {focus && (
         <div className="absolute left-0 top-10 z-[80] w-64 rounded-xl border p-1.5 shadow-2xl" style={{ borderColor: T.border, background: "rgba(10,14,22,0.98)" }} data-testid="ws-quick-search-results">
           {results.slice(0, 7).map((p) => (
             <button key={p.label} onMouseDown={() => navigate(p.to)} data-testid={`ws-quick-nav-${p.to.slice(1)}`}
-              className="block w-full rounded-lg px-3 py-2 text-left text-[12.5px] transition-colors hover:bg-white/[0.07]" style={{ color: T.text }}>
+              className="block w-full rounded-lg px-3 py-2 text-left text-[14.5px] transition-colors hover:bg-white/[0.07]" style={{ color: T.text }}>
               {p.label}
             </button>
           ))}
-          {results.length === 0 && <p className="px-3 py-2 text-[12.5px]" style={{ color: T.muted }}>No matches</p>}
+          {results.length === 0 && <p className="px-3 py-2 text-[14.5px]" style={{ color: T.muted }}>No matches</p>}
         </div>
       )}
     </div>
@@ -104,7 +104,7 @@ function MessageBody({ content }) {
   const out = [];
   for (let i = 0; i < parts.length; i++) {
     if (i % 3 === 0 && parts[i]) {
-      out.push(<p key={i} className="whitespace-pre-wrap text-[13.5px] leading-relaxed">{parts[i]}</p>);
+      out.push(<p key={i} className="whitespace-pre-wrap text-[15.5px] leading-relaxed">{parts[i]}</p>);
     } else if (i % 3 === 2 && parts[i] !== undefined) {
       const code = parts[i];
       out.push(
@@ -113,7 +113,7 @@ function MessageBody({ content }) {
             className="absolute right-2 top-2 hidden rounded border p-1 group-hover:block" style={{ borderColor: T.border, color: T.text2 }} aria-label="Copy code">
             <Copy size={11} />
           </button>
-          <pre className="font-mono text-[13px] leading-relaxed" style={{ color: "#c9d1d9" }}>{code}</pre>
+          <pre className="font-mono text-[15px] leading-relaxed" style={{ color: "#c9d1d9" }}>{code}</pre>
         </div>
       );
     }
@@ -555,10 +555,10 @@ export default function AgentWorkspace() {
     <main className="flex h-screen flex-col overflow-hidden" style={{ background: T.bg, color: T.text }} data-testid="agent-workspace-page">
       {/* Tab bar */}
       <div className="flex h-12 shrink-0 items-center gap-2 border-b px-3" style={{ borderColor: T.borderSub, background: T.inset }}>
-        <Link to="/apps" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors hover:bg-white/[0.05]" style={{ color: T.text2 }} data-testid="workspace-home-btn">
+        <Link to="/apps" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[15px] transition-colors hover:bg-white/[0.05]" style={{ color: T.text2 }} data-testid="workspace-home-btn">
           <Home size={14} /> Home
         </Link>
-        <div className="flex items-center gap-2 rounded-t-md border border-b-0 px-3.5 py-2 text-[13px]" style={{ borderColor: T.border, background: T.surface }} data-testid="workspace-tab">
+        <div className="flex items-center gap-2 rounded-t-md border border-b-0 px-3.5 py-2 text-[15px]" style={{ borderColor: T.border, background: T.surface }} data-testid="workspace-tab">
           <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: T.accent }} />
           {agent.name}
           <button onClick={() => navigate("/coding-agents")} aria-label="Close tab" className="ml-1 rounded p-0.5 hover:bg-white/[0.08]" data-testid="workspace-tab-close" style={{ color: T.text2 }}>
@@ -585,7 +585,7 @@ export default function AgentWorkspace() {
           <NotificationBell />
           <div className="mx-1.5 h-5 w-px" style={{ background: T.border }} />
           <AccountMenu />
-          <span className="ml-2 hidden font-mono text-[13.5px] uppercase tracking-wide lg:block" style={{ color: T.muted }}>{agent.role}</span>
+          <span className="ml-2 hidden font-mono text-[15.5px] uppercase tracking-wide lg:block" style={{ color: T.muted }}>{agent.role}</span>
         </div>
       </div>
 
@@ -609,11 +609,11 @@ export default function AgentWorkspace() {
             {messages.map((m, i) => (
               <div key={i} className={`mt-4 ${m.role === "user" ? "flex justify-end" : ""}`}>
                 {m.role === "user" ? (
-                  <div className="max-w-[85%] rounded-xl px-4 py-2.5 text-[13.5px]" style={{ background: "rgba(255,255,255,0.07)" }}>{m.content}</div>
+                  <div className="max-w-[85%] rounded-xl px-4 py-2.5 text-[15.5px]" style={{ background: "rgba(255,255,255,0.07)" }}>{m.content}</div>
                 ) : (
                   <div className="max-w-full">
                     {m.content ? <MessageBody content={m.content} /> : (
-                      <p className="flex items-center gap-2 font-mono text-[13px]" style={{ color: T.text2 }}>
+                      <p className="flex items-center gap-2 font-mono text-[15px]" style={{ color: T.text2 }}>
                         <span className="inline-block h-2 w-2 animate-pulse rounded-full" style={{ background: T.accent }} /> Thinking…
                       </p>
                     )}
@@ -628,7 +628,7 @@ export default function AgentWorkspace() {
           {showSuggest && messages.length === 0 && (
             <div className="mx-4 mb-2 rounded-lg border" style={{ borderColor: T.border, background: T.surface }} data-testid="workspace-suggestions">
               <div className="flex items-center justify-between border-b px-4 py-2.5" style={{ borderColor: T.borderSub }}>
-                <span className="flex items-center gap-2 text-[13.5px]" style={{ color: T.accent }}>
+                <span className="flex items-center gap-2 text-[15.5px]" style={{ color: T.accent }}>
                   <Sparkles size={13} /> Agent is suggesting some tasks:
                 </span>
                 <button onClick={() => setShowSuggest(false)} aria-label="Dismiss suggestions" style={{ color: T.text2 }} data-testid="workspace-suggestions-close"><X size={13} /></button>
@@ -636,7 +636,7 @@ export default function AgentWorkspace() {
               <div className="max-h-44 overflow-y-auto">
                 {agent.suggestions.map((s, i) => (
                   <button key={i} onClick={() => send(s)} data-testid={`workspace-suggestion-${i}`}
-                    className="flex w-full items-start gap-3 px-4 py-2.5 text-left text-[13.5px] transition-colors hover:bg-white/[0.04]" style={{ color: T.text }}>
+                    className="flex w-full items-start gap-3 px-4 py-2.5 text-left text-[15.5px] transition-colors hover:bg-white/[0.04]" style={{ color: T.text }}>
                     <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded border" style={{ borderColor: T.border, color: T.text2 }}><Plus size={9} /></span>
                     {s}
                   </button>
@@ -648,14 +648,14 @@ export default function AgentWorkspace() {
           {/* Status + composer */}
           <div className="shrink-0 px-4 pb-4">
             {running && (
-              <p className="mb-1.5 flex items-center gap-2 font-mono text-[13px]" style={{ color: "#10B981" }} data-testid="workspace-running">
+              <p className="mb-1.5 flex items-center gap-2 font-mono text-[15px]" style={{ color: "#10B981" }} data-testid="workspace-running">
                 <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full" style={{ background: "#10B981" }} /> Agent is running…
               </p>
             )}
             {paused && !running && (
               <div className="mb-1.5">
                 <button onClick={resumeAgent} data-testid="workspace-resume"
-                  className="flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 font-mono text-[13px] transition-colors hover:bg-white/[0.05]"
+                  className="flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 font-mono text-[15px] transition-colors hover:bg-white/[0.05]"
                   style={{ borderColor: T.accent, color: T.accent }}>
                   <Play size={10} fill="currentColor" /> Resume agent
                 </button>
@@ -663,7 +663,7 @@ export default function AgentWorkspace() {
             )}
             <div className="rounded-xl border p-2.5" style={{ borderColor: T.border, background: T.surface }}>
               {attach && (
-                <div className="mb-1.5 flex w-fit items-center gap-2 rounded-md border px-3 py-1.5 text-[13.5px]" style={{ borderColor: T.border, background: T.inset, color: T.text2 }} data-testid="workspace-attachment-chip">
+                <div className="mb-1.5 flex w-fit items-center gap-2 rounded-md border px-3 py-1.5 text-[15.5px]" style={{ borderColor: T.border, background: T.inset, color: T.text2 }} data-testid="workspace-attachment-chip">
                   <Paperclip size={11} style={{ color: T.accent }} /> {attach.name}
                   <button onClick={() => setAttach(null)} aria-label="Remove attachment" data-testid="workspace-attachment-remove" style={{ color: T.muted }}><X size={12} /></button>
                 </div>
@@ -671,13 +671,13 @@ export default function AgentWorkspace() {
               <textarea value={input} onChange={(e) => setInput(e.target.value)} rows={2}
                 onKeyDown={(e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); send(); } }}
                 placeholder="Type your build request — Enter for a new line, Ctrl+Enter to send" data-testid="workspace-input"
-                className="w-full resize-none bg-transparent px-1.5 py-1 text-[13.5px] outline-none" style={{ color: T.text }} />
+                className="w-full resize-none bg-transparent px-1.5 py-1 text-[15.5px] outline-none" style={{ color: T.text }} />
               <div className="mt-1.5 flex items-center gap-1.5">
                 <input ref={fileRef} type="file" hidden accept=".txt,.md,.html,.css,.js,.jsx,.ts,.tsx,.json,.csv,.py,image/*" onChange={onFile} data-testid="workspace-file-input" />
                 <button className={iconBtn} style={{ borderColor: attach ? T.accent : T.borderSub, color: attach ? T.accent : T.muted }} onClick={() => fileRef.current?.click()} aria-label="Attach" data-testid="workspace-attach"><Paperclip size={14} /></button>
                 <button className={iconBtn} style={{ borderColor: T.borderSub, color: T.muted }} onClick={() => { setSession(null); setMessages([]); setPublishes([]); setShowSuggest(true); try { localStorage.removeItem(`luchii-ws-${agentKey}`); } catch {} toast.success("Forked into a fresh session"); }} aria-label="Fork" data-testid="workspace-fork"><GitFork size={14} /></button>
                 <select value={model} onChange={(e) => setModel(e.target.value)} data-testid="workspace-model-select"
-                  className="rounded-md border px-3 py-1.5 font-mono text-[13px] outline-none" style={{ borderColor: T.border, background: T.inset, color: T.text }}>
+                  className="rounded-md border px-3 py-1.5 font-mono text-[15px] outline-none" style={{ borderColor: T.border, background: T.inset, color: T.text }}>
                   <option value="luchii-1b">✳ Luchii-1b</option>
                   <option value="luchii-7b">✳ Luchii-7b</option>
                   <option value="luchii-70b">✳ Luchii-70b</option>
@@ -710,7 +710,7 @@ export default function AgentWorkspace() {
             <div className="flex rounded-md border p-0.5" style={{ borderColor: T.border }}>
               {["preview", "code", "manage"].map((t) => (
                 <button key={t} onClick={() => setTab(t)} data-testid={`workspace-${t}-tab`}
-                  className="rounded px-3.5 py-1 text-[13.5px] capitalize transition-colors"
+                  className="rounded px-3.5 py-1 text-[15.5px] capitalize transition-colors"
                   style={tab === t ? { background: "rgba(255,255,255,0.09)", color: T.text } : { color: T.text2 }}>
                   {t}
                 </button>
@@ -718,12 +718,12 @@ export default function AgentWorkspace() {
             </div>
             <div className="ml-auto flex items-center gap-2">
               <div className="relative">
-                <button onClick={() => setHelpOpen((o) => !o)} className="rounded-full border px-3.5 py-1.5 text-[13px]" style={{ borderColor: helpOpen ? T.accent : T.border, color: T.text2 }} data-testid="workspace-help-btn">Need Help?</button>
+                <button onClick={() => setHelpOpen((o) => !o)} className="rounded-full border px-3.5 py-1.5 text-[15px]" style={{ borderColor: helpOpen ? T.accent : T.border, color: T.text2 }} data-testid="workspace-help-btn">Need Help?</button>
                 {helpOpen && (
                   <div className="absolute right-0 top-10 z-50 w-56 overflow-hidden rounded-lg border py-1 shadow-2xl" style={{ background: T.surface, borderColor: T.border }} data-testid="workspace-help-menu">
-                    <Link to="/docs" className="block px-4 py-2.5 text-[13.5px] transition-colors hover:bg-white/[0.05]" style={{ color: T.text }} data-testid="help-link-docs">📘 API Documentation</Link>
-                    <Link to="/luchii-code" className="block px-4 py-2.5 text-[13.5px] transition-colors hover:bg-white/[0.05]" style={{ color: T.text }} data-testid="help-link-luchii-code">✳ Luchii Code Guide</Link>
-                    <a href="mailto:support@frasberg.com" className="block px-4 py-2.5 text-[13.5px] transition-colors hover:bg-white/[0.05]" style={{ color: T.text }} data-testid="help-link-support">✉ Email Support</a>
+                    <Link to="/docs" className="block px-4 py-2.5 text-[15.5px] transition-colors hover:bg-white/[0.05]" style={{ color: T.text }} data-testid="help-link-docs">📘 API Documentation</Link>
+                    <Link to="/luchii-code" className="block px-4 py-2.5 text-[15.5px] transition-colors hover:bg-white/[0.05]" style={{ color: T.text }} data-testid="help-link-luchii-code">✳ Luchii Code Guide</Link>
+                    <a href="mailto:support@frasberg.com" className="block px-4 py-2.5 text-[15.5px] transition-colors hover:bg-white/[0.05]" style={{ color: T.text }} data-testid="help-link-support">✉ Email Support</a>
                   </div>
                 )}
               </div>
@@ -731,7 +731,7 @@ export default function AgentWorkspace() {
               <button className={iconBtn} style={{ borderColor: T.borderSub, color: T.muted }} onClick={downloadBuild} aria-label="Download build" data-testid="workspace-download"><Download size={13} /></button>
               <button className={iconBtn} style={{ borderColor: T.borderSub, color: T.muted }} onClick={() => setTab("preview")} aria-label="Reload preview" data-testid="workspace-reload"><RefreshCw size={13} /></button>
               <button onClick={republish} data-testid="workspace-republish"
-                className="flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[13.5px] font-600" style={{ background: T.text, color: T.bg }}>
+                className="flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[15.5px] font-600" style={{ background: T.text, color: T.bg }}>
                 <ExternalLink size={12} /> Re-publish
               </button>
             </div>
@@ -765,7 +765,7 @@ export default function AgentWorkspace() {
                   {toolbarOpen && (
                     <>
                       <button onClick={() => { setEditing(true); setTab("code"); }} data-testid="preview-edit-btn"
-                        className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] transition-colors hover:bg-white/[0.08]" style={{ color: T.text }}>
+                        className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[15px] transition-colors hover:bg-white/[0.08]" style={{ color: T.text }}>
                         <MousePointerClick size={13} /> Edit
                       </button>
                       <button onClick={() => setDevice((d) => (d === "desktop" ? "tablet" : d === "tablet" ? "mobile" : "desktop"))} data-testid="preview-device-btn" aria-label="Toggle device preview" title="Desktop / tablet / mobile preview"
@@ -796,28 +796,28 @@ export default function AgentWorkspace() {
               {previewHtml || editing ? (
                 <div className="relative flex h-full flex-col rounded-md border" style={{ borderColor: T.borderSub, background: T.inset }}>
                   <div className="flex shrink-0 items-center justify-between border-b px-3 py-2" style={{ borderColor: T.borderSub }}>
-                    <span className="font-mono text-[12.5px]" style={{ color: editing ? T.accent : T.text2 }} data-testid="workspace-code-status">
+                    <span className="font-mono text-[14.5px]" style={{ color: editing ? T.accent : T.text2 }} data-testid="workspace-code-status">
                       {editing ? "● Editing — changes update the preview live" : "Source"}
                     </span>
                     <span className="flex items-center gap-2">
                       <button onClick={() => { navigator.clipboard.writeText(previewHtml || "").catch(() => {}); toast.success("Code copied"); }}
-                        className="flex items-center gap-1.5 rounded border px-2.5 py-1 text-[13px]" style={{ borderColor: T.border, color: T.text2, background: T.surface }} data-testid="workspace-code-copy">
+                        className="flex items-center gap-1.5 rounded border px-2.5 py-1 text-[15px]" style={{ borderColor: T.border, color: T.text2, background: T.surface }} data-testid="workspace-code-copy">
                         <Copy size={11} /> Copy
                       </button>
                       {htmlOverride !== null && (
                         <button onClick={() => { setHtmlOverride(null); toast.success("Edits reverted — back to the agent's original build"); }}
-                          className="flex items-center gap-1.5 rounded border px-2.5 py-1 text-[13px]" style={{ borderColor: "#FBBF24", color: "#FBBF24" }} data-testid="workspace-code-undo">
+                          className="flex items-center gap-1.5 rounded border px-2.5 py-1 text-[15px]" style={{ borderColor: "#FBBF24", color: "#FBBF24" }} data-testid="workspace-code-undo">
                           <Undo2 size={11} /> Undo edits
                         </button>
                       )}
                       {editing ? (
                         <button onClick={() => { setEditing(false); setTab("preview"); toast.success("Edits applied to preview"); }}
-                          className="rounded border px-2.5 py-1 text-[13px] font-600" style={{ borderColor: T.accent, color: T.accent }} data-testid="workspace-code-done">
+                          className="rounded border px-2.5 py-1 text-[15px] font-600" style={{ borderColor: T.accent, color: T.accent }} data-testid="workspace-code-done">
                           Done — view preview
                         </button>
                       ) : (
                         <button onClick={() => setEditing(true)}
-                          className="flex items-center gap-1.5 rounded border px-2.5 py-1 text-[13px]" style={{ borderColor: T.border, color: T.text2, background: T.surface }} data-testid="workspace-code-edit">
+                          className="flex items-center gap-1.5 rounded border px-2.5 py-1 text-[15px]" style={{ borderColor: T.border, color: T.text2, background: T.surface }} data-testid="workspace-code-edit">
                           <MousePointerClick size={11} /> Edit
                         </button>
                       )}
@@ -825,9 +825,9 @@ export default function AgentWorkspace() {
                   </div>
                   {editing ? (
                     <textarea value={previewHtml || ""} onChange={(e) => setHtmlOverride(e.target.value)} spellCheck={false} data-testid="workspace-code-editor"
-                      className="min-h-0 flex-1 resize-none bg-transparent p-4 font-mono text-[13px] leading-relaxed outline-none" style={{ color: "#c9d1d9" }} />
+                      className="min-h-0 flex-1 resize-none bg-transparent p-4 font-mono text-[15px] leading-relaxed outline-none" style={{ color: "#c9d1d9" }} />
                   ) : (
-                    <pre className="min-h-0 flex-1 overflow-auto p-4 font-mono text-[13px] leading-relaxed" style={{ color: "#c9d1d9" }}>{previewHtml}</pre>
+                    <pre className="min-h-0 flex-1 overflow-auto p-4 font-mono text-[15px] leading-relaxed" style={{ color: "#c9d1d9" }}>{previewHtml}</pre>
                   )}
                 </div>
               ) : (
@@ -839,7 +839,7 @@ export default function AgentWorkspace() {
           ) : (
             <div className="min-h-0 flex-1 overflow-y-auto p-6" data-testid="workspace-manage">
               <h2 className="text-[15px] font-700">☁ Manage Publishing</h2>
-              <div className="mt-4 flex gap-5 border-b text-[13px]" style={{ borderColor: T.borderSub }}>
+              <div className="mt-4 flex gap-5 border-b text-[15px]" style={{ borderColor: T.borderSub }}>
                 {["overview", "domain", "resources", "database", "secrets"].map((t) => (
                   <button key={t} onClick={() => setManageTab(t)} data-testid={`manage-tab-${t}`}
                     className="pb-2 capitalize transition-colors"
@@ -850,7 +850,7 @@ export default function AgentWorkspace() {
               </div>
               {manageTab === "overview" ? (
                 <>
-                  <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border px-4 py-3 text-[13.5px]" style={{ borderColor: T.border, background: T.surface }}>
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border px-4 py-3 text-[15.5px]" style={{ borderColor: T.border, background: T.surface }}>
                     <span style={{ color: T.text2 }}>Noticing issues on your live app?</span>
                     <span className="flex gap-4">
                       <button className="underline" style={{ color: T.text }} onClick={() => { setTab("preview"); send("Something looks broken in the app you built — diagnose likely issues and fix them."); }} data-testid="manage-ask-fix">Ask agent to fix</button>
@@ -858,36 +858,36 @@ export default function AgentWorkspace() {
                     </span>
                   </div>
                   <div className="mt-4 rounded-lg border p-4" style={{ borderColor: T.border, background: T.surface }}>
-                    <p className="flex items-center gap-2 text-[13.5px] font-600">Run a review
-                      <span className="rounded px-1.5 py-0.5 text-[13.5px] font-700 uppercase" style={{ background: "#2563EB", color: "#fff" }}>New</span>
+                    <p className="flex items-center gap-2 text-[15.5px] font-600">Run a review
+                      <span className="rounded px-1.5 py-0.5 text-[15.5px] font-700 uppercase" style={{ background: "#2563EB", color: "#fff" }}>New</span>
                     </p>
-                    <p className="mt-0.5 text-[13.5px]" style={{ color: T.text2 }}>Let a specialist subagent review your deployed app</p>
+                    <p className="mt-0.5 text-[15.5px]" style={{ color: T.text2 }}>Let a specialist subagent review your deployed app</p>
                     <div className="mt-3 flex gap-2">
                       <select value={reviewKind} onChange={(e) => setReviewKind(e.target.value)} data-testid="manage-review-select"
-                        className="flex-1 rounded-md border px-3 py-2 text-[13.5px] outline-none" style={{ borderColor: T.border, background: T.inset, color: T.text }}>
+                        className="flex-1 rounded-md border px-3 py-2 text-[15.5px] outline-none" style={{ borderColor: T.border, background: T.inset, color: T.text }}>
                         <option>Code Review</option>
                         <option>Security Review</option>
                         <option>Performance Review</option>
                       </select>
                       <button onClick={runReview} data-testid="manage-run-review"
-                        className="rounded-md border px-4 py-2 text-[13.5px]" style={{ borderColor: T.border, color: T.text }}>✦ Run review</button>
+                        className="rounded-md border px-4 py-2 text-[15.5px]" style={{ borderColor: T.border, color: T.text }}>✦ Run review</button>
                     </div>
                   </div>
                   <div className="mt-4 rounded-lg border p-4" style={{ borderColor: T.border, background: T.surface }} data-testid="manage-custom-url">
-                    <p className="text-[13.5px] font-600">Custom preview URL</p>
-                    <p className="mt-0.5 text-[13.5px]" style={{ color: T.text2 }}>Pick a name — like a GitHub username — and your app gets its own address</p>
+                    <p className="text-[15.5px] font-600">Custom preview URL</p>
+                    <p className="mt-0.5 text-[15.5px]" style={{ color: T.text2 }}>Pick a name — like a GitHub username — and your app gets its own address</p>
                     <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                      <span className="font-mono text-[13.5px]" style={{ color: T.muted }}>https://</span>
+                      <span className="font-mono text-[15.5px]" style={{ color: T.muted }}>https://</span>
                       <input value={slugName} onChange={(e) => setSlugName(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
                         placeholder="my-app-name" maxLength={30} data-testid="custom-url-input"
-                        className="w-44 rounded-md border px-3 py-1.5 font-mono text-[13.5px] outline-none"
+                        className="w-44 rounded-md border px-3 py-1.5 font-mono text-[15.5px] outline-none"
                         style={{ borderColor: slugStatus === "taken" || slugStatus === "invalid" ? "#EF4444" : slugStatus === "available" ? "#10B981" : T.border, background: T.inset, color: T.text }} />
-                      <span className="font-mono text-[13.5px]" style={{ color: T.muted }}>.preview.frasberg.com</span>
+                      <span className="font-mono text-[15.5px]" style={{ color: T.muted }}>.preview.frasberg.com</span>
                       <button onClick={claimSlug} disabled={slugStatus !== "available"} data-testid="custom-url-claim"
-                        className="rounded-md px-4 py-1.5 text-[13.5px] font-600 transition-opacity disabled:opacity-40"
+                        className="rounded-md px-4 py-1.5 text-[15.5px] font-600 transition-opacity disabled:opacity-40"
                         style={{ background: T.accent, color: "#08090A" }}>Claim</button>
                     </div>
-                    <p className="mt-2 font-mono text-[13px]" data-testid="custom-url-status" style={{ color: slugStatus === "available" ? "#10B981" : slugStatus ? "#EF4444" : T.muted }}>
+                    <p className="mt-2 font-mono text-[15px]" data-testid="custom-url-status" style={{ color: slugStatus === "available" ? "#10B981" : slugStatus ? "#EF4444" : T.muted }}>
                       {slugStatus === "checking" && "Checking availability…"}
                       {slugStatus === "available" && `✓ ${slugName} is available`}
                       {slugStatus === "taken" && `✗ ${slugName} is taken — try another`}
@@ -896,10 +896,10 @@ export default function AgentWorkspace() {
                     </p>
                     {slugStatus === "taken" && slugSuggestions.length > 0 && (
                       <div className="mt-2 flex flex-wrap items-center gap-2" data-testid="custom-url-suggestions">
-                        <span className="font-mono text-[13px]" style={{ color: T.text2 }}>Available instead:</span>
+                        <span className="font-mono text-[15px]" style={{ color: T.text2 }}>Available instead:</span>
                         {slugSuggestions.map((s) => (
                           <button key={s} onClick={() => setSlugName(s)} data-testid={`slug-suggestion-${s}`}
-                            className="rounded-full border px-3 py-1 font-mono text-[13px] transition-colors hover:bg-white/[0.05]"
+                            className="rounded-full border px-3 py-1 font-mono text-[15px] transition-colors hover:bg-white/[0.05]"
                             style={{ borderColor: T.accent, color: T.accent }}>
                             {s}
                           </button>
@@ -908,73 +908,73 @@ export default function AgentWorkspace() {
                     )}
                     {savedSlug && (
                       <div className="mt-2 flex flex-wrap items-center gap-3 rounded-md border px-3 py-2" style={{ borderColor: "rgba(16,185,129,0.35)" }} data-testid="custom-url-active">
-                        <span className="font-mono text-[13.5px]" style={{ color: "#10B981" }}>● https://{savedSlug}.preview.frasberg.com</span>
-                        <a className="text-[13.5px] underline" style={{ color: T.accent }} href={`${process.env.REACT_APP_BACKEND_URL}/api/workspace/app/${savedSlug}`} target="_blank" rel="noreferrer" data-testid="custom-url-open">Open app ↗</a>
-                        <button className="text-[13.5px] underline" style={{ color: T.text2 }} onClick={() => { navigator.clipboard.writeText(`https://${savedSlug}.preview.frasberg.com`).catch(() => {}); toast.success("Custom URL copied"); }}>Copy</button>
+                        <span className="font-mono text-[15.5px]" style={{ color: "#10B981" }}>● https://{savedSlug}.preview.frasberg.com</span>
+                        <a className="text-[15.5px] underline" style={{ color: T.accent }} href={`${process.env.REACT_APP_BACKEND_URL}/api/workspace/app/${savedSlug}`} target="_blank" rel="noreferrer" data-testid="custom-url-open">Open app ↗</a>
+                        <button className="text-[15.5px] underline" style={{ color: T.text2 }} onClick={() => { navigator.clipboard.writeText(`https://${savedSlug}.preview.frasberg.com`).catch(() => {}); toast.success("Custom URL copied"); }}>Copy</button>
                       </div>
                     )}
                   </div>
                   <div className="mt-4 rounded-lg border p-4" style={{ borderColor: T.border, background: T.surface }} data-testid="manage-github">
-                    <p className="flex items-center gap-2 text-[13.5px] font-600"><Github size={14} /> Fork from GitHub</p>
-                    <p className="mt-0.5 text-[13.5px]" style={{ color: T.text2 }}>Fork a repo to your GitHub, import its code into this workspace to edit with Luchii, or scaffold it Frasberg-ready — sign in with GitHub first</p>
+                    <p className="flex items-center gap-2 text-[15.5px] font-600"><Github size={14} /> Fork from GitHub</p>
+                    <p className="mt-0.5 text-[15.5px]" style={{ color: T.text2 }}>Fork a repo to your GitHub, import its code into this workspace to edit with Luchii, or scaffold it Frasberg-ready — sign in with GitHub first</p>
                     <div className="mt-3 flex flex-wrap items-center gap-1.5">
                       <input value={ghOwner} onChange={(e) => setGhOwner(e.target.value.trim())} placeholder="owner" maxLength={100} data-testid="github-fork-owner"
-                        className="w-36 rounded-md border px-3 py-1.5 font-mono text-[13.5px] outline-none" style={{ borderColor: T.border, background: T.inset, color: T.text }} />
+                        className="w-36 rounded-md border px-3 py-1.5 font-mono text-[15.5px] outline-none" style={{ borderColor: T.border, background: T.inset, color: T.text }} />
                       <span className="font-mono text-[14px]" style={{ color: T.muted }}>/</span>
                       <input value={ghRepo} onChange={(e) => setGhRepo(e.target.value.trim())} placeholder="repository" maxLength={100} data-testid="github-fork-repo"
-                        className="w-44 rounded-md border px-3 py-1.5 font-mono text-[13.5px] outline-none" style={{ borderColor: T.border, background: T.inset, color: T.text }} />
+                        className="w-44 rounded-md border px-3 py-1.5 font-mono text-[15.5px] outline-none" style={{ borderColor: T.border, background: T.inset, color: T.text }} />
                       <button onClick={forkGithub} disabled={!ghOwner || !ghRepo || ghBusy} data-testid="github-fork-btn"
-                        className="flex items-center gap-1.5 rounded-md px-4 py-1.5 text-[13.5px] font-600 transition-opacity disabled:opacity-40"
+                        className="flex items-center gap-1.5 rounded-md px-4 py-1.5 text-[15.5px] font-600 transition-opacity disabled:opacity-40"
                         style={{ background: T.text, color: T.bg }}>
                         <GitFork size={12} /> {ghBusy ? "Working…" : "Fork"}
                       </button>
                       <button onClick={importGithub} disabled={!ghOwner || !ghRepo || ghBusy} data-testid="github-import-btn"
                         title="Load the repo's code into this workspace so you can edit it with Luchii"
-                        className="flex items-center gap-1.5 rounded-md border px-4 py-1.5 text-[13.5px] font-600 transition-opacity disabled:opacity-40"
+                        className="flex items-center gap-1.5 rounded-md border px-4 py-1.5 text-[15.5px] font-600 transition-opacity disabled:opacity-40"
                         style={{ borderColor: T.accent, color: T.accent }}>
                         <Download size={12} /> Import
                       </button>
                       <button onClick={scaffoldGithub} disabled={!ghOwner || !ghRepo || ghBusy} data-testid="github-scaffold-btn"
                         title="Inject Frasberg SDK starter files (frasberg.json, src/index.ts) into your fork"
-                        className="flex items-center gap-1.5 rounded-md border px-4 py-1.5 text-[13.5px] font-600 transition-opacity disabled:opacity-40"
+                        className="flex items-center gap-1.5 rounded-md border px-4 py-1.5 text-[15.5px] font-600 transition-opacity disabled:opacity-40"
                         style={{ borderColor: T.border, color: T.text2 }}>
                         <Sparkles size={12} /> Scaffold
                       </button>
                       <button onClick={loadGhRepos} disabled={ghListBusy} data-testid="github-my-repos-btn"
                         title="List your own GitHub repositories"
-                        className="flex items-center gap-1.5 rounded-md border px-4 py-1.5 text-[13.5px] font-600 transition-opacity disabled:opacity-40"
+                        className="flex items-center gap-1.5 rounded-md border px-4 py-1.5 text-[15.5px] font-600 transition-opacity disabled:opacity-40"
                         style={{ borderColor: T.border, color: T.text2 }}>
                         <Github size={12} /> {ghListBusy ? "Loading…" : ghRepos ? "Hide repos" : "My repos"}
                       </button>
                       <button onClick={() => exportGithub()} disabled={!ghOwner || !ghRepo || ghBusy} data-testid="github-push-btn"
                         title="Commit this app's HTML to the repo (creates the repo if it's yours and missing)"
-                        className="flex items-center gap-1.5 rounded-md border px-4 py-1.5 text-[13.5px] font-600 transition-opacity disabled:opacity-40"
+                        className="flex items-center gap-1.5 rounded-md border px-4 py-1.5 text-[15.5px] font-600 transition-opacity disabled:opacity-40"
                         style={{ borderColor: "#10B981", color: "#10B981" }}>
                         <ArrowUp size={12} /> Push
                       </button>
                       <button onClick={syncAgents} disabled={ghSyncBusy} data-testid="github-agent-sync-btn"
                         title="Scan all your repos for agent.json / luchii.yaml and sync them into your agent registry"
-                        className="flex items-center gap-1.5 rounded-md border px-4 py-1.5 text-[13.5px] font-600 transition-opacity disabled:opacity-40"
+                        className="flex items-center gap-1.5 rounded-md border px-4 py-1.5 text-[15.5px] font-600 transition-opacity disabled:opacity-40"
                         style={{ borderColor: T.border, color: T.text2 }}>
                         <RefreshCw size={12} className={ghSyncBusy ? "animate-spin" : ""} /> {ghSyncBusy ? "Scanning…" : "Sync agents"}
                       </button>
                     </div>
                     {ghResult && (
-                      <p className="mt-2 font-mono text-[13px]" style={{ color: "#10B981" }} data-testid="github-fork-result">
+                      <p className="mt-2 font-mono text-[15px]" style={{ color: "#10B981" }} data-testid="github-fork-result">
                         ✓ Forked — <a className="underline" href={ghResult} target="_blank" rel="noreferrer">{ghResult}</a>
                       </p>
                     )}
                     {ghAgent && (
                       <div className="mt-3 rounded-md border p-3" style={{ borderColor: "rgba(0,240,255,0.3)", background: "rgba(0,240,255,0.04)" }} data-testid="github-agent-details">
                         {ghAgent.error ? (
-                          <p className="text-[13px]" style={{ color: "#FBBF24" }}>{ghAgent.file}: {ghAgent.error}</p>
+                          <p className="text-[15px]" style={{ color: "#FBBF24" }}>{ghAgent.file}: {ghAgent.error}</p>
                         ) : (
                           <>
-                            <p className="flex items-center gap-2 text-[13.5px] font-600" style={{ color: T.accent }}>
-                              <Bot size={13} /> {ghAgent.name || ghAgent.id || "Agent"} <span className="font-mono text-[12px] font-400" style={{ color: T.text2 }}>· {ghAgent.file} · {ghAgent.repo}</span>
+                            <p className="flex items-center gap-2 text-[15.5px] font-600" style={{ color: T.accent }}>
+                              <Bot size={13} /> {ghAgent.name || ghAgent.id || "Agent"} <span className="font-mono text-[14px] font-400" style={{ color: T.text2 }}>· {ghAgent.file} · {ghAgent.repo}</span>
                             </p>
-                            {ghAgent.description && <p className="mt-1 text-[13px]" style={{ color: T.text2 }}>{ghAgent.description}</p>}
-                            <div className="mt-2 flex flex-wrap gap-1.5 font-mono text-[12px]">
+                            {ghAgent.description && <p className="mt-1 text-[15px]" style={{ color: T.text2 }}>{ghAgent.description}</p>}
+                            <div className="mt-2 flex flex-wrap gap-1.5 font-mono text-[14px]">
                               {ghAgent.model && <span className="rounded-full border px-2.5 py-0.5" style={{ borderColor: T.border, color: T.text2 }}>model: {ghAgent.model}</span>}
                               {ghAgent.entrypoint && <span className="rounded-full border px-2.5 py-0.5" style={{ borderColor: T.border, color: T.text2 }}>entry: {ghAgent.entrypoint}</span>}
                               {Object.entries(ghAgent.capabilities || {}).filter(([, v]) => v).map(([k]) => (
@@ -990,33 +990,33 @@ export default function AgentWorkspace() {
                     )}
                     {ghRepos && (
                       <div className="mt-3 max-h-64 overflow-y-auto rounded-md border" style={{ borderColor: T.borderSub }} data-testid="github-repo-browser">
-                        {ghRepos.length === 0 && <p className="p-3 text-[13.5px]" style={{ color: T.text2 }}>No repositories found on your account.</p>}
+                        {ghRepos.length === 0 && <p className="p-3 text-[15.5px]" style={{ color: T.text2 }}>No repositories found on your account.</p>}
                         {ghRepos.map((r) => (
                           <div key={r.full_name} className="flex items-center gap-2 border-b px-3 py-2 last:border-b-0" style={{ borderColor: T.borderSub }} data-testid={`github-repo-row-${r.name}`}>
                             <div className="min-w-0 flex-1">
-                              <p className="truncate font-mono text-[13px]" style={{ color: T.text }}>{r.full_name}{r.private ? " · private" : ""}</p>
-                              {r.description && <p className="truncate text-[12.5px]" style={{ color: T.muted }}>{r.description}</p>}
+                              <p className="truncate font-mono text-[15px]" style={{ color: T.text }}>{r.full_name}{r.private ? " · private" : ""}</p>
+                              {r.description && <p className="truncate text-[14.5px]" style={{ color: T.muted }}>{r.description}</p>}
                             </div>
-                            <button onClick={() => forkGithub(r.owner, r.name)} disabled={ghBusy} className="rounded border px-2.5 py-1 text-[12.5px] disabled:opacity-40" style={{ borderColor: T.border, color: T.text2 }} data-testid={`repo-fork-${r.name}`}>Fork</button>
-                            <button onClick={() => importGithub(r.owner, r.name)} disabled={ghBusy} className="rounded border px-2.5 py-1 text-[12.5px] disabled:opacity-40" style={{ borderColor: T.accent, color: T.accent }} data-testid={`repo-import-${r.name}`}>Import</button>
-                            <button onClick={() => scaffoldGithub(r.owner, r.name)} disabled={ghBusy} className="rounded border px-2.5 py-1 text-[12.5px] disabled:opacity-40" style={{ borderColor: T.border, color: T.text2 }} data-testid={`repo-scaffold-${r.name}`}>Scaffold</button>
+                            <button onClick={() => forkGithub(r.owner, r.name)} disabled={ghBusy} className="rounded border px-2.5 py-1 text-[14.5px] disabled:opacity-40" style={{ borderColor: T.border, color: T.text2 }} data-testid={`repo-fork-${r.name}`}>Fork</button>
+                            <button onClick={() => importGithub(r.owner, r.name)} disabled={ghBusy} className="rounded border px-2.5 py-1 text-[14.5px] disabled:opacity-40" style={{ borderColor: T.accent, color: T.accent }} data-testid={`repo-import-${r.name}`}>Import</button>
+                            <button onClick={() => scaffoldGithub(r.owner, r.name)} disabled={ghBusy} className="rounded border px-2.5 py-1 text-[14.5px] disabled:opacity-40" style={{ borderColor: T.border, color: T.text2 }} data-testid={`repo-scaffold-${r.name}`}>Scaffold</button>
                           </div>
                         ))}
                       </div>
                     )}
                     {ghSynced && (
                       <div className="mt-3 rounded-md border p-3" style={{ borderColor: T.borderSub }} data-testid="github-synced-agents">
-                        <p className="font-mono text-[12px] uppercase tracking-wide" style={{ color: T.muted }}>Synced agents ({ghSynced.length})</p>
-                        {ghSynced.length === 0 && <p className="mt-1.5 text-[13px]" style={{ color: T.text2 }}>No agent.json or luchii.yaml found in your repos — add one and re-sync.</p>}
+                        <p className="font-mono text-[14px] uppercase tracking-wide" style={{ color: T.muted }}>Synced agents ({ghSynced.length})</p>
+                        {ghSynced.length === 0 && <p className="mt-1.5 text-[15px]" style={{ color: T.text2 }}>No agent.json or luchii.yaml found in your repos — add one and re-sync.</p>}
                         {ghSynced.map((s) => (
                           <div key={s.repo} className="mt-2 flex flex-wrap items-center gap-2" data-testid={`synced-agent-${s.repo.replace("/", "-")}`}>
                             <Bot size={13} style={{ color: T.accent }} />
-                            <span className="text-[13px] font-600" style={{ color: T.text }}>{s.agent?.name || s.agent?.id || "Agent"}</span>
-                            <span className="font-mono text-[12px]" style={{ color: T.text2 }}>{s.repo} · {s.agent?.file}{s.agent?.model ? ` · ${s.agent.model}` : ""}</span>
-                            <span className="rounded-full border px-2 py-0.5 font-mono text-[11px]" style={{ borderColor: T.border, color: T.muted }}>{s.source === "webhook_push" ? "auto · push" : "manual"}</span>
+                            <span className="text-[15px] font-600" style={{ color: T.text }}>{s.agent?.name || s.agent?.id || "Agent"}</span>
+                            <span className="font-mono text-[14px]" style={{ color: T.text2 }}>{s.repo} · {s.agent?.file}{s.agent?.model ? ` · ${s.agent.model}` : ""}</span>
+                            <span className="rounded-full border px-2 py-0.5 font-mono text-[13.5px]" style={{ borderColor: T.border, color: T.muted }}>{s.source === "webhook_push" ? "auto · push" : "manual"}</span>
                             <button onClick={() => deployAgent(s.repo)} disabled={ghDeploying === s.repo} data-testid={`deploy-agent-${s.repo.replace("/", "-")}`}
                               title="Publish this agent to the Frasberg Marketplace in one click"
-                              className="rounded-full border px-3 py-0.5 text-[12px] font-600 transition-opacity disabled:opacity-40"
+                              className="rounded-full border px-3 py-0.5 text-[14px] font-600 transition-opacity disabled:opacity-40"
                               style={{ borderColor: T.accent, color: T.accent }}>
                               {ghDeploying === s.repo ? "Deploying…" : "Deploy to Marketplace"}
                             </button>
@@ -1026,36 +1026,36 @@ export default function AgentWorkspace() {
                     )}
                   </div>
                   <div className="mt-4 rounded-lg border p-4" style={{ borderColor: T.border, background: T.surface }} data-testid="manage-publishes">
-                    <p className="text-[13.5px] font-600">Publishes</p>
-                    <p className="mt-0.5 text-[13.5px]" style={{ color: T.text2 }}>All published versions of your app</p>
+                    <p className="text-[15.5px] font-600">Publishes</p>
+                    <p className="mt-0.5 text-[15.5px]" style={{ color: T.text2 }}>All published versions of your app</p>
                     {publishes.length === 0 ? (
-                      <p className="mt-3 font-mono text-[13px]" style={{ color: T.muted }}>No publishes yet — hit Re-publish once the agent builds something.</p>
+                      <p className="mt-3 font-mono text-[15px]" style={{ color: T.muted }}>No publishes yet — hit Re-publish once the agent builds something.</p>
                     ) : (
                       publishes.map((p) => (
                         <div key={p.n} className="mt-3 flex items-center justify-between border-t pt-3" style={{ borderColor: T.borderSub }} data-testid={`publish-row-${p.n}`}>
-                          <span className="flex items-center gap-2 text-[13.5px]">
+                          <span className="flex items-center gap-2 text-[15.5px]">
                             <span className="inline-block h-2 w-2 rounded-full" style={{ background: "#10B981" }} />
-                            Publish {p.n} · {p.at.toLocaleTimeString()} <code className="font-mono text-[13.5px]" style={{ color: T.muted }}>{p.hash}</code>
+                            Publish {p.n} · {p.at.toLocaleTimeString()} <code className="font-mono text-[15.5px]" style={{ color: T.muted }}>{p.hash}</code>
                           </span>
                           <span className="flex gap-3">
-                            {p.url && <a className="text-[13.5px] underline" style={{ color: T.accent }} href={`${process.env.REACT_APP_BACKEND_URL}${p.url}`} target="_blank" rel="noreferrer" data-testid={`publish-open-${p.n}`}>Open ↗</a>}
-                            <button className="text-[13.5px] underline" style={{ color: T.text2 }} onClick={() => toast(`Logs for publish ${p.n}: build OK · deploy OK · healthy`)}>View Logs</button>
+                            {p.url && <a className="text-[15.5px] underline" style={{ color: T.accent }} href={`${process.env.REACT_APP_BACKEND_URL}${p.url}`} target="_blank" rel="noreferrer" data-testid={`publish-open-${p.n}`}>Open ↗</a>}
+                            <button className="text-[15.5px] underline" style={{ color: T.text2 }} onClick={() => toast(`Logs for publish ${p.n}: build OK · deploy OK · healthy`)}>View Logs</button>
                           </span>
                         </div>
                       ))
                     )}
                   </div>
                   <div className="mt-5 flex items-center justify-between">
-                    <button className="text-[13.5px] underline" style={{ color: T.text2 }} onClick={() => toast("Thanks — feedback noted!")}>Give us feedback</button>
+                    <button className="text-[15.5px] underline" style={{ color: T.text2 }} onClick={() => toast("Thanks — feedback noted!")}>Give us feedback</button>
                     <div className="flex gap-2">
                       <button onClick={healthCheck} data-testid="manage-health-check"
-                        className="rounded-full border px-4 py-2 text-[13.5px]" style={{ borderColor: T.border, color: T.text }}>Run health check</button>
-                      <button onClick={republish} className="rounded-full px-4 py-2 text-[13.5px] font-600" style={{ background: T.text, color: T.bg }}>Re-publish changes</button>
+                        className="rounded-full border px-4 py-2 text-[15.5px]" style={{ borderColor: T.border, color: T.text }}>Run health check</button>
+                      <button onClick={republish} className="rounded-full px-4 py-2 text-[15.5px] font-600" style={{ background: T.text, color: T.bg }}>Re-publish changes</button>
                     </div>
                   </div>
                 </>
               ) : (
-                <div className="mt-5 rounded-lg border p-5 text-[13.5px]" style={{ borderColor: T.border, background: T.surface, color: T.text2 }}>
+                <div className="mt-5 rounded-lg border p-5 text-[15.5px]" style={{ borderColor: T.border, background: T.surface, color: T.text2 }}>
                   {manageTab === "domain" && "Custom domains are managed per project in the Luchii Builder — publish there to attach frasberg.com subdomains."}
                   {manageTab === "resources" && "This workspace runs on the shared Frasberg gateway: 1 vCPU · 512MB per session, auto-scaled."}
                   {manageTab === "database" && "Sessions persist chat history in MongoDB (chat_history). No dedicated database is attached to this workspace."}

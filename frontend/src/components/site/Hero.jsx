@@ -59,7 +59,7 @@ export default function Hero() {
             className="mb-6 inline-flex items-center gap-2 rounded-full border border-lux-border px-4 py-1.5"
           >
             <span className="h-1.5 w-1.5 animate-pulseGlow rounded-full bg-lux-accent" />
-            <span className="font-mono text-[13px] uppercase tracking-[0.2em] text-lux-text2">
+            <span className="font-mono text-[15px] uppercase tracking-[0.2em] text-lux-text2">
               Luchii v12 · Constellation Layer live
             </span>
           </motion.div>
@@ -110,7 +110,7 @@ export default function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.1 }}
-            className="mt-10 flex items-center gap-6 font-mono text-[13px] text-lux-text2"
+            className="mt-10 flex items-center gap-6 font-mono text-[15px] text-lux-text2"
           >
             <span>4 tiers</span><span className="h-3 w-px bg-lux-border" />
             <span>32K context</span><span className="h-3 w-px bg-lux-border" />
@@ -129,7 +129,7 @@ export default function Hero() {
               <button
                 onClick={() => setView("web")}
                 data-testid="view-toggle-web"
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] transition-colors duration-200 ${
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[15px] transition-colors duration-200 ${
                   view === "web" ? "bg-lux-text text-lux-bg" : "text-lux-text2"
                 }`}
               >
@@ -138,7 +138,7 @@ export default function Hero() {
               <button
                 onClick={() => setView("mobile")}
                 data-testid="view-toggle-mobile"
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] transition-colors duration-200 ${
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[15px] transition-colors duration-200 ${
                   view === "mobile" ? "bg-lux-text text-lux-bg" : "text-lux-text2"
                 }`}
               >

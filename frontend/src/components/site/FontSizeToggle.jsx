@@ -21,9 +21,9 @@ export const FontSizeToggle = () => {
   return (
     <button onClick={cycle} data-testid="font-size-toggle" aria-label="Adjust text size" title="Adjust text size"
       className="fixed bottom-6 left-5 z-50 flex h-11 items-end gap-0.5 rounded-full border border-white/20 bg-black/75 px-4 pb-2.5 font-display shadow-xl backdrop-blur-md transition-transform hover:scale-105">
-      <span className="text-[12px] leading-none text-white/80">A</span>
+      <span className="text-[14px] leading-none text-white/80">A</span>
       <span className="text-[17px] font-700 leading-none text-white">A</span>
-      {scale !== 100 && <span className="ml-1.5 font-mono text-[12px] leading-none text-cyan-300">{scale}%</span>}
+      {scale !== 100 && <span className="ml-1.5 font-mono text-[14px] leading-none text-cyan-300">{scale}%</span>}
     </button>
   );
 };

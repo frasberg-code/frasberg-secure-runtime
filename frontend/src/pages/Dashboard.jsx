@@ -35,7 +35,7 @@ function Metric({ label, value, icon: Icon, testid }) {
     <Panel className="p-5" data-testid={testid}>
       <div className="flex items-center gap-2" style={{ color: T.text2 }}>
         <Icon size={13} style={{ color: T.accent }} />
-        <span className="font-mono text-[13.5px] uppercase tracking-[0.18em]">{label}</span>
+        <span className="font-mono text-[15.5px] uppercase tracking-[0.18em]">{label}</span>
       </div>
       <p className="mt-3 font-mono text-3xl font-500 tracking-tighter" style={{ color: T.text }}>{value}</p>
     </Panel>
@@ -51,7 +51,7 @@ function SectionTitle({ children, right }) {
   );
 }
 
-const ghostBtn = "inline-flex items-center gap-1.5 rounded-sm border px-3 py-1.5 font-mono text-[13px] transition-colors";
+const ghostBtn = "inline-flex items-center gap-1.5 rounded-sm border px-3 py-1.5 font-mono text-[15px] transition-colors";
 
 function EditKeyModal({ k, onClose, onSaved }) {
   const [name, setName] = useState(k.name || "");
@@ -94,11 +94,11 @@ function EditKeyModal({ k, onClose, onSaved }) {
           </button>
         </div>
 
-        <label className="mt-4 block font-mono text-[12px] uppercase tracking-[0.16em]" style={{ color: T.text2 }}>Name</label>
+        <label className="mt-4 block font-mono text-[14px] uppercase tracking-[0.16em]" style={{ color: T.text2 }}>Name</label>
         <input value={name} onChange={(e) => setName(e.target.value)} data-testid="edit-key-name"
           className={fieldCls} style={{ borderColor: T.border, color: T.text }} />
 
-        <label className="mt-4 block font-mono text-[12px] uppercase tracking-[0.16em]" style={{ color: T.text2 }}>Expire After</label>
+        <label className="mt-4 block font-mono text-[14px] uppercase tracking-[0.16em]" style={{ color: T.text2 }}>Expire After</label>
         <select value={expireAfter} onChange={(e) => setExpireAfter(e.target.value)} data-testid="edit-key-expire"
           className={fieldCls} style={{ borderColor: T.border, background: T.surface, color: T.text }}>
           <option value="keep">Keep current</option>
@@ -118,13 +118,13 @@ function EditKeyModal({ k, onClose, onSaved }) {
           </button>
         </div>
 
-        <label className="mt-4 block font-mono text-[12px] uppercase tracking-[0.16em]"
+        <label className="mt-4 block font-mono text-[14px] uppercase tracking-[0.16em]"
           style={{ color: restrict ? T.text2 : T.muted }}>Usage Limits (Credits)</label>
         <input type="number" min="1" value={limit} disabled={!restrict} placeholder="Unlimited"
           onChange={(e) => setLimit(e.target.value)} data-testid="usage-limit-input"
           className={`${fieldCls} disabled:opacity-40`} style={{ borderColor: T.border, color: T.text }} />
 
-        <label className="mt-4 block font-mono text-[12px] uppercase tracking-[0.16em]"
+        <label className="mt-4 block font-mono text-[14px] uppercase tracking-[0.16em]"
           style={{ color: restrict ? T.text2 : T.muted }}>Per credit refresh period</label>
         <select value={period} disabled={!restrict} onChange={(e) => setPeriod(e.target.value)} data-testid="refresh-period-select"
           className={`${fieldCls} disabled:opacity-40`} style={{ borderColor: T.border, background: T.surface, color: T.text }}>
@@ -135,9 +135,9 @@ function EditKeyModal({ k, onClose, onSaved }) {
         </select>
 
         <div className="mt-6 flex justify-end gap-2 border-t pt-4" style={{ borderColor: T.borderSubtle }}>
-          <button onClick={onClose} className={ghostBtn} style={{ borderColor: T.border, color: T.text2 }}>Cancel</button>
+          <button onClick={onClose} data-testid="edit-key-cancel" className={ghostBtn} style={{ borderColor: T.border, color: T.text2 }}>Cancel</button>
           <button onClick={save} disabled={saving} data-testid="edit-key-save"
-            className="rounded-sm px-4 py-1.5 font-mono text-[13px] font-700 text-black transition-opacity hover:opacity-85 disabled:opacity-50"
+            className="rounded-sm px-4 py-1.5 font-mono text-[15px] font-700 text-black transition-opacity hover:opacity-85 disabled:opacity-50"
             style={{ background: T.accent }}>
             {saving ? "Saving…" : "Save changes"}
           </button>
@@ -274,11 +274,11 @@ export default function Dashboard() {
             <ArrowLeft size={15} style={{ color: T.text2 }} />
             <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-7 w-7 rounded-full" />
             <span className="font-display text-[15px] font-700 tracking-tight">Frasberg</span>
-            <span className="hidden text-[13px] sm:inline" style={{ color: T.text2 }}>/ Developer Console</span>
+            <span className="hidden text-[15px] sm:inline" style={{ color: T.text2 }}>/ Developer Console</span>
           </Link>
           <div className="flex items-center gap-3">
             <Link to="/verified-provider" data-testid="verified-provider-badge"
-              className="hidden items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-[12px] transition-colors sm:flex"
+              className="hidden items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-[14px] transition-colors sm:flex"
               style={{ borderColor: `${T.accent}66`, background: `${T.accent}10`, color: T.accent }}>
               <ShieldCheck size={12} /> Verified LLM Provider
             </Link>
@@ -290,14 +290,14 @@ export default function Dashboard() {
             {user && quota && (
               <button onClick={() => setShowUpgrade(true)} data-testid="quota-chip"
                 title={quota.unlimited ? "Frasberg team — unlimited access" : `${quota.rpm_limit} req/min · ${quota.monthly_token_limit.toLocaleString()} tokens/month — click to upgrade`}
-                className="hidden items-center gap-2 rounded-sm border px-3 py-1.5 font-mono text-[13px] transition-colors sm:flex"
+                className="hidden items-center gap-2 rounded-sm border px-3 py-1.5 font-mono text-[15px] transition-colors sm:flex"
                 style={{ borderColor: quotaPct > 80 ? "rgba(245,158,11,0.6)" : T.border, color: quotaPct > 80 ? "#F59E0B" : T.text2 }}>
                 <Gauge size={12} />
                 {quota.plan} · {quota.unlimited ? "Unlimited" : `${quota.monthly_tokens_used.toLocaleString()}/${quota.monthly_token_limit.toLocaleString()}`}
                 {!quota.unlimited && <span style={{ color: T.accent }}>↑ Upgrade</span>}
               </button>
             )}
-            {user && <span className="hidden font-mono text-[13px] md:inline" style={{ color: T.muted }}>{user.email}</span>}
+            {user && <span className="hidden font-mono text-[15px] md:inline" style={{ color: T.muted }}>{user.email}</span>}
           </div>
         </div>
       </header>
@@ -334,7 +334,7 @@ export default function Dashboard() {
           <Panel className="p-5" data-testid="wallet-balance">
             <div className="flex items-center gap-2" style={{ color: T.text2 }}>
               <Wallet size={13} style={{ color: T.accent }} />
-              <span className="font-mono text-[13.5px] uppercase tracking-[0.18em]">Wallet · auto top-up pool</span>
+              <span className="font-mono text-[15.5px] uppercase tracking-[0.18em]">Wallet · auto top-up pool</span>
             </div>
             <p className="mt-3 font-mono text-3xl font-500 tracking-tighter" style={{ color: T.text }}>
               {wallet.toLocaleString()}<span className="ml-1 text-sm" style={{ color: T.muted }}>tok</span>
@@ -350,13 +350,13 @@ export default function Dashboard() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2" style={{ color: T.text2 }}>
                 <Zap size={13} style={{ color: T.accent }} />
-                <span className="font-mono text-[13.5px] uppercase tracking-[0.18em]">
+                <span className="font-mono text-[15.5px] uppercase tracking-[0.18em]">
                   Plan: {quota.plan} · {quota.unlimited ? "unlimited req/min · unlimited tokens" : `${quota.rpm_limit} req/min · monthly quota`}
                 </span>
               </div>
               {!quota.unlimited && (
               <button onClick={() => setShowUpgrade(true)} data-testid="quota-upgrade-btn"
-                className="rounded-sm px-4 py-1.5 font-mono text-[13px] font-600 transition-opacity hover:opacity-85"
+                className="rounded-sm px-4 py-1.5 font-mono text-[15px] font-600 transition-opacity hover:opacity-85"
                 style={{ background: T.accent, color: "#08090A" }}>
                 Upgrade plan
               </button>
@@ -365,7 +365,7 @@ export default function Dashboard() {
             <div className="mt-3 h-1 w-full overflow-hidden rounded-sm" style={{ background: "rgba(255,255,255,0.06)" }}>
               <div className="h-full transition-all" style={{ width: `${Math.max(1, quotaPct)}%`, background: quotaPct > 80 ? "#F59E0B" : T.accent }} />
             </div>
-            <p className="mt-2 font-mono text-[13px]" style={{ color: T.text2 }}>
+            <p className="mt-2 font-mono text-[15px]" style={{ color: T.text2 }}>
               {quota.unlimited
                 ? `${quota.monthly_tokens_used.toLocaleString()} tokens used · Unlimited quota (Frasberg team)`
                 : `${quota.monthly_tokens_used.toLocaleString()} / ${quota.monthly_token_limit.toLocaleString()} tokens used (${quotaPct.toFixed(1)}%)`}
@@ -379,7 +379,7 @@ export default function Dashboard() {
         <section className="mt-10">
           <SectionTitle right={
             <>
-              <span className="flex items-center gap-1.5 font-mono text-[13.5px] uppercase tracking-widest" style={{ color: T.text2 }} data-testid="usage-live-badge">
+              <span className="flex items-center gap-1.5 font-mono text-[15.5px] uppercase tracking-widest" style={{ color: T.text2 }} data-testid="usage-live-badge">
                 <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full" style={{ background: "#10B981" }} /> live
               </span>
               <button onClick={emailStatement} disabled={sendingStatement} data-testid="email-statement-btn"
@@ -392,18 +392,18 @@ export default function Dashboard() {
           </SectionTitle>
           <Panel className="p-4" style={{ height: 230 }} data-testid="key-usage-graph">
             {daily.every((d) => d.requests === 0) ? (
-              <div className="grid h-full place-items-center font-mono text-[13px] uppercase tracking-wide" style={{ color: T.muted }}>
+              <div className="grid h-full place-items-center font-mono text-[15px] uppercase tracking-wide" style={{ color: T.muted }}>
                 No API requests yet — call the gateway with your key to see traffic here
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={daily} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="0" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                  <XAxis dataKey="day" tick={{ fontSize: 10, fill: T.muted, fontFamily: "JetBrains Mono" }} stroke="transparent" />
-                  <YAxis yAxisId="req" tick={{ fontSize: 10, fill: T.muted, fontFamily: "JetBrains Mono" }} stroke="transparent" allowDecimals={false} width={38} />
-                  <YAxis yAxisId="tok" orientation="right" tick={{ fontSize: 10, fill: T.muted, fontFamily: "JetBrains Mono" }} stroke="transparent" allowDecimals={false} width={44} />
+                  <XAxis dataKey="day" tick={{ fontSize: 12, fill: T.muted, fontFamily: "JetBrains Mono" }} stroke="transparent" />
+                  <YAxis yAxisId="req" tick={{ fontSize: 12, fill: T.muted, fontFamily: "JetBrains Mono" }} stroke="transparent" allowDecimals={false} width={38} />
+                  <YAxis yAxisId="tok" orientation="right" tick={{ fontSize: 12, fill: T.muted, fontFamily: "JetBrains Mono" }} stroke="transparent" allowDecimals={false} width={44} />
                   <Tooltip cursor={{ fill: "rgba(255,255,255,0.03)" }}
-                    contentStyle={{ background: T.inset, border: `1px solid ${T.border}`, borderRadius: 2, fontSize: 11, fontFamily: "JetBrains Mono" }} />
+                    contentStyle={{ background: T.inset, border: `1px solid ${T.border}`, borderRadius: 2, fontSize: 13, fontFamily: "JetBrains Mono" }} />
                   <Bar yAxisId="req" dataKey="requests" name="Requests" fill={T.accent} radius={[1, 1, 0, 0]} maxBarSize={22} />
                   <Bar yAxisId="tok" dataKey="tokens" name="Tokens" fill="#525860" radius={[1, 1, 0, 0]} maxBarSize={22} />
                 </BarChart>
@@ -419,14 +419,14 @@ export default function Dashboard() {
 
           {newKey?.rotated_at && (
             <div className="mt-3 rounded-sm border p-4" style={{ borderColor: "rgba(0,240,255,0.4)", background: "rgba(0,240,255,0.04)" }} data-testid="rotated-key-banner">
-              <p className="font-mono text-[13.5px] uppercase tracking-[0.18em]" style={{ color: T.accent }}>
+              <p className="font-mono text-[15.5px] uppercase tracking-[0.18em]" style={{ color: T.accent }}>
                 Key rotated — copy the new value now, it won't be shown in full again
               </p>
               <div className="mt-2.5 flex items-center justify-between gap-4">
                 <code className="truncate font-mono text-sm" style={{ color: T.text }}>{newKey.key}</code>
                 <button onClick={() => { navigator.clipboard.writeText(newKey.key).catch(() => {}); toast.success("Copied"); }}
                   data-testid="copy-rotated-key"
-                  className="inline-flex shrink-0 items-center gap-1.5 rounded-sm border px-3 py-1.5 font-mono text-[12px]"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-sm border px-3 py-1.5 font-mono text-[14px]"
                   style={{ borderColor: T.border, color: T.text2 }}>
                   <Copy size={12} /> Copy
                 </button>
@@ -449,18 +449,18 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between gap-4">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-500" style={{ color: T.text }}>{k.name}</p>
-                      <code className="font-mono text-[13px]" style={{ color: T.text2 }}>{k.key}</code>
+                      <code className="font-mono text-[15px]" style={{ color: T.text2 }}>{k.key}</code>
                       {k.expires_at && (
                         k.expires_at < new Date().toISOString() ? (
-                          <span className="ml-3 rounded-sm border px-2 py-0.5 font-mono text-[13.5px] uppercase tracking-wide"
+                          <span className="ml-3 rounded-sm border px-2 py-0.5 font-mono text-[15.5px] uppercase tracking-wide"
                             style={{ borderColor: "rgba(239,68,68,0.5)", color: "#EF4444" }} data-testid={`key-expired-${k.id}`}>Expired</span>
                         ) : (
-                          <span className="ml-3 font-mono text-[13.5px]" style={{ color: T.muted }} data-testid={`key-expires-${k.id}`}>expires {k.expires_at.slice(0, 10)}</span>
+                          <span className="ml-3 font-mono text-[15.5px]" style={{ color: T.muted }} data-testid={`key-expires-${k.id}`}>expires {k.expires_at.slice(0, 10)}</span>
                         )
                       )}
                     </div>
                     <div className="flex shrink-0 items-center gap-5">
-                      <span className="hidden font-mono text-[13px] sm:inline" style={{ color: T.text2 }}>
+                      <span className="hidden font-mono text-[15px] sm:inline" style={{ color: T.text2 }}>
                         {k.request_count} req · {k.token_count} tok
                       </span>
                       <button onClick={() => setEditKey(k)} data-testid={`edit-key-btn-${k.id}`} aria-label="Edit key" title="Edit key — name, expiry, restrictions"
@@ -484,30 +484,30 @@ export default function Dashboard() {
                     <div className="h-1 w-36 overflow-hidden rounded-sm" style={{ background: "rgba(255,255,255,0.06)" }}>
                       <div className="h-full transition-all" style={{ width: `${pct}%`, background: low ? "#EF4444" : credits < 1500 ? "#F59E0B" : "#10B981" }} />
                     </div>
-                    <span className="font-mono text-[13px]" style={{ color: low ? "#EF4444" : T.text2 }}>
+                    <span className="font-mono text-[15px]" style={{ color: low ? "#EF4444" : T.text2 }}>
                       {credits.toLocaleString()} credits
                     </span>
                     {low && (
-                      <span className="rounded-sm border px-2 py-0.5 font-mono text-[13.5px] uppercase tracking-wide"
+                      <span className="rounded-sm border px-2 py-0.5 font-mono text-[15.5px] uppercase tracking-wide"
                         style={{ borderColor: "rgba(239,68,68,0.5)", color: "#EF4444" }} data-testid={`key-low-${k.id}`}>
                         Low — top up
                       </span>
                     )}
                     {k.restrict_key && (
-                      <span className="rounded-sm border px-2 py-0.5 font-mono text-[13.5px] uppercase tracking-wide"
+                      <span className="rounded-sm border px-2 py-0.5 font-mono text-[15.5px] uppercase tracking-wide"
                         style={{ borderColor: "rgba(0,240,255,0.5)", color: T.accent }} data-testid={`key-restricted-${k.id}`}>
                         Restricted{k.usage_limit_credits ? ` · ${Number(k.usage_limit_credits).toLocaleString()}/${k.credit_refresh_period || "lifetime"}` : ""}
                       </span>
                     )}
                     <button onClick={() => toggleAutoTopup(k)} data-testid={`key-autotopup-${k.id}`}
-                      className="rounded-sm border px-2.5 py-0.5 font-mono text-[13.5px] uppercase tracking-wide transition-colors"
+                      className="rounded-sm border px-2.5 py-0.5 font-mono text-[15.5px] uppercase tracking-wide transition-colors"
                       style={atOn ? { borderColor: "rgba(16,185,129,0.6)", color: "#10B981" } : { borderColor: T.border, color: T.text2 }}>
                       Auto top-up {atOn ? "on" : "off"}
                     </button>
-                    {atOn && <span className="font-mono text-[13.5px]" style={{ color: T.muted }}>+{(k.autotopup.amount || 5000).toLocaleString()} @ &lt;{k.autotopup.threshold || 500}</span>}
+                    {atOn && <span className="font-mono text-[15.5px]" style={{ color: T.muted }}>+{(k.autotopup.amount || 5000).toLocaleString()} @ &lt;{k.autotopup.threshold || 500}</span>}
                     <select value={k.alert_threshold || 500} onChange={(e) => setAlertThreshold(k, e.target.value)}
                       data-testid={`key-alert-threshold-${k.id}`}
-                      className="rounded-sm border px-2 py-0.5 font-mono text-[13.5px] uppercase tracking-wide outline-none focus:border-[#00F0FF]"
+                      className="rounded-sm border px-2 py-0.5 font-mono text-[15.5px] uppercase tracking-wide outline-none focus:border-[#00F0FF]"
                       style={{ borderColor: T.border, background: T.surface, color: T.text2 }}>
                       <option value="250">Email alert @ 250</option>
                       <option value="500">Email alert @ 500</option>
@@ -547,10 +547,10 @@ export default function Dashboard() {
                     style={{ borderColor: T.borderSubtle }}>
                     <div>
                       <p className="text-sm font-500" style={{ color: T.text }}>{m.name}</p>
-                      <p className="font-mono text-[13px]" style={{ color: T.muted }}>{m.tier} · {m.ctx} ctx</p>
+                      <p className="font-mono text-[15px]" style={{ color: T.muted }}>{m.tier} · {m.ctx} ctx</p>
                     </div>
                     <div className="flex items-center gap-3">
-                      <code className="font-mono text-[13px]" style={{ color: T.accent }}>{m.id}</code>
+                      <code className="font-mono text-[15px]" style={{ color: T.accent }}>{m.id}</code>
                       <Cpu size={13} style={{ color: T.muted }} />
                     </div>
                   </div>
@@ -573,11 +573,11 @@ export default function Dashboard() {
                   style={{ borderColor: T.borderSubtle }} data-testid={`email-row-${e.id}`}>
                   <div className="min-w-0">
                     <p className="truncate text-sm" style={{ color: T.text }}>{e.subject}</p>
-                    <p className="font-mono text-[13.5px]" style={{ color: T.muted }}>
+                    <p className="font-mono text-[15.5px]" style={{ color: T.muted }}>
                       {(e.kind || "").replace(/_/g, " ")} · {(e.ts || "").slice(0, 16).replace("T", " ")}
                     </p>
                   </div>
-                  <span className="shrink-0 rounded-sm border px-2.5 py-0.5 font-mono text-[13.5px] uppercase tracking-wide"
+                  <span className="shrink-0 rounded-sm border px-2.5 py-0.5 font-mono text-[15.5px] uppercase tracking-wide"
                     style={e.ok ? { borderColor: "rgba(16,185,129,0.6)", color: "#10B981" } : { borderColor: "rgba(245,158,11,0.6)", color: "#F59E0B" }}>
                     {e.ok ? "Sent" : "Pending domain"}
                   </span>

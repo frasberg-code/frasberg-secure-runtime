@@ -126,7 +126,7 @@ const Code = ({ id, code }) => {
         className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-lg border border-white/10 text-white/75 hover:text-white">
         {copied ? <Check size={13} /> : <Copy size={13} />}
       </button>
-      <pre className="overflow-x-auto p-5 font-mono text-[13.5px] leading-relaxed text-[#c8d3f5]">{code}</pre>
+      <pre className="overflow-x-auto p-5 font-mono text-[15.5px] leading-relaxed text-[#c8d3f5]">{code}</pre>
     </div>
   );
 };
@@ -150,7 +150,7 @@ export default function Docs() {
       </header>
 
       <div className="mx-auto max-w-5xl px-5 py-12 sm:px-8" data-testid="docs-page">
-        <p className="font-mono text-[13.5px] uppercase tracking-[0.3em] text-lux-accent">Frasberg — Verified LLM Provider</p>
+        <p className="font-mono text-[15.5px] uppercase tracking-[0.3em] text-lux-accent">Frasberg — Verified LLM Provider</p>
         <h1 className="mt-3 font-display text-4xl font-700 tracking-tighter sm:text-5xl">Call Luchii in 60 seconds.</h1>
         <p className="mt-4 max-w-2xl text-lux-text2">
           Frasberg is an OpenAI-compatible provider with Bearer authentication and SSE streaming.
@@ -164,7 +164,7 @@ export default function Docs() {
             <div key={c.t} className="rounded-2xl border border-lux-border bg-lux-surface p-5">
               <c.icon size={18} className="text-lux-accent" />
               <p className="mt-2 font-display font-600">{c.t}</p>
-              <p className="mt-1 font-mono text-[13px] text-lux-text2">{c.d}</p>
+              <p className="mt-1 font-mono text-[15px] text-lux-text2">{c.d}</p>
             </div>
           ))}
         </div>
@@ -184,7 +184,7 @@ export default function Docs() {
           <div className="mt-4 flex gap-2">
             {["curl", "python", "javascript"].map((l) => (
               <button key={l} onClick={() => setLang(l)} data-testid={`docs-lang-${l}`}
-                className={`rounded-full px-4 py-1.5 font-mono text-[13px] transition-colors ${lang === l ? "bg-lux-text text-lux-bg" : "border border-lux-border text-lux-text2 hover:text-lux-text"}`}>
+                className={`rounded-full px-4 py-1.5 font-mono text-[15px] transition-colors ${lang === l ? "bg-lux-text text-lux-bg" : "border border-lux-border text-lux-text2 hover:text-lux-text"}`}>
                 {l}
               </button>
             ))}
@@ -219,8 +219,8 @@ export default function Docs() {
             {ENGINE_ERRORS.map(([status, code, desc]) => (
               <div key={code} className="flex flex-wrap items-center gap-3 border-b border-lux-border bg-lux-surface px-5 py-3 last:border-0">
                 <span className="font-mono text-sm text-lux-text">{status}</span>
-                <span className="rounded-full bg-red-400/15 px-2 py-0.5 font-mono text-[12.5px] text-red-400">{code}</span>
-                <span className="flex-1 text-right text-[13px] text-lux-text2">{desc}</span>
+                <span className="rounded-full bg-red-400/15 px-2 py-0.5 font-mono text-[14.5px] text-red-400">{code}</span>
+                <span className="flex-1 text-right text-[15px] text-lux-text2">{desc}</span>
               </div>
             ))}
           </div>
@@ -232,8 +232,8 @@ export default function Docs() {
             {MODELS.map((m) => (
               <div key={m.id} className="flex flex-wrap items-center gap-3 border-b border-lux-border bg-lux-surface px-5 py-3.5 last:border-0">
                 <span className="font-mono text-sm text-lux-text">{m.id}</span>
-                <span className={`rounded-full px-2 py-0.5 font-mono text-[13.5px] uppercase tracking-widest ${m.kind === "embed" ? "bg-emerald-400/15 text-emerald-400" : "bg-lux-accent/15 text-lux-accent"}`}>{m.kind}</span>
-                <span className="flex-1 text-right text-[13px] text-lux-text2">{m.desc}</span>
+                <span className={`rounded-full px-2 py-0.5 font-mono text-[15.5px] uppercase tracking-widest ${m.kind === "embed" ? "bg-emerald-400/15 text-emerald-400" : "bg-lux-accent/15 text-lux-accent"}`}>{m.kind}</span>
+                <span className="flex-1 text-right text-[15px] text-lux-text2">{m.desc}</span>
               </div>
             ))}
           </div>
@@ -251,7 +251,7 @@ export default function Docs() {
         <section className="mt-10" data-testid="docs-discovery">
           <h2 className="font-display text-2xl font-600">Provider verification</h2>
           <p className="mt-2 text-sm text-lux-text2">Standard discovery documents used by registries, routers and agent frameworks:</p>
-          <ul className="mt-3 space-y-1.5 font-mono text-[13.5px] text-lux-accent">
+          <ul className="mt-3 space-y-1.5 font-mono text-[15.5px] text-lux-accent">
             <li><a className="hover:underline" href="/.well-known/frasberg-provider.json" target="_blank" rel="noreferrer">/.well-known/frasberg-provider.json</a></li>
             <li><a className="hover:underline" href="/.well-known/provider-manifest.json" target="_blank" rel="noreferrer">/.well-known/provider-manifest.json</a></li>
             <li><a className="hover:underline" href="/api/.well-known/openapi.yaml" target="_blank" rel="noreferrer">/.well-known/openapi.yaml</a></li>

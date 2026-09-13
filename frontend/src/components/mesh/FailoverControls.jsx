@@ -34,7 +34,7 @@ export default function FailoverControls({ regions, onRefresh }) {
                 <span style={{ ...styles.dot, background: r.status === "online" ? "#00e676" : "#ff5252" }} />
                 <strong style={{ color: "#fff", fontSize: 14 }}>{r.name}</strong>
                 <span style={{
-                  marginLeft: "auto", fontSize: 10, fontWeight: "bold", padding: "3px 8px", borderRadius: 10,
+                  marginLeft: "auto", fontSize: 12, fontWeight: "bold", padding: "3px 8px", borderRadius: 10,
                   background: isPrimary ? "#00e67622" : "#1a1a2e",
                   color: isPrimary ? "#00e676" : "#555",
                 }}>

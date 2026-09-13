@@ -58,8 +58,8 @@ function LiveChat() {
           <div className="flex items-center gap-3 border-b border-gray-100 bg-black px-4 py-3.5">
             <span className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-[15px] font-700 text-white">Z</span>
             <div>
-              <p className="text-[13.5px] font-600 text-white">Zion · Frasberg Support</p>
-              <p className="flex items-center gap-1.5 text-[12px] text-emerald-400"><span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" /> Online now</p>
+              <p className="text-[15.5px] font-600 text-white">Zion · Frasberg Support</p>
+              <p className="flex items-center gap-1.5 text-[14px] text-emerald-400"><span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" /> Online now</p>
             </div>
             <button onClick={() => setOpen(false)} className="ml-auto text-white/60 hover:text-white" aria-label="Close chat" data-testid="live-chat-close"><X size={16} /></button>
           </div>
@@ -117,7 +117,7 @@ export default function Contact() {
             <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Contact</span>
           </Link>
-          <Link to="/" className="text-[13.5px] text-gray-300 transition-colors hover:text-white" data-testid="contact-home-text-link">Home</Link>
+          <Link to="/" className="text-[15.5px] text-gray-300 transition-colors hover:text-white" data-testid="contact-home-text-link">Home</Link>
         </div>
       </header>
       <div className="relative z-10 mx-auto max-w-xl px-6 py-20 sm:py-28">
@@ -167,7 +167,7 @@ export default function Contact() {
             intelligent software, cloud technologies, and enterprise solutions that help organizations, governments,
             developers, creators, researchers, and individuals solve complex problems and unlock new opportunities.
           </p>
-          <p className="mt-10 text-center font-mono text-[13px] text-gray-400" data-testid="contact-copyright">
+          <p className="mt-10 text-center font-mono text-[15px] text-gray-400" data-testid="contact-copyright">
             Copyright © 2003-2026 FRASBERG, INC., All Rights Reserved.
           </p>
         </div>

@@ -84,7 +84,7 @@ export default function DocsHub() {
 
       <div className="relative z-10 mx-auto flex max-w-6xl gap-8 px-5 py-10">
         <aside className={`${menuOpen ? "block" : "hidden"} w-full shrink-0 sm:block sm:w-56`} data-testid="docs-sidebar">
-          <p className="mb-3 font-mono text-[12.5px] uppercase tracking-[0.2em] text-gray-400">Developers</p>
+          <p className="mb-3 font-mono text-[14.5px] uppercase tracking-[0.2em] text-gray-400">Developers</p>
           {[["handbook", "Developer Handbook", BookOpen], ["whitepaper", "V1 Whitepaper", FileText]].map(([key, label, Icon]) => (
             <button key={key} onClick={() => { navigate(`/developers/docs/${key}`); setMenuOpen(false); }} data-testid={`docs-nav-${key}`}
               className={`mb-1 flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-[14px] transition-colors ${active === key ? "bg-cyan-400/10 font-600 text-cyan-300" : "text-gray-300 hover:bg-white/[0.05]"}`}>
@@ -92,9 +92,9 @@ export default function DocsHub() {
             </button>
           ))}
           <div className="mt-6 rounded-xl border border-white/10 bg-black/30 p-4">
-            <p className="text-[13px] font-600">Build with Luchii</p>
-            <p className="mt-1 text-[12.5px] text-gray-400">Open the workspace and start your first agent.</p>
-            <Link to="/chat?model=luchii-70b&agent=architect" className="mt-3 inline-block rounded-full bg-cyan-400 px-4 py-1.5 text-[12.5px] font-700 text-black" data-testid="docs-workspace-link">Open Workspace</Link>
+            <p className="text-[15px] font-600">Build with Luchii</p>
+            <p className="mt-1 text-[14.5px] text-gray-400">Open the workspace and start your first agent.</p>
+            <Link to="/chat?model=luchii-70b&agent=architect" className="mt-3 inline-block rounded-full bg-cyan-400 px-4 py-1.5 text-[14.5px] font-700 text-black" data-testid="docs-workspace-link">Open Workspace</Link>
           </div>
         </aside>
 
@@ -109,12 +109,12 @@ export default function DocsHub() {
                   <p key={i} className="mt-2.5 text-[15px] leading-relaxed text-gray-300">{line}</p>
                 ))}
                 {s.code && (
-                  <pre className="mt-4 overflow-x-auto rounded-xl border border-white/10 bg-black/50 p-4 font-mono text-[12.5px] leading-relaxed text-cyan-100">{s.code}</pre>
+                  <pre className="mt-4 overflow-x-auto rounded-xl border border-white/10 bg-black/50 p-4 font-mono text-[14.5px] leading-relaxed text-cyan-100">{s.code}</pre>
                 )}
               </section>
             ))}
           </div>
-          <p className="mt-14 border-t border-white/10 pt-6 font-mono text-[12.5px] text-gray-500">© 2003–2026 Frasberg, Inc. · All rights reserved.</p>
+          <p className="mt-14 border-t border-white/10 pt-6 font-mono text-[14.5px] text-gray-500">© 2003–2026 Frasberg, Inc. · All rights reserved.</p>
         </article>
       </div>
     </main>

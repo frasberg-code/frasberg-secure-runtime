@@ -157,10 +157,10 @@ export default function Chat() {
                   >
                     <Plus size={15} /> New chat
                   </button>
-                  <p className="mt-6 px-1 font-mono text-[13px] uppercase tracking-[0.2em] text-lux-text2">Conversations</p>
+                  <p className="mt-6 px-1 font-mono text-[15px] uppercase tracking-[0.2em] text-lux-text2">Conversations</p>
                   <div className="mt-3 max-h-[60vh] space-y-1.5 overflow-y-auto pr-1" data-testid="chat-sessions-list">
                     {sessions.length === 0 && (
-                      <p className="px-1 text-[13px] text-lux-text2">No conversations yet — Luchii remembers every chat you have.</p>
+                      <p className="px-1 text-[15px] text-lux-text2">No conversations yet — Luchii remembers every chat you have.</p>
                     )}
                     {sessions.map((s) => (
                       <div
@@ -177,7 +177,7 @@ export default function Chat() {
                           className="block w-full px-4 py-3 pr-10 text-left"
                         >
                           <p className="truncate text-sm">{s.title}</p>
-                          <p className="mt-1 font-mono text-[13.5px] uppercase tracking-wide opacity-70">
+                          <p className="mt-1 font-mono text-[15.5px] uppercase tracking-wide opacity-70">
                             {s.count} msgs{s.model ? ` · ${s.model}` : ""}
                           </p>
                         </button>
@@ -196,7 +196,7 @@ export default function Chat() {
               ) : (
                 <div className="rounded-2xl border border-lux-border bg-lux-surface p-6" data-testid="chat-guest-sidebar">
                   <p className="font-display text-lg font-700 tracking-tight">Guest mode</p>
-                  <p className="mt-2 text-[13px] leading-relaxed text-lux-text2">
+                  <p className="mt-2 text-[15px] leading-relaxed text-lux-text2">
                     You can chat freely, but conversations are deleted when you leave.
                     Sign up free to save every chat, create images (20/day free) and use voice & attachments.
                   </p>

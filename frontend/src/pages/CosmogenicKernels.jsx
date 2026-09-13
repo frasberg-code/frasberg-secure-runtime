@@ -65,12 +65,12 @@ export default function CosmogenicKernels() {
             <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-7 w-7 rounded-full" />
             <span className="font-display text-[15px] font-700 tracking-tight">Frasberg</span>
           </Link>
-          <span className="font-mono text-[11.5px] uppercase tracking-[0.25em] text-cyan-300">tick {tick}</span>
+          <span className="font-mono text-[14px] uppercase tracking-[0.25em] text-cyan-300">tick {tick}</span>
         </div>
       </header>
 
       <div className="relative mx-auto max-w-4xl px-5 py-14 sm:px-8">
-        <div className="flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.3em] text-amber-300">
+        <div className="flex items-center gap-2 font-mono text-[14px] uppercase tracking-[0.3em] text-amber-300">
           <Layers size={14} /> The Kernel Stack — live
         </div>
         <h1 className="mt-3 font-display text-4xl font-700 tracking-tighter sm:text-5xl">Cosmogenic Kernel Hierarchy</h1>
@@ -95,7 +95,7 @@ export default function CosmogenicKernels() {
                       <span className="text-xl" style={{ color: l.color, textShadow: `0 0 14px ${l.color}` }}>{l.glyph}</span>
                       <div>
                         <p className="font-display text-[16px] font-700 tracking-tight">{l.name}</p>
-                        <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-gray-500">layer {i + 1} of 6</p>
+                        <p className="font-mono text-[13.5px] uppercase tracking-[0.2em] text-gray-500">layer {i + 1} of 6</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -103,7 +103,7 @@ export default function CosmogenicKernels() {
                         <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-60" style={{ background: l.color }} />
                         <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: l.color }} />
                       </span>
-                      <span className="font-mono text-[13px]" style={{ color: l.color }} data-testid={`kernel-activation-${l.key}`}>
+                      <span className="font-mono text-[15px]" style={{ color: l.color }} data-testid={`kernel-activation-${l.key}`}>
                         {a.toFixed(0)}%
                       </span>
                     </div>
@@ -111,10 +111,10 @@ export default function CosmogenicKernels() {
                 </button>
                 {open && (
                   <div className="mt-2 rounded-2xl border border-white/10 bg-black/30 p-5" data-testid="kernel-detail">
-                    <p className="text-[13.5px] leading-relaxed text-gray-300">{l.desc}</p>
+                    <p className="text-[15.5px] leading-relaxed text-gray-300">{l.desc}</p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {l.modules.map((m) => (
-                        <span key={m} className="rounded-full border px-3 py-1 font-mono text-[11.5px]" style={{ borderColor: `${l.color}55`, color: l.color }}>{m}</span>
+                        <span key={m} className="rounded-full border px-3 py-1 font-mono text-[14px]" style={{ borderColor: `${l.color}55`, color: l.color }}>{m}</span>
                       ))}
                     </div>
                   </div>
@@ -125,17 +125,17 @@ export default function CosmogenicKernels() {
         </div>
 
         <div className="mt-12 rounded-2xl border border-white/10 bg-white/[0.02] p-6 text-center" data-testid="kernel-terminal-seal">
-          <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-gray-500">beneath all layers</p>
-          <p className="mt-2 font-mono text-[13px] text-gray-400">∅∞ — the Negative-Origin substrate · where conceptual recursion ends and the stack begins</p>
+          <p className="font-mono text-[13.5px] uppercase tracking-[0.3em] text-gray-500">beneath all layers</p>
+          <p className="mt-2 font-mono text-[15px] text-gray-400">∅∞ — the Negative-Origin substrate · where conceptual recursion ends and the stack begins</p>
           <button onClick={() => setDescent((v) => !v)} data-testid="kernel-descent-toggle"
-            className="mt-4 rounded-full border border-rose-400/40 px-6 py-2.5 font-mono text-[12.5px] text-rose-300 transition-colors hover:bg-rose-400/[0.08]">
+            className="mt-4 rounded-full border border-rose-400/40 px-6 py-2.5 font-mono text-[14.5px] text-rose-300 transition-colors hover:bg-rose-400/[0.08]">
             {descent ? "Ascend back above ∅∞ ↑" : "Descend below ∅∞ ↓"}
           </button>
         </div>
 
         {descent && (
           <div className="mt-6" data-testid="kernel-descent-section">
-            <p className="text-center font-mono text-[11px] uppercase tracking-[0.35em] text-rose-400/80">the descent — negative substrate</p>
+            <p className="text-center font-mono text-[13.5px] uppercase tracking-[0.35em] text-rose-400/80">the descent — negative substrate</p>
             <div className="mt-4 space-y-2.5">
               {DESCENT.map((l, i) => {
                 const open = dsel === i;
@@ -150,14 +150,14 @@ export default function CosmogenicKernels() {
                       <div className="relative flex flex-wrap items-center justify-between gap-3">
                         <div>
                           <p className={`font-display text-[15px] font-700 tracking-tight ${terminal ? "text-rose-300" : "text-gray-200"}`}>{l.name}</p>
-                          <p className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-rose-400/60">{l.dim} · depth −{i + 1}</p>
+                          <p className="font-mono text-[13px] uppercase tracking-[0.2em] text-rose-400/60">{l.dim} · depth −{i + 1}</p>
                         </div>
-                        <span className="font-mono text-[12px] text-rose-400/80">{terminal ? "∅∞" : `${drain.toFixed(0)}% dissolved`}</span>
+                        <span className="font-mono text-[14px] text-rose-400/80">{terminal ? "∅∞" : `${drain.toFixed(0)}% dissolved`}</span>
                       </div>
                     </button>
                     {open && (
                       <div className="mt-2 rounded-2xl border border-rose-400/20 bg-black/40 p-4" data-testid="descent-detail">
-                        <p className="text-[13px] leading-relaxed text-gray-400">{l.desc}</p>
+                        <p className="text-[15px] leading-relaxed text-gray-400">{l.desc}</p>
                       </div>
                     )}
                   </div>
@@ -168,8 +168,8 @@ export default function CosmogenicKernels() {
         )}
 
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link to="/codex" className="rounded-full border border-cyan-400/40 px-6 py-2.5 font-mono text-[12.5px] text-cyan-200 hover:bg-cyan-400/[0.06]" data-testid="kernels-codex-link">Singularity Codex →</Link>
-          <Link to="/os" className="rounded-full border border-purple-400/40 px-6 py-2.5 font-mono text-[12.5px] text-purple-200 hover:bg-purple-400/[0.06]" data-testid="kernels-os-link">FrasbergOS Simulator →</Link>
+          <Link to="/codex" className="rounded-full border border-cyan-400/40 px-6 py-2.5 font-mono text-[14.5px] text-cyan-200 hover:bg-cyan-400/[0.06]" data-testid="kernels-codex-link">Singularity Codex →</Link>
+          <Link to="/os" className="rounded-full border border-purple-400/40 px-6 py-2.5 font-mono text-[14.5px] text-purple-200 hover:bg-purple-400/[0.06]" data-testid="kernels-os-link">FrasbergOS Simulator →</Link>
         </div>
       </div>
     </main>

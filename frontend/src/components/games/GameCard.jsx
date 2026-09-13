@@ -30,7 +30,7 @@ export default function GameCard({ game, onPlay, favorited, onToggleFavorite }) 
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
         )}
-        <span className="absolute right-3 top-3 rounded-full bg-[#6c63ff] px-2.5 py-1 text-[11px] font-bold text-white">
+        <span className="absolute right-3 top-3 rounded-full bg-[#6c63ff] px-2.5 py-1 text-[13.5px] font-bold text-white">
           {game.genre}
         </span>
         {onToggleFavorite && (
@@ -46,20 +46,20 @@ export default function GameCard({ game, onPlay, favorited, onToggleFavorite }) 
       </div>
       <div className="p-5">
         <h3 className="text-lg font-bold text-white">{game.title}</h3>
-        <p className="mt-2 min-h-[3.2rem] text-[13px] leading-relaxed text-[#aaa]">{game.description}</p>
+        <p className="mt-2 min-h-[3.2rem] text-[15px] leading-relaxed text-[#aaa]">{game.description}</p>
         {game.community ? (
-          <p className="mt-2 flex items-center gap-1.5 text-[12px] text-[#8b84ff]" data-testid={`game-plays-${game.id}`}>
+          <p className="mt-2 flex items-center gap-1.5 text-[14px] text-[#8b84ff]" data-testid={`game-plays-${game.id}`}>
             <Gamepad2 size={12} /> {game.plays.toLocaleString()} plays
           </p>
         ) : game.champion ? (
-          <p className="mt-2 flex items-center gap-1.5 text-[12px] text-amber-400" data-testid={`game-champion-${game.id}`}>
+          <p className="mt-2 flex items-center gap-1.5 text-[14px] text-amber-400" data-testid={`game-champion-${game.id}`}>
             <Crown size={12} /> {game.champion.name} · {game.champion.score.toLocaleString()}
             <span className="ml-auto flex items-center gap-1 text-[#8b84ff]" data-testid={`game-plays-${game.id}`}>
               <Gamepad2 size={12} /> {(game.plays || 0).toLocaleString()}
             </span>
           </p>
         ) : (
-          <p className="mt-2 flex items-center gap-1.5 text-[12px] text-[#555]" data-testid={`game-champion-${game.id}`}>
+          <p className="mt-2 flex items-center gap-1.5 text-[14px] text-[#555]" data-testid={`game-champion-${game.id}`}>
             <Crown size={12} /> Throne unclaimed — be the first
             <span className="ml-auto flex items-center gap-1 text-[#8b84ff]" data-testid={`game-plays-${game.id}`}>
               <Gamepad2 size={12} /> {(game.plays || 0).toLocaleString()}
@@ -67,11 +67,11 @@ export default function GameCard({ game, onPlay, favorited, onToggleFavorite }) 
           </p>
         )}
         {game.weekly_champion && (
-          <p className="mt-1 flex items-center gap-1.5 text-[11px] text-[#7dd3fc]" data-testid={`game-weekly-champion-${game.id}`}>
+          <p className="mt-1 flex items-center gap-1.5 text-[13.5px] text-[#7dd3fc]" data-testid={`game-weekly-champion-${game.id}`}>
             <Crown size={11} /> This week: {game.weekly_champion.name} · {game.weekly_champion.score.toLocaleString()}
           </p>
         )}
-        <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.15em] text-[#555]">{game.engine}</p>
+        <p className="mt-2 font-mono text-[13px] uppercase tracking-[0.15em] text-[#555]">{game.engine}</p>
         <button
           data-testid={`game-play-btn-${game.id}`}
           onClick={onPlay}

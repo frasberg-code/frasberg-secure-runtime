@@ -24,8 +24,8 @@ export default function VoiceHeatmap({ voiceStats }) {
         <ResponsiveContainer width="100%" height={260}>
           <BarChart data={data} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#1a1a2e" vertical={false} />
-            <XAxis dataKey="name" tick={{ fill: "#aaa", fontSize: 11 }} />
-            <YAxis tick={{ fill: "#aaa", fontSize: 11 }} />
+            <XAxis dataKey="name" tick={{ fill: "#aaa", fontSize: 13 }} />
+            <YAxis tick={{ fill: "#aaa", fontSize: 13 }} />
             <Tooltip contentStyle={{ background: "#111122", border: "1px solid #6c63ff", borderRadius: 8 }} labelStyle={{ color: "#fff" }} />
             <Bar dataKey="count" radius={[4, 4, 0, 0]}>
               {data.map((entry, i) => <Cell key={i} fill={entry.color} />)}
@@ -39,7 +39,7 @@ export default function VoiceHeatmap({ voiceStats }) {
         {(voiceStats?.voices || []).map((v) => (
           <div key={v} style={{ ...styles.voiceChip, borderColor: (VOICE_COLORS[v] || "#6c63ff") + "66" }}>
             <span style={{ color: VOICE_COLORS[v] || "#6c63ff", fontWeight: "bold" }}>{v}</span>
-            <span style={{ color: "#555", fontSize: 11 }}>
+            <span style={{ color: "#555", fontSize: 13 }}>
               {usage.find((u) => u.voice === v)?.count ?? 0} plays
             </span>
           </div>

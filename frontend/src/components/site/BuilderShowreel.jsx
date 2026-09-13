@@ -53,7 +53,7 @@ export const BuilderShowreel = () => {
   return (
     <div className="mt-6 overflow-hidden rounded-3xl border border-lux-border bg-lux-surface/60" data-testid="builder-showreel">
       <div className="flex items-center justify-between border-b border-lux-border px-4 py-2.5">
-        <p className="flex items-center gap-2 font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2">
+        <p className="flex items-center gap-2 font-mono text-[15.5px] uppercase tracking-[0.2em] text-lux-text2">
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
@@ -62,23 +62,23 @@ export const BuilderShowreel = () => {
         </p>
         {finished ? (
           <button onClick={() => { setPos(0); setCycle((c) => c + 1); }} data-testid="showreel-replay-btn"
-            className="inline-flex items-center gap-1.5 font-mono text-[13.5px] uppercase tracking-wide text-lux-accent">
+            className="inline-flex items-center gap-1.5 font-mono text-[15.5px] uppercase tracking-wide text-lux-accent">
             <RotateCcw size={11} /> Replay
           </button>
         ) : (
-          <span className="font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">{typed.length.toLocaleString()} chars</span>
+          <span className="font-mono text-[15.5px] uppercase tracking-wide text-lux-text2">{typed.length.toLocaleString()} chars</span>
         )}
       </div>
       <div className="grid md:grid-cols-2">
         <pre ref={preRef} data-testid="showreel-code"
-          className="m-0 h-56 overflow-hidden whitespace-pre-wrap break-all border-b border-lux-border p-4 font-mono text-[13.5px] leading-relaxed text-lux-text2 md:border-b-0 md:border-r">
+          className="m-0 h-56 overflow-hidden whitespace-pre-wrap break-all border-b border-lux-border p-4 font-mono text-[15.5px] leading-relaxed text-lux-text2 md:border-b-0 md:border-r">
           {typed}<span className="inline-block h-3 w-1.5 animate-pulse bg-lux-accent align-middle" />
         </pre>
         <div className="relative h-56 bg-[#07090f]">
           <iframe title="Luchii showreel preview" srcDoc={typed} sandbox="allow-scripts"
             data-testid="showreel-preview" className="h-full w-full border-0" />
           {finished && (
-            <div className="absolute bottom-2 right-3 flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-black/60 px-3 py-1 font-mono text-[13.5px] uppercase tracking-wide text-emerald-300">
+            <div className="absolute bottom-2 right-3 flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-black/60 px-3 py-1 font-mono text-[15.5px] uppercase tracking-wide text-emerald-300">
               <Play size={9} /> Built in 9.8s — yours next
             </div>
           )}

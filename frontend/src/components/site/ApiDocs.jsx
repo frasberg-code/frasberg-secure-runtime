@@ -61,12 +61,12 @@ export default function ApiDocs() {
               <button
                 onClick={copy}
                 data-testid="api-copy"
-                className="inline-flex items-center gap-1.5 font-mono text-[13px] text-white/75 transition-colors hover:text-white"
+                className="inline-flex items-center gap-1.5 font-mono text-[15px] text-white/75 transition-colors hover:text-white"
               >
                 {copied ? <Check size={13} /> : <Copy size={13} />} {copied ? "Copied" : "Copy"}
               </button>
             </div>
-            <pre className="overflow-x-auto p-6 font-mono text-[13px] leading-relaxed text-[#c8f7ff]">
+            <pre className="overflow-x-auto p-6 font-mono text-[15px] leading-relaxed text-[#c8f7ff]">
               <code>{API_SNIPPET}</code>
             </pre>
           </div>

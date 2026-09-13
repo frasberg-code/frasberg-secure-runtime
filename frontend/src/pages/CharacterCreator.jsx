@@ -104,7 +104,7 @@ export default function CharacterCreator() {
               onChange={(e) => setForm({ ...form, level: Number(e.target.value) })}
               style={{ width: "100%", marginTop: 4, accentColor: "#7c3aed" }}
             />
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#6b7280" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "#6b7280" }}>
               <span>1 (Recruit)</span>
               <span>50 (Veteran)</span>
               <span>100 (Legend)</span>
@@ -121,7 +121,7 @@ export default function CharacterCreator() {
               <p style={styles.statLine}>📋 Type: {result.character_type}</p>
               <details style={{ marginTop: 8 }}>
                 <summary style={{ color: "#6b7280", fontSize: 12, cursor: "pointer" }}>View prompt</summary>
-                <p style={{ color: "#4b5563", fontSize: 11, marginTop: 4 }}>{result.prompt_used}</p>
+                <p style={{ color: "#4b5563", fontSize: 13, marginTop: 4 }}>{result.prompt_used}</p>
               </details>
             </div>
           )}

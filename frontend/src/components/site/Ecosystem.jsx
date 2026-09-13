@@ -3,7 +3,7 @@ import Reveal, { Overline } from "./Reveal";
 import { ECOSYSTEM } from "../../data/content";
 
 const LOGOS = [
-  { name: "Frasberg AI", slug: "frasberg-ai", src: "/frasberg-emblem.png" },
+  { name: "Frasberg", slug: "frasberg-ai", src: "/frasberg-emblem.png" },
   { name: "Luchii", slug: "luchii", src: "/luchii-mark-circle.png" },
   { name: "Python", slug: "python" },
   { name: "JavaScript", slug: "javascript" },
@@ -39,7 +39,7 @@ export default function Ecosystem() {
           {ECOSYSTEM.pillars.map((p, i) => (
             <Reveal key={p.title} delay={i * 0.07}>
               <div className="h-full rounded-2xl border border-lux-border bg-lux-surface p-8">
-                <span className="font-mono text-[13px] uppercase tracking-[0.2em] text-lux-accent">0{i + 1}</span>
+                <span className="font-mono text-[15px] uppercase tracking-[0.2em] text-lux-accent">0{i + 1}</span>
                 <h3 className="mt-4 font-display text-xl font-600 tracking-tight text-lux-text">{p.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-lux-text2">{p.desc}</p>
               </div>
@@ -52,7 +52,7 @@ export default function Ecosystem() {
             {ECOSYSTEM.stats.map((s) => (
               <div key={s.label} className="bg-lux-surface p-7 text-center">
                 <p className="font-display text-4xl font-700 accent-grad">{s.value}</p>
-                <p className="mt-2 font-mono text-[13px] uppercase tracking-[0.15em] text-lux-text2">{s.label}</p>
+                <p className="mt-2 font-mono text-[15px] uppercase tracking-[0.15em] text-lux-text2">{s.label}</p>
               </div>
             ))}
           </div>
@@ -76,7 +76,7 @@ export default function Ecosystem() {
                     className={`h-7 w-7 grayscale transition-all duration-300 group-hover:grayscale-0 ${l.src ? "rounded-full" : ""}`}
                     style={{ filter: "grayscale(1)" }}
                   />
-                  <span className="font-mono text-[13px] text-lux-text2 transition-colors duration-300 group-hover:text-lux-text">{l.name}</span>
+                  <span className="font-mono text-[15px] text-lux-text2 transition-colors duration-300 group-hover:text-lux-text">{l.name}</span>
                 </div>
               ))}
             </Marquee>

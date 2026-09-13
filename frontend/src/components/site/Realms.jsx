@@ -42,10 +42,10 @@ export default function Realms() {
                 />
                 <div className="flex items-baseline justify-between">
                   <h3 className="font-display text-2xl font-600 tracking-tight text-lux-text">{r.name}</h3>
-                  <span className="font-mono text-[13px] uppercase tracking-[0.2em] text-lux-accent">{r.role}</span>
+                  <span className="font-mono text-[15px] uppercase tracking-[0.2em] text-lux-accent">{r.role}</span>
                 </div>
                 <p className="mt-2 text-sm text-lux-text2">{r.trait}</p>
-                <div className="mt-6 space-y-1 border-t border-lux-border pt-5 font-mono text-[13px] text-lux-text2">
+                <div className="mt-6 space-y-1 border-t border-lux-border pt-5 font-mono text-[15px] text-lux-text2">
                   <p><span className="text-lux-text">Persona</span> · {r.persona}</p>
                   <p><span className="text-lux-text">Tone</span> · {r.tone}</p>
                   <p><span className="text-lux-text">Use</span> · {r.use}</p>

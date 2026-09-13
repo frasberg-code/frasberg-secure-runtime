@@ -42,7 +42,7 @@ export default function DevPortal() {
             <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Developer Portal</span>
           </Link>
-          <nav className="flex gap-2 font-mono text-[12px]">
+          <nav className="flex gap-2 font-mono text-[14px]">
             <Link to="/developers/docs" className="rounded-full border border-white/15 px-3.5 py-1.5 text-gray-300 hover:border-cyan-400 hover:text-cyan-300" data-testid="devportal-docs-link">Docs</Link>
             <Link to="/playground" className="rounded-full border border-white/15 px-3.5 py-1.5 text-gray-300 hover:border-cyan-400 hover:text-cyan-300" data-testid="devportal-playground-link">Playground</Link>
           </nav>
@@ -55,8 +55,8 @@ export default function DevPortal() {
         <p className="mt-4 max-w-2xl text-[15px] text-gray-300">Build autonomous agents that think, evolve, collaborate and deploy safely.</p>
 
         <div className={`${card} mt-10`} data-testid="devportal-quickstart">
-          <p className="flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400"><Terminal size={12} /> Getting started</p>
-          <pre className="mt-3 overflow-x-auto rounded-lg bg-black/60 p-4 font-mono text-[13px] leading-relaxed text-cyan-200">{`npm install @frasberg/kernel
+          <p className="flex items-center gap-2 font-mono text-[14px] uppercase tracking-[0.2em] text-gray-400"><Terminal size={12} /> Getting started</p>
+          <pre className="mt-3 overflow-x-auto rounded-lg bg-black/60 p-4 font-mono text-[15px] leading-relaxed text-cyan-200">{`npm install @frasberg/kernel
 
 import { Agent } from "@frasberg/kernel";
 
@@ -69,7 +69,7 @@ const agent = new Agent({
 // deterministic cognition cycle
 agent.cognition.perception.observe(input);
 kernel.safety.enforce(agent, decision);`}</pre>
-          <p className="mt-3 font-mono text-[12.5px] text-gray-400">CLI: <span className="text-cyan-200">frasberg build agent.json · frasberg deploy agent.json · frasberg simulate agent.json</span></p>
+          <p className="mt-3 font-mono text-[14.5px] text-gray-400">CLI: <span className="text-cyan-200">frasberg build agent.json · frasberg deploy agent.json · frasberg simulate agent.json</span></p>
         </div>
 
         <h2 className="mt-14 flex items-center gap-2 font-display text-lg font-700"><BookOpen size={17} className="text-cyan-300" /> Core concepts</h2>
@@ -77,7 +77,7 @@ kernel.safety.enforce(agent, decision);`}</pre>
           {CONCEPTS.map(([Icon, t, body]) => (
             <div key={t} className={card}>
               <p className="flex items-center gap-2 text-[14.5px] font-700"><Icon size={15} className="text-cyan-300" /> {t}</p>
-              <p className="mt-2 text-[13.5px] leading-relaxed text-gray-300">{body}</p>
+              <p className="mt-2 text-[15.5px] leading-relaxed text-gray-300">{body}</p>
             </div>
           ))}
         </div>
@@ -86,10 +86,10 @@ kernel.safety.enforce(agent, decision);`}</pre>
         <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5" data-testid="devportal-course">
           {COURSE.map(([phase, weeks, items], i) => (
             <div key={phase} className={card} data-testid={`course-phase-${i}`}>
-              <p className="font-mono text-[11.5px] uppercase tracking-wide text-cyan-300">{weeks}</p>
+              <p className="font-mono text-[14px] uppercase tracking-wide text-cyan-300">{weeks}</p>
               <p className="mt-1 text-[15px] font-700">{phase}</p>
               <ul className="mt-3 space-y-1.5">
-                {items.map((it) => <li key={it} className="text-[12.5px] leading-snug text-gray-300">• {it}</li>)}
+                {items.map((it) => <li key={it} className="text-[14.5px] leading-snug text-gray-300">• {it}</li>)}
               </ul>
             </div>
           ))}
@@ -99,11 +99,11 @@ kernel.safety.enforce(agent, decision);`}</pre>
         <div className="mt-5 space-y-0" data-testid="devportal-certification">
           {CERT.map(([t, body], i) => (
             <div key={t} className="relative border-l border-white/15 pb-7 pl-7" data-testid={`cert-step-${i + 1}`}>
-              <span className="absolute -left-[14px] top-0 grid h-7 w-7 place-items-center rounded-full border border-cyan-400/50 bg-[#0d1418] font-mono text-[11px] text-cyan-300">
+              <span className="absolute -left-[14px] top-0 grid h-7 w-7 place-items-center rounded-full border border-cyan-400/50 bg-[#0d1418] font-mono text-[13.5px] text-cyan-300">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <p className="text-[14.5px] font-700">{t}</p>
-              <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-gray-300">{body}</p>
+              <p className="mt-1 max-w-2xl text-[15.5px] leading-relaxed text-gray-300">{body}</p>
             </div>
           ))}
         </div>
@@ -111,11 +111,11 @@ kernel.safety.enforce(agent, decision);`}</pre>
         <div className={`${card} mt-8 flex flex-wrap items-center justify-between gap-4`} data-testid="devportal-cta">
           <div>
             <p className="text-[15px] font-700">Ready to build on Kernel v4?</p>
-            <p className="mt-1 text-[13.5px] text-gray-300">Open the cognition playground, read the handbook, or deploy your first agent.</p>
+            <p className="mt-1 text-[15.5px] text-gray-300">Open the cognition playground, read the handbook, or deploy your first agent.</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link to="/playground" className="rounded-full px-5 py-2 text-[13.5px] font-700 text-black transition-opacity hover:opacity-85" style={{ backgroundImage: "linear-gradient(90deg,#4A6CF7,#00D1FF)" }}>Open Playground</Link>
-            <Link to="/marketplace/deploy" className="rounded-full border border-white/20 px-5 py-2 text-[13.5px] font-600 text-gray-200 hover:border-cyan-400 hover:text-cyan-300">Deploy an agent</Link>
+            <Link to="/playground" className="rounded-full px-5 py-2 text-[15.5px] font-700 text-black transition-opacity hover:opacity-85" style={{ backgroundImage: "linear-gradient(90deg,#4A6CF7,#00D1FF)" }}>Open Playground</Link>
+            <Link to="/marketplace/deploy" className="rounded-full border border-white/20 px-5 py-2 text-[15.5px] font-600 text-gray-200 hover:border-cyan-400 hover:text-cyan-300">Deploy an agent</Link>
           </div>
         </div>
       </div>

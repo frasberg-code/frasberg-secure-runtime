@@ -45,7 +45,7 @@ export const GallerySpotlight = () => {
 
       <div className="mt-8 overflow-hidden rounded-3xl border border-lux-border bg-lux-surface/60">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-lux-border px-5 py-3">
-          <p className="flex items-center gap-2 font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2">
+          <p className="flex items-center gap-2 font-mono text-[15.5px] uppercase tracking-[0.2em] text-lux-text2">
             <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
             {b.title} · live {b.type}
             {typeof b.plays === "number" && b.plays > 0 && <span className="opacity-60">· {b.plays} plays</span>}
@@ -53,12 +53,12 @@ export const GallerySpotlight = () => {
           <div className="flex gap-2">
             {b.type === "game" && (
               <Link to={`/play/${b.slug}`} data-testid="spotlight-play-link"
-                className="inline-flex items-center gap-1.5 rounded-full bg-lux-accent px-4 py-1.5 text-[13px] font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
+                className="inline-flex items-center gap-1.5 rounded-full bg-lux-accent px-4 py-1.5 text-[15px] font-600 text-lux-bg transition-transform hover:-translate-y-0.5">
                 <Gamepad2 size={12} /> Play fullscreen
               </Link>
             )}
             <Link to={`/${b.type === "game" ? "game" : "website"}-builder`} data-testid="spotlight-build-link"
-              className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-1.5 text-[13px] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
+              className="inline-flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-1.5 text-[15px] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
               <Hammer size={12} /> Build your own <ArrowUpRight size={11} />
             </Link>
           </div>

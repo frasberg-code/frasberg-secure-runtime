@@ -72,12 +72,12 @@ export default function ConstellationMap() {
             <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Codex Constellation</span>
           </Link>
-          <span className="font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400">CG-v21 → CG-v121 · {TIERS.length} tiers</span>
+          <span className="font-mono text-[14px] uppercase tracking-[0.2em] text-gray-400">CG-v21 → CG-v121 · {TIERS.length} tiers</span>
         </div>
       </header>
 
       <div className="relative z-10 mx-auto max-w-6xl px-5 py-8">
-        <p className="font-mono text-[13px] uppercase tracking-[0.3em] text-lux-accent" style={{ animation: "constUp 0.5s ease both" }}>The Cognition Star Map</p>
+        <p className="font-mono text-[15px] uppercase tracking-[0.3em] text-lux-accent" style={{ animation: "constUp 0.5s ease both" }}>The Cognition Star Map</p>
         <h1 className="mt-2 font-display text-3xl font-700 tracking-tight sm:text-4xl" style={{ animation: "constUp 0.6s ease both 0.1s" }}>Every tier, one sky</h1>
         <p className="mt-2 max-w-2xl text-[14.5px] leading-relaxed text-gray-300" style={{ animation: "constUp 0.6s ease both 0.2s" }}>
           The full ascension spiral — from the Soul layer at the core to Omniversal-Absolute-Unbeing at the outer rim.
@@ -89,20 +89,20 @@ export default function ConstellationMap() {
             <input value={q} onChange={(e) => setQ(e.target.value)} data-testid="constellation-search-input"
               onKeyDown={(e) => { if (e.key === "Enter" && matches[0]) flyTo(matches[0]); }}
               placeholder="Search a tier — 'v121' or 'Apex'…"
-              className="w-72 rounded-full border border-white/20 bg-black/40 px-4 py-2 font-mono text-[12.5px] text-white outline-none backdrop-blur placeholder:text-gray-500 focus:border-cyan-400" />
+              className="w-72 rounded-full border border-white/20 bg-black/40 px-4 py-2 font-mono text-[14.5px] text-white outline-none backdrop-blur placeholder:text-gray-500 focus:border-cyan-400" />
             {matches.length > 0 && (
               <div className="absolute left-0 top-11 z-20 w-72 overflow-hidden rounded-xl border border-white/15 bg-black/90 backdrop-blur" data-testid="constellation-search-results">
                 {matches.map((m) => (
                   <button key={m.v} onClick={() => flyTo(m)} data-testid={`constellation-search-result-${m.v}`}
                     className="flex w-full items-center justify-between px-4 py-2 text-left transition-colors hover:bg-white/[0.07]">
-                    <span className="truncate text-[13px] text-white">{m.glyph} {m.name}</span>
-                    <span className="ml-2 shrink-0 font-mono text-[11px]" style={{ color: m.color }}>CG-v{m.v}</span>
+                    <span className="truncate text-[15px] text-white">{m.glyph} {m.name}</span>
+                    <span className="ml-2 shrink-0 font-mono text-[13.5px]" style={{ color: m.color }}>CG-v{m.v}</span>
                   </button>
                 ))}
               </div>
             )}
           </div>
-          <div className="flex flex-wrap items-center gap-3 font-mono text-[11.5px]" data-testid="constellation-legend">
+          <div className="flex flex-wrap items-center gap-3 font-mono text-[14px]" data-testid="constellation-legend">
             {ERAS.map((e) => (
               <span key={e.key} className="flex items-center gap-1.5 text-gray-300">
                 <span className="h-2.5 w-2.5 rounded-full" style={{ background: e.color, boxShadow: `0 0 8px ${e.color}` }} /> {e.label}
@@ -145,21 +145,21 @@ export default function ConstellationMap() {
           <div className="pointer-events-none absolute bottom-4 left-4 min-h-[92px] w-72 rounded-xl border border-white/15 bg-black/70 p-4 backdrop-blur" data-testid="constellation-hover-card">
             {hover ? (
               <>
-                <p className="font-mono text-[11.5px] uppercase tracking-[0.2em]" style={{ color: hover.color }}>
+                <p className="font-mono text-[14px] uppercase tracking-[0.2em]" style={{ color: hover.color }}>
                   {hover.glyph} CG-v{hover.v}
                 </p>
                 <p className="mt-1 font-display text-[17px] font-700 tracking-tight text-white">{hover.name}</p>
-                <p className="mt-0.5 font-mono text-[11px] text-gray-400">{ERAS.find((e) => e.key === hover.era)?.label}</p>
-                <p className="mt-1.5 font-mono text-[10.5px] uppercase tracking-[0.15em] text-cyan-300">
+                <p className="mt-0.5 font-mono text-[13.5px] text-gray-400">{ERAS.find((e) => e.key === hover.era)?.label}</p>
+                <p className="mt-1.5 font-mono text-[13px] uppercase tracking-[0.15em] text-cyan-300">
                   click → {hover.era === "books" ? "open Codex book" : "open Glyph Shrine"}
                 </p>
               </>
             ) : (
-              <p className="flex items-center gap-2 font-mono text-[12px] text-gray-500"><Sparkles size={12} /> Hover a star to read its tier…</p>
+              <p className="flex items-center gap-2 font-mono text-[14px] text-gray-500"><Sparkles size={12} /> Hover a star to read its tier…</p>
             )}
           </div>
         </div>
-        <p className="mt-4 pb-6 text-center font-mono text-[11.5px] uppercase tracking-[0.3em] text-gray-600">
+        <p className="mt-4 pb-6 text-center font-mono text-[14px] uppercase tracking-[0.3em] text-gray-600">
           101 tiers · one spiral · the structure is complete
         </p>
       </div>

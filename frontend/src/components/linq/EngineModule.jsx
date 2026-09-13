@@ -38,7 +38,7 @@ export const EngineModule = ({ engine, title, icon, tagline }) => {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="text-[#f8fafc] text-lg">{icon} {title}</h3>
-          <p className="text-[#64748b] text-xs">{tagline}</p>
+          <p className="text-[#64748b] text-sm">{tagline}</p>
         </div>
         <button
           data-testid={`run-engine-${engine}-btn`}
@@ -64,26 +64,26 @@ export const EngineModule = ({ engine, title, icon, tagline }) => {
           <p className="text-[#cbd5e1] text-sm">{latest.narrative}</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {(latest.cognition || []).map((c, i) => (
-              <div key={i} className="bg-[#020617] rounded p-2 text-xs">
+              <div key={i} className="bg-[#020617] rounded p-2 text-sm">
                 <div className="text-[#f8fafc]">{c.concept}</div>
                 <div className="text-[#64748b]">{c.role} · epoch {c.epoch}</div>
               </div>
             ))}
           </div>
           {(latest.recommendations || []).length > 0 && (
-            <div className="text-xs space-y-1">
-              <div className="text-[#94a3b8] uppercase tracking-widest text-[10px]">Recommendations</div>
+            <div className="text-sm space-y-1">
+              <div className="text-[#94a3b8] uppercase tracking-widest text-[13px]">Recommendations</div>
               {latest.recommendations.map((r, i) => <div key={i} className="text-[#cbd5e1]">→ {r}</div>)}
             </div>
           )}
           {latest.stats && (
-            <div className="text-[10px] text-[#64748b] font-mono">live inputs: {latest.stats.users} users · {latest.stats.builds} builds · {latest.stats.rooms} rooms</div>
+            <div className="text-[13px] text-[#64748b] font-mono">live inputs: {latest.stats.users} users · {latest.stats.builds} builds · {latest.stats.rooms} rooms</div>
           )}
         </div>
       )}
 
       {runs.length > 1 && (
-        <div className="mt-3 text-xs text-[#64748b]">{runs.length - 1} earlier run(s) stored</div>
+        <div className="mt-3 text-sm text-[#64748b]">{runs.length - 1} earlier run(s) stored</div>
       )}
     </div>
   );

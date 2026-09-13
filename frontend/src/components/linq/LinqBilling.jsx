@@ -45,12 +45,12 @@ export const LinqBilling = () => {
                   <h3 className="text-[#f8fafc] text-lg flex items-center gap-2">
                     {i === 2 && <Crown size={16} className="text-[#facc15]" />} {p.name}
                   </h3>
-                  {i === 1 && <span className="text-[10px] uppercase tracking-widest text-[#ef4444]">Popular</span>}
+                  {i === 1 && <span className="text-[13px] uppercase tracking-widest text-[#ef4444]">Popular</span>}
                 </div>
                 <div className="text-3xl text-[#f8fafc] font-mono">${p.price}<span className="text-sm text-[#64748b]"> {p.period}</span></div>
                 <ul className="space-y-1.5">
                   {(TIER_FEATURES[p.id] || [p.blurb]).map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-xs text-[#cbd5e1]">
+                    <li key={f} className="flex items-start gap-2 text-sm text-[#cbd5e1]">
                       <Check size={13} className="text-[#4ade80] mt-0.5 shrink-0" /> {f}
                     </li>
                   ))}

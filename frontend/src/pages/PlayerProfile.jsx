@@ -85,8 +85,8 @@ export default function PlayerProfile() {
                     <div key={b.id} data-testid={`badge-${b.id}`}
                       className={`rounded-xl border p-3 text-center transition-opacity ${b.earned ? "border-[#ffd166]/50 bg-[#ffd166]/5" : "border-[#1a1a2e] opacity-40"}`}>
                       <p className="text-2xl">{b.icon}</p>
-                      <p className={`mt-1 text-[13px] font-bold ${b.earned ? "text-[#ffd166]" : "text-[#a3abbd]"}`}>{b.title}</p>
-                      <p className="mt-0.5 text-[13.5px] text-[#a3abbd]">{b.desc}</p>
+                      <p className={`mt-1 text-[15px] font-bold ${b.earned ? "text-[#ffd166]" : "text-[#a3abbd]"}`}>{b.title}</p>
+                      <p className="mt-0.5 text-[15.5px] text-[#a3abbd]">{b.desc}</p>
                     </div>
                   ))}
                 </div>

@@ -71,7 +71,7 @@ export default function AiModels() {
             >
               <span>
                 <span className="font-display text-lg font-600 tracking-tight">{selected.name}</span>
-                <span className="ml-3 font-mono text-[13px] uppercase tracking-[0.2em] text-lux-accent">{selected.tier}</span>
+                <span className="ml-3 font-mono text-[15px] uppercase tracking-[0.2em] text-lux-accent">{selected.tier}</span>
               </span>
               <ChevronDown size={18} className={`text-lux-text2 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
             </button>
@@ -94,7 +94,7 @@ export default function AiModels() {
                         className={`flex w-full items-center justify-between px-6 py-3.5 text-left transition-colors hover:bg-lux-surface ${selected.id === m.id ? "text-lux-accent" : "text-lux-text"}`}
                       >
                         <span className="font-display font-600 tracking-tight">{m.name}</span>
-                        <span className="flex items-center gap-3 font-mono text-[13px] text-lux-text2">
+                        <span className="flex items-center gap-3 font-mono text-[15px] text-lux-text2">
                           {m.tier}
                           {selected.id === m.id && <Check size={14} className="text-lux-accent" />}
                         </span>
@@ -116,7 +116,7 @@ export default function AiModels() {
           >
             <div className="flex items-baseline justify-between">
               <h2 className="font-display text-2xl font-700 tracking-tight">{selected.name}</h2>
-              <span className="font-mono text-[13px] text-lux-accent">{selected.id}</span>
+              <span className="font-mono text-[15px] text-lux-accent">{selected.id}</span>
             </div>
             <p className="mt-3 text-sm leading-relaxed text-lux-text2">{selected.blurb}</p>
             <Link
@@ -129,14 +129,14 @@ export default function AiModels() {
             <div className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-lux-border bg-lux-border">
               <div className="bg-lux-bg p-5 text-center">
                 <p className="font-display text-2xl font-700 accent-grad">{selected.params}</p>
-                <p className="mt-1 font-mono text-[13px] uppercase tracking-[0.15em] text-lux-text2">Parameters</p>
+                <p className="mt-1 font-mono text-[15px] uppercase tracking-[0.15em] text-lux-text2">Parameters</p>
               </div>
               <div className="bg-lux-bg p-5 text-center">
                 <p className="font-display text-2xl font-700 accent-grad">{selected.ctx}</p>
-                <p className="mt-1 font-mono text-[13px] uppercase tracking-[0.15em] text-lux-text2">Context</p>
+                <p className="mt-1 font-mono text-[15px] uppercase tracking-[0.15em] text-lux-text2">Context</p>
               </div>
             </div>
-            <ul className="mt-6 grid grid-cols-2 gap-2 font-mono text-[13px] text-lux-text2">
+            <ul className="mt-6 grid grid-cols-2 gap-2 font-mono text-[15px] text-lux-text2">
               {selected.specs.map((s) => (
                 <li key={s} className="flex items-center gap-2"><span className="h-1 w-1 rounded-full bg-lux-accent" />{s}</li>
               ))}

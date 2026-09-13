@@ -36,10 +36,10 @@ export const AccountMenu = () => {
 
   const Item = ({ icon: Icon, label, onClick, badge, external, danger, testid }) => (
     <button onClick={onClick} data-testid={testid}
-      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[13.5px] transition-colors hover:bg-white/[0.06] ${danger ? "text-rose-400" : "text-gray-200"}`}>
+      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[15.5px] transition-colors hover:bg-white/[0.06] ${danger ? "text-rose-400" : "text-gray-200"}`}>
       <Icon size={15} className={danger ? "text-rose-400" : "text-gray-400"} />
       <span className="flex-1">{label}</span>
-      {badge && <span className="rounded-full border border-amber-400/40 bg-amber-400/10 px-2 py-0.5 font-mono text-[10.5px] uppercase text-amber-300">{badge}</span>}
+      {badge && <span className="rounded-full border border-amber-400/40 bg-amber-400/10 px-2 py-0.5 font-mono text-[13px] uppercase text-amber-300">{badge}</span>}
       {external && <ExternalLink size={12} className="text-gray-500" />}
     </button>
   );
@@ -47,7 +47,7 @@ export const AccountMenu = () => {
   return (
     <div className="relative" ref={ref}>
       <button onClick={() => setOpen((v) => !v)} data-testid="account-menu-btn" aria-label="Account menu"
-        className="grid h-8 w-8 place-items-center overflow-hidden rounded-full border border-cyan-400/40 bg-cyan-400/10 font-mono text-[13px] font-600 text-cyan-200 transition-colors hover:border-cyan-300">
+        className="grid h-8 w-8 place-items-center overflow-hidden rounded-full border border-cyan-400/40 bg-cyan-400/10 font-mono text-[15px] font-600 text-cyan-200 transition-colors hover:border-cyan-300">
         {user?.avatar ? <img src={user.avatar} alt="" className="h-full w-full object-cover" /> : (user ? initial : "?")}
       </button>
 
@@ -57,25 +57,25 @@ export const AccountMenu = () => {
           style={{ background: "rgba(10,14,22,0.97)" }}>
           {user ? (
             <>
-              <p className="px-2 pt-1 font-mono text-[12px] text-gray-500" data-testid="account-menu-email">{user.email}</p>
+              <p className="px-2 pt-1 font-mono text-[14px] text-gray-500" data-testid="account-menu-email">{user.email}</p>
               <div className="mt-2 flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3">
                 <img src={user.avatar || "/frasberg-mark-circle.png"} alt="" className="h-9 w-9 rounded-full object-cover" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-[14px] font-600 text-white">{user.name || "Frasberg member"}</p>
-                  <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-gray-500">{user.role === "admin" ? "Admin" : "Owner"} · {user.plan || "free"} plan</p>
+                  <p className="font-mono text-[13.5px] uppercase tracking-[0.15em] text-gray-500">{user.role === "admin" ? "Admin" : "Owner"} · {user.plan || "free"} plan</p>
                 </div>
                 <ShieldCheck size={15} className="text-cyan-300" />
               </div>
 
               <div className="mt-2 rounded-xl border border-amber-400/25 bg-amber-400/[0.04] p-3" data-testid="account-menu-tokens">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[12px] uppercase tracking-[0.15em] text-gray-400">Tokens</span>
+                  <span className="font-mono text-[14px] uppercase tracking-[0.15em] text-gray-400">Tokens</span>
                   <span className="font-mono text-[15px] font-600 text-white">
                     {gift ? `${Number(gift.tokens).toLocaleString()} + ${Number(gift.paid_tokens).toLocaleString()}` : "…"}
                   </span>
                 </div>
                 <button onClick={() => go("/dashboard")} data-testid="account-menu-buy-tokens"
-                  className="mt-2.5 w-full rounded-full bg-amber-300 py-2 font-mono text-[12.5px] font-600 text-[#0B1220] transition-opacity hover:opacity-85">
+                  className="mt-2.5 w-full rounded-full bg-amber-300 py-2 font-mono text-[14.5px] font-600 text-[#0B1220] transition-opacity hover:opacity-85">
                   ⊕ Buy Tokens
                 </button>
               </div>
@@ -97,11 +97,11 @@ export const AccountMenu = () => {
             </>
           ) : (
             <div className="p-2">
-              <p className="text-[13.5px] text-gray-300">You're not signed in.</p>
+              <p className="text-[15.5px] text-gray-300">You're not signed in.</p>
               <button onClick={() => go("/auth?mode=login")} data-testid="account-menu-signin"
-                className="mt-3 w-full rounded-full bg-cyan-300 py-2 font-mono text-[12.5px] font-600 text-[#05070C] hover:opacity-85">Sign in</button>
+                className="mt-3 w-full rounded-full bg-cyan-300 py-2 font-mono text-[14.5px] font-600 text-[#05070C] hover:opacity-85">Sign in</button>
               <button onClick={() => go("/auth?mode=register")} data-testid="account-menu-register"
-                className="mt-2 w-full rounded-full border border-white/20 py-2 font-mono text-[12.5px] text-gray-200 hover:border-cyan-400/50">Create account — 50 free tokens</button>
+                className="mt-2 w-full rounded-full border border-white/20 py-2 font-mono text-[14.5px] text-gray-200 hover:border-cyan-400/50">Create account — 50 free tokens</button>
             </div>
           )}
         </div>

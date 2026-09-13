@@ -34,7 +34,7 @@ export default function LiveFeed({ events, onClear, connected }) {
               <span style={styles.eventIcon}>{EVENT_ICONS[e.type] || "📡"}</span>
               <div style={styles.eventBody}>
                 <div style={styles.eventMain}>
-                  <span style={{ color: EVENT_COLORS[e.type] || "#6c63ff", fontWeight: 600, fontSize: 11 }}>
+                  <span style={{ color: EVENT_COLORS[e.type] || "#6c63ff", fontWeight: 600, fontSize: 13 }}>
                     {e.type?.toUpperCase()}
                   </span>
                   <span style={styles.eventMsg}>{e.message || e.detail}</span>
@@ -69,6 +69,6 @@ const styles = {
   eventMain: { display: "flex", gap: 10, alignItems: "baseline", marginBottom: 4 },
   eventMsg: { color: "#ccc", fontSize: 13 },
   eventMeta: { display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" },
-  tag: { background: "#1a1a2e", color: "#aaa", fontSize: 11, padding: "2px 8px", borderRadius: 10 },
-  time: { color: "#444", fontSize: 11, marginLeft: "auto" },
+  tag: { background: "#1a1a2e", color: "#aaa", fontSize: 13, padding: "2px 8px", borderRadius: 10 },
+  time: { color: "#444", fontSize: 13, marginLeft: "auto" },
 };

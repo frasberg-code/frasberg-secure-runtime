@@ -38,7 +38,7 @@ function MultiverseMap({ data, onOpen }) {
     <div className="rounded-2xl border border-lux-border bg-lux-surface p-5" data-testid="multiverse-map">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="font-display text-xl font-600">Multiverse Star-Map</h2>
-        <div className="flex gap-4 font-mono text-[13.5px] uppercase tracking-wide">
+        <div className="flex gap-4 font-mono text-[15.5px] uppercase tracking-wide">
           {Object.entries(LINK_COLORS).map(([k, c]) => (
             <span key={k} className="flex items-center gap-1.5 text-lux-text2">
               <span className="inline-block h-0.5 w-5 rounded" style={{ background: c }} /> {k}
@@ -91,7 +91,7 @@ function MultiverseMap({ data, onOpen }) {
         })}
       </svg>
       {(data.links || []).length === 0 && (
-        <p className="mt-1 text-center font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">
+        <p className="mt-1 text-center font-mono text-[15.5px] uppercase tracking-wide text-lux-text2">
           No routes yet — trade, exchange or migrate between universes to weave the map
         </p>
       )}
@@ -110,17 +110,17 @@ function KernelBar({ kernel }) {
   return (
     <div className="rounded-2xl border border-lux-border bg-lux-surface p-5" data-testid="kernel-status-bar">
       <div className="flex flex-wrap items-center gap-3">
-        <span className="flex items-center gap-2 font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-accent">
+        <span className="flex items-center gap-2 font-mono text-[15.5px] uppercase tracking-[0.2em] text-lux-accent">
           <Cpu size={14} /> Omni-Intelligence Core · {kernel.omniIntelligence}
         </span>
-        <span className={`flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[13.5px] uppercase tracking-wide ${kernel.posture === "strict" ? "border-red-500/60 text-red-400" : "border-emerald-400/50 text-emerald-400"}`} data-testid="kernel-posture">
+        <span className={`flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[15.5px] uppercase tracking-wide ${kernel.posture === "strict" ? "border-red-500/60 text-red-400" : "border-emerald-400/50 text-emerald-400"}`} data-testid="kernel-posture">
           <ShieldCheck size={12} /> posture: {kernel.posture}
         </span>
       </div>
       <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-9">
         {items.map(([l, v]) => (
           <div key={l}>
-            <p className="font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">{l}</p>
+            <p className="font-mono text-[15.5px] uppercase tracking-wide text-lux-text2">{l}</p>
             <p className="font-display text-lg font-600 text-lux-text">{v ?? 0}</p>
           </div>
         ))}
@@ -152,7 +152,7 @@ function GenesisForm({ onCreated }) {
     } catch (e) { toast.error(e.message); } finally { setBusy(false); }
   };
 
-  const sel = "rounded-full border border-lux-border bg-lux-surface px-4 py-2 font-mono text-[13px] outline-none focus:border-lux-accent";
+  const sel = "rounded-full border border-lux-border bg-lux-surface px-4 py-2 font-mono text-[15px] outline-none focus:border-lux-accent";
   return (
     <div className="rounded-2xl border border-lux-border bg-lux-surface p-5" data-testid="genesis-form">
       <h2 className="flex items-center gap-2 font-display text-xl font-600"><Sparkles size={17} className="text-lux-accent" /> Universe Genesis Engine</h2>
@@ -173,7 +173,7 @@ function GenesisForm({ onCreated }) {
           <option value="temperate">Temperate</option><option value="arid">Arid</option>
           <option value="frozen">Frozen</option><option value="tropical">Tropical</option>
         </select>
-        <label className="flex items-center gap-2 font-mono text-[13px] text-lux-text2">
+        <label className="flex items-center gap-2 font-mono text-[15px] text-lux-text2">
           Agents <input type="range" min="4" max="60" value={agents} onChange={(e) => setAgents(e.target.value)} data-testid="genesis-agents-slider" /> {agents}
         </label>
         <button onClick={create} disabled={busy} data-testid="genesis-create-btn"
@@ -231,7 +231,7 @@ function UniverseDetail({ uid, onClose, refresh }) {
         <div className="flex items-start justify-between">
           <div>
             <h2 className="font-display text-2xl font-700">{s.name}</h2>
-            <p className="mt-1 font-mono text-[13px] text-lux-text2">
+            <p className="mt-1 font-mono text-[15px] text-lux-text2">
               tick {s.tick} · <span style={{ color: PHASE_COLOR[s.phase] }}>{s.phase.toUpperCase()}</span> · {s.physicsModel} physics ·
               {" "}{s.dimensions} dimensions · {s.fractalLayers} fractal layers · entropy {s.entropy} · stability {s.stability}
             </p>
@@ -239,7 +239,7 @@ function UniverseDetail({ uid, onClose, refresh }) {
           <button onClick={onClose} data-testid="detail-close-btn" className="grid h-9 w-9 place-items-center rounded-full border border-lux-border text-lux-text2 hover:border-lux-accent"><X size={16} /></button>
         </div>
         {(d.flags.evolutionFrozen || d.flags.auditMode) && (
-          <p className="mt-3 rounded-xl border border-red-500/50 bg-red-500/10 px-4 py-2 font-mono text-[13px] text-red-400" data-testid="detail-safety-flags">
+          <p className="mt-3 rounded-xl border border-red-500/50 bg-red-500/10 px-4 py-2 font-mono text-[15px] text-red-400" data-testid="detail-safety-flags">
             KERNEL SAFETY: {d.flags.evolutionFrozen && "evolution frozen "} {d.flags.auditMode && "· audit mode"}
           </p>
         )}
@@ -249,7 +249,7 @@ function UniverseDetail({ uid, onClose, refresh }) {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(140,140,170,0.12)" />
               <XAxis dataKey="t" tick={{ fontSize: 9 }} stroke="#8a86a3" />
               <YAxis tick={{ fontSize: 9 }} stroke="#8a86a3" width={34} domain={[0, 1]} />
-              <Tooltip contentStyle={{ background: "#111018", border: "1px solid #2a2740", borderRadius: 10, fontSize: 11 }} />
+              <Tooltip contentStyle={{ background: "#111018", border: "1px solid #2a2740", borderRadius: 10, fontSize: 13 }} />
               <Line type="monotone" dataKey="entropy" stroke="#f0c040" strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="stability" stroke="#22d3ee" strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="instability" stroke="#ff5555" strokeWidth={1.5} dot={false} />
@@ -262,12 +262,12 @@ function UniverseDetail({ uid, onClose, refresh }) {
             <div className="flex gap-2">
               {d.chronicle && (
                 <button onClick={narrate} data-testid="narrate-chronicle-btn"
-                  className={`rounded-full border px-5 py-1.5 text-[13px] transition-colors ${narrating ? "border-emerald-400/60 text-emerald-400" : "border-lux-gold/50 text-lux-gold hover:bg-lux-gold hover:text-lux-bg"}`}>
+                  className={`rounded-full border px-5 py-1.5 text-[15px] transition-colors ${narrating ? "border-emerald-400/60 text-emerald-400" : "border-lux-gold/50 text-lux-gold hover:bg-lux-gold hover:text-lux-bg"}`}>
                   {narrating === "loading" ? "Summoning voice…" : narrating ? "◼ Stop narration" : "🔊 Read aloud"}
                 </button>
               )}
               <button onClick={writeChronicle} disabled={writing} data-testid="write-chronicle-btn"
-                className="rounded-full border border-lux-gold/50 px-5 py-1.5 text-[13px] text-lux-gold transition-colors hover:bg-lux-gold hover:text-lux-bg disabled:opacity-50">
+                className="rounded-full border border-lux-gold/50 px-5 py-1.5 text-[15px] text-lux-gold transition-colors hover:bg-lux-gold hover:text-lux-bg disabled:opacity-50">
                 {writing ? "The Chronicle-Keeper writes…" : d.chronicle ? "Rewrite Chronicle" : "Write Chronicle"}
               </button>
             </div>
@@ -275,58 +275,58 @@ function UniverseDetail({ uid, onClose, refresh }) {
           {d.chronicle ? (
             <div className="mt-4" data-testid="chronicle-text">
               <p className="whitespace-pre-wrap font-display text-sm italic leading-relaxed text-lux-text2">{d.chronicle.text}</p>
-              <p className="mt-3 font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2">
+              <p className="mt-3 font-mono text-[15.5px] uppercase tracking-[0.2em] text-lux-text2">
                 Inscribed at tick {d.chronicle.tick}
               </p>
             </div>
           ) : (
-            <p className="mt-3 text-[13px] text-lux-text2" data-testid="chronicle-empty">
+            <p className="mt-3 text-[15px] text-lux-text2" data-testid="chronicle-empty">
               No chronicle inscribed yet — let the Chronicle-Keeper turn this universe's myths, wars and legends into a history scroll.
             </p>
           )}
         </div>
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <div>
-            <p className="font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2">Top agents — reputation · soul · ascension</p>
+            <p className="font-mono text-[15.5px] uppercase tracking-[0.2em] text-lux-text2">Top agents — reputation · soul · ascension</p>
             <div className="mt-2 space-y-1.5" data-testid="detail-agents-list">
               {d.agents.map((a) => (
-                <div key={a.id} className="flex items-center justify-between rounded-xl border border-lux-border px-3 py-2 text-[13px]">
+                <div key={a.id} className="flex items-center justify-between rounded-xl border border-lux-border px-3 py-2 text-[15px]">
                   <span className="text-lux-text">{a.name} <span className="text-lux-text2">· {a.role} · {a.behavior}</span></span>
-                  <span className="font-mono text-[13.5px] text-lux-text2">
+                  <span className="font-mono text-[15.5px] text-lux-text2">
                     rep {a.reputation} · {a.soul.alignment} · T{a.ascension.tier} {a.ascension.form}{a.reincarnations > 0 ? ` · ↻${a.reincarnations}` : ""}
                   </span>
                 </div>
               ))}
             </div>
-            <p className="mt-5 font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2">Civilizations</p>
+            <p className="mt-5 font-mono text-[15.5px] uppercase tracking-[0.2em] text-lux-text2">Civilizations</p>
             <div className="mt-2 space-y-1.5" data-testid="detail-civs-list">
               {d.civilizations.map((c) => (
-                <div key={c.id} className="rounded-xl border border-lux-border px-3 py-2 text-[13px]">
+                <div key={c.id} className="rounded-xl border border-lux-border px-3 py-2 text-[15px]">
                   <span className="text-lux-text">{c.name}</span>
-                  {c.era && <span className="ml-2 rounded-full border border-lux-gold/40 px-2 py-0.5 font-mono text-[13.5px] uppercase tracking-wide text-lux-gold">{c.era}</span>}
-                  <span className="ml-2 font-mono text-[13.5px] text-lux-text2">
+                  {c.era && <span className="ml-2 rounded-full border border-lux-gold/40 px-2 py-0.5 font-mono text-[15.5px] uppercase tracking-wide text-lux-gold">{c.era}</span>}
+                  <span className="ml-2 font-mono text-[15.5px] text-lux-text2">
                     {c.governance} · tech {c.technologyLevel} · pop {c.population.toLocaleString()}{c.warsWon > 0 ? ` · ⚔ ${c.warsWon} wars won` : ""}
                   </span>
-                  {c.rituals?.length > 0 && <p className="mt-0.5 font-mono text-[13.5px] text-lux-text2">rituals: {c.rituals.join(", ")}</p>}
+                  {c.rituals?.length > 0 && <p className="mt-0.5 font-mono text-[15.5px] text-lux-text2">rituals: {c.rituals.join(", ")}</p>}
                 </div>
               ))}
             </div>
           </div>
           <div>
-            <p className="font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2">Mythology</p>
+            <p className="font-mono text-[15.5px] uppercase tracking-[0.2em] text-lux-text2">Mythology</p>
             <div className="mt-2 space-y-1.5" data-testid="detail-myths-list">
-              {d.myths.length === 0 && <p className="text-[13px] text-lux-text2">No myths yet — run more ticks</p>}
+              {d.myths.length === 0 && <p className="text-[15px] text-lux-text2">No myths yet — run more ticks</p>}
               {d.myths.map((m) => (
-                <div key={m.id} className="rounded-xl border border-lux-border px-3 py-2 text-[13px]">
+                <div key={m.id} className="rounded-xl border border-lux-border px-3 py-2 text-[15px]">
                   <span className="text-lux-gold">{m.title}</span>
-                  <p className="mt-0.5 text-[13px] text-lux-text2">"{m.moral}"</p>
+                  <p className="mt-0.5 text-[15px] text-lux-text2">"{m.moral}"</p>
                 </div>
               ))}
             </div>
-            <p className="mt-5 font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2">Event stream</p>
+            <p className="mt-5 font-mono text-[15.5px] uppercase tracking-[0.2em] text-lux-text2">Event stream</p>
             <div className="mt-2 max-h-56 space-y-1.5 overflow-y-auto" data-testid="detail-events-list">
               {d.events.map((e) => (
-                <p key={e.id} className="text-[13px] text-lux-text2"><span className="text-lux-accent">[{e.kind}]</span> {e.text}</p>
+                <p key={e.id} className="text-[15px] text-lux-text2"><span className="text-lux-accent">[{e.kind}]</span> {e.text}</p>
               ))}
             </div>
           </div>
@@ -458,7 +458,7 @@ export default function FrasbergCloud() {
             <ArrowLeft size={16} className="text-lux-text2" />
             <img src="/frasberg-mark-circle.png" alt="Frasberg" className="h-8 w-8 rounded-full" />
             <span className="font-display text-lg font-700 tracking-tight">Frasberg</span>
-            <span className="hidden font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2 sm:inline">Cloud V1</span>
+            <span className="hidden font-mono text-[15.5px] uppercase tracking-[0.2em] text-lux-text2 sm:inline">Cloud V1</span>
           </Link>
           <button onClick={toggle} aria-label="Toggle theme" data-testid="cloud-theme-toggle"
             className="grid h-10 w-10 place-items-center rounded-full border border-lux-border transition-colors hover:border-lux-accent hover:text-lux-accent">
@@ -485,18 +485,18 @@ export default function FrasbergCloud() {
 
           {merge.length > 0 && (
             <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-lux-accent/40 bg-lux-surface p-4" data-testid="multiverse-ops-bar">
-              <span className="font-mono text-[13px] text-lux-text2">{merge.length}/2 universes selected</span>
-              <button onClick={synthesize} data-testid="ops-synthesize-btn" className="flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-1.5 text-[13px] hover:border-lux-accent"><GitMerge size={13} /> Omni-Synthesis (fuse)</button>
-              <button onClick={migrate} data-testid="ops-migrate-btn" className="flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-1.5 text-[13px] hover:border-lux-accent"><ArrowRightLeft size={13} /> Migrate 5 agents</button>
-              <button onClick={tradeKnowledge} data-testid="ops-trade-btn" className="flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-1.5 text-[13px] hover:border-lux-accent"><Zap size={13} /> Trade knowledge</button>
-              <button onClick={exchange} data-testid="ops-exchange-btn" className="flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-1.5 text-[13px] hover:border-lux-accent"><Landmark size={13} /> Cultural exchange</button>
-              <button onClick={() => setMerge([])} className="font-mono text-[13px] text-lux-text2 hover:text-lux-text">clear</button>
+              <span className="font-mono text-[15px] text-lux-text2">{merge.length}/2 universes selected</span>
+              <button onClick={synthesize} data-testid="ops-synthesize-btn" className="flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-1.5 text-[15px] hover:border-lux-accent"><GitMerge size={13} /> Omni-Synthesis (fuse)</button>
+              <button onClick={migrate} data-testid="ops-migrate-btn" className="flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-1.5 text-[15px] hover:border-lux-accent"><ArrowRightLeft size={13} /> Migrate 5 agents</button>
+              <button onClick={tradeKnowledge} data-testid="ops-trade-btn" className="flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-1.5 text-[15px] hover:border-lux-accent"><Zap size={13} /> Trade knowledge</button>
+              <button onClick={exchange} data-testid="ops-exchange-btn" className="flex items-center gap-1.5 rounded-full border border-lux-border px-4 py-1.5 text-[15px] hover:border-lux-accent"><Landmark size={13} /> Cultural exchange</button>
+              <button onClick={() => setMerge([])} className="font-mono text-[15px] text-lux-text2 hover:text-lux-text">clear</button>
             </div>
           )}
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3" data-testid="universe-grid">
             {universes.length === 0 && (
-              <p className="col-span-full py-10 text-center font-mono text-[13px] uppercase tracking-wide text-lux-text2">
+              <p className="col-span-full py-10 text-center font-mono text-[15px] uppercase tracking-wide text-lux-text2">
                 The void awaits — create your first universe above
               </p>
             )}
@@ -507,15 +507,15 @@ export default function FrasbergCloud() {
                   <button onClick={() => setDetail(u.id)} data-testid={`universe-open-${u.id}`} className="text-left">
                     <h3 className="flex items-center gap-2 font-display text-lg font-600 hover:text-lux-accent"><Globe size={15} className="text-lux-accent" /> {u.name}</h3>
                   </button>
-                  <span className="rounded-full px-2.5 py-0.5 font-mono text-[13.5px] uppercase tracking-wide"
+                  <span className="rounded-full px-2.5 py-0.5 font-mono text-[15.5px] uppercase tracking-wide"
                     style={{ color: PHASE_COLOR[u.phase], border: `1px solid ${PHASE_COLOR[u.phase]}66` }}>
                     {u.phase}
                   </span>
                 </div>
-                <p className="mt-2 font-mono text-[13.5px] text-lux-text2">
+                <p className="mt-2 font-mono text-[15.5px] text-lux-text2">
                   tick {u.tick} · {u.physicsModel} · {u.terrain}/{u.climate} · {u.dimensions}D
                 </p>
-                <div className="mt-3 grid grid-cols-3 gap-2 font-mono text-[13.5px] text-lux-text2">
+                <div className="mt-3 grid grid-cols-3 gap-2 font-mono text-[15.5px] text-lux-text2">
                   <span>entropy <span className="text-lux-text">{u.entropy}</span></span>
                   <span>stability <span className="text-lux-text">{u.stability}</span></span>
                   <span>agents <span className="text-lux-text">{u.agents}</span></span>
@@ -525,11 +525,11 @@ export default function FrasbergCloud() {
                 </div>
                 <div className="mt-4 flex flex-wrap items-center gap-2">
                   <button onClick={() => tick(u.id, 1)} data-testid={`tick-1-${u.id}`}
-                    className="flex items-center gap-1 rounded-full bg-lux-accent px-3.5 py-1.5 text-[13px] font-600 text-lux-bg hover:-translate-y-0.5 transition-transform"><Play size={11} /> Tick</button>
+                    className="flex items-center gap-1 rounded-full bg-lux-accent px-3.5 py-1.5 text-[15px] font-600 text-lux-bg hover:-translate-y-0.5 transition-transform"><Play size={11} /> Tick</button>
                   <button onClick={() => tick(u.id, 10)} data-testid={`tick-10-${u.id}`}
-                    className="rounded-full border border-lux-border px-3.5 py-1.5 text-[13px] hover:border-lux-accent">×10</button>
+                    className="rounded-full border border-lux-border px-3.5 py-1.5 text-[15px] hover:border-lux-accent">×10</button>
                   <button onClick={() => toggleMerge(u.id)} data-testid={`select-${u.id}`}
-                    className={`rounded-full border px-3.5 py-1.5 text-[13px] ${merge.includes(u.id) ? "border-lux-accent text-lux-accent" : "border-lux-border hover:border-lux-accent"}`}>
+                    className={`rounded-full border px-3.5 py-1.5 text-[15px] ${merge.includes(u.id) ? "border-lux-accent text-lux-accent" : "border-lux-border hover:border-lux-accent"}`}>
                     {merge.includes(u.id) ? "Selected" : "Select"}
                   </button>
                   <button onClick={() => del(u.id)} data-testid={`delete-${u.id}`} aria-label="Delete universe"
@@ -541,13 +541,13 @@ export default function FrasbergCloud() {
 
           <div className="rounded-2xl border border-lux-border bg-lux-surface p-5" data-testid="congress-panel">
             <h2 className="flex items-center gap-2 font-display text-xl font-600"><Landmark size={17} className="text-lux-gold" /> Multiverse Diplomatic Congress</h2>
-            <p className="mt-1 font-mono text-[13px] text-lux-text2">{congress?.memberUniverses || 0} member universes</p>
+            <p className="mt-1 font-mono text-[15px] text-lux-text2">{congress?.memberUniverses || 0} member universes</p>
             <div className="mt-4 flex flex-wrap gap-3">
               <input value={resTitle} onChange={(e) => setResTitle(e.target.value)} placeholder="Propose a resolution…"
                 data-testid="congress-resolution-input"
-                className="w-full max-w-md rounded-full border border-lux-border bg-lux-bg px-4 py-2 font-mono text-[13px] outline-none focus:border-lux-accent" />
+                className="w-full max-w-md rounded-full border border-lux-border bg-lux-bg px-4 py-2 font-mono text-[15px] outline-none focus:border-lux-accent" />
               <button onClick={propose} data-testid="congress-propose-btn"
-                className="rounded-full bg-lux-gold px-5 py-2 text-[13px] font-600 text-lux-bg hover:-translate-y-0.5 transition-transform">Propose</button>
+                className="rounded-full bg-lux-gold px-5 py-2 text-[15px] font-600 text-lux-bg hover:-translate-y-0.5 transition-transform">Propose</button>
             </div>
             <div className="mt-4 space-y-2" data-testid="congress-resolutions-list">
               {(congress?.resolutions || []).map((r) => (
@@ -555,9 +555,9 @@ export default function FrasbergCloud() {
                   <span className="text-sm text-lux-text">{r.title}</span>
                   {r.passed === null || r.passed === undefined ? (
                     <button onClick={() => vote(r.id)} data-testid={`congress-vote-${r.id}`}
-                      className="rounded-full border border-lux-border px-4 py-1 text-[13px] hover:border-lux-accent">Call vote</button>
+                      className="rounded-full border border-lux-border px-4 py-1 text-[15px] hover:border-lux-accent">Call vote</button>
                   ) : (
-                    <span className={`rounded-full border px-3 py-0.5 font-mono text-[13.5px] uppercase ${r.passed ? "border-emerald-400/50 text-emerald-400" : "border-red-500/50 text-red-400"}`}>
+                    <span className={`rounded-full border px-3 py-0.5 font-mono text-[15.5px] uppercase ${r.passed ? "border-emerald-400/50 text-emerald-400" : "border-red-500/50 text-red-400"}`}>
                       {r.passed ? "Passed" : "Failed"}
                     </span>
                   )}
@@ -572,8 +572,8 @@ export default function FrasbergCloud() {
               <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {kernel.absoluteLaws.map((l) => (
                   <div key={l.id} className="rounded-xl border border-lux-border px-4 py-3">
-                    <p className="font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-accent">{l.domain}</p>
-                    <p className="mt-1 text-[13px] text-lux-text2">"{l.axiom}"</p>
+                    <p className="font-mono text-[15.5px] uppercase tracking-[0.2em] text-lux-accent">{l.domain}</p>
+                    <p className="mt-1 text-[15px] text-lux-text2">"{l.axiom}"</p>
                   </div>
                 ))}
               </div>

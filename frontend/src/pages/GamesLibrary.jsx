@@ -108,7 +108,7 @@ export default function GamesLibrary() {
                 key={g}
                 data-testid={`games-filter-${g.toLowerCase()}`}
                 onClick={() => setFilter(g)}
-                className={`rounded-full border border-[#6c63ff]/60 px-4 py-1.5 text-[13px] transition-colors ${
+                className={`rounded-full border border-[#6c63ff]/60 px-4 py-1.5 text-[15px] transition-colors ${
                   filter === g ? "bg-[#6c63ff] text-white" : "bg-[#1a1a2e] text-[#c6ccd6] hover:text-white"
                 }`}
               >
@@ -120,12 +120,12 @@ export default function GamesLibrary() {
 
         {myScores.length > 0 && (
           <div className="mx-auto mt-8 max-w-3xl rounded-2xl border border-[#6c63ff]/25 bg-[#111122] p-4" data-testid="my-best-scores">
-            <p className="flex items-center gap-2 text-[13.5px] font-bold uppercase tracking-[0.15em] text-[#8b84ff]">
+            <p className="flex items-center gap-2 text-[15.5px] font-bold uppercase tracking-[0.15em] text-[#8b84ff]">
               <Trophy size={13} /> My best scores
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
               {myScores.map((s) => (
-                <span key={s.game_id} className="rounded-full border border-[#2a2a44] px-3 py-1 text-[13.5px] text-[#c6ccd6]" data-testid={`my-score-${s.game_id}`}>
+                <span key={s.game_id} className="rounded-full border border-[#2a2a44] px-3 py-1 text-[15.5px] text-[#c6ccd6]" data-testid={`my-score-${s.game_id}`}>
                   {s.title}: <b className="text-white">{s.score.toLocaleString()}</b>
                 </span>
               ))}
@@ -165,7 +165,7 @@ export default function GamesLibrary() {
                   <button
                     onClick={() => { setSearch(""); setFilter("All"); }}
                     data-testid="games-clear-filters"
-                    className="mt-4 rounded-full border border-[#6c63ff]/60 px-5 py-2 text-[13px] text-[#c6ccd6] transition-colors hover:text-white"
+                    className="mt-4 rounded-full border border-[#6c63ff]/60 px-5 py-2 text-[15px] text-[#c6ccd6] transition-colors hover:text-white"
                   >
                     Clear search & filters
                   </button>

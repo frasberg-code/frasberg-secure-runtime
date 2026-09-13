@@ -100,7 +100,7 @@ export default function GamePlayerPage() {
           <span className="block truncate text-sm font-bold text-white" data-testid="game-player-title">{game?.title || gameId}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="hidden items-center gap-1.5 rounded-full border border-[#1a1a2e] px-3 py-1 text-[13.5px] text-[#b3bac7] sm:inline-flex" data-testid="game-player-latency">
+          <span className="hidden items-center gap-1.5 rounded-full border border-[#1a1a2e] px-3 py-1 text-[15.5px] text-[#b3bac7] sm:inline-flex" data-testid="game-player-latency">
             <Wifi size={11} className="text-[#6c63ff]" /> {latency === null ? "—" : `${latency} ms`}
           </span>
           <button
@@ -142,7 +142,7 @@ export default function GamePlayerPage() {
         )}
       </div>
 
-      <div className="border-t border-[#1a1a2e] px-5 py-2 text-center text-[13px] text-[#9aa3b8]" data-testid="game-player-controls-hint">
+      <div className="border-t border-[#1a1a2e] px-5 py-2 text-center text-[15px] text-[#9aa3b8]" data-testid="game-player-controls-hint">
         {game?.controls || ""}
       </div>
     </div>

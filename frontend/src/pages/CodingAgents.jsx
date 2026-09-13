@@ -75,12 +75,12 @@ export default function CodingAgents() {
                 <div key={a.name} className="rounded-2xl border border-lux-border bg-lux-surface p-6" data-testid={`coding-agent-${a.slug}`}>
                   <div className="flex items-baseline justify-between">
                     <h3 className="font-display text-lg font-600 tracking-tight">{a.name}</h3>
-                    <span className="font-mono text-[13.5px] text-lux-accent">{a.tier.replace(/^luchii/, "Luchii")}</span>
+                    <span className="font-mono text-[15.5px] text-lux-accent">{a.tier.replace(/^luchii/, "Luchii")}</span>
                   </div>
-                  <p className="mt-1 font-mono text-[13px] uppercase tracking-[0.15em] text-lux-text2">{a.role}</p>
+                  <p className="mt-1 font-mono text-[15px] uppercase tracking-[0.15em] text-lux-text2">{a.role}</p>
                   <p className="mt-3 text-sm leading-relaxed text-lux-text2">{a.desc}</p>
                   <Link to={`/chat?model=${a.tier}&agent=${a.slug}`} data-testid={`launch-${a.slug}`}
-                    className="mt-4 inline-block rounded-full border border-lux-border px-5 py-2 text-[13px] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
+                    className="mt-4 inline-block rounded-full border border-lux-border px-5 py-2 text-[15px] text-lux-text2 transition-colors hover:border-lux-accent hover:text-lux-text">
                     Launch in Chat →
                   </Link>
                 </div>

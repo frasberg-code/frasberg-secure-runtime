@@ -28,6 +28,9 @@ export const ApiKeyForge = ({ onCreated }) => {
   const [expiresDays, setExpiresDays] = useState("");
   const [autoDisable, setAutoDisable] = useState(true);
   const [perms, setPerms] = useState(defaultPerms);
+  const [restrict, setRestrict] = useState(false);
+  const [usageLimit, setUsageLimit] = useState("");
+  const [refreshPeriod, setRefreshPeriod] = useState("");
   const [busy, setBusy] = useState(false);
   const [newKey, setNewKey] = useState(null);
   const [copied, setCopied] = useState(false);
@@ -38,8 +41,9 @@ export const ApiKeyForge = ({ onCreated }) => {
     name: name || "Default key",
     workspace: workspace || null,
     auto_disable_if_leaked: autoDisable,
+    ...(restrict ? { restrict_key: true, usage_limit_credits: usageLimit ? Number(usageLimit) : null, credit_refresh_period: refreshPeriod || null } : {}),
     permissions: Object.fromEntries(Object.entries(perms).filter(([, v]) => v !== "no_access")),
-  }, null, 2), [name, workspace, autoDisable, perms]);
+  }, null, 2), [name, workspace, autoDisable, perms, restrict, usageLimit, refreshPeriod]);
 
   const setAll = (lvl) => setPerms(Object.fromEntries(ALL_KEYS.map((k) => [k, lvl])));
 
@@ -52,6 +56,9 @@ export const ApiKeyForge = ({ onCreated }) => {
         body: JSON.stringify({
           name: name || "Default key", expires_days: expiresDays ? Number(expiresDays) : null,
           permissions: perms, auto_disable_if_leaked: autoDisable, workspace_name: workspace || null,
+          restrict_key: restrict,
+          usage_limit_credits: restrict && usageLimit ? Number(usageLimit) : null,
+          credit_refresh_period: restrict && refreshPeriod ? refreshPeriod : null,
         }),
       });
       if (res.status === 401) { toast.error("Please sign in to generate keys"); return; }
@@ -99,7 +106,7 @@ export const ApiKeyForge = ({ onCreated }) => {
       {LEVELS.map(([lv, lb]) => (
         <button key={lv} onClick={() => setPerms((p) => ({ ...p, [pk]: lv }))}
           data-testid={`perm-${pk}-${lv}`}
-          className="rounded-md border px-1.5 py-1 font-mono text-[11px] transition-colors"
+          className="rounded-md border px-1.5 py-1 font-mono text-[13.5px] transition-colors"
           style={perms[pk] === lv
             ? { borderColor: lv === "no_access" ? C.border : C.primary, background: lv === "no_access" ? "rgba(255,255,255,0.05)" : "rgba(56,189,248,0.14)", color: lv === "no_access" ? C.muted : C.primary }
             : { borderColor: C.border, color: C.muted }}>
@@ -114,7 +121,7 @@ export const ApiKeyForge = ({ onCreated }) => {
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(280px,360px)_minmax(480px,1fr)]">
         {/* Left panel — metadata + security */}
         <div className="rounded-xl border px-5 py-4" style={{ background: C.panel, borderColor: C.border }} data-testid="forge-metadata-panel">
-          <p className="font-mono text-[11.5px] uppercase tracking-[0.2em]" style={{ color: C.muted }}>Key Metadata</p>
+          <p className="font-mono text-[14px] uppercase tracking-[0.2em]" style={{ color: C.muted }}>Key Metadata</p>
           <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Key name (e.g. Production)"
             data-testid="key-name-input"
             className="mt-3 w-full rounded-md border bg-transparent px-3.5 py-2.5 text-sm outline-none transition-colors"
@@ -124,7 +131,7 @@ export const ApiKeyForge = ({ onCreated }) => {
             className="mt-2 w-full rounded-md border bg-transparent px-3.5 py-2.5 text-sm outline-none transition-colors"
             style={{ borderColor: C.border, color: C.text }} />
           <select value={expiresDays} onChange={(e) => setExpiresDays(e.target.value)} data-testid="key-expiry-select"
-            className="mt-2 w-full rounded-md border px-3.5 py-2.5 font-mono text-[12.5px] outline-none"
+            className="mt-2 w-full rounded-md border px-3.5 py-2.5 font-mono text-[14.5px] outline-none"
             style={{ borderColor: C.border, background: C.panel, color: C.text }}>
             <option value="">Never expires</option>
             <option value="30">Expires in 30 days</option>
@@ -133,16 +140,16 @@ export const ApiKeyForge = ({ onCreated }) => {
           </select>
 
           <div className="mt-5 border-t pt-4" style={{ borderColor: C.border }}>
-            <p className="font-mono text-[11.5px] uppercase tracking-[0.2em]" style={{ color: C.muted }}>Security</p>
+            <p className="font-mono text-[14px] uppercase tracking-[0.2em]" style={{ color: C.muted }}>Security</p>
             <button onClick={() => setAutoDisable((v) => !v)} data-testid="auto-disable-toggle"
               className="mt-3 flex w-full items-start gap-3 rounded-md border p-3 text-left transition-colors"
               style={{ borderColor: autoDisable ? "rgba(56,189,248,0.5)" : C.border }}>
               <ShieldAlert size={16} className="mt-0.5 shrink-0" style={{ color: autoDisable ? C.primary : C.muted }} />
               <span>
-                <span className="block text-[13px] font-600" style={{ color: C.text }}>
+                <span className="block text-[15px] font-600" style={{ color: C.text }}>
                   Auto-disable if leaked {autoDisable ? "— ON" : "— OFF"}
                 </span>
-                <span className="mt-1 block text-[12px] leading-relaxed" style={{ color: C.muted }}>
+                <span className="mt-1 block text-[14px] leading-relaxed" style={{ color: C.muted }}>
                   Frasberg continuously scans public repositories and runs internal anomaly detection. If this key is ever exposed, it is instantly moved to the auto_disabled state, the workspace owner is notified, and a reissue is suggested.
                 </span>
               </span>
@@ -150,8 +157,37 @@ export const ApiKeyForge = ({ onCreated }) => {
           </div>
 
           <div className="mt-5 border-t pt-4" style={{ borderColor: C.border }}>
-            <p className="font-mono text-[11.5px] uppercase tracking-[0.2em]" style={{ color: C.muted }}>JSON Preview</p>
-            <pre className="mt-2 max-h-52 overflow-auto rounded-md border p-3 font-mono text-[11.5px] leading-relaxed"
+            <div className="flex items-center justify-between">
+              <p className="font-mono text-[14px] uppercase tracking-[0.2em]" style={{ color: C.muted }}>Restrict Key</p>
+              <button onClick={() => setRestrict((v) => !v)} data-testid="forge-restrict-toggle" aria-label="Restrict key"
+                className="relative h-5 w-10 rounded-full transition-colors"
+                style={{ background: restrict ? C.primary : "rgba(255,255,255,0.12)" }}>
+                <span className="absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all" style={{ left: restrict ? 22 : 2 }} />
+              </button>
+            </div>
+            <label className="mt-3 block font-mono text-[13.5px] uppercase tracking-[0.16em]" style={{ color: restrict ? C.muted : "rgba(255,255,255,0.25)" }}>
+              Usage Limits (Credits)
+            </label>
+            <input type="number" min="1" value={usageLimit} disabled={!restrict} placeholder="Unlimited"
+              onChange={(e) => setUsageLimit(e.target.value)} data-testid="forge-usage-limit-input"
+              className="mt-1.5 w-full rounded-md border bg-transparent px-3.5 py-2 text-sm outline-none transition-colors disabled:opacity-40"
+              style={{ borderColor: C.border, color: C.text }} />
+            <label className="mt-3 block font-mono text-[13.5px] uppercase tracking-[0.16em]" style={{ color: restrict ? C.muted : "rgba(255,255,255,0.25)" }}>
+              Per credit refresh period
+            </label>
+            <select value={refreshPeriod} disabled={!restrict} onChange={(e) => setRefreshPeriod(e.target.value)} data-testid="forge-refresh-period-select"
+              className="mt-1.5 w-full rounded-md border px-3.5 py-2 font-mono text-[14.5px] outline-none disabled:opacity-40"
+              style={{ borderColor: C.border, background: C.panel, color: C.text }}>
+              <option value="">Unlimited</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+
+          <div className="mt-5 border-t pt-4" style={{ borderColor: C.border }}>
+            <p className="font-mono text-[14px] uppercase tracking-[0.2em]" style={{ color: C.muted }}>JSON Preview</p>
+            <pre className="mt-2 max-h-52 overflow-auto rounded-md border p-3 font-mono text-[14px] leading-relaxed"
               style={{ borderColor: C.border, background: C.base, color: C.primary }} data-testid="key-json-preview">{preview}</pre>
           </div>
         </div>
@@ -159,22 +195,22 @@ export const ApiKeyForge = ({ onCreated }) => {
         {/* Right panel — permissions matrix */}
         <div className="rounded-xl border px-5 py-4" style={{ background: C.panel, borderColor: C.border }} data-testid="forge-permissions-panel">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="font-mono text-[11.5px] uppercase tracking-[0.2em]" style={{ color: C.muted }}>Permissions</p>
+            <p className="font-mono text-[14px] uppercase tracking-[0.2em]" style={{ color: C.muted }}>Permissions</p>
             <div className="flex gap-1.5">
-              <button onClick={() => setAll("access")} data-testid="perm-preset-full" className="rounded-md border px-2.5 py-1 font-mono text-[11px]" style={{ borderColor: C.border, color: C.accent }}>Full Access</button>
-              <button onClick={() => setAll("read")} data-testid="perm-preset-read" className="rounded-md border px-2.5 py-1 font-mono text-[11px]" style={{ borderColor: C.border, color: C.primary }}>Read Only</button>
-              <button onClick={() => setPerms(defaultPerms())} data-testid="perm-preset-clear" className="rounded-md border px-2.5 py-1 font-mono text-[11px]" style={{ borderColor: C.border, color: C.muted }}>Reset</button>
+              <button onClick={() => setAll("access")} data-testid="perm-preset-full" className="rounded-md border px-2.5 py-1 font-mono text-[13.5px]" style={{ borderColor: C.border, color: C.accent }}>Full Access</button>
+              <button onClick={() => setAll("read")} data-testid="perm-preset-read" className="rounded-md border px-2.5 py-1 font-mono text-[13.5px]" style={{ borderColor: C.border, color: C.primary }}>Read Only</button>
+              <button onClick={() => setPerms(defaultPerms())} data-testid="perm-preset-clear" className="rounded-md border px-2.5 py-1 font-mono text-[13.5px]" style={{ borderColor: C.border, color: C.muted }}>Reset</button>
             </div>
           </div>
           {GROUPS.map(([g, Icon, keys]) => (
             <div key={g} className="mt-4" data-testid={`perm-group-${g.toLowerCase().replace(/ /g, "-")}`}>
-              <p className="flex items-center gap-2 text-[13px] font-700" style={{ color: C.text }}>
+              <p className="flex items-center gap-2 text-[15px] font-700" style={{ color: C.text }}>
                 <Icon size={14} style={{ color: C.primary }} /> {g}
               </p>
               <div className="mt-2 space-y-2">
                 {keys.map((pk) => (
                   <div key={pk} className="grid items-center gap-2 sm:grid-cols-[1.5fr_2fr]">
-                    <span className="text-[12.5px]" style={{ color: C.muted }}>{label(pk)}</span>
+                    <span className="text-[14.5px]" style={{ color: C.muted }}>{label(pk)}</span>
                     {seg(pk)}
                   </div>
                 ))}
@@ -193,19 +229,19 @@ export const ApiKeyForge = ({ onCreated }) => {
 
       {newKey && (
         <div className="rounded-xl border p-4" style={{ borderColor: "rgba(56,189,248,0.4)", background: "rgba(56,189,248,0.05)" }} data-testid="new-key-banner">
-          <p className="font-mono text-[12.5px] uppercase tracking-[0.18em]" style={{ color: C.primary }}>
+          <p className="font-mono text-[14.5px] uppercase tracking-[0.18em]" style={{ color: C.primary }}>
             Copy this now — it won't be shown in full again
           </p>
           <div className="mt-2.5 flex flex-wrap items-center justify-between gap-3">
             <code className="truncate font-mono text-sm" style={{ color: C.text }}>{newKey.key}</code>
             <div className="flex gap-2">
               <button onClick={() => copyKey(newKey.key)} data-testid="copy-new-key"
-                className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 font-mono text-[12px]"
+                className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 font-mono text-[14px]"
                 style={{ borderColor: C.border, color: C.text }}>
                 {copied ? <Check size={12} /> : <Copy size={12} />} {copied ? "Copied" : "Copy"}
               </button>
               <button onClick={runTest} disabled={testing} data-testid="test-key-btn"
-                className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 font-mono text-[12px]"
+                className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 font-mono text-[14px]"
                 style={{ borderColor: "rgba(168,85,247,0.5)", color: C.accent }}>
                 {testing ? <Loader2 size={12} className="animate-spin" /> : <FlaskConical size={12} />} Test Key
               </button>
@@ -214,7 +250,7 @@ export const ApiKeyForge = ({ onCreated }) => {
           {testResults && (
             <div className="mt-3 space-y-1.5" data-testid="key-test-results">
               {testResults.map((r) => (
-                <div key={r.route} className="flex flex-wrap items-center gap-2 font-mono text-[12px]">
+                <div key={r.route} className="flex flex-wrap items-center gap-2 font-mono text-[14px]">
                   <span style={{ color: r.status === "pass" ? "#34d399" : C.danger }}>{r.status === "pass" ? "PASS" : "FL-403"}</span>
                   <span style={{ color: C.text }}>{r.route}</span>
                   <span style={{ color: C.muted }}>requires {r.required_permission}</span>

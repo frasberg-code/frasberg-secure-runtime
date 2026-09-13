@@ -34,13 +34,13 @@ export const AdminHosting = () => {
     <section className="mt-12" data-testid="admin-hosting-panel">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="font-display text-2xl font-700 tracking-tight">Enterprise Hosting</h2>
-        <span className="rounded-full border border-lux-accent/40 px-3 py-1 font-mono text-[13px] text-lux-accent">Kernel v4 · multi-tenant isolation</span>
+        <span className="rounded-full border border-lux-accent/40 px-3 py-1 font-mono text-[15px] text-lux-accent">Kernel v4 · multi-tenant isolation</span>
       </div>
-      <p className="mt-1 text-[13.5px] text-lux-text2">Per-tenant safety profiles, evolution policies, region permissions and billing meters. Click region chips to grant or revoke deployment access.</p>
+      <p className="mt-1 text-[15.5px] text-lux-text2">Per-tenant safety profiles, evolution policies, region permissions and billing meters. Click region chips to grant or revoke deployment access.</p>
       <div className="mt-4 overflow-x-auto rounded-2xl border border-lux-border" data-testid="admin-hosting-table">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-lux-border font-mono text-[12.5px] uppercase tracking-wide text-lux-text2">
+            <tr className="border-b border-lux-border font-mono text-[14.5px] uppercase tracking-wide text-lux-text2">
               <th className="p-3.5">Tenant</th>
               <th className="p-3.5">Isolation</th>
               <th className="p-3.5">Safety profile</th>
@@ -50,23 +50,23 @@ export const AdminHosting = () => {
             </tr>
           </thead>
           <tbody>
-            {!data && <tr><td colSpan={6} className="p-5 font-mono text-[13px] text-lux-text2">Loading hosting view…</td></tr>}
+            {!data && <tr><td colSpan={6} className="p-5 font-mono text-[15px] text-lux-text2">Loading hosting view…</td></tr>}
             {data && data.tenants.map((t) => (
               <tr key={t.id} className="border-b border-lux-border/50 align-top transition-colors hover:bg-white/[0.02]" data-testid={`hosting-row-${t.id}`}>
                 <td className="p-3.5">
                   <p className="font-600">{t.name || t.email?.split("@")[0]}</p>
-                  <p className="font-mono text-[12.5px] text-lux-text2">{t.email}</p>
-                  <p className="mt-1 font-mono text-[11.5px] uppercase text-lux-accent">{t.plan}{t.suspended ? " · suspended" : ""}</p>
+                  <p className="font-mono text-[14.5px] text-lux-text2">{t.email}</p>
+                  <p className="mt-1 font-mono text-[14px] uppercase text-lux-accent">{t.plan}{t.suspended ? " · suspended" : ""}</p>
                 </td>
-                <td className="p-3.5 font-mono text-[12.5px]">{t.isolation}</td>
+                <td className="p-3.5 font-mono text-[14.5px]">{t.isolation}</td>
                 <td className="p-3.5">
-                  <div className="flex flex-wrap gap-1 font-mono text-[11.5px]">
+                  <div className="flex flex-wrap gap-1 font-mono text-[14px]">
                     {Object.entries(t.safety_profile).map(([k, v]) => (
                       <span key={k} className="rounded-full border border-lux-border px-2 py-0.5 text-lux-text2">{k}: {v}</span>
                     ))}
                   </div>
                 </td>
-                <td className="p-3.5 font-mono text-[12.5px]">{t.evolution_policy}</td>
+                <td className="p-3.5 font-mono text-[14.5px]">{t.evolution_policy}</td>
                 <td className="p-3.5">
                   <div className="flex flex-wrap gap-1">
                     {data.regions.map((r) => {
@@ -74,14 +74,14 @@ export const AdminHosting = () => {
                       return (
                         <button key={r} onClick={() => toggleRegion(t, r)} disabled={busy === t.id + r}
                           data-testid={`hosting-region-${t.id}-${r}`}
-                          className={`rounded-full border px-2.5 py-0.5 font-mono text-[11.5px] transition-colors disabled:opacity-40 ${on ? "border-emerald-400/60 text-emerald-300" : "border-lux-border text-lux-text2 opacity-60 hover:opacity-100"}`}>
+                          className={`rounded-full border px-2.5 py-0.5 font-mono text-[14px] transition-colors disabled:opacity-40 ${on ? "border-emerald-400/60 text-emerald-300" : "border-lux-border text-lux-text2 opacity-60 hover:opacity-100"}`}>
                           {r}
                         </button>
                       );
                     })}
                   </div>
                 </td>
-                <td className="p-3.5 font-mono text-[12px] text-lux-text2">
+                <td className="p-3.5 font-mono text-[14px] text-lux-text2">
                   <p>{t.billing.cognition_cycles.toLocaleString()} cycles · {t.billing.tokens.toLocaleString()} tok</p>
                   <p>{t.billing.keys} keys · {t.billing.evolution_events} evo events · {t.billing.marketplace_items} items</p>
                   <p>wallet {t.billing.wallet.toLocaleString()}</p>

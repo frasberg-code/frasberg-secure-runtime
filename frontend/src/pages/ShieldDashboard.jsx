@@ -11,7 +11,7 @@ const C = {
 
 const Badge = ({ color, children }) => (
   <span style={{
-    padding: "2px 8px", borderRadius: 20, fontSize: 10, fontWeight: "bold", letterSpacing: 1,
+    padding: "2px 8px", borderRadius: 20, fontSize: 12, fontWeight: "bold", letterSpacing: 1,
     color, border: `1px solid ${color}`, background: `${color}18`,
   }}>{children}</span>
 );
@@ -21,7 +21,7 @@ const StatCard = ({ label, value, color, testid }) => (
     background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10,
     padding: "20px 24px", textAlign: "center",
   }}>
-    <div style={{ fontSize: 11, color: C.muted, letterSpacing: 2, textTransform: "uppercase", marginBottom: 10 }}>{label}</div>
+    <div style={{ fontSize: 13, color: C.muted, letterSpacing: 2, textTransform: "uppercase", marginBottom: 10 }}>{label}</div>
     <div style={{ fontSize: 40, fontWeight: "bold", color }}>{value}</div>
   </div>
 );
@@ -166,7 +166,7 @@ export default function ShieldDashboard() {
           <style>{`@keyframes shieldDot { 0%,100%{opacity:1} 50%{opacity:0.3} }`}</style>
           <span style={{ color: C.green, fontWeight: "bold", letterSpacing: 2 }} data-testid="shield-live-status">LIVE</span>
           <button onClick={sendDigest} data-testid="shield-send-digest"
-            style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+            style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 6, padding: "4px 12px", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
             📧 Send Digest Now
           </button>
           <span>FRASBERG INC. · Luchii Sovereign Intelligence</span>
@@ -185,7 +185,7 @@ export default function ShieldDashboard() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 18px", borderBottom: `1px solid ${C.border}`, background: C.panelHead }}>
             <h2 style={{ fontSize: 13, color: C.green, letterSpacing: 2 }}>📡 LIVE EVENT FEED</h2>
             <button onClick={() => setCleared(true)} data-testid="shield-clear-feed"
-              style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+              style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 6, padding: "4px 12px", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
               Clear
             </button>
           </div>
@@ -197,11 +197,11 @@ export default function ShieldDashboard() {
                 borderLeft: `3px solid ${l.flagged ? C.red : C.greenDim}`, background: C.panelHead,
               }}>
                 <div style={{ display: "flex", gap: 10 }}>
-                  <span style={{ color: C.muted, fontSize: 11 }}>{new Date(l.created_at).toLocaleTimeString()}</span>
+                  <span style={{ color: C.muted, fontSize: 13 }}>{new Date(l.created_at).toLocaleTimeString()}</span>
                   <span style={{ color: l.flagged ? C.red : C.green, fontWeight: "bold" }}>{l.event}</span>
                 </div>
                 <div>{l.detail || "—"}</div>
-                <div style={{ color: C.orange, fontSize: 10, marginTop: 2 }}>IP: {l.ip} · Session: {(l.session_id || "").slice(0, 8)}…</div>
+                <div style={{ color: C.orange, fontSize: 12, marginTop: 2 }}>IP: {l.ip} · Session: {(l.session_id || "").slice(0, 8)}…</div>
               </div>
             ))}
           </div>
@@ -215,7 +215,7 @@ export default function ShieldDashboard() {
             <thead>
               <tr>
                 {["IP Address", "Breaches", "Last Seen", "C&D", "Status"].map((h) => (
-                  <th key={h} style={{ background: C.panelHead, color: C.muted, textTransform: "uppercase", fontSize: 10, padding: "10px 14px", textAlign: "left", borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                  <th key={h} style={{ background: C.panelHead, color: C.muted, textTransform: "uppercase", fontSize: 12, padding: "10px 14px", textAlign: "left", borderBottom: `1px solid ${C.border}` }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -246,7 +246,7 @@ export default function ShieldDashboard() {
             <thead>
               <tr>
                 {["ID", "IP Address", "Drafted At", "Sent", "Letter"].map((h) => (
-                  <th key={h} style={{ background: C.panelHead, color: C.muted, textTransform: "uppercase", fontSize: 10, padding: "10px 14px", textAlign: "left", borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                  <th key={h} style={{ background: C.panelHead, color: C.muted, textTransform: "uppercase", fontSize: 12, padding: "10px 14px", textAlign: "left", borderBottom: `1px solid ${C.border}` }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -254,7 +254,7 @@ export default function ShieldDashboard() {
               {cds.length === 0 && <tr><td colSpan={5} style={{ textAlign: "center", color: C.muted, padding: 30 }}>No C&amp;D records yet.</td></tr>}
               {cds.map((r) => (
                 <tr key={r.id}>
-                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, color: C.muted, fontSize: 10 }}>{r.id.slice(0, 12)}…</td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, color: C.muted, fontSize: 12 }}>{r.id.slice(0, 12)}…</td>
                   <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, color: C.orange }}>{r.ip}</td>
                   <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>{new Date(r.drafted_at).toLocaleString()}</td>
                   <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>
@@ -263,11 +263,11 @@ export default function ShieldDashboard() {
                   <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>
                     <div style={{ display: "flex", gap: 6 }}>
                       <button onClick={() => window.alert(r.cd_text)} data-testid={`shield-cd-view-${r.id}`}
-                        style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+                        style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 6, padding: "4px 12px", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
                         View
                       </button>
                       <button onClick={() => downloadCdPdf(r)} data-testid={`shield-cd-pdf-${r.id}`}
-                        style={{ background: "transparent", border: `1px solid ${C.blue}`, color: C.blue, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+                        style={{ background: "transparent", border: `1px solid ${C.blue}`, color: C.blue, borderRadius: 6, padding: "4px 12px", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
                         ⬇ PDF
                       </button>
                     </div>
@@ -283,9 +283,9 @@ export default function ShieldDashboard() {
             <div style={{ display: "flex", gap: 8 }}>
               <input value={banInput} onChange={(e) => setBanInput(e.target.value)} placeholder="Enter IP to ban…"
                 data-testid="shield-ban-input"
-                style={{ background: C.panelHead, border: `1px solid ${C.border}`, color: C.text, padding: "4px 10px", borderRadius: 6, fontFamily: "inherit", fontSize: 11, width: 180 }} />
+                style={{ background: C.panelHead, border: `1px solid ${C.border}`, color: C.text, padding: "4px 10px", borderRadius: 6, fontFamily: "inherit", fontSize: 13, width: 180 }} />
               <button onClick={banIP} data-testid="shield-ban-btn"
-                style={{ background: "transparent", border: `1px solid ${C.red}`, color: C.red, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+                style={{ background: "transparent", border: `1px solid ${C.red}`, color: C.red, borderRadius: 6, padding: "4px 12px", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
                 🚫 Ban IP (24h)
               </button>
             </div>
@@ -294,7 +294,7 @@ export default function ShieldDashboard() {
             <thead>
               <tr>
                 {["IP Address", "Reason", "Banned By", "Banned At", "Expires", "Status", "Action"].map((h) => (
-                  <th key={h} style={{ background: C.panelHead, color: C.muted, textTransform: "uppercase", fontSize: 10, padding: "10px 14px", textAlign: "left", borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                  <th key={h} style={{ background: C.panelHead, color: C.muted, textTransform: "uppercase", fontSize: 12, padding: "10px 14px", textAlign: "left", borderBottom: `1px solid ${C.border}` }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -303,19 +303,19 @@ export default function ShieldDashboard() {
               {banned.map((b) => (
                 <tr key={b.ip}>
                   <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, color: C.orange, fontWeight: "bold" }}>{b.ip}</td>
-                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 11, color: C.muted }}>{b.reason || "—"}</td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 13, color: C.muted }}>{b.reason || "—"}</td>
                   <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>
                     <Badge color={b.banned_by === "ADMIN" ? C.orange : C.red}>{b.banned_by}</Badge>
                   </td>
-                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 11 }}>{new Date(b.banned_at).toLocaleString()}</td>
-                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 11 }}>{b.expires_at ? new Date(b.expires_at).toLocaleString() : "PERMANENT"}</td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 13 }}>{new Date(b.banned_at).toLocaleString()}</td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 13 }}>{b.expires_at ? new Date(b.expires_at).toLocaleString() : "PERMANENT"}</td>
                   <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>
                     {b.active ? <Badge color={C.red}>ACTIVE</Badge> : <Badge color={C.green}>LIFTED</Badge>}
                   </td>
                   <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>
                     {b.active ? (
                       <button onClick={() => unbanIP(b.ip)} data-testid={`shield-unban-${b.ip}`}
-                        style={{ background: "transparent", border: `1px solid ${C.green}`, color: C.green, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+                        style={{ background: "transparent", border: `1px solid ${C.green}`, color: C.green, borderRadius: 6, padding: "4px 12px", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
                         ✅ Unban
                       </button>
                     ) : "—"}
@@ -332,12 +332,12 @@ export default function ShieldDashboard() {
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <input value={geoCC} onChange={(e) => setGeoCC(e.target.value)} placeholder="Country Code (e.g. RU)"
                 data-testid="shield-geo-cc-input"
-                style={{ background: C.panelHead, border: `1px solid ${C.border}`, color: C.text, padding: "4px 10px", borderRadius: 6, fontFamily: "inherit", fontSize: 11, width: 160 }} />
+                style={{ background: C.panelHead, border: `1px solid ${C.border}`, color: C.text, padding: "4px 10px", borderRadius: 6, fontFamily: "inherit", fontSize: 13, width: 160 }} />
               <input value={geoName} onChange={(e) => setGeoName(e.target.value)} placeholder="Country Name"
                 data-testid="shield-geo-name-input"
-                style={{ background: C.panelHead, border: `1px solid ${C.border}`, color: C.text, padding: "4px 10px", borderRadius: 6, fontFamily: "inherit", fontSize: 11, width: 160 }} />
+                style={{ background: C.panelHead, border: `1px solid ${C.border}`, color: C.text, padding: "4px 10px", borderRadius: 6, fontFamily: "inherit", fontSize: 13, width: 160 }} />
               <button onClick={blockCountry} data-testid="shield-geo-block-btn"
-                style={{ background: "transparent", border: `1px solid ${C.red}`, color: C.red, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+                style={{ background: "transparent", border: `1px solid ${C.red}`, color: C.red, borderRadius: 6, padding: "4px 12px", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
                 🌍 Block Country
               </button>
             </div>
@@ -346,7 +346,7 @@ export default function ShieldDashboard() {
             <thead>
               <tr>
                 {["Code", "Country", "Reason", "Blocked At", "Status", "Action"].map((h) => (
-                  <th key={h} style={{ background: C.panelHead, color: C.muted, textTransform: "uppercase", fontSize: 10, padding: "10px 14px", textAlign: "left", borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                  <th key={h} style={{ background: C.panelHead, color: C.muted, textTransform: "uppercase", fontSize: 12, padding: "10px 14px", textAlign: "left", borderBottom: `1px solid ${C.border}` }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -356,15 +356,15 @@ export default function ShieldDashboard() {
                 <tr key={c.country_code}>
                   <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, color: C.blue, fontWeight: "bold", fontSize: 16 }}>{c.country_code}</td>
                   <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>{c.country_name}</td>
-                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 11, color: C.muted }}>{c.reason || "—"}</td>
-                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 11 }}>{new Date(c.blocked_at).toLocaleString()}</td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 13, color: C.muted }}>{c.reason || "—"}</td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 13 }}>{new Date(c.blocked_at).toLocaleString()}</td>
                   <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>
                     {c.active ? <Badge color={C.red}>BLOCKED</Badge> : <Badge color={C.green}>LIFTED</Badge>}
                   </td>
                   <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>
                     {c.active ? (
                       <button onClick={() => unblockCountry(c.country_code)} data-testid={`shield-geo-unblock-${c.country_code}`}
-                        style={{ background: "transparent", border: `1px solid ${C.green}`, color: C.green, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+                        style={{ background: "transparent", border: `1px solid ${C.green}`, color: C.green, borderRadius: 6, padding: "4px 12px", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
                         ✅ Unblock
                       </button>
                     ) : "—"}
@@ -378,15 +378,15 @@ export default function ShieldDashboard() {
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <input value={regCC} onChange={(e) => setRegCC(e.target.value)} placeholder="Country (e.g. US)"
                 data-testid="shield-region-cc-input"
-                style={{ background: C.panelHead, border: `1px solid ${C.border}`, color: C.text, padding: "4px 10px", borderRadius: 6, fontFamily: "inherit", fontSize: 11, width: 120 }} />
+                style={{ background: C.panelHead, border: `1px solid ${C.border}`, color: C.text, padding: "4px 10px", borderRadius: 6, fontFamily: "inherit", fontSize: 13, width: 120 }} />
               <input value={regCode} onChange={(e) => setRegCode(e.target.value)} placeholder="Region Code (e.g. TX)"
                 data-testid="shield-region-code-input"
-                style={{ background: C.panelHead, border: `1px solid ${C.border}`, color: C.text, padding: "4px 10px", borderRadius: 6, fontFamily: "inherit", fontSize: 11, width: 140 }} />
+                style={{ background: C.panelHead, border: `1px solid ${C.border}`, color: C.text, padding: "4px 10px", borderRadius: 6, fontFamily: "inherit", fontSize: 13, width: 140 }} />
               <input value={regName} onChange={(e) => setRegName(e.target.value)} placeholder="Region Name (e.g. Texas)"
                 data-testid="shield-region-name-input"
-                style={{ background: C.panelHead, border: `1px solid ${C.border}`, color: C.text, padding: "4px 10px", borderRadius: 6, fontFamily: "inherit", fontSize: 11, width: 160 }} />
+                style={{ background: C.panelHead, border: `1px solid ${C.border}`, color: C.text, padding: "4px 10px", borderRadius: 6, fontFamily: "inherit", fontSize: 13, width: 160 }} />
               <button onClick={blockRegion} data-testid="shield-region-block-btn"
-                style={{ background: "transparent", border: `1px solid ${C.red}`, color: C.red, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+                style={{ background: "transparent", border: `1px solid ${C.red}`, color: C.red, borderRadius: 6, padding: "4px 12px", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
                 🗺️ Block Region
               </button>
             </div>
@@ -395,7 +395,7 @@ export default function ShieldDashboard() {
             <thead>
               <tr>
                 {["Region", "Name", "Reason", "Blocked At", "Status", "Action"].map((h) => (
-                  <th key={h} style={{ background: C.panelHead, color: C.muted, textTransform: "uppercase", fontSize: 10, padding: "10px 14px", textAlign: "left", borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                  <th key={h} style={{ background: C.panelHead, color: C.muted, textTransform: "uppercase", fontSize: 12, padding: "10px 14px", textAlign: "left", borderBottom: `1px solid ${C.border}` }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -405,15 +405,15 @@ export default function ShieldDashboard() {
                 <tr key={`${r.country_code}-${r.region_code}`}>
                   <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, color: C.blue, fontWeight: "bold" }}>{r.country_code}-{r.region_code}</td>
                   <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>{r.region_name}</td>
-                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 11, color: C.muted }}>{r.reason || "—"}</td>
-                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 11 }}>{new Date(r.blocked_at).toLocaleString()}</td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 13, color: C.muted }}>{r.reason || "—"}</td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 13 }}>{new Date(r.blocked_at).toLocaleString()}</td>
                   <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>
                     {r.active ? <Badge color={C.red}>BLOCKED</Badge> : <Badge color={C.green}>LIFTED</Badge>}
                   </td>
                   <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>
                     {r.active ? (
                       <button onClick={() => unblockRegion(r.country_code, r.region_code)} data-testid={`shield-region-unblock-${r.country_code}-${r.region_code}`}
-                        style={{ background: "transparent", border: `1px solid ${C.green}`, color: C.green, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+                        style={{ background: "transparent", border: `1px solid ${C.green}`, color: C.green, borderRadius: 6, padding: "4px 12px", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
                         ✅ Unblock
                       </button>
                     ) : "—"}
@@ -424,9 +424,9 @@ export default function ShieldDashboard() {
           </table>
           {geoLog.length > 0 && (
             <div data-testid="shield-geo-log" style={{ borderTop: `1px solid ${C.border}` }}>
-              <div style={{ padding: "10px 18px", fontSize: 11, color: C.muted, letterSpacing: 2, background: C.panelHead }}>GEO BLOCK LOG ({geoLog.length})</div>
+              <div style={{ padding: "10px 18px", fontSize: 13, color: C.muted, letterSpacing: 2, background: C.panelHead }}>GEO BLOCK LOG ({geoLog.length})</div>
               {geoLog.slice(0, 20).map((g) => (
-                <div key={g.id} style={{ padding: "6px 18px", fontSize: 11, borderBottom: `1px solid ${C.border}` }}>
+                <div key={g.id} style={{ padding: "6px 18px", fontSize: 13, borderBottom: `1px solid ${C.border}` }}>
                   <span style={{ color: C.orange }}>{g.ip}</span> · <Badge color={C.red}>{g.country_code || "??"}</Badge>{" "}
                   {g.country_name} · {g.city || "—"} · <span style={{ color: C.muted }}>{g.endpoint} · {new Date(g.blocked_at).toLocaleString()}</span>
                 </div>

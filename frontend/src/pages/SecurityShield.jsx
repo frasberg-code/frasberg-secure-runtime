@@ -115,7 +115,7 @@ export default function SecurityShield() {
         <h3 style={{ color: S.green, marginBottom: 10, fontSize: 12, letterSpacing: 2 }}>🔴 LIVE SECURITY LOG</h3>
         <div data-testid="shield-log-feed">
           {logs.map((l, i) => (
-            <div key={i} style={{ fontSize: 11, color: "#aaa", padding: "3px 0", borderBottom: "1px solid #1a1a1a" }}>
+            <div key={i} style={{ fontSize: 13, color: "#aaa", padding: "3px 0", borderBottom: "1px solid #1a1a1a" }}>
               [{l.t}] <span style={{ color: S.redDim }}>{l.event}</span> — {l.detail}
             </div>
           ))}

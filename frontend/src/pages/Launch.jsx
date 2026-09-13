@@ -94,7 +94,7 @@ function Storyboard({ onClose }) {
         data-testid="storyboard-caption">
         {text}
       </p>
-      {phase === 3 && <p className="absolute bottom-[15%] font-mono text-[13px] uppercase tracking-[0.3em] text-gray-400">Deploy Intelligence. Safely.</p>}
+      {phase === 3 && <p className="absolute bottom-[15%] font-mono text-[15px] uppercase tracking-[0.3em] text-gray-400">Deploy Intelligence. Safely.</p>}
       <style>{`@keyframes fadeInUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}`}</style>
     </div>
   );
@@ -125,7 +125,7 @@ export default function Launch() {
       <section className="relative z-10 mx-auto max-w-5xl px-5 pt-28 pb-16 text-center">
         <img src="/frasberg-mark-circle.png" alt="Frasberg" data-testid="launch-hero-logo"
           className={`mx-auto mb-6 h-16 w-16 rounded-full ${reveal(0)}`} style={{ transitionDelay: "0ms", boxShadow: "0 0 44px rgba(0,240,255,0.35)" }} />
-        <p className={`font-mono text-[12px] uppercase tracking-[0.35em] text-cyan-300 ${reveal(0)}`} style={{ transitionDelay: "0ms" }}>
+        <p className={`font-mono text-[14px] uppercase tracking-[0.35em] text-cyan-300 ${reveal(0)}`} style={{ transitionDelay: "0ms" }}>
           Frasberg presents
         </p>
         <h1 className={`mt-5 font-display text-5xl font-800 leading-[1.05] tracking-tight sm:text-6xl ${reveal(1)}`} style={{ ...grad, transitionDelay: "150ms" }} data-testid="launch-hero-title">
@@ -162,7 +162,7 @@ export default function Launch() {
               <Icon size={20} className="text-cyan-300" />
               <h2 className="mt-4 font-display text-2xl font-700 tracking-tight" style={grad}>{title}</h2>
               <p className="mt-3 text-[14px] leading-relaxed text-gray-300">{body}</p>
-              <Link to={to} className="mt-5 inline-flex items-center gap-1.5 text-[13.5px] font-600 text-cyan-300 transition-transform group-hover:translate-x-1">
+              <Link to={to} className="mt-5 inline-flex items-center gap-1.5 text-[15.5px] font-600 text-cyan-300 transition-transform group-hover:translate-x-1">
                 {cta} <ArrowRight size={13} />
               </Link>
             </div>
@@ -172,7 +172,7 @@ export default function Launch() {
 
       <section className="relative z-10 mx-auto max-w-4xl px-5 py-14" data-testid="launch-press-release">
         <div className="rounded-2xl border border-white/10 bg-black/40 p-8 backdrop-blur sm:p-10">
-          <p className="font-mono text-[11.5px] uppercase tracking-[0.3em] text-gray-500">For immediate release</p>
+          <p className="font-mono text-[14px] uppercase tracking-[0.3em] text-gray-500">For immediate release</p>
           <h3 className="mt-4 font-display text-2xl font-700 leading-snug tracking-tight sm:text-3xl">
             Frasberg Announces Marketplace v3 — The World's First Cognition-Native Agent Marketplace
           </h3>
@@ -188,7 +188,7 @@ export default function Launch() {
           </ul>
           <blockquote className="mt-7 border-l-2 border-cyan-400 pl-5">
             <p className="font-display text-lg italic text-white/90">"Marketplace v3 is where intelligence becomes deployable."</p>
-            <p className="mt-2 font-mono text-[12.5px] text-gray-400">— Mr. Clayton-M. Bernard-Ex., AKA, Frasberg Selassie, creator of Frasberg, Luchii and LINQ</p>
+            <p className="mt-2 font-mono text-[14.5px] text-gray-400">— Mr. Clayton-M. Bernard-Ex., AKA, Frasberg Selassie, creator of Frasberg, Luchii and LINQ</p>
           </blockquote>
         </div>
       </section>

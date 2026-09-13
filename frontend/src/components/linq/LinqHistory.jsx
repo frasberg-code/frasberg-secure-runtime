@@ -50,18 +50,18 @@ export const LinqHistory = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4" data-testid="linq-plan-summary">
         <div className="rounded-xl border border-[#1e293b] bg-[#0f172a] p-4">
-          <div className="text-[10px] uppercase tracking-widest text-[#94a3b8]">Current plan</div>
+          <div className="text-[13px] uppercase tracking-widest text-[#94a3b8]">Current plan</div>
           <div className="text-xl text-[#f8fafc] mt-1 capitalize" data-testid="history-current-plan">{data?.plan || user?.plan || "free"}</div>
           {typeof data?.wallet_balance === "number" && (
-            <div className="mt-1 font-mono text-[11px] text-[#facc15]" data-testid="history-wallet-balance">💰 Wallet: {data.wallet_balance.toLocaleString()} tokens</div>
+            <div className="mt-1 font-mono text-[13.5px] text-[#facc15]" data-testid="history-wallet-balance">💰 Wallet: {data.wallet_balance.toLocaleString()} tokens</div>
           )}
         </div>
         <div className="rounded-xl border border-[#1e293b] bg-[#0f172a] p-4">
-          <div className="text-[10px] uppercase tracking-widest text-[#94a3b8]">Started</div>
+          <div className="text-[13px] uppercase tracking-widest text-[#94a3b8]">Started</div>
           <div className="text-sm text-[#f8fafc] mt-1 font-mono">{data?.plan_started ? data.plan_started.slice(0, 10) : "—"}</div>
         </div>
         <div className="rounded-xl border border-[#1e293b] bg-[#0f172a] p-4">
-          <div className="text-[10px] uppercase tracking-widest text-[#94a3b8]">Renews / expires</div>
+          <div className="text-[13px] uppercase tracking-widest text-[#94a3b8]">Renews / expires</div>
           <div className="text-sm text-[#f8fafc] mt-1 font-mono">{data?.plan_expires ? data.plan_expires.slice(0, 10) : "—"}</div>
         </div>
       </div>
@@ -73,11 +73,11 @@ export const LinqHistory = () => {
         )}
         {rows.map((r) => (
           <div key={r.id} className="flex flex-wrap items-center gap-3 px-4 py-3 border-b border-[#1e293b] last:border-0 bg-[#0f172a]/60" data-testid={`history-row-${r.id}`}>
-            <span className="font-mono text-[11px] text-[#64748b] w-24">{(r.date || "").slice(0, 10)}</span>
+            <span className="font-mono text-[13.5px] text-[#64748b] w-24">{(r.date || "").slice(0, 10)}</span>
             <span className="text-sm text-[#f8fafc] flex-1 min-w-[140px]">{r.item}</span>
             <span className="font-mono text-sm text-[#f8fafc]">{r.amount}</span>
-            <span className="text-[11px] text-[#94a3b8] w-16">{r.method}</span>
-            <span className="flex items-center gap-1 text-[11px] text-[#cbd5e1] capitalize">{STATUS_ICON[r.status] || null} {String(r.status).replace("_", " ").toLowerCase()}</span>
+            <span className="text-[13.5px] text-[#94a3b8] w-16">{r.method}</span>
+            <span className="flex items-center gap-1 text-[13.5px] text-[#cbd5e1] capitalize">{STATUS_ICON[r.status] || null} {String(r.status).replace("_", " ").toLowerCase()}</span>
           </div>
         ))}
       </div>

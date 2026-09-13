@@ -52,9 +52,9 @@ export function RegionCards({ regions }) {
           <div key={r.id} className="rounded-xl border border-white/10 bg-black/30 p-4" data-testid={`region-card-${r.id}`}>
             <div className="flex items-center justify-between">
               <p className="text-[14px] font-700">{r.name}</p>
-              <span className="rounded-full border px-2 py-0.5 font-mono text-[11px]" style={{ borderColor: c, color: c }}>{r.status}{r.healing_in ? ` · healing ${r.healing_in}t` : ""}</span>
+              <span className="rounded-full border px-2 py-0.5 font-mono text-[13.5px]" style={{ borderColor: c, color: c }}>{r.status}{r.healing_in ? ` · healing ${r.healing_in}t` : ""}</span>
             </div>
-            <div className="mt-3 space-y-2 font-mono text-[12px] text-gray-400">
+            <div className="mt-3 space-y-2 font-mono text-[14px] text-gray-400">
               <p className="flex items-center gap-2">load
                 <span className="h-1 flex-1 rounded-full bg-white/10"><span className="block h-1 rounded-full" style={{ width: `${r.load * 100}%`, background: c }} /></span>
                 {Math.round(r.load * 100)}%

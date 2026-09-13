@@ -76,7 +76,7 @@ function CodexBadge({ tier, detailed }) {
   if (!tier) return null;
   const layer = CODEX_LAYER[tier] || "Identity";
   return (
-    <span className="flex items-center gap-1 rounded-full border border-purple-400/50 px-2 py-0.5 font-mono text-[11px] text-purple-300"
+    <span className="flex items-center gap-1 rounded-full border border-purple-400/50 px-2 py-0.5 font-mono text-[13.5px] text-purple-300"
       title={`Codex tier — this item runs on the ${layer} cognition layer`} data-testid="codex-tier-badge">
       ⟐ {tier}{detailed ? ` · ${layer} layer` : ""}
     </span>
@@ -86,7 +86,7 @@ function CodexBadge({ tier, detailed }) {
 function SafetyBadge({ score }) {
   const c = bandColor(score);
   return (
-    <span className="flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[11.5px]" style={{ borderColor: c, color: c }} data-testid="safety-badge">
+    <span className="flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[14px]" style={{ borderColor: c, color: c }} data-testid="safety-badge">
       <ShieldCheck size={11} /> {score}/100
     </span>
   );
@@ -107,66 +107,66 @@ function DetailModal({ item, onClose, onInstall, onAscend }) {
             <span className="grid h-11 w-11 place-items-center rounded-xl border border-cyan-400/25 bg-cyan-400/10 text-cyan-300"><Icon size={18} /></span>
             <div>
               <p className="flex items-center gap-1.5 text-[16px] font-700">{item.name} {item.official && <BadgeCheck size={14} className="text-cyan-300" />}</p>
-              <p className="font-mono text-[12px] uppercase tracking-wide text-gray-400">{item.type} · v{item.version} · {item.owner}</p>
+              <p className="font-mono text-[14px] uppercase tracking-wide text-gray-400">{item.type} · v{item.version} · {item.owner}</p>
             </div>
           </div>
           <button onClick={onClose} className="text-white/60 hover:text-white" aria-label="Close" data-testid="detail-close"><X size={16} /></button>
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <SafetyBadge score={item.safety_score ?? 75} />
-          <span className="font-mono text-[12px]" style={{ color: bandColor(item.safety_score ?? 75) }}>{item.safety_band}</span>
+          <span className="font-mono text-[14px]" style={{ color: bandColor(item.safety_score ?? 75) }}>{item.safety_band}</span>
           <CodexBadge tier={item.codex_tier} detailed />
-          {item.evolution_mode && <span className="flex items-center gap-1 font-mono text-[12px] text-emerald-300"><Zap size={11} /> Evolution Mode on</span>}
+          {item.evolution_mode && <span className="flex items-center gap-1 font-mono text-[14px] text-emerald-300"><Zap size={11} /> Evolution Mode on</span>}
         </div>
         <p className="mt-3 text-[14px] leading-relaxed text-gray-300">{item.description}</p>
         {item.source_repo && (
           <a href={`https://github.com/${item.source_repo}`} target="_blank" rel="noreferrer" data-testid="detail-source-repo"
-            className="mt-2 inline-flex items-center gap-1.5 font-mono text-[12.5px] text-gray-400 underline hover:text-cyan-300">
+            className="mt-2 inline-flex items-center gap-1.5 font-mono text-[14.5px] text-gray-400 underline hover:text-cyan-300">
             <GitBranch size={12} /> github.com/{item.source_repo}
           </a>
         )}
 
         {item.type === "agent" && (
           <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-3">
-            <p className="font-mono text-[11.5px] uppercase tracking-wide text-gray-500">How this agent thinks{item.cognition_graph ? " — real cognition graph" : ""}</p>
+            <p className="font-mono text-[14px] uppercase tracking-wide text-gray-500">How this agent thinks{item.cognition_graph ? " — real cognition graph" : ""}</p>
             {item.cognition_graph ? <RealGraph graph={item.cognition_graph} /> : <CognitionPreview seed={item.id} labels />}
           </div>
         )}
         {item.can_ascend && item.type === "agent" && (
           <div className="mt-4 rounded-xl border border-purple-400/30 bg-purple-400/[0.05] p-3" data-testid="ascension-panel">
-            <p className="font-mono text-[11.5px] uppercase tracking-wide text-purple-300">Agent Ascension — Codex evolution</p>
+            <p className="font-mono text-[14px] uppercase tracking-wide text-purple-300">Agent Ascension — Codex evolution</p>
             {atApex ? (
-              <p className="mt-2 font-mono text-[12.5px] text-gray-400" data-testid="ascension-apex-note">⟐ CG-v35 Apex reached — the terminal tier. There is no beyond.</p>
+              <p className="mt-2 font-mono text-[14.5px] text-gray-400" data-testid="ascension-apex-note">⟐ CG-v35 Apex reached — the terminal tier. There is no beyond.</p>
             ) : (
               <>
-                <p className="mt-1.5 text-[12.5px] leading-relaxed text-gray-400">
+                <p className="mt-1.5 text-[14.5px] leading-relaxed text-gray-400">
                   Initiate an evolution ceremony to rebind this agent from <span className="text-purple-200">{item.codex_tier} ({CODEX_LAYER[item.codex_tier] || "Identity"})</span> to <span className="text-cyan-200">{nextTier} ({CODEX_LAYER[nextTier]})</span>.
                 </p>
                 <button onClick={() => onAscend(item)} data-testid="detail-ascend-btn"
-                  className="mt-3 w-full rounded-full border border-purple-400/60 py-2 font-mono text-[13px] text-purple-200 transition-colors hover:border-purple-300 hover:bg-purple-400/10">
+                  className="mt-3 w-full rounded-full border border-purple-400/60 py-2 font-mono text-[15px] text-purple-200 transition-colors hover:border-purple-300 hover:bg-purple-400/10">
                   ⟐ Begin Ascension Ceremony — {item.codex_tier} → {nextTier}
                 </button>
               </>
             )}
           </div>
         )}
-        <p className="mt-6 font-mono text-[12px] uppercase tracking-[0.2em] text-gray-400">Evolution history</p>
+        <p className="mt-6 font-mono text-[14px] uppercase tracking-[0.2em] text-gray-400">Evolution history</p>
         <div className="mt-3 space-y-0" data-testid="evolution-timeline">
-          {hist.length === 0 && <p className="text-[13.5px] text-gray-400">No lineage recorded yet.</p>}
+          {hist.length === 0 && <p className="text-[15.5px] text-gray-400">No lineage recorded yet.</p>}
           {hist.map((h, idx) => {
             const prev = hist[idx + 1];
             const delta = prev ? h.safety_score - prev.safety_score : 0;
             return (
               <div key={`${h.version}-${h.date}-${idx}`} className="relative border-l border-white/15 pb-5 pl-5" data-testid={`lineage-step-${h.version}`}>
                 <span className="absolute -left-[5px] top-1 h-2.5 w-2.5 rounded-full" style={{ background: bandColor(h.safety_score) }} />
-                <p className="flex flex-wrap items-center gap-2 text-[13.5px] font-700">
+                <p className="flex flex-wrap items-center gap-2 text-[15.5px] font-700">
                   v{h.version}
-                  <span className="font-mono text-[11.5px] font-400 text-gray-400">{h.date}</span>
-                  <span className="font-mono text-[11.5px] font-400" style={{ color: bandColor(h.safety_score) }}>
+                  <span className="font-mono text-[14px] font-400 text-gray-400">{h.date}</span>
+                  <span className="font-mono text-[14px] font-400" style={{ color: bandColor(h.safety_score) }}>
                     safety {h.safety_score}{delta > 0 ? ` (+${delta})` : ""}
                   </span>
                 </p>
-                <p className="mt-1 text-[13.5px] leading-relaxed text-gray-300">{h.note}</p>
+                <p className="mt-1 text-[15.5px] leading-relaxed text-gray-300">{h.note}</p>
               </div>
             );
           })}
@@ -205,19 +205,19 @@ function PublishForm({ onDone, onClose }) {
           <h2 className="text-lg font-700">Publish to Marketplace</h2>
           <button type="button" onClick={onClose} className="text-white/60 hover:text-white" aria-label="Close" data-testid="publish-close"><X size={16} /></button>
         </div>
-        <label className="mt-5 block text-[13px] text-gray-300">Type
+        <label className="mt-5 block text-[15px] text-gray-300">Type
           <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className={`${field} mt-1.5`} data-testid="publish-type">
             <option value="agent">Agent</option><option value="model">Model</option>
             <option value="extension">Extension</option><option value="pipeline">Pipeline</option>
           </select>
         </label>
-        <label className="mt-4 block text-[13px] text-gray-300">Name
+        <label className="mt-4 block text-[15px] text-gray-300">Name
           <input required minLength={2} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={`${field} mt-1.5`} data-testid="publish-name" />
         </label>
-        <label className="mt-4 block text-[13px] text-gray-300">Description
+        <label className="mt-4 block text-[15px] text-gray-300">Description
           <textarea required minLength={5} rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className={`${field} mt-1.5`} data-testid="publish-description" />
         </label>
-        <label className="mt-4 block text-[13px] text-gray-300">Version
+        <label className="mt-4 block text-[15px] text-gray-300">Version
           <input value={form.version} onChange={(e) => setForm({ ...form, version: e.target.value })} className={`${field} mt-1.5`} data-testid="publish-version" />
         </label>
         <button type="submit" disabled={busy} data-testid="publish-submit"
@@ -313,7 +313,7 @@ export default function Marketplace() {
             <span className="font-display text-lg font-700 tracking-tight">Marketplace</span>
           </Link>
           <button onClick={() => user ? setShowPublish(true) : toast.error("Sign in to publish")} data-testid="marketplace-publish-btn"
-            className="flex items-center gap-1.5 rounded-full bg-cyan-400 px-5 py-2 text-[13.5px] font-700 text-black transition-opacity hover:opacity-85">
+            className="flex items-center gap-1.5 rounded-full bg-cyan-400 px-5 py-2 text-[15.5px] font-700 text-black transition-opacity hover:opacity-85">
             <Plus size={14} /> Publish
           </button>
         </div>
@@ -326,24 +326,24 @@ export default function Marketplace() {
         <div className="mt-8 flex flex-wrap items-center gap-2" data-testid="marketplace-filters">
           {TYPES.map(([k, label]) => (
             <button key={k} onClick={() => setType(k)} data-testid={`marketplace-filter-${k}`}
-              className={`rounded-full border px-4 py-1.5 text-[13.5px] transition-colors ${type === k ? "border-cyan-400 bg-cyan-400/10 text-cyan-300" : "border-white/15 text-gray-300 hover:border-white/40"}`}>
+              className={`rounded-full border px-4 py-1.5 text-[15.5px] transition-colors ${type === k ? "border-cyan-400 bg-cyan-400/10 text-cyan-300" : "border-white/15 text-gray-300 hover:border-white/40"}`}>
               {label}
             </button>
           ))}
           <span className="mx-1 hidden h-5 w-px bg-white/15 sm:block" />
           {[["deploy", "Deploy", Rocket], ["evolution", "Evolution", GitBranch], ["safety", "Safety", ShieldCheck], ["regions", "Regions", Globe]].map(([k, label, Icon]) => (
             <Link key={k} to={`/marketplace/${k}`} data-testid={`marketplace-nav-${k}`}
-              className="flex items-center gap-1.5 rounded-full border border-white/15 px-4 py-1.5 text-[13.5px] text-gray-300 transition-colors hover:border-cyan-400 hover:text-cyan-300">
+              className="flex items-center gap-1.5 rounded-full border border-white/15 px-4 py-1.5 text-[15.5px] text-gray-300 transition-colors hover:border-cyan-400 hover:text-cyan-300">
               <Icon size={12} /> {label}
             </Link>
           ))}
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="marketplace-tier-filters">
-          <span className="font-mono text-[11.5px] uppercase tracking-wide text-gray-500">Codex tier:</span>
+          <span className="font-mono text-[14px] uppercase tracking-wide text-gray-500">Codex tier:</span>
           {TIER_FILTERS.map(([k, label]) => (
             <button key={k} onClick={() => setTier(k)} data-testid={`marketplace-tier-${k}`}
-              className={`rounded-full border px-3 py-1 font-mono text-[11.5px] transition-colors ${tier === k ? "border-purple-400 bg-purple-400/10 text-purple-300" : "border-white/15 text-gray-400 hover:border-purple-400/50 hover:text-purple-200"}`}>
+              className={`rounded-full border px-3 py-1 font-mono text-[14px] transition-colors ${tier === k ? "border-purple-400 bg-purple-400/10 text-purple-300" : "border-white/15 text-gray-400 hover:border-purple-400/50 hover:text-purple-200"}`}>
               {label}
             </button>
           ))}
@@ -352,8 +352,8 @@ export default function Marketplace() {
         {leaders.length > 0 && (
           <div className="mt-8 rounded-2xl border border-purple-400/20 bg-purple-400/[0.03] p-5 backdrop-blur" data-testid="ascension-leaderboard">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.2em] text-purple-300"><Trophy size={13} /> Hall of Ascension — highest Codex tiers</p>
-              <Link to="/ascensions" data-testid="marketplace-chronicle-link" className="font-mono text-[11.5px] text-cyan-300 underline underline-offset-4 hover:text-cyan-200">full chronicle →</Link>
+              <p className="flex items-center gap-2 font-mono text-[14px] uppercase tracking-[0.2em] text-purple-300"><Trophy size={13} /> Hall of Ascension — highest Codex tiers</p>
+              <Link to="/ascensions" data-testid="marketplace-chronicle-link" className="font-mono text-[14px] text-cyan-300 underline underline-offset-4 hover:text-cyan-200">full chronicle →</Link>
             </div>
             <div className="mt-4 space-y-2.5">
               {leaders.slice(0, 5).map((l, i) => (
@@ -362,9 +362,9 @@ export default function Marketplace() {
                     <span className={`w-6 shrink-0 text-center font-mono text-[14px] font-700 ${i === 0 ? "text-amber-300" : i === 1 ? "text-gray-300" : i === 2 ? "text-orange-300" : "text-gray-500"}`}>{i + 1}</span>
                     <span className="truncate text-[14px] font-600">{l.name}</span>
                     {l.official && <BadgeCheck size={13} className="shrink-0 text-cyan-300" />}
-                    <span className="truncate font-mono text-[11.5px] text-gray-500">by {l.owner}</span>
+                    <span className="truncate font-mono text-[14px] text-gray-500">by {l.owner}</span>
                   </span>
-                  <span className="flex items-center gap-2 font-mono text-[11.5px]">
+                  <span className="flex items-center gap-2 font-mono text-[14px]">
                     {l.codex_tier === "CG-v35" && <span className="rounded-full border border-amber-400/50 px-2 py-0.5 text-amber-300">⟐ APEX</span>}
                     <span className="rounded-full border border-purple-400/50 px-2.5 py-0.5 text-purple-300">⟐ {l.codex_tier} · {l.layer}</span>
                     <span className="text-gray-400">{l.ascensions} ascension{l.ascensions === 1 ? "" : "s"}</span>
@@ -376,7 +376,7 @@ export default function Marketplace() {
         )}
 
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3" data-testid="marketplace-grid">
-          {items === null && <p className="font-mono text-[13px] text-gray-400">Loading…</p>}
+          {items === null && <p className="font-mono text-[15px] text-gray-400">Loading…</p>}
           {items !== null && shown.length === 0 && <p className="text-gray-400">{tier !== "all" ? `No ${tier} items at this Codex tier yet.` : "Nothing here yet — be the first to publish."}</p>}
           {shown.map((i) => {
             const Icon = ICONS[i.type] || Bot;
@@ -389,7 +389,7 @@ export default function Marketplace() {
                       <button onClick={() => openDetail(i)} className="truncate text-left transition-colors hover:text-cyan-300" data-testid={`marketplace-view-${i.id}`}>{i.name}</button>
                       {i.official && <BadgeCheck size={14} className="shrink-0 text-cyan-300" title="Official Frasberg" />}
                     </p>
-                    <p className="font-mono text-[12.5px] uppercase tracking-wide text-gray-400">{i.type} · v{i.version} · {i.owner}</p>
+                    <p className="font-mono text-[14.5px] uppercase tracking-wide text-gray-400">{i.type} · v{i.version} · {i.owner}</p>
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     <SafetyBadge score={i.safety_score ?? 75} />
@@ -403,12 +403,12 @@ export default function Marketplace() {
                   </div>
                 )}
                 {i.evolution_mode && (
-                  <p className="mt-2 flex items-center gap-1.5 font-mono text-[12px] text-emerald-300" data-testid={`marketplace-evolution-badge-${i.id}`}>
+                  <p className="mt-2 flex items-center gap-1.5 font-mono text-[14px] text-emerald-300" data-testid={`marketplace-evolution-badge-${i.id}`}>
                     <Zap size={11} /> Evolution Mode — validated auto-updates {i.evolution?.lineage ? `· ${i.evolution.lineage}` : ""}
                   </p>
                 )}
                 <div className="mt-4 flex items-center justify-between">
-                  <span className="font-mono text-[12.5px] text-gray-400">{(i.installs || 0).toLocaleString()} installs</span>
+                  <span className="font-mono text-[14.5px] text-gray-400">{(i.installs || 0).toLocaleString()} installs</span>
                   <span className="flex items-center gap-1.5">
                     {user && (
                       <button onClick={() => toggleEvolution(i)} data-testid={`marketplace-evolution-toggle-${i.id}`}
@@ -418,7 +418,7 @@ export default function Marketplace() {
                       </button>
                     )}
                     <button onClick={() => install(i)} disabled={installing === i.id} data-testid={`marketplace-install-${i.id}`}
-                      className="flex items-center gap-1.5 rounded-full border border-white/20 px-4 py-1.5 text-[13px] font-600 transition-colors hover:border-cyan-400 hover:text-cyan-300 disabled:opacity-40">
+                      className="flex items-center gap-1.5 rounded-full border border-white/20 px-4 py-1.5 text-[15px] font-600 transition-colors hover:border-cyan-400 hover:text-cyan-300 disabled:opacity-40">
                       <Download size={12} /> {installing === i.id ? "Installing…" : "Install"}
                     </button>
                   </span>
@@ -437,12 +437,12 @@ export default function Marketplace() {
             <span key={k} className="absolute h-24 w-24 rounded-full border border-purple-400/60" style={{ animation: "ascRing 1.6s ease-out infinite", animationDelay: `${k * 0.35}s` }} />
           ))}
           <div className="relative text-center">
-            <p className="font-mono text-[12px] uppercase tracking-[0.35em] text-purple-300" style={{ animation: "ascUp 0.5s ease both" }}>Ascension ceremony</p>
+            <p className="font-mono text-[14px] uppercase tracking-[0.35em] text-purple-300" style={{ animation: "ascUp 0.5s ease both" }}>Ascension ceremony</p>
             <p className="mt-3 font-display text-4xl font-700 tracking-tight text-white" style={{ animation: "ascUp 0.6s ease both 0.15s" }}>{ceremony.name}</p>
             <p className="mt-4 font-mono text-[15px] text-cyan-300" style={{ animation: "ascUp 0.6s ease both 0.35s" }} data-testid="ascension-tier-transition">
               {ceremony.from} <span className="text-white/40">→</span> {ceremony.to}
             </p>
-            <p className="mt-2 font-mono text-[12.5px] uppercase tracking-[0.2em] text-gray-400" style={{ animation: "ascUp 0.6s ease both 0.55s" }}>rebinding to the {ceremony.layer} layer…</p>
+            <p className="mt-2 font-mono text-[14.5px] uppercase tracking-[0.2em] text-gray-400" style={{ animation: "ascUp 0.6s ease both 0.55s" }}>rebinding to the {ceremony.layer} layer…</p>
           </div>
         </div>
       )}

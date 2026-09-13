@@ -123,7 +123,7 @@ export default function Status() {
               {error ? "Status feed unreachable" : OVERALL[overall]}
             </span>
             {data && (
-              <span className="ml-auto hidden font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2 sm:block">
+              <span className="ml-auto hidden font-mono text-[15.5px] uppercase tracking-[0.2em] text-lux-text2 sm:block">
                 Uptime {fmtUptime(data.uptime_seconds)}
               </span>
             )}
@@ -136,12 +136,12 @@ export default function Status() {
         {uptime && (
           <div className="mt-6 rounded-2xl border border-lux-border bg-lux-surface/60 p-5" data-testid="status-uptime">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="font-mono text-[13.5px] uppercase tracking-[0.2em] text-lux-text2">Measured uptime — 30 days</span>
+              <span className="font-mono text-[15.5px] uppercase tracking-[0.2em] text-lux-text2">Measured uptime — 30 days</span>
               <span className={`font-display text-2xl font-700 ${uptime.overall_30d >= uptime.sla_target ? "text-emerald-400" : "text-amber-400"}`} data-testid="uptime-percentage">
                 {uptime.overall_30d}%
               </span>
-              <span className="font-mono text-[13.5px] text-lux-text2">SLA target {uptime.sla_target}%</span>
-              <span className={`rounded-full border px-2 py-0.5 font-mono text-[13.5px] uppercase tracking-widest ${uptime.overall_30d >= uptime.sla_target ? "border-emerald-400/50 text-emerald-400" : "border-amber-400/50 text-amber-400"}`}>
+              <span className="font-mono text-[15.5px] text-lux-text2">SLA target {uptime.sla_target}%</span>
+              <span className={`rounded-full border px-2 py-0.5 font-mono text-[15.5px] uppercase tracking-widest ${uptime.overall_30d >= uptime.sla_target ? "border-emerald-400/50 text-emerald-400" : "border-amber-400/50 text-amber-400"}`}>
                 {uptime.overall_30d >= uptime.sla_target ? "SLA met" : "Below target"}
               </span>
             </div>
@@ -162,9 +162,9 @@ export default function Status() {
             <div key={c.id} className="flex items-center justify-between gap-4 rounded-2xl border border-lux-border bg-lux-surface/60 p-5" data-testid={`status-${c.id}`}>
               <div className="min-w-0">
                 <p className="text-sm font-600 text-lux-text">{c.name}</p>
-                <p className="mt-0.5 truncate font-mono text-[13.5px] uppercase tracking-wide text-lux-text2">{c.detail}</p>
+                <p className="mt-0.5 truncate font-mono text-[15.5px] uppercase tracking-wide text-lux-text2">{c.detail}</p>
               </div>
-              <span className="inline-flex shrink-0 items-center gap-2 rounded-full border border-lux-border px-3 py-1.5 font-mono text-[13.5px] uppercase tracking-[0.15em] text-lux-text2">
+              <span className="inline-flex shrink-0 items-center gap-2 rounded-full border border-lux-border px-3 py-1.5 font-mono text-[15.5px] uppercase tracking-[0.15em] text-lux-text2">
                 <span className={`h-2 w-2 rounded-full ${DOT[c.status] || "bg-lux-text2"}`} />
                 {LABEL[c.status] || c.status}
               </span>
