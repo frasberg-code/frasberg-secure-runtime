@@ -14,6 +14,7 @@ router = APIRouter(prefix="/auth")
 
 
 TEAM_DOMAIN = "@frasbergai.com"
+TEAM_DOMAINS = ("@frasbergai.com", "@frasberg.com")
 SIGNUP_TOKENS = 50
 DAILY_TOKENS = 100
 CHAT_TOKEN_COST = 1
@@ -179,7 +180,7 @@ async def register(body: RegisterBody, response: Response):
     user = {
         "id": str(uuid.uuid4()), "email": email, "name": body.name.strip() or email.split("@")[0],
         "password_hash": hash_password(body.password), "role": "user",
-        "plan": "scale" if email.endswith(TEAM_DOMAIN) else "free",
+        "plan": "scale" if email.endswith(TEAM_DOMAINS) else "free",
         "tokens": SIGNUP_TOKENS,
         "last_token_grant": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -202,7 +203,7 @@ async def login(body: LoginBody, request: Request, response: Response):
         await _record_failure(identifier)
         raise HTTPException(status_code=401, detail="Invalid email or password")
     await db.login_attempts.delete_one({"identifier": identifier})
-    if email.endswith(TEAM_DOMAIN) and user.get("plan") not in ("scale", "enterprise"):
+    if email.endswith(TEAM_DOMAINS) and user.get("plan") not in ("scale", "enterprise"):
         await db.users.update_one({"id": user["id"]}, {"$set": {"plan": "scale"}})
         user["plan"] = "scale"
     granted = await _grant_daily_tokens(user["id"])
@@ -233,7 +234,7 @@ async def _ledger(user_id: str, kind: str, amount: int, note: str = ""):
 
 
 def token_exempt(user: dict) -> bool:
-    return user.get("role") == "admin" or user.get("email", "").endswith(TEAM_DOMAIN)
+    return user.get("role") == "admin" or user.get("email", "").endswith(TEAM_DOMAINS)
 
 
 async def spend_tokens(user_id: str, amount: int, kind: str, note: str = "") -> bool:

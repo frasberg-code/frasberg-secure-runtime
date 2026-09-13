@@ -7,16 +7,17 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const GROUPS = [
   ["Core Audio", AudioWaveform, ["text_to_speech", "speech_to_text", "speech_to_speech", "sound_effects"]],
-  ["Advanced Audio", SlidersHorizontal, ["music_generation", "voice_changer", "voice_isolator", "dubbing", "audio_native", "audiobooks"]],
-  ["Visual Generation", Clapperboard, ["image_generation", "video_generation"]],
+  ["Advanced Audio", SlidersHorizontal, ["music_generation", "voice_changer", "voice_isolator", "voices", "dubbing", "audio_native", "audiobooks", "forced_alignment", "ads_engine"]],
+  ["Visual Generation", Clapperboard, ["image_video_generation"]],
   ["Frasberg Agents", Network, ["frasberg_agents", "agent_memory", "agent_tools", "webhooks"]],
-  ["Projects", Folder, ["projects", "productions", "history", "models"]],
+  ["Projects", Folder, ["projects", "productions", "history", "models", "user", "pronunciation_dictionaries"]],
   ["Administration", ShieldCheck, ["usage_analytics", "audit_log", "billing", "key_rotation"]],
-  ["Workspace Members", Users, ["workspace", "workspace_members_read", "workspace_members_invite", "workspace_members_remove"]],
+  ["Workspace Members", Users, ["workspace", "workspace_analytics", "workspace_webhooks", "group_members", "service_accounts", "workspace_members_read", "workspace_members_invite", "workspace_members_remove"]],
 ];
 const ALL_KEYS = GROUPS.flatMap(([, , ks]) => ks);
 const LEVELS = [["no_access", "No Access"], ["read", "Read"], ["write", "Write"], ["access", "Access"]];
-const label = (k) => k === "frasberg_agents" ? "Frasberg Agents" : k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+const LABEL_OVERRIDES = { frasberg_agents: "Frasberg Agents", image_video_generation: "Image & Video Generation", workspace_webhooks: "Webhooks" };
+const label = (k) => LABEL_OVERRIDES[k] || k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
 const defaultPerms = () => Object.fromEntries(ALL_KEYS.map((k) => [k, k === "models" ? "read" : "no_access"]));
 

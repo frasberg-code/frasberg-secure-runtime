@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
-  Key, Plus, Copy, Trash2, Activity, Cpu, Terminal, ArrowLeft, Check, Mail, Wallet, Gauge, Zap, ShieldCheck, RefreshCw,
+  Key, Plus, Copy, Trash2, Activity, Cpu, Terminal, ArrowLeft, Check, Mail, Wallet, Gauge, Zap, ShieldCheck, RefreshCw, Pencil, X, Link2,
 } from "lucide-react";
 import { Sun, Moon } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
@@ -53,6 +53,100 @@ function SectionTitle({ children, right }) {
 
 const ghostBtn = "inline-flex items-center gap-1.5 rounded-sm border px-3 py-1.5 font-mono text-[13px] transition-colors";
 
+function EditKeyModal({ k, onClose, onSaved }) {
+  const [name, setName] = useState(k.name || "");
+  const [expireAfter, setExpireAfter] = useState("keep");
+  const [restrict, setRestrict] = useState(!!k.restrict_key);
+  const [limit, setLimit] = useState(k.usage_limit_credits || "");
+  const [period, setPeriod] = useState(k.credit_refresh_period || "");
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch(`${API}/keys/${k.id}`, {
+        method: "PATCH", headers: { "Content-Type": "application/json" }, credentials: "include",
+        body: JSON.stringify({
+          name, expire_after: expireAfter, restrict_key: restrict,
+          usage_limit_credits: restrict && limit ? Number(limit) : null,
+          credit_refresh_period: restrict && period ? period : null,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success("Key updated");
+      onSaved();
+      onClose();
+    } catch { toast.error("Could not update key"); }
+    finally { setSaving(false); }
+  };
+
+  const fieldCls = "mt-1.5 w-full rounded-sm border bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-[#00F0FF]";
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4 backdrop-blur-sm" onClick={onClose} data-testid="edit-key-modal">
+      <div className="w-full max-w-md rounded-sm border p-5" style={{ background: T.surface, borderColor: T.border }} onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: T.borderSubtle }}>
+          <p className="flex items-center gap-2 text-[15px] font-700" style={{ color: T.text }}>
+            <Link2 size={15} style={{ color: T.accent }} /> Edit API Key
+          </p>
+          <button onClick={onClose} aria-label="Close" data-testid="edit-key-close"
+            className="grid h-7 w-7 place-items-center rounded-sm border" style={{ borderColor: T.border, color: T.text2 }}>
+            <X size={13} />
+          </button>
+        </div>
+
+        <label className="mt-4 block font-mono text-[12px] uppercase tracking-[0.16em]" style={{ color: T.text2 }}>Name</label>
+        <input value={name} onChange={(e) => setName(e.target.value)} data-testid="edit-key-name"
+          className={fieldCls} style={{ borderColor: T.border, color: T.text }} />
+
+        <label className="mt-4 block font-mono text-[12px] uppercase tracking-[0.16em]" style={{ color: T.text2 }}>Expire After</label>
+        <select value={expireAfter} onChange={(e) => setExpireAfter(e.target.value)} data-testid="edit-key-expire"
+          className={fieldCls} style={{ borderColor: T.border, background: T.surface, color: T.text }}>
+          <option value="keep">Keep current</option>
+          <option value="never">Never expires</option>
+          <option value="30">30 days</option>
+          <option value="60">60 days</option>
+          <option value="90">90 days</option>
+        </select>
+
+        <div className="mt-5 flex items-center justify-between">
+          <span className="text-sm font-500" style={{ color: T.text }}>Restrict Key</span>
+          <button onClick={() => setRestrict((v) => !v)} data-testid="restrict-key-toggle" aria-label="Restrict key"
+            className="relative h-6 w-11 rounded-full transition-colors"
+            style={{ background: restrict ? T.accent : "rgba(255,255,255,0.12)" }}>
+            <span className="absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all"
+              style={{ left: restrict ? 22 : 2 }} />
+          </button>
+        </div>
+
+        <label className="mt-4 block font-mono text-[12px] uppercase tracking-[0.16em]"
+          style={{ color: restrict ? T.text2 : T.muted }}>Usage Limits (Credits)</label>
+        <input type="number" min="1" value={limit} disabled={!restrict} placeholder="Unlimited"
+          onChange={(e) => setLimit(e.target.value)} data-testid="usage-limit-input"
+          className={`${fieldCls} disabled:opacity-40`} style={{ borderColor: T.border, color: T.text }} />
+
+        <label className="mt-4 block font-mono text-[12px] uppercase tracking-[0.16em]"
+          style={{ color: restrict ? T.text2 : T.muted }}>Per credit refresh period</label>
+        <select value={period} disabled={!restrict} onChange={(e) => setPeriod(e.target.value)} data-testid="refresh-period-select"
+          className={`${fieldCls} disabled:opacity-40`} style={{ borderColor: T.border, background: T.surface, color: T.text }}>
+          <option value="">Unlimited</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+        </select>
+
+        <div className="mt-6 flex justify-end gap-2 border-t pt-4" style={{ borderColor: T.borderSubtle }}>
+          <button onClick={onClose} className={ghostBtn} style={{ borderColor: T.border, color: T.text2 }}>Cancel</button>
+          <button onClick={save} disabled={saving} data-testid="edit-key-save"
+            className="rounded-sm px-4 py-1.5 font-mono text-[13px] font-700 text-black transition-opacity hover:opacity-85 disabled:opacity-50"
+            style={{ background: T.accent }}>
+            {saving ? "Saving…" : "Save changes"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { user } = useAuth();
   const [keys, setKeys] = useState([]);
@@ -73,6 +167,7 @@ export default function Dashboard() {
     setLightMode(nl);
   };
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [editKey, setEditKey] = useState(null);
   const [sendingStatement, setSendingStatement] = useState(false);
 
   const emailStatement = async () => {
@@ -368,6 +463,11 @@ export default function Dashboard() {
                       <span className="hidden font-mono text-[13px] sm:inline" style={{ color: T.text2 }}>
                         {k.request_count} req · {k.token_count} tok
                       </span>
+                      <button onClick={() => setEditKey(k)} data-testid={`edit-key-btn-${k.id}`} aria-label="Edit key" title="Edit key — name, expiry, restrictions"
+                        className="grid h-8 w-8 place-items-center rounded-sm border transition-colors hover:border-[#00F0FF] hover:text-[#00F0FF]"
+                        style={{ borderColor: T.border, color: T.text2 }}>
+                        <Pencil size={13} />
+                      </button>
                       <button onClick={() => rotate(k.id)} data-testid={`rotate-key-${k.id}`} aria-label="Rotate key" title="Rotate key — keeps permissions & credits"
                         className="grid h-8 w-8 place-items-center rounded-sm border transition-colors hover:border-[#00F0FF] hover:text-[#00F0FF]"
                         style={{ borderColor: T.border, color: T.text2 }}>
@@ -391,6 +491,12 @@ export default function Dashboard() {
                       <span className="rounded-sm border px-2 py-0.5 font-mono text-[13.5px] uppercase tracking-wide"
                         style={{ borderColor: "rgba(239,68,68,0.5)", color: "#EF4444" }} data-testid={`key-low-${k.id}`}>
                         Low — top up
+                      </span>
+                    )}
+                    {k.restrict_key && (
+                      <span className="rounded-sm border px-2 py-0.5 font-mono text-[13.5px] uppercase tracking-wide"
+                        style={{ borderColor: "rgba(0,240,255,0.5)", color: T.accent }} data-testid={`key-restricted-${k.id}`}>
+                        Restricted{k.usage_limit_credits ? ` · ${Number(k.usage_limit_credits).toLocaleString()}/${k.credit_refresh_period || "lifetime"}` : ""}
                       </span>
                     )}
                     <button onClick={() => toggleAutoTopup(k)} data-testid={`key-autotopup-${k.id}`}
@@ -486,6 +592,7 @@ export default function Dashboard() {
         </>
         )}
       </div>
+      {editKey && <EditKeyModal k={editKey} onClose={() => setEditKey(null)} onSaved={refresh} />}
     </main>
   );
 }

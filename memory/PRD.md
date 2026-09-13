@@ -1,5 +1,10 @@
 # Frasberg / Luchii Platform — PRD
 
+## June 2026 — Permissions matrix restructure + Edit API Key
+- PERMISSION_MATRIX (server.py + ApiKeyForge.jsx): Visual Generation merged to single `image_video_generation` ("Image & Video Generation"); Advanced Audio += voices, forced_alignment, ads_engine; Projects += user, pronunciation_dictionaries; Workspace Members = workspace, workspace_analytics, workspace_webhooks (label "Webhooks"), group_members, service_accounts, workspace_members_read/invite/remove. Old image_generation/video_generation keys rejected FK-003 on create; key test routes updated.
+- Edit API Key modal (Dashboard.jsx EditKeyModal, pencil btn per row data-testid=edit-key-btn-{id}): Name, Expire After (Keep current/Never/30/60/90), Restrict Key toggle, Usage Limits (Credits), Per credit refresh period (Unlimited/Daily/Weekly/Monthly). PATCH /api/keys/{key_id} (KeyEdit model). Restricted badge in key row (key-restricted-{id}).
+- Enforcement: _key_period_usage (sums api_key_usage tokens per daily/weekly/monthly/lifetime) hooked into _validate_bearer_key → 429 FK-429 key_usage_limit when restrict_key on and period usage >= usage_limit_credits. Verified by curl: 429 at limit, 200 after unrestrict.
+
 ## Original Problem Statement
 Awwwards-level cinematic landing page + platform for the "Luchii" multi-tier intelligence model family by Frasberg. Sovereign infrastructure, split-screen dashboard, gated chat, live voice, voice cloning, memory vault, monetized builders (Game/App/Website), Frasberg Game Platform with WebRTC streaming, multiplayer websockets and HTML5 games. Flagship 3D game "Street Vybz" (GTA-style open world) with hyper-realistic humans (ReadyPlayerMe GLB), Las Vegas realism, police/fire responses, weapons, missions.
 
@@ -480,3 +485,11 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Dashboard: Banned IPs panel (manual ban 24h input, unban, AUTO/ADMIN badges, expiry) + GeoIP panel (block/unblock country, geo block log) — screenshot verified
 - Verified: ban->403 (spoofed XFF), unban, KP blocked -> real KP IP 175.45.176.10 gets GEO_BLOCKED + logged (Pyongyang), 8.8.8.8 lookup US/Virginia, bad admin key 401, normal traffic 200 w/ headers
 - NOTE: KP left blocked as demo data. Rate limit default 600/min (not 60) to protect preview/testing traffic — tune via env. In-memory caches reset on restart (mongo is source of truth)
+
+## 2026-06 (fork, cont. 16): Region UI + Shield Everywhere + Weekly Digest + C&D PDF + team domains — SELF-TESTED e2e
+- Region/State blocking UI in dashboard (shield-region-* testids, block/unblock) — verified: blocked US-GA -> Atlanta IP 12.96.160.5 got GEO_BLOCKED 403 + geo log entry
+- C&D PDF: GET /api/security/cease-desist/{id}/pdf (reportlab, Courier letter layout) + dashboard "⬇ PDF" button — verified valid %PDF 2953 bytes. reportlab added to requirements.txt
+- Weekly digest: _build_digest (7d counts: events/flagged/bans/geo/CD + top 5 breach IPs), POST /api/admin/digest/send (verified sent), background _digest_scheduler (checks shield_meta.last_digest every 6h, sends if >=7 days)
+- Shield Everywhere: hooks/useShield.js (blocks copy/cut/right-click/devtools shortcuts + size-delta detection, reports w/ [pageName] prefix) applied to Codex.jsx + DatabaseManager.jsx
+- UNLIMITED DOMAINS: @frasberg.com AND @frasbergai.com (TEAM_DOMAINS in auth.py+server.py) -> plan=scale on register, token_exempt chat, no 3-key limit — verified: registered unlimited2@frasberg.com plan=scale, 4th key 200
+- "Luchii stop responding" RCA: fallback persona fires only when Emergent LLM budget exhausted; verified chat streams real Claude after recharge — NOT a code bug

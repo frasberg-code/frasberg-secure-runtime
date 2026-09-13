@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { ArrowLeft, BookOpen, Infinity as InfinityIcon, Sparkles, ChevronDown, Activity, Lock, Share2 } from "lucide-react";
+import { useShield } from "../hooks/useShield";
 import { ParallaxSky } from "../components/site/ParallaxSky";
 
 function playDescentSound() {
@@ -211,6 +212,7 @@ function BookCard({ b, i, open, onToggle, onDescend, onShare, refFn }) {
 }
 
 export default function Codex() {
+  useShield("codex");
   const [open, setOpen] = useState(null);
   const [descent, setDescent] = useState(null);
   const [read, setRead] = useState(() => {

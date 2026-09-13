@@ -138,10 +138,11 @@ def _rate_check(key: str):
 
 
 TEAM_DOMAIN = "@frasbergai.com"
+TEAM_DOMAINS = ("@frasbergai.com", "@frasberg.com")
 
 
 def _is_team_email(email) -> bool:
-    return bool(email) and str(email).lower().strip().endswith(TEAM_DOMAIN)
+    return bool(email) and str(email).lower().strip().endswith(TEAM_DOMAINS)
 
 
 PLAN_QUOTAS = {
@@ -363,12 +364,12 @@ AGENT_PERSONAS = {
 PERMISSION_LEVELS = ("no_access", "read", "write", "access")
 PERMISSION_MATRIX = {
     "core_audio": ["text_to_speech", "speech_to_text", "speech_to_speech", "sound_effects"],
-    "advanced_audio": ["music_generation", "voice_changer", "voice_isolator", "dubbing", "audio_native", "audiobooks"],
-    "visual_generation": ["image_generation", "video_generation"],
+    "advanced_audio": ["music_generation", "voice_changer", "voice_isolator", "voices", "dubbing", "audio_native", "audiobooks", "forced_alignment", "ads_engine"],
+    "visual_generation": ["image_video_generation"],
     "frasberg_agents": ["frasberg_agents", "agent_memory", "agent_tools", "webhooks"],
-    "projects": ["projects", "productions", "history", "models"],
+    "projects": ["projects", "productions", "history", "models", "user", "pronunciation_dictionaries"],
     "administration": ["usage_analytics", "audit_log", "billing", "key_rotation"],
-    "workspace_members": ["workspace", "workspace_members_read", "workspace_members_invite", "workspace_members_remove"],
+    "workspace_members": ["workspace", "workspace_analytics", "workspace_webhooks", "group_members", "service_accounts", "workspace_members_read", "workspace_members_invite", "workspace_members_remove"],
 }
 PERMISSION_KEYS = {p for group in PERMISSION_MATRIX.values() for p in group}
 
@@ -2369,6 +2370,45 @@ async def delete_key(key_id: str, user: dict = Depends(auth_module.get_current_u
     return {"deleted": key_id}
 
 
+class KeyEdit(BaseModel):
+    name: Optional[str] = None
+    expire_after: Optional[str] = "keep"
+    restrict_key: bool = False
+    usage_limit_credits: Optional[int] = None
+    credit_refresh_period: Optional[str] = None
+
+
+REFRESH_PERIODS = ("daily", "weekly", "monthly")
+
+
+@api_router.patch("/keys/{key_id}")
+async def edit_key(key_id: str, body: KeyEdit, user: dict = Depends(auth_module.get_current_user)):
+    doc = await db.api_keys.find_one({"id": key_id, "user_id": user["id"]}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail={"code": "FK-005", "message": "Key not found or disabled"})
+    upd = {}
+    if body.name and body.name.strip():
+        upd["name"] = body.name.strip()[:80]
+    ea = (body.expire_after or "keep").lower()
+    if ea == "never":
+        upd["expires_at"] = None
+    elif ea != "keep":
+        try:
+            days = max(1, min(int(ea), 365))
+            upd["expires_at"] = (datetime.now(timezone.utc) + timedelta(days=days)).isoformat()
+        except ValueError:
+            raise HTTPException(status_code=422, detail={"code": "FK-002", "message": f"Invalid expire_after: {ea}"})
+    upd["restrict_key"] = bool(body.restrict_key)
+    limit = body.usage_limit_credits
+    upd["usage_limit_credits"] = int(limit) if (limit and int(limit) > 0) else None
+    period = (body.credit_refresh_period or "").lower()
+    upd["credit_refresh_period"] = period if period in REFRESH_PERIODS else None
+    await db.api_keys.update_one({"id": key_id}, {"$set": upd})
+    doc.update(upd)
+    doc["key"] = _mask_key(doc["key"])
+    return doc
+
+
 @api_router.post("/keys/{key_id}/rotate")
 async def rotate_key(key_id: str, user: dict = Depends(auth_module.get_current_user)):
     doc = await db.api_keys.find_one({"id": key_id, "user_id": user["id"]}, {"_id": 0})
@@ -2403,8 +2443,8 @@ async def test_api_key(key_id: str, user: dict = Depends(auth_module.get_current
 
     checks = [("GET /llm/models", "models", "read"),
               ("POST /audio/tts", "text_to_speech", "access"),
-              ("POST /generate/image", "image_generation", "access"),
-              ("POST /generate/video", "video_generation", "access"),
+              ("POST /generate/image", "image_video_generation", "access"),
+              ("POST /generate/video", "image_video_generation", "access"),
               ("POST /agents/run", "frasberg_agents", "access")]
     results = []
     for route, perm, needed in checks:
@@ -3118,6 +3158,21 @@ def _insufficient_credits():
         "purchase_url": "https://frasberg.com/pay"})
 
 
+async def _key_period_usage(key_id: str, period: Optional[str]) -> int:
+    now = datetime.now(timezone.utc)
+    if period == "daily":
+        q = {"key_id": key_id, "day": now.strftime("%Y-%m-%d")}
+    elif period == "weekly":
+        days = [(now - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(7)]
+        q = {"key_id": key_id, "day": {"$in": days}}
+    elif period == "monthly":
+        q = {"key_id": key_id, "day": {"$regex": f"^{now.strftime('%Y-%m')}"}}
+    else:
+        q = {"key_id": key_id}
+    docs = await db.api_key_usage.find(q, {"tokens": 1}).to_list(2000)
+    return sum(d.get("tokens", 0) for d in docs)
+
+
 async def _validate_bearer_key(authorization: Optional[str]) -> dict:
     if not authorization or not authorization.lower().startswith("bearer "):
         raise HTTPException(status_code=401, detail="Missing or invalid API key")
@@ -3131,6 +3186,13 @@ async def _validate_bearer_key(authorization: Optional[str]) -> dict:
     if exp and exp < datetime.now(timezone.utc).isoformat():
         raise HTTPException(status_code=401, detail="API key expired")
     await _enforce_plan_quotas(key, key_doc)
+    if key_doc.get("restrict_key") and key_doc.get("usage_limit_credits"):
+        used = await _key_period_usage(key_doc["id"], key_doc.get("credit_refresh_period"))
+        if used >= key_doc["usage_limit_credits"]:
+            period_lbl = key_doc.get("credit_refresh_period") or "lifetime"
+            raise HTTPException(status_code=429, detail={
+                "error": "key_usage_limit", "code": "FK-429",
+                "message": f"This key hit its usage limit of {key_doc['usage_limit_credits']} credits per {period_lbl}. Raise it in Edit API Key."})
     key_doc["_unmetered"] = await _key_owner_unmetered(key_doc)
     if not key_doc["_unmetered"] and key_doc.get("credits", 0) <= 0:
         raise _insufficient_credits()
@@ -4313,6 +4375,88 @@ async def geo_lookup(ip: str, user: dict = Depends(_shield_admin_or_key)):
 async def geo_log(user: dict = Depends(_shield_admin_or_key)):
     rows = await db.geo_block_log.find({}, {"_id": 0}).sort("blocked_at", -1).to_list(500)
     return {"total": len(rows), "log": rows}
+
+
+@api_router.get("/security/cease-desist/{cd_id}/pdf")
+async def shield_cd_pdf(cd_id: str, user: dict = Depends(_shield_admin_or_key)):
+    doc = await db.cease_desist_log.find_one({"id": cd_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="C&D record not found")
+    from reportlab.lib.pagesizes import LETTER
+    from reportlab.pdfgen import canvas as rl_canvas
+
+    def build():
+        buf = io.BytesIO()
+        c = rl_canvas.Canvas(buf, pagesize=LETTER)
+        w, h = LETTER
+        y = h - 50
+        c.setFont("Courier-Bold", 13)
+        c.drawCentredString(w / 2, y, "FRASBERG INC. — CEASE AND DESIST NOTICE")
+        y -= 26
+        c.setFont("Courier", 8.2)
+        for line in (doc.get("cd_text") or "").split("\n"):
+            while len(line) > 105:
+                c.drawString(40, y, line[:105]); line = line[105:]; y -= 11
+                if y < 50: c.showPage(); c.setFont("Courier", 8.2); y = h - 50
+            c.drawString(40, y, line); y -= 11
+            if y < 50: c.showPage(); c.setFont("Courier", 8.2); y = h - 50
+        c.save()
+        buf.seek(0)
+        return buf
+    buf = await asyncio.to_thread(build)
+    return StreamingResponse(buf, media_type="application/pdf",
+                             headers={"Content-Disposition": f'attachment; filename="cease_desist_{doc["ip"].replace(".", "_")}.pdf"'})
+
+
+async def _build_digest() -> str:
+    since = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+    ev = await db.security_events.count_documents({"created_at": {"$gte": since}})
+    fl = await db.security_events.count_documents({"created_at": {"$gte": since}, "flagged": True})
+    bans = await db.banned_ips.count_documents({"banned_at": {"$gte": since}})
+    geo = await db.geo_block_log.count_documents({"blocked_at": {"$gte": since}})
+    cd = await db.cease_desist_log.count_documents({"drafted_at": {"$gte": since}})
+    top = await db.ip_breach_summary.find({}, {"_id": 0}).sort("breach_count", -1).to_list(5)
+    rows = "".join(f"<tr><td style='padding:4px 12px;color:#ff8c00;'>{t['ip']}</td>"
+                   f"<td style='padding:4px 12px;color:#ff3333;'>{t['breach_count']}</td>"
+                   f"<td style='padding:4px 12px;'>{'C&D SENT' if t.get('cd_triggered') else '—'}</td></tr>" for t in top)
+    return (f"<div style='font-family:monospace;background:#0a0a0a;color:#00ff88;padding:30px;border-radius:8px;'>"
+            f"<h2>FRASBERG SHIELD — WEEKLY DIGEST</h2>"
+            f"<table style='color:#ccc;font-size:13px;line-height:2;'>"
+            f"<tr><td><b>Security events (7d):</b></td><td>{ev}</td></tr>"
+            f"<tr><td><b>Flagged events:</b></td><td style='color:#ff8c00;'>{fl}</td></tr>"
+            f"<tr><td><b>New IP bans:</b></td><td style='color:#ff3333;'>{bans}</td></tr>"
+            f"<tr><td><b>Geo blocks:</b></td><td>{geo}</td></tr>"
+            f"<tr><td><b>C&amp;D drafted:</b></td><td style='color:#4da6ff;'>{cd}</td></tr></table>"
+            f"<h3 style='margin-top:16px;'>Top breach IPs</h3><table style='color:#ccc;font-size:12px;'>{rows}</table>"
+            f"<p style='color:#888;font-size:11px;margin-top:16px;'>FRASBERG INC. · Luchii Sovereign Intelligence</p></div>")
+
+
+@api_router.post("/admin/digest/send")
+async def digest_send(user: dict = Depends(_shield_admin_or_key)):
+    html = await _build_digest()
+    await _shield_email("FRASBERG SHIELD — Weekly Security Digest", html)
+    await db.shield_meta.update_one({"k": "last_digest"}, {"$set": {"v": datetime.now(timezone.utc).isoformat()}}, upsert=True)
+    return {"status": "sent", "to": os.environ.get("ALERT_TO", "admins")}
+
+
+async def _digest_scheduler():
+    while True:
+        try:
+            meta = await db.shield_meta.find_one({"k": "last_digest"}, {"_id": 0})
+            last = datetime.fromisoformat(meta["v"]) if meta else None
+            if not last or (datetime.now(timezone.utc) - last).days >= 7:
+                html = await _build_digest()
+                await _shield_email("FRASBERG SHIELD — Weekly Security Digest", html)
+                await db.shield_meta.update_one({"k": "last_digest"}, {"$set": {"v": datetime.now(timezone.utc).isoformat()}}, upsert=True)
+                logger.info("weekly shield digest sent")
+        except Exception:
+            logger.exception("digest scheduler error")
+        await asyncio.sleep(6 * 3600)
+
+
+@app.on_event("startup")
+async def _start_digest_scheduler():
+    asyncio.create_task(_digest_scheduler())
 
 
 app.include_router(api_router)

@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Database, Eye, EyeOff, ArrowRight, Trash2, ChevronLeft, ChevronRight, RefreshCw, Info, ArrowLeft } from "lucide-react";
+import { useShield } from "../hooks/useShield";
 import { ParallaxSky } from "../components/site/ParallaxSky";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 export default function DatabaseManager() {
+  useShield("database");
   const [appName, setAppName] = useState("");
   const [mongoUrl, setMongoUrl] = useState("");
   const [showUrl, setShowUrl] = useState(false);

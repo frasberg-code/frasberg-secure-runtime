@@ -38,19 +38,24 @@ export default function ShieldDashboard() {
   const [banInput, setBanInput] = useState("");
   const [geoCC, setGeoCC] = useState("");
   const [geoName, setGeoName] = useState("");
+  const [geoRegions, setGeoRegions] = useState([]);
+  const [regCC, setRegCC] = useState("");
+  const [regCode, setRegCode] = useState("");
+  const [regName, setRegName] = useState("");
   const [cleared, setCleared] = useState(false);
   const timer = useRef(null);
 
   const pollAll = async () => {
     try {
       const opts = { credentials: "include" };
-      const [lr, br, cr, bn, gc, gl] = await Promise.all([
+      const [lr, br, cr, bn, gc, gl, gr] = await Promise.all([
         fetch(`${API}/security/logs`, opts),
         fetch(`${API}/security/breaches`, opts),
         fetch(`${API}/security/cease-desist`, opts),
         fetch(`${API}/admin/banned`, opts),
         fetch(`${API}/geo/countries`, opts),
         fetch(`${API}/geo/log`, opts),
+        fetch(`${API}/geo/regions`, opts),
       ]);
       if (lr.ok) { const d = await lr.json(); setTotal(d.total); setLogs(d.logs); }
       if (br.ok) setBreaches((await br.json()).breaches);
@@ -58,6 +63,7 @@ export default function ShieldDashboard() {
       if (bn.ok) setBanned((await bn.json()).banned);
       if (gc.ok) setGeoCountries((await gc.json()).countries);
       if (gl.ok) setGeoLog((await gl.json()).log);
+      if (gr.ok) setGeoRegions((await gr.json()).regions);
     } catch {}
   };
 
@@ -88,6 +94,34 @@ export default function ShieldDashboard() {
   const unblockCountry = async (code) => {
     await fetch(`${API}/geo/countries/${code}`, { method: "DELETE", credentials: "include" });
     pollAll();
+  };
+  const blockRegion = async () => {
+    if (!regCC.trim() || !regCode.trim() || !regName.trim()) return;
+    await fetch(`${API}/geo/regions`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+      body: JSON.stringify({ country_code: regCC.trim(), region_code: regCode.trim(), region_name: regName.trim(), reason: "Blocked via dashboard" }),
+    });
+    setRegCC(""); setRegCode(""); setRegName(""); pollAll();
+  };
+  const unblockRegion = async (cc, rc) => {
+    await fetch(`${API}/geo/regions/${cc}/${rc}`, { method: "DELETE", credentials: "include" });
+    pollAll();
+  };
+  const downloadCdPdf = async (r) => {
+    try {
+      const res = await fetch(`${API}/security/cease-desist/${r.id}/pdf`, { credentials: "include" });
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `cease_desist_${r.ip.replace(/\./g, "_")}.pdf`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    } catch {}
+  };
+  const sendDigest = async () => {
+    const res = await fetch(`${API}/admin/digest/send`, { method: "POST", credentials: "include" });
+    if (res.ok) window.alert("Weekly digest emailed to admins.");
   };
 
   useEffect(() => {
@@ -131,6 +165,10 @@ export default function ShieldDashboard() {
           <span style={{ width: 8, height: 8, background: C.green, borderRadius: "50%", animation: "shieldDot 1.4s infinite" }} />
           <style>{`@keyframes shieldDot { 0%,100%{opacity:1} 50%{opacity:0.3} }`}</style>
           <span style={{ color: C.green, fontWeight: "bold", letterSpacing: 2 }} data-testid="shield-live-status">LIVE</span>
+          <button onClick={sendDigest} data-testid="shield-send-digest"
+            style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+            📧 Send Digest Now
+          </button>
           <span>FRASBERG INC. · Luchii Sovereign Intelligence</span>
         </div>
       </header>
@@ -223,10 +261,16 @@ export default function ShieldDashboard() {
                     {r.sent ? <Badge color={C.blue}>SENT</Badge> : <Badge color={C.orange}>QUEUED</Badge>}
                   </td>
                   <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>
-                    <button onClick={() => window.alert(r.cd_text)} data-testid={`shield-cd-view-${r.id}`}
-                      style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
-                      View
-                    </button>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <button onClick={() => window.alert(r.cd_text)} data-testid={`shield-cd-view-${r.id}`}
+                        style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+                        View
+                      </button>
+                      <button onClick={() => downloadCdPdf(r)} data-testid={`shield-cd-pdf-${r.id}`}
+                        style={{ background: "transparent", border: `1px solid ${C.blue}`, color: C.blue, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+                        ⬇ PDF
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -320,6 +364,55 @@ export default function ShieldDashboard() {
                   <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>
                     {c.active ? (
                       <button onClick={() => unblockCountry(c.country_code)} data-testid={`shield-geo-unblock-${c.country_code}`}
+                        style={{ background: "transparent", border: `1px solid ${C.green}`, color: C.green, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+                        ✅ Unblock
+                      </button>
+                    ) : "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap", padding: "14px 18px", borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, background: C.panelHead }}>
+            <h2 style={{ fontSize: 13, color: C.green, letterSpacing: 2 }}>🗺️ REGION / STATE BLOCKING</h2>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <input value={regCC} onChange={(e) => setRegCC(e.target.value)} placeholder="Country (e.g. US)"
+                data-testid="shield-region-cc-input"
+                style={{ background: C.panelHead, border: `1px solid ${C.border}`, color: C.text, padding: "4px 10px", borderRadius: 6, fontFamily: "inherit", fontSize: 11, width: 120 }} />
+              <input value={regCode} onChange={(e) => setRegCode(e.target.value)} placeholder="Region Code (e.g. TX)"
+                data-testid="shield-region-code-input"
+                style={{ background: C.panelHead, border: `1px solid ${C.border}`, color: C.text, padding: "4px 10px", borderRadius: 6, fontFamily: "inherit", fontSize: 11, width: 140 }} />
+              <input value={regName} onChange={(e) => setRegName(e.target.value)} placeholder="Region Name (e.g. Texas)"
+                data-testid="shield-region-name-input"
+                style={{ background: C.panelHead, border: `1px solid ${C.border}`, color: C.text, padding: "4px 10px", borderRadius: 6, fontFamily: "inherit", fontSize: 11, width: 160 }} />
+              <button onClick={blockRegion} data-testid="shield-region-block-btn"
+                style={{ background: "transparent", border: `1px solid ${C.red}`, color: C.red, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+                🗺️ Block Region
+              </button>
+            </div>
+          </div>
+          <table data-testid="shield-region-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+            <thead>
+              <tr>
+                {["Region", "Name", "Reason", "Blocked At", "Status", "Action"].map((h) => (
+                  <th key={h} style={{ background: C.panelHead, color: C.muted, textTransform: "uppercase", fontSize: 10, padding: "10px 14px", textAlign: "left", borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {geoRegions.length === 0 && <tr><td colSpan={6} style={{ textAlign: "center", color: C.muted, padding: 30 }}>No regions blocked.</td></tr>}
+              {geoRegions.map((r) => (
+                <tr key={`${r.country_code}-${r.region_code}`}>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, color: C.blue, fontWeight: "bold" }}>{r.country_code}-{r.region_code}</td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>{r.region_name}</td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 11, color: C.muted }}>{r.reason || "—"}</td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 11 }}>{new Date(r.blocked_at).toLocaleString()}</td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>
+                    {r.active ? <Badge color={C.red}>BLOCKED</Badge> : <Badge color={C.green}>LIFTED</Badge>}
+                  </td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>
+                    {r.active ? (
+                      <button onClick={() => unblockRegion(r.country_code, r.region_code)} data-testid={`shield-region-unblock-${r.country_code}-${r.region_code}`}
                         style={{ background: "transparent", border: `1px solid ${C.green}`, color: C.green, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
                         ✅ Unblock
                       </button>
