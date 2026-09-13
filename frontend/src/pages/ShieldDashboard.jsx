@@ -32,20 +32,62 @@ export default function ShieldDashboard() {
   const [total, setTotal] = useState("—");
   const [breaches, setBreaches] = useState([]);
   const [cds, setCds] = useState([]);
+  const [banned, setBanned] = useState([]);
+  const [geoCountries, setGeoCountries] = useState([]);
+  const [geoLog, setGeoLog] = useState([]);
+  const [banInput, setBanInput] = useState("");
+  const [geoCC, setGeoCC] = useState("");
+  const [geoName, setGeoName] = useState("");
   const [cleared, setCleared] = useState(false);
   const timer = useRef(null);
 
   const pollAll = async () => {
     try {
-      const [lr, br, cr] = await Promise.all([
-        fetch(`${API}/security/logs`, { credentials: "include" }),
-        fetch(`${API}/security/breaches`, { credentials: "include" }),
-        fetch(`${API}/security/cease-desist`, { credentials: "include" }),
+      const opts = { credentials: "include" };
+      const [lr, br, cr, bn, gc, gl] = await Promise.all([
+        fetch(`${API}/security/logs`, opts),
+        fetch(`${API}/security/breaches`, opts),
+        fetch(`${API}/security/cease-desist`, opts),
+        fetch(`${API}/admin/banned`, opts),
+        fetch(`${API}/geo/countries`, opts),
+        fetch(`${API}/geo/log`, opts),
       ]);
       if (lr.ok) { const d = await lr.json(); setTotal(d.total); setLogs(d.logs); }
       if (br.ok) setBreaches((await br.json()).breaches);
       if (cr.ok) setCds((await cr.json()).records);
+      if (bn.ok) setBanned((await bn.json()).banned);
+      if (gc.ok) setGeoCountries((await gc.json()).countries);
+      if (gl.ok) setGeoLog((await gl.json()).log);
     } catch {}
+  };
+
+  const banIP = async () => {
+    const ip = banInput.trim();
+    if (!ip) return;
+    await fetch(`${API}/admin/ban`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+      body: JSON.stringify({ ip, reason: "Manual ban via dashboard", expires_hours: 24 }),
+    });
+    setBanInput(""); pollAll();
+  };
+  const unbanIP = async (ip) => {
+    await fetch(`${API}/admin/unban`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+      body: JSON.stringify({ ip, reason: "Manual unban via dashboard" }),
+    });
+    pollAll();
+  };
+  const blockCountry = async () => {
+    if (!geoCC.trim() || !geoName.trim()) return;
+    await fetch(`${API}/geo/countries`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+      body: JSON.stringify({ country_code: geoCC.trim(), country_name: geoName.trim(), reason: "Blocked via dashboard" }),
+    });
+    setGeoCC(""); setGeoName(""); pollAll();
+  };
+  const unblockCountry = async (code) => {
+    await fetch(`${API}/geo/countries/${code}`, { method: "DELETE", credentials: "include" });
+    pollAll();
   };
 
   useEffect(() => {
@@ -190,6 +232,114 @@ export default function ShieldDashboard() {
               ))}
             </tbody>
           </table>
+        </section>
+        <section style={{ gridColumn: "1 / -1", background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap", padding: "14px 18px", borderBottom: `1px solid ${C.border}`, background: C.panelHead }}>
+            <h2 style={{ fontSize: 13, color: C.green, letterSpacing: 2 }}>🚫 BANNED IPs</h2>
+            <div style={{ display: "flex", gap: 8 }}>
+              <input value={banInput} onChange={(e) => setBanInput(e.target.value)} placeholder="Enter IP to ban…"
+                data-testid="shield-ban-input"
+                style={{ background: C.panelHead, border: `1px solid ${C.border}`, color: C.text, padding: "4px 10px", borderRadius: 6, fontFamily: "inherit", fontSize: 11, width: 180 }} />
+              <button onClick={banIP} data-testid="shield-ban-btn"
+                style={{ background: "transparent", border: `1px solid ${C.red}`, color: C.red, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+                🚫 Ban IP (24h)
+              </button>
+            </div>
+          </div>
+          <table data-testid="shield-ban-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+            <thead>
+              <tr>
+                {["IP Address", "Reason", "Banned By", "Banned At", "Expires", "Status", "Action"].map((h) => (
+                  <th key={h} style={{ background: C.panelHead, color: C.muted, textTransform: "uppercase", fontSize: 10, padding: "10px 14px", textAlign: "left", borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {banned.length === 0 && <tr><td colSpan={7} style={{ textAlign: "center", color: C.muted, padding: 30 }}>No banned IPs.</td></tr>}
+              {banned.map((b) => (
+                <tr key={b.ip}>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, color: C.orange, fontWeight: "bold" }}>{b.ip}</td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 11, color: C.muted }}>{b.reason || "—"}</td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>
+                    <Badge color={b.banned_by === "ADMIN" ? C.orange : C.red}>{b.banned_by}</Badge>
+                  </td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 11 }}>{new Date(b.banned_at).toLocaleString()}</td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 11 }}>{b.expires_at ? new Date(b.expires_at).toLocaleString() : "PERMANENT"}</td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>
+                    {b.active ? <Badge color={C.red}>ACTIVE</Badge> : <Badge color={C.green}>LIFTED</Badge>}
+                  </td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>
+                    {b.active ? (
+                      <button onClick={() => unbanIP(b.ip)} data-testid={`shield-unban-${b.ip}`}
+                        style={{ background: "transparent", border: `1px solid ${C.green}`, color: C.green, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+                        ✅ Unban
+                      </button>
+                    ) : "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
+        <section style={{ gridColumn: "1 / -1", background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap", padding: "14px 18px", borderBottom: `1px solid ${C.border}`, background: C.panelHead }}>
+            <h2 style={{ fontSize: 13, color: C.green, letterSpacing: 2 }}>🌍 GEOIP BLOCKING</h2>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <input value={geoCC} onChange={(e) => setGeoCC(e.target.value)} placeholder="Country Code (e.g. RU)"
+                data-testid="shield-geo-cc-input"
+                style={{ background: C.panelHead, border: `1px solid ${C.border}`, color: C.text, padding: "4px 10px", borderRadius: 6, fontFamily: "inherit", fontSize: 11, width: 160 }} />
+              <input value={geoName} onChange={(e) => setGeoName(e.target.value)} placeholder="Country Name"
+                data-testid="shield-geo-name-input"
+                style={{ background: C.panelHead, border: `1px solid ${C.border}`, color: C.text, padding: "4px 10px", borderRadius: 6, fontFamily: "inherit", fontSize: 11, width: 160 }} />
+              <button onClick={blockCountry} data-testid="shield-geo-block-btn"
+                style={{ background: "transparent", border: `1px solid ${C.red}`, color: C.red, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+                🌍 Block Country
+              </button>
+            </div>
+          </div>
+          <table data-testid="shield-geo-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+            <thead>
+              <tr>
+                {["Code", "Country", "Reason", "Blocked At", "Status", "Action"].map((h) => (
+                  <th key={h} style={{ background: C.panelHead, color: C.muted, textTransform: "uppercase", fontSize: 10, padding: "10px 14px", textAlign: "left", borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {geoCountries.length === 0 && <tr><td colSpan={6} style={{ textAlign: "center", color: C.muted, padding: 30 }}>No countries blocked.</td></tr>}
+              {geoCountries.map((c) => (
+                <tr key={c.country_code}>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, color: C.blue, fontWeight: "bold", fontSize: 16 }}>{c.country_code}</td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>{c.country_name}</td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 11, color: C.muted }}>{c.reason || "—"}</td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 11 }}>{new Date(c.blocked_at).toLocaleString()}</td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>
+                    {c.active ? <Badge color={C.red}>BLOCKED</Badge> : <Badge color={C.green}>LIFTED</Badge>}
+                  </td>
+                  <td style={{ padding: "10px 14px", borderBottom: `1px solid ${C.border}` }}>
+                    {c.active ? (
+                      <button onClick={() => unblockCountry(c.country_code)} data-testid={`shield-geo-unblock-${c.country_code}`}
+                        style={{ background: "transparent", border: `1px solid ${C.green}`, color: C.green, borderRadius: 6, padding: "4px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
+                        ✅ Unblock
+                      </button>
+                    ) : "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {geoLog.length > 0 && (
+            <div data-testid="shield-geo-log" style={{ borderTop: `1px solid ${C.border}` }}>
+              <div style={{ padding: "10px 18px", fontSize: 11, color: C.muted, letterSpacing: 2, background: C.panelHead }}>GEO BLOCK LOG ({geoLog.length})</div>
+              {geoLog.slice(0, 20).map((g) => (
+                <div key={g.id} style={{ padding: "6px 18px", fontSize: 11, borderBottom: `1px solid ${C.border}` }}>
+                  <span style={{ color: C.orange }}>{g.ip}</span> · <Badge color={C.red}>{g.country_code || "??"}</Badge>{" "}
+                  {g.country_name} · {g.city || "—"} · <span style={{ color: C.muted }}>{g.endpoint} · {new Date(g.blocked_at).toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </main>

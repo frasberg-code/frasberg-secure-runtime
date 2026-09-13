@@ -473,3 +473,10 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Navbar Explore: Security Shield + Shield Dashboard links
 - Verified: 11 flagged events -> breach count 11, cd_triggered true, C&D letter generated; unauthed/non-admin 401; both pages screenshot-verified (dashboard: 14 events, CRITICAL + C&D SENT badges)
 - SKIPPED (not applicable to platform): Docker/docker-compose, GitHub Actions CI/CD, PostgreSQL (used Mongo), standalone Express server (integrated into FastAPI)
+
+## 2026-06 (fork, cont. 15): Shield v4+v5 — IP Ban + Strike Rate Limit + GeoIP Blocking — SELF-TESTED e2e
+- Global FastAPI middleware on /api (exempt: /api/auth/, /api/admin/, /api/geo/ to avoid lockout): banned-IP check (mongo banned_ips, 30s cache, 24h expiry support) -> 403 ACCESS DENIED; geo check (60s rules cache, per-IP geo via ip-api.com cached in mongo geo_cache + memory; MaxMind not usable, no external account) -> 403 GEO_BLOCKED + geo_block_log; sliding rate limit RATE_MAX_REQUESTS=600/min, strikes RATE_STRIKE_LIMIT=3 -> auto-ban RATE_BAN_HOURS=24 + ban email; X-Shield/X-RateLimit-* headers on all /api responses
+- Admin API (cookie role=admin OR x-admin-key=ADMIN_API_KEY env): GET/POST /api/admin/banned|ban|unban, DELETE /api/admin/ban/{ip}, GET /api/admin/rate-violations; /api/geo/countries (GET/POST/DELETE), /api/geo/regions (GET/POST/DELETE), /api/geo/lookup/{ip}, /api/geo/log
+- Dashboard: Banned IPs panel (manual ban 24h input, unban, AUTO/ADMIN badges, expiry) + GeoIP panel (block/unblock country, geo block log) — screenshot verified
+- Verified: ban->403 (spoofed XFF), unban, KP blocked -> real KP IP 175.45.176.10 gets GEO_BLOCKED + logged (Pyongyang), 8.8.8.8 lookup US/Virginia, bad admin key 401, normal traffic 200 w/ headers
+- NOTE: KP left blocked as demo data. Rate limit default 600/min (not 60) to protect preview/testing traffic — tune via env. In-memory caches reset on restart (mongo is source of truth)
