@@ -8,9 +8,9 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const BASE = process.env.REACT_APP_BACKEND_URL;
 
 const T = {
-  bg: "#08090A", surface: "#121316", inset: "#050505",
-  border: "rgba(255,255,255,0.08)", borderSub: "rgba(255,255,255,0.05)",
-  text: "#EDEDED", text2: "#8A8F98", muted: "#525860", accent: "#00F0FF",
+  bg: "var(--dash-bg)", surface: "var(--dash-surface)", inset: "var(--dash-inset)",
+  border: "var(--dash-border)", borderSub: "var(--dash-border-sub)",
+  text: "var(--dash-text)", text2: "var(--dash-text2)", muted: "var(--dash-muted)", accent: "var(--dash-accent)",
 };
 
 function timeAgo(iso) {

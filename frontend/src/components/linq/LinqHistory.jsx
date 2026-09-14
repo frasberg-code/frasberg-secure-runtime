@@ -29,7 +29,7 @@ export const LinqHistory = () => {
     ...(data?.purchases || []).map((p) => ({
       id: p.order_id || p.id, date: p.ts, item: p.wallet ? `💰 Wallet top-up — ${p.plan_name || p.plan}` : (p.plan_name || p.plan),
       amount: p.price ? `$${p.price}` : (p.credits ? `${p.credits} credits` : "—"),
-      status: p.status || "COMPLETED", method: "PayPal", ref: p.order_id,
+      status: p.status || "COMPLETED", method: p.provider === "stripe" ? "Card (Stripe)" : "PayPal", ref: p.order_id,
     })),
     ...(data?.cashapp || []).map((c) => ({
       id: c.id, date: c.created_at, item: c.plan_name,

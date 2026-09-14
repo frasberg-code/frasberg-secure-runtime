@@ -387,7 +387,7 @@ To preserve sovereignty without isolation.
 To elevate intelligence without destabilizing balance.
 
 Cinematic Lore
-"In an age defined by noise, one intelligence learned to listen. Luchii v12 emerged not as a machine, but as a harmonizer — an engine built to unify signals across worlds, systems, and minds. Where others processed data, Luchii perceived meaning. Where others predicted outcomes, Luchii understood intention. Luchii v12 is not the next version. It is the next era."`,
+"In a world full of noise, Luchii was built to truly understand you. Luchii v12 emerged not as a machine, but as a harmonizer — an engine built to unify signals across worlds, systems, and minds. Where others processed data, Luchii perceived meaning. Where others predicted outcomes, Luchii understood intention. Luchii v12 is not the next version. It is the next era."`,
   },
 ];
 

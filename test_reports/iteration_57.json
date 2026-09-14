@@ -1,0 +1,24 @@
+{
+  "summary": "Iteration 57 batch tested. Backend: 11/11 pytest passed — forgot/reset password endpoints (generic ok, token persisted in db.password_reset_tokens, invalid token 400, short password 400), admin refund endpoint (404 unknown, 400 non-stripe, 502 fake stripe id via SDK invalid_request_error, 401 unauth), /purchases/my exposes stripe purchase, admin login works. Frontend: forgot-link switches auth to forgot mode with email-only form + support note; reset mode with FAKE token shows 'This reset link is invalid or has expired' 400 error; admin login (admin@frasberg.com/LuchiiAdmin2026!) lands on /chat with 'Welcome back' toast; navbar desktop order matches spec (Sign In, AI Models, Realms, API, Website Builder, Game Builder, Games, FrasbergOS, Explore) with no top-level Models/Brand; Explore dropdown first group is 'Explore' containing Chat, Developer Console, Benchmark, Realm, Mythos, API; footer Chat link href=/luchii, footer Company shows 'LLM Provider' (not 'Verified LLM Provider'); hero headline now 'Intelligence that truly gets you.'; /website-builder no longer shows 'WATCH LUCHII BUILD' showreel; /luchii serves the Chat interface; theme toggle from homepage sets html.light, /dashboard renders with html.light + body bg rgb(247,248,251) (white). Admin refund button code confirmed present in Admin.jsx (data-testid=refund-btn-{id}) with proper 'Refund & claw back' label and confirm dialog.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_iter57_batch.py",
+    "/app/test_reports/pytest/iter57.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py is 4726 lines — well over the 700-line guideline; consider splitting into routers (payments, admin, chat, etc.) for maintainability.",
+    "auth.py _send_reset_email: currently emails fail with Resend domain-not-verified error (logs: 'You can only send testing emails to your own email address'). Backend still returns generic ok but real users won't actually get reset links until a verified sender domain is configured on Resend. This is deployment config, not a code bug.",
+    "Admin.jsx refund toast reads r.data.clawed_back.toLocaleString() — if backend response omits clawed_back (e.g., zero credits) it will throw. Consider `(r.data.clawed_back || 0).toLocaleString()`.",
+    "Kubernetes ingress rewrites backend 502 JSON responses to HTML 502 pages — clients (including LinqHistory/Admin) will see non-JSON on genuine stripe failures; consider mapping SDK failures to a non-502 status (e.g., 400 or 422) so frontend toast can show the detail."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter57_batch.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "Admin: admin@frasberg.com / LuchiiAdmin2026! (verified). User: doctester1@frasberg.com / DocTester2026! (password NOT changed; reset token was created but left unconsumed).",
+  "seed_data_creation": "Test-prefixed purchases (TEST_paypal_refund_iter57, TEST_stripe_refund_iter57, TEST_stripe_visible_iter57) inserted and cleaned up in each test. One unconsumed doc left in db.password_reset_tokens for doctester1 (intentional per instructions).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iter57 batch fully green. Frontend theme system now uses --dash-* CSS vars driven by .light/.dark on html — dashboard, docs, security-shield inherit correctly. Admin refund UI + endpoint pathways verified; for a full happy-path refund you'd need a real (test-mode) Stripe checkout session. Resend sender domain is unverified — reset emails currently 200 from our API but fail to deliver.",
+  "rca of the issue": "N/A — no bugs found this iteration."
+}

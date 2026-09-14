@@ -16,6 +16,18 @@
   --lux-accent-2: #7c9cff;
   --lux-glow: rgba(0, 240, 255, 0.2);
 
+  --dash-bg: #08090A;
+  --dash-surface: #121316;
+  --dash-inset: #050505;
+  --dash-border: rgba(255, 255, 255, 0.08);
+  --dash-border-sub: rgba(255, 255, 255, 0.04);
+  --dash-text: #F2F2F2;
+  --dash-text2: #A6ACB8;
+  --dash-muted: #8A919C;
+  --dash-accent: #00F0FF;
+  --dash-header-bg: rgba(8, 9, 10, 0.85);
+
+
   --background: 200 12% 14%;
   --foreground: 210 17% 98%;
   --card: 200 14% 10%;
@@ -39,15 +51,26 @@
 }
 
 .light {
-  --lux-bg: #f8f9fa;
+  --lux-bg: #f7f8fb;
   --lux-surface: #ffffff;
-  --lux-surface-2: #e9ecef;
-  --lux-text: #14181b;
-  --lux-text-2: #212529;
-  --lux-border: #dee2e6;
+  --lux-surface-2: #eef1f6;
+  --lux-text: #1a2233;
+  --lux-text-2: #44506a;
+  --lux-border: #dbe1ec;
   --lux-accent: #007AFF;
   --lux-accent-2: #5e5ce6;
   --lux-glow: rgba(0, 122, 255, 0.15);
+
+  --dash-bg: #f7f8fb;
+  --dash-surface: #ffffff;
+  --dash-inset: #eef1f6;
+  --dash-border: rgba(26, 34, 51, 0.14);
+  --dash-border-sub: rgba(26, 34, 51, 0.07);
+  --dash-text: #1a2233;
+  --dash-text2: #44506a;
+  --dash-muted: #66738f;
+  --dash-accent: #007AFF;
+  --dash-header-bg: rgba(247, 248, 251, 0.9);
 
   --background: 210 17% 98%;
   --foreground: 200 12% 14%;
@@ -223,3 +246,25 @@ body {
   border-color: rgba(255, 255, 255, 0.06);
 }
 .console-dark > .pointer-events-none canvas { opacity: 0.3; }
+
+/* ---- Light-theme overrides for legacy hardcoded dark utility classes ---- */
+.light [class*="bg-[#0f172a]"], .light [class*="bg-[#020617]"], .light [class*="bg-[#111122]"],
+.light [class*="bg-[#1a1a2e]"], .light [class*="bg-[#0d1013]"], .light [class*="bg-[#12121e]"],
+.light [class*="bg-[#0d0d1a]"], .light [class*="bg-[#05070C]"], .light [class*="bg-[#05070B]"],
+.light [class*="bg-[#08090A]"], .light [class*="bg-[#0B0E13]"], .light [class*="bg-[#1f1f3a]"],
+.light [class*="bg-[#111018]"], .light [class*="bg-[#0b1220]"] {
+  background-color: var(--lux-surface) !important;
+}
+.light [class*="text-[#f8fafc]"], .light [class*="text-[#EDEDED]"], .light [class*="text-[#cbd5e1]"],
+.light [class*="text-[#e2e8f0]"], .light [class*="text-[#F2F2F2]"] {
+  color: var(--lux-text) !important;
+}
+.light [class*="text-[#94a3b8]"], .light [class*="text-[#b3bac7]"], .light [class*="text-[#9aa3b8]"],
+.light [class*="text-[#8A8F98]"], .light [class*="text-[#A6ACB8]"] {
+  color: var(--lux-text-2) !important;
+}
+.light [class*="text-[#64748b]"] { color: #5a6478 !important; }
+.light [class*="border-[#1e293b]"], .light [class*="border-[#1a1a2e]"], .light [class*="border-[#2d2d4a]"],
+.light [class*="border-[#2a2740]"], .light [class*="border-[#1f2937]"] {
+  border-color: var(--lux-border) !important;
+}

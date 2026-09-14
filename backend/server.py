@@ -23,6 +23,7 @@ from datetime import datetime, timezone, timedelta
 from emergentintegrations.llm.chat import LlmChat, UserMessage, TextDelta, StreamDone, ImageContent
 from emergentintegrations.llm.openai.image_generation import OpenAIImageGeneration
 from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionRequest
+import stripe as stripe_sdk
 from emergentintegrations.llm.openai import OpenAISpeechToText, OpenAITextToSpeech
 import base64
 import tempfile
@@ -3002,23 +3003,66 @@ async def _fulfill_stripe_txn(session_id: str, payer_email: str = ""):
         return
     key_id = txn.get("key_id")
     credited = int(txn.get("credits", 0))
+    owner = None
     if key_id:
         if key_id.startswith("wallet-"):
             await db.users.update_one({"id": key_id[7:]}, {"$inc": {"credit_balance": credited}})
+            owner = await db.users.find_one({"id": key_id[7:]}, {"id": 1, "email": 1})
         else:
             await db.api_keys.update_one({"id": key_id}, {"$inc": {"credits": credited}})
+            kd = await db.api_keys.find_one({"id": key_id}, {"user_id": 1})
+            if kd:
+                owner = await db.users.find_one({"id": kd.get("user_id")}, {"id": 1, "email": 1})
+    email = payer_email or (owner or {}).get("email", "")
     await db.purchases.insert_one({
         "id": str(uuid.uuid4()), "order_id": session_id, "plan": txn.get("plan_id"),
         "credits": credited, "key_id": key_id, "status": "COMPLETED",
-        "provider": "stripe", "email": payer_email,
+        "provider": "stripe", "email": email, "user_id": (owner or {}).get("id"),
         "ts": datetime.now(timezone.utc).isoformat(),
     })
     plan = PLANS.get(txn.get("plan_id"))
-    if plan and payer_email:
+    if plan and email:
         try:
-            await _send_receipt(payer_email, plan, session_id)
+            await _send_receipt(email, plan, session_id)
         except Exception:
             logger.exception("stripe receipt failed")
+
+
+@api_router.post("/admin/purchases/{purchase_id}/refund")
+async def refund_purchase(purchase_id: str, admin: dict = Depends(require_admin)):
+    p = await db.purchases.find_one({"$or": [{"id": purchase_id}, {"order_id": purchase_id}]}, {"_id": 0})
+    if not p:
+        raise HTTPException(status_code=404, detail="Purchase not found")
+    if p.get("provider") != "stripe":
+        raise HTTPException(status_code=400, detail="Only Stripe (card) purchases can be refunded here")
+    if p.get("status") == "REFUNDED":
+        raise HTTPException(status_code=409, detail="Already refunded")
+
+    def _do_refund():
+        stripe_sdk.api_key = STRIPE_API_KEY
+        session = stripe_sdk.checkout.Session.retrieve(p["order_id"])
+        if not session.get("payment_intent"):
+            raise ValueError("No payment intent on this checkout session")
+        return stripe_sdk.Refund.create(payment_intent=session["payment_intent"])
+
+    try:
+        refund = await asyncio.to_thread(_do_refund)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Stripe refund failed: {e}")
+    credits = int(p.get("credits", 0))
+    key_id = p.get("key_id")
+    if key_id and credits:
+        if str(key_id).startswith("wallet-"):
+            await db.users.update_one({"id": key_id[7:]}, {"$inc": {"credit_balance": -credits}})
+        else:
+            await db.api_keys.update_one({"id": key_id}, {"$inc": {"credits": -credits}})
+    now_iso = datetime.now(timezone.utc).isoformat()
+    await db.purchases.update_one({"id": p["id"]}, {"$set": {
+        "status": "REFUNDED", "refunded_at": now_iso,
+        "refund_id": refund["id"], "refunded_by": admin.get("email")}})
+    await db.payment_transactions.update_one({"session_id": p["order_id"]}, {"$set": {
+        "status": "refunded", "payment_status": "refunded", "updated_at": now_iso}})
+    return {"ok": True, "refund_id": refund["id"], "clawed_back": credits}
 
 
 @api_router.get("/payments/status/{session_id}")

@@ -112,7 +112,7 @@ function App() {
             <CommandPalette />
             <Routes>
               <Route path="/" element={<Landing />} />
-              <Route path="/luchii" element={<Landing />} />
+              <Route path="/luchii" element={<ChatRoute />} />
               <Route path="/ai-models" element={<AiModels />} />
               <Route path="/luchii-code" element={<LuchiiCode />} />
               <Route path="/coding-agents" element={<CodingAgents />} />

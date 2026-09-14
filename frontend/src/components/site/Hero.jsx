@@ -5,7 +5,7 @@ import Starfield from "./Starfield";
 import ChatDemo from "./ChatDemo";
 import { Overline } from "./Reveal";
 
-const HEADLINE = ["Intelligence", "that learned", "to listen."];
+const HEADLINE = ["Intelligence", "that truly", "gets you."];
 
 function MaskLine({ children, delay }) {
   return (

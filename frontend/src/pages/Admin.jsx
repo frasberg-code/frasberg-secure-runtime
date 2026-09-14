@@ -594,8 +594,29 @@ export default function Admin() {
                                     {tenantDetail.data.purchases.length === 0 && <p className="text-[15px] text-lux-text2">No purchases</p>}
                                     {tenantDetail.data.purchases.slice(0, 8).map((p) => (
                                       <div key={p.id} className="rounded-xl border border-lux-border p-3">
-                                        <p className="text-[15px] text-lux-text">{p.plan} <span className="text-lux-text2">· {p.kind || "credits"}</span></p>
+                                        <p className="text-[15px] text-lux-text">{p.plan} <span className="text-lux-text2">· {p.kind || "credits"} · {p.provider === "stripe" ? "Card (Stripe)" : "PayPal"}</span></p>
                                         <p className="font-mono text-[15.5px] text-lux-text2">{(p.ts || "").slice(0, 16).replace("T", " ")} · {p.status}</p>
+                                        {p.provider === "stripe" && p.status !== "REFUNDED" && (
+                                          <button
+                                            data-testid={`refund-btn-${p.id}`}
+                                            onClick={async (e) => {
+                                              e.stopPropagation();
+                                              if (!window.confirm(`Refund this ${p.credits || 0}-credit Stripe purchase and claw back the credits?`)) return;
+                                              try {
+                                                const r = await axios.post(`${API}/admin/purchases/${p.id}/refund`, {}, { withCredentials: true });
+                                                toast.success(`Refunded — ${(r.data.clawed_back || 0).toLocaleString()} credits clawed back`);
+                                                p.status = "REFUNDED";
+                                                setTenantDetail((t) => ({ ...t }));
+                                              } catch (err) {
+                                                toast.error(err.response?.data?.detail || "Refund failed");
+                                              }
+                                            }}
+                                            className="mt-2 rounded-full border border-red-400/50 px-3 py-1 text-[13px] text-red-400 transition-colors hover:bg-red-400/10"
+                                          >
+                                            Refund & claw back
+                                          </button>
+                                        )}
+                                        {p.status === "REFUNDED" && <p className="mt-1 text-[13px] text-red-400">Refunded{p.refunded_at ? ` · ${p.refunded_at.slice(0, 10)}` : ""}</p>}
                                       </div>
                                     ))}
                                   </div>

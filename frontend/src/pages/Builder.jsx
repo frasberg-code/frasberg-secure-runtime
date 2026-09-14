@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import Starfield from "../components/site/Starfield";
 import Seo from "../components/site/Seo";
 import Footer from "../components/site/Footer";
-import { BuilderShowreel } from "../components/site/BuilderShowreel";
+import { motion } from "framer-motion";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -513,7 +513,7 @@ export default function Builder({ type = "website" }) {
               )}
             </div>
 
-            {!html && !busy && <BuilderShowreel />}
+            {!html && !busy && null}
 
             {demos.length > 0 && !busy && (
               <div className="mt-6" data-testid="builder-demos-strip">

@@ -1,5 +1,14 @@
 # Frasberg / Luchii Platform — PRD
 
+## June 2026 — Batch: auth reset, refunds, nav/theme overhaul
+- Forgot/reset password: POST /api/auth/forgot-password {email, origin_url} (generic ok, Resend email w/ 1h token → /auth?mode=reset&token=), POST /api/auth/reset-password {token,password}. Auth.jsx modes login/signup/forgot/reset + forgot-email support note. NOTE: Resend sender domain unverified — emails only deliver to Resend account owner until domain verified at resend.com/domains.
+- Admin refund: POST /api/admin/purchases/{id}/refund (stripe SDK Refund via session payment_intent, claws back credits from key/wallet, marks REFUNDED; 400 on SDK failure for CF passthrough). Admin.jsx tenant detail purchases show provider + Refund & claw back button (refund-btn-{id}).
+- Stripe history: LinqHistory method shows "Card (Stripe)"; _fulfill_stripe_txn now resolves key owner → sets user_id/email on purchase so it appears in /purchases/my.
+- Navbar: order Sign In/out, AI Models, Realms, API, Website Builder, Game Builder, Games, FrasbergOS, Explore (Models/Brand removed top-level). Explore first group "Explore": Chat(/luchii), Developer Console(/dashboard), Benchmark, Realm, Mythos, API.
+- /luchii now serves Chat app; footer Chat→/luchii; footer "LLM Provider" rename; Builder showreel ("Watch Luchii build — live") removed; hero headline → "Intelligence that truly gets you."; laws.js lore line softened.
+- THEME: lib/dashTheme.js T → CSS vars (--dash-*) defined in index.css :root/.light; Dashboard toggle syncs global luchii-theme; AgentWorkspace/WorkspaceHome local T → vars; .light overrides for legacy hardcoded dark utility classes; friendlier light palette (#f7f8fb bg, #007AFF accent).
+- Testing: iteration_57.json — 100% backend (11/11) + 100% frontend.
+
 ## June 2026 — Stripe checkout + global font bump + fixes
 - Stripe (Flow B, user's own LIVE key in backend/.env STRIPE_API_KEY, emergentintegrations StripeCheckout): POST /api/payments/checkout {plan_id,key_id,origin_url}, GET /api/payments/status/{session_id} (poll + idempotent fulfil), POST /api/webhook/stripe, GET /api/payments/config. _fulfill_stripe_txn credits key/wallet + db.purchases (provider=stripe) + receipt. Pages /payment/success (polls status) + /payment/cancel; Pricing.jsx "Pay with Card" (stripe-buy-{id}) beside PayPal. BLOCKER: user's Stripe account NOT activated for live charges → checkout returns 409 "Stripe account not yet activated" (JSON passes CF; toast shows real reason). Works once user completes activation at dashboard.stripe.com.
 - Restrict-on-create: Key Forge left panel toggle + usage limit + refresh period (forge-restrict-toggle / forge-usage-limit-input / forge-refresh-period-select), included in KeyCreate + JSON preview.

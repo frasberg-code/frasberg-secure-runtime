@@ -15,10 +15,12 @@ const LINKS = [
 
 const EXPLORE_GROUPS = [
   {
-    title: "On this page",
+    title: "Explore",
     items: [
-      { label: "Benchmarks", href: "#benchmarks" },
-      { label: "Realms", href: "#realms" },
+      { label: "Chat", to: "/luchii" },
+      { label: "Developer Console", to: "/dashboard" },
+      { label: "Benchmark", href: "#benchmarks" },
+      { label: "Realm", href: "#realms" },
       { label: "Mythos", href: "#mythos" },
       { label: "API", href: "#api" },
     ],
@@ -110,11 +112,9 @@ export default function Navbar() {
           ) : (
             <Link to="/auth?mode=login" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-signin">Sign In</Link>
           )}
-          <a href="/#models" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-models">Models</a>
+          <Link to="/ai-models" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-ai-models">AI Models</Link>
           <a href="/#realms" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-realms">Realms</a>
           <a href="/#api" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-api">API</a>
-          <Link to="/brand" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-brand">Brand</Link>
-          <Link to="/ai-models" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-ai-models">AI Models</Link>
           <Link to="/website-builder" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-website-builder">Website Builder</Link>
           <Link to="/game-builder" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-game-builder">Game Builder</Link>
           <Link to="/games" className="text-[15px] text-lux-text2 transition-colors duration-200 hover:text-lux-text" data-testid="nav-games">Games</Link>
@@ -193,11 +193,9 @@ export default function Navbar() {
               ) : (
                 <Link to="/auth?mode=login" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Sign In</Link>
               )}
-              <a href="/#models" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Models</a>
+              <Link to="/ai-models" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">AI Models</Link>
               <a href="/#realms" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Realms</a>
               <a href="/#api" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">API</a>
-              <Link to="/brand" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Brand</Link>
-              <Link to="/ai-models" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">AI Models</Link>
               <Link to="/website-builder" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Website Builder</Link>
               <Link to="/game-builder" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Game Builder</Link>
               <Link to="/games" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Games</Link>

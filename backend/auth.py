@@ -1,7 +1,9 @@
 import os
+import re
 import uuid
 import asyncio
 import logging
+import secrets
 import bcrypt
 import jwt
 from datetime import datetime, timezone, timedelta
@@ -190,6 +192,80 @@ async def register(body: RegisterBody, response: Response):
     asyncio.create_task(_send_welcome_email(email, user["name"]))
     _set_cookies(response, create_access_token(user["id"], email), create_refresh_token(user["id"]))
     return _public(user)
+
+
+class ForgotBody(BaseModel):
+    email: str
+    origin_url: str = ""
+
+
+class ResetBody(BaseModel):
+    token: str
+    password: str
+
+
+async def _send_reset_email(email: str, name: str, link: str):
+    api_key = os.environ.get("RESEND_API_KEY", "")
+    if not api_key:
+        logging.getLogger(__name__).info("RESET LINK (no mailer): %s", link)
+        return
+    html = (
+        "<div style='font-family:Arial,sans-serif;background:#0f172a;color:#f8fafc;padding:28px;border-radius:14px;'>"
+        "<p style='color:#1A4FFF;font-size:12px;letter-spacing:2px;text-transform:uppercase;'>Frasberg Account</p>"
+        f"<h2 style='margin:8px 0;'>Reset your password{', ' + name if name else ''}</h2>"
+        "<p style='color:#94a3b8;'>We got a request to reset your Luchii password. This link works for 1 hour:</p>"
+        f"<p><a href='{link}' style='display:inline-block;background:#1A4FFF;color:#fff;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:bold;'>Reset password</a></p>"
+        f"<p style='color:#64748b;font-size:12px;'>Or paste this link into your browser:<br>{link}</p>"
+        "<p style='color:#64748b;font-size:12px;margin-top:16px;'>Didn't ask for this? You can safely ignore this email — your password stays the same.</p></div>"
+    )
+    try:
+        import resend
+        resend.api_key = api_key
+        await asyncio.to_thread(resend.Emails.send, {
+            "from": os.environ.get("SENDER_EMAIL", "onboarding@resend.dev"), "to": [email],
+            "subject": "Reset your Frasberg password", "html": html})
+        ok = True
+    except Exception:
+        logging.getLogger(__name__).exception("reset email failed")
+        ok = False
+    try:
+        await db.email_log.insert_one({"id": str(uuid.uuid4()), "kind": "password_reset", "to": email,
+                                       "subject": "Reset your Frasberg password", "ok": ok,
+                                       "ts": datetime.now(timezone.utc).isoformat()})
+    except Exception:
+        pass
+
+
+@router.post("/forgot-password")
+async def forgot_password(body: ForgotBody):
+    email = body.email.strip().lower()
+    generic = {"ok": True, "message": "If that email has a Frasberg account, a reset link is on its way."}
+    user = await db.users.find_one({"email": email})
+    if not user:
+        return generic
+    token = secrets.token_urlsafe(32)
+    await db.password_reset_tokens.insert_one({
+        "token": token, "user_id": user["id"], "email": email, "used": False,
+        "expires_at": (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat()})
+    origin = (body.origin_url or "https://frasberg.com").rstrip("/")
+    link = f"{origin}/auth?mode=reset&token={token}"
+    asyncio.create_task(_send_reset_email(email, user.get("name", ""), link))
+    return generic
+
+
+@router.post("/reset-password")
+async def reset_password(body: ResetBody):
+    if len(body.password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    doc = await db.password_reset_tokens.find_one({"token": body.token})
+    expired = not doc or doc.get("used") or datetime.fromisoformat(doc["expires_at"]) < datetime.now(timezone.utc)
+    if expired:
+        raise HTTPException(status_code=400, detail="This reset link is invalid or has expired — request a new one.")
+    await db.users.update_one({"id": doc["user_id"]}, {"$set": {"password_hash": hash_password(body.password)}})
+    await db.password_reset_tokens.update_one({"token": body.token}, {"$set": {"used": True}})
+    await db.login_attempts.delete_many({"identifier": {"$regex": f":{re.escape(doc['email'])}$"}})
+    return {"ok": True, "message": "Password updated — sign in with your new password."}
 
 
 @router.post("/login")
