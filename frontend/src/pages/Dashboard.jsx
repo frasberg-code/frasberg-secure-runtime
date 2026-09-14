@@ -493,6 +493,16 @@ export default function Dashboard() {
                         Low — top up
                       </span>
                     )}
+                    {k.manifest_status && (
+                      <span className="rounded-sm border px-2 py-0.5 font-mono text-[13.5px] uppercase tracking-wide"
+                        title={(k.manifest_errors || []).join("; ")}
+                        style={k.manifest_status === "active"
+                          ? { borderColor: "rgba(52,211,153,0.5)", color: "#34d399" }
+                          : { borderColor: "rgba(248,113,113,0.5)", color: "#f87171" }}
+                        data-testid={`key-status-${k.id}`}>
+                        {k.manifest_status === "active" ? "ACTIVE" : "RESTRICTED"}
+                      </span>
+                    )}
                     {k.restrict_key && (
                       <span className="rounded-sm border px-2 py-0.5 font-mono text-[15.5px] uppercase tracking-wide"
                         style={{ borderColor: "rgba(0,240,255,0.5)", color: T.accent }} data-testid={`key-restricted-${k.id}`}>

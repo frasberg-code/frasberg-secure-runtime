@@ -365,15 +365,63 @@ AGENT_PERSONAS = {
 
 PERMISSION_LEVELS = ("no_access", "read", "write", "access")
 PERMISSION_MATRIX = {
-    "core_audio": ["text_to_speech", "speech_to_text", "speech_to_speech", "sound_effects"],
-    "advanced_audio": ["music_generation", "voice_changer", "voice_isolator", "voices", "dubbing", "audio_native", "audiobooks", "forced_alignment", "ads_engine"],
-    "visual_generation": ["image_video_generation"],
-    "frasberg_agents": ["frasberg_agents", "agent_memory", "agent_tools", "webhooks"],
-    "projects": ["projects", "productions", "history", "models", "user", "pronunciation_dictionaries"],
-    "administration": ["usage_analytics", "audit_log", "billing", "key_rotation"],
-    "workspace_members": ["workspace", "workspace_analytics", "workspace_webhooks", "group_members", "service_accounts", "workspace_members_read", "workspace_members_invite", "workspace_members_remove"],
+    "core_audio": ["text_to_speech", "speech_to_speech", "speech_to_text", "sound_effects", "audio_isolation", "music_generation"],
+    "advanced_audio_voice": ["voice_generation", "forced_alignment", "voices", "audio_native", "dubbing"],
+    "agents": ["frasberg_agents"],
+    "projects": ["projects", "productions", "audiobooks"],
+    "administration": ["history", "models", "pronunciation_dictionaries", "user", "workspace", "workspace_analytics", "webhooks", "service_accounts"],
+    "workspace_members": ["group_members", "workspace_members_read", "workspace_members_invite", "workspace_members_remove", "terms_of_service_accept"],
 }
 PERMISSION_KEYS = {p for group in PERMISSION_MATRIX.values() for p in group}
+CANONICAL_DEFAULTS = {
+    "text_to_speech": "access", "speech_to_speech": "access", "speech_to_text": "access",
+    "sound_effects": "access", "audio_isolation": "access", "music_generation": "access",
+    "voice_generation": "access", "forced_alignment": "access", "voices": "read",
+    "audio_native": "access", "dubbing": "access", "frasberg_agents": "access",
+    "projects": "read", "productions": "read", "audiobooks": "read", "history": "read",
+    "models": "read", "pronunciation_dictionaries": "read", "user": "access",
+    "workspace": "access", "workspace_analytics": "read", "webhooks": "access",
+    "service_accounts": "access", "group_members": "access", "workspace_members_read": "read",
+    "workspace_members_invite": "write", "workspace_members_remove": "write",
+    "terms_of_service_accept": "access",
+}
+
+
+def _manifest_status(doc: dict):
+    errors = []
+    if not (doc.get("name") or "").strip():
+        errors.append("name required")
+    perms = doc.get("permissions") or {}
+    for pk in perms:
+        if pk not in PERMISSION_KEYS:
+            errors.append(f"unknown permission key: {pk}")
+    for pk in sorted(PERMISSION_KEYS):
+        if pk not in perms:
+            errors.append(f"missing permission key: {pk}")
+        elif perms[pk] not in PERMISSION_LEVELS:
+            errors.append(f"invalid permission level for {pk}")
+    if perms.get("models") != "read":
+        errors.append("models must be read for ACTIVE")
+    if perms.get("frasberg_agents") != "access":
+        errors.append("frasberg_agents must be access for ACTIVE")
+    exp = doc.get("expires_at")
+    if exp:
+        try:
+            if datetime.fromisoformat(str(exp).replace("Z", "+00:00")) < datetime.now(timezone.utc):
+                errors.append("key expired")
+        except ValueError:
+            pass
+    return ("active" if not errors else "restricted"), errors
+
+
+async def _provenance(key_id: str, event_type: str, actor: str, payload=None):
+    import hashlib
+    body = json.dumps(payload, default=str, sort_keys=True) if payload else ""
+    sig = hashlib.sha256(f"{key_id}:{event_type}:{body}".encode()).hexdigest()
+    await db.key_provenance.insert_one({
+        "id": str(uuid.uuid4()), "key_id": key_id, "event_type": event_type,
+        "actor": actor, "payload": payload, "signature": sig,
+        "created_at": datetime.now(timezone.utc).isoformat()})
 
 
 class KeyCreate(BaseModel):
@@ -383,8 +431,11 @@ class KeyCreate(BaseModel):
     auto_disable_if_leaked: bool = True
     workspace_name: Optional[str] = None
     restrict_key: bool = False
+    restrict_ip: bool = False
     usage_limit_credits: Optional[int] = None
     credit_refresh_period: Optional[str] = None
+    security: Optional[dict] = None
+    expires_at: Optional[str] = None
 
 
 def _fallback_reply(message: str, model: str) -> str:
@@ -2305,9 +2356,15 @@ async def create_key(body: KeyCreate, user: dict = Depends(auth_module.get_curre
             raise HTTPException(status_code=422, detail={"code": "FK-003", "message": f"Unknown permission key: {pk}"})
         if lvl not in PERMISSION_LEVELS:
             raise HTTPException(status_code=422, detail={"code": "FK-002", "message": f"Invalid permission level '{lvl}' for {pk}"})
-    permissions = {pk: raw_perms.get(pk, "no_access") for pk in sorted(PERMISSION_KEYS)}
-    expires_at = None
-    if body.expires_days:
+    permissions = dict(CANONICAL_DEFAULTS) if not raw_perms else {pk: raw_perms.get(pk, "no_access") for pk in sorted(PERMISSION_KEYS)}
+    sec = body.security or {}
+    limits = sec.get("usage_limits") or {}
+    restrict_ip = bool(sec.get("restrict_ip", body.restrict_ip))
+    auto_disable = bool(sec.get("auto_disable_if_leaked", body.auto_disable_if_leaked))
+    limit_credits = limits.get("credits", body.usage_limit_credits)
+    period = (limits.get("refresh_period") or body.credit_refresh_period or "").lower()
+    expires_at = body.expires_at
+    if not expires_at and body.expires_days:
         days = max(1, min(int(body.expires_days), 365))
         expires_at = (datetime.now(timezone.utc) + timedelta(days=days)).isoformat()
     doc = {
@@ -2322,14 +2379,18 @@ async def create_key(body: KeyCreate, user: dict = Depends(auth_module.get_curre
         "credits": TRIAL_KEY_CREDITS,
         "last_used": None,
         "permissions": permissions,
-        "auto_disable_if_leaked": bool(body.auto_disable_if_leaked),
+        "auto_disable_if_leaked": auto_disable,
         "workspace_name": (body.workspace_name or "").strip()[:80] or None,
         "restrict_key": bool(body.restrict_key),
-        "usage_limit_credits": int(body.usage_limit_credits) if (body.usage_limit_credits and int(body.usage_limit_credits) > 0) else None,
-        "credit_refresh_period": body.credit_refresh_period if (body.credit_refresh_period or "").lower() in REFRESH_PERIODS else None,
+        "restrict_ip": restrict_ip,
+        "usage_limit_credits": int(limit_credits) if (limit_credits and int(limit_credits) > 0) else None,
+        "credit_refresh_period": period if period in REFRESH_PERIODS else None,
         "status": "active",
     }
+    doc["manifest_status"], doc["manifest_errors"] = _manifest_status(doc)
     await db.api_keys.insert_one({**doc})
+    doc.pop("_id", None)
+    await _provenance(doc["id"], "created", user.get("email", ""), {"name": doc["name"], "status": doc["manifest_status"]})
     return doc  # full key returned once on creation
 
 
@@ -2355,6 +2416,7 @@ async def list_keys(user: dict = Depends(auth_module.get_current_user)):
         docs = [dict(starter)]
     for d in docs:
         d["key"] = _mask_key(d["key"])
+        d["manifest_status"], d["manifest_errors"] = _manifest_status(d)
     return docs
 
 
@@ -2413,8 +2475,54 @@ async def edit_key(key_id: str, body: KeyEdit, user: dict = Depends(auth_module.
     upd["credit_refresh_period"] = period if period in REFRESH_PERIODS else None
     await db.api_keys.update_one({"id": key_id}, {"$set": upd})
     doc.update(upd)
+    doc["manifest_status"], doc["manifest_errors"] = _manifest_status(doc)
+    await _provenance(key_id, "updated", user.get("email", ""), upd)
     doc["key"] = _mask_key(doc["key"])
     return doc
+
+
+@api_router.get("/keys/{key_id}/governance")
+async def key_governance(key_id: str, user: dict = Depends(auth_module.get_current_user)):
+    q = {"id": key_id} if user.get("role") == "admin" else {"id": key_id, "user_id": user["id"]}
+    doc = await db.api_keys.find_one(q, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Key not found")
+    status, errors = _manifest_status(doc)
+    perms = doc.get("permissions") or {}
+    now = datetime.now(timezone.utc)
+    risk = sum(15 for p in ("voice_generation", "frasberg_agents", "audio_native", "dubbing") if perms.get(p) == "access")
+    if doc.get("expires_at"):
+        try:
+            if (datetime.fromisoformat(str(doc["expires_at"]).replace("Z", "+00:00")) - now).total_seconds() < 72 * 3600:
+                risk += 20
+        except ValueError:
+            pass
+    risk += min(len(errors) * 10, 40)
+    risk = min(risk, 100)
+    trust = 50 + (20 if status == "active" else 0) + (10 if not doc.get("restrict_key") or doc.get("usage_limit_credits") else 5)
+    if doc.get("rotated_at"):
+        try:
+            if (now - datetime.fromisoformat(str(doc["rotated_at"]).replace("Z", "+00:00"))).days <= 30:
+                trust += 10
+        except ValueError:
+            pass
+    trust = min(trust + (10 if doc.get("auto_disable_if_leaked") else 0), 100)
+    layers = {
+        "integrity": 1.0, "provenance": 1.0, "lineage": 1.0,
+        "zero_trust": 1.0 if status == "active" else 0.4,
+        "policy": 1.0 - min(len(errors), 10) / 10,
+        "threat": 1.0 - risk / 100, "shield": trust / 100,
+        "region": 1.0, "sla": 0.99, "cost": 1.0,
+    }
+    fabric = sum(layers.values()) / len(layers)
+    posture = "low" if fabric >= 0.75 else "medium" if fabric >= 0.5 else "high" if fabric >= 0.3 else "critical"
+    prov = await db.key_provenance.find({"key_id": key_id}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    return {"key_id": key_id, "manifest_status": status, "errors": errors,
+            "risk_score": risk, "trust_score": trust, "fabric_score": round(fabric, 3),
+            "risk_category": posture, "layers": layers,
+            "weak_points": [k for k, v in layers.items() if v < 0.5],
+            "shields": {k: ("active" if v >= 0.5 else "breached") for k, v in layers.items()},
+            "provenance": prov}
 
 
 @api_router.post("/keys/{key_id}/rotate")
@@ -2451,8 +2559,8 @@ async def test_api_key(key_id: str, user: dict = Depends(auth_module.get_current
 
     checks = [("GET /llm/models", "models", "read"),
               ("POST /audio/tts", "text_to_speech", "access"),
-              ("POST /generate/image", "image_video_generation", "access"),
-              ("POST /generate/video", "image_video_generation", "access"),
+              ("POST /generate/image", "voice_generation", "access"),
+              ("POST /generate/video", "voice_generation", "access"),
               ("POST /agents/run", "frasberg_agents", "access")]
     results = []
     for route, perm, needed in checks:

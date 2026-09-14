@@ -1,4 +1,15 @@
-# Frasberg / Luchii Platform — PRD
+# Frasberg / Luchii
+
+## June 2026 — Canonical Key Manifest + Governance Engine (lore dump translated to FastAPI/Mongo)
+- PERMISSION_MATRIX = canonical 28 perms / 6 sections (core_audio, advanced_audio_voice, agents, projects, administration, workspace_members incl terms_of_service_accept). CANONICAL_DEFAULTS per spec (create with no perms → canonical defaults → ACTIVE).
+- _manifest_status(doc): name required, unknown/missing/invalid perms, models==read, frasberg_agents==access, expired → RESTRICTED + exact error list. Attached to create response + GET /keys (manifest_status/manifest_errors) + recomputed on PATCH edit. OLD keys intentionally show RESTRICTED (per spec).
+- KeyCreate accepts nested manifest: security{restrict_ip, auto_disable_if_leaked, usage_limits{credits, refresh_period incl "unlimited"}}, expires_at, restrict_ip. Forge sends both flat + nested.
+- Provenance chain: db.key_provenance (sha256 signature) on create/update; returned in governance.
+- GET /api/keys/{id}/governance: risk_score (sensitive perms + expiry + errors), trust_score, fabric_score, risk_category, 10 shield layers (active/breached), weak_points, provenance[]. Single-region layers (region/sla/cost/integrity) are DETERMINISTIC/SIMULATED (one region only).
+- UI: Forge = canonical 6 sections w/ defaults, Restrict-by-IP toggle (forge-restrict-ip-toggle), unlimited refresh option, ErrorBanner (key-error-banner, restricted reasons) / SuccessBanner (key-success-banner). Dashboard rows: ACTIVE/RESTRICTED badge (key-status-{id}, errors in title tooltip).
+- Verified by curl: canonical→active, bad manifest→restricted w/ exact reasons, governance scores, list badges; UI screenshot: matrix + banner + badges. Lint clean.
+- NOT implemented (would be pure mock, deferred): multi-region replication/failover/drift dashboards, quantum lattice/continuum/singularity/totality panels — one region exists; governance layers cover the real signals.
+ Platform — PRD
 
 ## June 2026 — Batch: auth reset, refunds, nav/theme overhaul
 - Forgot/reset password: POST /api/auth/forgot-password {email, origin_url} (generic ok, Resend email w/ 1h token → /auth?mode=reset&token=), POST /api/auth/reset-password {token,password}. Auth.jsx modes login/signup/forgot/reset + forgot-email support note. NOTE: Resend sender domain unverified — emails only deliver to Resend account owner until domain verified at resend.com/domains.

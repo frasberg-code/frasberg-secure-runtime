@@ -1,25 +1,36 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { AudioWaveform, SlidersHorizontal, Network, Folder, ShieldCheck, Users, Copy, Check, Plus, ShieldAlert, FlaskConical, Loader2, Clapperboard } from "lucide-react";
+import { AudioWaveform, SlidersHorizontal, Network, Folder, ShieldCheck, Users, Copy, Check, Plus, ShieldAlert, FlaskConical, Loader2 } from "lucide-react";
 import { T } from "../../lib/dashTheme";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const GROUPS = [
-  ["Core Audio", AudioWaveform, ["text_to_speech", "speech_to_text", "speech_to_speech", "sound_effects"]],
-  ["Advanced Audio", SlidersHorizontal, ["music_generation", "voice_changer", "voice_isolator", "voices", "dubbing", "audio_native", "audiobooks", "forced_alignment", "ads_engine"]],
-  ["Visual Generation", Clapperboard, ["image_video_generation"]],
-  ["Frasberg Agents", Network, ["frasberg_agents", "agent_memory", "agent_tools", "webhooks"]],
-  ["Projects", Folder, ["projects", "productions", "history", "models", "user", "pronunciation_dictionaries"]],
-  ["Administration", ShieldCheck, ["usage_analytics", "audit_log", "billing", "key_rotation"]],
-  ["Workspace Members", Users, ["workspace", "workspace_analytics", "workspace_webhooks", "group_members", "service_accounts", "workspace_members_read", "workspace_members_invite", "workspace_members_remove"]],
+  ["Core Audio", AudioWaveform, ["text_to_speech", "speech_to_speech", "speech_to_text", "sound_effects", "audio_isolation", "music_generation"]],
+  ["Advanced Audio / Voice", SlidersHorizontal, ["voice_generation", "forced_alignment", "voices", "audio_native", "dubbing"]],
+  ["Agents", Network, ["frasberg_agents"]],
+  ["Projects", Folder, ["projects", "productions", "audiobooks"]],
+  ["Administration", ShieldCheck, ["history", "models", "pronunciation_dictionaries", "user", "workspace", "workspace_analytics", "webhooks", "service_accounts"]],
+  ["Workspace Members", Users, ["group_members", "workspace_members_read", "workspace_members_invite", "workspace_members_remove", "terms_of_service_accept"]],
 ];
 const ALL_KEYS = GROUPS.flatMap(([, , ks]) => ks);
 const LEVELS = [["no_access", "No Access"], ["read", "Read"], ["write", "Write"], ["access", "Access"]];
-const LABEL_OVERRIDES = { frasberg_agents: "Frasberg Agents", image_video_generation: "Image & Video Generation", workspace_webhooks: "Webhooks" };
+const LABEL_OVERRIDES = { frasberg_agents: "Frasberg Agents" };
 const label = (k) => LABEL_OVERRIDES[k] || k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
-const defaultPerms = () => Object.fromEntries(ALL_KEYS.map((k) => [k, k === "models" ? "read" : "no_access"]));
+const CANONICAL = {
+  text_to_speech: "access", speech_to_speech: "access", speech_to_text: "access",
+  sound_effects: "access", audio_isolation: "access", music_generation: "access",
+  voice_generation: "access", forced_alignment: "access", voices: "read",
+  audio_native: "access", dubbing: "access", frasberg_agents: "access",
+  projects: "read", productions: "read", audiobooks: "read", history: "read",
+  models: "read", pronunciation_dictionaries: "read", user: "access",
+  workspace: "access", workspace_analytics: "read", webhooks: "access",
+  service_accounts: "access", group_members: "access", workspace_members_read: "read",
+  workspace_members_invite: "write", workspace_members_remove: "write",
+  terms_of_service_accept: "access",
+};
+const defaultPerms = () => ({ ...CANONICAL });
 
 export const ApiKeyForge = ({ onCreated }) => {
   const C = { base: T.inset, panel: T.surface, border: T.border, primary: T.accent, accent: "#a855f7", text: T.text, muted: T.muted, danger: "#f97373" };
@@ -29,6 +40,7 @@ export const ApiKeyForge = ({ onCreated }) => {
   const [autoDisable, setAutoDisable] = useState(true);
   const [perms, setPerms] = useState(defaultPerms);
   const [restrict, setRestrict] = useState(false);
+  const [restrictIp, setRestrictIp] = useState(false);
   const [usageLimit, setUsageLimit] = useState("");
   const [refreshPeriod, setRefreshPeriod] = useState("");
   const [busy, setBusy] = useState(false);
@@ -57,6 +69,15 @@ export const ApiKeyForge = ({ onCreated }) => {
           name: name || "Default key", expires_days: expiresDays ? Number(expiresDays) : null,
           permissions: perms, auto_disable_if_leaked: autoDisable, workspace_name: workspace || null,
           restrict_key: restrict,
+          restrict_ip: restrictIp,
+          security: {
+            restrict_ip: restrictIp,
+            auto_disable_if_leaked: autoDisable,
+            usage_limits: {
+              credits: restrict && usageLimit ? Number(usageLimit) : null,
+              refresh_period: restrict && refreshPeriod ? refreshPeriod : "unlimited",
+            },
+          },
           usage_limit_credits: restrict && usageLimit ? Number(usageLimit) : null,
           credit_refresh_period: restrict && refreshPeriod ? refreshPeriod : null,
         }),
@@ -165,6 +186,14 @@ export const ApiKeyForge = ({ onCreated }) => {
                 <span className="absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all" style={{ left: restrict ? 22 : 2 }} />
               </button>
             </div>
+            <div className="mt-3 flex items-center justify-between">
+              <p className="font-mono text-[13px] uppercase tracking-[0.16em]" style={{ color: C.muted }}>Restrict by IP Address</p>
+              <button onClick={() => setRestrictIp((v) => !v)} data-testid="forge-restrict-ip-toggle" aria-label="Restrict by IP"
+                className="relative h-5 w-10 rounded-full transition-colors"
+                style={{ background: restrictIp ? C.primary : "rgba(255,255,255,0.12)" }}>
+                <span className="absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all" style={{ left: restrictIp ? 22 : 2 }} />
+              </button>
+            </div>
             <label className="mt-3 block font-mono text-[13.5px] uppercase tracking-[0.16em]" style={{ color: restrict ? C.muted : "rgba(255,255,255,0.25)" }}>
               Usage Limits (Credits)
             </label>
@@ -179,6 +208,7 @@ export const ApiKeyForge = ({ onCreated }) => {
               className="mt-1.5 w-full rounded-md border px-3.5 py-2 font-mono text-[14.5px] outline-none disabled:opacity-40"
               style={{ borderColor: C.border, background: C.panel, color: C.text }}>
               <option value="">Unlimited</option>
+              <option value="unlimited">Unlimited (explicit)</option>
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
               <option value="monthly">Monthly</option>
@@ -228,8 +258,26 @@ export const ApiKeyForge = ({ onCreated }) => {
       </div>
 
       {newKey && (
-        <div className="rounded-xl border p-4" style={{ borderColor: "rgba(56,189,248,0.4)", background: "rgba(56,189,248,0.05)" }} data-testid="new-key-banner">
-          <p className="font-mono text-[14.5px] uppercase tracking-[0.18em]" style={{ color: C.primary }}>
+        <div className="rounded-xl border p-4"
+          style={newKey.manifest_status === "restricted"
+            ? { borderColor: "rgba(248,113,113,0.5)", background: "rgba(248,113,113,0.06)" }
+            : { borderColor: "rgba(56,189,248,0.4)", background: "rgba(56,189,248,0.05)" }}
+          data-testid="new-key-banner">
+          {newKey.manifest_status === "restricted" ? (
+            <div data-testid="key-error-banner">
+              <p className="font-mono text-[14.5px] uppercase tracking-[0.18em]" style={{ color: "#f87171" }}>Key is Restricted</p>
+              <p className="mt-1 text-[14px]" style={{ color: C.muted }}>This key cannot unlock Audio Tools or Video Engine.</p>
+              <ul className="mt-2 space-y-1 font-mono text-[13.5px]" style={{ color: "#fca5a5" }}>
+                {(newKey.manifest_errors || []).slice(0, 8).map((e) => <li key={e}>• {e}</li>)}
+              </ul>
+              <p className="mt-2 text-[13.5px]" style={{ color: C.muted }}>Update the permissions in the matrix to resolve these issues.</p>
+            </div>
+          ) : (
+            <p className="font-mono text-[14.5px] uppercase tracking-[0.18em]" style={{ color: "#34d399" }} data-testid="key-success-banner">
+              Key Created — ACTIVE · ID {newKey.id?.slice(0, 8)}
+            </p>
+          )}
+          <p className="mt-2 font-mono text-[14.5px] uppercase tracking-[0.18em]" style={{ color: C.primary }}>
             Copy this now — it won't be shown in full again
           </p>
           <div className="mt-2.5 flex flex-wrap items-center justify-between gap-3">
