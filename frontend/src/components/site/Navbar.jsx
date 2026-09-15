@@ -203,6 +203,18 @@ export default function Navbar() {
               <Link to="/create" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Creative Studio</Link>
               <Link to="/dashboard" onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">Developers</Link>
             </div>
+            {EXPLORE_GROUPS.map((g) => (
+              <div key={g.title} className="mt-4 border-t border-lux-border pt-3" data-testid={`mobile-explore-${g.title.toLowerCase().replace(/\s+/g, "-")}`}>
+                <p className="font-mono text-[12px] uppercase tracking-[0.2em] text-lux-text2">{g.title}</p>
+                <div className="mt-1 grid grid-cols-2 gap-x-4">
+                  {g.items.map((l) => l.to ? (
+                    <Link key={l.label} to={l.to} onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">{l.label}</Link>
+                  ) : (
+                    <a key={l.label} href={l.href} onClick={() => setOpen(false)} className="py-2 text-sm text-lux-text2 hover:text-lux-text">{l.label}</a>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

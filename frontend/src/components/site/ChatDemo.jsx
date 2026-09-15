@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Loader2, Paperclip, Mic, Square, Volume2, VolumeX, X, ImageIcon, ArrowUp, ArrowDown, Plus, Upload, Clapperboard, AudioLines, SlidersHorizontal, ShieldCheck } from "lucide-react";
+import { Loader2, Paperclip, Mic, Square, Volume2, X, ImageIcon, ArrowUp, ArrowDown, Plus, Upload, Clapperboard, AudioLines, SlidersHorizontal, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
 import { useLiveVoice } from "../../hooks/useLiveVoice";
-import { VoicePicker } from "./VoicePicker";
 import { MODELS } from "../../data/content";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -119,13 +118,9 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
   const [transcribing, setTranscribing] = useState(false);
   const [speakingIdx, setSpeakingIdx] = useState(null);
   const [showScroll, setShowScroll] = useState(false);
-  const [tone, setTone] = useState("balanced");
   const [attachMenu, setAttachMenu] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [composerMode, setComposerMode] = useState(null);
-  const [voiceId, setVoiceId] = useState(() => {
-    try { return localStorage.getItem("luchii-voice-id") || "p273"; } catch { return "p273"; }
-  });
   const scrollRef = useRef(null);
   const fileRef = useRef(null);
   const recorderRef = useRef(null);
@@ -135,24 +130,6 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
   const utterRef = useRef(() => {});
 
   const locked = user === false || user === null;
-  const [voiceOn, setVoiceOn] = useState(() => {
-    try { return localStorage.getItem("luchii-voice") !== "off"; } catch { return true; }
-  });
-  const toggleVoice = () => setVoiceOn((v) => {
-    try { localStorage.setItem("luchii-voice", v ? "off" : "on"); } catch {}
-    return !v;
-  });
-  const pickVoice = (id) => {
-    setVoiceId(id);
-    try { localStorage.setItem("luchii-voice-id", id); } catch {}
-  };
-  const [voiceSpeed, setVoiceSpeed] = useState(() => {
-    try { return parseFloat(localStorage.getItem("luchii-voice-speed") || "1"); } catch { return 1; }
-  });
-  const pickSpeed = (s) => {
-    setVoiceSpeed(s);
-    try { localStorage.setItem("luchii-voice-speed", String(s)); } catch {}
-  };
 
   const live = useLiveVoice(useCallback((blob) => utterRef.current(blob), []));
 
@@ -263,13 +240,12 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ text: text.slice(0, 4000), tone: tone === "balanced" ? null : tone, voice: voiceId }),
+        body: JSON.stringify({ text: text.slice(0, 4000) }),
       });
       const data = await res.json();
       if (data.audio_base64) {
         await new Promise((resolve) => {
           const audio = new Audio(`data:${data.mime || "audio/mp3"};base64,${data.audio_base64}`);
-          audio.playbackRate = voiceSpeed;
           audio.onended = () => { setSpeakingIdx(null); resolve(); };
           audio.onerror = () => { setSpeakingIdx(null); resolve(); };
           audio.play().catch(() => { setSpeakingIdx(null); resolve(); });
@@ -396,7 +372,6 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
           session_id: session,
           model,
           agent,
-          tone: tone === "balanced" ? null : tone,
           attachment_base64: att?.data || null,
           attachment_kind: att?.kind || null,
           attachment_name: att?.name || null,
@@ -462,13 +437,9 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
       onNewMessage?.();
     }
 
-    if (user && acc.trim()) {
-      if (opts.fromLive) {
-        await speak(acc);
-        live.resume();
-      } else if (voiceOn) {
-        speak(acc);
-      }
+    if (user && acc.trim() && opts.fromLive) {
+      await speak(acc);
+      live.resume();
     }
   }
 
@@ -482,22 +453,6 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
       {MODELS.map((m) => (
         <option key={m.id} value={m.id} label={m.name} />
       ))}
-    </select>
-  );
-
-  const toneSelect = (extraTestId = "") => (
-    <select
-      value={tone}
-      onChange={(e) => setTone(e.target.value)}
-      data-testid={`chat-tone-select${extraTestId}`}
-      aria-label="Luchii tone"
-      className="w-full rounded-full border border-lux-border bg-lux-surface px-2 py-1 font-mono text-[15.5px] text-lux-text2 outline-none focus:border-lux-accent sm:w-auto"
-      title="Emotion & tone — how Luchii speaks"
-    >
-      <option value="balanced">Balanced</option>
-      <option value="warm">Warm</option>
-      <option value="business">Business</option>
-      <option value="firm">Firm</option>
     </select>
   );
 
@@ -519,35 +474,6 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
           <div className="hidden items-center gap-1.5 sm:flex">
-            {user && toneSelect()}
-            {user && (
-              <button
-                type="button"
-                onClick={toggleVoice}
-                aria-label={voiceOn ? "Turn voice off" : "Turn voice on"}
-                data-testid="chat-voice-toggle"
-                className={`grid h-7 w-7 place-items-center rounded-full border transition-colors ${
-                  voiceOn ? "border-lux-accent text-lux-accent" : "border-lux-border text-lux-text2 hover:border-lux-accent"
-                }`}
-                title={voiceOn ? "Luchii speaks replies aloud — click to mute" : "Voice off — click so Luchii speaks"}
-              >
-                {voiceOn ? <Volume2 size={13} /> : <VolumeX size={13} />}
-              </button>
-            )}
-            {user && <VoicePicker value={voiceId} onChange={pickVoice} />}
-            {user && (
-              <select
-                value={voiceSpeed}
-                onChange={(e) => pickSpeed(parseFloat(e.target.value))}
-                data-testid="voice-speed-select"
-                title="Voice playback speed"
-                className="h-8 cursor-pointer rounded-full border border-lux-border bg-transparent px-2 font-mono text-[15.5px] text-lux-text2 outline-none transition-colors hover:border-lux-accent"
-              >
-                {[0.75, 1, 1.25, 1.5].map((s) => (
-                  <option key={s} value={s} label={`${s}x`} />
-                ))}
-              </select>
-            )}
             {modelSelect()}
           </div>
           <div className="relative sm:hidden" ref={settingsRef}>
@@ -568,29 +494,6 @@ export default function ChatDemo({ compact = false, initialModel = "luchii-70b",
                   <p className="mb-1.5 font-mono text-[15.5px] uppercase tracking-[0.2em] text-lux-text2">Model</p>
                   {modelSelect("-mobile")}
                 </div>
-                {user && (
-                  <div>
-                    <p className="mb-1.5 font-mono text-[15.5px] uppercase tracking-[0.2em] text-lux-text2">Tone</p>
-                    {toneSelect("-mobile")}
-                  </div>
-                )}
-                {user && (
-                  <button
-                    type="button"
-                    onClick={toggleVoice}
-                    data-testid="chat-voice-toggle-mobile"
-                    className="flex w-full items-center justify-between rounded-xl border border-lux-border px-3 py-2 text-sm text-lux-text"
-                  >
-                    <span>Speak replies aloud</span>
-                    {voiceOn ? <Volume2 size={14} className="text-lux-accent" /> : <VolumeX size={14} className="text-lux-text2" />}
-                  </button>
-                )}
-                {user && (
-                  <div>
-                    <p className="mb-1.5 font-mono text-[15.5px] uppercase tracking-[0.2em] text-lux-text2">Luchii's voice</p>
-                    <VoicePicker value={voiceId} onChange={pickVoice} inline />
-                  </div>
-                )}
               </div>
             )}
           </div>

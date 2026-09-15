@@ -53,12 +53,17 @@ function SectionTitle({ children, right }) {
 
 const ghostBtn = "inline-flex items-center gap-1.5 rounded-sm border px-3 py-1.5 font-mono text-[15px] transition-colors";
 
+const EDIT_PERM_KEYS = ["text_to_speech","speech_to_speech","speech_to_text","sound_effects","audio_isolation","music_generation","voice_generation","forced_alignment","voices","audio_native","dubbing","frasberg_agents","projects","productions","audiobooks","history","models","pronunciation_dictionaries","user","workspace","workspace_analytics","webhooks","service_accounts","group_members","workspace_members_read","workspace_members_invite","workspace_members_remove","terms_of_service_accept"];
+const permLabel = (k) => (k === "frasberg_agents" ? "Frasberg Agents" : k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()));
+
 function EditKeyModal({ k, onClose, onSaved }) {
   const [name, setName] = useState(k.name || "");
   const [expireAfter, setExpireAfter] = useState("keep");
   const [restrict, setRestrict] = useState(!!k.restrict_key);
   const [limit, setLimit] = useState(k.usage_limit_credits || "");
   const [period, setPeriod] = useState(k.credit_refresh_period || "");
+  const [perms, setPerms] = useState(() => Object.fromEntries(EDIT_PERM_KEYS.map((p) => [p, (k.permissions || {})[p] || "no_access"])));
+  const [showPerms, setShowPerms] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const save = async () => {
@@ -70,6 +75,7 @@ function EditKeyModal({ k, onClose, onSaved }) {
           name, expire_after: expireAfter, restrict_key: restrict,
           usage_limit_credits: restrict && limit ? Number(limit) : null,
           credit_refresh_period: restrict && period ? period : null,
+          permissions: perms,
         }),
       });
       if (!res.ok) throw new Error();
@@ -133,6 +139,30 @@ function EditKeyModal({ k, onClose, onSaved }) {
           <option value="weekly">Weekly</option>
           <option value="monthly">Monthly</option>
         </select>
+
+        <button onClick={() => setShowPerms((v) => !v)} data-testid="edit-key-perms-toggle"
+          className="mt-5 w-full rounded-sm border px-3 py-2 text-left font-mono text-[12px] uppercase tracking-[0.16em] transition-colors hover:border-[#00F0FF]"
+          style={{ borderColor: T.border, color: T.text2 }}>
+          {showPerms ? "▾" : "▸"} Endpoint Permissions ({Object.values(perms).filter((v) => v !== "no_access").length} granted)
+        </button>
+        {showPerms && (
+          <div className="mt-2 max-h-56 space-y-1 overflow-y-auto rounded-sm border p-2" style={{ borderColor: T.borderSubtle }} data-testid="edit-key-perms-grid">
+            {EDIT_PERM_KEYS.map((p) => (
+              <div key={p} className="flex items-center justify-between gap-2">
+                <span className="truncate text-[13px]" style={{ color: T.text }}>{permLabel(p)}</span>
+                <select value={perms[p]} onChange={(e) => setPerms((cur) => ({ ...cur, [p]: e.target.value }))}
+                  data-testid={`edit-perm-${p}`}
+                  className="rounded-sm border bg-transparent px-2 py-1 font-mono text-[12px] outline-none"
+                  style={{ borderColor: T.border, background: T.surface, color: T.text2 }}>
+                  <option value="no_access">No Access</option>
+                  <option value="read">Read</option>
+                  <option value="write">Write</option>
+                  <option value="access">Access</option>
+                </select>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="mt-6 flex justify-end gap-2 border-t pt-4" style={{ borderColor: T.borderSubtle }}>
           <button onClick={onClose} data-testid="edit-key-cancel" className={ghostBtn} style={{ borderColor: T.border, color: T.text2 }}>Cancel</button>
@@ -440,8 +470,8 @@ export default function Dashboard() {
             ) : (
               keys.map((k) => {
                 const credits = k.credits ?? 0;
-                const low = credits < 500;
-                const pct = Math.max(2, Math.min(100, (credits / 5000) * 100));
+                const low = !k.unlimited && credits < 500;
+                const pct = k.unlimited ? 100 : Math.max(2, Math.min(100, (credits / 5000) * 100));
                 const atOn = k.autotopup && k.autotopup.enabled;
                 return (
                 <div key={k.id} className="border-b px-4 py-3.5 transition-colors last:border-0 hover:bg-white/[0.02]"
@@ -463,6 +493,19 @@ export default function Dashboard() {
                       <span className="hidden font-mono text-[15px] sm:inline" style={{ color: T.text2 }}>
                         {k.request_count} req · {k.token_count} tok
                       </span>
+                      <button onClick={async () => {
+                          try {
+                            const r = await fetch(`${API}/keys/${k.id}/reveal`, { credentials: "include" });
+                            const d = await r.json();
+                            if (!r.ok) throw new Error();
+                            await navigator.clipboard.writeText(d.key);
+                            toast.success("Full API key copied to clipboard");
+                          } catch { toast.error("Could not copy key"); }
+                        }} data-testid={`copy-key-btn-${k.id}`} aria-label="Copy key" title="Copy full API key"
+                        className="grid h-8 w-8 place-items-center rounded-sm border transition-colors hover:border-[#00F0FF] hover:text-[#00F0FF]"
+                        style={{ borderColor: T.border, color: T.text2 }}>
+                        <Copy size={13} />
+                      </button>
                       <button onClick={() => setEditKey(k)} data-testid={`edit-key-btn-${k.id}`} aria-label="Edit key" title="Edit key — name, expiry, restrictions"
                         className="grid h-8 w-8 place-items-center rounded-sm border transition-colors hover:border-[#00F0FF] hover:text-[#00F0FF]"
                         style={{ borderColor: T.border, color: T.text2 }}>
@@ -491,6 +534,12 @@ export default function Dashboard() {
                       <span className="rounded-sm border px-2 py-0.5 font-mono text-[15.5px] uppercase tracking-wide"
                         style={{ borderColor: "rgba(239,68,68,0.5)", color: "#EF4444" }} data-testid={`key-low-${k.id}`}>
                         Low — top up
+                      </span>
+                    )}
+                    {k.unlimited && (
+                      <span className="rounded-sm border px-2 py-0.5 font-mono text-[13.5px] uppercase tracking-wide"
+                        style={{ borderColor: "rgba(0,240,255,0.5)", color: T.accent }} data-testid={`key-unlimited-${k.id}`}>
+                        ∞ Unlimited Credits
                       </span>
                     )}
                     {k.manifest_status && (

@@ -1,5 +1,13 @@
 # Frasberg / Luchii
 
+## June 2026 — Key auth fixes + unlimited keys + edit/copy (self-tested via curl + screenshot)
+- FK-003 root cause: engine routes required canonical perms missing on legacy keys → added LEGACY_PERM_ALIASES fallback in engine_auth_factory (e.g. voice_generation ← voices/voice_changer).
+- /generate/video, /voice/transcribe, /voice/speak, /voice/clone now accept frb_live_ API keys (engine_auth_factory w/ speech_to_text, text_to_speech, voice_generation; video = any valid key) instead of session-JWT-only ("Invalid token" fixed). Verified: video task JSON + speak 200 with Bearer key.
+- 1@frasbergai.com (user wrote 1@frasberg.com; key prefixes matched frasbergai account): plan→scale for BOTH accounts; 7 keys (Audio Tools, Music Generation, Gateway-TTS/STT, Voice-Cloning, Video Engine, Music Engine) marked unlimited:true → bypass credits/quota/restrict-limit at gateway, survives rotation (rotate only $sets key/rotated_at). "∞ Unlimited Credits" badge in row (key-unlimited-{id}).
+- Copy key: GET /api/keys/{id}/reveal (owner only, provenance-logged) + copy button per row (copy-key-btn-{id}).
+- Edit endpoints: KeyEdit.permissions (validated, normalized to canonical 28) + collapsible 28-select grid in EditKeyModal (edit-key-perms-toggle / edit-perm-{key}); recomputes ACTIVE/RESTRICTED.
+- Mobile menu now renders EXPLORE_GROUPS (Explore/Products/etc. sections) — was desktop-only.
+
 ## June 2026 — Canonical Key Manifest + Governance Engine (lore dump translated to FastAPI/Mongo)
 - PERMISSION_MATRIX = canonical 28 perms / 6 sections (core_audio, advanced_audio_voice, agents, projects, administration, workspace_members incl terms_of_service_accept). CANONICAL_DEFAULTS per spec (create with no perms → canonical defaults → ACTIVE).
 - _manifest_status(doc): name required, unknown/missing/invalid perms, models==read, frasberg_agents==access, expired → RESTRICTED + exact error list. Attached to create response + GET /keys (manifest_status/manifest_errors) + recomputed on PATCH edit. OLD keys intentionally show RESTRICTED (per spec).
