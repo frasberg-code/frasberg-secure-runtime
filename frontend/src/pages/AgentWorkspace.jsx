@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import {
   Home, X, Plus, Paperclip, GitFork, Mic, ArrowUp, Share2, RefreshCw, ExternalLink, Copy, Sparkles, Download, Square, Play,
   MousePointerClick, Monitor, Smartphone, Tablet, Maximize2, Minimize2, ChevronDown, ChevronUp, Undo2, Github, Bot,
-  Search, CircleDot, GitPullRequest, BookMarked, Inbox,
+  Search, CircleDot, GitPullRequest, BookMarked, Inbox, FileCode2, SlidersHorizontal, Check, Loader2, Trash2, FolderKanban,
 } from "lucide-react";
 import { AccountMenu } from "../components/site/AccountMenu";
 import { NotificationBell } from "../components/site/NotificationBell";
@@ -99,23 +99,77 @@ function extractHtml(text) {
   return null;
 }
 
-function MessageBody({ content }) {
+function ActivityChip({ verb, detail, live, onClick, testId }) {
+  return (
+    <button type="button" onClick={onClick} data-testid={testId}
+      className="my-1.5 flex w-fit max-w-full items-center gap-2 overflow-hidden rounded-lg border px-3 py-2 text-left transition-colors hover:bg-white/[0.06]"
+      style={{ borderColor: T.borderSub, background: T.inset }}>
+      {live ? <Loader2 size={13} className="shrink-0 animate-spin" style={{ color: T.accent }} /> : <FileCode2 size={13} className="shrink-0" style={{ color: T.text2 }} />}
+      <span className="shrink-0 text-[14.5px]" style={{ color: T.text2 }}>{verb}</span>
+      {detail && <span className="truncate font-mono text-[14px]" style={{ color: T.text }}>{detail}</span>}
+    </button>
+  );
+}
+
+function ScreenshotCard({ html }) {
+  const openTab = () => {
+    const b = new Blob([html], { type: "text/html" });
+    window.open(URL.createObjectURL(b), "_blank");
+  };
+  return (
+    <div className="mt-3 max-w-xl rounded-xl border p-3" style={{ borderColor: T.border, background: T.surface }} data-testid="ws-screenshot-card">
+      <div className="flex items-center justify-between">
+        <p className="text-[14.5px] font-600" style={{ color: T.accent }}>Screenshots</p>
+        <button onClick={openTab} className="flex items-center gap-1.5 rounded border px-2.5 py-1 text-[14px] transition-colors hover:bg-white/[0.06]"
+          style={{ borderColor: T.border, color: T.text2 }} data-testid="ws-screenshot-open-tab">
+          <ExternalLink size={11} /> Open in new tab
+        </button>
+      </div>
+      <button onClick={openTab} title="Open preview in a new tab" data-testid="ws-screenshot-thumb"
+        className="relative mt-2 block w-full overflow-hidden rounded-lg border transition-opacity hover:opacity-90"
+        style={{ borderColor: T.borderSub, aspectRatio: "16 / 10", background: "#fff" }}>
+        <iframe title="snapshot" srcDoc={html} sandbox="allow-scripts" tabIndex={-1}
+          style={{ width: "400%", height: "400%", transform: "scale(0.25)", transformOrigin: "top left", pointerEvents: "none", border: 0 }} />
+      </button>
+    </div>
+  );
+}
+
+function MessageBody({ content, onViewCode }) {
   const parts = (content || "").split(/```(\w*)\n?/);
   const out = [];
   for (let i = 0; i < parts.length; i++) {
     if (i % 3 === 0 && parts[i]) {
       out.push(<p key={i} className="whitespace-pre-wrap text-[15.5px] leading-relaxed">{parts[i]}</p>);
     } else if (i % 3 === 2 && parts[i] !== undefined) {
+      const lang = (parts[i - 1] || "").toLowerCase();
       const code = parts[i];
-      out.push(
-        <div key={i} className="group relative my-2 overflow-x-auto rounded-md border p-3" style={{ borderColor: T.borderSub, background: T.inset }}>
-          <button onClick={() => { navigator.clipboard.writeText(code).catch(() => {}); toast.success("Copied"); }}
-            className="absolute right-2 top-2 hidden rounded border p-1 group-hover:block" style={{ borderColor: T.border, color: T.text2 }} aria-label="Copy code">
-            <Copy size={11} />
-          </button>
-          <pre className="font-mono text-[15px] leading-relaxed" style={{ color: "#c9d1d9" }}>{code}</pre>
-        </div>
-      );
+      const closed = i !== parts.length - 1;
+      const isHtml = lang === "html" || /^\s*(<!DOCTYPE|<html)/i.test(code);
+      const isEdits = lang === "edits" || ((lang === "json" || !lang) && /"ops"\s*:/.test(code.slice(0, 500)));
+      if (isHtml) {
+        out.push(<ActivityChip key={i} live={!closed} verb={closed ? "Wrote" : "Writing code…"}
+          detail={closed ? `index.html · ${code.split("\n").length} lines` : null}
+          onClick={onViewCode} testId="ws-chip-wrote" />);
+      } else if (isEdits) {
+        let summary = "", n = 0;
+        if (closed) {
+          try { const j = JSON.parse(code); summary = j.summary || ""; n = (j.ops || []).length; } catch {}
+        }
+        out.push(<ActivityChip key={i} live={!closed} verb={closed ? "Edited" : "Applying targeted edits…"}
+          detail={closed ? `index.html${n ? ` · ${n} edit${n > 1 ? "s" : ""}` : ""}${summary ? ` — ${summary}` : ""}` : null}
+          onClick={onViewCode} testId="ws-chip-edited" />);
+      } else {
+        out.push(
+          <div key={i} className="group relative my-2 overflow-x-auto rounded-md border p-3" style={{ borderColor: T.borderSub, background: T.inset }}>
+            <button onClick={() => { navigator.clipboard.writeText(code).catch(() => {}); toast.success("Copied"); }}
+              className="absolute right-2 top-2 hidden rounded border p-1 group-hover:block" style={{ borderColor: T.border, color: T.text2 }} aria-label="Copy code">
+              <Copy size={11} />
+            </button>
+            <pre className="font-mono text-[15px] leading-relaxed" style={{ color: "#c9d1d9" }}>{code}</pre>
+          </div>
+        );
+      }
     }
   }
   return <div>{out}</div>;
@@ -144,6 +198,18 @@ export default function AgentWorkspace() {
   const [toolbarOpen, setToolbarOpen] = useState(true);
   const [editing, setEditing] = useState(false);
   const [htmlOverride, setHtmlOverride] = useState(null);
+  const [builtHtml, setBuiltHtml] = useState(saved.builtHtml || null);
+  const [projId, setProjId] = useState(() => { try { return localStorage.getItem(`luchii-ws-proj-${agentKey}`) || null; } catch { return null; } });
+  const [projects, setProjects] = useState([]);
+  const [projName, setProjName] = useState("Local session");
+  const [projMenu, setProjMenu] = useState(false);
+  const [newProjName, setNewProjName] = useState("");
+  const [confirmPub, setConfirmPub] = useState(false);
+  const [pubProg, setPubProg] = useState(null);
+  const [advOpen, setAdvOpen] = useState(false);
+  const [template, setTemplate] = useState(() => { try { return localStorage.getItem("luchii-ws-template") || "auto"; } catch { return "auto"; } });
+  const [tools, setTools] = useState(() => { try { return JSON.parse(localStorage.getItem("luchii-ws-tools")) || { memory: true, assets: false }; } catch { return { memory: true, assets: false }; } });
+  const hydratingRef = useRef(false);
   const [ghOwner, setGhOwner] = useState("");
   const [ghRepo, setGhRepo] = useState("");
   const [ghBusy, setGhBusy] = useState(false);
@@ -314,12 +380,116 @@ export default function AgentWorkspace() {
     if (running) return;
     try {
       localStorage.setItem(`luchii-ws-${agentKey}`, JSON.stringify({
-        model, session, publishId, savedSlug,
+        model, session, publishId, savedSlug, builtHtml,
         messages: messages.slice(-40),
         publishes: publishes.slice(0, 10).map((p) => ({ ...p, at: p.at.toISOString() })),
       }));
+      localStorage.setItem("luchii-ws-template", template);
+      localStorage.setItem("luchii-ws-tools", JSON.stringify(tools));
     } catch {}
-  }, [messages, session, publishes, model, agentKey, running, publishId, savedSlug]);
+  }, [messages, session, publishes, model, agentKey, running, publishId, savedSlug, builtHtml, template, tools]);
+
+  // server-side project persistence — builds are never lost
+  const hydrate = useCallback(async (pid) => {
+    try {
+      const r = await fetch(`${API}/workspace/projects/${pid}`, { credentials: "include" });
+      if (!r.ok) throw new Error();
+      const d = await r.json();
+      hydratingRef.current = true;
+      setProjName(d.name);
+      setMessages(d.messages || []);
+      setBuiltHtml(d.html || null);
+      setSession(d.session || null);
+      if (d.model) setModel(d.model);
+      setPublishId(d.publish_id || null);
+      setSavedSlug(d.slug || null);
+      setSlugName(d.slug || "");
+      setPublishes((d.publishes || []).map((p) => ({ ...p, at: new Date(p.at) })));
+      setHtmlOverride(null);
+      setShowSuggest((d.messages || []).length === 0);
+      setTimeout(() => { hydratingRef.current = false; }, 100);
+    } catch { toast.error("Could not load this project"); }
+  }, []);
+
+  useEffect(() => {
+    fetch(`${API}/workspace/projects?agent=${agentKey}`, { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d) setProjects(d.projects || []); })
+      .catch(() => {});
+    if (projId) hydrate(projId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [agentKey]);
+
+  useEffect(() => {
+    if (!projId || running || hydratingRef.current) return;
+    const t = setTimeout(() => {
+      fetch(`${API}/workspace/projects/${projId}`, {
+        method: "PUT", credentials: "include", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: messages.slice(-40), html: builtHtml ?? undefined, session: session ?? undefined,
+          model, publish_id: publishId ?? undefined, slug: savedSlug ?? undefined,
+          publishes: publishes.slice(0, 10).map((p) => ({ ...p, at: p.at instanceof Date ? p.at.toISOString() : p.at })),
+        }),
+      }).catch(() => {});
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [projId, messages, builtHtml, session, model, publishId, savedSlug, publishes, running]);
+
+  const ensureProject = useCallback(async (nameHint) => {
+    if (projId) return projId;
+    try {
+      const r = await fetch(`${API}/workspace/projects`, {
+        method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ agent: agentKey, name: (nameHint || "New project").slice(0, 50) }),
+      });
+      if (!r.ok) return null;
+      const d = await r.json();
+      setProjects((p) => [d, ...p]);
+      setProjName(d.name);
+      try { localStorage.setItem(`luchii-ws-proj-${agentKey}`, d.id); } catch {}
+      setProjId(d.id);
+      return d.id;
+    } catch { return null; }
+  }, [projId, agentKey]);
+
+  const createProject = async (name) => {
+    try {
+      const r = await fetch(`${API}/workspace/projects`, {
+        method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ agent: agentKey, name }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || "Sign in to create projects");
+      setProjects((p) => [d, ...p]);
+      try { localStorage.setItem(`luchii-ws-proj-${agentKey}`, d.id); } catch {}
+      setProjId(d.id); setProjName(d.name);
+      setMessages([]); setBuiltHtml(null); setSession(null); setPublishId(null);
+      setSavedSlug(null); setSlugName(""); setPublishes([]); setHtmlOverride(null); setShowSuggest(true);
+      setProjMenu(false); setNewProjName("");
+      toast.success(`Project "${d.name}" created — everything you build here is saved`);
+    } catch (e) { toast.error(String(e.message || e)); }
+  };
+
+  const switchProject = async (id) => {
+    setProjMenu(false);
+    if (id === projId) return;
+    try { localStorage.setItem(`luchii-ws-proj-${agentKey}`, id); } catch {}
+    setProjId(id);
+    await hydrate(id);
+  };
+
+  const deleteProject = async (id, e) => {
+    e.stopPropagation();
+    try {
+      await fetch(`${API}/workspace/projects/${id}`, { method: "DELETE", credentials: "include" });
+      setProjects((p) => p.filter((x) => x.id !== id));
+      if (id === projId) {
+        try { localStorage.removeItem(`luchii-ws-proj-${agentKey}`); } catch {}
+        setProjId(null); setProjName("Local session");
+      }
+      toast.success("Project deleted");
+    } catch {}
+  };
 
   useEffect(() => {
     const n = slugName.trim().toLowerCase();
@@ -361,11 +531,15 @@ export default function AgentWorkspace() {
     }
     return null;
   })();
-  const previewHtml = htmlOverride ?? derivedHtml;
+  useEffect(() => {
+    if (derivedHtml && derivedHtml !== builtHtml && !hydratingRef.current) setBuiltHtml(derivedHtml);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [derivedHtml]);
+  const previewHtml = htmlOverride ?? builtHtml ?? derivedHtml;
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
-  const send = useCallback(async (text, display) => {
+  const send = useCallback(async (text, display, opts = {}) => {
     const msg = (text || input).trim();
     if (!msg || running) return;
     setInput("");
@@ -379,6 +553,18 @@ export default function AgentWorkspace() {
     setAttach(null);
     const shownMsg = display ?? (att ? `${msg}\n📎 ${att.name}` : msg);
     setMessages((m) => [...m, { role: "user", content: shownMsg }, { role: "assistant", content: "" }]);
+    const baseHtml = htmlOverride ?? builtHtml ?? derivedHtml;
+    ensureProject(msg);
+    let outbound = msg;
+    if (!opts.raw && !att && baseHtml) {
+      outbound = `CURRENT BUILD (the single-file HTML app already built in this workspace):\n\`\`\`html\n${baseHtml.slice(0, 60000)}\n\`\`\`\n\nCHANGE REQUEST: ${msg}\n\nOperate in AGENT EDIT MODE: reply with ONE short plan line, then a single \`\`\`edits fenced block containing ONLY JSON {"summary": string, "ops": [{"find": string, "replace": string}]} where every "find" is copied EXACTLY and uniquely from the CURRENT BUILD. Do NOT re-output the full HTML.`;
+    } else if (!opts.raw && !baseHtml) {
+      const directives = [];
+      if (template !== "auto") directives.push(`Build this as a ${template}.`);
+      if (tools.assets) directives.push("Include rich inline SVG artwork and icons — no external images.");
+      if (directives.length) outbound = `${directives.join(" ")}\n\n${msg}`;
+    }
+    let acc = "";
     try {
       const res = await fetch(`${API}/chat`, {
         method: "POST",
@@ -386,7 +572,7 @@ export default function AgentWorkspace() {
         credentials: "include",
         signal: ctrl.signal,
         body: JSON.stringify({
-          message: att?.kind === "text" ? `${msg}\n\nAttached file ${att.name}:\n\`\`\`\n${att.text.slice(0, 20000)}\n\`\`\`` : msg,
+          message: att?.kind === "text" ? `${outbound}\n\nAttached file ${att.name}:\n\`\`\`\n${att.text.slice(0, 20000)}\n\`\`\`` : outbound,
           session_id: session, model, agent: agentKey,
           ...(att?.kind === "image" ? { attachment_base64: att.data, attachment_kind: "image", attachment_name: att.name } : {}),
         }),
@@ -411,6 +597,7 @@ export default function AgentWorkspace() {
           let data;
           try { data = JSON.parse(line.slice(5).trim()); } catch { continue; }
           if (data.delta) {
+            acc += data.delta;
             setMessages((m) => {
               const next = [...m];
               next[next.length - 1] = { role: "assistant", content: next[next.length - 1].content + data.delta };
@@ -420,6 +607,24 @@ export default function AgentWorkspace() {
           if (data.session_id) setSession(data.session_id);
           if (data.error) throw new Error(data.error);
         }
+      }
+      const editsMatch = acc.match(/```(?:edits|json)?\n?\s*(\{[\s\S]*?"ops"[\s\S]*?\})\s*```/);
+      if (editsMatch && baseHtml) {
+        try {
+          const j = JSON.parse(editsMatch[1]);
+          let html = baseHtml;
+          let applied = 0, failed = 0;
+          for (const op of j.ops || []) {
+            if (op.find && html.includes(op.find)) { html = html.replace(op.find, op.replace ?? ""); applied++; }
+            else failed++;
+          }
+          if (applied > 0) {
+            setBuiltHtml(html);
+            toast.success(`✓ Applied ${applied} targeted edit${applied > 1 ? "s" : ""} — no rewrite${failed ? ` · ${failed} skipped` : ""}`);
+          } else if (failed) {
+            toast.error("The edits didn't match the current build — ask again with more detail");
+          }
+        } catch { toast.error("Could not parse the agent's edits — try again"); }
       }
     } catch (err) {
       if (err?.name === "AbortError") {
@@ -439,7 +644,7 @@ export default function AgentWorkspace() {
     } finally {
       setRunning(false);
     }
-  }, [input, running, session, model, agentKey, attach]);
+  }, [input, running, session, model, agentKey, attach, htmlOverride, builtHtml, derivedHtml, template, tools, ensureProject]);
 
   const stopAgent = () => {
     abortRef.current?.abort();
@@ -456,6 +661,7 @@ export default function AgentWorkspace() {
         ? `You were paused mid-response. Here is the end of what you had written so far:\n---\n${tail}\n---\nContinue from EXACTLY where this leaves off. Do not repeat anything already written. If you were inside a code block, continue the code seamlessly.`
         : "Continue where you left off.",
       "▶ Resume",
+      { raw: true },
     );
   };
 
@@ -491,13 +697,13 @@ export default function AgentWorkspace() {
 
   const isTruncated = (h) => /<html/i.test(h) && !/<\/html>/i.test(h);
 
-  const republish = async () => {
-    if (!previewHtml) { toast.error("Nothing to publish yet — ask the agent to build something first"); return; }
-    if (isTruncated(previewHtml)) {
-      toast.warning("Build looks incomplete — asking the agent to finish it", { duration: 5000 });
-      send("The HTML you generated was cut off before the closing </html> tag. Regenerate the COMPLETE file from <!DOCTYPE html> to </html> in one code block, keeping it compact enough to fit.");
-      return;
-    }
+  const doPublish = async () => {
+    setConfirmPub(false);
+    setPubProg({ step: 0, done: false });
+    const timers = [
+      setTimeout(() => setPubProg((p) => (p && !p.done ? { ...p, step: 1 } : p)), 900),
+      setTimeout(() => setPubProg((p) => (p && !p.done ? { ...p, step: 2 } : p)), 2100),
+    ];
     try {
       let d = null;
       if (publishId) {
@@ -516,10 +722,24 @@ export default function AgentWorkspace() {
         setPublishId(d.id);
       }
       setPublishes((p) => [{ n: d.version, hash: d.hash, at: new Date(), url: d.url }, ...p]);
-      toast.success(`Publish ${d.version} deployed — ${d.hash}`, {
-        action: { label: "Open", onClick: () => window.open(`${process.env.REACT_APP_BACKEND_URL}${d.url}`, "_blank") },
-      });
-    } catch { toast.error("Publish failed — try again"); }
+      setPubProg({ step: 3, done: true, url: `${process.env.REACT_APP_BACKEND_URL}${d.url}`, version: d.version, hash: d.hash });
+    } catch {
+      setPubProg(null);
+      toast.error("Publish failed — try again");
+    } finally {
+      timers.forEach(clearTimeout);
+    }
+  };
+
+  const republish = () => {
+    if (!previewHtml) { toast.error("Nothing to publish yet — ask the agent to build something first"); return; }
+    if (isTruncated(previewHtml)) {
+      toast.warning("Build looks incomplete — asking the agent to finish it", { duration: 5000 });
+      send("The HTML you generated was cut off before the closing </html> tag. Regenerate the COMPLETE file from <!DOCTYPE html> to </html> in one code block, keeping it compact enough to fit.", undefined, { raw: true });
+      return;
+    }
+    if (publishes.length > 0) setConfirmPub(true);
+    else doPublish();
   };
 
   const downloadBuild = () => {
@@ -545,7 +765,7 @@ export default function AgentWorkspace() {
     setTab("preview");
     send(previewHtml
       ? `Run a ${reviewKind} on the app you just built. List findings by severity with fixes:\n\`\`\`html\n${previewHtml.slice(0, 6000)}\n\`\`\``
-      : `Explain how you would run a ${reviewKind} on a deployed web app — checklist by severity.`);
+      : `Explain how you would run a ${reviewKind} on a deployed web app — checklist by severity.`, undefined, { raw: true });
     toast(`${reviewKind} started`, { description: "The agent is reviewing" });
   };
 
@@ -553,6 +773,67 @@ export default function AgentWorkspace() {
 
   return (
     <main className="flex h-screen flex-col overflow-hidden" style={{ background: T.bg, color: T.text }} data-testid="agent-workspace-page">
+      {/* Confirm Re-publish modal */}
+      {confirmPub && (
+        <div className="fixed inset-0 z-[120] grid place-items-center bg-black/70 p-4" data-testid="ws-confirm-republish">
+          <div className="w-full max-w-md rounded-2xl border p-5" style={{ borderColor: T.border, background: "#0b0f16" }}>
+            <div className="flex items-center justify-between">
+              <p className="flex items-center gap-2 text-[15.5px] font-700"><ExternalLink size={14} style={{ color: T.accent }} /> Confirm Re-publish</p>
+              <button onClick={() => setConfirmPub(false)} aria-label="Close" style={{ color: T.text2 }} data-testid="ws-confirm-close"><X size={14} /></button>
+            </div>
+            <p className="mt-3 text-[14.5px] leading-relaxed" style={{ color: T.text2 }}>
+              Are you sure you want to re-publish your current application? This will replace your live app with the latest build.
+            </p>
+            {publishes[0] && (
+              <div className="mt-4">
+                <p className="text-[13px] uppercase tracking-[0.15em]" style={{ color: T.accent }}>Current Version</p>
+                <div className="mt-1.5 flex items-center gap-2.5 rounded-lg border px-3.5 py-2.5" style={{ borderColor: T.borderSub, background: T.inset }} data-testid="ws-confirm-current-version">
+                  <span className="inline-block h-2 w-2 rounded-full" style={{ background: "#10B981" }} />
+                  <span className="text-[14.5px] font-600" style={{ color: "#10B981" }}>Live</span>
+                  <code className="font-mono text-[14px]" style={{ color: T.text }}>{publishes[0].hash}</code>
+                  <span className="ml-auto text-[13.5px]" style={{ color: T.muted }}>{publishes[0].at.toLocaleString()}</span>
+                </div>
+              </div>
+            )}
+            <div className="mt-5 flex justify-end gap-2">
+              <button onClick={() => setConfirmPub(false)} className="rounded-full border px-4 py-2 text-[14.5px]" style={{ borderColor: T.border, color: T.text2 }} data-testid="ws-confirm-cancel">Cancel</button>
+              <button onClick={doPublish} className="rounded-full px-4 py-2 text-[14.5px] font-600" style={{ background: T.text, color: T.bg }} data-testid="ws-confirm-yes">Yes, Re-publish</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Publishing progress modal */}
+      {pubProg && (
+        <div className="fixed inset-0 z-[120] grid place-items-center bg-black/70 p-4" data-testid="ws-publish-progress">
+          <div className="w-full max-w-md rounded-2xl border p-6 text-center" style={{ borderColor: T.border, background: "#0b0f16" }}>
+            <div className="flex items-center justify-between text-left">
+              <p className="flex items-center gap-2 text-[15px] font-600" style={{ color: T.text2 }}>
+                {pubProg.done ? "Published" : "Publishing in progress…"}
+              </p>
+              <button onClick={() => setPubProg(null)} aria-label="Close" style={{ color: T.text2 }} data-testid="ws-publish-close"><X size={14} /></button>
+            </div>
+            <img src="/luchii-mark-circle.png" alt="" className="mx-auto mt-5 h-14 w-14 rounded-full" style={{ boxShadow: "0 0 40px rgba(0,240,255,0.3)" }} />
+            <h2 className="mt-4 text-lg font-700">{pubProg.done ? "Your app is live! 🚀" : "Publishing your app… 🚀"}</h2>
+            <p className="mt-1 text-[14px]" style={{ color: T.text2 }}>
+              {pubProg.done ? `Publish ${pubProg.version} · ${pubProg.hash}` : "Keep shipping — we'll flip it live in a moment."}
+            </p>
+            <div className="mt-5 space-y-2 text-left">
+              {["Waking up your workspace…", "Bundling your build…", "Deploying to the Frasberg edge…", "Live!"].map((s, i) => (
+                <div key={s} className="flex items-center gap-2.5 rounded-lg border px-3.5 py-2.5" style={{ borderColor: T.borderSub, background: T.inset, opacity: i > pubProg.step ? 0.35 : 1 }} data-testid={`ws-publish-step-${i}`}>
+                  {i < pubProg.step || pubProg.done ? <Check size={13} style={{ color: "#10B981" }} /> : i === pubProg.step ? <Loader2 size={13} className="animate-spin" style={{ color: T.accent }} /> : <span className="inline-block h-3 w-3 rounded-full border" style={{ borderColor: T.border }} />}
+                  <span className="text-[14px]" style={{ color: i <= pubProg.step ? T.text : T.muted }}>{s}</span>
+                </div>
+              ))}
+            </div>
+            {pubProg.done && (
+              <button onClick={() => { window.open(pubProg.url, "_blank"); }} data-testid="ws-publish-open"
+                className="mt-5 w-full rounded-full py-2.5 text-[14.5px] font-600" style={{ background: T.accent, color: "#08090A" }}>
+                Open your live app ↗
+              </button>
+            )}
+          </div>
+        </div>
+      )}
       {/* Tab bar */}
       <div className="flex h-12 shrink-0 items-center gap-2 border-b px-3" style={{ borderColor: T.borderSub, background: T.inset }}>
         <Link to="/apps" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[15px] transition-colors hover:bg-white/[0.05]" style={{ color: T.text2 }} data-testid="workspace-home-btn">
@@ -568,6 +849,51 @@ export default function AgentWorkspace() {
         <Link to="/coding-agents" className="rounded-md p-1.5 transition-colors hover:bg-white/[0.05]" style={{ color: T.text2 }} data-testid="workspace-new-tab" aria-label="New agent">
           <Plus size={15} />
         </Link>
+        {/* Project switcher */}
+        <div className="relative">
+          <button onClick={() => setProjMenu((o) => !o)} data-testid="ws-project-switcher"
+            className="flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[14.5px] transition-colors hover:bg-white/[0.05]"
+            style={{ borderColor: projMenu ? T.accent : T.border, color: T.text }}>
+            <span className="inline-block h-3.5 w-3.5 rounded-full" style={{ background: "linear-gradient(135deg,#00f0ff,#6c63ff,#ff6ec7)" }} />
+            <span className="max-w-[140px] truncate">{projName}</span>
+            <ChevronDown size={12} style={{ color: T.text2 }} />
+          </button>
+          {projMenu && (
+            <div className="absolute left-0 top-10 z-[90] w-72 rounded-xl border p-1.5 shadow-2xl" style={{ borderColor: T.border, background: "rgba(10,14,22,0.98)" }} data-testid="ws-project-menu">
+              <div className="max-h-56 overflow-y-auto">
+                {projects.length === 0 && (
+                  <p className="px-3 py-2.5 text-[14px]" style={{ color: T.muted }}>No saved projects yet — create one and every build is saved to your account.</p>
+                )}
+                {projects.map((p) => (
+                  <button key={p.id} onClick={() => switchProject(p.id)} data-testid={`ws-project-row-${p.id}`}
+                    className="group flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-white/[0.06]">
+                    <span className="inline-block h-6 w-6 shrink-0 rounded-full" style={{ background: "linear-gradient(135deg,#00f0ff,#6c63ff)" }} />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[14.5px]" style={{ color: T.text }}>{p.name}</span>
+                      <span className="block text-[12.5px]" style={{ color: T.muted }}>{p.has_build ? "Has a build" : "No build yet"} · {p.message_count} msgs</span>
+                    </span>
+                    {p.id === projId && <Check size={14} style={{ color: T.accent }} />}
+                    <button onClick={(e) => deleteProject(p.id, e)} aria-label="Delete project" data-testid={`ws-project-delete-${p.id}`}
+                      className="hidden rounded p-1 hover:bg-white/[0.1] group-hover:block" style={{ color: T.muted }}>
+                      <Trash2 size={12} />
+                    </button>
+                  </button>
+                ))}
+              </div>
+              <div className="mt-1 flex items-center gap-1.5 border-t px-1.5 pt-2" style={{ borderColor: T.borderSub }}>
+                <FolderKanban size={13} style={{ color: T.text2 }} />
+                <input value={newProjName} onChange={(e) => setNewProjName(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter" && newProjName.trim()) createProject(newProjName.trim()); }}
+                  placeholder="New project name…" data-testid="ws-project-new-input"
+                  className="min-w-0 flex-1 bg-transparent px-1 py-1.5 text-[14px] outline-none" style={{ color: T.text }} />
+                <button onClick={() => newProjName.trim() && createProject(newProjName.trim())} data-testid="ws-project-create-btn"
+                  className="flex items-center gap-1 rounded-md border px-2.5 py-1 text-[13.5px]" style={{ borderColor: T.accent, color: T.accent }}>
+                  <Plus size={11} /> Create
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
         <div className="ml-auto flex items-center gap-1">
           <QuickSearch T={T} navigate={navigate} />
           <div className="mx-1.5 hidden h-5 w-px sm:block" style={{ background: T.border }} />
@@ -612,10 +938,13 @@ export default function AgentWorkspace() {
                   <div className="max-w-[85%] rounded-xl px-4 py-2.5 text-[15.5px]" style={{ background: "rgba(255,255,255,0.07)" }}>{m.content}</div>
                 ) : (
                   <div className="max-w-full">
-                    {m.content ? <MessageBody content={m.content} /> : (
+                    {m.content ? <MessageBody content={m.content} onViewCode={() => setTab("code")} /> : (
                       <p className="flex items-center gap-2 font-mono text-[15px]" style={{ color: T.text2 }}>
                         <span className="inline-block h-2 w-2 animate-pulse rounded-full" style={{ background: T.accent }} /> Thinking…
                       </p>
+                    )}
+                    {i === messages.length - 1 && !running && previewHtml && /```(html|edits)|"ops"\s*:/.test(m.content || "") && (
+                      <ScreenshotCard html={previewHtml} />
                     )}
                   </div>
                 )}
@@ -676,6 +1005,50 @@ export default function AgentWorkspace() {
                 <input ref={fileRef} type="file" hidden accept=".txt,.md,.html,.css,.js,.jsx,.ts,.tsx,.json,.csv,.py,image/*" onChange={onFile} data-testid="workspace-file-input" />
                 <button className={iconBtn} style={{ borderColor: attach ? T.accent : T.borderSub, color: attach ? T.accent : T.muted }} onClick={() => fileRef.current?.click()} aria-label="Attach" data-testid="workspace-attach"><Paperclip size={14} /></button>
                 <button className={iconBtn} style={{ borderColor: T.borderSub, color: T.muted }} onClick={() => { setSession(null); setMessages([]); setPublishes([]); setShowSuggest(true); try { localStorage.removeItem(`luchii-ws-${agentKey}`); } catch {} toast.success("Forked into a fresh session"); }} aria-label="Fork" data-testid="workspace-fork"><GitFork size={14} /></button>
+                <div className="relative">
+                  <button className={iconBtn} style={{ borderColor: advOpen ? T.accent : T.borderSub, color: advOpen ? T.accent : T.muted }}
+                    onClick={() => setAdvOpen((o) => !o)} aria-label="Advanced controls" title="Advanced Controls — template & tools" data-testid="ws-adv-btn">
+                    <SlidersHorizontal size={14} />
+                  </button>
+                  {advOpen && (
+                    <div className="absolute bottom-12 left-0 z-[80] w-80 rounded-xl border p-4 shadow-2xl" style={{ borderColor: T.border, background: "rgba(10,14,22,0.98)" }} data-testid="ws-adv-panel">
+                      <div className="flex items-center justify-between">
+                        <p className="flex items-center gap-2 text-[14.5px] font-600" style={{ color: T.accent }}><SlidersHorizontal size={13} /> Advanced Controls</p>
+                        <button onClick={() => setAdvOpen(false)} aria-label="Close" style={{ color: T.text2 }} data-testid="ws-adv-close"><X size={13} /></button>
+                      </div>
+                      <p className="mt-3 text-[13px] uppercase tracking-[0.15em]" style={{ color: T.muted }}>Select Template</p>
+                      <select value={template} onChange={(e) => setTemplate(e.target.value)} data-testid="ws-template-select"
+                        className="mt-1.5 w-full rounded-lg border px-3 py-2 text-[14.5px] outline-none" style={{ borderColor: T.border, background: T.inset, color: T.text }}>
+                        <option value="auto">Auto — Luchii decides</option>
+                        <option value="full-stack web app with working state and localStorage persistence">Full Stack App</option>
+                        <option value="marketing website with multiple sections">Website</option>
+                        <option value="high-converting landing page">Landing Page</option>
+                        <option value="playable HTML5 game">Game</option>
+                        <option value="mobile-first web app in a phone frame">Mobile App</option>
+                      </select>
+                      <p className="mt-4 text-[13px] uppercase tracking-[0.15em]" style={{ color: T.muted }}>Select Tools</p>
+                      {[
+                        { k: "memory", name: "Luchii Memory", desc: "Agent remembers this project's context" },
+                        { k: "assets", name: "Asset Engine", desc: "Rich inline SVG artwork in new builds" },
+                      ].map((t) => (
+                        <button key={t.k} onClick={() => setTools((v) => ({ ...v, [t.k]: !v[t.k] }))} data-testid={`ws-tool-${t.k}`}
+                          className="mt-2 flex w-full items-center justify-between rounded-lg border px-3 py-2.5 text-left transition-colors hover:bg-white/[0.04]"
+                          style={{ borderColor: T.borderSub, background: T.inset }}>
+                          <span>
+                            <span className="block text-[14.5px]" style={{ color: T.text }}>{t.name}</span>
+                            <span className="block text-[12.5px]" style={{ color: T.muted }}>{t.desc}</span>
+                          </span>
+                          <span className="relative inline-block h-5 w-9 rounded-full transition-colors" style={{ background: tools[t.k] ? T.accent : "rgba(255,255,255,0.15)" }}>
+                            <span className="absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all" style={{ left: tools[t.k] ? "18px" : "2px" }} />
+                          </span>
+                        </button>
+                      ))}
+                      <p className="mt-3 text-[12.5px] leading-relaxed" style={{ color: T.muted }}>
+                        Once a build exists, Luchii operates in Agent Edit Mode — targeted edits only, never full rewrites.
+                      </p>
+                    </div>
+                  )}
+                </div>
                 <select value={model} onChange={(e) => setModel(e.target.value)} data-testid="workspace-model-select"
                   className="rounded-md border px-3 py-1.5 font-mono text-[15px] outline-none" style={{ borderColor: T.border, background: T.inset, color: T.text }}>
                   <option value="luchii-1b">✳ Luchii-1b</option>

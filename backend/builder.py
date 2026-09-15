@@ -85,6 +85,32 @@ LANDING_SYSTEM = (
 _SYSTEMS = {"website": WEBSITE_SYSTEM, "game": GAME_SYSTEM, "app": APP_SYSTEM, "landing": LANDING_SYSTEM}
 _BUILD_TASKS: set = set()
 
+EDIT_SYSTEM = (
+    "You are Luchii Builder operating in AGENT EDIT MODE. You are given the CURRENT single-file HTML of a project "
+    "and a CHANGE REQUEST. DO NOT rewrite the file. Return ONLY a JSON object (no markdown fences, no commentary): "
+    '{"summary": "one-line description of the change", "ops": [{"find": "exact snippet copied character-for-character '
+    'from the current code, long enough to be unique", "replace": "replacement snippet"}]} '
+    "Rules: every find MUST exist verbatim in the current code and be unique; empty replace deletes; to append new "
+    "content, anchor on an existing unique snippet (e.g. include </body> in find and in replace). "
+    "Use the FEWEST ops needed (1-10). Never include the full document."
+)
+
+
+def _parse_edit_ops(text: str):
+    raw = text.strip()
+    m = re.search(r"```(?:json|edits)?\s*(\{.*\})\s*```", raw, re.S)
+    if m:
+        raw = m.group(1)
+    else:
+        i, j = raw.find("{"), raw.rfind("}")
+        if i != -1 and j > i:
+            raw = raw[i:j + 1]
+    try:
+        data = json.loads(raw)
+    except Exception:
+        return None, []
+    return data.get("summary", ""), list(data.get("ops") or [])[:20]
+
 
 def _is_pro(user: dict) -> bool:
     return user.get("plan") in ("pro", "premium", "builder", "trial") or user.get("role") == "admin"
@@ -140,11 +166,13 @@ async def builder_generate(body: GenerateReq, user: dict = Depends(auth_module.g
         project = await db.builder_projects.find_one({"id": body.project_id, "user_id": user["id"]})
 
     system = _SYSTEMS[body.type]
+    edit_mode = bool(project and project.get("html"))
     llm_text = prompt[:3000]
-    if project and project.get("html"):
+    if edit_mode:
+        system = EDIT_SYSTEM
         llm_text = (
-            f"Here is the current code:\n\n{project['html'][:24000]}\n\n"
-            f"Apply this change and return the FULL updated single-file HTML: {prompt[:2000]}"
+            f"CURRENT BUILD:\n```html\n{project['html'][:60000]}\n```\n\n"
+            f"CHANGE REQUEST: {prompt[:2000]}\n\nReturn ONLY the JSON edit object."
         )
 
     await db.builder_generations.insert_one({
@@ -155,7 +183,7 @@ async def builder_generate(body: GenerateReq, user: dict = Depends(auth_module.g
     async def produce(queue: asyncio.Queue):
         full = ""
         nonlocal llm_text
-        if body.type == "game":
+        if body.type == "game" and not edit_mode:
             try:
                 plan = asset_pipeline.extract_asset_plan(prompt)
                 if plan and await asset_pipeline.check_pack_quota(user, _is_pro(user)):
@@ -168,20 +196,49 @@ async def builder_generate(body: GenerateReq, user: dict = Depends(auth_module.g
                         await asset_pipeline.record_pack(user)
             except Exception:
                 logger.exception("asset pipeline failed, building without assets")
-        try:
-            llm = LlmChat(
-                api_key=EMERGENT_LLM_KEY, session_id=f"builder-{uuid.uuid4()}",
-                system_message=system,
-            ).with_model("anthropic", "claude-sonnet-4-6")
-            async for event in llm.stream_message(UserMessage(text=llm_text)):
-                if isinstance(event, TextDelta):
-                    full += event.content
-                    await queue.put({"delta": event.content})
-                elif isinstance(event, StreamDone):
-                    break
-        except Exception:
-            logger.exception("builder LLM stream failed")
-        html = _clean_html(full)
+
+        async def stream_llm(sys_msg: str, text: str, emit_deltas: bool) -> str:
+            out = ""
+            try:
+                llm = LlmChat(
+                    api_key=EMERGENT_LLM_KEY, session_id=f"builder-{uuid.uuid4()}",
+                    system_message=sys_msg,
+                ).with_model("anthropic", "claude-sonnet-4-6")
+                async for event in llm.stream_message(UserMessage(text=text)):
+                    if isinstance(event, TextDelta):
+                        out += event.content
+                        if emit_deltas:
+                            await queue.put({"delta": event.content})
+                    elif isinstance(event, StreamDone):
+                        break
+            except Exception:
+                logger.exception("builder LLM stream failed")
+            return out
+
+        if edit_mode:
+            await queue.put({"edit_status": "Analyzing your current build — applying targeted edits, no rewrite…"})
+            full = await stream_llm(system, llm_text, emit_deltas=False)
+            summary, ops = _parse_edit_ops(full)
+            html = project["html"]
+            applied = failed = 0
+            for op in ops:
+                f = op.get("find") or ""
+                if f and f in html:
+                    html = html.replace(f, op.get("replace") or "", 1)
+                    applied += 1
+                else:
+                    failed += 1
+            if applied:
+                await queue.put({"edit_summary": summary or prompt[:80], "ops_applied": applied, "ops_failed": failed})
+            else:
+                await queue.put({"edit_status": "Edits couldn't be matched — rebuilding the full file once…"})
+                fb = (f"Here is the current code:\n\n{project['html'][:24000]}\n\n"
+                      f"Apply this change and return the FULL updated single-file HTML: {prompt[:2000]}")
+                full = await stream_llm(_SYSTEMS[body.type], fb, emit_deltas=True)
+                html = _clean_html(full)
+        else:
+            full = await stream_llm(system, llm_text, emit_deltas=True)
+            html = _clean_html(full)
         if not html or "<html" not in html.lower():
             await queue.put({"error": "The Luchii Builder engine could not complete this build. Please try again."})
             await queue.put(None)

@@ -247,6 +247,8 @@ export default function Builder({ type = "website" }) {
           if (!l.startsWith("data:")) continue;
           let d; try { d = JSON.parse(l.slice(5).trim()); } catch { continue; }
           if (d.assets_status) { receivedAny = true; toast(d.assets_status); }
+          if (d.edit_status) { receivedAny = true; toast(d.edit_status); }
+          if (d.edit_summary) { receivedAny = true; toast.success(`✓ ${d.ops_applied} targeted edit${d.ops_applied > 1 ? "s" : ""} applied — no rewrite${d.edit_summary ? ` · ${d.edit_summary}` : ""}`); }
           if (d.assets) { receivedAny = true; setGenAssets(d.assets); toast.success("Photorealistic assets ready — building your game around them"); }
           if (d.delta) { receivedAny = true; htmlRef.current += d.delta; setChars(htmlRef.current.length); }
           if (d.error) { toast.error(d.error); return; }
