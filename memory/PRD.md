@@ -543,3 +543,7 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - Voice HARD LOCK: OpenAI bridge fallback REMOVED from /voice/speak — sovereign Orion is the ONLY voice path (503 while warming). Proven: identical audio bytes with/without override params. /voice/voices returns only Orion.
 - Removed guest-mode banner from ChatDemo and "Signing in unlocks…" text from Auth.jsx.
 - Known: iteration_59 found the 413 envelope bug → fixed (msg_limit 90000 for workspace agents) and re-verified by script. AGENT_PERSONAS['builder'] rewritten with CREATE/EDIT protocol.
+
+## June 2026 (cont.) — Upstream honesty fix
+- Removed hardcoded non-existent upstream guesses (api.frasberg.ai / api.frasberg.com) from UPSTREAM_CANDIDATES in server.py. Prober now only checks LUCHII_UPSTREAM_URL when the owner sets it in backend/.env. upstream_active stays False until a real Luchii model endpoint is configured; all reasoning runs on the Emergent Universal Key (funded again; 184 historical budget_exceeded errors explained the demo/turbulence replies).
+- User educated: their sovereign Luchii stack is this app; no separate model server exists yet. Offered LUCHII_UPSTREAM_URL wiring when they host one.

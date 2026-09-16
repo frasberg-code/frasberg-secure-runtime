@@ -68,10 +68,8 @@ logger = logging.getLogger(__name__)
 import httpx
 
 _env_upstream = os.environ.get("LUCHII_UPSTREAM_URL", "").strip()
-UPSTREAM_CANDIDATES = ([_env_upstream] if _env_upstream else []) + [
-    "https://api.frasberg.ai/v1/chat",
-    "https://api.frasberg.com/v1/chat",
-]
+# Only probe an upstream the owner explicitly configures — no guessed/hardcoded hosts
+UPSTREAM_CANDIDATES = [_env_upstream] if _env_upstream else []
 LUCHII_UPSTREAM_API_KEY = os.environ.get("LUCHII_UPSTREAM_API_KEY", "")
 ACTIVE_UPSTREAM = None    # set by background prober once an endpoint answers
 
