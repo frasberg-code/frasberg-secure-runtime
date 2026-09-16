@@ -97,17 +97,21 @@ async def _probe_upstreams():
 
 
 async def _try_upstream(message: str, system_base: str, model: str):
-    """Return full text from the real Luchii API, or None to trigger fallback."""
+    """Route through the Frasberg gateway (frb_live_ key) — the primary stack. Returns None to use the local engine."""
     if not ACTIVE_UPSTREAM or not LUCHII_UPSTREAM_API_KEY:
         return None
+    url = ACTIVE_UPSTREAM.rstrip("/")
+    if url.endswith("/v1/chat"):
+        url += "/completions"  # OpenAI-compatible chat.completion contract per Frasberg router spec
     try:
         async with httpx.AsyncClient(timeout=40) as c:
             r = await c.post(
-                ACTIVE_UPSTREAM,
+                url,
                 headers={"Authorization": f"Bearer {LUCHII_UPSTREAM_API_KEY}",
-                         "Content-Type": "application/json"},
+                         "Content-Type": "application/json",
+                         "X-Luchii-Router": "1"},
                 json={
-                    "model": model,
+                    "model": model if model and model != "luchii" else "luchii-70b",
                     "messages": [
                         {"role": "system", "content": system_base},
                         {"role": "user", "content": message},

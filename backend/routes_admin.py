@@ -62,6 +62,21 @@ async def admin_stats(admin: dict = Depends(require_admin)):
     }
 
 
+@router.get("/admin/upstream")
+async def admin_upstream(admin: dict = Depends(require_admin)):
+    import server
+    url = os.environ.get("LUCHII_UPSTREAM_URL", "").strip()
+    key = os.environ.get("LUCHII_UPSTREAM_API_KEY", "").strip()
+    return {
+        "configured_url": url or None,
+        "active": bool(server.ACTIVE_UPSTREAM),
+        "active_url": server.ACTIVE_UPSTREAM,
+        "key": _mask_key(key) if key else None,
+        "routing": "frasberg-gateway-primary" if url else "engine-core-only",
+        "note": "Chats route through the Frasberg gateway with the frb_live_ key when the upstream is reachable; otherwise the local engine core answers.",
+    }
+
+
 @router.get("/admin/audit")
 async def admin_audit_log(admin: dict = Depends(require_admin)):
     return await db.admin_audit.find({}, {"_id": 0}).sort("ts", -1).to_list(100)

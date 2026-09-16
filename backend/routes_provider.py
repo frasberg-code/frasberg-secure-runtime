@@ -94,6 +94,12 @@ OAI_MODEL_ALIASES = {
 }
 
 
+@router.get("/v1/health")
+async def v1_router_health():
+    return {"status": "ok", "router": "luchii", "gateway": "frasberg",
+            "upstream_configured": bool(os.environ.get("LUCHII_UPSTREAM_URL", "").strip())}
+
+
 @router.get("/v1/models")
 async def oai_list_models():
     created = int(_START_TIME.timestamp())

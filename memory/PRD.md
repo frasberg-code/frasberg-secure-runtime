@@ -547,3 +547,10 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 ## June 2026 (cont.) — Upstream honesty fix
 - Removed hardcoded non-existent upstream guesses (api.frasberg.ai / api.frasberg.com) from UPSTREAM_CANDIDATES in server.py. Prober now only checks LUCHII_UPSTREAM_URL when the owner sets it in backend/.env. upstream_active stays False until a real Luchii model endpoint is configured; all reasoning runs on the Emergent Universal Key (funded again; 184 historical budget_exceeded errors explained the demo/turbulence replies).
 - User educated: their sovereign Luchii stack is this app; no separate model server exists yet. Offered LUCHII_UPSTREAM_URL wiring when they host one.
+
+## June 2026 (cont.) — Frasberg-primary routing (user's router spec implemented)
+- backend/.env: LUCHII_UPSTREAM_URL=https://api.frasberg.com/v1/chat + LUCHII_UPSTREAM_API_KEY=frb_live_033d... (user's real unlimited Gateway-STT key). frb_live_ keys are now the routing credential.
+- _try_upstream: targets /v1/chat/completions (OpenAI chat.completion contract per user's spec), sends X-Luchii-Router header, maps model 'luchii'→luchii-70b. NO recursion possible: /v1/chat/completions never calls upstream.
+- New endpoints: GET /api/v1/health (router health, their spec) + GET /api/admin/upstream (configured URL, active flag, masked key, routing mode).
+- Verified: contract test with their frb_live key returned chat.completion 'pong'; admin/upstream shows frasberg-gateway-primary; chat regression OK. Prober activates automatically once api.frasberg.com DNS resolves (currently HTTP 000 → active:false, engine core answers).
+- K8s/Helm/multi-region/SLO parts of the user's dump are deployment blueprints outside the Emergent runtime — not implemented as files (existing simulated mesh regions + /api/metrics cover observability asks).
