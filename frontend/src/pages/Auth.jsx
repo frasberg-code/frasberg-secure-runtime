@@ -171,10 +171,6 @@ export default function Auth() {
               {mode === "signup" ? "Already have an account? Sign in" : mode === "login" ? "New to Luchii? Create a free account" : "Back to sign in"}
             </button>
           </div>
-
-          <p className="mt-6 text-center font-mono text-[15px] text-lux-text2">
-            Signing in unlocks Luchii Image Creator, voice, attachments and API keys.
-          </p>
         </motion.div>
       </div>
     </main>

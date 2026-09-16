@@ -362,27 +362,29 @@ class KeyCreate(BaseModel):
     expires_at: Optional[str] = None
 
 
-def _fallback_reply(message: str, model: str) -> str:
-    m = message.lower()
-    if any(k in m for k in ["different", "unique", "why luchii", "special"]):
-        return ("Where others process data, I perceive meaning. Luchii is a "
-                "multi-tier family — 200M to 70B — sharing one tokenizer and one "
-                "alignment, so you can scale reasoning without switching stacks.")
-    if "realm" in m or "five" in m:
-        return ("The Five Realms are my intelligence modes: Earth (stability), "
-                "Mars (ambition), Europa (clarity), Titan (resilience) and Meta "
-                "(unity). The Constellation Layer is where they connect.")
-    if "coding" in m or "code" in m or "which tier" in m:
-        return ("For coding, Luchii-7B is the sweet spot for most work; reach for "
-                "Luchii-70B on deep, multi-file reasoning. Use 1B for fast, "
-                "everyday snippets.")
-    if "haiku" in m or "poem" in m or "europa" in m:
-        return ("Ice moon whispers low —\n"
-                "clarity beneath the crust,\n"
-                "signal finds its shape.")
-    return (f"[{model}] I hear you. This is a live demo of the Luchii persona. "
-            "For full frontier responses, connect a funded key — meanwhile, ask "
-            "about the models, the Five Realms, or the API.")
+def _stream_error_reply(exc_text: str) -> str:
+    low = (exc_text or "").lower()
+    if "budget" in low or "429" in low:
+        return ("⚠ Luchii couldn't finish this reply — the platform's compute balance is exhausted. "
+                "The team has been notified to add capacity. Please resend your message shortly.")
+    return "⚠ Luchii hit turbulence on that reply — please resend your message."
+
+
+async def _notify_admins_budget(detail: str):
+    try:
+        hour = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H")
+        res = await db.notifications.update_one(
+            {"kind": "llm_budget", "hour": hour},
+            {"$setOnInsert": {"id": str(uuid.uuid4()), "kind": "llm_budget", "hour": hour,
+                              "title": "Compute balance exhausted",
+                              "body": "The Universal LLM key budget was exceeded — chats are failing. Top up the key balance to restore Luchii.",
+                              "detail": detail[:300], "audience": "admin",
+                              "ts": datetime.now(timezone.utc).isoformat()}},
+            upsert=True)
+        if res.upserted_id:
+            logger.error("LLM BUDGET EXCEEDED — admin notification created")
+    except Exception:
+        pass
 
 
 @api_router.get("/")
@@ -472,25 +474,39 @@ def _luchii_stream(message: str, session_id: str, model: str, key_id: Optional[s
                 yield f"data: {json.dumps({'delta': word + ' '})}\n\n"
                 await asyncio.sleep(0.01)
         else:
-            # 2) Emergent LLM (Claude) demo
-            llm = LlmChat(
-                api_key=EMERGENT_LLM_KEY, session_id=session_id,
-                system_message=sb + history,
-            ).with_model("anthropic", "claude-sonnet-4-6").with_params(max_tokens=16384)
-            try:
-                user_msg = UserMessage(text=llm_text, file_contents=image_contents) if image_contents else UserMessage(text=llm_text)
-                async for event in llm.stream_message(user_msg):
-                    if isinstance(event, TextDelta):
-                        full += event.content
-                        yield f"data: {json.dumps({'delta': event.content})}\n\n"
-                    elif isinstance(event, StreamDone):
+            # 2) Sovereign reasoning core — retry once on transient failure, NEVER a canned demo reply
+            last_err = ""
+            for attempt in range(2):
+                llm = LlmChat(
+                    api_key=EMERGENT_LLM_KEY, session_id=session_id,
+                    system_message=sb + history,
+                ).with_model("anthropic", "claude-sonnet-4-6").with_params(max_tokens=16384)
+                try:
+                    user_msg = UserMessage(text=llm_text, file_contents=image_contents) if image_contents else UserMessage(text=llm_text)
+                    async for event in llm.stream_message(user_msg):
+                        if isinstance(event, TextDelta):
+                            full += event.content
+                            yield f"data: {json.dumps({'delta': event.content})}\n\n"
+                        elif isinstance(event, StreamDone):
+                            break
+                    if full:
                         break
-            except Exception:
-                logger.exception("chat stream error — using fallback")
+                except Exception as e:
+                    last_err = str(e)
+                    logger.exception("chat stream error (attempt %s)", attempt + 1)
+                    if full:
+                        break
+                    if "budget" in last_err.lower():
+                        break
+                    await asyncio.sleep(1.2)
 
-            # 3) Persona fallback
             if not full:
-                full = (fallback or _fallback_reply)(message, model or "luchii-70b")
+                if fallback:
+                    full = fallback(message, model or "luchii-70b")
+                else:
+                    full = _stream_error_reply(last_err)
+                    if "budget" in last_err.lower() or "429" in last_err:
+                        asyncio.create_task(_notify_admins_budget(last_err))
                 for word in full.split(" "):
                     yield f"data: {json.dumps({'delta': word + ' '})}\n\n"
                     await asyncio.sleep(0.03)
@@ -846,8 +862,10 @@ async def optional_user(request: Request) -> Optional[dict]:
 async def chat(req: ChatRequest, user: Optional[dict] = Depends(optional_user)):
     if not req.message or not req.message.strip():
         raise HTTPException(status_code=400, detail="Message is required")
-    if len(req.message) > MAX_MSG_LEN:
-        raise HTTPException(status_code=413, detail=f"Message exceeds {MAX_MSG_LEN} chars")
+    # workspace agents receive the CURRENT BUILD envelope for Agent Edit Mode — allow larger payloads for signed-in users
+    msg_limit = 90000 if (user and (req.agent or "").lower() in AGENT_PERSONAS) else MAX_MSG_LEN
+    if len(req.message) > msg_limit:
+        raise HTTPException(status_code=413, detail=f"Message exceeds {msg_limit} chars")
     session_id = req.session_id or str(uuid.uuid4())
     if user and not auth_module.token_exempt(user):
         if not await auth_module.spend_tokens(user["id"], auth_module.CHAT_TOKEN_COST, "spend_chat", "Luchii chat message"):
@@ -1409,20 +1427,14 @@ async def voice_speak(req: SpeakRequest, user: dict = Depends(engine_auth_factor
     text = (req.text or "").strip()[:4000]
     if not text:
         raise HTTPException(status_code=400, detail="Text is required")
-    # Luchii speaks with one immutable original voice — tone/voice overrides are ignored
+    # Luchii has ONE immutable original voice (Orion) — no overrides, no fallback voices, ever
     try:
         audio = await voice_engine.speak(text)
         if audio:
             return {"audio_base64": audio, "mime": "audio/wav", "engine": "frasberg-sovereign"}
     except Exception:
-        logger.exception("sovereign tts failed, falling back")
-    try:
-        tts = OpenAITextToSpeech(api_key=EMERGENT_LLM_KEY)
-        audio_base64 = await tts.generate_speech_base64(text=text, model="tts-1", voice="coral")
-        return {"audio_base64": audio_base64, "mime": "audio/mp3", "engine": "bridge"}
-    except Exception:
-        logger.exception("tts failed")
-        raise HTTPException(status_code=502, detail="Voice generation failed")
+        logger.exception("sovereign tts failed")
+    raise HTTPException(status_code=503, detail="Luchii's voice engine is warming up — try again in a moment")
 
 
 @api_router.get("/memory")

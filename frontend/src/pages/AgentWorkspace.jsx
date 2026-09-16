@@ -1102,6 +1102,13 @@ export default function AgentWorkspace() {
               </div>
               <button className={iconBtn} style={{ borderColor: T.borderSub, color: T.muted }} onClick={() => { navigator.clipboard.writeText(window.location.href).catch(() => {}); toast.success("Workspace link copied"); }} aria-label="Share" data-testid="workspace-share"><Share2 size={13} /></button>
               <button className={iconBtn} style={{ borderColor: T.borderSub, color: T.muted }} onClick={downloadBuild} aria-label="Download build" data-testid="workspace-download"><Download size={13} /></button>
+              <button className={iconBtn} style={{ borderColor: T.borderSub, color: T.muted }}
+                onClick={() => {
+                  if (!previewHtml) { toast.error("Nothing to open yet — build something first"); return; }
+                  const b = new Blob([previewHtml], { type: "text/html" });
+                  window.open(URL.createObjectURL(b), "_blank");
+                }}
+                aria-label="Open preview in new tab" title="Open in new tab" data-testid="workspace-open-tab"><ExternalLink size={13} /></button>
               <button className={iconBtn} style={{ borderColor: T.borderSub, color: T.muted }} onClick={() => setTab("preview")} aria-label="Reload preview" data-testid="workspace-reload"><RefreshCw size={13} /></button>
               <button onClick={republish} data-testid="workspace-republish"
                 className="flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[15.5px] font-600" style={{ background: T.text, color: T.bg }}>

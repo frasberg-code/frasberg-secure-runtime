@@ -1,0 +1,55 @@
+{
+  "summary": "Iteration 59 — Workspace projects API + Builder EDIT MODE. Backend: 3/3 pytest passed (CRUD, unauth 401, /api/builder/generate SSE CREATE→EDIT with ops_applied>=1 and no delta rewrite; persisted html contains 'Jordan', size ratio ~1.0). Frontend Workspace UI (/chat?agent=builder) as admin: build 'a tiny pricing page…' streamed; ws-chip-wrote APPEARED with 'Wrote index.html · 165 lines'; ws-screenshot-card + ws-screenshot-open-tab RENDERED; preview iframe RENDERED (real pricing page with FREE/PRO cards). Advanced Controls: ws-adv-btn/panel/template-select/tool-memory/tool-assets ALL FOUND and toggles work. Project switcher: ws-project-switcher menu with ws-project-menu, ws-project-new-input, ws-project-create-btn all present. Re-publish: first click showed ws-publish-progress with 'Waking up your workspace / Bundling / Deploying / Live!' steps and ws-publish-open button; second click showed ws-confirm-republish + ws-confirm-yes as designed. Reload persistence: chip + preview iframe restored from server. /api/health = 200. Regression normal /chat still streams.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Workspace EDIT MODE (/chat?agent=builder)",
+        "issue": "CRITICAL — Editing an existing build fails with HTTP 413 'Message exceeds 4000 chars'. AgentWorkspace.jsx send() (lines 559-560) builds an outbound envelope that prepends 'CURRENT BUILD (…)\\n```html\\n${baseHtml.slice(0, 60000)}\\n```\\n\\nCHANGE REQUEST…' and POSTs it to /api/chat, but server.py:849 enforces MAX_MSG_LEN=4000 (from core) and returns 413. Result: user types 'change the heading to SUPER DEAL', chat shows 'Message exceeds 4000 chars', no edited chip, no preview update. This defeats the entire agent-edit-mode fix that this iteration was supposed to deliver — the exact bug the user complained about ('Luchii keeps rewriting when building') is still broken from the UI side, even though the /api/builder/generate EDIT MODE branch works correctly (verified in pytest). Fix options: (a) route the workspace edit-envelope path to /api/builder/generate with project_id (it already implements EDIT_SYSTEM + edit_summary), OR (b) raise MAX_MSG_LEN for agent=builder in /api/chat (message length is already bounded by the baseHtml.slice(0,60000)), OR (c) send the html out-of-band (e.g. new field `context_html`) and reconstitute server-side. Preferred: (a) — the SSE branch is already tested and emits ops_applied/edit_summary events the UI can consume.",
+        "affected_selectors": ["ws-chip-edited", "workspace-send", "preview iframe update"]
+      },
+      {
+        "flow": "Workspace UI reload — screenshot card persistence",
+        "issue": "After page reload, ws-chip-wrote is restored from server messages and the preview iframe renders correctly, but ws-screenshot-card is NOT re-attached to the last assistant message. Minor UX regression — the 'Screenshots · Open in new tab' card is only visible in the live session. Consider re-rendering the card for any assistant message on a project that has html."
+      }
+    ],
+    "design_issues": [
+      {
+        "screen": "Workspace",
+        "issues": [
+          "React hydration warning in console: 'In HTML, <button> cannot be a descendant of <button>' emitted by BrowserRouter tree. Not blocking, but should be traced and fixed (likely a nested clickable in the header project switcher or tabs)."
+        ]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter59_workspace_edit.py",
+    "/app/test_reports/pytest/iter59.xml"
+  ],
+  "action_items": [
+    "HIGH PRIORITY: Fix Workspace EDIT MODE 413 — route AgentWorkspace.jsx send() with baseHtml to /api/builder/generate {prompt: msg, project_id} SSE instead of stuffing the whole HTML into /api/chat. The backend edit branch already emits edit_status/edit_summary/ops_applied events; wire the UI toast + preview replace off those events. This unblocks the exact user complaint that motivated this iteration.",
+    "Persist the Screenshots card on reload (render it for any assistant message on a project with saved html).",
+    "Investigate nested <button> hydration warning in the workspace header."
+  ],
+  "critical_code_review_comments": [
+    "AgentWorkspace.jsx send() couples the workspace UI to /api/chat for what is really a builder edit stream — this fundamentally conflicts with server.py MAX_MSG_LEN=4000 (core.py). The invisible edit envelope pattern only works if the transport allows the payload; today it does not.",
+    "backend/builder.py already exposes the correct behavior server-side (edit_mode branch, EDIT_SYSTEM prompt, _parse_edit_ops, edit_status + edit_summary SSE events, retry-once fallback). The frontend should consume it instead of re-implementing edit parsing in the client (lines 611-620).",
+    "routes_workspace.py CRUD is clean, correct, and enforces the 50-project quota + user scoping. No _id leaked (aggregate $project excludes it).",
+    "builder.py:174 truncates project['html'][:60000] before sending to the LLM in edit mode — this is correct and prevents context bloat.",
+    "MAX_MSG_LEN=4000 is a global cap in core.py that applies to /api/chat regardless of agent; consider making it agent-aware or introducing a separate builder-chat transport."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter59_workspace_edit.py"
+  ],
+  "success_rate": {"backend": "100% (3/3)", "frontend": "70% — create + publish + advanced controls + project switcher + persistence all pass; EDIT flow broken by 4000-char limit"},
+  "test_credentials": "admin@frasberg.com / LuchiiAdmin2026! (cookie login)",
+  "seed_data_creation": "Backend tests create+delete a workspace project (TEST_QA Project) and a builder project (bio page → renamed to Jordan). Both cleaned up in-test. Frontend test left one autosaved workspace project and one workspace publish (visible in admin's project list) — not cleaned up.",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Backend EDIT MODE (/api/builder/generate SSE with project_id) is 100% functional — CREATE emits deltas + done{project.id}, EDIT emits edit_status then edit_summary{ops_applied,ops_failed}, and the persisted html reflects the targeted change (verified: 'Alex'→'Jordan' with ~same file size, no rewrite). The BUG is entirely in AgentWorkspace.jsx send() lines 559-560 sending a 60KB envelope through /api/chat which caps at MAX_MSG_LEN=4000. After the frontend fix, re-test the edit chip (ws-chip-edited), the 'Applied N targeted edits — no rewrite' toast, and that the preview updates to SUPER DEAL while the FREE/PRO cards remain intact.",
+  "rca of the issue": "The user's complaint (Luchii rewriting instead of editing) was addressed on the server (builder.py EDIT_SYSTEM + edit_mode branch) but the workspace UI never exercises that path — it sends the edit envelope through /api/chat, which rejects payloads >4000 chars. So the edit path is effectively dark in the UI, and the user still sees either a 413 error toast or (when it does fit) the assistant returning full HTML that the client-side regex tries to parse. Reproduction: (1) login as admin, (2) go to /chat?agent=builder, (3) send 'Build a tiny pricing page', wait for Wrote chip, (4) send 'change the heading to SUPER DEAL', (5) observe 'Message exceeds 4000 chars' inline error. Mitigation: switch the edit path to /api/builder/generate as described in action_items."
+}

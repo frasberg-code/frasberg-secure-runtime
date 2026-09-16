@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Home, Plus, ExternalLink, Download, Trash2, Sparkles } from "lucide-react";
+import { Home, Plus, ExternalLink, Download, Trash2, Sparkles, FolderKanban, ChevronDown, Check } from "lucide-react";
 import { ParallaxSky } from "../components/site/ParallaxSky";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -22,14 +22,48 @@ function timeAgo(iso) {
 }
 
 export default function WorkspaceHome() {
+  const navigate = useNavigate();
   const [apps, setApps] = useState(null);
   const [filter, setFilter] = useState("all");
+  const [projects, setProjects] = useState(null);
+  const [projMenu, setProjMenu] = useState(false);
+  const [newName, setNewName] = useState("");
+  const currentProj = (() => { try { return localStorage.getItem("luchii-ws-proj-builder") || null; } catch { return null; } })();
 
   const load = () => {
     fetch(`${API}/workspace/publishes`).then((r) => r.json())
       .then((d) => setApps(d.publishes || [])).catch(() => setApps([]));
+    fetch(`${API}/workspace/projects`, { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : { projects: null }))
+      .then((d) => setProjects(d.projects ?? []))
+      .catch(() => setProjects([]));
   };
   useEffect(load, []);
+
+  const openProject = (p) => {
+    try { localStorage.setItem(`luchii-ws-proj-${p.agent || "builder"}`, p.id); } catch {}
+    navigate(`/chat?agent=${p.agent || "builder"}`);
+  };
+
+  const createProject = async () => {
+    const name = newName.trim() || "New project";
+    try {
+      const r = await fetch(`${API}/workspace/projects`, {
+        method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ agent: "builder", name }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.detail || "Sign in to create projects");
+      openProject(d);
+    } catch (e) { toast.error(String(e.message || e)); }
+  };
+
+  const delProject = async (id, e) => {
+    e.stopPropagation();
+    await fetch(`${API}/workspace/projects/${id}`, { method: "DELETE", credentials: "include" });
+    setProjects((p) => (p || []).filter((x) => x.id !== id));
+    toast.success("Project deleted");
+  };
 
   const del = async (id) => {
     await fetch(`${API}/workspace/publishes/${id}`, { method: "DELETE" });
@@ -70,6 +104,57 @@ export default function WorkspaceHome() {
       </div>
 
       <div className="mx-auto max-w-3xl px-5 py-10">
+        {/* Project switcher — like Emergent's home */}
+        <div className="mb-8 flex justify-center">
+          <div className="relative">
+            <button onClick={() => setProjMenu((o) => !o)} data-testid="home-project-switcher"
+              className="flex items-center gap-2.5 rounded-full border px-5 py-2.5 text-[15px] font-600 transition-colors hover:bg-white/[0.05]"
+              style={{ borderColor: projMenu ? T.accent : T.border, background: T.surface, color: T.text }}>
+              <span className="inline-block h-4 w-4 rounded-full" style={{ background: "linear-gradient(135deg,#00f0ff,#6c63ff,#ff6ec7)" }} />
+              {(projects || []).find((p) => p.id === currentProj)?.name || "Your Projects"}
+              <ChevronDown size={14} style={{ color: T.text2, transform: projMenu ? "rotate(180deg)" : "none", transition: "transform .15s" }} />
+            </button>
+            {projMenu && (
+              <div className="absolute left-1/2 top-12 z-[90] w-80 -translate-x-1/2 rounded-2xl border p-2 shadow-2xl" style={{ borderColor: T.border, background: "rgba(10,14,22,0.98)" }} data-testid="home-project-menu">
+                <div className="max-h-64 overflow-y-auto">
+                  {projects === null && <p className="px-3 py-2.5 text-[14px]" style={{ color: T.muted }}>Loading…</p>}
+                  {projects !== null && projects.length === 0 && (
+                    <p className="px-3 py-2.5 text-[14px]" style={{ color: T.muted }}>No projects yet — create one below and every build saves to your account.</p>
+                  )}
+                  {(projects || []).map((p) => (
+                    <button key={p.id} onClick={() => openProject(p)} data-testid={`home-project-row-${p.id}`}
+                      className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-white/[0.06]">
+                      <span className="inline-block h-7 w-7 shrink-0 rounded-full" style={{ background: "linear-gradient(135deg,#00f0ff,#6c63ff)" }} />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[15px]" style={{ color: T.text }}>{p.name}</span>
+                        <span className="block text-[13px]" style={{ color: T.muted }}>
+                          Owner · {p.has_build ? "has a build" : "no build yet"} · updated {timeAgo(p.updated_at)}
+                        </span>
+                      </span>
+                      {p.id === currentProj && <Check size={14} style={{ color: T.accent }} />}
+                      <button onClick={(e) => delProject(p.id, e)} aria-label="Delete project" data-testid={`home-project-delete-${p.id}`}
+                        className="hidden rounded p-1 hover:bg-white/[0.1] group-hover:block" style={{ color: T.muted }}>
+                        <Trash2 size={12} />
+                      </button>
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-1 flex items-center gap-1.5 border-t px-2 pt-2" style={{ borderColor: T.borderSub }}>
+                  <FolderKanban size={13} style={{ color: T.text2 }} />
+                  <input value={newName} onChange={(e) => setNewName(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") createProject(); }}
+                    placeholder="Create new project…" data-testid="home-project-new-input"
+                    className="min-w-0 flex-1 bg-transparent px-1 py-1.5 text-[14px] outline-none" style={{ color: T.text }} />
+                  <button onClick={createProject} data-testid="home-project-create-btn"
+                    className="flex items-center gap-1 rounded-md border px-2.5 py-1 text-[13.5px]" style={{ borderColor: T.accent, color: T.accent }}>
+                    <Plus size={11} /> Create
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-2xl font-700 tracking-tight">Your builds</h1>
           <Link to="/chat?model=luchii-70b&agent=architect" data-testid="apps-new-build-btn"
