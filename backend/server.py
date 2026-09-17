@@ -84,8 +84,11 @@ async def _probe_upstreams():
             root = url.split("/v1/")[0]
             try:
                 async with httpx.AsyncClient(timeout=6) as c:
-                    r = await c.get(root)
-                if r.status_code < 500:
+                    r = await c.get(f"{root}/v1/health")
+                    if r.status_code != 200:
+                        r = await c.get(root)
+                # 403 (WAF block) or 404 (routes missing) must NOT count as a working gateway
+                if r.status_code < 400:
                     found = url
                     break
             except Exception:
