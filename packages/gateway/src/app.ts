@@ -6,6 +6,8 @@ import Fastify, {
 import {
   ApiKeyRecord,
   AuthContext,
+  FrasbergDomain,
+  FrasbergGateway,
   Permission,
   authenticateRequest,
   hasPermission,
@@ -30,6 +32,7 @@ export interface GatewayOptions {
   apiKeys?: ApiKeyRecord[];
   runtimeRouterUrl?: string;
   engineServiceUrl?: string;
+  frasbergGateway?: FrasbergGateway;
   fetchImpl?: typeof fetch;
   rateLimitMax?: number;
   rateLimitWindowMs?: number;
@@ -41,6 +44,8 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
     options.apiKeys ?? parseApiKeys(process.env.FRASBERG_API_KEYS_JSON);
   const runtimeRouterUrl = options.runtimeRouterUrl ?? 'http://127.0.0.1:4001';
   const engineServiceUrl = options.engineServiceUrl ?? 'http://127.0.0.1:4002';
+  const frasbergGateway =
+    options.frasbergGateway ?? FrasbergGateway.fromEnv({ fetchImpl });
   const rateLimitMax = options.rateLimitMax ?? 60;
   const rateLimitWindowMs = options.rateLimitWindowMs ?? 60_000;
   const rateLimitState = new Map<string, RateLimitEntry>();
@@ -193,27 +198,22 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
     );
   });
 
-  app.post(
-    '/v1/music/generations',
-    placeholderRoute('media', 'music generation'),
-  );
-  app.post(
-    '/v1/audio/generations',
-    placeholderRoute('audio', 'audio generation'),
-  );
-  app.post(
-    '/v1/video/generations',
-    placeholderRoute('video', 'video generation'),
-  );
-  app.post(
-    '/v1/audio/transcriptions',
-    placeholderRoute('stt', 'speech transcription'),
-  );
-  app.post('/v1/audio/speech', placeholderRoute('tts', 'speech synthesis'));
+  app.post('/api/music', frasbergRoute('media', 'music'));
+  app.post('/api/video', frasbergRoute('video', 'video'));
+  app.post('/api/stt', frasbergRoute('stt', 'stt'));
+  app.post('/api/tts', frasbergRoute('tts', 'tts'));
+  app.post('/api/audio', frasbergRoute('audio', 'audio'));
+  app.get('/api/jobs/:id', frasbergJobRoute());
+
+  app.post('/v1/music/generations', frasbergRoute('media', 'music'));
+  app.post('/v1/audio/generations', frasbergRoute('audio', 'audio'));
+  app.post('/v1/video/generations', frasbergRoute('video', 'video'));
+  app.post('/v1/audio/transcriptions', frasbergRoute('stt', 'stt'));
+  app.post('/v1/audio/speech', frasbergRoute('tts', 'tts'));
 
   return app;
 
-  function placeholderRoute(permission: Permission, capability: string) {
+  function frasbergRoute(permission: Permission, domain: FrasbergDomain) {
     return async (request: FastifyRequest, reply: FastifyReply) => {
       const limited = rateLimitRequest(
         request,
@@ -231,14 +231,79 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
         return denied;
       }
 
-      return reply.code(501).send({
-        status: 'placeholder',
-        capability,
-        message:
-          'This scaffold intentionally exposes a bounded placeholder route only.',
-      });
+      try {
+        const response = await routeFrasberg(domain, request.body);
+        return reply.code(200).send(response);
+      } catch (error) {
+        return reply.code(502).send({ error: (error as Error).message });
+      }
     };
   }
+
+  function frasbergJobRoute() {
+    return async (request: FastifyRequest, reply: FastifyReply) => {
+      const limited = rateLimitRequest(
+        request,
+        reply,
+        rateLimitState,
+        rateLimitMax,
+        rateLimitWindowMs,
+      );
+      if (limited) {
+        return limited;
+      }
+
+      const denied = requirePermission(request, reply, 'jobs:read');
+      if (denied) {
+        return denied;
+      }
+
+      const params = request.params as { id: string };
+      const query = request.query as { domain?: string };
+      const parsedDomain = parseDomain(query.domain);
+
+      try {
+        const response = await frasbergGateway.job(params.id, {
+          domain: parsedDomain,
+        });
+        return reply.code(200).send(response);
+      } catch (error) {
+        return reply.code(502).send({ error: (error as Error).message });
+      }
+    };
+  }
+
+  function routeFrasberg(domain: FrasbergDomain, payload: unknown) {
+    switch (domain) {
+      case 'music':
+        return frasbergGateway.music(payload);
+      case 'video':
+        return frasbergGateway.video(payload);
+      case 'stt':
+        return frasbergGateway.stt(payload);
+      case 'tts':
+        return frasbergGateway.tts(payload);
+      case 'audio':
+        return frasbergGateway.audio(payload);
+    }
+  }
+}
+
+function parseDomain(domain: string | undefined): FrasbergDomain | undefined {
+  if (!domain) {
+    return undefined;
+  }
+  const lowered = domain.toLowerCase();
+  if (
+    lowered === 'music' ||
+    lowered === 'video' ||
+    lowered === 'stt' ||
+    lowered === 'tts' ||
+    lowered === 'audio'
+  ) {
+    return lowered;
+  }
+  return undefined;
 }
 
 function requirePermission(

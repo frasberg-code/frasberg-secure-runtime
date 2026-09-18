@@ -1,0 +1,22 @@
+{
+  "name": "frasberg-botbase-workers",
+  "visibility": "private-scaffold",
+  "workers": {
+    "coreSignature": {
+      "path": "/workers/core-signature",
+      "handler": "workers/botbase/index.ts#coreSignatureWorker"
+    },
+    "creatorSignature": {
+      "path": "/workers/creator-signature",
+      "handler": "workers/botbase/index.ts#creatorSignatureWorker"
+    },
+    "infraIpList": {
+      "path": "/workers/infra-ip-list",
+      "handler": "workers/botbase/index.ts#infraIpListWorker"
+    }
+  },
+  "environmentPlaceholders": {
+    "BOTBASE_SHARED_TOKEN": "${BOTBASE_SHARED_TOKEN}",
+    "BOTBASE_SIGNING_SECRET": "${BOTBASE_SIGNING_SECRET}"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "frasberg-multi-region-failover",
+  "mode": "template-only",
+  "regions": [
+    {
+      "name": "primary",
+      "gatewayBaseUrl": "https://gateway-primary.example.invalid",
+      "healthPath": "/v1/health"
+    },
+    {
+      "name": "secondary",
+      "gatewayBaseUrl": "https://gateway-secondary.example.invalid",
+      "healthPath": "/v1/health"
+    }
+  ],
+  "strategy": {
+    "type": "priority-with-health-check",
+    "failureThreshold": 3,
+    "recoveryThreshold": 2
+  },
+  "notes": "Template only. Replace placeholders in your infrastructure configuration system."
+}

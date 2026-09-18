@@ -9,11 +9,13 @@ This repository is a scaffold. It demonstrates local buildable services and safe
 Provide secrets at runtime only:
 
 - `FRASBERG_API_KEYS_JSON` for gateway API key definitions
+- `FRASBERG_MUSIC_KEY`, `FRASBERG_VIDEO_KEY`, `FRASBERG_STT_KEY`, `FRASBERG_TTS_KEY`, `FRASBERG_AUDIO_KEY` for Frasberg domain routing
 - `BOTBASE_SHARED_TOKEN` for authenticated worker access
 - `BOTBASE_SIGNING_SECRET` for signature workers
+- `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_REDIRECT_URI`, `GITHUB_WEBHOOK_SECRET` for OAuth/webhooks
 - Any future upstream provider secrets (for example OpenAI-compatible credentials) through deployment-specific secret stores
 
-Do not commit those values, and do not place signing secrets in Wrangler vars. Use `wrangler secret put` or an equivalent secret manager.
+Do not commit those values, and do not place signing secrets in Wrangler vars. Use `wrangler secret put`, Render/Kubernetes secret management, or an equivalent secret manager.
 
 ## Corrected WAF logic
 
@@ -32,3 +34,4 @@ A partial match is not sufficient; the default posture is deny.
 - Replace placeholder generation responses with verified upstream providers
 - Replace scaffold worker responses with audited implementations and fine-grained authz
 - Add real deployment secrets through GitHub environments, Kubernetes secrets, or Cloudflare secret storage
+- Replace placeholder failover URLs in `manifests/multi-region-failover.template.json` with infrastructure-managed values

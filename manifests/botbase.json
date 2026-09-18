@@ -5,7 +5,10 @@
   "endpoints": {
     "gateway": "http://127.0.0.1:4000",
     "runtimeRouter": "http://127.0.0.1:4001",
-    "engine": "http://127.0.0.1:4002"
+    "engine": "http://127.0.0.1:4002",
+    "coreSignatureWorker": "${BOTBASE_CORE_SIGNATURE_WORKER_URL}",
+    "creatorSignatureWorker": "${BOTBASE_CREATOR_SIGNATURE_WORKER_URL}",
+    "infraIpListWorker": "${BOTBASE_INFRA_IP_LIST_WORKER_URL}"
   },
   "modules": [
     "mesh-routing",

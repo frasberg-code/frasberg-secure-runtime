@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { buildApp } from '../src/app';
+import type { FrasbergGateway } from '@frasberg/shared';
 
 const apiKeys = [
   {
@@ -124,5 +125,43 @@ describe('gateway auth and routing', () => {
       'http://127.0.0.1:4001/v1/chat/completions',
       expect.objectContaining({ method: 'POST' }),
     );
+  });
+
+  it('routes /api/music through Frasberg gateway wrapper', async () => {
+    const music = vi.fn(async () => ({ job_id: 'job-1', state: 'queued' }));
+    const frasbergGateway = {
+      music,
+      video: vi.fn(),
+      stt: vi.fn(),
+      tts: vi.fn(),
+      audio: vi.fn(),
+      job: vi.fn(),
+    } as unknown as FrasbergGateway;
+
+    const app = buildApp({
+      apiKeys: [
+        {
+          id: 'media',
+          secret: 'media-secret',
+          permissions: ['media'],
+          tenants: ['tenant-a'],
+        },
+      ],
+      fetchImpl: vi.fn() as unknown as typeof fetch,
+      frasbergGateway,
+    });
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/music',
+      headers: {
+        'x-api-key': 'media-secret',
+      },
+      payload: { prompt: 'beat' },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ job_id: 'job-1', state: 'queued' });
+    expect(music).toHaveBeenCalledWith({ prompt: 'beat' });
   });
 });
