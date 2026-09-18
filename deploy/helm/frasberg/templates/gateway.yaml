@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frasberg-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frasberg-gateway
+  template:
+    metadata:
+      labels:
+        app: frasberg-gateway
+    spec:
+      containers:
+        - name: gateway
+          image: '{{ .Values.image.gateway }}:{{ .Values.image.tag }}'
+          ports:
+            - containerPort: 4000

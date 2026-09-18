@@ -1,0 +1,26 @@
+version: '3.9'
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: packages/gateway/Dockerfile
+    environment:
+      RUNTIME_ROUTER_URL: http://runtime-router:4001
+      ENGINE_SERVICE_URL: http://engine:4002
+    ports:
+      - '4000:4000'
+  runtime-router:
+    build:
+      context: .
+      dockerfile: packages/runtime-router/Dockerfile
+    environment:
+      RUNTIME_UPSTREAM_URL: http://engine:4002/v1/generations/chat
+      RUNTIME_ROUTER_PUBLIC_URL: http://runtime-router:4001
+    ports:
+      - '4001:4001'
+  engine:
+    build:
+      context: .
+      dockerfile: packages/engine/Dockerfile
+    ports:
+      - '4002:4002'

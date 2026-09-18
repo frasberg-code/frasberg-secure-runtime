@@ -1,0 +1,16 @@
+name: manual-deploy-template
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment name
+        required: true
+        default: staging
+
+jobs:
+  deploy-template:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - run: echo "Configure deployment here with GitHub environment secrets. No automatic deployment is performed by this scaffold."

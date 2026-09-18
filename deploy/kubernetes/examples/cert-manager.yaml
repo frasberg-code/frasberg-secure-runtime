@@ -1,0 +1,11 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: frasberg-gateway
+spec:
+  secretName: frasberg-gateway-tls
+  dnsNames:
+    - runtime.example.invalid
+  issuerRef:
+    name: example-issuer
+    kind: ClusterIssuer
