@@ -54,6 +54,41 @@ describe('gateway auth and routing', () => {
     });
   });
 
+  it('rate limits repeated requests from the same client', async () => {
+    const app = buildApp({
+      apiKeys,
+      fetchImpl: vi.fn() as unknown as typeof fetch,
+      rateLimitMax: 1,
+      rateLimitWindowMs: 60_000,
+    });
+
+    await app.inject({
+      method: 'POST',
+      url: '/v1/jobs',
+      headers: {
+        'x-api-key': 'secret-1',
+      },
+      payload: { messages: [{ role: 'user', content: 'hello' }] },
+    });
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/jobs',
+      headers: {
+        'x-api-key': 'secret-1',
+      },
+      payload: { messages: [{ role: 'user', content: 'hello again' }] },
+    });
+
+    expect(response.statusCode).toBe(429);
+    expect(response.json()).toEqual({
+      error: {
+        code: 'FK-429',
+        message: 'Too many requests.',
+      },
+    });
+  });
+
   it('forwards chat requests to the runtime router', async () => {
     const fetchImpl = vi.fn(
       async () =>

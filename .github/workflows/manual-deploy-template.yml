@@ -8,6 +8,8 @@ on:
         required: true
         default: staging
 
+permissions: {}
+
 jobs:
   deploy-template:
     runs-on: ubuntu-latest

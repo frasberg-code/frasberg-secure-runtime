@@ -21,11 +21,18 @@ declare module 'fastify' {
   }
 }
 
+interface RateLimitEntry {
+  count: number;
+  resetAt: number;
+}
+
 export interface GatewayOptions {
   apiKeys?: ApiKeyRecord[];
   runtimeRouterUrl?: string;
   engineServiceUrl?: string;
   fetchImpl?: typeof fetch;
+  rateLimitMax?: number;
+  rateLimitWindowMs?: number;
 }
 
 export function buildApp(options: GatewayOptions = {}): FastifyInstance {
@@ -34,6 +41,9 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
     options.apiKeys ?? parseApiKeys(process.env.FRASBERG_API_KEYS_JSON);
   const runtimeRouterUrl = options.runtimeRouterUrl ?? 'http://127.0.0.1:4001';
   const engineServiceUrl = options.engineServiceUrl ?? 'http://127.0.0.1:4002';
+  const rateLimitMax = options.rateLimitMax ?? 60;
+  const rateLimitWindowMs = options.rateLimitWindowMs ?? 60_000;
+  const rateLimitState = new Map<string, RateLimitEntry>();
 
   const app = Fastify({
     logger: {
@@ -44,6 +54,22 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
   app.addHook('preHandler', async (request, reply) => {
     if ((request.raw.url ?? '').startsWith('/v1/health')) {
       return;
+    }
+
+    if (
+      !consumeRateLimit(
+        rateLimitState,
+        request.ip,
+        rateLimitMax,
+        rateLimitWindowMs,
+      )
+    ) {
+      return reply.code(429).send({
+        error: {
+          code: 'FK-429',
+          message: 'Too many requests.',
+        },
+      });
     }
 
     const { context, error } = authenticateRequest(request.headers, apiKeys);
@@ -190,6 +216,28 @@ function requirePermission(
   }
 
   return undefined;
+}
+
+function consumeRateLimit(
+  state: Map<string, RateLimitEntry>,
+  key: string,
+  max: number,
+  windowMs: number,
+): boolean {
+  const now = Date.now();
+  const current = state.get(key);
+
+  if (!current || current.resetAt <= now) {
+    state.set(key, { count: 1, resetAt: now + windowMs });
+    return true;
+  }
+
+  if (current.count >= max) {
+    return false;
+  }
+
+  current.count += 1;
+  return true;
 }
 
 async function proxyJson(
