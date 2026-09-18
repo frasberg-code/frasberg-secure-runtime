@@ -56,22 +56,6 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
       return;
     }
 
-    if (
-      !consumeRateLimit(
-        rateLimitState,
-        request.ip,
-        rateLimitMax,
-        rateLimitWindowMs,
-      )
-    ) {
-      return reply.code(429).send({
-        error: {
-          code: 'FK-429',
-          message: 'Too many requests.',
-        },
-      });
-    }
-
     const { context, error } = authenticateRequest(request.headers, apiKeys);
     if (error) {
       return reply.code(401).send(error);
@@ -87,6 +71,17 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
   }));
 
   app.post('/v1/chat/completions', async (request, reply) => {
+    const limited = rateLimitRequest(
+      request,
+      reply,
+      rateLimitState,
+      rateLimitMax,
+      rateLimitWindowMs,
+    );
+    if (limited) {
+      return limited;
+    }
+
     const denied = requirePermission(request, reply, 'chat');
     if (denied) {
       return denied;
@@ -109,6 +104,17 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
   });
 
   app.post('/v1/completions', async (request, reply) => {
+    const limited = rateLimitRequest(
+      request,
+      reply,
+      rateLimitState,
+      rateLimitMax,
+      rateLimitWindowMs,
+    );
+    if (limited) {
+      return limited;
+    }
+
     const denied = requirePermission(request, reply, 'chat');
     if (denied) {
       return denied;
@@ -130,6 +136,17 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
   });
 
   app.post('/v1/jobs', async (request, reply) => {
+    const limited = rateLimitRequest(
+      request,
+      reply,
+      rateLimitState,
+      rateLimitMax,
+      rateLimitWindowMs,
+    );
+    if (limited) {
+      return limited;
+    }
+
     const denied = requirePermission(request, reply, 'jobs:write');
     if (denied) {
       return denied;
@@ -152,6 +169,17 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
   });
 
   app.get('/v1/jobs/:id', async (request, reply) => {
+    const limited = rateLimitRequest(
+      request,
+      reply,
+      rateLimitState,
+      rateLimitMax,
+      rateLimitWindowMs,
+    );
+    if (limited) {
+      return limited;
+    }
+
     const denied = requirePermission(request, reply, 'jobs:read');
     if (denied) {
       return denied;
@@ -187,6 +215,17 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
 
   function placeholderRoute(permission: Permission, capability: string) {
     return async (request: FastifyRequest, reply: FastifyReply) => {
+      const limited = rateLimitRequest(
+        request,
+        reply,
+        rateLimitState,
+        rateLimitMax,
+        rateLimitWindowMs,
+      );
+      if (limited) {
+        return limited;
+      }
+
       const denied = requirePermission(request, reply, permission);
       if (denied) {
         return denied;
@@ -216,6 +255,32 @@ function requirePermission(
   }
 
   return undefined;
+}
+
+function rateLimitRequest(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  state: Map<string, RateLimitEntry>,
+  max: number,
+  windowMs: number,
+) {
+  if (
+    consumeRateLimit(
+      state,
+      `${request.ip}:${request.routeOptions.url}`,
+      max,
+      windowMs,
+    )
+  ) {
+    return undefined;
+  }
+
+  return reply.code(429).send({
+    error: {
+      code: 'FK-429',
+      message: 'Too many requests.',
+    },
+  });
 }
 
 function consumeRateLimit(
