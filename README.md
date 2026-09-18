@@ -1,17 +1,66 @@
 # frasberg-secure-runtime
 
-Private Frasberg secure runtime and BotBase scaffold.
+Private Node/TypeScript monorepo scaffold for Frasberg secure runtime, backend gateway routing, and BotBase worker integration.
 
-## What is included
+## Security warning
 
-- npm workspace-based Node/TypeScript monorepo
-- Fastify gateway, runtime router, and engine/job services
-- Shared auth, chat validation, and job lifecycle utilities
-- Safe Cloudflare Worker scaffolds and BotBase manifests
-- Docker, Compose, Kubernetes, Helm, and CI templates for local/manual use
-- Focused tests for auth decisions, routing, and job transitions
+- Never commit real keys, OAuth secrets, webhook secrets, or cloud credentials.
+- Keep all real values in Render/Kubernetes/Secrets Manager (or equivalent secret management).
+- This repository ships placeholders only.
 
-## Quick start
+## Workspace layout
+
+- `apps/gateway-server` (gateway entry wrappers)
+- `apps/runtime-router` (runtime router entry wrappers)
+- `apps/engine-server` (engine entry wrappers)
+- `apps/frontend-studio` (backend-only CreativeStudio integration)
+- `packages/shared` (shared auth/types + `FrasbergClient`/`FrasbergGateway`)
+- `packages/gateway`, `packages/runtime-router`, `packages/engine`, `packages/botbase-workers`
+- `workers/botbase` (worker endpoint exports)
+- `docs/` and `manifests/` (security and template assets)
+
+## Backend Frasberg routes
+
+The backend gateway exposes:
+
+- `POST /api/music`
+- `POST /api/video`
+- `POST /api/stt`
+- `POST /api/tts`
+- `POST /api/audio`
+- `GET /api/jobs/:id`
+
+All Frasberg calls use `https://frasberg.com/api` and attach an Authorization bearer token from domain keys:
+
+- `FRASBERG_MUSIC_KEY`
+- `FRASBERG_VIDEO_KEY`
+- `FRASBERG_STT_KEY`
+- `FRASBERG_TTS_KEY`
+- `FRASBERG_AUDIO_KEY`
+
+Music/video flows support job lifecycle polling (`queued -> running -> completed -> failed`) through `/api/jobs/:id`.
+
+## Environment variables (placeholders only)
+
+- `FRASBERG_API_KEYS_JSON`
+- `RUNTIME_ROUTER_URL`
+- `ENGINE_SERVICE_URL`
+- `RUNTIME_UPSTREAM_URL`
+- `FRASBERG_MUSIC_KEY`
+- `FRASBERG_VIDEO_KEY`
+- `FRASBERG_STT_KEY`
+- `FRASBERG_TTS_KEY`
+- `FRASBERG_AUDIO_KEY`
+- `BOTBASE_SHARED_TOKEN`
+- `BOTBASE_SIGNING_SECRET`
+- `GITHUB_CLIENT_ID`
+- `GITHUB_CLIENT_SECRET`
+- `GITHUB_REDIRECT_URI`
+- `GITHUB_WEBHOOK_SECRET`
+
+See `.env.example` for placeholder values only.
+
+## Local setup
 
 ```bash
 npm ci
@@ -20,30 +69,8 @@ npm run test
 npm run validate:manifests
 ```
 
-## Packages
+## Local dev scaffolds
 
-- `@frasberg/shared` - shared types and validation helpers
-- `@frasberg/engine` - bounded in-memory development job engine
-- `@frasberg/runtime-router` - OpenAI-compatible `/v1/chat/completions` router
-- `@frasberg/gateway` - auth-aware API gateway and placeholder media routes
-- `@frasberg/botbase-workers` - authenticated, non-destructive Cloudflare Worker scaffolds
-
-## Security model
-
-- Runtime secrets are read only from environment variables.
-- No real secrets, signing keys, kubeconfigs, or registry credentials are committed.
-- BotBase signing workers fail closed if signing secrets are missing.
-- DNS-related workers are plan-only by default and do not mutate infrastructure from HTTP requests.
-- See `/docs/security/secure-runtime.md` for required external secrets and scaffold limitations.
-
-## Running services locally
-
-Examples:
-
-```bash
-node packages/engine/dist/server.js
-node packages/runtime-router/dist/server.js
-node packages/gateway/dist/server.js
-```
-
-Each service defaults to loopback addresses and internal URLs suitable for local development.
+- Dockerfiles in `packages/*/Dockerfile` are local scaffolds.
+- `docker-compose.yml` is for local service wiring only.
+- No production deployment claims are made in this repository.
