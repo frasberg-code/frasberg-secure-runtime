@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frasberg-gateway
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: runtime.example.invalid
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frasberg-gateway
+                port:
+                  number: 4000

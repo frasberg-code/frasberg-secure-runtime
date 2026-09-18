@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/shared" },
+    { "path": "./packages/engine" },
+    { "path": "./packages/runtime-router" },
+    { "path": "./packages/gateway" },
+    { "path": "./packages/botbase-workers" }
+  ]
+}

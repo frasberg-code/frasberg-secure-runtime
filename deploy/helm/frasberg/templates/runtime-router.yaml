@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frasberg-runtime-router
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frasberg-runtime-router
+  template:
+    metadata:
+      labels:
+        app: frasberg-runtime-router
+    spec:
+      containers:
+        - name: runtime-router
+          image: '{{ .Values.image.runtimeRouter }}:{{ .Values.image.tag }}'
+          ports:
+            - containerPort: 4001

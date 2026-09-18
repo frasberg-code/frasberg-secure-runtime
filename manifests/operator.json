@@ -1,0 +1,10 @@
+{
+  "name": "frasberg-operator",
+  "version": "0.1.0",
+  "role": "operator-scaffold",
+  "endpoints": {
+    "telemetry": "/telemetry",
+    "policy": "/policy-governance",
+    "threatAnalysis": "/threat-analysis"
+  }
+}
