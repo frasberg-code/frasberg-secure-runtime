@@ -272,7 +272,9 @@ begin
 end;
 $$;
 
-create materialized view if not exists monitor.engine_health as
+drop materialized view if exists monitor.engine_health;
+
+create materialized view monitor.engine_health as
 with usage_rollup as (
   select
     eu.owner_id,
@@ -313,7 +315,9 @@ create index if not exists monitor_engine_health_status_idx
 comment on materialized view monitor.engine_health is
   'Operational engine health rollup. Zero-usage engines remain visible with health_status = ''no-usage'' to avoid NULL-only monitoring rows.';
 
-create materialized view if not exists monitor.world_risk as
+drop materialized view if exists monitor.world_risk;
+
+create materialized view monitor.world_risk as
 with event_rollup as (
   select
     ce.world_id,
