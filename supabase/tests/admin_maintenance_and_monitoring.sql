@@ -151,6 +151,21 @@ $$;
 select * from public.admin_recompute_user_costs((select member_id from test_ctx));
 select * from monitor.refresh_materialized_views();
 
+do $$
+begin
+  perform public.ensure_maintenance_cron_jobs();
+  raise exception 'authenticated admin must not execute ensure_maintenance_cron_jobs';
+exception
+  when insufficient_privilege then
+    null;
+  when others then
+    if position('permission denied' in sqlerrm) = 0
+       and position('system role required' in sqlerrm) = 0 then
+      raise;
+    end if;
+end;
+$$;
+
 reset role;
 
 do $$
@@ -238,6 +253,25 @@ begin
   if v_event_count <> 1 or v_risk_score <= 0 then
     raise exception 'world_risk refresh did not pick up new continuity events';
   end if;
+end;
+$$;
+
+set local role authenticated;
+select set_config('request.jwt.claim.role', 'authenticated', true);
+select set_config('request.jwt.claim.sub', (select admin_id::text from test_ctx), true);
+
+do $$
+begin
+  perform public.ensure_maintenance_cron_jobs();
+  raise exception 'authenticated admin must not execute ensure_maintenance_cron_jobs';
+exception
+  when insufficient_privilege then
+    null;
+  when others then
+    if position('permission denied' in sqlerrm) = 0
+       and position('system role required' in sqlerrm) = 0 then
+      raise;
+    end if;
 end;
 $$;
 

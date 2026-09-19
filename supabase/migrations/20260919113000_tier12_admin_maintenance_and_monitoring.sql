@@ -56,6 +56,23 @@ begin
 end;
 $$;
 
+create or replace function public.require_system_execution(p_operation text default 'system operation')
+returns void
+language plpgsql
+security definer
+stable
+set search_path = public, auth, pg_temp
+as $$
+begin
+  if public.current_execution_is_system() then
+    return;
+  end if;
+
+  raise exception 'system role required for %', coalesce(p_operation, 'this operation')
+    using errcode = '42501';
+end;
+$$;
+
 create or replace function public.validate_retention_days(
   p_label text,
   p_days integer,
@@ -303,7 +320,8 @@ select
 from public.engine_registry er
 full outer join usage_rollup ur
   on ur.owner_id = er.owner_id
- and ur.engine_name = er.engine_name;
+ and ur.engine_name = er.engine_name
+with no data;
 
 create unique index if not exists monitor_engine_health_owner_engine_idx
   on monitor.engine_health(owner_id, engine_name);
@@ -366,7 +384,8 @@ select
   end as risk_level,
   now() as refreshed_at
 from public.worlds w
-left join event_rollup er on er.world_id = w.id;
+left join event_rollup er on er.world_id = w.id
+with no data;
 
 create unique index if not exists monitor_world_risk_world_idx
   on monitor.world_risk(world_id);
@@ -459,7 +478,7 @@ security definer
 set search_path = public, auth, pg_temp
 as $$
 begin
-  perform public.require_admin_or_system('ensure_maintenance_cron_jobs');
+  perform public.require_system_execution('ensure_maintenance_cron_jobs');
 
   if not exists (
     select 1
@@ -511,6 +530,9 @@ grant execute on function public.current_execution_is_system() to authenticated;
 revoke all on function public.require_admin_or_system(text) from public;
 revoke execute on function public.require_admin_or_system(text) from anon;
 grant execute on function public.require_admin_or_system(text) to authenticated;
+revoke all on function public.require_system_execution(text) from public;
+revoke execute on function public.require_system_execution(text) from anon, authenticated;
+grant execute on function public.require_system_execution(text) to service_role;
 revoke all on function public.validate_retention_days(text, integer, integer) from public;
 revoke execute on function public.validate_retention_days(text, integer, integer) from anon;
 revoke all on function public.admin_reset_monthly_quotas(uuid) from public;
@@ -541,6 +563,8 @@ comment on function public.current_execution_is_system() is
   'Returns true only when no JWT subject is present and the active database role is a trusted system role such as postgres or service_role; authenticated requests are therefore not reclassified as cron/system work.';
 comment on function public.require_admin_or_system(text) is
   'Shared guard for admin-only maintenance routines. Interactive calls require user_profiles.role = admin; cron/system calls must run without auth.uid() under a trusted DB role.';
+comment on function public.require_system_execution(text) is
+  'Strict guard for service/system-only routines such as pg_cron scheduling. Calls must run without auth.uid() under a trusted system role.';
 comment on function public.admin_cleanup_resources(integer, integer, boolean) is
   'Deletes only bounded stale rows after an explicit preview/confirmation flow. Retention arguments are validated with a minimum seven-day safety floor.';
 comment on function public.ensure_maintenance_cron_jobs() is
