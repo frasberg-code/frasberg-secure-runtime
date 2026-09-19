@@ -60,7 +60,10 @@ export function buildWorldGraphRuntimeApp(
   app.patch('/v1/worldgraph/worlds/:id', async (request, reply) => {
     try {
       const id = readIdParam((request.params as { id?: string }).id, 'id');
-      const world = service.updateWorld(id, readWorldGraphUpdateInput(request.body));
+      const world = service.updateWorld(
+        id,
+        readWorldGraphUpdateInput(request.body),
+      );
       return reply.code(200).send(world);
     } catch (error) {
       const message = (error as Error).message;
@@ -147,7 +150,8 @@ function readWorldGraphCreateInput(value: unknown): WorldGraphCreateInput {
   return {
     id: payload.id === undefined ? undefined : readIdParam(payload.id, 'id'),
     name: readNonEmptyString(payload.name, 'name'),
-    kind: payload.kind === undefined ? 'world' : readWorldGraphKind(payload.kind),
+    kind:
+      payload.kind === undefined ? 'world' : readWorldGraphKind(payload.kind),
     ownerId:
       payload.ownerId === undefined
         ? 'system'
@@ -164,19 +168,32 @@ function readWorldGraphCreateInput(value: unknown): WorldGraphCreateInput {
   };
 }
 
-function readWorldGraphUpdateInput(value: unknown): Partial<WorldGraphCreateInput> {
+function readWorldGraphUpdateInput(
+  value: unknown,
+): Partial<WorldGraphCreateInput> {
   const payload = readRecord(value, 'request body');
   const updates: Partial<WorldGraphCreateInput> = {};
-  if (payload.name !== undefined) updates.name = readNonEmptyString(payload.name, 'name');
-  if (payload.kind !== undefined) updates.kind = readWorldGraphKind(payload.kind);
-  if (payload.ownerId !== undefined) updates.ownerId = readNonEmptyString(payload.ownerId, 'ownerId');
+  if (payload.name !== undefined)
+    updates.name = readNonEmptyString(payload.name, 'name');
+  if (payload.kind !== undefined)
+    updates.kind = readWorldGraphKind(payload.kind);
+  if (payload.ownerId !== undefined)
+    updates.ownerId = readNonEmptyString(payload.ownerId, 'ownerId');
   if (payload.status !== undefined) updates.status = readStatus(payload.status);
-  if (payload.schemaVersion !== undefined) updates.schemaVersion = readNonEmptyString(payload.schemaVersion, 'schemaVersion');
+  if (payload.schemaVersion !== undefined)
+    updates.schemaVersion = readNonEmptyString(
+      payload.schemaVersion,
+      'schemaVersion',
+    );
   if (payload.nodes !== undefined) {
-    if (!Array.isArray(payload.nodes)) throw new Error('nodes must be an array.');
-    updates.nodes = payload.nodes.map((node, index) => readNodeSpec(node, index));
+    if (!Array.isArray(payload.nodes))
+      throw new Error('nodes must be an array.');
+    updates.nodes = payload.nodes.map((node, index) =>
+      readNodeSpec(node, index),
+    );
   }
-  if (payload.metadata !== undefined) updates.metadata = readOptionalRecord(payload.metadata, 'metadata');
+  if (payload.metadata !== undefined)
+    updates.metadata = readOptionalRecord(payload.metadata, 'metadata');
   return updates;
 }
 
@@ -185,9 +202,18 @@ function readBuilderOperationRequest(value: unknown): BuilderOperationRequest {
   return {
     prompt: readNonEmptyString(payload.prompt, 'prompt'),
     projectType: readProjectType(payload.projectType),
-    worldId: payload.worldId === undefined ? undefined : readIdParam(payload.worldId, 'worldId'),
-    schemaId: payload.schemaId === undefined ? undefined : readIdParam(payload.schemaId, 'schemaId'),
-    ownerId: payload.ownerId === undefined ? undefined : readIdParam(payload.ownerId, 'ownerId'),
+    worldId:
+      payload.worldId === undefined
+        ? undefined
+        : readIdParam(payload.worldId, 'worldId'),
+    schemaId:
+      payload.schemaId === undefined
+        ? undefined
+        : readIdParam(payload.schemaId, 'schemaId'),
+    ownerId:
+      payload.ownerId === undefined
+        ? undefined
+        : readIdParam(payload.ownerId, 'ownerId'),
     mode: payload.mode === undefined ? 'draft' : readMode(payload.mode),
     metadata: readOptionalRecord(payload.metadata, 'metadata'),
   };
@@ -213,13 +239,28 @@ function readNodeSpec(value: unknown, index: number): WorldGraphNodeSpec {
 }
 
 function readWorldGraphKind(value: unknown): WorldGraphCreateInput['kind'] {
-  if (!['world', 'scene', 'track', 'page', 'screen', 'flow', 'app', 'site'].includes(String(value))) {
-    throw new Error('kind must be one of world, scene, track, page, screen, flow, app, or site.');
+  if (
+    ![
+      'world',
+      'scene',
+      'track',
+      'page',
+      'screen',
+      'flow',
+      'app',
+      'site',
+    ].includes(String(value))
+  ) {
+    throw new Error(
+      'kind must be one of world, scene, track, page, screen, flow, app, or site.',
+    );
   }
   return value as WorldGraphCreateInput['kind'];
 }
 
-function readProjectType(value: unknown): BuilderOperationRequest['projectType'] {
+function readProjectType(
+  value: unknown,
+): BuilderOperationRequest['projectType'] {
   if (!['game', 'website', 'app', 'native'].includes(String(value))) {
     throw new Error('projectType must be game, website, app, or native.');
   }
@@ -247,7 +288,10 @@ function readRecord(value: unknown, label: string): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
-function readOptionalRecord(value: unknown, label: string): Record<string, unknown> {
+function readOptionalRecord(
+  value: unknown,
+  label: string,
+): Record<string, unknown> {
   if (value === undefined) return {};
   return readRecord(value, label);
 }

@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { buildWorldGraphRuntimeApp } from '../src';
-import { InMemoryBuilderOrchestrator, InMemoryWorldGraphService } from '@frasberg/shared';
+import {
+  InMemoryBuilderOrchestrator,
+  InMemoryWorldGraphService,
+} from '@frasberg/shared';
 
 describe('worldgraph runtime contract', () => {
   it('creates, lists, and plans worldgraph operations', async () => {
@@ -16,7 +19,15 @@ describe('worldgraph runtime contract', () => {
         name: 'runtime-world',
         kind: 'world',
         ownerId: 'owner-1',
-        nodes: [{ id: 'root', kind: 'scene', label: 'Root', tags: ['root'], config: { mode: 'runtime' } }],
+        nodes: [
+          {
+            id: 'root',
+            kind: 'scene',
+            label: 'Root',
+            tags: ['root'],
+            config: { mode: 'runtime' },
+          },
+        ],
       },
     });
 
@@ -29,7 +40,9 @@ describe('worldgraph runtime contract', () => {
       url: '/v1/worldgraph/worlds',
     });
     expect(listed.statusCode).toBe(200);
-    expect((listed.json() as { worlds: { id: string }[] }).worlds.length).toBeGreaterThan(0);
+    expect(
+      (listed.json() as { worlds: { id: string }[] }).worlds.length,
+    ).toBeGreaterThan(0);
 
     const planned = await app.inject({
       method: 'POST',
@@ -42,6 +55,8 @@ describe('worldgraph runtime contract', () => {
     });
 
     expect(planned.statusCode).toBe(200);
-    expect((planned.json() as { projectType: string }).projectType).toBe('website');
+    expect((planned.json() as { projectType: string }).projectType).toBe(
+      'website',
+    );
   });
 });

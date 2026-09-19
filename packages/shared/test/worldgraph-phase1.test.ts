@@ -39,7 +39,15 @@ describe('worldgraph phase 1 contracts', () => {
     const created = service.createWorld({
       name: 'test-world',
       ownerId: 'owner-1',
-      nodes: [{ id: 'node-1', kind: 'page', label: 'Start', tags: ['init'], config: { route: '/' } }],
+      nodes: [
+        {
+          id: 'node-1',
+          kind: 'page',
+          label: 'Start',
+          tags: ['init'],
+          config: { route: '/' },
+        },
+      ],
     });
 
     const materialized = service.materializeScene(created.id);
