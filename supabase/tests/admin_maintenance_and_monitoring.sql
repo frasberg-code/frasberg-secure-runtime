@@ -133,6 +133,16 @@ begin
     raise exception 'unexpected cleanup preview counts';
   end if;
 
+  begin
+    perform public.admin_preview_resource_cleanup(6, 30);
+    raise exception 'retention validation must reject values below seven days';
+  exception
+    when others then
+      if position('at least 7 days' in sqlerrm) = 0 then
+        raise;
+      end if;
+  end;
+
   select r.affected_count
     into v_affected_count
   from public.admin_reset_monthly_quotas((select member_id from test_ctx)) r;

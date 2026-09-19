@@ -459,7 +459,7 @@ begin
     return;
   end if;
 
-  perform pg_advisory_xact_lock(hashtext('public.ensure_cron_job'), hashtext(p_job_name));
+  perform pg_advisory_xact_lock(hashtextextended('public.ensure_cron_job:' || p_job_name, 0));
 
   for v_job in
     select j.jobid
@@ -528,8 +528,8 @@ $$;
 grant usage on schema monitor to authenticated;
 revoke all on materialized view monitor.engine_health from public;
 revoke all on materialized view monitor.world_risk from public;
-revoke select on materialized view monitor.engine_health from anon, authenticated;
-revoke select on materialized view monitor.world_risk from anon, authenticated;
+revoke select on materialized view monitor.engine_health from anon, authenticated, service_role;
+revoke select on materialized view monitor.world_risk from anon, authenticated, service_role;
 revoke all on function public.current_execution_is_system() from public;
 revoke execute on function public.current_execution_is_system() from anon;
 grant execute on function public.current_execution_is_system() to authenticated;
