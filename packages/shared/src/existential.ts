@@ -75,7 +75,9 @@ export class QuantumContinuityEngine {
     const normalizedWorldId = readNonEmptyString(worldId, 'worldId');
     const current = this.states.get(normalizedWorldId);
     if (!current) {
-      throw new Error(`Quantum state for world "${normalizedWorldId}" does not exist.`);
+      throw new Error(
+        `Quantum state for world "${normalizedWorldId}" does not exist.`,
+      );
     }
 
     if (typeof delta !== 'number' || !Number.isFinite(delta)) {
@@ -85,7 +87,9 @@ export class QuantumContinuityEngine {
     const next: QuantumContinuityState = {
       ...current,
       amplitudes: current.amplitudes.map(copyQuantumAmplitude),
-      collapseProbability: clampUnitInterval(current.collapseProbability + delta),
+      collapseProbability: clampUnitInterval(
+        current.collapseProbability + delta,
+      ),
       updatedAt: new Date().toISOString(),
     };
     this.states.set(normalizedWorldId, next);
@@ -263,7 +267,9 @@ export class ContinuitySimulator {
     return {
       simulationId: randomUUID(),
       worldId,
-      projectedMeaningScore: clampUnitInterval(world.meaningScore + meaningDelta),
+      projectedMeaningScore: clampUnitInterval(
+        world.meaningScore + meaningDelta,
+      ),
       projectedRiskProfile: clampUnitInterval(
         world.riskProfile + riskDelta - reasoning.confidence * 0.02,
       ),
@@ -328,7 +334,10 @@ export class HypergraphEngine {
 
   registerNode(input: RegisterHypergraphNodeInput): HypergraphNode {
     const worldId = readExistingWorldId(this.worldGraph, input.worldId);
-    const id = input.id === undefined ? randomUUID() : readNonEmptyString(input.id, 'id');
+    const id =
+      input.id === undefined
+        ? randomUUID()
+        : readNonEmptyString(input.id, 'id');
     if (this.nodes.has(id)) {
       throw new Error(`Hypergraph node "${id}" already exists.`);
     }
@@ -345,7 +354,10 @@ export class HypergraphEngine {
 
   registerEdge(input: RegisterHypergraphEdgeInput): HypergraphEdge {
     const worldId = readExistingWorldId(this.worldGraph, input.worldId);
-    const id = input.id === undefined ? randomUUID() : readNonEmptyString(input.id, 'id');
+    const id =
+      input.id === undefined
+        ? randomUUID()
+        : readNonEmptyString(input.id, 'id');
     if (this.edges.has(id)) {
       throw new Error(`Hypergraph edge "${id}" already exists.`);
     }
@@ -354,7 +366,9 @@ export class HypergraphEngine {
     for (const nodeId of nodeIds) {
       const node = this.nodes.get(nodeId);
       if (!node || node.worldId !== worldId) {
-        throw new Error(`Hypergraph node "${nodeId}" does not exist in world "${worldId}".`);
+        throw new Error(
+          `Hypergraph node "${nodeId}" does not exist in world "${worldId}".`,
+        );
       }
     }
 
@@ -370,7 +384,10 @@ export class HypergraphEngine {
 
   registerCluster(input: RegisterHypergraphClusterInput): HypergraphCluster {
     const worldId = readExistingWorldId(this.worldGraph, input.worldId);
-    const id = input.id === undefined ? randomUUID() : readNonEmptyString(input.id, 'id');
+    const id =
+      input.id === undefined
+        ? randomUUID()
+        : readNonEmptyString(input.id, 'id');
     if (this.clusters.has(id)) {
       throw new Error(`Hypergraph cluster "${id}" already exists.`);
     }
@@ -379,7 +396,9 @@ export class HypergraphEngine {
     for (const nodeId of nodeIds) {
       const node = this.nodes.get(nodeId);
       if (!node || node.worldId !== worldId) {
-        throw new Error(`Hypergraph node "${nodeId}" does not exist in world "${worldId}".`);
+        throw new Error(
+          `Hypergraph node "${nodeId}" does not exist in world "${worldId}".`,
+        );
       }
     }
 
@@ -405,9 +424,13 @@ export class HypergraphEngine {
 
   listNodes(worldId?: string): HypergraphNode[] {
     const normalizedWorldId =
-      worldId === undefined ? undefined : readNonEmptyString(worldId, 'worldId');
+      worldId === undefined
+        ? undefined
+        : readNonEmptyString(worldId, 'worldId');
     return [...this.nodes.values()]
-      .filter((node) => !normalizedWorldId || node.worldId === normalizedWorldId)
+      .filter(
+        (node) => !normalizedWorldId || node.worldId === normalizedWorldId,
+      )
       .slice()
       .sort((left, right) => left.id.localeCompare(right.id))
       .map(copyHypergraphNode);
@@ -415,9 +438,13 @@ export class HypergraphEngine {
 
   listEdges(worldId?: string): HypergraphEdge[] {
     const normalizedWorldId =
-      worldId === undefined ? undefined : readNonEmptyString(worldId, 'worldId');
+      worldId === undefined
+        ? undefined
+        : readNonEmptyString(worldId, 'worldId');
     return [...this.edges.values()]
-      .filter((edge) => !normalizedWorldId || edge.worldId === normalizedWorldId)
+      .filter(
+        (edge) => !normalizedWorldId || edge.worldId === normalizedWorldId,
+      )
       .slice()
       .sort((left, right) => left.id.localeCompare(right.id))
       .map(copyHypergraphEdge);
@@ -425,10 +452,13 @@ export class HypergraphEngine {
 
   listClusters(worldId?: string): HypergraphCluster[] {
     const normalizedWorldId =
-      worldId === undefined ? undefined : readNonEmptyString(worldId, 'worldId');
+      worldId === undefined
+        ? undefined
+        : readNonEmptyString(worldId, 'worldId');
     return [...this.clusters.values()]
       .filter(
-        (cluster) => !normalizedWorldId || cluster.worldId === normalizedWorldId,
+        (cluster) =>
+          !normalizedWorldId || cluster.worldId === normalizedWorldId,
       )
       .slice()
       .sort((left, right) => left.id.localeCompare(right.id))
@@ -481,7 +511,10 @@ export class TimelineEngine {
 
   recordTransition(input: RecordTimelineEventInput): TimelineEvent {
     const worldId = readExistingWorldId(this.worldGraph, input.worldId);
-    const id = input.id === undefined ? randomUUID() : readNonEmptyString(input.id, 'id');
+    const id =
+      input.id === undefined
+        ? randomUUID()
+        : readNonEmptyString(input.id, 'id');
     if (this.events.has(id)) {
       throw new Error(`Timeline event "${id}" already exists.`);
     }
@@ -506,9 +539,13 @@ export class TimelineEngine {
 
   listEvents(worldId?: string): TimelineEvent[] {
     const normalizedWorldId =
-      worldId === undefined ? undefined : readNonEmptyString(worldId, 'worldId');
+      worldId === undefined
+        ? undefined
+        : readNonEmptyString(worldId, 'worldId');
     return [...this.events.values()]
-      .filter((event) => !normalizedWorldId || event.worldId === normalizedWorldId)
+      .filter(
+        (event) => !normalizedWorldId || event.worldId === normalizedWorldId,
+      )
       .slice()
       .sort((left, right) => left.createdAt.localeCompare(right.createdAt))
       .map(copyTimelineEvent);
@@ -551,7 +588,9 @@ export class ExistentialFieldEngine {
     const eventCount = this.timeline.listEvents(worldId).length;
     return {
       worldId: world.id,
-      coherence: clampUnitInterval((world.meaningScore + (1 - world.riskProfile)) / 2),
+      coherence: clampUnitInterval(
+        (world.meaningScore + (1 - world.riskProfile)) / 2,
+      ),
       meaningScore: world.meaningScore,
       riskProfile: world.riskProfile,
       edgeCount,
@@ -589,7 +628,10 @@ export class OmniBridgeEngine {
 
   createLink(input: CreateOmniBridgeLinkInput): OmniBridgeLink {
     const worldId = readExistingWorldId(this.worldGraph, input.worldId);
-    const id = input.id === undefined ? randomUUID() : readNonEmptyString(input.id, 'id');
+    const id =
+      input.id === undefined
+        ? randomUUID()
+        : readNonEmptyString(input.id, 'id');
     if (this.links.has(id)) {
       throw new Error(`OmniBridge link "${id}" already exists.`);
     }
@@ -612,7 +654,9 @@ export class OmniBridgeEngine {
     if (edgeId) {
       const edge = this.hypergraph.getEdge(edgeId);
       if (!edge || edge.worldId !== worldId) {
-        throw new Error(`Hypergraph edge "${edgeId}" does not exist in world "${worldId}".`);
+        throw new Error(
+          `Hypergraph edge "${edgeId}" does not exist in world "${worldId}".`,
+        );
       }
     }
 
@@ -647,9 +691,13 @@ export class OmniBridgeEngine {
 
   listLinks(worldId?: string): OmniBridgeLink[] {
     const normalizedWorldId =
-      worldId === undefined ? undefined : readNonEmptyString(worldId, 'worldId');
+      worldId === undefined
+        ? undefined
+        : readNonEmptyString(worldId, 'worldId');
     return [...this.links.values()]
-      .filter((link) => !normalizedWorldId || link.worldId === normalizedWorldId)
+      .filter(
+        (link) => !normalizedWorldId || link.worldId === normalizedWorldId,
+      )
       .slice()
       .sort((left, right) => left.createdAt.localeCompare(right.createdAt))
       .map(copyOmniBridgeLink);
@@ -666,9 +714,7 @@ export class OmniBridgeEngine {
 }
 
 export type ControlPlaneAnomalyType =
-  | 'meaning-threshold'
-  | 'risk-threshold'
-  | 'collapse-instability';
+  'meaning-threshold' | 'risk-threshold' | 'collapse-instability';
 
 export interface ControlPlaneAnomaly {
   id: string;
@@ -741,7 +787,8 @@ export class ExistentialControlPlane {
     this.policyRegistry = options.policyRegistry ?? new PolicyRegistry();
     this.quantumEngine = options.quantumEngine ?? new QuantumContinuityEngine();
     this.metaLuchii = options.metaLuchii ?? new MetaLuchiiReasoningLayer();
-    this.hypergraph = options.hypergraph ?? new HypergraphEngine(this.worldGraph);
+    this.hypergraph =
+      options.hypergraph ?? new HypergraphEngine(this.worldGraph);
     this.timeline = options.timeline ?? new TimelineEngine(this.worldGraph);
     this.fieldEngine =
       options.fieldEngine ??
@@ -898,7 +945,9 @@ export class ExistentialControlPlane {
   }
 }
 
-function normalizeAmplitudes(amplitudes: QuantumAmplitude[]): QuantumAmplitude[] {
+function normalizeAmplitudes(
+  amplitudes: QuantumAmplitude[],
+): QuantumAmplitude[] {
   if (!Array.isArray(amplitudes) || amplitudes.length === 0) {
     throw new Error('amplitudes must be a non-empty array.');
   }
@@ -916,7 +965,9 @@ function normalizeAmplitudes(amplitudes: QuantumAmplitude[]): QuantumAmplitude[]
       !Number.isFinite(amplitude.amplitude) ||
       amplitude.amplitude < 0
     ) {
-      throw new Error(`amplitudes[${index}].amplitude must be a finite number greater than or equal to 0.`);
+      throw new Error(
+        `amplitudes[${index}].amplitude must be a finite number greater than or equal to 0.`,
+      );
     }
 
     return {
@@ -925,7 +976,10 @@ function normalizeAmplitudes(amplitudes: QuantumAmplitude[]): QuantumAmplitude[]
     };
   });
 
-  const total = normalized.reduce((sum, amplitude) => sum + amplitude.amplitude, 0);
+  const total = normalized.reduce(
+    (sum, amplitude) => sum + amplitude.amplitude,
+    0,
+  );
   if (total <= 0) {
     throw new Error('amplitudes must sum to a value greater than 0.');
   }
@@ -998,7 +1052,9 @@ function copyControlPlaneAnomaly(
   };
 }
 
-function copyControlPlaneAction(action: ControlPlaneAction): ControlPlaneAction {
+function copyControlPlaneAction(
+  action: ControlPlaneAction,
+): ControlPlaneAction {
   return {
     ...action,
   };

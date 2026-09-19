@@ -14,12 +14,7 @@ import {
 } from '@frasberg/shared';
 
 export type EngineDomain =
-  | 'music'
-  | 'video'
-  | 'image'
-  | 'voice'
-  | 'stt'
-  | 'tts';
+  'music' | 'video' | 'image' | 'voice' | 'stt' | 'tts';
 export type EngineJobState = 'queued' | 'running' | 'completed' | 'failed';
 export type TrustedRole = 'admin' | 'user';
 
@@ -223,7 +218,10 @@ export function buildGatewayServerApp(
     return reply.code(200).send(controlPlane.getStatus());
   });
 
-  const runControlCycle = async (request: FastifyRequest, reply: FastifyReply) => {
+  const runControlCycle = async (
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ) => {
     if (
       !(await enforceAdminRoute(
         request,
@@ -650,7 +648,10 @@ function readWorldRegistrationBody(
         : readNonEmptyString(payload.id, 'id'),
     label: readNonEmptyString(payload.label, 'label'),
     eid: readNonEmptyString(payload.eid, 'eid'),
-    existenceState: readNonEmptyString(payload.existenceState, 'existenceState'),
+    existenceState: readNonEmptyString(
+      payload.existenceState,
+      'existenceState',
+    ),
     continuityArc: readNonEmptyString(payload.continuityArc, 'continuityArc'),
     meaningScore: readUnitInterval(payload.meaningScore, 'meaningScore'),
     riskProfile: readUnitInterval(payload.riskProfile, 'riskProfile'),
@@ -782,7 +783,9 @@ function readIntegerLikeInRange(
   label: string,
 ): number {
   const numericValue =
-    typeof value === 'string' && value.trim().length > 0 ? Number(value) : value;
+    typeof value === 'string' && value.trim().length > 0
+      ? Number(value)
+      : value;
   if (typeof numericValue !== 'number' || !Number.isInteger(numericValue)) {
     throw new Error(`${label} must be an integer.`);
   }
