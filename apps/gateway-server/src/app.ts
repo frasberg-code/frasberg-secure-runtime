@@ -391,6 +391,12 @@ export function buildGatewayServerApp(
         (request.params as { id?: string }).id,
         'id',
       );
+      if (!controlPlane.worldGraph.getWorld(worldId)) {
+        return reply
+          .code(404)
+          .send({ error: `World "${worldId}" does not exist.` });
+      }
+
       const world = controlPlane.removeWorld(worldId);
       await auditStore.record({
         actorId: principal.sub,
@@ -400,9 +406,7 @@ export function buildGatewayServerApp(
       });
       return reply.code(200).send({ deleted: true, world });
     } catch (error) {
-      const message = (error as Error).message;
-      const statusCode = /does not exist/i.test(message) ? 404 : 400;
-      return reply.code(statusCode).send({ error: message });
+      return reply.code(500).send({ error: (error as Error).message });
     }
   });
 

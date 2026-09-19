@@ -849,7 +849,7 @@ export class ExistentialControlPlane {
   }
 
   removeWorld(worldId: string): WorldGraphWorld {
-    const world = this.worldGraph.removeWorld(worldId);
+    const world = this.worldGraph.getWorld(worldId);
     if (!world) {
       throw new Error(`World "${worldId}" does not exist.`);
     }
@@ -858,6 +858,7 @@ export class ExistentialControlPlane {
     this.timeline.removeWorld(world.id);
     this.omniBridge.removeWorld(world.id);
     this.quantumEngine.removeWorld(world.id);
+    this.worldGraph.removeWorld(world.id);
     return world;
   }
 
