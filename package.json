@@ -10,6 +10,7 @@
     "clean": "rm -rf packages/*/dist packages/*/tsconfig.tsbuildinfo apps/*/dist apps/*/tsconfig.tsbuildinfo",
     "format": "prettier --check .",
     "format:write": "prettier --write .",
+    "lint": "prettier --check .",
     "test": "vitest run",
     "validate:manifests": "node ./scripts/validate-manifests.mjs"
   },
