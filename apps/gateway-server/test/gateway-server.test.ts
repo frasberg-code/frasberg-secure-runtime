@@ -264,6 +264,44 @@ describe('gateway-server security', () => {
     });
   });
 
+  it('deletes registered worlds and returns 404 for missing worlds', async () => {
+    const app = testApp();
+
+    await app.inject({
+      method: 'POST',
+      url: '/v1/admin/worlds/register',
+      headers: { authorization: bearerFor('admin-user') },
+      payload: {
+        id: 'world-delete',
+        label: 'World Delete',
+        eid: 'eid-delete',
+        existenceState: 'stable',
+        continuityArc: 'arc-delete',
+        meaningScore: 0.5,
+        riskProfile: 0.1,
+        tags: ['delete'],
+      },
+    });
+
+    const deleted = await app.inject({
+      method: 'DELETE',
+      url: '/v1/admin/worlds/world-delete',
+      headers: { authorization: bearerFor('admin-user') },
+    });
+    expect(deleted.statusCode).toBe(200);
+    expect(deleted.json()).toMatchObject({
+      deleted: true,
+      world: { id: 'world-delete' },
+    });
+
+    const missing = await app.inject({
+      method: 'DELETE',
+      url: '/v1/admin/worlds/missing-world',
+      headers: { authorization: bearerFor('admin-user') },
+    });
+    expect(missing.statusCode).toBe(404);
+  });
+
   it('creates audit records for control cycles', async () => {
     const auditStore = new InMemoryAuditStore();
     const app = testApp({ auditStore });

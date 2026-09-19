@@ -176,6 +176,11 @@ export interface AuditLogRecord {
   detail: Record<string, unknown>;
 }
 
+export interface AuditLogPage {
+  records: AuditLogRecord[];
+  total: number;
+}
+
 export interface CreateAuditLogRecordInput {
   actorId: string;
   action: string;
@@ -201,6 +206,15 @@ export class AuditLog {
 
   list(): AuditLogRecord[] {
     return this.entries.map(copyAuditRecord);
+  }
+
+  listPage(options: { limit: number; offset: number }): AuditLogPage {
+    const limit = readIntegerInRange(options.limit, 1, 100, 'limit');
+    const offset = readIntegerInRange(options.offset, 0, 10_000, 'offset');
+    return {
+      records: this.entries.slice(offset, offset + limit).map(copyAuditRecord),
+      total: this.entries.length,
+    };
   }
 
   count(): number {

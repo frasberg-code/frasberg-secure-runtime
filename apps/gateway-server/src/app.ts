@@ -41,9 +41,15 @@ export interface AuditRecord {
   detail: Record<string, unknown>;
 }
 
+export interface AuditListPage {
+  records: AuditRecord[];
+  total: number;
+}
+
 export interface AuditStore {
   record(entry: Omit<AuditRecord, 'id' | 'createdAt'>): Promise<AuditRecord>;
   list(): Promise<AuditRecord[]>;
+  listPage?(options: { limit: number; offset: number }): Promise<AuditListPage>;
 }
 
 export interface UserRoleStore {
@@ -119,6 +125,13 @@ export class InMemoryAuditStore implements AuditStore {
 
   async list(): Promise<AuditRecord[]> {
     return this.auditLog.list();
+  }
+
+  async listPage(options: {
+    limit: number;
+    offset: number;
+  }): Promise<AuditListPage> {
+    return this.auditLog.listPage(options);
   }
 }
 
@@ -457,15 +470,15 @@ export function buildGatewayServerApp(
 
     try {
       const { limit, offset } = readAuditListQuery(request.query);
-      const records = await auditStore.list();
-      const total = records.length;
-      const paginated = records.slice(offset, offset + limit);
+      const page = auditStore.listPage
+        ? await auditStore.listPage({ limit, offset })
+        : await listAuditPageFallback(auditStore, { limit, offset });
       return reply.code(200).send({
-        records: paginated,
-        total,
+        records: page.records,
+        total: page.total,
         limit,
         offset,
-        nextOffset: offset + limit < total ? offset + limit : null,
+        nextOffset: offset + limit < page.total ? offset + limit : null,
       });
     } catch (error) {
       return reply.code(400).send({ error: (error as Error).message });
@@ -570,6 +583,17 @@ async function enforceAdminRoute(
   }
 
   return Boolean(await requireAdmin(request, reply));
+}
+
+async function listAuditPageFallback(
+  auditStore: AuditStore,
+  options: { limit: number; offset: number },
+): Promise<AuditListPage> {
+  const records = await auditStore.list();
+  return {
+    records: records.slice(options.offset, options.offset + options.limit),
+    total: records.length,
+  };
 }
 
 function readGenerateRequestBody(value: unknown): GenerateRequestBody {
