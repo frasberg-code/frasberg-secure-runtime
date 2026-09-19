@@ -459,6 +459,8 @@ begin
     return;
   end if;
 
+  perform pg_advisory_xact_lock(hashtext('public.ensure_cron_job'), hashtext(p_job_name));
+
   for v_job in
     select j.jobid
     from cron.job j
@@ -524,6 +526,10 @@ end;
 $$;
 
 grant usage on schema monitor to authenticated;
+revoke all on materialized view monitor.engine_health from public;
+revoke all on materialized view monitor.world_risk from public;
+revoke select on materialized view monitor.engine_health from anon, authenticated;
+revoke select on materialized view monitor.world_risk from anon, authenticated;
 revoke all on function public.current_execution_is_system() from public;
 revoke execute on function public.current_execution_is_system() from anon;
 grant execute on function public.current_execution_is_system() to authenticated;
@@ -571,3 +577,5 @@ comment on function public.ensure_maintenance_cron_jobs() is
   'Best-effort pg_cron scheduler for service/system use only. Enable the pg_cron extension in Supabase before invoking; re-running this helper unschedules matching names first so job names stay idempotent across redeploys.';
 comment on function monitor.refresh_materialized_views() is
   'Refreshes monitoring materialized views with standard (non-concurrent) refreshes. Unique indexes support a future move to concurrent refreshes, but non-concurrent refresh keeps migration-time and cron execution behavior predictable.';
+comment on schema monitor is
+  'Holds operational monitoring objects. Authenticated admins receive schema usage so they can execute monitor.refresh_materialized_views(), but SELECT on the materialized views themselves remains withheld because the rollups are multi-tenant.';

@@ -121,6 +121,9 @@ declare
   v_affected_count integer;
   v_deleted_rate_limits integer;
   v_deleted_delivered_alerts integer;
+  v_registry_backend_url text;
+  v_registry_enabled boolean;
+  v_registry_metadata jsonb;
 begin
   select p.rate_limits_to_delete, p.delivered_alerts_to_delete
     into v_rate_limits_to_delete, v_delivered_alerts_to_delete
@@ -144,6 +147,35 @@ begin
 
   if v_deleted_rate_limits <> 1 or v_deleted_delivered_alerts <> 1 then
     raise exception 'cleanup should delete exactly the stale rows';
+  end if;
+
+  perform public.admin_upsert_engine_registry(
+    (select member_id from test_ctx),
+    'engine-upsert',
+    'https://runtime.example.internal/engine-upsert',
+    true,
+    '{"phase":"insert"}'::jsonb
+  );
+
+  perform public.admin_upsert_engine_registry(
+    (select member_id from test_ctx),
+    'engine-upsert',
+    'https://runtime.example.internal/engine-upsert-v2',
+    false,
+    '{"phase":"update","updated_by":"sql_test"}'::jsonb
+  );
+
+  select er.backend_url, er.is_enabled, er.metadata
+    into v_registry_backend_url, v_registry_enabled, v_registry_metadata
+  from public.engine_registry er
+  join test_ctx ctx on ctx.member_id = er.owner_id
+  where er.engine_name = 'engine-upsert';
+
+  if v_registry_backend_url <> 'https://runtime.example.internal/engine-upsert-v2'
+     or v_registry_enabled is not false
+     or coalesce(v_registry_metadata ->> 'phase', '') <> 'update'
+     or coalesce(v_registry_metadata ->> 'updated_by', '') <> 'sql_test' then
+    raise exception 'admin_upsert_engine_registry should cover insert and conflict-update paths';
   end if;
 end;
 $$;
