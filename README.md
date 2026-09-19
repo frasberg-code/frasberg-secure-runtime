@@ -10,13 +10,14 @@ Private Node/TypeScript monorepo scaffold for Frasberg secure runtime, backend g
 
 ## Workspace layout
 
-- `apps/gateway-server` (gateway entry wrappers)
+- `apps/gateway-server` (secure JWT + admin-gated gateway server app)
 - `apps/runtime-router` (runtime router entry wrappers)
 - `apps/engine-server` (engine entry wrappers)
 - `apps/frontend-studio` (backend-only CreativeStudio integration)
 - `packages/shared` (shared auth/types + `FrasbergClient`/`FrasbergGateway`)
 - `packages/gateway`, `packages/runtime-router`, `packages/engine`, `packages/botbase-workers`
 - `workers/botbase` (worker endpoint exports)
+- `supabase/` (schema migrations, config, SQL checks)
 - `docs/` and `manifests/` (security and template assets)
 
 ## Backend Frasberg routes

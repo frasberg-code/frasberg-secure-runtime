@@ -33,5 +33,7 @@ A partial match is not sufficient; the default posture is deny.
 - Replace the in-memory engine repository with durable queue/storage
 - Replace placeholder generation responses with verified upstream providers
 - Replace scaffold worker responses with audited implementations and fine-grained authz
+- For Supabase RLS admin access, write trusted roles into `public.user_profiles.role` from server-side provisioning flows (or a validated access-token hook) before granting admin capabilities
+- Route alert outbox events (`public.alert_outbox`) to Supabase Database Webhooks/Edge Functions or `pg_net` workers in deployment infrastructure
 - Add real deployment secrets through GitHub environments, Kubernetes secrets, or Cloudflare secret storage
 - Replace placeholder failover URLs in `manifests/multi-region-failover.template.json` with infrastructure-managed values
