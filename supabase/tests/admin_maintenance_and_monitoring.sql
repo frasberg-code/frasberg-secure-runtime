@@ -241,14 +241,11 @@ begin
 end;
 $$;
 
-set local role authenticated;
-select set_config('request.jwt.claim.role', 'authenticated', true);
-select set_config('request.jwt.claim.sub', (select admin_id::text from test_ctx), true);
-
-select * from public.ensure_maintenance_cron_jobs();
-select * from public.ensure_maintenance_cron_jobs();
-
 reset role;
+select set_config('request.jwt.claim.sub', '', true);
+
+select * from public.ensure_maintenance_cron_jobs();
+select * from public.ensure_maintenance_cron_jobs();
 
 do $$
 begin

@@ -469,7 +469,9 @@ grant execute on function public.admin_cleanup_resources(integer, integer, boole
 grant execute on function public.admin_recompute_user_costs(uuid) to authenticated;
 grant execute on function public.admin_upsert_engine_registry(uuid, text, text, boolean, jsonb) to authenticated;
 grant execute on function monitor.refresh_materialized_views() to authenticated;
-grant execute on function public.ensure_maintenance_cron_jobs() to authenticated;
+revoke all on function public.ensure_maintenance_cron_jobs() from public;
+revoke execute on function public.ensure_maintenance_cron_jobs() from anon, authenticated;
+grant execute on function public.ensure_maintenance_cron_jobs() to service_role;
 
 comment on function public.current_execution_is_system() is
   'Returns true only when no JWT subject is present and the active database role is a trusted system role such as postgres or service_role; authenticated requests are therefore not reclassified as cron/system work.';
@@ -478,8 +480,6 @@ comment on function public.require_admin_or_system(text) is
 comment on function public.admin_cleanup_resources(integer, integer, boolean) is
   'Deletes only bounded stale rows after an explicit preview/confirmation flow. Retention arguments are validated with a minimum seven-day safety floor.';
 comment on function public.ensure_maintenance_cron_jobs() is
-  'Best-effort pg_cron scheduler. Enable the pg_cron extension in Supabase before invoking; re-running this helper unschedules matching names first so job names stay idempotent across redeploys.';
+  'Best-effort pg_cron scheduler for service/system use only. Enable the pg_cron extension in Supabase before invoking; re-running this helper unschedules matching names first so job names stay idempotent across redeploys.';
 comment on function monitor.refresh_materialized_views() is
   'Refreshes monitoring materialized views with standard (non-concurrent) refreshes. Unique indexes support a future move to concurrent refreshes, but non-concurrent refresh keeps migration-time and cron execution behavior predictable.';
-
-select * from public.ensure_maintenance_cron_jobs();
