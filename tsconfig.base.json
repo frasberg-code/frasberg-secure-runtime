@@ -9,7 +9,16 @@
     "rootDir": "./",
     "baseUrl": ".",
     "paths": {
-      "@frasberg/shared": ["packages/shared/src/index.ts"]
+      "@frasberg/shared": ["packages/shared/src/index.ts"],
+      "@frasberg/full-game-stack-schema": [
+        "packages/full-game-stack-schema/src/index.ts"
+      ],
+      "@frasberg/worldgraph-engine": [
+        "packages/worldgraph-engine/src/index.ts"
+      ],
+      "@frasberg/builder-v2-orchestrator": [
+        "packages/builder-v2-orchestrator/src/index.ts"
+      ]
     },
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,

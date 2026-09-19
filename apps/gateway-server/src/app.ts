@@ -5,9 +5,18 @@ import Fastify, {
   FastifyRequest,
 } from 'fastify';
 import {
+  validateWorldDefinition,
+  type WorldDefinition,
+} from '@frasberg/full-game-stack-schema';
+import {
   CreateGovernancePolicyInput,
   GovernanceEngine,
 } from '@frasberg/shared';
+import {
+  type WorldGraphListOptions,
+  type WorldGraphRequestContext,
+  type WorldGraphService,
+} from '@frasberg/worldgraph-engine';
 
 export type EngineDomain =
   'music' | 'video' | 'image' | 'voice' | 'stt' | 'tts';
@@ -57,6 +66,7 @@ export interface GatewayServerOptions {
   roleStore: UserRoleStore;
   engineAdapter: EngineAdapter;
   governanceEngine?: GovernanceEngine;
+  worldGraphService?: WorldGraphService;
   auditStore?: AuditStore;
   rateLimitMax?: number;
   rateLimitWindowMs?: number;
@@ -186,6 +196,210 @@ export function buildGatewayServerApp(
       const domain = readDomain((request.params as { domain?: string }).domain);
       const result = await options.engineAdapter.submitJob(domain, body);
       return reply.code(202).send(result);
+    } catch (error) {
+      return reply.code(400).send({ error: (error as Error).message });
+    }
+  });
+
+  app.post('/v1/worldgraph', async (request, reply) => {
+    if (
+      !enforceRateLimit(
+        request,
+        reply,
+        rateLimitState,
+        rateLimitMax,
+        rateLimitWindowMs,
+      )
+    ) {
+      return;
+    }
+
+    const worldGraphService = requireWorldGraphService(reply, options);
+    if (!worldGraphService) {
+      return;
+    }
+
+    try {
+      const definition = validateWorldDefinition(request.body);
+      const context = readWorldGraphRequestContext(request);
+      const record = await worldGraphService.createDefinition(
+        context,
+        definition,
+      );
+      await auditStore.record({
+        actorId: context.ownerId,
+        action: 'worldgraph:create',
+        target: record.id,
+        detail: readWorldGraphAuditDetail(definition),
+      });
+      return reply.code(201).send(record);
+    } catch (error) {
+      return reply.code(400).send({ error: (error as Error).message });
+    }
+  });
+
+  app.get('/v1/worldgraph/:id', async (request, reply) => {
+    if (
+      !enforceRateLimit(
+        request,
+        reply,
+        rateLimitState,
+        rateLimitMax,
+        rateLimitWindowMs,
+      )
+    ) {
+      return;
+    }
+
+    const worldGraphService = requireWorldGraphService(reply, options);
+    if (!worldGraphService) {
+      return;
+    }
+
+    try {
+      const params = request.params as { id?: string };
+      const record = await worldGraphService.getDefinition(
+        readWorldGraphRequestContext(request),
+        readNonEmptyString(params.id, 'id'),
+      );
+      if (!record) {
+        return reply
+          .code(404)
+          .send({ error: 'WorldGraph definition not found.' });
+      }
+      return reply.code(200).send(record);
+    } catch (error) {
+      return reply.code(400).send({ error: (error as Error).message });
+    }
+  });
+
+  app.patch('/v1/worldgraph/:id', async (request, reply) => {
+    if (
+      !enforceRateLimit(
+        request,
+        reply,
+        rateLimitState,
+        rateLimitMax,
+        rateLimitWindowMs,
+      )
+    ) {
+      return;
+    }
+
+    const worldGraphService = requireWorldGraphService(reply, options);
+    if (!worldGraphService) {
+      return;
+    }
+
+    try {
+      const params = request.params as { id?: string };
+      const definition = validateWorldDefinition(request.body);
+      const context = readWorldGraphRequestContext(request);
+      const record = await worldGraphService.updateDefinition(
+        context,
+        readNonEmptyString(params.id, 'id'),
+        definition,
+      );
+      if (!record) {
+        return reply
+          .code(404)
+          .send({ error: 'WorldGraph definition not found.' });
+      }
+      await auditStore.record({
+        actorId: context.ownerId,
+        action: 'worldgraph:update',
+        target: record.id,
+        detail: readWorldGraphAuditDetail(definition),
+      });
+      return reply.code(200).send(record);
+    } catch (error) {
+      return reply.code(400).send({ error: (error as Error).message });
+    }
+  });
+
+  app.delete('/v1/worldgraph/:id', async (request, reply) => {
+    if (
+      !enforceRateLimit(
+        request,
+        reply,
+        rateLimitState,
+        rateLimitMax,
+        rateLimitWindowMs,
+      )
+    ) {
+      return;
+    }
+
+    const worldGraphService = requireWorldGraphService(reply, options);
+    if (!worldGraphService) {
+      return;
+    }
+
+    try {
+      const params = request.params as { id?: string };
+      const context = readWorldGraphRequestContext(request);
+      const definitionId = readNonEmptyString(params.id, 'id');
+      const existing = await worldGraphService.getDefinition(
+        context,
+        definitionId,
+      );
+      if (!existing) {
+        return reply
+          .code(404)
+          .send({ error: 'WorldGraph definition not found.' });
+      }
+
+      const deleted = await worldGraphService.deleteDefinition(
+        context,
+        definitionId,
+      );
+      if (!deleted) {
+        return reply
+          .code(404)
+          .send({ error: 'WorldGraph definition not found.' });
+      }
+
+      await auditStore.record({
+        actorId: context.ownerId,
+        action: 'worldgraph:delete',
+        target: definitionId,
+        detail: {
+          kind: existing.kind,
+          name: existing.name,
+          schemaVersion: existing.schemaVersion,
+        },
+      });
+      return reply.code(204).send();
+    } catch (error) {
+      return reply.code(400).send({ error: (error as Error).message });
+    }
+  });
+
+  app.get('/v1/worldgraph', async (request, reply) => {
+    if (
+      !enforceRateLimit(
+        request,
+        reply,
+        rateLimitState,
+        rateLimitMax,
+        rateLimitWindowMs,
+      )
+    ) {
+      return;
+    }
+
+    const worldGraphService = requireWorldGraphService(reply, options);
+    if (!worldGraphService) {
+      return;
+    }
+
+    try {
+      const query = readWorldGraphListQuery(request.query);
+      const page = await worldGraphService.listDefinitions(
+        readWorldGraphRequestContext(request),
+        query,
+      );
+      return reply.code(200).send(page);
     } catch (error) {
       return reply.code(400).send({ error: (error as Error).message });
     }
@@ -339,7 +553,7 @@ async function authenticateBearerToken(
   }
 
   const [scheme, token] = authorization.split(' ');
-  if (scheme !== 'Bearer' || !token) {
+  if (scheme.toLowerCase() !== 'bearer' || !token) {
     return undefined;
   }
 
@@ -412,6 +626,65 @@ function readGenerateRequestBody(value: unknown): GenerateRequestBody {
       payload.eid === undefined
         ? undefined
         : readNonEmptyString(payload.eid, 'eid'),
+  };
+}
+
+function requireWorldGraphService(
+  reply: FastifyReply,
+  options: GatewayServerOptions,
+): WorldGraphService | undefined {
+  if (!options.worldGraphService) {
+    reply.code(503).send({ error: 'WorldGraph service is not configured.' });
+    return undefined;
+  }
+  return options.worldGraphService;
+}
+
+function readWorldGraphRequestContext(
+  request: FastifyRequest,
+): WorldGraphRequestContext {
+  const authorization = request.headers.authorization;
+  const principal = request.principal;
+  if (!principal || typeof authorization !== 'string') {
+    throw new Error('Authenticated WorldGraph access requires a bearer token.');
+  }
+
+  const [scheme, token] = authorization.split(' ');
+  if (scheme.toLowerCase() !== 'bearer' || !token) {
+    throw new Error('Authenticated WorldGraph access requires a bearer token.');
+  }
+
+  return {
+    accessToken: token,
+    ownerId: principal.sub,
+  };
+}
+
+function readWorldGraphListQuery(value: unknown): WorldGraphListOptions {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('Query must be an object.');
+  }
+
+  const query = value as Record<string, unknown>;
+  return {
+    page:
+      query.page === undefined
+        ? 1
+        : readPositiveIntegerQuery(query.page, 'page', 1, 10_000),
+    pageSize:
+      query.pageSize === undefined
+        ? 20
+        : readPositiveIntegerQuery(query.pageSize, 'pageSize', 1, 100),
+  };
+}
+
+function readWorldGraphAuditDetail(
+  definition: WorldDefinition,
+): Record<string, unknown> {
+  return {
+    kind: definition.kind,
+    name: definition.name,
+    schemaVersion: definition.metadata.schemaVersion,
   };
 }
 
@@ -532,6 +805,29 @@ function readInteger(value: unknown, label: string): number {
   }
 
   return value;
+}
+
+function readPositiveIntegerQuery(
+  value: unknown,
+  label: string,
+  minimum: number,
+  maximum: number,
+): number {
+  const normalized =
+    typeof value === 'string'
+      ? Number.parseInt(value, 10)
+      : readInteger(value, label);
+  if (
+    !Number.isInteger(normalized) ||
+    !Number.isFinite(normalized) ||
+    normalized < minimum ||
+    normalized > maximum
+  ) {
+    throw new Error(
+      `${label} must be an integer between ${minimum} and ${maximum}.`,
+    );
+  }
+  return normalized;
 }
 
 function readNonEmptyString(value: unknown, label: string): string {

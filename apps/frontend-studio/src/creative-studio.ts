@@ -99,7 +99,10 @@ export class BackendCreativeStudio implements CreativeStudio {
   }
 
   private async request(path: string, init: RequestInit) {
-    const response = await this.fetchImpl(`${this.backendBaseUrl}${path}`, init);
+    const response = await this.fetchImpl(
+      `${this.backendBaseUrl}${path}`,
+      init,
+    );
     const body = (await response.json()) as StudioJobResponse;
     if (!response.ok) {
       throw new Error(
@@ -114,7 +117,9 @@ function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function normalizeState(response: StudioJobResponse): StudioJobState | undefined {
+function normalizeState(
+  response: StudioJobResponse,
+): StudioJobState | undefined {
   const state = response.state ?? response.status;
   if (
     state === 'queued' ||

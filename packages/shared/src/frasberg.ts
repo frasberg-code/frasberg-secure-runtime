@@ -37,7 +37,9 @@ export class FrasbergClient {
       method,
       headers: {
         authorization: ['Bearer', key].join(' '),
-        ...(payload === undefined ? {} : { 'content-type': 'application/json' }),
+        ...(payload === undefined
+          ? {}
+          : { 'content-type': 'application/json' }),
       },
       ...(payload === undefined ? {} : { body: JSON.stringify(payload) }),
     });
