@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import Fastify, {
   FastifyInstance,
   FastifyReply,
@@ -146,7 +146,7 @@ export class InMemoryFakeEngineAdapter implements EngineAdapter {
   ): Promise<EngineJobResult> {
     const prompt = readNonEmptyString(payload.prompt, 'prompt');
     return {
-      jobId: cryptoRandomUuid(),
+      jobId: randomUUID(),
       domain,
       state: 'queued',
       artifactUrl: `fake://${domain}/${encodeURIComponent(prompt)}`,
@@ -918,8 +918,4 @@ function enforceRateLimit(
   }
 
   return true;
-}
-
-function cryptoRandomUuid(): string {
-  return globalThis.crypto.randomUUID();
 }

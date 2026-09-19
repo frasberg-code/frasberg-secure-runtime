@@ -874,10 +874,10 @@ export class ExistentialControlPlane {
       policies.length === 0
         ? 0
         : Math.min(...policies.map((policy) => policy.meaningThreshold));
-    const minRiskThreshold =
+    const maxRiskThreshold =
       policies.length === 0
         ? 1
-        : Math.min(...policies.map((policy) => policy.riskThreshold));
+        : Math.max(...policies.map((policy) => policy.riskThreshold));
     const anomalies: ControlPlaneAnomaly[] = [];
     const actions: ControlPlaneAction[] = [];
 
@@ -905,13 +905,13 @@ export class ExistentialControlPlane {
         });
       }
 
-      if (world.riskProfile > minRiskThreshold) {
+      if (world.riskProfile > maxRiskThreshold) {
         anomalies.push({
           id: randomUUID(),
           worldId: world.id,
           type: 'risk-threshold',
           severity: 'high',
-          message: `Risk profile ${world.riskProfile.toFixed(2)} exceeds policy threshold ${minRiskThreshold.toFixed(2)}.`,
+          message: `Risk profile ${world.riskProfile.toFixed(2)} exceeds policy threshold ${maxRiskThreshold.toFixed(2)}.`,
         });
         actions.push({
           id: randomUUID(),
