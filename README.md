@@ -15,6 +15,9 @@ Private Node/TypeScript monorepo scaffold for Frasberg secure runtime, backend g
 - `apps/engine-server` (engine entry wrappers)
 - `apps/frontend-studio` (backend-only CreativeStudio integration)
 - `packages/shared` (shared auth/types + `FrasbergClient`/`FrasbergGateway`)
+- `packages/full-game-stack-schema` (typed schema contracts + validators for worlds, apps, and sites)
+- `packages/worldgraph-engine` (persistent WorldGraph RPC service contracts for Supabase-backed storage)
+- `packages/builder-v2-orchestrator` (builder orchestration contracts and contract-test fixture)
 - `packages/gateway`, `packages/runtime-router`, `packages/engine`, `packages/botbase-workers`
 - `workers/botbase` (worker endpoint exports)
 - `supabase/` (schema migrations, config, SQL checks)
@@ -30,6 +33,16 @@ The backend gateway exposes:
 - `POST /api/tts`
 - `POST /api/audio`
 - `GET /api/jobs/:id`
+
+The authenticated runtime gateway server also exposes owner-scoped WorldGraph APIs:
+
+- `POST /v1/worldgraph`
+- `GET /v1/worldgraph`
+- `GET /v1/worldgraph/:id`
+- `PATCH /v1/worldgraph/:id`
+- `DELETE /v1/worldgraph/:id`
+
+`POST` and `PATCH` accept `packages/full-game-stack-schema` `WorldDefinition` payloads and audit-log mutations through the existing gateway audit store.
 
 All Frasberg calls use `https://frasberg.com/api` and attach an Authorization bearer token from domain keys:
 
@@ -62,6 +75,8 @@ The Tier 12 existential modules in `packages/shared` and `apps/gateway-server` i
 - `GITHUB_CLIENT_SECRET`
 - `GITHUB_REDIRECT_URI`
 - `GITHUB_WEBHOOK_SECRET`
+- `GATEWAY_WORLDGRAPH_SUPABASE_URL`
+- `GATEWAY_WORLDGRAPH_SUPABASE_ANON_KEY`
 
 See `.env.example` for placeholder values only.
 
@@ -73,6 +88,8 @@ npm run build
 npm run test
 npm run validate:manifests
 ```
+
+For Supabase-backed WorldGraph persistence, apply `supabase/migrations/*.sql` and then run the SQL checks in `supabase/tests/*.sql` in a local Supabase/Postgres environment or CI job.
 
 ## Local dev scaffolds
 
