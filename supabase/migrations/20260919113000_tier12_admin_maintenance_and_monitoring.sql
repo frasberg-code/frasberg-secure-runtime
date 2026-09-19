@@ -272,9 +272,7 @@ begin
 end;
 $$;
 
-drop materialized view if exists monitor.engine_health;
-
-create materialized view monitor.engine_health as
+create materialized view if not exists monitor.engine_health as
 with usage_rollup as (
   select
     eu.owner_id,
@@ -315,9 +313,29 @@ create index if not exists monitor_engine_health_status_idx
 comment on materialized view monitor.engine_health is
   'Operational engine health rollup. Zero-usage engines remain visible with health_status = ''no-usage'' to avoid NULL-only monitoring rows.';
 
-drop materialized view if exists monitor.world_risk;
+do $$
+declare
+  v_definition text;
+begin
+  select lower(m.definition)
+    into v_definition
+  from pg_matviews m
+  where m.schemaname = 'monitor'
+    and m.matviewname = 'engine_health';
 
-create materialized view monitor.world_risk as
+  if v_definition is null then
+    raise exception 'monitor.engine_health must exist after this migration';
+  end if;
+
+  if position('usage_rollup' in v_definition) = 0
+     or position('no-usage' in v_definition) = 0
+     or position('full outer join' in v_definition) = 0 then
+    raise exception 'monitor.engine_health exists with an unexpected definition; rebuild it manually before re-running this migration';
+  end if;
+end;
+$$;
+
+create materialized view if not exists monitor.world_risk as
 with event_rollup as (
   select
     ce.world_id,
@@ -357,6 +375,28 @@ create index if not exists monitor_world_risk_level_idx
 
 comment on materialized view monitor.world_risk is
   'World continuity risk snapshot. Worlds with zero events refresh to risk_score = 0 and risk_level = ''stable'' instead of surfacing NULL risk math.';
+
+do $$
+declare
+  v_definition text;
+begin
+  select lower(m.definition)
+    into v_definition
+  from pg_matviews m
+  where m.schemaname = 'monitor'
+    and m.matviewname = 'world_risk';
+
+  if v_definition is null then
+    raise exception 'monitor.world_risk must exist after this migration';
+  end if;
+
+  if position('risk_event_count' in v_definition) = 0
+     or position('incident' in v_definition) = 0
+     or position('stable' in v_definition) = 0 then
+    raise exception 'monitor.world_risk exists with an unexpected definition; rebuild it manually before re-running this migration';
+  end if;
+end;
+$$;
 
 create or replace function monitor.refresh_materialized_views()
 returns table(view_name text, refreshed_at timestamptz)
@@ -465,14 +505,34 @@ end;
 $$;
 
 grant usage on schema monitor to authenticated;
+revoke all on function public.current_execution_is_system() from public;
+revoke execute on function public.current_execution_is_system() from anon;
 grant execute on function public.current_execution_is_system() to authenticated;
+revoke all on function public.require_admin_or_system(text) from public;
+revoke execute on function public.require_admin_or_system(text) from anon;
 grant execute on function public.require_admin_or_system(text) to authenticated;
+revoke all on function public.validate_retention_days(text, integer, integer) from public;
+revoke execute on function public.validate_retention_days(text, integer, integer) from anon;
+revoke all on function public.admin_reset_monthly_quotas(uuid) from public;
+revoke execute on function public.admin_reset_monthly_quotas(uuid) from anon;
 grant execute on function public.admin_reset_monthly_quotas(uuid) to authenticated;
+revoke all on function public.admin_preview_resource_cleanup(integer, integer) from public;
+revoke execute on function public.admin_preview_resource_cleanup(integer, integer) from anon;
 grant execute on function public.admin_preview_resource_cleanup(integer, integer) to authenticated;
+revoke all on function public.admin_cleanup_resources(integer, integer, boolean) from public;
+revoke execute on function public.admin_cleanup_resources(integer, integer, boolean) from anon;
 grant execute on function public.admin_cleanup_resources(integer, integer, boolean) to authenticated;
+revoke all on function public.admin_recompute_user_costs(uuid) from public;
+revoke execute on function public.admin_recompute_user_costs(uuid) from anon;
 grant execute on function public.admin_recompute_user_costs(uuid) to authenticated;
+revoke all on function public.admin_upsert_engine_registry(uuid, text, text, boolean, jsonb) from public;
+revoke execute on function public.admin_upsert_engine_registry(uuid, text, text, boolean, jsonb) from anon;
 grant execute on function public.admin_upsert_engine_registry(uuid, text, text, boolean, jsonb) to authenticated;
+revoke all on function monitor.refresh_materialized_views() from public;
+revoke execute on function monitor.refresh_materialized_views() from anon;
 grant execute on function monitor.refresh_materialized_views() to authenticated;
+revoke all on function public.ensure_cron_job(text, text, text) from public;
+revoke execute on function public.ensure_cron_job(text, text, text) from anon, authenticated;
 revoke all on function public.ensure_maintenance_cron_jobs() from public;
 revoke execute on function public.ensure_maintenance_cron_jobs() from anon, authenticated;
 grant execute on function public.ensure_maintenance_cron_jobs() to service_role;

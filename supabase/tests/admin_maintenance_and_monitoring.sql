@@ -242,6 +242,7 @@ end;
 $$;
 
 reset role;
+set local role service_role;
 select set_config('request.jwt.claim.sub', '', true);
 
 select * from public.ensure_maintenance_cron_jobs();
