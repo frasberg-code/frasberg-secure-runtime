@@ -1,4 +1,7 @@
 -- Run after applying migrations in a local Supabase/Postgres environment.
+-- Requires the standard Supabase auth roles/tables (`authenticated`,
+-- `service_role`, `auth.users`) and optionally validates pg_cron idempotency
+-- when the extension is enabled.
 -- This validates admin-only maintenance guards, cron idempotency, zero-data
 -- monitoring behavior, and refresh correctness.
 
@@ -206,7 +209,6 @@ end;
 $$;
 
 select * from public.admin_recompute_user_costs((select member_id from test_ctx));
-select * from monitor.refresh_materialized_views();
 
 do $$
 begin
@@ -222,6 +224,11 @@ exception
     end if;
 end;
 $$;
+
+reset role;
+set local role service_role;
+select set_config('request.jwt.claim.sub', '', true);
+select * from monitor.refresh_materialized_views();
 
 reset role;
 
