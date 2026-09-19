@@ -181,7 +181,10 @@ $$;
 
 grant execute on function public.rpc_delete_worldgraph_definition(uuid) to authenticated;
 
+drop function if exists public.rpc_list_worldgraph_definitions(integer, integer);
+
 create or replace function public.rpc_list_worldgraph_definitions(
+  p_owner_id uuid default null,
   p_limit integer default 20,
   p_offset integer default 0
 )
@@ -209,7 +212,14 @@ begin
   with filtered as (
     select d.*
     from public.worldgraph_definitions d
-    where d.owner_id = auth.uid()
+    where (
+      p_owner_id is null
+      and (d.owner_id = auth.uid() or public.current_user_is_admin())
+    ) or (
+      p_owner_id is not null
+      and d.owner_id = p_owner_id
+      and (p_owner_id = auth.uid() or public.current_user_is_admin())
+    )
     order by d.updated_at desc, d.id desc
     limit greatest(1, least(coalesce(p_limit, 20), 100))
     offset greatest(coalesce(p_offset, 0), 0)
@@ -217,7 +227,14 @@ begin
   counted as (
     select count(*)::bigint as total_count
     from public.worldgraph_definitions d
-    where d.owner_id = auth.uid()
+    where (
+      p_owner_id is null
+      and (d.owner_id = auth.uid() or public.current_user_is_admin())
+    ) or (
+      p_owner_id is not null
+      and d.owner_id = p_owner_id
+      and (p_owner_id = auth.uid() or public.current_user_is_admin())
+    )
   )
   select
     f.id,
@@ -234,11 +251,11 @@ begin
 end;
 $$;
 
-grant execute on function public.rpc_list_worldgraph_definitions(integer, integer) to authenticated;
+grant execute on function public.rpc_list_worldgraph_definitions(uuid, integer, integer) to authenticated;
 
 comment on table public.worldgraph_definitions is
   'Persistent WorldGraph definitions for games, apps, and sites. Application code should access rows through authenticated RPCs rather than direct table queries.';
 comment on function public.rpc_create_worldgraph_definition(jsonb) is
   'Creates an owner-scoped WorldGraph definition from a validated JSON schema document.';
-comment on function public.rpc_list_worldgraph_definitions(integer, integer) is
-  'Lists only the authenticated owner''s WorldGraph definitions with offset pagination and total_count metadata.';
+comment on function public.rpc_list_worldgraph_definitions(uuid, integer, integer) is
+  'Lists WorldGraph definitions through an authenticated owner-or-admin RPC path. Pass p_owner_id to scope to one owner, or NULL for the caller''s visible rows.';

@@ -7,6 +7,7 @@ import {
 export interface WorldGraphRequestContext {
   accessToken: string;
   ownerId: string;
+  allowAdminReadAcrossOwners?: boolean;
 }
 
 export interface WorldGraphDefinitionRecord {
@@ -98,7 +99,7 @@ export class PersistentWorldGraphService implements WorldGraphService {
         p_definition: validatedDefinition,
       },
     );
-    return mapRecord(row, validatedContext.ownerId);
+    return mapRecord(row, validatedContext);
   }
 
   async getDefinition(
@@ -113,7 +114,7 @@ export class PersistentWorldGraphService implements WorldGraphService {
         p_definition_id: readNonEmptyString(id, 'id'),
       },
     );
-    return row ? mapRecord(row, validatedContext.ownerId) : undefined;
+    return row ? mapRecord(row, validatedContext) : undefined;
   }
 
   async updateDefinition(
@@ -131,7 +132,7 @@ export class PersistentWorldGraphService implements WorldGraphService {
         p_definition: validatedDefinition,
       },
     );
-    return row ? mapRecord(row, validatedContext.ownerId) : undefined;
+    return row ? mapRecord(row, validatedContext) : undefined;
   }
 
   async deleteDefinition(
@@ -166,11 +167,14 @@ export class PersistentWorldGraphService implements WorldGraphService {
     const rows = await client.rpc<WorldGraphListRow[]>(
       'rpc_list_worldgraph_definitions',
       {
+        p_owner_id: validatedContext.allowAdminReadAcrossOwners
+          ? null
+          : validatedContext.ownerId,
         p_limit: pageSize,
         p_offset: offset,
       },
     );
-    const items = rows.map((row) => mapRecord(row, validatedContext.ownerId));
+    const items = rows.map((row) => mapRecord(row, validatedContext));
     const total = rows[0]
       ? readNonNegativeInteger(rows[0].total_count, 'total_count')
       : 0;
@@ -260,16 +264,23 @@ function validateContext(
   return {
     accessToken: readNonEmptyString(value.accessToken, 'accessToken'),
     ownerId: readNonEmptyString(value.ownerId, 'ownerId'),
+    allowAdminReadAcrossOwners:
+      value.allowAdminReadAcrossOwners === undefined
+        ? undefined
+        : readBoolean(
+            value.allowAdminReadAcrossOwners,
+            'allowAdminReadAcrossOwners',
+          ),
   };
 }
 
 function mapRecord(
   row: WorldGraphRow,
-  expectedOwnerId: string,
+  context: WorldGraphRequestContext,
 ): WorldGraphDefinitionRecord {
   const definition = validateWorldDefinition(row.document, 'document');
   const ownerId = readNonEmptyString(row.owner_id, 'owner_id');
-  if (ownerId !== expectedOwnerId) {
+  if (!context.allowAdminReadAcrossOwners && ownerId !== context.ownerId) {
     throw new Error(
       'WorldGraph RPC returned a definition for an unexpected owner.',
     );
@@ -341,6 +352,13 @@ function readBoundedInteger(
     throw new Error(
       `${label} must be an integer between ${minimum} and ${maximum}.`,
     );
+  }
+  return value;
+}
+
+function readBoolean(value: unknown, label: string): boolean {
+  if (typeof value !== 'boolean') {
+    throw new Error(`${label} must be a boolean.`);
   }
   return value;
 }

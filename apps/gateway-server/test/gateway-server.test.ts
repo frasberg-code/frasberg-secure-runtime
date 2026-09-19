@@ -304,6 +304,25 @@ describe('gateway-server security', () => {
       ]),
     );
   });
+
+  it('returns 404 for missing worldgraph updates and deletes', async () => {
+    const app = testApp();
+
+    const updateResponse = await app.inject({
+      method: 'PATCH',
+      url: '/v1/worldgraph/missing',
+      headers: { authorization: bearerFor('admin-user') },
+      payload: baseWorldDefinition(),
+    });
+    const deleteResponse = await app.inject({
+      method: 'DELETE',
+      url: '/v1/worldgraph/missing',
+      headers: { authorization: bearerFor('admin-user') },
+    });
+
+    expect(updateResponse.statusCode).toBe(404);
+    expect(deleteResponse.statusCode).toBe(404);
+  });
 });
 
 function testApp(

@@ -41,6 +41,7 @@ describe('PersistentWorldGraphService', () => {
     expect(page.pageSize).toBe(10);
     expect(page.total).toBe(1);
     expect(rpc).toHaveBeenCalledWith('rpc_list_worldgraph_definitions', {
+      p_owner_id: 'owner-1',
       p_limit: 10,
       p_offset: 10,
     });
@@ -68,6 +69,20 @@ describe('PersistentWorldGraphService', () => {
     await expect(
       service.updateDefinition(context(), 'missing', baseWorldDefinition()),
     ).resolves.toBe(undefined);
+  });
+
+  it('rejects mismatched owners in list responses by default', async () => {
+    const rpc = vi.fn(async () => [
+      {
+        ...toListRow(baseWorldDefinition(), 1),
+        owner_id: 'other-owner',
+      },
+    ]);
+    const service = new PersistentWorldGraphService(factoryWithRpc(rpc));
+
+    await expect(service.listDefinitions(context())).rejects.toThrow(
+      /unexpected owner/i,
+    );
   });
 });
 

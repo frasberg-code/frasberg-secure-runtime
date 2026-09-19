@@ -51,7 +51,7 @@ describe('full-game-stack schema', () => {
     );
   });
 
-  it('checks schema compatibility by major version', () => {
+  it('checks schema compatibility by major and supported minor version', () => {
     expect(isSchemaVersionCompatible('1.0.0')).toBe(true);
     expect(isSchemaVersionCompatible('1.1.0')).toBe(false);
     expect(isSchemaVersionCompatible('2.0.0')).toBe(false);
