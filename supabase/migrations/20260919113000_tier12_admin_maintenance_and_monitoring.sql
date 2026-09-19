@@ -426,7 +426,7 @@ as $$
 declare
   v_refreshed_at timestamptz := now();
 begin
-  perform public.require_admin_or_system('monitor.refresh_materialized_views');
+  perform public.require_system_execution('monitor.refresh_materialized_views');
 
   refresh materialized view monitor.engine_health;
   refresh materialized view monitor.world_risk;
@@ -481,6 +481,7 @@ set search_path = public, auth, pg_temp
 as $$
 begin
   perform public.require_system_execution('ensure_maintenance_cron_jobs');
+  perform pg_advisory_xact_lock(hashtextextended('public.ensure_maintenance_cron_jobs', 0));
 
   if not exists (
     select 1
@@ -525,7 +526,8 @@ begin
 end;
 $$;
 
-grant usage on schema monitor to authenticated;
+revoke usage on schema monitor from public, anon, authenticated;
+grant usage on schema monitor to service_role;
 revoke all on materialized view monitor.engine_health from public;
 revoke all on materialized view monitor.world_risk from public;
 revoke select on materialized view monitor.engine_health from anon, authenticated, service_role;
@@ -557,8 +559,8 @@ revoke all on function public.admin_upsert_engine_registry(uuid, text, text, boo
 revoke execute on function public.admin_upsert_engine_registry(uuid, text, text, boolean, jsonb) from anon;
 grant execute on function public.admin_upsert_engine_registry(uuid, text, text, boolean, jsonb) to authenticated;
 revoke all on function monitor.refresh_materialized_views() from public;
-revoke execute on function monitor.refresh_materialized_views() from anon;
-grant execute on function monitor.refresh_materialized_views() to authenticated;
+revoke execute on function monitor.refresh_materialized_views() from anon, authenticated;
+grant execute on function monitor.refresh_materialized_views() to service_role;
 revoke all on function public.ensure_cron_job(text, text, text) from public;
 revoke execute on function public.ensure_cron_job(text, text, text) from anon, authenticated;
 revoke all on function public.ensure_maintenance_cron_jobs() from public;
@@ -578,4 +580,4 @@ comment on function public.ensure_maintenance_cron_jobs() is
 comment on function monitor.refresh_materialized_views() is
   'Refreshes monitoring materialized views with standard (non-concurrent) refreshes. Unique indexes support a future move to concurrent refreshes, but non-concurrent refresh keeps migration-time and cron execution behavior predictable.';
 comment on schema monitor is
-  'Holds operational monitoring objects. Authenticated admins receive schema usage so they can execute monitor.refresh_materialized_views(), but SELECT on the materialized views themselves remains withheld because the rollups are multi-tenant.';
+  'Holds operational monitoring objects. Schema usage and refresh execution are restricted to service/system automation, while direct SELECT on the materialized views remains withheld because the rollups are multi-tenant.';

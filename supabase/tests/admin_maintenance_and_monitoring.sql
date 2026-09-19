@@ -100,6 +100,21 @@ select set_config('request.jwt.claim.sub', (select member_id::text from test_ctx
 
 do $$
 begin
+  perform monitor.refresh_materialized_views();
+  raise exception 'non-admin user must not execute monitor.refresh_materialized_views';
+exception
+  when insufficient_privilege then
+    null;
+  when others then
+    if position('permission denied' in sqlerrm) = 0
+       and position('system role required' in sqlerrm) = 0 then
+      raise;
+    end if;
+end;
+$$;
+
+do $$
+begin
   perform public.admin_reset_monthly_quotas((select member_id from test_ctx));
   raise exception 'non-admin user must not execute admin_reset_monthly_quotas';
 exception
@@ -254,6 +269,10 @@ select member_id, world_id, 'incident', '{"severity":"high"}'::jsonb
 from test_ctx;
 
 select * from public.admin_recompute_user_costs((select member_id from test_ctx));
+
+reset role;
+set local role service_role;
+select set_config('request.jwt.claim.sub', '', true);
 select * from monitor.refresh_materialized_views();
 
 reset role;
@@ -298,6 +317,7 @@ begin
 end;
 $$;
 
+reset role;
 set local role authenticated;
 select set_config('request.jwt.claim.role', 'authenticated', true);
 select set_config('request.jwt.claim.sub', (select admin_id::text from test_ctx), true);
