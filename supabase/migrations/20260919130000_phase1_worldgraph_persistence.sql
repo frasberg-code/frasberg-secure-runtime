@@ -88,6 +88,10 @@ as $$
 declare
   v_record public.worldgraph_definitions;
 begin
+  if auth.uid() is null then
+    raise exception 'authentication required';
+  end if;
+
   select d.*
     into v_record
   from public.worldgraph_definitions d
@@ -192,10 +196,16 @@ returns table(
   updated_at timestamptz,
   total_count bigint
 )
-language sql
+language plpgsql
 security definer
 set search_path = public, auth, pg_temp
 as $$
+begin
+  if auth.uid() is null then
+    raise exception 'authentication required';
+  end if;
+
+  return query
   with filtered as (
     select d.*
     from public.worldgraph_definitions d
@@ -221,6 +231,7 @@ as $$
     c.total_count
   from filtered f
   cross join counted c;
+end;
 $$;
 
 grant execute on function public.rpc_list_worldgraph_definitions(integer, integer) to authenticated;

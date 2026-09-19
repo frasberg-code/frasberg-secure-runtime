@@ -19,11 +19,26 @@ describe('full-game-stack schema', () => {
     });
     (input.scenes[0]?.components[0]?.props as Record<string, unknown>).label =
       'changed';
+    (
+      (input.scenes[0]?.components[0]?.props as Record<string, unknown>)
+        .style as Record<string, unknown>
+    ).color = 'blue';
+    (
+      input.scenes[0]?.components[0]?.actions[0]?.payload as Record<
+        string,
+        unknown
+      >
+    ).screen = 'mutated';
 
     expect(validated.metadata.tags).toEqual(['racing', 'prototype']);
     expect(validated.scenes[0]?.components[0]?.actions).toHaveLength(1);
     expect(validated.scenes[0]?.components[0]?.props).toEqual({
       label: 'Start race',
+      style: { color: 'red' },
+    });
+    expect(validated.scenes[0]?.components[0]?.actions[0]?.payload).toEqual({
+      screen: 'page-1',
+      params: { source: 'menu' },
     });
   });
 
@@ -67,9 +82,16 @@ function baseWorldDefinition(): WorldDefinition {
           {
             id: 'component-1',
             type: 'button',
-            props: { label: 'Start race' },
+            props: { label: 'Start race', style: { color: 'red' } },
             children: [],
-            actions: [{ id: 'action-1', type: 'navigate', targetId: 'page-1' }],
+            actions: [
+              {
+                id: 'action-1',
+                type: 'navigate',
+                targetId: 'page-1',
+                payload: { screen: 'page-1', params: { source: 'menu' } },
+              },
+            ],
           },
         ],
         actions: [],

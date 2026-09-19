@@ -398,7 +398,13 @@ function readObject(value: unknown, label: string): Record<string, unknown> {
 }
 
 function readRecord(value: unknown, label: string): Record<string, unknown> {
-  return { ...readObject(value, label) };
+  const object = readObject(value, label);
+  const cloned = cloneJsonValue(object, label);
+  if (!cloned || typeof cloned !== 'object' || Array.isArray(cloned)) {
+    throw new Error(`${label} must be an object.`);
+  }
+
+  return cloned as Record<string, unknown>;
 }
 
 function readNonEmptyString(value: unknown, label: string): string {
@@ -507,4 +513,33 @@ function readBoolean(value: unknown, label: string): boolean {
   }
 
   return value;
+}
+
+function cloneJsonValue(value: unknown, label: string): unknown {
+  if (
+    value === null ||
+    value === undefined ||
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  ) {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((entry, index) =>
+      cloneJsonValue(entry, `${label}[${index}]`),
+    );
+  }
+
+  if (typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, entry]) => [
+        key,
+        cloneJsonValue(entry, `${label}.${key}`),
+      ]),
+    );
+  }
+
+  throw new Error(`${label} must contain JSON-like values only.`);
 }

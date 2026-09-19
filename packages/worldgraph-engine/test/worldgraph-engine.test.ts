@@ -104,6 +104,25 @@ describe('SupabaseRestRpcClientFactory', () => {
       }),
     );
   });
+
+  it('surfaces Supabase RPC error messages from non-2xx responses', async () => {
+    const fetchImpl = vi.fn(
+      async () =>
+        new Response(JSON.stringify({ message: 'rpc exploded' }), {
+          status: 400,
+          headers: { 'content-type': 'application/json' },
+        }),
+    );
+    const factory = new SupabaseRestRpcClientFactory({
+      baseUrl: 'https://example.supabase.co',
+      apiKey: 'anon-key',
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+    });
+
+    await expect(factory.create('jwt-token').rpc('rpc_ping')).rejects.toThrow(
+      'rpc exploded',
+    );
+  });
 });
 
 function factoryWithRpc(
