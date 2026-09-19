@@ -406,7 +406,7 @@ export function buildGatewayServerApp(
       });
       return reply.code(200).send({ deleted: true, world });
     } catch (error) {
-      return reply.code(500).send({ error: (error as Error).message });
+      return reply.code(400).send({ error: (error as Error).message });
     }
   });
 

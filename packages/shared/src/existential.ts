@@ -687,8 +687,8 @@ export class OmniBridgeEngine {
       }
     }
 
-    if (!edgeId && !clusterId) {
-      throw new Error('At least one hypergraph reference is required.');
+    if ((edgeId && clusterId) || (!edgeId && !clusterId)) {
+      throw new Error('Exactly one hypergraph reference is required.');
     }
 
     const link: OmniBridgeLink = {

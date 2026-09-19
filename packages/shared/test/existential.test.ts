@@ -219,6 +219,20 @@ describe('existential modules', () => {
         timelineEventId: event.id,
       }),
     ).toThrow(/hypergraph reference/i);
+    const cluster = hypergraph.registerCluster({
+      id: 'cluster-a',
+      worldId: 'world-a',
+      nodeIds: [nodeA.id],
+      weight: 0.5,
+    });
+    expect(() =>
+      omniBridge.createLink({
+        worldId: 'world-a',
+        timelineEventId: event.id,
+        edgeId: edge.id,
+        clusterId: cluster.id,
+      }),
+    ).toThrow(/exactly one hypergraph reference/i);
 
     const link = omniBridge.createLink({
       id: 'link-a',
