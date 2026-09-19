@@ -1,10 +1,20 @@
 import { buildGatewayServerApp, type EngineAdapter } from './app';
+import {
+  PersistentWorldGraphService,
+  SupabaseRestRpcClientFactory,
+} from '@frasberg/worldgraph-engine';
 
 async function start() {
   const jwtSecret = readRequiredEnv('GATEWAY_JWT_SECRET');
   const roleLookupUrl = readRequiredEnv('GATEWAY_ROLE_LOOKUP_URL');
   const roleLookupToken = process.env.GATEWAY_ROLE_LOOKUP_TOKEN;
   const engineBaseUrl = readRequiredEnv('GATEWAY_ENGINE_BASE_URL');
+  const worldGraphSupabaseUrl = readRequiredEnv(
+    'GATEWAY_WORLDGRAPH_SUPABASE_URL',
+  );
+  const worldGraphSupabaseAnonKey = readRequiredEnv(
+    'GATEWAY_WORLDGRAPH_SUPABASE_ANON_KEY',
+  );
   const app = buildGatewayServerApp({
     jwt: {
       secret: jwtSecret,
@@ -32,6 +42,12 @@ async function start() {
       },
     },
     engineAdapter: remoteEngineAdapter(engineBaseUrl),
+    worldGraphService: new PersistentWorldGraphService(
+      new SupabaseRestRpcClientFactory({
+        baseUrl: worldGraphSupabaseUrl,
+        apiKey: worldGraphSupabaseAnonKey,
+      }),
+    ),
   });
 
   const port = Number(process.env.PORT ?? '4100');
