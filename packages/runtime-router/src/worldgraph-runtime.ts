@@ -1,4 +1,4 @@
-import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest } from 'fastify';
+import Fastify, { type FastifyInstance } from 'fastify';
 import {
   InMemoryBuilderOrchestrator,
   InMemoryWorldGraphService,
@@ -6,6 +6,7 @@ import {
   type BuilderOrchestrator,
   type FullGameStackSchema,
   type WorldGraphCreateInput,
+  type WorldGraphNodeSpec,
   type WorldGraphRecord,
   type WorldGraphService,
   createBuilderOperationRequest,
@@ -23,9 +24,7 @@ export function buildWorldGraphRuntimeApp(
   const builderOrchestrator =
     options.builderOrchestrator ?? new InMemoryBuilderOrchestrator();
 
-  const app = Fastify({
-    logger: false,
-  });
+  const app = Fastify({ logger: false });
 
   app.get('/v1/worldgraph/health', async () => ({
     status: 'ok',
@@ -39,8 +38,7 @@ export function buildWorldGraphRuntimeApp(
   app.post('/v1/worldgraph/worlds', async (request, reply) => {
     try {
       const body = readWorldGraphCreateInput(request.body);
-      const created = service.createWorld(body);
-      return reply.code(201).send(created);
+      return reply.code(201).send(service.createWorld(body));
     } catch (error) {
       return reply.code(400).send({ error: (error as Error).message });
     }
@@ -62,15 +60,13 @@ export function buildWorldGraphRuntimeApp(
   app.patch('/v1/worldgraph/worlds/:id', async (request, reply) => {
     try {
       const id = readIdParam((request.params as { id?: string }).id, 'id');
-      const updates = readWorldGraphUpdateInput(request.body);
-      const world = service.updateWorld(id, updates);
+      const world = service.updateWorld(id, readWorldGraphUpdateInput(request.body));
       return reply.code(200).send(world);
     } catch (error) {
       const message = (error as Error).message;
-      if (message.includes('does not exist')) {
-        return reply.code(404).send({ error: message });
-      }
-      return reply.code(400).send({ error: message });
+      return reply.code(message.includes('does not exist') ? 404 : 400).send({
+        error: message,
+      });
     }
   });
 
@@ -93,10 +89,9 @@ export function buildWorldGraphRuntimeApp(
       return reply.code(200).send(service.materializeScene(id));
     } catch (error) {
       const message = (error as Error).message;
-      if (message.includes('does not exist')) {
-        return reply.code(404).send({ error: message });
-      }
-      return reply.code(400).send({ error: message });
+      return reply.code(message.includes('does not exist') ? 404 : 400).send({
+        error: message,
+      });
     }
   });
 
@@ -113,16 +108,13 @@ export function buildWorldGraphRuntimeApp(
 
   app.post('/v1/worldgraph/schema', async (request, reply) => {
     try {
-      const id = readIdParam(
-        (request.body as { worldId?: string })?.worldId,
-        'worldId',
-      );
+      const payload = readRecord(request.body, 'request body');
+      const id = readIdParam(payload.worldId, 'worldId');
       const world = service.getWorld(id);
       if (!world) {
         return reply.code(404).send({ error: `World "${id}" was not found.` });
       }
-      const schema = buildSchemaFromWorld(world, request.body as Partial<FullGameStackSchema>);
-      return reply.code(201).send(schema);
+      return reply.code(201).send(buildSchemaFromWorld(world, payload));
     } catch (error) {
       return reply.code(400).send({ error: (error as Error).message });
     }
@@ -135,6 +127,7 @@ function buildSchemaFromWorld(
   world: WorldGraphRecord,
   input: Partial<FullGameStackSchema> = {},
 ): FullGameStackSchema {
+  const now = new Date().toISOString();
   return {
     id: input.id ?? `schema-${world.id}`,
     name: input.name ?? world.name,
@@ -144,61 +137,51 @@ function buildSchemaFromWorld(
     world,
     version: input.version ?? 1,
     metadata: input.metadata ?? {},
-    createdAt: input.createdAt ?? new Date().toISOString(),
-    updatedAt: input.updatedAt ?? new Date().toISOString(),
+    createdAt: input.createdAt ?? now,
+    updatedAt: input.updatedAt ?? now,
   };
 }
 
 function readWorldGraphCreateInput(value: unknown): WorldGraphCreateInput {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    throw new Error('Request body must be an object.');
-  }
-
-  const payload = value as Record<string, unknown>;
+  const payload = readRecord(value, 'request body');
   return {
     id: payload.id === undefined ? undefined : readIdParam(payload.id, 'id'),
     name: readNonEmptyString(payload.name, 'name'),
     kind: payload.kind === undefined ? 'world' : readWorldGraphKind(payload.kind),
-    ownerId: payload.ownerId === undefined ? 'system' : readNonEmptyString(payload.ownerId, 'ownerId'),
+    ownerId:
+      payload.ownerId === undefined
+        ? 'system'
+        : readNonEmptyString(payload.ownerId, 'ownerId'),
     status: payload.status === undefined ? 'draft' : readStatus(payload.status),
-    schemaVersion: payload.schemaVersion === undefined ? '1.0.0' : readNonEmptyString(payload.schemaVersion, 'schemaVersion'),
-    nodes: Array.isArray(payload.nodes) ? payload.nodes.map(readNodeSpec) : [],
-    metadata: payload.metadata && typeof payload.metadata === 'object' && !Array.isArray(payload.metadata)
-      ? (payload.metadata as Record<string, unknown>)
-      : {},
+    schemaVersion:
+      payload.schemaVersion === undefined
+        ? '1.0.0'
+        : readNonEmptyString(payload.schemaVersion, 'schemaVersion'),
+    nodes: Array.isArray(payload.nodes)
+      ? payload.nodes.map((node, index) => readNodeSpec(node, index))
+      : [],
+    metadata: readOptionalRecord(payload.metadata, 'metadata'),
   };
 }
 
 function readWorldGraphUpdateInput(value: unknown): Partial<WorldGraphCreateInput> {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    throw new Error('Request body must be an object.');
-  }
-
-  const payload = value as Record<string, unknown>;
+  const payload = readRecord(value, 'request body');
   const updates: Partial<WorldGraphCreateInput> = {};
-
   if (payload.name !== undefined) updates.name = readNonEmptyString(payload.name, 'name');
   if (payload.kind !== undefined) updates.kind = readWorldGraphKind(payload.kind);
   if (payload.ownerId !== undefined) updates.ownerId = readNonEmptyString(payload.ownerId, 'ownerId');
   if (payload.status !== undefined) updates.status = readStatus(payload.status);
   if (payload.schemaVersion !== undefined) updates.schemaVersion = readNonEmptyString(payload.schemaVersion, 'schemaVersion');
-  if (payload.nodes !== undefined) updates.nodes = Array.isArray(payload.nodes) ? payload.nodes.map(readNodeSpec) : [];
-  if (payload.metadata !== undefined) {
-    if (typeof payload.metadata !== 'object' || Array.isArray(payload.metadata)) {
-      throw new Error('metadata must be an object.');
-    }
-    updates.metadata = payload.metadata as Record<string, unknown>;
+  if (payload.nodes !== undefined) {
+    if (!Array.isArray(payload.nodes)) throw new Error('nodes must be an array.');
+    updates.nodes = payload.nodes.map((node, index) => readNodeSpec(node, index));
   }
-
+  if (payload.metadata !== undefined) updates.metadata = readOptionalRecord(payload.metadata, 'metadata');
   return updates;
 }
 
 function readBuilderOperationRequest(value: unknown): BuilderOperationRequest {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    throw new Error('Request body must be an object.');
-  }
-
-  const payload = value as Record<string, unknown>;
+  const payload = readRecord(value, 'request body');
   return {
     prompt: readNonEmptyString(payload.prompt, 'prompt'),
     projectType: readProjectType(payload.projectType),
@@ -206,64 +189,67 @@ function readBuilderOperationRequest(value: unknown): BuilderOperationRequest {
     schemaId: payload.schemaId === undefined ? undefined : readIdParam(payload.schemaId, 'schemaId'),
     ownerId: payload.ownerId === undefined ? undefined : readIdParam(payload.ownerId, 'ownerId'),
     mode: payload.mode === undefined ? 'draft' : readMode(payload.mode),
-    metadata: payload.metadata && typeof payload.metadata === 'object' && !Array.isArray(payload.metadata)
-      ? (payload.metadata as Record<string, unknown>)
-      : {},
+    metadata: readOptionalRecord(payload.metadata, 'metadata'),
   };
 }
 
-function readNodeSpec(value: unknown, index = 0): WorldGraphCreateInput['nodes'][number] {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    throw new Error(`nodes[${index}] must be an object.`);
-  }
-  const payload = value as Record<string, unknown>;
+function readNodeSpec(value: unknown, index: number): WorldGraphNodeSpec {
+  const payload = readRecord(value, `nodes[${index}]`);
   return {
     id: readIdParam(payload.id, `nodes[${index}].id`),
     kind: readNonEmptyString(payload.kind, `nodes[${index}].kind`),
     label: readNonEmptyString(payload.label, `nodes[${index}].label`),
-    parentId: payload.parentId === undefined ? undefined : readIdParam(payload.parentId, `nodes[${index}].parentId`),
-    tags: Array.isArray(payload.tags) ? payload.tags.map((tag, tagIndex) => readNonEmptyString(tag, `nodes[${index}].tags[${tagIndex}]`)) : [],
-    config: payload.config && typeof payload.config === 'object' && !Array.isArray(payload.config)
-      ? (payload.config as Record<string, unknown>)
-      : {},
+    parentId:
+      payload.parentId === undefined
+        ? undefined
+        : readIdParam(payload.parentId, `nodes[${index}].parentId`),
+    tags: Array.isArray(payload.tags)
+      ? payload.tags.map((tag, tagIndex) =>
+          readNonEmptyString(tag, `nodes[${index}].tags[${tagIndex}]`),
+        )
+      : [],
+    config: readOptionalRecord(payload.config, `nodes[${index}].config`),
   };
 }
 
 function readWorldGraphKind(value: unknown): WorldGraphCreateInput['kind'] {
-  if (
-    value !== 'world' &&
-    value !== 'scene' &&
-    value !== 'track' &&
-    value !== 'page' &&
-    value !== 'screen' &&
-    value !== 'flow' &&
-    value !== 'app' &&
-    value !== 'site'
-  ) {
+  if (!['world', 'scene', 'track', 'page', 'screen', 'flow', 'app', 'site'].includes(String(value))) {
     throw new Error('kind must be one of world, scene, track, page, screen, flow, app, or site.');
   }
-  return value;
+  return value as WorldGraphCreateInput['kind'];
 }
 
 function readProjectType(value: unknown): BuilderOperationRequest['projectType'] {
-  if (value !== 'game' && value !== 'website' && value !== 'app' && value !== 'native') {
+  if (!['game', 'website', 'app', 'native'].includes(String(value))) {
     throw new Error('projectType must be game, website, app, or native.');
   }
-  return value;
+  return value as BuilderOperationRequest['projectType'];
 }
 
 function readStatus(value: unknown): WorldGraphCreateInput['status'] {
-  if (value !== 'draft' && value !== 'active' && value !== 'archived') {
+  if (!['draft', 'active', 'archived'].includes(String(value))) {
     throw new Error('status must be draft, active, or archived.');
   }
-  return value;
+  return value as WorldGraphCreateInput['status'];
 }
 
 function readMode(value: unknown): BuilderOperationRequest['mode'] {
-  if (value !== 'draft' && value !== 'preview' && value !== 'publish') {
+  if (!['draft', 'preview', 'publish'].includes(String(value))) {
     throw new Error('mode must be draft, preview, or publish.');
   }
-  return value;
+  return value as BuilderOperationRequest['mode'];
+}
+
+function readRecord(value: unknown, label: string): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`${label} must be an object.`);
+  }
+  return value as Record<string, unknown>;
+}
+
+function readOptionalRecord(value: unknown, label: string): Record<string, unknown> {
+  if (value === undefined) return {};
+  return readRecord(value, label);
 }
 
 function readNonEmptyString(value: unknown, label: string): string {
@@ -274,8 +260,5 @@ function readNonEmptyString(value: unknown, label: string): string {
 }
 
 function readIdParam(value: unknown, label: string): string {
-  if (typeof value !== 'string' || value.trim().length === 0) {
-    throw new Error(`${label} must be a non-empty string.`);
-  }
-  return value;
+  return readNonEmptyString(value, label);
 }
