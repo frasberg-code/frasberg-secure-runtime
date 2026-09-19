@@ -9,7 +9,10 @@ export interface WorldGraphService {
   createWorld(input: WorldGraphCreateInput): WorldGraphRecord;
   getWorld(id: string): WorldGraphRecord | undefined;
   listWorlds(): WorldGraphRecord[];
-  updateWorld(id: string, updates: Partial<WorldGraphCreateInput>): WorldGraphRecord;
+  updateWorld(
+    id: string,
+    updates: Partial<WorldGraphCreateInput>,
+  ): WorldGraphRecord;
   deleteWorld(id: string): WorldGraphRecord | undefined;
   materializeScene(worldId: string): {
     worldId: string;
@@ -17,7 +20,10 @@ export interface WorldGraphService {
     nodes: WorldGraphRecord['nodes'];
     materializedAt: string;
   };
-  toSchema(worldId: string, input?: Partial<FullGameStackSchema>): FullGameStackSchema;
+  toSchema(
+    worldId: string,
+    input?: Partial<FullGameStackSchema>,
+  ): FullGameStackSchema;
 }
 
 export class InMemoryWorldGraphService implements WorldGraphService {
@@ -56,7 +62,9 @@ export class InMemoryWorldGraphService implements WorldGraphService {
         status: updates.status ?? current.status,
         schemaVersion: updates.schemaVersion ?? current.schemaVersion,
         nodes: updates.nodes ? [...updates.nodes] : [...current.nodes],
-        metadata: updates.metadata ? { ...current.metadata, ...updates.metadata } : { ...current.metadata },
+        metadata: updates.metadata
+          ? { ...current.metadata, ...updates.metadata }
+          : { ...current.metadata },
       },
       updatedAt: new Date().toISOString(),
     };
@@ -90,7 +98,10 @@ export class InMemoryWorldGraphService implements WorldGraphService {
     };
   }
 
-  toSchema(worldId: string, input: Partial<FullGameStackSchema> = {}): FullGameStackSchema {
+  toSchema(
+    worldId: string,
+    input: Partial<FullGameStackSchema> = {},
+  ): FullGameStackSchema {
     const world = this.getWorld(worldId);
     if (!world) {
       throw new Error(`World "${worldId}" does not exist.`);
@@ -115,7 +126,11 @@ export class InMemoryWorldGraphService implements WorldGraphService {
 function cloneWorld(world: WorldGraphRecord): WorldGraphRecord {
   return {
     ...world,
-    nodes: world.nodes.map((node) => ({ ...node, tags: [...node.tags], config: { ...node.config } })),
+    nodes: world.nodes.map((node) => ({
+      ...node,
+      tags: [...node.tags],
+      config: { ...node.config },
+    })),
     metadata: { ...world.metadata },
   };
 }

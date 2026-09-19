@@ -1,14 +1,7 @@
 export type BuilderSurface = 'game' | 'website' | 'app' | 'native';
 
 export type WorldGraphKind =
-  | 'world'
-  | 'scene'
-  | 'track'
-  | 'page'
-  | 'screen'
-  | 'flow'
-  | 'app'
-  | 'site';
+  'world' | 'scene' | 'track' | 'page' | 'screen' | 'flow' | 'app' | 'site';
 
 export interface WorldGraphNodeSpec {
   id: string;

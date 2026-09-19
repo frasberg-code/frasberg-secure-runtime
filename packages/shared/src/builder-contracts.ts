@@ -40,9 +40,24 @@ export class InMemoryBuilderOrchestrator implements BuilderOrchestrator {
   plan(request: BuilderOperationRequest): BuilderOperationPlan {
     const now = new Date().toISOString();
     const steps: BuilderStep[] = [
-      { id: 'schema', name: 'Schema resolution', kind: 'schema', status: 'done' },
-      { id: 'generate', name: 'Artifact generation', kind: 'generate', status: 'pending' },
-      { id: 'validate', name: 'Validation', kind: 'validate', status: 'pending' },
+      {
+        id: 'schema',
+        name: 'Schema resolution',
+        kind: 'schema',
+        status: 'done',
+      },
+      {
+        id: 'generate',
+        name: 'Artifact generation',
+        kind: 'generate',
+        status: 'pending',
+      },
+      {
+        id: 'validate',
+        name: 'Validation',
+        kind: 'validate',
+        status: 'pending',
+      },
     ];
 
     if (request.projectType === 'website' || request.projectType === 'app') {
