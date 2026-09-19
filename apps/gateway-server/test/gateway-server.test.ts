@@ -293,7 +293,9 @@ describe('gateway-server security', () => {
       url: '/v1/admin/audit',
       headers: { authorization: bearerFor('admin-user') },
     });
-    const auditPayload = auditResponse.json() as { records: { action: string }[] };
+    const auditPayload = auditResponse.json() as {
+      records: { action: string }[];
+    };
     expect(auditPayload.records.map((record) => record.action)).toEqual(
       expect.arrayContaining([
         'worldgraph:create',

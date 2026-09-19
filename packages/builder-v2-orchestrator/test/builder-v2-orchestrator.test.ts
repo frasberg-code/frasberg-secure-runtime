@@ -8,7 +8,8 @@ import {
 
 describe('builder-v2 orchestrator contracts', () => {
   it('exposes a fixture that satisfies the orchestrator interface', async () => {
-    const orchestrator: BuilderOrchestrator = new ReferenceBuilderOrchestratorFixture();
+    const orchestrator: BuilderOrchestrator =
+      new ReferenceBuilderOrchestratorFixture();
 
     const created = await orchestrator.createWorldGraphFromPrompt({
       prompt: 'Build a GT landing site',

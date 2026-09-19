@@ -49,9 +49,7 @@ export interface BuilderOrchestrator {
  * Contract-test fixture only. This no-op orchestrator exists to validate the
  * boundary shape without claiming any production builder implementation.
  */
-export class ReferenceBuilderOrchestratorFixture
-  implements BuilderOrchestrator
-{
+export class ReferenceBuilderOrchestratorFixture implements BuilderOrchestrator {
   private readonly results = new Map<string, BuilderResult>();
 
   async createWorldGraphFromPrompt(
@@ -81,7 +79,9 @@ export class ReferenceBuilderOrchestratorFixture
     return { job, worldDefinition };
   }
 
-  async buildArtifact(jobDescriptor: BuilderJobDescriptor): Promise<BuilderResult> {
+  async buildArtifact(
+    jobDescriptor: BuilderJobDescriptor,
+  ): Promise<BuilderResult> {
     const job = validateBuilderJobDescriptor(jobDescriptor);
     const existing = this.results.get(job.id);
     const completed: BuilderResult = {
@@ -160,7 +160,10 @@ export function validateBuilderResult(
     worldDefinition:
       object.worldDefinition === undefined
         ? undefined
-        : validateWorldDefinition(object.worldDefinition, `${label}.worldDefinition`),
+        : validateWorldDefinition(
+            object.worldDefinition,
+            `${label}.worldDefinition`,
+          ),
   };
 }
 
@@ -176,15 +179,43 @@ function createFixtureWorldDefinition(
       createdWith: 'ReferenceBuilderOrchestratorFixture',
       tags: [...request.tags],
     },
-    scenes: request.target === 'game' ? [{ id: 'scene-1', name: 'Scene 1', components: [], actions: [] }] : [],
-    pages: request.target === 'site' ? [{ id: 'page-1', title: 'Page 1', components: [], actions: [] }] : [],
-    screens: request.target === 'app' ? [{ id: 'screen-1', title: 'Screen 1', components: [], actions: [] }] : [],
-    flows: request.target === 'app' ? [{ id: 'flow-1', name: 'Flow 1', stepIds: ['screen-1'], actions: [] }] : [],
+    scenes:
+      request.target === 'game'
+        ? [{ id: 'scene-1', name: 'Scene 1', components: [], actions: [] }]
+        : [],
+    pages:
+      request.target === 'site'
+        ? [{ id: 'page-1', title: 'Page 1', components: [], actions: [] }]
+        : [],
+    screens:
+      request.target === 'app'
+        ? [{ id: 'screen-1', title: 'Screen 1', components: [], actions: [] }]
+        : [],
+    flows:
+      request.target === 'app'
+        ? [{ id: 'flow-1', name: 'Flow 1', stepIds: ['screen-1'], actions: [] }]
+        : [],
     routes:
       request.target === 'site'
-        ? [{ id: 'route-1', path: '/', targetKind: 'page', targetId: 'page-1', guards: [] }]
+        ? [
+            {
+              id: 'route-1',
+              path: '/',
+              targetKind: 'page',
+              targetId: 'page-1',
+              guards: [],
+            },
+          ]
         : request.target === 'app'
-          ? [{ id: 'route-1', path: '/app', targetKind: 'screen', targetId: 'screen-1', guards: [] }]
+          ? [
+              {
+                id: 'route-1',
+                path: '/app',
+                targetKind: 'screen',
+                targetId: 'screen-1',
+                guards: [],
+              },
+            ]
           : [],
     vehicleClasses: [],
   });
@@ -219,7 +250,9 @@ function readStringArray(value: unknown, label: string): string[] {
   if (!Array.isArray(value)) {
     throw new Error(`${label} must be an array.`);
   }
-  return value.map((entry, index) => readNonEmptyString(entry, `${label}[${index}]`));
+  return value.map((entry, index) =>
+    readNonEmptyString(entry, `${label}[${index}]`),
+  );
 }
 
 function readTarget(value: unknown, label: string): WorldDefinitionKind {
@@ -236,7 +269,9 @@ function readJobStatus(value: unknown, label: string): BuilderJobStatus {
     value !== 'completed' &&
     value !== 'failed'
   ) {
-    throw new Error(`${label} must be one of: queued, running, completed, failed.`);
+    throw new Error(
+      `${label} must be one of: queued, running, completed, failed.`,
+    );
   }
   return value;
 }

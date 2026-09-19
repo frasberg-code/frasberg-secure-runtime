@@ -4,7 +4,10 @@ import {
   SupabaseRestRpcClientFactory,
   type WorldGraphRpcClientFactory,
 } from '../src';
-import { FULL_GAME_STACK_SCHEMA_VERSION, type WorldDefinition } from '@frasberg/full-game-stack-schema';
+import {
+  FULL_GAME_STACK_SCHEMA_VERSION,
+  type WorldDefinition,
+} from '@frasberg/full-game-stack-schema';
 
 describe('PersistentWorldGraphService', () => {
   it('creates validated definitions through the configured RPC', async () => {
@@ -13,7 +16,10 @@ describe('PersistentWorldGraphService', () => {
     );
     const service = new PersistentWorldGraphService(factoryWithRpc(rpc));
 
-    const record = await service.createDefinition(context(), baseWorldDefinition());
+    const record = await service.createDefinition(
+      context(),
+      baseWorldDefinition(),
+    );
 
     expect(record.kind).toBe('game');
     expect(record.ownerId).toBe('owner-1');
@@ -26,7 +32,10 @@ describe('PersistentWorldGraphService', () => {
     const rpc = vi.fn(async () => [toListRow(baseWorldDefinition(), 1)]);
     const service = new PersistentWorldGraphService(factoryWithRpc(rpc));
 
-    const page = await service.listDefinitions(context(), { page: 2, pageSize: 10 });
+    const page = await service.listDefinitions(context(), {
+      page: 2,
+      pageSize: 10,
+    });
 
     expect(page.page).toBe(2);
     expect(page.pageSize).toBe(10);
@@ -38,22 +47,38 @@ describe('PersistentWorldGraphService', () => {
   });
 
   it('rejects unexpected owner data from the RPC layer', async () => {
-    const rpc = vi.fn(async () => ({ ...toRow(baseWorldDefinition()), owner_id: 'other-owner' }));
+    const rpc = vi.fn(async () => ({
+      ...toRow(baseWorldDefinition()),
+      owner_id: 'other-owner',
+    }));
     const service = new PersistentWorldGraphService(factoryWithRpc(rpc));
 
+    await expect(service.getDefinition(context(), 'world-1')).rejects.toThrow(
+      /unexpected owner/i,
+    );
+  });
+
+  it('returns undefined when get and update RPCs return null', async () => {
+    const rpc = vi.fn().mockResolvedValueOnce(null).mockResolvedValueOnce(null);
+    const service = new PersistentWorldGraphService(factoryWithRpc(rpc));
+
+    await expect(service.getDefinition(context(), 'missing')).resolves.toBe(
+      undefined,
+    );
     await expect(
-      service.getDefinition(context(), 'world-1'),
-    ).rejects.toThrow(/unexpected owner/i);
+      service.updateDefinition(context(), 'missing', baseWorldDefinition()),
+    ).resolves.toBe(undefined);
   });
 });
 
 describe('SupabaseRestRpcClientFactory', () => {
   it('sends authenticated JSON RPC requests', async () => {
-    const fetchImpl = vi.fn(async () =>
-      new Response(JSON.stringify({ ok: true }), {
-        status: 200,
-        headers: { 'content-type': 'application/json' },
-      }),
+    const fetchImpl = vi.fn(
+      async () =>
+        new Response(JSON.stringify({ ok: true }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
     );
     const factory = new SupabaseRestRpcClientFactory({
       baseUrl: 'https://example.supabase.co',

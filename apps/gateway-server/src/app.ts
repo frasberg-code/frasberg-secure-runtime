@@ -222,7 +222,10 @@ export function buildGatewayServerApp(
     try {
       const definition = validateWorldDefinition(request.body);
       const context = readWorldGraphRequestContext(request);
-      const record = await worldGraphService.createDefinition(context, definition);
+      const record = await worldGraphService.createDefinition(
+        context,
+        definition,
+      );
       await auditStore.record({
         actorId: context.ownerId,
         action: 'worldgraph:create',
@@ -260,7 +263,9 @@ export function buildGatewayServerApp(
         readNonEmptyString(params.id, 'id'),
       );
       if (!record) {
-        return reply.code(404).send({ error: 'WorldGraph definition not found.' });
+        return reply
+          .code(404)
+          .send({ error: 'WorldGraph definition not found.' });
       }
       return reply.code(200).send(record);
     } catch (error) {
@@ -296,7 +301,9 @@ export function buildGatewayServerApp(
         definition,
       );
       if (!record) {
-        return reply.code(404).send({ error: 'WorldGraph definition not found.' });
+        return reply
+          .code(404)
+          .send({ error: 'WorldGraph definition not found.' });
       }
       await auditStore.record({
         actorId: context.ownerId,
@@ -332,14 +339,24 @@ export function buildGatewayServerApp(
       const params = request.params as { id?: string };
       const context = readWorldGraphRequestContext(request);
       const definitionId = readNonEmptyString(params.id, 'id');
-      const existing = await worldGraphService.getDefinition(context, definitionId);
+      const existing = await worldGraphService.getDefinition(
+        context,
+        definitionId,
+      );
       if (!existing) {
-        return reply.code(404).send({ error: 'WorldGraph definition not found.' });
+        return reply
+          .code(404)
+          .send({ error: 'WorldGraph definition not found.' });
       }
 
-      const deleted = await worldGraphService.deleteDefinition(context, definitionId);
+      const deleted = await worldGraphService.deleteDefinition(
+        context,
+        definitionId,
+      );
       if (!deleted) {
-        return reply.code(404).send({ error: 'WorldGraph definition not found.' });
+        return reply
+          .code(404)
+          .send({ error: 'WorldGraph definition not found.' });
       }
 
       await auditStore.record({
@@ -536,7 +553,7 @@ async function authenticateBearerToken(
   }
 
   const [scheme, token] = authorization.split(' ');
-  if (scheme !== 'Bearer' || !token) {
+  if (scheme.toLowerCase() !== 'bearer' || !token) {
     return undefined;
   }
 
@@ -633,7 +650,7 @@ function readWorldGraphRequestContext(
   }
 
   const [scheme, token] = authorization.split(' ');
-  if (scheme !== 'Bearer' || !token) {
+  if (scheme.toLowerCase() !== 'bearer' || !token) {
     throw new Error('Authenticated WorldGraph access requires a bearer token.');
   }
 
@@ -797,14 +814,18 @@ function readPositiveIntegerQuery(
   maximum: number,
 ): number {
   const normalized =
-    typeof value === 'string' ? Number.parseInt(value, 10) : readInteger(value, label);
+    typeof value === 'string'
+      ? Number.parseInt(value, 10)
+      : readInteger(value, label);
   if (
     !Number.isInteger(normalized) ||
     !Number.isFinite(normalized) ||
     normalized < minimum ||
     normalized > maximum
   ) {
-    throw new Error(`${label} must be an integer between ${minimum} and ${maximum}.`);
+    throw new Error(
+      `${label} must be an integer between ${minimum} and ${maximum}.`,
+    );
   }
   return normalized;
 }

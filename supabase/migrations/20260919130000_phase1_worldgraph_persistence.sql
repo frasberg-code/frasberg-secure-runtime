@@ -81,14 +81,21 @@ grant execute on function public.rpc_create_worldgraph_definition(jsonb) to auth
 
 create or replace function public.rpc_get_worldgraph_definition(p_definition_id uuid)
 returns public.worldgraph_definitions
-language sql
+language plpgsql
 security definer
 set search_path = public, auth, pg_temp
 as $$
+declare
+  v_record public.worldgraph_definitions;
+begin
   select d.*
+    into v_record
   from public.worldgraph_definitions d
   where d.id = p_definition_id
     and (d.owner_id = auth.uid() or public.current_user_is_admin());
+
+  return v_record;
+end;
 $$;
 
 grant execute on function public.rpc_get_worldgraph_definition(uuid) to authenticated;
@@ -135,6 +142,10 @@ begin
    where d.id = p_definition_id
      and (d.owner_id = auth.uid() or public.current_user_is_admin())
   returning * into v_record;
+
+  if not found then
+    return null;
+  end if;
 
   return v_record;
 end;

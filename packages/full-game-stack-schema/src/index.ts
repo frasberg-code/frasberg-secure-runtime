@@ -117,7 +117,11 @@ export function validateWorldDefinition(
     name: readNonEmptyString(object.name, `${label}.name`),
     kind: readWorldDefinitionKind(object.kind, `${label}.kind`),
     metadata: validateSchemaMetadata(object.metadata, `${label}.metadata`),
-    scenes: readArray(object.scenes, `${label}.scenes`, validateSceneDefinition),
+    scenes: readArray(
+      object.scenes,
+      `${label}.scenes`,
+      validateSceneDefinition,
+    ),
     pages: readArray(object.pages, `${label}.pages`, validatePageDefinition),
     screens: readArray(
       object.screens,
@@ -125,7 +129,11 @@ export function validateWorldDefinition(
       validateScreenDefinition,
     ),
     flows: readArray(object.flows, `${label}.flows`, validateFlowDefinition),
-    routes: readArray(object.routes, `${label}.routes`, validateRouteDefinition),
+    routes: readArray(
+      object.routes,
+      `${label}.routes`,
+      validateRouteDefinition,
+    ),
     track:
       object.track === undefined
         ? undefined
@@ -148,7 +156,10 @@ export function validateSchemaMetadata(
 ): SchemaMetadata {
   const object = readObject(value, label);
   return {
-    schemaVersion: readSchemaVersion(object.schemaVersion, `${label}.schemaVersion`),
+    schemaVersion: readSchemaVersion(
+      object.schemaVersion,
+      `${label}.schemaVersion`,
+    ),
     createdWith:
       object.createdWith === undefined
         ? undefined
@@ -317,14 +328,8 @@ export function validateVehicleClassDefinition(
   return {
     id: readNonEmptyString(object.id, `${label}.id`),
     name: readNonEmptyString(object.name, `${label}.name`),
-    horsepower: readNonNegativeNumber(
-      object.horsepower,
-      `${label}.horsepower`,
-    ),
-    drivetrain: readVehicleDrivetrain(
-      object.drivetrain,
-      `${label}.drivetrain`,
-    ),
+    horsepower: readNonNegativeNumber(object.horsepower, `${label}.horsepower`),
+    drivetrain: readVehicleDrivetrain(object.drivetrain, `${label}.drivetrain`),
     tags: readStringArray(object.tags, `${label}.tags`),
   };
 }
@@ -366,7 +371,9 @@ export function isSchemaVersionCompatible(
 ): boolean {
   const supported = parseSchemaVersion(supportedVersion);
   const requested = parseSchemaVersion(candidate);
-  return requested.major === supported.major && requested.minor <= supported.minor;
+  return (
+    requested.major === supported.major && requested.minor <= supported.minor
+  );
 }
 
 export function assertSchemaVersionCompatible(
@@ -473,7 +480,9 @@ function readVehicleDrivetrain(
 
 function readNonNegativeNumber(value: unknown, label: string): number {
   if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) {
-    throw new Error(`${label} must be a finite number greater than or equal to 0.`);
+    throw new Error(
+      `${label} must be a finite number greater than or equal to 0.`,
+    );
   }
 
   return value;

@@ -43,9 +43,9 @@ describe('full-game-stack schema', () => {
     expect(() => assertSchemaVersionCompatible('2.0.0')).toThrow(
       /not compatible/i,
     );
-    expect(
-      assertSchemaVersionCompatible(FULL_GAME_STACK_SCHEMA_VERSION),
-    ).toBe(FULL_GAME_STACK_SCHEMA_VERSION);
+    expect(assertSchemaVersionCompatible(FULL_GAME_STACK_SCHEMA_VERSION)).toBe(
+      FULL_GAME_STACK_SCHEMA_VERSION,
+    );
   });
 });
 

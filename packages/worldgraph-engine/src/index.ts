@@ -92,9 +92,12 @@ export class PersistentWorldGraphService implements WorldGraphService {
     const validatedContext = validateContext(context);
     const validatedDefinition = validateWorldDefinition(definition);
     const client = this.rpcClientFactory.create(validatedContext.accessToken);
-    const row = await client.rpc<WorldGraphRow>('rpc_create_worldgraph_definition', {
-      p_definition: validatedDefinition,
-    });
+    const row = await client.rpc<WorldGraphRow>(
+      'rpc_create_worldgraph_definition',
+      {
+        p_definition: validatedDefinition,
+      },
+    );
     return mapRecord(row, validatedContext.ownerId);
   }
 
@@ -104,9 +107,12 @@ export class PersistentWorldGraphService implements WorldGraphService {
   ): Promise<WorldGraphDefinitionRecord | undefined> {
     const validatedContext = validateContext(context);
     const client = this.rpcClientFactory.create(validatedContext.accessToken);
-    const row = await client.rpc<WorldGraphRow | null>('rpc_get_worldgraph_definition', {
-      p_definition_id: readNonEmptyString(id, 'id'),
-    });
+    const row = await client.rpc<WorldGraphRow | null>(
+      'rpc_get_worldgraph_definition',
+      {
+        p_definition_id: readNonEmptyString(id, 'id'),
+      },
+    );
     return row ? mapRecord(row, validatedContext.ownerId) : undefined;
   }
 
@@ -118,10 +124,13 @@ export class PersistentWorldGraphService implements WorldGraphService {
     const validatedContext = validateContext(context);
     const validatedDefinition = validateWorldDefinition(definition);
     const client = this.rpcClientFactory.create(validatedContext.accessToken);
-    const row = await client.rpc<WorldGraphRow | null>('rpc_update_worldgraph_definition', {
-      p_definition_id: readNonEmptyString(id, 'id'),
-      p_definition: validatedDefinition,
-    });
+    const row = await client.rpc<WorldGraphRow | null>(
+      'rpc_update_worldgraph_definition',
+      {
+        p_definition_id: readNonEmptyString(id, 'id'),
+        p_definition: validatedDefinition,
+      },
+    );
     return row ? mapRecord(row, validatedContext.ownerId) : undefined;
   }
 
@@ -131,9 +140,12 @@ export class PersistentWorldGraphService implements WorldGraphService {
   ): Promise<boolean> {
     const validatedContext = validateContext(context);
     const client = this.rpcClientFactory.create(validatedContext.accessToken);
-    const deleted = await client.rpc<boolean>('rpc_delete_worldgraph_definition', {
-      p_definition_id: readNonEmptyString(id, 'id'),
-    });
+    const deleted = await client.rpc<boolean>(
+      'rpc_delete_worldgraph_definition',
+      {
+        p_definition_id: readNonEmptyString(id, 'id'),
+      },
+    );
     return Boolean(deleted);
   }
 
@@ -143,15 +155,25 @@ export class PersistentWorldGraphService implements WorldGraphService {
   ): Promise<WorldGraphListPage> {
     const validatedContext = validateContext(context);
     const page = readPositiveInteger(options.page ?? 1, 'page');
-    const pageSize = readBoundedInteger(options.pageSize ?? 20, 'pageSize', 1, 100);
+    const pageSize = readBoundedInteger(
+      options.pageSize ?? 20,
+      'pageSize',
+      1,
+      100,
+    );
     const offset = (page - 1) * pageSize;
     const client = this.rpcClientFactory.create(validatedContext.accessToken);
-    const rows = await client.rpc<WorldGraphListRow[]>('rpc_list_worldgraph_definitions', {
-      p_limit: pageSize,
-      p_offset: offset,
-    });
+    const rows = await client.rpc<WorldGraphListRow[]>(
+      'rpc_list_worldgraph_definitions',
+      {
+        p_limit: pageSize,
+        p_offset: offset,
+      },
+    );
     const items = rows.map((row) => mapRecord(row, validatedContext.ownerId));
-    const total = rows[0] ? readNonNegativeInteger(rows[0].total_count, 'total_count') : 0;
+    const total = rows[0]
+      ? readNonNegativeInteger(rows[0].total_count, 'total_count')
+      : 0;
     return { items, page, pageSize, total };
   }
 }
@@ -176,7 +198,10 @@ export class SupabaseRestRpcClientFactory implements WorldGraphRpcClientFactory 
   create(accessToken: string): WorldGraphRpcClient {
     const token = readNonEmptyString(accessToken, 'accessToken');
     return {
-      rpc: async <TResponse>(fn: string, args: Record<string, unknown> = {}) => {
+      rpc: async <TResponse>(
+        fn: string,
+        args: Record<string, unknown> = {},
+      ) => {
         const response = await this.fetchImpl(
           `${this.baseUrl.replace(/\/$/, '')}/rest/v1/rpc/${encodeURIComponent(readNonEmptyString(fn, 'fn'))}`,
           {
@@ -191,15 +216,15 @@ export class SupabaseRestRpcClientFactory implements WorldGraphRpcClientFactory 
         );
 
         const payload = (await readJson(response)) as
-          | TResponse
-          | { message?: unknown; error?: unknown };
+          TResponse | { message?: unknown; error?: unknown };
         if (!response.ok) {
           const message =
             payload && typeof payload === 'object'
               ? readOptionalErrorMessage(payload as Record<string, unknown>)
               : undefined;
           throw new Error(
-            message ?? `Supabase RPC ${fn} failed with status ${response.status}.`,
+            message ??
+              `Supabase RPC ${fn} failed with status ${response.status}.`,
           );
         }
 
@@ -217,7 +242,9 @@ async function readJson(response: Response): Promise<unknown> {
   return response.json();
 }
 
-function readOptionalErrorMessage(value: Record<string, unknown>): string | undefined {
+function readOptionalErrorMessage(
+  value: Record<string, unknown>,
+): string | undefined {
   if (typeof value.message === 'string' && value.message.trim().length > 0) {
     return value.message;
   }
@@ -227,18 +254,25 @@ function readOptionalErrorMessage(value: Record<string, unknown>): string | unde
   return undefined;
 }
 
-function validateContext(value: WorldGraphRequestContext): WorldGraphRequestContext {
+function validateContext(
+  value: WorldGraphRequestContext,
+): WorldGraphRequestContext {
   return {
     accessToken: readNonEmptyString(value.accessToken, 'accessToken'),
     ownerId: readNonEmptyString(value.ownerId, 'ownerId'),
   };
 }
 
-function mapRecord(row: WorldGraphRow, expectedOwnerId: string): WorldGraphDefinitionRecord {
+function mapRecord(
+  row: WorldGraphRow,
+  expectedOwnerId: string,
+): WorldGraphDefinitionRecord {
   const definition = validateWorldDefinition(row.document, 'document');
   const ownerId = readNonEmptyString(row.owner_id, 'owner_id');
   if (ownerId !== expectedOwnerId) {
-    throw new Error('WorldGraph RPC returned a definition for an unexpected owner.');
+    throw new Error(
+      'WorldGraph RPC returned a definition for an unexpected owner.',
+    );
   }
 
   return {
@@ -295,7 +329,9 @@ function readBoundedInteger(
     value < minimum ||
     value > maximum
   ) {
-    throw new Error(`${label} must be an integer between ${minimum} and ${maximum}.`);
+    throw new Error(
+      `${label} must be an integer between ${minimum} and ${maximum}.`,
+    );
   }
   return value;
 }
