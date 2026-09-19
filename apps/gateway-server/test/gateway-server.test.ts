@@ -73,7 +73,7 @@ describe('gateway-server security', () => {
     });
     const response = await app.inject({
       method: 'POST',
-      url: '/v1/admin/control-cycle',
+      url: '/v1/admin/control/run-cycle',
       headers: { authorization: bearerFor('regular-user') },
     });
     expect(response.statusCode).toBe(403);
@@ -118,11 +118,11 @@ describe('gateway-server security', () => {
     });
   });
 
-  it('updates governance policy thresholds through governance engine API', async () => {
+  it('registers and updates policies through admin endpoints', async () => {
     const app = testApp();
     const created = await app.inject({
       method: 'POST',
-      url: '/v1/admin/governance/policies',
+      url: '/v1/admin/policy/register',
       headers: { authorization: bearerFor('admin-user') },
       payload: {
         name: 'baseline',
@@ -133,12 +133,13 @@ describe('gateway-server security', () => {
     const policy = created.json() as { id: string };
 
     const response = await app.inject({
-      method: 'PATCH',
-      url: `/v1/admin/governance/policies/${policy.id}`,
+      method: 'POST',
+      url: `/v1/admin/policy/update/${policy.id}`,
       headers: { authorization: bearerFor('admin-user') },
       payload: { riskThreshold: 0.7 },
     });
 
+    expect(created.statusCode).toBe(201);
     expect(response.statusCode).toBe(200);
     expect(response.json()).toMatchObject({ riskThreshold: 0.7 });
   });
@@ -146,8 +147,8 @@ describe('gateway-server security', () => {
   it('returns error for governance policy update failures', async () => {
     const app = testApp();
     const response = await app.inject({
-      method: 'PATCH',
-      url: '/v1/admin/governance/policies/missing',
+      method: 'POST',
+      url: '/v1/admin/policy/update/missing',
       headers: { authorization: bearerFor('admin-user') },
       payload: { riskThreshold: 2 },
     });
@@ -155,15 +156,124 @@ describe('gateway-server security', () => {
     expect(response.statusCode).toBe(400);
   });
 
-  it('creates audit records for admin mutations', async () => {
+  it('uses trusted role lookup for admin success and rejects client-claimed roles', async () => {
+    const app = testApp({
+      roles: {
+        'admin-user': 'admin',
+        'token-admin': 'user',
+      },
+    });
+
+    const rejected = await app.inject({
+      method: 'GET',
+      url: '/v1/admin/control/status',
+      headers: {
+        authorization: authHeader(
+          signToken({
+            sub: 'token-admin',
+            role: 'admin',
+            iss: jwtConfig.issuer,
+            aud: jwtConfig.audience,
+            exp: futureExp(),
+          }),
+        ),
+      },
+    });
+    expect(rejected.statusCode).toBe(403);
+
+    const accepted = await app.inject({
+      method: 'GET',
+      url: '/v1/admin/control/status',
+      headers: { authorization: bearerFor('admin-user') },
+    });
+    expect(accepted.statusCode).toBe(200);
+    expect(accepted.json()).toMatchObject({ status: 'ok' });
+  });
+
+  it('validates admin world registration and creates audit records with pagination', async () => {
     const auditStore = new InMemoryAuditStore();
     const app = testApp({ auditStore });
 
-    await app.inject({
+    const invalid = await app.inject({
       method: 'POST',
-      url: '/v1/admin/control-cycle',
+      url: '/v1/admin/worlds/register',
+      headers: { authorization: bearerFor('admin-user') },
+      payload: {
+        label: 'Broken',
+        eid: 'eid-broken',
+        existenceState: 'unstable',
+        continuityArc: 'arc-broken',
+        meaningScore: 2,
+        riskProfile: 0.3,
+        tags: ['broken'],
+      },
+    });
+    expect(invalid.statusCode).toBe(400);
+
+    const created = await app.inject({
+      method: 'POST',
+      url: '/v1/admin/worlds/register',
+      headers: { authorization: bearerFor('admin-user') },
+      payload: {
+        id: 'world-a',
+        label: 'World A',
+        eid: 'eid-a',
+        existenceState: 'stable',
+        continuityArc: 'arc-a',
+        meaningScore: 0.4,
+        riskProfile: 0.2,
+        tags: ['alpha'],
+      },
+    });
+    expect(created.statusCode).toBe(201);
+
+    const simulation = await app.inject({
+      method: 'POST',
+      url: '/v1/admin/continuity/simulate',
+      headers: { authorization: bearerFor('admin-user') },
+      payload: {
+        worldId: 'world-a',
+        prompt: 'simulate arc shift',
+        steps: 2,
+      },
+    });
+    expect(simulation.statusCode).toBe(200);
+
+    const diagnostics = await app.inject({
+      method: 'GET',
+      url: '/v1/admin/diagnostics',
       headers: { authorization: bearerFor('admin-user') },
     });
+    expect(diagnostics.statusCode).toBe(200);
+    expect(diagnostics.json()).toMatchObject({
+      status: { worldCount: 1 },
+    });
+
+    const auditPage = await app.inject({
+      method: 'GET',
+      url: '/v1/admin/audit?limit=1&offset=0',
+      headers: { authorization: bearerFor('admin-user') },
+    });
+    expect(auditPage.statusCode).toBe(200);
+    expect(auditPage.json()).toMatchObject({
+      records: [expect.objectContaining({ action: 'world:register' })],
+      limit: 1,
+      offset: 0,
+      total: 2,
+      nextOffset: 1,
+    });
+  });
+
+  it('creates audit records for control cycles', async () => {
+    const auditStore = new InMemoryAuditStore();
+    const app = testApp({ auditStore });
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/admin/control/run-cycle',
+      headers: { authorization: bearerFor('admin-user') },
+    });
+    expect(response.statusCode).toBe(200);
 
     const listResponse = await app.inject({
       method: 'GET',

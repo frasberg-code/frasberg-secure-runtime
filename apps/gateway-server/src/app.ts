@@ -1,16 +1,25 @@
-import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import Fastify, {
   FastifyInstance,
   FastifyReply,
   FastifyRequest,
 } from 'fastify';
 import {
+  AuditLog,
   CreateGovernancePolicyInput,
+  ExistentialControlPlane,
   GovernanceEngine,
+  PolicyRegistry,
+  RegisterWorldGraphWorldInput,
 } from '@frasberg/shared';
 
 export type EngineDomain =
-  'music' | 'video' | 'image' | 'voice' | 'stt' | 'tts';
+  | 'music'
+  | 'video'
+  | 'image'
+  | 'voice'
+  | 'stt'
+  | 'tts';
 export type EngineJobState = 'queued' | 'running' | 'completed' | 'failed';
 export type TrustedRole = 'admin' | 'user';
 
@@ -57,6 +66,7 @@ export interface GatewayServerOptions {
   roleStore: UserRoleStore;
   engineAdapter: EngineAdapter;
   governanceEngine?: GovernanceEngine;
+  controlPlane?: ExistentialControlPlane;
   auditStore?: AuditStore;
   rateLimitMax?: number;
   rateLimitWindowMs?: number;
@@ -95,26 +105,25 @@ export class InMemoryRoleStore implements UserRoleStore {
 }
 
 export class InMemoryAuditStore implements AuditStore {
-  private readonly entries: AuditRecord[] = [];
+  private readonly auditLog: AuditLog;
+
+  constructor(auditLog = new AuditLog()) {
+    this.auditLog = auditLog;
+  }
 
   async record(
     entry: Omit<AuditRecord, 'id' | 'createdAt'>,
   ): Promise<AuditRecord> {
-    const record: AuditRecord = {
-      ...entry,
-      id: randomUUID(),
-      createdAt: new Date().toISOString(),
-      detail: { ...entry.detail },
-    };
-    this.entries.push(record);
-    return { ...record, detail: { ...record.detail } };
+    return this.auditLog.record({
+      actorId: entry.actorId,
+      action: entry.action,
+      target: entry.target,
+      detail: entry.detail,
+    });
   }
 
   async list(): Promise<AuditRecord[]> {
-    return this.entries.map((entry) => ({
-      ...entry,
-      detail: { ...entry.detail },
-    }));
+    return this.auditLog.list();
   }
 }
 
@@ -129,7 +138,7 @@ export class InMemoryFakeEngineAdapter implements EngineAdapter {
   ): Promise<EngineJobResult> {
     const prompt = readNonEmptyString(payload.prompt, 'prompt');
     return {
-      jobId: randomUUID(),
+      jobId: cryptoRandomUuid(),
       domain,
       state: 'queued',
       artifactUrl: `fake://${domain}/${encodeURIComponent(prompt)}`,
@@ -140,8 +149,15 @@ export class InMemoryFakeEngineAdapter implements EngineAdapter {
 export function buildGatewayServerApp(
   options: GatewayServerOptions,
 ): FastifyInstance {
-  const governanceEngine = options.governanceEngine ?? new GovernanceEngine();
-  const auditStore = options.auditStore ?? new InMemoryAuditStore();
+  const governanceEngine =
+    options.controlPlane?.policyRegistry ??
+    options.governanceEngine ??
+    new PolicyRegistry();
+  const controlPlane =
+    options.controlPlane ??
+    new ExistentialControlPlane({ policyRegistry: governanceEngine });
+  const auditStore =
+    options.auditStore ?? new InMemoryAuditStore(controlPlane.auditLog);
   const rateLimitState = new Map<string, RateLimitEntry>();
   const rateLimitMax = options.rateLimitMax ?? 60;
   const rateLimitWindowMs = options.rateLimitWindowMs ?? 60_000;
@@ -191,60 +207,112 @@ export function buildGatewayServerApp(
     }
   });
 
-  app.post('/v1/admin/control-cycle', async (request, reply) => {
+  app.get('/v1/admin/control/status', async (request, reply) => {
     if (
-      !enforceRateLimit(
+      !(await enforceAdminRoute(
         request,
         reply,
         rateLimitState,
         rateLimitMax,
         rateLimitWindowMs,
-      )
+      ))
     ) {
       return;
     }
 
-    const principal = await requireAdmin(request, reply);
-    if (!principal) {
+    return reply.code(200).send(controlPlane.getStatus());
+  });
+
+  const runControlCycle = async (request: FastifyRequest, reply: FastifyReply) => {
+    if (
+      !(await enforceAdminRoute(
+        request,
+        reply,
+        rateLimitState,
+        rateLimitMax,
+        rateLimitWindowMs,
+      ))
+    ) {
       return;
     }
 
+    const principal = request.principal as { sub: string; role: TrustedRole };
+    const result = controlPlane.runCycle();
     await auditStore.record({
       actorId: principal.sub,
       action: 'control-cycle:run',
       target: 'runtime',
-      detail: { trigger: 'manual' },
+      detail: {
+        cycleId: result.cycleId,
+        anomalyCount: result.anomalies.length,
+        actionCount: result.actions.length,
+      },
     });
 
-    return reply.code(202).send({ accepted: true });
-  });
+    return reply.code(200).send(result);
+  };
 
-  app.patch('/v1/admin/governance/policies/:id', async (request, reply) => {
+  app.post('/v1/admin/control-cycle', runControlCycle);
+  app.post('/v1/admin/control/run-cycle', runControlCycle);
+
+  const createPolicy = async (request: FastifyRequest, reply: FastifyReply) => {
     if (
-      !enforceRateLimit(
+      !(await enforceAdminRoute(
         request,
         reply,
         rateLimitState,
         rateLimitMax,
         rateLimitWindowMs,
-      )
+      ))
     ) {
       return;
     }
 
-    const principal = await requireAdmin(request, reply);
-    if (!principal) {
+    try {
+      const principal = request.principal as { sub: string; role: TrustedRole };
+      const body = readPolicyCreateBody(request.body);
+      const policy = governanceEngine.createPolicy(body);
+      await auditStore.record({
+        actorId: principal.sub,
+        action: 'policy:register',
+        target: policy.id,
+        detail: {
+          name: policy.name,
+          meaningThreshold: policy.meaningThreshold,
+          riskThreshold: policy.riskThreshold,
+        },
+      });
+      return reply.code(201).send(policy);
+    } catch (error) {
+      return reply.code(400).send({ error: (error as Error).message });
+    }
+  };
+
+  app.post('/v1/admin/governance/policies', createPolicy);
+  app.post('/v1/admin/policy/register', createPolicy);
+
+  const updatePolicy = async (request: FastifyRequest, reply: FastifyReply) => {
+    if (
+      !(await enforceAdminRoute(
+        request,
+        reply,
+        rateLimitState,
+        rateLimitMax,
+        rateLimitWindowMs,
+      ))
+    ) {
       return;
     }
 
     try {
+      const principal = request.principal as { sub: string; role: TrustedRole };
       const params = request.params as { id?: string };
       const policyId = readNonEmptyString(params.id, 'id');
       const body = readPolicyUpdateBody(request.body);
       const updated = governanceEngine.updatePolicy(policyId, body);
       await auditStore.record({
         actorId: principal.sub,
-        action: 'governance:update-policy',
+        action: 'policy:update',
         target: policyId,
         detail: {
           meaningThreshold: updated.meaningThreshold,
@@ -255,61 +323,152 @@ export function buildGatewayServerApp(
     } catch (error) {
       return reply.code(400).send({ error: (error as Error).message });
     }
-  });
+  };
 
-  app.get('/v1/admin/audit', async (request, reply) => {
+  app.patch('/v1/admin/governance/policies/:id', updatePolicy);
+  app.post('/v1/admin/policy/update/:id', updatePolicy);
+
+  app.post('/v1/admin/worlds/register', async (request, reply) => {
     if (
-      !enforceRateLimit(
+      !(await enforceAdminRoute(
         request,
         reply,
         rateLimitState,
         rateLimitMax,
         rateLimitWindowMs,
-      )
+      ))
     ) {
-      return;
-    }
-
-    const principal = await requireAdmin(request, reply);
-    if (!principal) {
-      return;
-    }
-
-    return reply.code(200).send({ records: await auditStore.list() });
-  });
-
-  app.post('/v1/admin/governance/policies', async (request, reply) => {
-    if (
-      !enforceRateLimit(
-        request,
-        reply,
-        rateLimitState,
-        rateLimitMax,
-        rateLimitWindowMs,
-      )
-    ) {
-      return;
-    }
-
-    const principal = await requireAdmin(request, reply);
-    if (!principal) {
       return;
     }
 
     try {
-      const body = readPolicyCreateBody(request.body);
-      const policy = governanceEngine.createPolicy(body);
+      const principal = request.principal as { sub: string; role: TrustedRole };
+      const body = readWorldRegistrationBody(request.body);
+      const world = controlPlane.registerWorld(body);
       await auditStore.record({
         actorId: principal.sub,
-        action: 'governance:create-policy',
-        target: policy.id,
+        action: 'world:register',
+        target: world.id,
         detail: {
-          name: policy.name,
-          meaningThreshold: policy.meaningThreshold,
-          riskThreshold: policy.riskThreshold,
+          label: world.label,
+          meaningScore: world.meaningScore,
+          riskProfile: world.riskProfile,
         },
       });
-      return reply.code(201).send(policy);
+      return reply.code(201).send(world);
+    } catch (error) {
+      return reply.code(400).send({ error: (error as Error).message });
+    }
+  });
+
+  app.delete('/v1/admin/worlds/:id', async (request, reply) => {
+    if (
+      !(await enforceAdminRoute(
+        request,
+        reply,
+        rateLimitState,
+        rateLimitMax,
+        rateLimitWindowMs,
+      ))
+    ) {
+      return;
+    }
+
+    try {
+      const principal = request.principal as { sub: string; role: TrustedRole };
+      const worldId = readNonEmptyString(
+        (request.params as { id?: string }).id,
+        'id',
+      );
+      const world = controlPlane.removeWorld(worldId);
+      await auditStore.record({
+        actorId: principal.sub,
+        action: 'world:delete',
+        target: world.id,
+        detail: { label: world.label },
+      });
+      return reply.code(200).send({ deleted: true, world });
+    } catch (error) {
+      const message = (error as Error).message;
+      const statusCode = /does not exist/i.test(message) ? 404 : 400;
+      return reply.code(statusCode).send({ error: message });
+    }
+  });
+
+  app.post('/v1/admin/continuity/simulate', async (request, reply) => {
+    if (
+      !(await enforceAdminRoute(
+        request,
+        reply,
+        rateLimitState,
+        rateLimitMax,
+        rateLimitWindowMs,
+      ))
+    ) {
+      return;
+    }
+
+    try {
+      const principal = request.principal as { sub: string; role: TrustedRole };
+      const body = readContinuitySimulationBody(request.body);
+      const result = controlPlane.simulateContinuity(body);
+      await auditStore.record({
+        actorId: principal.sub,
+        action: 'continuity:simulate',
+        target: body.worldId,
+        detail: {
+          simulationId: result.simulationId,
+          projectedMeaningScore: result.projectedMeaningScore,
+          projectedRiskProfile: result.projectedRiskProfile,
+        },
+      });
+      return reply.code(200).send(result);
+    } catch (error) {
+      return reply.code(400).send({ error: (error as Error).message });
+    }
+  });
+
+  app.get('/v1/admin/diagnostics', async (request, reply) => {
+    if (
+      !(await enforceAdminRoute(
+        request,
+        reply,
+        rateLimitState,
+        rateLimitMax,
+        rateLimitWindowMs,
+      ))
+    ) {
+      return;
+    }
+
+    return reply.code(200).send(controlPlane.getDiagnostics());
+  });
+
+  app.get('/v1/admin/audit', async (request, reply) => {
+    if (
+      !(await enforceAdminRoute(
+        request,
+        reply,
+        rateLimitState,
+        rateLimitMax,
+        rateLimitWindowMs,
+      ))
+    ) {
+      return;
+    }
+
+    try {
+      const { limit, offset } = readAuditListQuery(request.query);
+      const records = await auditStore.list();
+      const total = records.length;
+      const paginated = records.slice(offset, offset + limit);
+      return reply.code(200).send({
+        records: paginated,
+        total,
+        limit,
+        offset,
+        nextOffset: offset + limit < total ? offset + limit : null,
+      });
     } catch (error) {
       return reply.code(400).send({ error: (error as Error).message });
     }
@@ -401,6 +560,20 @@ function verifyJwtHs256(
   return normalized;
 }
 
+async function enforceAdminRoute(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  state: Map<string, RateLimitEntry>,
+  max: number,
+  windowMs: number,
+): Promise<boolean> {
+  if (!enforceRateLimit(request, reply, state, max, windowMs)) {
+    return false;
+  }
+
+  return Boolean(await requireAdmin(request, reply));
+}
+
 function readGenerateRequestBody(value: unknown): GenerateRequestBody {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     throw new Error('Request body must be an object.');
@@ -459,6 +632,74 @@ function readPolicyCreateBody(value: unknown): CreateGovernancePolicyInput {
       'meaningThreshold',
     ),
     riskThreshold: readUnitInterval(payload.riskThreshold, 'riskThreshold'),
+  };
+}
+
+function readWorldRegistrationBody(
+  value: unknown,
+): RegisterWorldGraphWorldInput {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('Request body must be an object.');
+  }
+
+  const payload = value as Record<string, unknown>;
+  return {
+    id:
+      payload.id === undefined
+        ? undefined
+        : readNonEmptyString(payload.id, 'id'),
+    label: readNonEmptyString(payload.label, 'label'),
+    eid: readNonEmptyString(payload.eid, 'eid'),
+    existenceState: readNonEmptyString(payload.existenceState, 'existenceState'),
+    continuityArc: readNonEmptyString(payload.continuityArc, 'continuityArc'),
+    meaningScore: readUnitInterval(payload.meaningScore, 'meaningScore'),
+    riskProfile: readUnitInterval(payload.riskProfile, 'riskProfile'),
+    tags: readStringArray(payload.tags, 'tags'),
+  };
+}
+
+function readContinuitySimulationBody(value: unknown): {
+  worldId: string;
+  prompt?: string;
+  steps?: number;
+} {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('Request body must be an object.');
+  }
+
+  const payload = value as Record<string, unknown>;
+  return {
+    worldId: readNonEmptyString(payload.worldId, 'worldId'),
+    prompt:
+      payload.prompt === undefined
+        ? undefined
+        : readNonEmptyString(payload.prompt, 'prompt'),
+    steps:
+      payload.steps === undefined
+        ? undefined
+        : readIntegerInRange(payload.steps, 1, 10, 'steps'),
+  };
+}
+
+function readAuditListQuery(value: unknown): { limit: number; offset: number } {
+  if (value === undefined) {
+    return { limit: 50, offset: 0 };
+  }
+
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('Query must be an object.');
+  }
+
+  const query = value as Record<string, unknown>;
+  return {
+    limit:
+      query.limit === undefined
+        ? 50
+        : readIntegerLikeInRange(query.limit, 1, 100, 'limit'),
+    offset:
+      query.offset === undefined
+        ? 0
+        : readIntegerLikeInRange(query.offset, 0, 10_000, 'offset'),
   };
 }
 
@@ -534,11 +775,54 @@ function readInteger(value: unknown, label: string): number {
   return value;
 }
 
+function readIntegerLikeInRange(
+  value: unknown,
+  minimum: number,
+  maximum: number,
+  label: string,
+): number {
+  const numericValue =
+    typeof value === 'string' && value.trim().length > 0 ? Number(value) : value;
+  if (typeof numericValue !== 'number' || !Number.isInteger(numericValue)) {
+    throw new Error(`${label} must be an integer.`);
+  }
+
+  if (numericValue < minimum || numericValue > maximum) {
+    throw new Error(`${label} must be between ${minimum} and ${maximum}.`);
+  }
+
+  return numericValue;
+}
+
+function readIntegerInRange(
+  value: unknown,
+  minimum: number,
+  maximum: number,
+  label: string,
+): number {
+  const integer = readInteger(value, label);
+  if (integer < minimum || integer > maximum) {
+    throw new Error(`${label} must be between ${minimum} and ${maximum}.`);
+  }
+
+  return integer;
+}
+
 function readNonEmptyString(value: unknown, label: string): string {
   if (typeof value !== 'string' || value.trim().length === 0) {
     throw new Error(`${label} must be a non-empty string.`);
   }
   return value;
+}
+
+function readStringArray(value: unknown, label: string): string[] {
+  if (!Array.isArray(value)) {
+    throw new Error(`${label} must be an array.`);
+  }
+
+  return value.map((entry, index) =>
+    readNonEmptyString(entry, `${label}[${index}]`),
+  );
 }
 
 function readUnitInterval(value: unknown, label: string): number {
@@ -607,4 +891,8 @@ function enforceRateLimit(
   }
 
   return true;
+}
+
+function cryptoRandomUuid(): string {
+  return globalThis.crypto.randomUUID();
 }

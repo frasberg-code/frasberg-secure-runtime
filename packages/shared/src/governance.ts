@@ -37,8 +37,11 @@ export class GovernanceEngine {
     const policy: GovernancePolicy = {
       id,
       name: readNonEmptyString(input.name, 'name'),
-      meaningThreshold: clampUnitInterval(input.meaningThreshold),
-      riskThreshold: clampUnitInterval(input.riskThreshold),
+      meaningThreshold: readUnitInterval(
+        input.meaningThreshold,
+        'meaningThreshold',
+      ),
+      riskThreshold: readUnitInterval(input.riskThreshold, 'riskThreshold'),
       updatedAt: now,
     };
     this.policies.set(id, policy);
@@ -83,11 +86,11 @@ export class GovernanceEngine {
       meaningThreshold:
         updates.meaningThreshold === undefined
           ? current.meaningThreshold
-          : clampUnitInterval(updates.meaningThreshold),
+          : readUnitInterval(updates.meaningThreshold, 'meaningThreshold'),
       riskThreshold:
         updates.riskThreshold === undefined
           ? current.riskThreshold
-          : clampUnitInterval(updates.riskThreshold),
+          : readUnitInterval(updates.riskThreshold, 'riskThreshold'),
       updatedAt: new Date().toISOString(),
     };
     this.policies.set(normalizedId, next);
@@ -109,17 +112,15 @@ function readNonEmptyString(value: unknown, label: string): string {
   return value;
 }
 
-function clampUnitInterval(value: unknown): number {
+function readUnitInterval(value: unknown, label: string): number {
   if (typeof value !== 'number' || !Number.isFinite(value)) {
-    throw new Error('Threshold values must be finite numbers.');
+    throw new Error(`${label} must be a finite number.`);
   }
 
-  if (value < EXISTENTIAL_SCORE_MIN) {
-    return EXISTENTIAL_SCORE_MIN;
-  }
-
-  if (value > EXISTENTIAL_SCORE_MAX) {
-    return EXISTENTIAL_SCORE_MAX;
+  if (value < EXISTENTIAL_SCORE_MIN || value > EXISTENTIAL_SCORE_MAX) {
+    throw new Error(
+      `${label} must be between ${EXISTENTIAL_SCORE_MIN} and ${EXISTENTIAL_SCORE_MAX}.`,
+    );
   }
 
   return value;
