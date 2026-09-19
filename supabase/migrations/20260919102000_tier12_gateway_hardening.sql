@@ -209,7 +209,6 @@ begin
     'user_costs',
     'worlds',
     'continuity_events',
-    'audit_log',
     'engine_registry',
     'user_quotas',
     'rate_limits',
@@ -238,6 +237,10 @@ begin
 end;
 $$;
 
+alter table public.user_profiles enable row level security;
+alter table public.audit_log enable row level security;
+alter table public.audit_log force row level security;
+
 drop policy if exists user_profiles_self_or_admin_select on public.user_profiles;
 create policy user_profiles_self_or_admin_select
 on public.user_profiles
@@ -250,6 +253,21 @@ on public.user_profiles
 for all
 using (user_id = auth.uid() or public.current_user_is_admin())
 with check (user_id = auth.uid() or public.current_user_is_admin());
+
+drop policy if exists audit_log_owner_or_admin_select on public.audit_log;
+create policy audit_log_owner_or_admin_select
+on public.audit_log
+for select
+using (owner_id = auth.uid() or public.current_user_is_admin());
+
+drop policy if exists audit_log_actor_insert on public.audit_log;
+create policy audit_log_actor_insert
+on public.audit_log
+for insert
+with check (
+  actor_id = auth.uid()
+  and (owner_id = auth.uid() or public.current_user_is_admin())
+);
 
 create or replace function public.rpc_list_jobs(p_limit integer default 50)
 returns setof public.jobs
@@ -298,6 +316,15 @@ declare
 begin
   if p_owner_id <> auth.uid() and not public.current_user_is_admin() then
     raise exception 'forbidden';
+  end if;
+
+  if p_job_id is not null and not exists (
+    select 1
+    from public.jobs j
+    where j.id = p_job_id
+      and j.owner_id = p_owner_id
+  ) then
+    raise exception 'job ownership mismatch';
   end if;
 
   insert into public.engine_usage(owner_id, job_id, engine_name, units, cost_usd, metadata)
@@ -361,6 +388,15 @@ declare
 begin
   if p_owner_id <> auth.uid() and not public.current_user_is_admin() then
     raise exception 'forbidden';
+  end if;
+
+  if not exists (
+    select 1
+    from public.worlds w
+    where w.id = p_world_id
+      and w.owner_id = p_owner_id
+  ) then
+    raise exception 'world ownership mismatch';
   end if;
 
   insert into public.continuity_events(owner_id, world_id, event_type, payload)
@@ -463,7 +499,7 @@ create or replace function public.rpc_increment_rate_limit(
   p_owner_id uuid,
   p_route_key text,
   p_window_seconds integer,
-  p_window_started_at timestamptz default date_trunc('minute', now())
+  p_window_started_at timestamptz default now()
 )
 returns public.rate_limits
 language plpgsql
@@ -472,13 +508,20 @@ set search_path = public, auth, pg_temp
 as $$
 declare
   v_limit public.rate_limits;
+  v_window_seconds integer;
+  v_window_start timestamptz;
 begin
   if p_owner_id <> auth.uid() and not public.current_user_is_admin() then
     raise exception 'forbidden';
   end if;
 
+  v_window_seconds := greatest(p_window_seconds, 1);
+  v_window_start := to_timestamp(
+    floor(extract(epoch from coalesce(p_window_started_at, now())) / v_window_seconds) * v_window_seconds
+  );
+
   insert into public.rate_limits(owner_id, route_key, window_started_at, window_seconds, request_count)
-  values (p_owner_id, p_route_key, p_window_started_at, greatest(p_window_seconds, 1), 1)
+  values (p_owner_id, p_route_key, v_window_start, v_window_seconds, 1)
   on conflict (owner_id, route_key, window_started_at, window_seconds)
   do update set
     request_count = public.rate_limits.request_count + 1,

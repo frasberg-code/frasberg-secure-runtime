@@ -16,5 +16,5 @@ All Frasberg calls are backend-to-backend only and use environment-provided bear
 ## Gateway-server trust boundary
 
 - `apps/gateway-server` verifies JWT signature, expiry, issuer, and audience.
-- Admin authorization is based on a server-side role lookup keyed by `sub`; it does not trust a client-provided JWT `role` claim.
-- The in-memory engine adapter is for local/test use only. Real music/video/image/voice/STT/TTS backends must be deployed and configured separately.
+- Admin authorization is based on a trusted server-side role lookup keyed by `sub` (`GATEWAY_ROLE_LOOKUP_URL`); it does not trust a client-provided JWT `role` claim.
+- Production routing requires `GATEWAY_ENGINE_BASE_URL` and forwards generation jobs to that backend. The in-memory engine adapter remains local/test-only.

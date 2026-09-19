@@ -58,6 +58,8 @@ export interface GatewayServerOptions {
   engineAdapter: EngineAdapter;
   governanceEngine?: GovernanceEngine;
   auditStore?: AuditStore;
+  rateLimitMax?: number;
+  rateLimitWindowMs?: number;
 }
 
 declare module 'fastify' {
@@ -77,6 +79,11 @@ interface JwtClaims {
   aud: string | string[];
   exp: number;
   iat?: number;
+}
+
+interface RateLimitEntry {
+  count: number;
+  resetAt: number;
 }
 
 export class InMemoryRoleStore implements UserRoleStore {
@@ -135,6 +142,9 @@ export function buildGatewayServerApp(
 ): FastifyInstance {
   const governanceEngine = options.governanceEngine ?? new GovernanceEngine();
   const auditStore = options.auditStore ?? new InMemoryAuditStore();
+  const rateLimitState = new Map<string, RateLimitEntry>();
+  const rateLimitMax = options.rateLimitMax ?? 60;
+  const rateLimitWindowMs = options.rateLimitWindowMs ?? 60_000;
   const app = Fastify({
     logger: {
       redact: ['req.headers.authorization'],
@@ -159,6 +169,18 @@ export function buildGatewayServerApp(
   }));
 
   app.post('/v1/generate/:domain', async (request, reply) => {
+    if (
+      !enforceRateLimit(
+        request,
+        reply,
+        rateLimitState,
+        rateLimitMax,
+        rateLimitWindowMs,
+      )
+    ) {
+      return;
+    }
+
     try {
       const body = readGenerateRequestBody(request.body);
       const domain = readDomain((request.params as { domain?: string }).domain);
@@ -170,6 +192,18 @@ export function buildGatewayServerApp(
   });
 
   app.post('/v1/admin/control-cycle', async (request, reply) => {
+    if (
+      !enforceRateLimit(
+        request,
+        reply,
+        rateLimitState,
+        rateLimitMax,
+        rateLimitWindowMs,
+      )
+    ) {
+      return;
+    }
+
     const principal = await requireAdmin(request, reply);
     if (!principal) {
       return;
@@ -186,6 +220,18 @@ export function buildGatewayServerApp(
   });
 
   app.patch('/v1/admin/governance/policies/:id', async (request, reply) => {
+    if (
+      !enforceRateLimit(
+        request,
+        reply,
+        rateLimitState,
+        rateLimitMax,
+        rateLimitWindowMs,
+      )
+    ) {
+      return;
+    }
+
     const principal = await requireAdmin(request, reply);
     if (!principal) {
       return;
@@ -212,6 +258,18 @@ export function buildGatewayServerApp(
   });
 
   app.get('/v1/admin/audit', async (request, reply) => {
+    if (
+      !enforceRateLimit(
+        request,
+        reply,
+        rateLimitState,
+        rateLimitMax,
+        rateLimitWindowMs,
+      )
+    ) {
+      return;
+    }
+
     const principal = await requireAdmin(request, reply);
     if (!principal) {
       return;
@@ -221,6 +279,18 @@ export function buildGatewayServerApp(
   });
 
   app.post('/v1/admin/governance/policies', async (request, reply) => {
+    if (
+      !enforceRateLimit(
+        request,
+        reply,
+        rateLimitState,
+        rateLimitMax,
+        rateLimitWindowMs,
+      )
+    ) {
+      return;
+    }
+
     const principal = await requireAdmin(request, reply);
     if (!principal) {
       return;
@@ -489,4 +559,52 @@ function readOptionalUnitInterval(
     return undefined;
   }
   return readUnitInterval(value, label);
+}
+
+function consumeRateLimit(
+  state: Map<string, RateLimitEntry>,
+  key: string,
+  max: number,
+  windowMs: number,
+): boolean {
+  const now = Date.now();
+  const current = state.get(key);
+  if (!current || current.resetAt <= now) {
+    state.set(key, { count: 1, resetAt: now + windowMs });
+    return true;
+  }
+
+  if (current.count >= max) {
+    return false;
+  }
+
+  current.count += 1;
+  return true;
+}
+
+function enforceRateLimit(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  state: Map<string, RateLimitEntry>,
+  max: number,
+  windowMs: number,
+): boolean {
+  const principal = request.principal;
+  if (!principal) {
+    return false;
+  }
+
+  if (
+    !consumeRateLimit(
+      state,
+      `${principal.sub}:${request.routeOptions.url}`,
+      max,
+      windowMs,
+    )
+  ) {
+    reply.code(429).send({ error: 'Too many requests.' });
+    return false;
+  }
+
+  return true;
 }

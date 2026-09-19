@@ -7,7 +7,7 @@
   ],
   "scripts": {
     "build": "tsc -b packages/shared packages/engine packages/runtime-router packages/gateway packages/botbase-workers apps/gateway-server",
-    "clean": "rm -rf packages/*/dist packages/*/tsconfig.tsbuildinfo",
+    "clean": "rm -rf packages/*/dist packages/*/tsconfig.tsbuildinfo apps/*/dist apps/*/tsconfig.tsbuildinfo",
     "format": "prettier --check .",
     "format:write": "prettier --write .",
     "test": "vitest run",

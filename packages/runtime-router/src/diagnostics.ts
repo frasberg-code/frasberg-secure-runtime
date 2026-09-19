@@ -36,6 +36,14 @@ export class DiagnosticsEngine {
   ): Promise<RuntimeDiagnosticsReport> {
     const sampleEids = readSampleEids(input.sampleEids);
     const anomalies = this.anomalyEngine.detect({ clusterId: input.clusterId });
+    const worldCount =
+      input.clusterId === undefined
+        ? this.worldGraphEngine.getWorldCount()
+        : new Set(
+            this.worldGraphEngine
+              .listNodes({ clusterId: input.clusterId })
+              .map((node) => node.clusterId),
+          ).size;
     const sampledCollapses: QuantumCollapseSampleResult[] = [];
 
     for (const eid of sampleEids) {
@@ -57,7 +65,7 @@ export class DiagnosticsEngine {
     }
 
     return {
-      worldCount: this.worldGraphEngine.getWorldCount(),
+      worldCount,
       policyCount: this.governanceEngine.getPolicyCount(),
       anomalyCount: anomalies.length,
       sampledCollapses,
