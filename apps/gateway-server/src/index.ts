@@ -1,1 +1,1 @@
-export * from '../../../packages/gateway/src';
+export * from './app';
