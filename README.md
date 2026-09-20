@@ -54,6 +54,10 @@ All Frasberg calls use `https://frasberg.com/api` and attach an Authorization be
 
 Music/video flows support job lifecycle polling (`queued -> running -> completed -> failed`) through `/api/jobs/:id`.
 
+## Existential control-plane modules
+
+The Tier 12 existential modules in `packages/shared` and `apps/gateway-server` implement domain/control-plane behavior only (policy, worlds, continuity, diagnostics, audit, and reasoning support). External GPU/media engines remain separate adapters or deployments and are not fabricated by the existential admin routes.
+
 ## Environment variables (placeholders only)
 
 - `FRASBERG_API_KEYS_JSON`

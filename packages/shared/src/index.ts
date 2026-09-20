@@ -8,3 +8,4 @@ export * from './world-graph';
 export * from './full-game-stack-schema';
 export * from './worldgraph-service';
 export * from './builder-contracts';
+export * from './existential';
