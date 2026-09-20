@@ -6,12 +6,14 @@ import {
 } from './wiring';
 
 export interface WorldGraphNode extends ExistentialContext {
+  id: string;
   nodeId: string;
   clusterId: string;
   updatedAt: string;
 }
 
 export interface UpsertWorldGraphNodeInput extends ExistentialContext {
+  id?: string;
   clusterId: string;
 }
 
@@ -31,9 +33,11 @@ export class WorldGraphEngine {
     const now = new Date().toISOString();
     const clusterId = readNonEmptyString(input.clusterId, 'clusterId');
     const eid = readNonEmptyString(input.eid, 'eid');
+    const id = readNonEmptyString(input.id ?? eid, 'id');
 
     const existing = this.nodesByEid.get(eid);
     const node: WorldGraphNode = {
+      id,
       nodeId: existing?.nodeId ?? randomUUID(),
       clusterId,
       eid,
