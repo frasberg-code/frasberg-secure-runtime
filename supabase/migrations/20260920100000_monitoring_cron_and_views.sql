@@ -1,14 +1,11 @@
--- Operational monitoring views and pg_cron jobs.
--- This migration matches the Tier 12 schema already present in this repository:
--- engine_usage(owner_id, engine_name, units, cost_usd), jobs(engine_name),
--- worlds(world_state), and continuity_events(event_type, payload).
--- pg_cron is optional in Supabase; jobs are installed only when the extension exists.
+-- Operational monitoring views and guarded pg_cron jobs.
+-- This migration is compatible with the preceding Tier 12 monitoring migration.
+-- It retains monitor.refresh_materialized_views() as a function because that
+-- object already exists as a function in the preceding migration.
 
 create schema if not exists admin;
 create schema if not exists monitor;
 
--- Compatibility procedures used by the requested cron schedule. They are deliberately
--- SECURITY DEFINER and guarded so only trusted system execution can invoke them.
 create or replace procedure admin.recompute_engine_health()
 language plpgsql
 security definer
@@ -80,7 +77,6 @@ begin
 end;
 $$;
 
--- Daily/hourly monitoring views use the repository's actual column names.
 drop materialized view if exists monitor.engine_usage_daily;
 create materialized view monitor.engine_usage_daily as
 select
@@ -97,7 +93,7 @@ with no data;
 create unique index monitor_engine_usage_daily_key
   on monitor.engine_usage_daily(owner_id, engine, day);
 
- drop materialized view if exists monitor.user_costs_daily;
+drop materialized view if exists monitor.user_costs_daily;
 create materialized view monitor.user_costs_daily as
 select
   owner_id,
@@ -110,11 +106,11 @@ with no data;
 create unique index monitor_user_costs_daily_key
   on monitor.user_costs_daily(owner_id, day);
 
- drop materialized view if exists monitor.system_load_hourly;
+drop materialized view if exists monitor.system_load_hourly;
 create materialized view monitor.system_load_hourly as
 select
-  date_trunc('hour', created_at) as hour,
-  count(*)::integer as jobs,
+  date_trunc('hour', j.created_at) as hour,
+  count(distinct j.id)::integer as jobs,
   coalesce(sum(eu.cost_usd), 0)::numeric(18,6) as total_cost
 from public.jobs j
 left join public.engine_usage eu on eu.job_id = j.id
@@ -123,7 +119,6 @@ with no data;
 create unique index monitor_system_load_hourly_key
   on monitor.system_load_hourly(hour);
 
--- The source schema stores existential world fields in world_state JSONB.
 drop materialized view if exists monitor.high_risk_worlds_cached;
 create materialized view monitor.high_risk_worlds_cached as
 select
@@ -142,7 +137,6 @@ create unique index monitor_high_risk_worlds_cached_key
 create index monitor_high_risk_worlds_cached_risk_idx
   on monitor.high_risk_worlds_cached(risk_profile);
 
--- Continuity event arcs/scores are optional JSONB fields in the current schema.
 drop materialized view if exists monitor.continuity_events_recent;
 create materialized view monitor.continuity_events_recent as
 select
@@ -157,14 +151,16 @@ where ce.created_at > now() - interval '7 days'
 with no data;
 create unique index monitor_continuity_events_recent_key
   on monitor.continuity_events_recent(world_id, created_at);
-create index monitor_continuity_events_recent_world_idx
-  on monitor.continuity_events_recent(world_id, created_at);
 
-create or replace procedure monitor.refresh_materialized_views()
+-- Preserve the function signature established by the prior migration.
+create or replace function monitor.refresh_materialized_views()
+returns table(view_name text, refreshed_at timestamptz)
 language plpgsql
 security definer
 set search_path = monitor, public, admin, pg_temp
 as $$
+declare
+  v_refreshed_at timestamptz := now();
 begin
   perform public.require_system_execution('monitor.refresh_materialized_views');
   refresh materialized view monitor.engine_health;
@@ -174,11 +170,18 @@ begin
   refresh materialized view monitor.system_load_hourly;
   refresh materialized view monitor.high_risk_worlds_cached;
   refresh materialized view monitor.continuity_events_recent;
+  return query
+  values
+    ('monitor.engine_health', v_refreshed_at),
+    ('monitor.world_risk', v_refreshed_at),
+    ('monitor.engine_usage_daily', v_refreshed_at),
+    ('monitor.user_costs_daily', v_refreshed_at),
+    ('monitor.system_load_hourly', v_refreshed_at),
+    ('monitor.high_risk_worlds_cached', v_refreshed_at),
+    ('monitor.continuity_events_recent', v_refreshed_at);
 end;
 $$;
 
--- Replace the existing function with a procedure-compatible scheduler. The helper
--- is idempotent and silently skips installation when pg_cron is unavailable.
 create or replace procedure admin.install_monitoring_cron_jobs()
 language plpgsql
 security definer
@@ -193,13 +196,12 @@ begin
     return;
   end if;
 
+  perform pg_advisory_xact_lock(hashtextextended('admin.monitoring-cron-jobs', 0));
   for v_job in
     select jobid from cron.job where jobname in (
       'recompute-engine-health-every-5m', 'recompute-user-costs-hourly',
       'purge-old-jobs-daily', 'purge-audit-logs-weekly', 'reset-rate-limits-minutely',
-      'recompute-world-risk-every-10m', 'engine-registry-heartbeat',
-      'continuity-stability-check', 'system-load-snapshot-hourly',
-      'engine-cost-snapshot-daily', 'refresh-materialized-views-every-10m'
+      'recompute-world-risk-every-10m', 'refresh-materialized-views-every-10m'
     )
   loop
     perform cron.unschedule(v_job.jobid);
@@ -211,7 +213,7 @@ begin
   perform cron.schedule('purge-audit-logs-weekly', '0 4 * * 0', 'call admin.purge_audit_logs(90);');
   perform cron.schedule('reset-rate-limits-minutely', '* * * * *', 'call admin.reset_rate_limits();');
   perform cron.schedule('recompute-world-risk-every-10m', '*/10 * * * *', 'call admin.recompute_world_risk();');
-  perform cron.schedule('refresh-materialized-views-every-10m', '*/10 * * * *', 'call monitor.refresh_materialized_views();');
+  perform cron.schedule('refresh-materialized-views-every-10m', '*/10 * * * *', 'select * from monitor.refresh_materialized_views();');
 end;
 $$;
 
@@ -219,23 +221,16 @@ revoke all on schema admin from public, anon, authenticated;
 grant usage on schema admin to postgres, service_role;
 revoke all on schema monitor from public, anon, authenticated;
 grant usage on schema monitor to postgres, service_role;
-revoke all on procedure admin.recompute_engine_health() from public;
-revoke all on procedure admin.recompute_user_costs() from public;
-revoke all on procedure admin.purge_old_jobs(integer) from public;
-revoke all on procedure admin.purge_audit_logs(integer) from public;
-revoke all on procedure admin.reset_rate_limits() from public;
-revoke all on procedure admin.recompute_world_risk() from public;
+revoke all on function monitor.refresh_materialized_views() from public;
+revoke execute on function monitor.refresh_materialized_views() from anon, authenticated;
+grant execute on function monitor.refresh_materialized_views() to service_role;
 revoke all on procedure admin.install_monitoring_cron_jobs() from public;
-revoke all on procedure monitor.refresh_materialized_views() from public;
 grant execute on procedure admin.install_monitoring_cron_jobs() to service_role;
-grant execute on procedure monitor.refresh_materialized_views() to service_role;
 
--- Populate the views immediately; this is safe even when the source tables are empty.
 refresh materialized view monitor.engine_usage_daily;
 refresh materialized view monitor.user_costs_daily;
 refresh materialized view monitor.system_load_hourly;
 refresh materialized view monitor.high_risk_worlds_cached;
 refresh materialized view monitor.continuity_events_recent;
 
--- Installation is intentionally explicit and safe when pg_cron is not enabled.
 call admin.install_monitoring_cron_jobs();
