@@ -70,12 +70,8 @@ export class WorldGraphEngine {
     return node ? copyNode(node) : undefined;
   }
 
-  getWorld(idOrEid: string): WorldGraphWorld | undefined {
-    const normalized = readNonEmptyString(idOrEid, 'id');
-    const node =
-      this.nodesByEid.get(normalized) ??
-      [...this.nodesByEid.values()].find((candidate) => candidate.id === normalized);
-    return node ? copyNode(node) : undefined;
+  getWorld(eid: string): WorldGraphWorld | undefined {
+    return this.getNode(eid);
   }
 
   removeNode(eid: string): WorldGraphNode | undefined {
@@ -88,13 +84,8 @@ export class WorldGraphEngine {
     return copyNode(existing);
   }
 
-  removeWorld(idOrEid: string): WorldGraphWorld | undefined {
-    const existing = this.getWorld(idOrEid);
-    if (!existing) {
-      return undefined;
-    }
-    this.nodesByEid.delete(existing.eid);
-    return existing;
+  removeWorld(eid: string): WorldGraphWorld | undefined {
+    return this.removeNode(eid);
   }
 
   listNodes(options: WorldGraphListOptions = {}): WorldGraphNode[] {
