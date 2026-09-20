@@ -1,6 +1,14 @@
 export const EXISTENTIAL_SCORE_MIN = 0;
 export const EXISTENTIAL_SCORE_MAX = 1;
 
+export type ContinuityArc =
+  | 'stable'
+  | 'collapsing'
+  | 'emerging'
+  | 'extinct'
+  | 'mythic'
+  | 'transcendent';
+
 export type EngineJobStatus = 'queued' | 'running' | 'completed' | 'failed';
 export type GovernanceDecision = 'approved' | 'rejected' | 'needs-review';
 
@@ -34,456 +42,86 @@ export interface EngineJobEnvelope {
   existentialContext: ExistentialContext;
 }
 
-export interface OsToLuchiiMessage {
-  requestId: string;
-  eid: string;
-  prompt: string;
-  existentialContext: ExistentialContext;
+export interface OsToLuchiiMessage { requestId: string; eid: string; prompt: string; existentialContext: ExistentialContext }
+export interface LuchiiToOsMessage { requestId: string; eid: string; content: string; existentialContext: ExistentialContext; reasoningTrace: ReasoningTrace }
+export interface OsToEngineMessage { requestId: string; eid: string; job: EngineJobEnvelope; input?: Record<string, unknown> }
+export interface EngineToOsMessage { requestId: string; jobId: string; eid: string; status: EngineJobStatus; output?: Record<string, unknown>; error?: string }
+export interface OsToWgqlMessage { queryId: string; eid: string; rawQuery: string; variables?: Record<string, unknown> }
+export interface WgqlToOsMessage { queryId: string; eid: string; data: Record<string, unknown>; errors?: string[] }
+export interface WgqlToLuchiiMessage { queryId: string; eid: string; query: string; existentialContext: ExistentialContext }
+export interface LuchiiToWgqlMessage { queryId: string; eid: string; content: string; existentialContext: ExistentialContext; reasoningTrace: ReasoningTrace }
+export interface WgqlToEngineMessage { queryId: string; eid: string; job: EngineJobEnvelope; input?: Record<string, unknown> }
+export interface EngineToWgqlMessage { queryId: string; jobId: string; eid: string; status: EngineJobStatus; output?: Record<string, unknown>; error?: string }
+export interface WgqlToOsGovernanceMessage { queryId: string; eid: string; action: string; tags: string[]; reasoningSteps: ReasoningStep[] }
+export interface WgqlToOsGovernanceResponse { queryId: string; eid: string; action: string; decision: GovernanceDecision; summary: string; tags: string[]; reasoningSteps: ReasoningStep[] }
+
+export function updateExistentialContext(
+  context: ExistentialContext,
+  updates: Partial<Omit<ExistentialContext, 'eid'>>,
+): ExistentialContext {
+  return {
+    ...context,
+    ...updates,
+    eid: context.eid,
+    meaningScore: clampScore(updates.meaningScore ?? context.meaningScore),
+    riskProfile: clampScore(updates.riskProfile ?? context.riskProfile),
+    tags: [...(updates.tags ?? context.tags)],
+  };
 }
 
-export interface LuchiiToOsMessage {
-  requestId: string;
-  eid: string;
-  content: string;
-  existentialContext: ExistentialContext;
-  reasoningTrace: ReasoningTrace;
+function clampScore(value: number): number {
+  return Math.max(EXISTENTIAL_SCORE_MIN, Math.min(EXISTENTIAL_SCORE_MAX, value));
 }
 
-export interface OsToEngineMessage {
-  requestId: string;
-  eid: string;
-  job: EngineJobEnvelope;
-  input?: Record<string, unknown>;
-}
-
-export interface EngineToOsMessage {
-  requestId: string;
-  jobId: string;
-  eid: string;
-  status: EngineJobStatus;
-  output?: Record<string, unknown>;
-  error?: string;
-}
-
-export interface OsToWgqlMessage {
-  queryId: string;
-  eid: string;
-  rawQuery: string;
-  variables?: Record<string, unknown>;
-}
-
-export interface WgqlToOsMessage {
-  queryId: string;
-  eid: string;
-  data: Record<string, unknown>;
-  errors?: string[];
-}
-
-export interface WgqlToLuchiiMessage {
-  queryId: string;
-  eid: string;
-  query: string;
-  existentialContext: ExistentialContext;
-}
-
-export interface LuchiiToWgqlMessage {
-  queryId: string;
-  eid: string;
-  content: string;
-  existentialContext: ExistentialContext;
-  reasoningTrace: ReasoningTrace;
-}
-
-export interface WgqlToEngineMessage {
-  queryId: string;
-  eid: string;
-  job: EngineJobEnvelope;
-  input?: Record<string, unknown>;
-}
-
-export interface EngineToWgqlMessage {
-  queryId: string;
-  jobId: string;
-  eid: string;
-  status: EngineJobStatus;
-  output?: Record<string, unknown>;
-  error?: string;
-}
-
-export interface WgqlToOsGovernanceMessage {
-  queryId: string;
-  eid: string;
-  action: string;
-  tags: string[];
-  reasoningSteps: ReasoningStep[];
-}
-
-export interface WgqlToOsGovernanceResponse {
-  queryId: string;
-  eid: string;
-  action: string;
-  decision: GovernanceDecision;
-  summary: string;
-  tags: string[];
-  reasoningSteps: ReasoningStep[];
-}
-
-function readObject(value: unknown, label: string): Record<string, unknown> {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    throw new Error(`${label} must be an object.`);
-  }
-
+function object(value: unknown, label: string): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(`${label} must be an object.`);
   return value as Record<string, unknown>;
 }
-
-function readNonEmptyString(value: unknown, label: string): string {
-  if (typeof value !== 'string' || value.trim().length === 0) {
-    throw new Error(`${label} must be a non-empty string.`);
-  }
-
+function string(value: unknown, label: string): string {
+  if (typeof value !== 'string' || value.trim() === '') throw new Error(`${label} must be a non-empty string.`);
   return value;
 }
-
-function readScore(value: unknown, label: string): number {
-  if (
-    typeof value !== 'number' ||
-    !Number.isFinite(value) ||
-    value < EXISTENTIAL_SCORE_MIN ||
-    value > EXISTENTIAL_SCORE_MAX
-  ) {
-    throw new Error(
-      `${label} must be a finite number between ${EXISTENTIAL_SCORE_MIN} and ${EXISTENTIAL_SCORE_MAX}.`,
-    );
-  }
-
+function score(value: unknown, label: string): number {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) throw new Error(`${label} must be between 0 and 1.`);
   return value;
 }
-
-function readInteger(value: unknown, label: string): number {
-  if (
-    typeof value !== 'number' ||
-    !Number.isInteger(value) ||
-    value < 0 ||
-    !Number.isFinite(value)
-  ) {
-    throw new Error(`${label} must be a non-negative integer.`);
-  }
-
-  return value;
+function strings(value: unknown, label: string): string[] {
+  if (!Array.isArray(value)) throw new Error(`${label} must be an array.`);
+  return value.map((item, index) => string(item, `${label}[${index}]`));
+}
+export function validateExistentialContext(value: unknown, label = 'existentialContext'): ExistentialContext {
+  const item = object(value, label);
+  return { eid: string(item.eid, `${label}.eid`), existenceState: string(item.existenceState, `${label}.existenceState`), continuityArc: string(item.continuityArc, `${label}.continuityArc`), meaningScore: score(item.meaningScore, `${label}.meaningScore`), riskProfile: score(item.riskProfile, `${label}.riskProfile`), tags: strings(item.tags, `${label}.tags`) };
 }
 
-function readStringArray(value: unknown, label: string): string[] {
-  if (!Array.isArray(value)) {
-    throw new Error(`${label} must be an array.`);
-  }
-
-  return value.map((entry, index) =>
-    readNonEmptyString(entry, `${label}[${index}]`),
-  );
+export function validateReasoningStep(value: unknown, label: string): ReasoningStep {
+  const item = object(value, label);
+  if (typeof item.index !== 'number' || !Number.isInteger(item.index) || item.index < 0) throw new Error(`${label}.index must be a non-negative integer.`);
+  return { index: item.index, summary: string(item.summary, `${label}.summary`), confidence: score(item.confidence, `${label}.confidence`), tags: strings(item.tags, `${label}.tags`) };
+}
+export function validateReasoningTrace(value: unknown, label = 'reasoningTrace'): ReasoningTrace {
+  const item = object(value, label);
+  if (!Array.isArray(item.steps)) throw new Error(`${label}.steps must be an array.`);
+  return { traceId: string(item.traceId, `${label}.traceId`), eid: string(item.eid, `${label}.eid`), conclusion: string(item.conclusion, `${label}.conclusion`), steps: item.steps.map((step, index) => validateReasoningStep(step, `${label}.steps[${index}]`)) };
 }
 
-function readOptionalRecord(
-  value: unknown,
-  label: string,
-): Record<string, unknown> | undefined {
-  if (value === undefined) {
-    return undefined;
-  }
-
-  return readObject(value, label);
+export function validateEngineJobEnvelope(value: unknown, label = 'job'): EngineJobEnvelope {
+  const item = object(value, label);
+  return { jobId: string(item.jobId, `${label}.jobId`), eid: string(item.eid, `${label}.eid`), type: string(item.type, `${label}.type`), existentialContext: validateExistentialContext(item.existentialContext, `${label}.existentialContext`) };
 }
 
-function readEngineStatus(value: unknown, label: string): EngineJobStatus {
-  const status = readNonEmptyString(value, label);
-  if (!['queued', 'running', 'completed', 'failed'].includes(status)) {
-    throw new Error(`${label} must be a supported engine job status.`);
-  }
-
-  return status as EngineJobStatus;
+export function validateOsToLuchiiMessage(value: unknown, label = 'OsToLuchiiMessage'): OsToLuchiiMessage {
+  const item = object(value, label);
+  return { requestId: string(item.requestId, `${label}.requestId`), eid: string(item.eid, `${label}.eid`), prompt: string(item.prompt, `${label}.prompt`), existentialContext: validateExistentialContext(item.existentialContext, `${label}.existentialContext`) };
 }
-
-function readGovernanceDecision(
-  value: unknown,
-  label: string,
-): GovernanceDecision {
-  const decision = readNonEmptyString(value, label);
-  if (!['approved', 'rejected', 'needs-review'].includes(decision)) {
-    throw new Error(`${label} must be a supported governance decision.`);
-  }
-
-  return decision as GovernanceDecision;
-}
-
-export function validateExistentialContext(
-  value: unknown,
-  label = 'existentialContext',
-): ExistentialContext {
-  const object = readObject(value, label);
-  return {
-    eid: readNonEmptyString(object.eid, `${label}.eid`),
-    existenceState: readNonEmptyString(
-      object.existenceState,
-      `${label}.existenceState`,
-    ),
-    continuityArc: readNonEmptyString(
-      object.continuityArc,
-      `${label}.continuityArc`,
-    ),
-    meaningScore: readScore(object.meaningScore, `${label}.meaningScore`),
-    riskProfile: readScore(object.riskProfile, `${label}.riskProfile`),
-    tags: readStringArray(object.tags, `${label}.tags`),
-  };
-}
-
-export function validateReasoningStep(
-  value: unknown,
-  label: string,
-): ReasoningStep {
-  const object = readObject(value, label);
-  return {
-    index: readInteger(object.index, `${label}.index`),
-    summary: readNonEmptyString(object.summary, `${label}.summary`),
-    confidence: readScore(object.confidence, `${label}.confidence`),
-    tags: readStringArray(object.tags, `${label}.tags`),
-  };
-}
-
-export function validateReasoningTrace(
-  value: unknown,
-  label = 'reasoningTrace',
-): ReasoningTrace {
-  const object = readObject(value, label);
-  if (!Array.isArray(object.steps)) {
-    throw new Error(`${label}.steps must be an array.`);
-  }
-
-  return {
-    traceId: readNonEmptyString(object.traceId, `${label}.traceId`),
-    eid: readNonEmptyString(object.eid, `${label}.eid`),
-    conclusion: readNonEmptyString(object.conclusion, `${label}.conclusion`),
-    steps: object.steps.map((step, index) =>
-      validateReasoningStep(step, `${label}.steps[${index}]`),
-    ),
-  };
-}
-
-export function validateEngineJobEnvelope(
-  value: unknown,
-  label = 'job',
-): EngineJobEnvelope {
-  const object = readObject(value, label);
-  return {
-    jobId: readNonEmptyString(object.jobId, `${label}.jobId`),
-    eid: readNonEmptyString(object.eid, `${label}.eid`),
-    type: readNonEmptyString(object.type, `${label}.type`),
-    existentialContext: validateExistentialContext(
-      object.existentialContext,
-      `${label}.existentialContext`,
-    ),
-  };
-}
-
-export function validateOsToLuchiiMessage(
-  value: unknown,
-  label = 'OsToLuchiiMessage',
-): OsToLuchiiMessage {
-  const object = readObject(value, label);
-  return {
-    requestId: readNonEmptyString(object.requestId, `${label}.requestId`),
-    eid: readNonEmptyString(object.eid, `${label}.eid`),
-    prompt: readNonEmptyString(object.prompt, `${label}.prompt`),
-    existentialContext: validateExistentialContext(
-      object.existentialContext,
-      `${label}.existentialContext`,
-    ),
-  };
-}
-
-export function validateLuchiiToOsMessage(
-  value: unknown,
-  label = 'LuchiiToOsMessage',
-): LuchiiToOsMessage {
-  const object = readObject(value, label);
-  return {
-    requestId: readNonEmptyString(object.requestId, `${label}.requestId`),
-    eid: readNonEmptyString(object.eid, `${label}.eid`),
-    content: readNonEmptyString(object.content, `${label}.content`),
-    existentialContext: validateExistentialContext(
-      object.existentialContext,
-      `${label}.existentialContext`,
-    ),
-    reasoningTrace: validateReasoningTrace(
-      object.reasoningTrace,
-      `${label}.reasoningTrace`,
-    ),
-  };
-}
-
-export function validateOsToEngineMessage(
-  value: unknown,
-  label = 'OsToEngineMessage',
-): OsToEngineMessage {
-  const object = readObject(value, label);
-  return {
-    requestId: readNonEmptyString(object.requestId, `${label}.requestId`),
-    eid: readNonEmptyString(object.eid, `${label}.eid`),
-    job: validateEngineJobEnvelope(object.job, `${label}.job`),
-    input: readOptionalRecord(object.input, `${label}.input`),
-  };
-}
-
-export function validateEngineToOsMessage(
-  value: unknown,
-  label = 'EngineToOsMessage',
-): EngineToOsMessage {
-  const object = readObject(value, label);
-  return {
-    requestId: readNonEmptyString(object.requestId, `${label}.requestId`),
-    jobId: readNonEmptyString(object.jobId, `${label}.jobId`),
-    eid: readNonEmptyString(object.eid, `${label}.eid`),
-    status: readEngineStatus(object.status, `${label}.status`),
-    output: readOptionalRecord(object.output, `${label}.output`),
-    error:
-      object.error === undefined
-        ? undefined
-        : readNonEmptyString(object.error, `${label}.error`),
-  };
-}
-
-export function validateOsToWgqlMessage(
-  value: unknown,
-  label = 'OsToWgqlMessage',
-): OsToWgqlMessage {
-  const object = readObject(value, label);
-  return {
-    queryId: readNonEmptyString(object.queryId, `${label}.queryId`),
-    eid: readNonEmptyString(object.eid, `${label}.eid`),
-    rawQuery: readNonEmptyString(object.rawQuery, `${label}.rawQuery`),
-    variables: readOptionalRecord(object.variables, `${label}.variables`),
-  };
-}
-
-export function validateWgqlToOsMessage(
-  value: unknown,
-  label = 'WgqlToOsMessage',
-): WgqlToOsMessage {
-  const object = readObject(value, label);
-  return {
-    queryId: readNonEmptyString(object.queryId, `${label}.queryId`),
-    eid: readNonEmptyString(object.eid, `${label}.eid`),
-    data: readObject(object.data, `${label}.data`),
-    errors:
-      object.errors === undefined
-        ? undefined
-        : readStringArray(object.errors, `${label}.errors`),
-  };
-}
-
-export function validateWgqlToLuchiiMessage(
-  value: unknown,
-  label = 'WgqlToLuchiiMessage',
-): WgqlToLuchiiMessage {
-  const object = readObject(value, label);
-  return {
-    queryId: readNonEmptyString(object.queryId, `${label}.queryId`),
-    eid: readNonEmptyString(object.eid, `${label}.eid`),
-    query: readNonEmptyString(object.query, `${label}.query`),
-    existentialContext: validateExistentialContext(
-      object.existentialContext,
-      `${label}.existentialContext`,
-    ),
-  };
-}
-
-export function validateLuchiiToWgqlMessage(
-  value: unknown,
-  label = 'LuchiiToWgqlMessage',
-): LuchiiToWgqlMessage {
-  const object = readObject(value, label);
-  return {
-    queryId: readNonEmptyString(object.queryId, `${label}.queryId`),
-    eid: readNonEmptyString(object.eid, `${label}.eid`),
-    content: readNonEmptyString(object.content, `${label}.content`),
-    existentialContext: validateExistentialContext(
-      object.existentialContext,
-      `${label}.existentialContext`,
-    ),
-    reasoningTrace: validateReasoningTrace(
-      object.reasoningTrace,
-      `${label}.reasoningTrace`,
-    ),
-  };
-}
-
-export function validateWgqlToEngineMessage(
-  value: unknown,
-  label = 'WgqlToEngineMessage',
-): WgqlToEngineMessage {
-  const object = readObject(value, label);
-  return {
-    queryId: readNonEmptyString(object.queryId, `${label}.queryId`),
-    eid: readNonEmptyString(object.eid, `${label}.eid`),
-    job: validateEngineJobEnvelope(object.job, `${label}.job`),
-    input: readOptionalRecord(object.input, `${label}.input`),
-  };
-}
-
-export function validateEngineToWgqlMessage(
-  value: unknown,
-  label = 'EngineToWgqlMessage',
-): EngineToWgqlMessage {
-  const object = readObject(value, label);
-  return {
-    queryId: readNonEmptyString(object.queryId, `${label}.queryId`),
-    jobId: readNonEmptyString(object.jobId, `${label}.jobId`),
-    eid: readNonEmptyString(object.eid, `${label}.eid`),
-    status: readEngineStatus(object.status, `${label}.status`),
-    output: readOptionalRecord(object.output, `${label}.output`),
-    error:
-      object.error === undefined
-        ? undefined
-        : readNonEmptyString(object.error, `${label}.error`),
-  };
-}
-
-export function validateWgqlToOsGovernanceMessage(
-  value: unknown,
-  label = 'WgqlToOsGovernanceMessage',
-): WgqlToOsGovernanceMessage {
-  const object = readObject(value, label);
-  if (!Array.isArray(object.reasoningSteps)) {
-    throw new Error(`${label}.reasoningSteps must be an array.`);
-  }
-
-  return {
-    queryId: readNonEmptyString(object.queryId, `${label}.queryId`),
-    eid: readNonEmptyString(object.eid, `${label}.eid`),
-    action: readNonEmptyString(object.action, `${label}.action`),
-    tags: readStringArray(object.tags, `${label}.tags`),
-    reasoningSteps: object.reasoningSteps.map((step, index) =>
-      validateReasoningStep(step, `${label}.reasoningSteps[${index}]`),
-    ),
-  };
-}
-
-export function validateWgqlToOsGovernanceResponse(
-  value: unknown,
-  label = 'WgqlToOsGovernanceResponse',
-): WgqlToOsGovernanceResponse {
-  const object = readObject(value, label);
-  if (!Array.isArray(object.reasoningSteps)) {
-    throw new Error(`${label}.reasoningSteps must be an array.`);
-  }
-
-  return {
-    queryId: readNonEmptyString(object.queryId, `${label}.queryId`),
-    eid: readNonEmptyString(object.eid, `${label}.eid`),
-    action: readNonEmptyString(object.action, `${label}.action`),
-    decision: readGovernanceDecision(object.decision, `${label}.decision`),
-    summary: readNonEmptyString(object.summary, `${label}.summary`),
-    tags: readStringArray(object.tags, `${label}.tags`),
-    reasoningSteps: object.reasoningSteps.map((step, index) =>
-      validateReasoningStep(step, `${label}.reasoningSteps[${index}]`),
-    ),
-  };
-}
+export function validateLuchiiToOsMessage(value: unknown, label = 'LuchiiToOsMessage'): LuchiiToOsMessage { const item = object(value, label); return { requestId: string(item.requestId, `${label}.requestId`), eid: string(item.eid, `${label}.eid`), content: string(item.content, `${label}.content`), existentialContext: validateExistentialContext(item.existentialContext, `${label}.existentialContext`), reasoningTrace: validateReasoningTrace(item.reasoningTrace, `${label}.reasoningTrace`) }; }
+export function validateOsToEngineMessage(value: unknown, label = 'OsToEngineMessage'): OsToEngineMessage { const item = object(value, label); return { requestId: string(item.requestId, `${label}.requestId`), eid: string(item.eid, `${label}.eid`), job: validateEngineJobEnvelope(item.job, `${label}.job`), input: item.input as Record<string, unknown> | undefined }; }
+export function validateEngineToOsMessage(value: unknown, label = 'EngineToOsMessage'): EngineToOsMessage { const item = object(value, label); return { requestId: string(item.requestId, `${label}.requestId`), jobId: string(item.jobId, `${label}.jobId`), eid: string(item.eid, `${label}.eid`), status: string(item.status, `${label}.status`) as EngineJobStatus, output: item.output as Record<string, unknown> | undefined, error: item.error === undefined ? undefined : string(item.error, `${label}.error`) }; }
+export function validateOsToWgqlMessage(value: unknown, label = 'OsToWgqlMessage'): OsToWgqlMessage { const item = object(value, label); return { queryId: string(item.queryId, `${label}.queryId`), eid: string(item.eid, `${label}.eid`), rawQuery: string(item.rawQuery, `${label}.rawQuery`), variables: item.variables as Record<string, unknown> | undefined }; }
+export function validateWgqlToOsMessage(value: unknown, label = 'WgqlToOsMessage'): WgqlToOsMessage { const item = object(value, label); return { queryId: string(item.queryId, `${label}.queryId`), eid: string(item.eid, `${label}.eid`), data: object(item.data, `${label}.data`), errors: item.errors as string[] | undefined }; }
+export function validateWgqlToLuchiiMessage(value: unknown, label = 'WgqlToLuchiiMessage'): WgqlToLuchiiMessage { const item = object(value, label); return { queryId: string(item.queryId, `${label}.queryId`), eid: string(item.eid, `${label}.eid`), query: string(item.query, `${label}.query`), existentialContext: validateExistentialContext(item.existentialContext, `${label}.existentialContext`) }; }
+export function validateLuchiiToWgqlMessage(value: unknown, label = 'LuchiiToWgqlMessage'): LuchiiToWgqlMessage { const item = object(value, label); return { queryId: string(item.queryId, `${label}.queryId`), eid: string(item.eid, `${label}.eid`), content: string(item.content, `${label}.content`), existentialContext: validateExistentialContext(item.existentialContext, `${label}.existentialContext`), reasoningTrace: validateReasoningTrace(item.reasoningTrace, `${label}.reasoningTrace`) }; }
+export function validateWgqlToEngineMessage(value: unknown, label = 'WgqlToEngineMessage'): WgqlToEngineMessage { const item = object(value, label); return { queryId: string(item.queryId, `${label}.queryId`), eid: string(item.eid, `${label}.eid`), job: validateEngineJobEnvelope(item.job, `${label}.job`), input: item.input as Record<string, unknown> | undefined }; }
+export function validateEngineToWgqlMessage(value: unknown, label = 'EngineToWgqlMessage'): EngineToWgqlMessage { const item = object(value, label); return { queryId: string(item.queryId, `${label}.queryId`), jobId: string(item.jobId, `${label}.jobId`), eid: string(item.eid, `${label}.eid`), status: string(item.status, `${label}.status`) as EngineJobStatus, output: item.output as Record<string, unknown> | undefined, error: item.error === undefined ? undefined : string(item.error, `${label}.error`) }; }
+export function validateWgqlToOsGovernanceMessage(value: unknown, label = 'WgqlToOsGovernanceMessage'): WgqlToOsGovernanceMessage { const item = object(value, label); if (!Array.isArray(item.tags) || !Array.isArray(item.reasoningSteps)) throw new Error(`${label}.tags and reasoningSteps are required.`); return { queryId: string(item.queryId, `${label}.queryId`), eid: string(item.eid, `${label}.eid`), action: string(item.action, `${label}.action`), tags: strings(item.tags, `${label}.tags`), reasoningSteps: item.reasoningSteps.map((step, index) => validateReasoningStep(step, `${label}.reasoningSteps[${index}]`)) }; }
+export function validateWgqlToOsGovernanceResponse(value: unknown, label = 'WgqlToOsGovernanceResponse'): WgqlToOsGovernanceResponse { const item = object(value, label); if (!Array.isArray(item.tags) || !Array.isArray(item.reasoningSteps)) throw new Error(`${label}.tags and reasoningSteps are required.`); return { queryId: string(item.queryId, `${label}.queryId`), eid: string(item.eid, `${label}.eid`), action: string(item.action, `${label}.action`), decision: string(item.decision, `${label}.decision`) as GovernanceDecision, summary: string(item.summary, `${label}.summary`), tags: strings(item.tags, `${label}.tags`), reasoningSteps: item.reasoningSteps.map((step, index) => validateReasoningStep(step, `${label}.reasoningSteps[${index}]`)) }; }
