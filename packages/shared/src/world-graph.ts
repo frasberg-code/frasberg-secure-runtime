@@ -15,6 +15,11 @@ export interface UpsertWorldGraphNodeInput extends ExistentialContext {
   clusterId: string;
 }
 
+// Backward-compatibility aliases for the older world-oriented API that the
+// existential layer still references.
+export type WorldGraphWorld = WorldGraphNode;
+export type RegisterWorldGraphWorldInput = UpsertWorldGraphNodeInput;
+
 export interface WorldGraphListOptions {
   clusterId?: string;
 }
@@ -47,10 +52,32 @@ export class WorldGraphEngine {
     return copyNode(node);
   }
 
+  registerWorld(input: RegisterWorldGraphWorldInput): WorldGraphWorld {
+    return this.upsertNode(input);
+  }
+
   getNode(eid: string): WorldGraphNode | undefined {
     const normalized = readNonEmptyString(eid, 'eid');
     const node = this.nodesByEid.get(normalized);
     return node ? copyNode(node) : undefined;
+  }
+
+  getWorld(eid: string): WorldGraphWorld | undefined {
+    return this.getNode(eid);
+  }
+
+  removeNode(eid: string): WorldGraphNode | undefined {
+    const normalized = readNonEmptyString(eid, 'eid');
+    const existing = this.nodesByEid.get(normalized);
+    if (!existing) {
+      return undefined;
+    }
+    this.nodesByEid.delete(normalized);
+    return copyNode(existing);
+  }
+
+  removeWorld(eid: string): WorldGraphWorld | undefined {
+    return this.removeNode(eid);
   }
 
   listNodes(options: WorldGraphListOptions = {}): WorldGraphNode[] {
@@ -65,6 +92,10 @@ export class WorldGraphEngine {
       .slice()
       .sort((left, right) => left.eid.localeCompare(right.eid))
       .map(copyNode);
+  }
+
+  listWorlds(options: WorldGraphListOptions = {}): WorldGraphWorld[] {
+    return this.listNodes(options);
   }
 
   getWorldCount(): number {
