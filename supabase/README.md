@@ -1,17 +1,19 @@
-# Secure RPCs and schema compatibility
+# Authoritative runtime schema
 
-The repository’s canonical Supabase schema uses `owner_id`, UUID world IDs, `engine_name`, `cost_usd`, and JSONB continuity payloads. The secure RPC migration therefore adapts the requested legacy API names to the actual schema instead of creating duplicate `user_id`/text-ID tables.
+The current contract is now represented by migration `20260920120000_authoritative_runtime_schema.sql`.
 
-Added in `supabase/migrations/20260920110000_secure_user_rpcs.sql`:
+- `worldgraph_definitions` uses UUID `id`, `owner_id`, `kind`, and JSONB `definition`.
+- `generation_jobs` is the authoritative generation-job table with `engine_name`, `state`, JSONB payloads, and `cost_usd`.
+- `continuity_events` has a required JSONB `continuity` payload. Legacy `event_type` and `payload` columns remain temporarily for compatibility with earlier monitoring migrations.
+- Materialized views continue to refresh through the existing `monitor.refresh_materialized_views()` function.
 
-- owner-scoped job, cost, and engine-usage RPCs;
-- admin-only world listing and lookup;
-- owner/admin continuity-event access;
-- owner/admin audit access;
-- cost-based quota checking;
-- bucketed rate-limit increments;
-- explicit authenticated grants and public revocation.
+No seed users, default worlds, credentials, JWT secrets, service-role keys, or engine secrets are added.
 
-Do not seed UUIDs into `auth.users` unless those users were created by Supabase Auth. Do not put service-role keys, JWT secrets, database passwords, webhook URLs, or engine credentials in migrations or SQL seed files. The backend service-role client may bypass RLS, so application code must pass authenticated ownership explicitly and must not expose that client to browsers.
+Validate with:
 
-The legacy snippets using `user_id`, `actor`, `metadata`, `world_id text`, or `monitor.refresh_materialized_views()` as a procedure are not directly deployable against this repository’s current schema; use the canonical RPC signatures above.
+```bash
+supabase db reset
+supabase test db
+npm run build
+npm run test
+```
