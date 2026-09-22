@@ -5,6 +5,7 @@
     "moduleResolution": "Node",
     "lib": ["ES2022", "DOM"],
     "strict": true,
+    "noImplicitAny": false,
     "declaration": true,
     "rootDir": "./",
     "baseUrl": ".",
