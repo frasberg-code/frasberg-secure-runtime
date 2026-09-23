@@ -12,6 +12,20 @@ const apiKeys = [
 ];
 
 describe('gateway auth and routing', () => {
+  it('serves the ALB health endpoint without authentication', async () => {
+    const app = buildApp({
+      apiKeys,
+      fetchImpl: vi.fn() as unknown as typeof fetch,
+    });
+    const response = await app.inject({
+      method: 'GET',
+      url: '/runtime-health',
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ ok: true });
+  });
+
   it('returns FK-001 when API key is missing', async () => {
     const app = buildApp({
       apiKeys,
