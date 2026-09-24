@@ -57,7 +57,11 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
   });
 
   app.addHook('preHandler', async (request, reply) => {
-    if ((request.raw.url ?? '').startsWith('/v1/health')) {
+    const requestPath = request.raw.url ?? '';
+    if (
+      requestPath.startsWith('/v1/health') ||
+      requestPath.startsWith('/runtime-health')
+    ) {
       return;
     }
 
@@ -74,6 +78,8 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
     runtimeRouterUrl,
     engineServiceUrl,
   }));
+
+  app.get('/runtime-health', async () => ({ ok: true }));
 
   app.post('/v1/chat/completions', async (request, reply) => {
     const limited = rateLimitRequest(
