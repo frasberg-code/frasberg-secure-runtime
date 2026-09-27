@@ -23,13 +23,15 @@ COPY scripts/graceful-start.sh /usr/local/bin/graceful-start.sh
 COPY scripts/healthcheck.sh /usr/local/bin/healthcheck.sh
 RUN chmod +x /usr/local/bin/graceful-start.sh /usr/local/bin/healthcheck.sh
 
-# Healthcheck env defaults (override at runtime / in ECS task definition if needed)
+# Healthcheck env defaults (match the app)
 ENV HEALTH_HOST=127.0.0.1
-ENV HEALTH_PORT=3000
-ENV HEALTH_PATH=/health
+ENV HEALTH_PORT=4100
+ENV HEALTH_PATH=/v1/health
 
-# Use graceful-start to forward signals to Node and allow graceful shutdown
+# Ensure the wrapper runs the server command by default
+ENV START_CMD="node apps/gateway-server/dist/server.js"
+
 ENTRYPOINT ["/usr/local/bin/graceful-start.sh"]
-CMD ["node", "apps/gateway-server/dist/server.js"]
+CMD []
 
 HEALTHCHECK --interval=15s --timeout=3s --retries=3 CMD /usr/local/bin/healthcheck.sh || exit 1
