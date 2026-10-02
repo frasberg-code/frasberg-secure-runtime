@@ -1,6 +1,7 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json tsconfig.json tsconfig.base.json .prettierrc.json ./
+COPY apps ./apps
 COPY packages ./packages
 COPY scripts ./scripts
 RUN npm ci
