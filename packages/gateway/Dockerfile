@@ -11,10 +11,8 @@ WORKDIR /app
 COPY --from=build /app/package.json /app/package-lock.json ./
 COPY --from=build /app/packages ./packages
 
-# Copy helper scripts from build context
 COPY scripts/graceful-start.sh /usr/local/bin/graceful-start.sh
-COPY scripts/healthcheck.sh /usr/local/bin/healthcheck.sh
-RUN chmod +x /usr/local/bin/graceful-start.sh /usr/local/bin/healthcheck.sh
+RUN chmod +x /usr/local/bin/graceful-start.sh
 
 RUN npm ci --omit=dev
 CMD ["node", "packages/gateway/dist/server.js"]
@@ -22,4 +20,4 @@ CMD ["node", "packages/gateway/dist/server.js"]
 # Entrypoint + healthcheck
 ENTRYPOINT ["/usr/local/bin/graceful-start.sh"]
 
-HEALTHCHECK --interval=15s --timeout=3s --retries=3 CMD /usr/local/bin/healthcheck.sh || exit 1
+HEALTHCHECK --interval=15s --timeout=3s --retries=3 CMD ["node", "-e", "fetch('http://127.0.0.1:4000/runtime-health').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"]
