@@ -73,9 +73,10 @@ jobs:
           task-definition: ecs-task-rendered.json
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
+          desired-count: 2
           wait-for-service-stability: true
 
       - name: Verify production health
         run: |
-          health=$(curl --fail --silent --show-error --output /dev/null --write-out "%{http_code}" https://runtime.frasberg.com/runtime-health)
+          health=$(curl --fail --silent --show-error --output /dev/null --write-out "%{http_code}" https://runtime.aws.frasberg.com/runtime-health)
           test "$health" = "200"

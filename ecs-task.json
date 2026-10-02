@@ -29,11 +29,11 @@
       "secrets": [
         {
           "name": "SUPABASE_URL",
-          "valueFrom": "frasberg-runtime/SUPABASE_URL"
+          "valueFrom": "arn:aws:secretsmanager:us-west-2:303004020510:secret:frasberg/SUPABASE_URL-XBH4Zm"
         },
         {
           "name": "SUPABASE_ANON_KEY",
-          "valueFrom": "frasberg-runtime/SUPABASE_ANON_KEY"
+          "valueFrom": "arn:aws:secretsmanager:us-west-2:303004020510:secret:frasberg/SUPABASE_ANON_KEY-1In7BZ"
         }
       ],
       "logConfiguration": {
