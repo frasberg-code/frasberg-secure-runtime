@@ -8,75 +8,10 @@ permissions:
   id-token: write
   contents: read
 
-env:
-  AWS_REGION: us-west-2
-  ECR_REPOSITORY: frasberg-secure-runtime
-  ECS_CLUSTER: frasberg-secure-runtime-cluster
-  ECS_SERVICE: frasberg-secure-runtime-service
-  TASK_FAMILY: frasberg-secure-runtime
-  AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
-
 jobs:
   deploy:
-    name: Build, Push, and Deploy
-    runs-on: ubuntu-latest
-    environment: production
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/github-deploy-role
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build Docker image
-        env:
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build \
-            --file packages/gateway/Dockerfile \
-            --tag "$ECR_REPOSITORY:$IMAGE_TAG" \
-            --tag "$ECR_REPOSITORY:latest" \
-            .
-
-      - name: Push Docker image
-        env:
-          IMAGE_TAG: ${{ github.sha }}
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        run: |
-          docker tag "$ECR_REPOSITORY:$IMAGE_TAG" "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          docker tag "$ECR_REPOSITORY:latest" "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
-
-      - name: Prepare ECS task definition
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          sed \
-            -e "s|__AWS_ACCOUNT_ID__|$AWS_ACCOUNT_ID|g" \
-            -e "s|__AWS_REGION__|$AWS_REGION|g" \
-            -e "s|__IMAGE__|$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG|g" \
-            ecs-task.json > ecs-task-rendered.json
-
-      - name: Deploy ECS service
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
-        with:
-          task-definition: ecs-task-rendered.json
-          service: ${{ env.ECS_SERVICE }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          desired-count: 2
-          wait-for-service-stability: true
-
-      - name: Verify production health
-        run: |
-          health=$(curl --fail --silent --show-error --output /dev/null --write-out "%{http_code}" https://runtime.aws.frasberg.com/health)
-          test "$health" = "200"
+    name: Deploy to AWS ECS
+    uses: ./.github/workflows/deploy-production.yml
+    permissions:
+      id-token: write
+      contents: read
