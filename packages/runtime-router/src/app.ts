@@ -35,6 +35,8 @@ export function buildApp(options: RuntimeRouterOptions = {}): FastifyInstance {
     },
   });
 
+  app.get('/health', async () => ({ status: 'ok' }));
+
   app.get('/v1/health', async () => ({ status: 'ok', upstreamUrl }));
 
   app.post('/v1/chat/completions', async (request, reply) => {

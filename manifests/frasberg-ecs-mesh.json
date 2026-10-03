@@ -1,0 +1,4740 @@
+{
+  "cluster": "frasberg-secure-runtime-cluster",
+  "vpcName": "frasberg-vpc",
+  "privateSubnets": [
+    "private-compute-a",
+    "private-compute-b"
+  ],
+  "services": [
+    {
+      "service": "auth",
+      "taskFamily": "frasberg-auth-task",
+      "serviceName": "frasberg-auth-service",
+      "securityGroup": "frasberg-auth-sg",
+      "targetGroup": "frasberg-auth-tg",
+      "containerName": "frasberg-auth-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-auth-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-auth-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "auth"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://auth.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-auth-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-auth-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-auth-tg/<TG_ID>",
+            "containerName": "frasberg-auth-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "compute",
+      "taskFamily": "frasberg-compute-task",
+      "serviceName": "frasberg-compute-service",
+      "securityGroup": "frasberg-compute-sg",
+      "targetGroup": "frasberg-compute-tg",
+      "containerName": "frasberg-compute-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-compute-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-compute-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "compute"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://compute.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-compute-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-compute-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-compute-tg/<TG_ID>",
+            "containerName": "frasberg-compute-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "core",
+      "taskFamily": "frasberg-core-task",
+      "serviceName": "frasberg-core-service",
+      "securityGroup": "frasberg-core-sg",
+      "targetGroup": "frasberg-core-tg",
+      "containerName": "frasberg-core-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-core-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-core-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "core"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://core.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-core-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-core-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-core-tg/<TG_ID>",
+            "containerName": "frasberg-core-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "data",
+      "taskFamily": "frasberg-data-task",
+      "serviceName": "frasberg-data-service",
+      "securityGroup": "frasberg-data-sg",
+      "targetGroup": "frasberg-data-tg",
+      "containerName": "frasberg-data-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-data-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-data-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "data"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://data.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-data-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-data-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-data-tg/<TG_ID>",
+            "containerName": "frasberg-data-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "queue",
+      "taskFamily": "frasberg-queue-task",
+      "serviceName": "frasberg-queue-service",
+      "securityGroup": "frasberg-queue-sg",
+      "targetGroup": "frasberg-queue-tg",
+      "containerName": "frasberg-queue-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-queue-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-queue-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "queue"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://queue.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-queue-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-queue-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-queue-tg/<TG_ID>",
+            "containerName": "frasberg-queue-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "cache",
+      "taskFamily": "frasberg-cache-task",
+      "serviceName": "frasberg-cache-service",
+      "securityGroup": "frasberg-cache-sg",
+      "targetGroup": "frasberg-cache-tg",
+      "containerName": "frasberg-cache-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-cache-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-cache-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "cache"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://cache.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-cache-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-cache-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-cache-tg/<TG_ID>",
+            "containerName": "frasberg-cache-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "search",
+      "taskFamily": "frasberg-search-task",
+      "serviceName": "frasberg-search-service",
+      "securityGroup": "frasberg-search-sg",
+      "targetGroup": "frasberg-search-tg",
+      "containerName": "frasberg-search-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-search-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-search-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "search"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://search.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-search-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-search-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-search-tg/<TG_ID>",
+            "containerName": "frasberg-search-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "events",
+      "taskFamily": "frasberg-events-task",
+      "serviceName": "frasberg-events-service",
+      "securityGroup": "frasberg-events-sg",
+      "targetGroup": "frasberg-events-tg",
+      "containerName": "frasberg-events-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-events-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-events-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "events"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://events.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-events-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-events-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-events-tg/<TG_ID>",
+            "containerName": "frasberg-events-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "notify",
+      "taskFamily": "frasberg-notify-task",
+      "serviceName": "frasberg-notify-service",
+      "securityGroup": "frasberg-notify-sg",
+      "targetGroup": "frasberg-notify-tg",
+      "containerName": "frasberg-notify-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-notify-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-notify-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "notify"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://notify.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-notify-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-notify-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-notify-tg/<TG_ID>",
+            "containerName": "frasberg-notify-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "billing",
+      "taskFamily": "frasberg-billing-task",
+      "serviceName": "frasberg-billing-service",
+      "securityGroup": "frasberg-billing-sg",
+      "targetGroup": "frasberg-billing-tg",
+      "containerName": "frasberg-billing-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-billing-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-billing-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "billing"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://billing.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-billing-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-billing-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-billing-tg/<TG_ID>",
+            "containerName": "frasberg-billing-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "identity",
+      "taskFamily": "frasberg-identity-task",
+      "serviceName": "frasberg-identity-service",
+      "securityGroup": "frasberg-identity-sg",
+      "targetGroup": "frasberg-identity-tg",
+      "containerName": "frasberg-identity-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-identity-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-identity-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "identity"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://identity.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-identity-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-identity-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-identity-tg/<TG_ID>",
+            "containerName": "frasberg-identity-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "profile",
+      "taskFamily": "frasberg-profile-task",
+      "serviceName": "frasberg-profile-service",
+      "securityGroup": "frasberg-profile-sg",
+      "targetGroup": "frasberg-profile-tg",
+      "containerName": "frasberg-profile-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-profile-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-profile-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "profile"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://profile.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-profile-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-profile-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-profile-tg/<TG_ID>",
+            "containerName": "frasberg-profile-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "preferences",
+      "taskFamily": "frasberg-preferences-task",
+      "serviceName": "frasberg-preferences-service",
+      "securityGroup": "frasberg-preferences-sg",
+      "targetGroup": "frasberg-preferences-tg",
+      "containerName": "frasberg-preferences-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-preferences-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-preferences-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "preferences"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://preferences.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-preferences-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-preferences-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-preferences-tg/<TG_ID>",
+            "containerName": "frasberg-preferences-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "sessions",
+      "taskFamily": "frasberg-sessions-task",
+      "serviceName": "frasberg-sessions-service",
+      "securityGroup": "frasberg-sessions-sg",
+      "targetGroup": "frasberg-sessions-tg",
+      "containerName": "frasberg-sessions-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-sessions-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-sessions-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "sessions"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://sessions.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-sessions-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-sessions-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-sessions-tg/<TG_ID>",
+            "containerName": "frasberg-sessions-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "state",
+      "taskFamily": "frasberg-state-task",
+      "serviceName": "frasberg-state-service",
+      "securityGroup": "frasberg-state-sg",
+      "targetGroup": "frasberg-state-tg",
+      "containerName": "frasberg-state-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-state-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-state-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "state"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://state.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-state-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-state-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-state-tg/<TG_ID>",
+            "containerName": "frasberg-state-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "presence",
+      "taskFamily": "frasberg-presence-task",
+      "serviceName": "frasberg-presence-service",
+      "securityGroup": "frasberg-presence-sg",
+      "targetGroup": "frasberg-presence-tg",
+      "containerName": "frasberg-presence-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-presence-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-presence-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "presence"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://presence.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-presence-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-presence-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-presence-tg/<TG_ID>",
+            "containerName": "frasberg-presence-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "activity",
+      "taskFamily": "frasberg-activity-task",
+      "serviceName": "frasberg-activity-service",
+      "securityGroup": "frasberg-activity-sg",
+      "targetGroup": "frasberg-activity-tg",
+      "containerName": "frasberg-activity-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-activity-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-activity-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "activity"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://activity.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-activity-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-activity-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-activity-tg/<TG_ID>",
+            "containerName": "frasberg-activity-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "history",
+      "taskFamily": "frasberg-history-task",
+      "serviceName": "frasberg-history-service",
+      "securityGroup": "frasberg-history-sg",
+      "targetGroup": "frasberg-history-tg",
+      "containerName": "frasberg-history-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-history-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-history-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "history"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://history.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-history-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-history-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-history-tg/<TG_ID>",
+            "containerName": "frasberg-history-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "timeline",
+      "taskFamily": "frasberg-timeline-task",
+      "serviceName": "frasberg-timeline-service",
+      "securityGroup": "frasberg-timeline-sg",
+      "targetGroup": "frasberg-timeline-tg",
+      "containerName": "frasberg-timeline-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-timeline-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-timeline-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "timeline"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://timeline.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-timeline-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-timeline-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-timeline-tg/<TG_ID>",
+            "containerName": "frasberg-timeline-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "feed",
+      "taskFamily": "frasberg-feed-task",
+      "serviceName": "frasberg-feed-service",
+      "securityGroup": "frasberg-feed-sg",
+      "targetGroup": "frasberg-feed-tg",
+      "containerName": "frasberg-feed-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-feed-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-feed-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "feed"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://feed.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-feed-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-feed-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-feed-tg/<TG_ID>",
+            "containerName": "frasberg-feed-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "stream",
+      "taskFamily": "frasberg-stream-task",
+      "serviceName": "frasberg-stream-service",
+      "securityGroup": "frasberg-stream-sg",
+      "targetGroup": "frasberg-stream-tg",
+      "containerName": "frasberg-stream-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-stream-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-stream-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "stream"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://stream.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-stream-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-stream-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-stream-tg/<TG_ID>",
+            "containerName": "frasberg-stream-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "sync",
+      "taskFamily": "frasberg-sync-task",
+      "serviceName": "frasberg-sync-service",
+      "securityGroup": "frasberg-sync-sg",
+      "targetGroup": "frasberg-sync-tg",
+      "containerName": "frasberg-sync-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-sync-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-sync-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "sync"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://sync.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-sync-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-sync-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-sync-tg/<TG_ID>",
+            "containerName": "frasberg-sync-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "merge",
+      "taskFamily": "frasberg-merge-task",
+      "serviceName": "frasberg-merge-service",
+      "securityGroup": "frasberg-merge-sg",
+      "targetGroup": "frasberg-merge-tg",
+      "containerName": "frasberg-merge-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-merge-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-merge-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "merge"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://merge.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-merge-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-merge-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-merge-tg/<TG_ID>",
+            "containerName": "frasberg-merge-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "aggregate",
+      "taskFamily": "frasberg-aggregate-task",
+      "serviceName": "frasberg-aggregate-service",
+      "securityGroup": "frasberg-aggregate-sg",
+      "targetGroup": "frasberg-aggregate-tg",
+      "containerName": "frasberg-aggregate-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-aggregate-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-aggregate-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "aggregate"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://aggregate.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-aggregate-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-aggregate-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-aggregate-tg/<TG_ID>",
+            "containerName": "frasberg-aggregate-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "reduce",
+      "taskFamily": "frasberg-reduce-task",
+      "serviceName": "frasberg-reduce-service",
+      "securityGroup": "frasberg-reduce-sg",
+      "targetGroup": "frasberg-reduce-tg",
+      "containerName": "frasberg-reduce-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-reduce-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-reduce-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "reduce"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://reduce.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-reduce-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-reduce-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-reduce-tg/<TG_ID>",
+            "containerName": "frasberg-reduce-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "fold",
+      "taskFamily": "frasberg-fold-task",
+      "serviceName": "frasberg-fold-service",
+      "securityGroup": "frasberg-fold-sg",
+      "targetGroup": "frasberg-fold-tg",
+      "containerName": "frasberg-fold-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-fold-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-fold-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "fold"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://fold.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-fold-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-fold-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-fold-tg/<TG_ID>",
+            "containerName": "frasberg-fold-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "compress",
+      "taskFamily": "frasberg-compress-task",
+      "serviceName": "frasberg-compress-service",
+      "securityGroup": "frasberg-compress-sg",
+      "targetGroup": "frasberg-compress-tg",
+      "containerName": "frasberg-compress-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-compress-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-compress-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "compress"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://compress.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-compress-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-compress-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-compress-tg/<TG_ID>",
+            "containerName": "frasberg-compress-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "pack",
+      "taskFamily": "frasberg-pack-task",
+      "serviceName": "frasberg-pack-service",
+      "securityGroup": "frasberg-pack-sg",
+      "targetGroup": "frasberg-pack-tg",
+      "containerName": "frasberg-pack-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-pack-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-pack-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "pack"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://pack.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-pack-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-pack-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-pack-tg/<TG_ID>",
+            "containerName": "frasberg-pack-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "bundle",
+      "taskFamily": "frasberg-bundle-task",
+      "serviceName": "frasberg-bundle-service",
+      "securityGroup": "frasberg-bundle-sg",
+      "targetGroup": "frasberg-bundle-tg",
+      "containerName": "frasberg-bundle-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-bundle-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-bundle-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "bundle"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://bundle.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-bundle-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-bundle-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-bundle-tg/<TG_ID>",
+            "containerName": "frasberg-bundle-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "wrap",
+      "taskFamily": "frasberg-wrap-task",
+      "serviceName": "frasberg-wrap-service",
+      "securityGroup": "frasberg-wrap-sg",
+      "targetGroup": "frasberg-wrap-tg",
+      "containerName": "frasberg-wrap-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-wrap-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-wrap-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "wrap"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://wrap.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-wrap-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-wrap-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-wrap-tg/<TG_ID>",
+            "containerName": "frasberg-wrap-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "seal",
+      "taskFamily": "frasberg-seal-task",
+      "serviceName": "frasberg-seal-service",
+      "securityGroup": "frasberg-seal-sg",
+      "targetGroup": "frasberg-seal-tg",
+      "containerName": "frasberg-seal-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-seal-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-seal-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "seal"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://seal.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-seal-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-seal-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-seal-tg/<TG_ID>",
+            "containerName": "frasberg-seal-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "finalize",
+      "taskFamily": "frasberg-finalize-task",
+      "serviceName": "frasberg-finalize-service",
+      "securityGroup": "frasberg-finalize-sg",
+      "targetGroup": "frasberg-finalize-tg",
+      "containerName": "frasberg-finalize-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-finalize-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-finalize-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "finalize"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://finalize.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-finalize-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-finalize-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-finalize-tg/<TG_ID>",
+            "containerName": "frasberg-finalize-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "deliver",
+      "taskFamily": "frasberg-deliver-task",
+      "serviceName": "frasberg-deliver-service",
+      "securityGroup": "frasberg-deliver-sg",
+      "targetGroup": "frasberg-deliver-tg",
+      "containerName": "frasberg-deliver-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-deliver-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-deliver-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "deliver"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://deliver.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-deliver-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-deliver-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-deliver-tg/<TG_ID>",
+            "containerName": "frasberg-deliver-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "dispatch",
+      "taskFamily": "frasberg-dispatch-task",
+      "serviceName": "frasberg-dispatch-service",
+      "securityGroup": "frasberg-dispatch-sg",
+      "targetGroup": "frasberg-dispatch-tg",
+      "containerName": "frasberg-dispatch-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-dispatch-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-dispatch-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "dispatch"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://dispatch.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-dispatch-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-dispatch-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-dispatch-tg/<TG_ID>",
+            "containerName": "frasberg-dispatch-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "route",
+      "taskFamily": "frasberg-route-task",
+      "serviceName": "frasberg-route-service",
+      "securityGroup": "frasberg-route-sg",
+      "targetGroup": "frasberg-route-tg",
+      "containerName": "frasberg-route-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-route-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-route-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "route"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://route.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-route-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-route-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-route-tg/<TG_ID>",
+            "containerName": "frasberg-route-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "relay",
+      "taskFamily": "frasberg-relay-task",
+      "serviceName": "frasberg-relay-service",
+      "securityGroup": "frasberg-relay-sg",
+      "targetGroup": "frasberg-relay-tg",
+      "containerName": "frasberg-relay-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-relay-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-relay-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "relay"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://relay.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-relay-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-relay-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-relay-tg/<TG_ID>",
+            "containerName": "frasberg-relay-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "transmit",
+      "taskFamily": "frasberg-transmit-task",
+      "serviceName": "frasberg-transmit-service",
+      "securityGroup": "frasberg-transmit-sg",
+      "targetGroup": "frasberg-transmit-tg",
+      "containerName": "frasberg-transmit-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-transmit-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-transmit-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "transmit"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://transmit.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-transmit-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-transmit-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-transmit-tg/<TG_ID>",
+            "containerName": "frasberg-transmit-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "broadcast",
+      "taskFamily": "frasberg-broadcast-task",
+      "serviceName": "frasberg-broadcast-service",
+      "securityGroup": "frasberg-broadcast-sg",
+      "targetGroup": "frasberg-broadcast-tg",
+      "containerName": "frasberg-broadcast-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-broadcast-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-broadcast-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "broadcast"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://broadcast.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-broadcast-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-broadcast-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-broadcast-tg/<TG_ID>",
+            "containerName": "frasberg-broadcast-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "multicast",
+      "taskFamily": "frasberg-multicast-task",
+      "serviceName": "frasberg-multicast-service",
+      "securityGroup": "frasberg-multicast-sg",
+      "targetGroup": "frasberg-multicast-tg",
+      "containerName": "frasberg-multicast-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-multicast-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-multicast-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "multicast"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://multicast.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-multicast-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-multicast-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-multicast-tg/<TG_ID>",
+            "containerName": "frasberg-multicast-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "fanout",
+      "taskFamily": "frasberg-fanout-task",
+      "serviceName": "frasberg-fanout-service",
+      "securityGroup": "frasberg-fanout-sg",
+      "targetGroup": "frasberg-fanout-tg",
+      "containerName": "frasberg-fanout-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-fanout-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-fanout-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "fanout"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://fanout.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-fanout-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-fanout-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-fanout-tg/<TG_ID>",
+            "containerName": "frasberg-fanout-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "spread",
+      "taskFamily": "frasberg-spread-task",
+      "serviceName": "frasberg-spread-service",
+      "securityGroup": "frasberg-spread-sg",
+      "targetGroup": "frasberg-spread-tg",
+      "containerName": "frasberg-spread-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-spread-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-spread-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "spread"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://spread.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-spread-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-spread-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-spread-tg/<TG_ID>",
+            "containerName": "frasberg-spread-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "diffuse",
+      "taskFamily": "frasberg-diffuse-task",
+      "serviceName": "frasberg-diffuse-service",
+      "securityGroup": "frasberg-diffuse-sg",
+      "targetGroup": "frasberg-diffuse-tg",
+      "containerName": "frasberg-diffuse-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-diffuse-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-diffuse-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "diffuse"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://diffuse.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-diffuse-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-diffuse-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-diffuse-tg/<TG_ID>",
+            "containerName": "frasberg-diffuse-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "propagate",
+      "taskFamily": "frasberg-propagate-task",
+      "serviceName": "frasberg-propagate-service",
+      "securityGroup": "frasberg-propagate-sg",
+      "targetGroup": "frasberg-propagate-tg",
+      "containerName": "frasberg-propagate-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-propagate-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-propagate-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "propagate"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://propagate.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-propagate-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-propagate-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-propagate-tg/<TG_ID>",
+            "containerName": "frasberg-propagate-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "radiate",
+      "taskFamily": "frasberg-radiate-task",
+      "serviceName": "frasberg-radiate-service",
+      "securityGroup": "frasberg-radiate-sg",
+      "targetGroup": "frasberg-radiate-tg",
+      "containerName": "frasberg-radiate-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-radiate-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-radiate-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "radiate"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://radiate.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-radiate-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-radiate-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-radiate-tg/<TG_ID>",
+            "containerName": "frasberg-radiate-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "beam",
+      "taskFamily": "frasberg-beam-task",
+      "serviceName": "frasberg-beam-service",
+      "securityGroup": "frasberg-beam-sg",
+      "targetGroup": "frasberg-beam-tg",
+      "containerName": "frasberg-beam-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-beam-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-beam-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "beam"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://beam.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-beam-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-beam-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-beam-tg/<TG_ID>",
+            "containerName": "frasberg-beam-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "pulse",
+      "taskFamily": "frasberg-pulse-task",
+      "serviceName": "frasberg-pulse-service",
+      "securityGroup": "frasberg-pulse-sg",
+      "targetGroup": "frasberg-pulse-tg",
+      "containerName": "frasberg-pulse-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-pulse-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-pulse-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "pulse"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://pulse.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-pulse-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-pulse-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-pulse-tg/<TG_ID>",
+            "containerName": "frasberg-pulse-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "wave",
+      "taskFamily": "frasberg-wave-task",
+      "serviceName": "frasberg-wave-service",
+      "securityGroup": "frasberg-wave-sg",
+      "targetGroup": "frasberg-wave-tg",
+      "containerName": "frasberg-wave-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-wave-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-wave-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "wave"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://wave.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-wave-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-wave-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-wave-tg/<TG_ID>",
+            "containerName": "frasberg-wave-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "ripple",
+      "taskFamily": "frasberg-ripple-task",
+      "serviceName": "frasberg-ripple-service",
+      "securityGroup": "frasberg-ripple-sg",
+      "targetGroup": "frasberg-ripple-tg",
+      "containerName": "frasberg-ripple-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-ripple-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-ripple-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "ripple"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://ripple.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-ripple-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-ripple-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-ripple-tg/<TG_ID>",
+            "containerName": "frasberg-ripple-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "echo",
+      "taskFamily": "frasberg-echo-task",
+      "serviceName": "frasberg-echo-service",
+      "securityGroup": "frasberg-echo-sg",
+      "targetGroup": "frasberg-echo-tg",
+      "containerName": "frasberg-echo-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-echo-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-echo-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "echo"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://echo.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-echo-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-echo-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-echo-tg/<TG_ID>",
+            "containerName": "frasberg-echo-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "resonate",
+      "taskFamily": "frasberg-resonate-task",
+      "serviceName": "frasberg-resonate-service",
+      "securityGroup": "frasberg-resonate-sg",
+      "targetGroup": "frasberg-resonate-tg",
+      "containerName": "frasberg-resonate-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-resonate-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-resonate-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "resonate"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://resonate.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-resonate-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-resonate-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-resonate-tg/<TG_ID>",
+            "containerName": "frasberg-resonate-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "amplify",
+      "taskFamily": "frasberg-amplify-task",
+      "serviceName": "frasberg-amplify-service",
+      "securityGroup": "frasberg-amplify-sg",
+      "targetGroup": "frasberg-amplify-tg",
+      "containerName": "frasberg-amplify-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-amplify-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-amplify-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "amplify"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://amplify.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-amplify-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-amplify-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-amplify-tg/<TG_ID>",
+            "containerName": "frasberg-amplify-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "boost",
+      "taskFamily": "frasberg-boost-task",
+      "serviceName": "frasberg-boost-service",
+      "securityGroup": "frasberg-boost-sg",
+      "targetGroup": "frasberg-boost-tg",
+      "containerName": "frasberg-boost-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-boost-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-boost-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "boost"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://boost.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-boost-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-boost-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-boost-tg/<TG_ID>",
+            "containerName": "frasberg-boost-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "surge",
+      "taskFamily": "frasberg-surge-task",
+      "serviceName": "frasberg-surge-service",
+      "securityGroup": "frasberg-surge-sg",
+      "targetGroup": "frasberg-surge-tg",
+      "containerName": "frasberg-surge-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-surge-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-surge-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "surge"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://surge.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-surge-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-surge-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-surge-tg/<TG_ID>",
+            "containerName": "frasberg-surge-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "flare",
+      "taskFamily": "frasberg-flare-task",
+      "serviceName": "frasberg-flare-service",
+      "securityGroup": "frasberg-flare-sg",
+      "targetGroup": "frasberg-flare-tg",
+      "containerName": "frasberg-flare-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-flare-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-flare-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "flare"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://flare.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-flare-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-flare-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-flare-tg/<TG_ID>",
+            "containerName": "frasberg-flare-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    },
+    {
+      "service": "flash",
+      "taskFamily": "frasberg-flash-task",
+      "serviceName": "frasberg-flash-service",
+      "securityGroup": "frasberg-flash-sg",
+      "targetGroup": "frasberg-flash-tg",
+      "containerName": "frasberg-flash-container",
+      "desiredCount": 2,
+      "taskDefinition": {
+        "family": "frasberg-flash-task",
+        "networkMode": "awsvpc",
+        "requiresCompatibilities": [
+          "FARGATE"
+        ],
+        "cpu": "256",
+        "memory": "512",
+        "executionRoleArn": "arn:aws:iam::303004020510:role/ecsTaskExecutionRole",
+        "taskRoleArn": "arn:aws:iam::303004020510:role/frasberg-runtime-role",
+        "containerDefinitions": [
+          {
+            "name": "frasberg-flash-container",
+            "image": "303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest",
+            "essential": true,
+            "portMappings": [
+              {
+                "containerPort": 4001,
+                "protocol": "tcp"
+              }
+            ],
+            "environment": [
+              {
+                "name": "SERVICE_NAME",
+                "value": "flash"
+              },
+              {
+                "name": "SERVICE_URL",
+                "value": "https://flash.aws.frasberg.com"
+              },
+              {
+                "name": "RUNTIME_ROUTER_HOST",
+                "value": "0.0.0.0"
+              }
+            ],
+            "healthCheck": {
+              "command": [
+                "CMD-SHELL",
+                "node -e \"fetch('http://localhost:4001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
+              ],
+              "interval": 30,
+              "timeout": 5,
+              "retries": 3,
+              "startPeriod": 10
+            }
+          }
+        ]
+      },
+      "serviceDefinition": {
+        "serviceName": "frasberg-flash-service",
+        "cluster": "frasberg-secure-runtime-cluster",
+        "launchType": "FARGATE",
+        "desiredCount": 2,
+        "networkConfiguration": {
+          "awsvpcConfiguration": {
+            "subnets": [
+              "private-compute-a",
+              "private-compute-b"
+            ],
+            "securityGroups": [
+              "frasberg-flash-sg"
+            ],
+            "assignPublicIp": "DISABLED"
+          }
+        },
+        "loadBalancers": [
+          {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:303004020510:targetgroup/frasberg-flash-tg/<TG_ID>",
+            "containerName": "frasberg-flash-container",
+            "containerPort": 4001
+          }
+        ],
+        "deploymentConfiguration": {
+          "maximumPercent": 200,
+          "minimumHealthyPercent": 100
+        }
+      }
+    }
+  ]
+}
