@@ -6,6 +6,36 @@
       "type": "shell",
       "command": "./deploy.sh",
       "problemMatcher": []
+    },
+    {
+      "label": "Check and install Docker Desktop",
+      "type": "shell",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "Set-Location 'C:\\Users\\brown\\frasberg-secure-runtime'; Write-Host 'Checking Docker...'; docker --version; if ($LASTEXITCODE -ne 0) { Write-Host 'Docker not found. Installing Docker Desktop via winget...'; winget install --id Docker.DockerDesktop -e -s winget; exit $LASTEXITCODE }"
+      ],
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": "build"
+    },
+    {
+      "label": "Temporary: build and push runtime-router image",
+      "type": "shell",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "Set-Location 'C:\\Users\\brown\\frasberg-secure-runtime'; Write-Host 'Checking Docker engine...'; docker version; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; Write-Host 'Logging in to ECR...'; aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 303004020510.dkr.ecr.us-east-1.amazonaws.com; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; $image='303004020510.dkr.ecr.us-east-1.amazonaws.com/frasberg-secure-runtime:latest'; Write-Host \"Building $image from repository-root context...\"; docker build -t $image -f packages/runtime-router/Dockerfile .; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; docker push $image; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; Write-Host 'Verifying pushed image...'; aws ecr describe-images --repository-name frasberg-secure-runtime --image-ids imageTag=latest --query 'imageDetails[0].imageDigest' --output text --region us-east-1; exit $LASTEXITCODE"
+      ],
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": "build"
     }
   ]
 }

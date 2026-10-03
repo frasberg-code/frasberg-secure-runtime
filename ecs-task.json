@@ -47,7 +47,7 @@
       "healthCheck": {
         "command": [
           "CMD-SHELL",
-          "node -e \"fetch('http://127.0.0.1:4000/runtime-health').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))\""
+          "node -e \"fetch('http://127.0.0.1:4000/health').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))\""
         ],
         "interval": 30,
         "timeout": 5,
