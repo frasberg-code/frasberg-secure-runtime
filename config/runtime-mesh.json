@@ -1,0 +1,42 @@
+{
+  "gatewayServer": {
+    "port": 4100,
+    "healthPath": "/v1/health",
+    "routes": {
+      "engine": "/v1/generate/:domain",
+      "worldgraph": "/v1/worldgraph"
+    }
+  },
+  "gateway": {
+    "port": 4000,
+    "healthPath": "/health",
+    "runtimeRouterUrlEnvironmentVariable": "RUNTIME_ROUTER_URL",
+    "runtimeRouterUrlDefault": "http://runtime-router:4001",
+    "engineServiceUrlEnvironmentVariable": "ENGINE_SERVICE_URL",
+    "engineServiceUrlDefault": "http://engine:4002"
+  },
+  "runtimeRouter": {
+    "port": 4001,
+    "healthPath": "/health",
+    "upstreamUrlEnvironmentVariable": "RUNTIME_UPSTREAM_URL",
+    "upstreamUrlDefault": "http://engine:4002/v1/generations/chat"
+  },
+  "engine": {
+    "port": 4002,
+    "healthPath": "/v1/health"
+  },
+  "worldgraph": {
+    "backend": "supabase-rest-rpc",
+    "requiredEnvironment": [
+      "GATEWAY_WORLDGRAPH_SUPABASE_URL",
+      "GATEWAY_WORLDGRAPH_SUPABASE_ANON_KEY"
+    ],
+    "rpcFunctions": [
+      "rpc_create_worldgraph_definition",
+      "rpc_get_worldgraph_definition",
+      "rpc_update_worldgraph_definition",
+      "rpc_delete_worldgraph_definition",
+      "rpc_list_worldgraph_definitions"
+    ]
+  }
+}

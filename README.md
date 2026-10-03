@@ -95,4 +95,8 @@ For Supabase-backed WorldGraph persistence, apply `supabase/migrations/*.sql` an
 
 - Dockerfiles in `packages/*/Dockerfile` are local scaffolds.
 - `docker-compose.yml` is for local service wiring only.
-- No production deployment claims are made in this repository.
+- Production ECS deployment uses `.github/workflows/deploy.yml` and the reusable
+  workflow in `.github/workflows/deploy-production.yml`.
+- See [deployment assets](docs/deployment-assets.md) for task, IAM, network,
+  secret, and health-check configuration. Infrastructure setup scripts require
+  explicit AWS credentials and do not run automatically.
