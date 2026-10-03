@@ -5,22 +5,21 @@
       "Sid": "CreateRuntimeLogGroups",
       "Effect": "Allow",
       "Action": "logs:CreateLogGroup",
-      "Resource": "arn:aws:logs:us-west-2:${aws:AccountId}:log-group:/ecs/frasberg-secure-runtime"
+      "Resource": "arn:aws:logs:us-west-2:__AWS_ACCOUNT_ID__:log-group:/ecs/frasberg-secure-runtime"
     },
     {
       "Sid": "WriteRuntimeLogs",
       "Effect": "Allow",
       "Action": ["logs:CreateLogStream", "logs:PutLogEvents"],
-      "Resource": "arn:aws:logs:us-west-2:${aws:AccountId}:log-group:/ecs/frasberg-secure-runtime:log-stream:*"
+      "Resource": "arn:aws:logs:us-west-2:__AWS_ACCOUNT_ID__:log-group:/ecs/frasberg-secure-runtime:log-stream:*"
     },
     {
       "Sid": "ReadRuntimeSupabaseSecrets",
       "Effect": "Allow",
       "Action": "secretsmanager:GetSecretValue",
       "Resource": [
-        "arn:aws:secretsmanager:us-west-2:${aws:AccountId}:secret:frasberg/SUPABASE_URL-*",
-        "arn:aws:secretsmanager:us-west-2:${aws:AccountId}:secret:frasberg/SUPABASE_ANON_KEY-*",
-        "arn:aws:secretsmanager:us-west-2:${aws:AccountId}:secret:frasberg/supabase/runtime-*"
+        "arn:aws:secretsmanager:us-west-2:__AWS_ACCOUNT_ID__:secret:frasberg/SUPABASE_URL-*",
+        "arn:aws:secretsmanager:us-west-2:__AWS_ACCOUNT_ID__:secret:frasberg/SUPABASE_ANON_KEY-*"
       ]
     }
   ]

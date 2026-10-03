@@ -17,6 +17,8 @@ the ECS task execution role, which retrieves task-definition secrets and
 writes container logs. It is not a trust policy and should not be attached to
 the GitHub deploy role. It scopes secret access to the runtime's Supabase
 secrets and log writes to its CloudWatch log group.
+`infra/iam/apply-runtime-policy.sh` resolves the current AWS account ID and
+applies this policy to the existing ECS execution role.
 
 The Supabase secret setup script can create or update a consolidated secret
 from environment variables, but it does not print their values. The current
