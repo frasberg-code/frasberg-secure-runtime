@@ -11,6 +11,8 @@ import { integrity } from "../../apps/public-api/integrity";
 import { coherence } from "../../apps/public-api/coherence";
 import { sync } from "../../apps/public-api/sync";
 import { rhythm } from "../../apps/public-api/rhythm";
+import { flow } from "../../apps/public-api/flow";
+import { circulation } from "../../apps/public-api/circulation";
 
 const router = express.Router();
 
@@ -26,6 +28,8 @@ router.post("/worldgraph", (req, res) => {
   }));
 });
 
+router.post("/circulation", circulation);
+router.post("/flow", flow);
 router.post("/rhythm", rhythm);
 router.post("/sync", sync);
 router.post("/coherence", coherence);

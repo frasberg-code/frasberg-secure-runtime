@@ -1,5 +1,5 @@
 import { useJob } from "../hooks/useJob";
-import { AssetViewer, SharePanel, ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer, EnforcementViewer, IntegrityViewer, CoherenceViewer, SyncViewer, RhythmViewer } from "../components";
+import { AssetViewer, SharePanel, ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer, EnforcementViewer, IntegrityViewer, CoherenceViewer, SyncViewer, RhythmViewer, FlowViewer, CirculationViewer } from "../components";
 import { publish } from "../actions";
 import { useState } from "react";
 import ZeroPoint from "./ZeroPoint";
@@ -12,6 +12,8 @@ import Integrity from "./Integrity";
 import Coherence from "./Coherence";
 import Sync from "./Sync";
 import Rhythm from "./Rhythm";
+import Flow from "./Flow";
+import Circulation from "./Circulation";
 
 export default function RuntimeDashboard() {
   return (
@@ -146,4 +148,4 @@ function ActionPanel() {
   );
 }
 
-export { ZeroPoint, Substrate, Bedrock, GroundTruth, Law, Enforcement, Integrity, Coherence, Sync, Rhythm };
+export { ZeroPoint, Substrate, Bedrock, GroundTruth, Law, Enforcement, Integrity, Coherence, Sync, Rhythm, Flow, Circulation };

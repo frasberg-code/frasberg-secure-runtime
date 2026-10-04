@@ -10,8 +10,10 @@ import IntegrityViewer from "./IntegrityViewer";
 import CoherenceViewer from "./CoherenceViewer";
 import SyncViewer from "./SyncViewer";
 import RhythmViewer from "./RhythmViewer";
+import FlowViewer from "./FlowViewer";
+import CirculationViewer from "./CirculationViewer";
 
-export { ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer, EnforcementViewer, IntegrityViewer, CoherenceViewer, SyncViewer, RhythmViewer };
+export { ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer, EnforcementViewer, IntegrityViewer, CoherenceViewer, SyncViewer, RhythmViewer, FlowViewer, CirculationViewer };
 
 export default function WorldGraphPanel() {
   const client = useFrasbergClient();
