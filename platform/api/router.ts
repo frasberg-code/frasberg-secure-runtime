@@ -1,6 +1,9 @@
 import express from "express";
 import { publicApiMiddleware } from "./middleware";
 import { apiEnvelope } from "./envelope";
+import { consciousness } from "../../apps/public-api/consciousness";
+import { mind } from "../../apps/public-api/mind";
+import { cognition } from "../../apps/public-api/cognition";
 import { reasoning } from "../../apps/public-api/reasoning";
 import { logic } from "../../apps/public-api/logic";
 import { design } from "../../apps/public-api/design";
@@ -49,6 +52,9 @@ router.post("/worldgraph", (req, res) => {
   }));
 });
 
+router.post("/v1/consciousness", consciousness);
+router.post("/v1/mind", mind);
+router.post("/v1/cognition", cognition);
 router.post("/v1/reasoning", reasoning);
 router.post("/v1/logic", logic);
 router.post("/v1/design", design);

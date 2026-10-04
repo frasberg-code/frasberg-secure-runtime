@@ -1,7 +1,10 @@
 import { useJob } from "../hooks/useJob";
-import { AssetViewer, SharePanel, ReasoningViewer, LogicViewer, DesignViewer, BlueprintViewer, ArchitectureViewer, StructureViewer, PatternViewer, ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer, EnforcementViewer, IntegrityViewer, CoherenceViewer, SyncViewer, RhythmViewer, FlowViewer, CirculationViewer, ConduitViewer, ChannelViewer, PathViewer, RouteViewer, NavigationViewer, TravelViewer, MotionViewer, DynamicsViewer, ForceViewer, VectorViewer, FieldViewer, InfluenceViewer, InteractionViewer, ExchangeViewer } from "../components";
+import { AssetViewer, SharePanel, ConsciousnessViewer, MindViewer, CognitionViewer, ReasoningViewer, LogicViewer, DesignViewer, BlueprintViewer, ArchitectureViewer, StructureViewer, PatternViewer, ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer, EnforcementViewer, IntegrityViewer, CoherenceViewer, SyncViewer, RhythmViewer, FlowViewer, CirculationViewer, ConduitViewer, ChannelViewer, PathViewer, RouteViewer, NavigationViewer, TravelViewer, MotionViewer, DynamicsViewer, ForceViewer, VectorViewer, FieldViewer, InfluenceViewer, InteractionViewer, ExchangeViewer } from "../components";
 import { publish } from "../actions";
 import { useState } from "react";
+import Consciousness from "./Consciousness";
+import Mind from "./Mind";
+import Cognition from "./Cognition";
 import Reasoning from "./Reasoning";
 import Logic from "./Logic";
 import Design from "./Design";
@@ -169,4 +172,4 @@ function ActionPanel() {
   );
 }
 
-export { Reasoning, Logic, Design, Blueprint, Architecture, Structure, Pattern, ZeroPoint, Substrate, Bedrock, GroundTruth, Law, Enforcement, Integrity, Coherence, Sync, Rhythm, Flow, Circulation, Conduit, Channel, Path, Route, Navigation, Travel, Motion, Dynamics, Force, Vector, Field, Influence, Interaction, Exchange };
+export { Consciousness, Mind, Cognition, Reasoning, Logic, Design, Blueprint, Architecture, Structure, Pattern, ZeroPoint, Substrate, Bedrock, GroundTruth, Law, Enforcement, Integrity, Coherence, Sync, Rhythm, Flow, Circulation, Conduit, Channel, Path, Route, Navigation, Travel, Motion, Dynamics, Force, Vector, Field, Influence, Interaction, Exchange };

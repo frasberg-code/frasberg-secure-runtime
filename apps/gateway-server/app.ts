@@ -1,5 +1,8 @@
 import express from "express";
 import { unifiedMiddleware } from "./middleware/unified";
+import { injectConsciousness } from "./middleware/consciousness";
+import { injectMind } from "./middleware/mind";
+import { injectCognition } from "./middleware/cognition";
 import { injectReasoning } from "./middleware/reasoning";
 import { injectLogic } from "./middleware/logic";
 import { injectDesign } from "./middleware/design";
@@ -39,6 +42,9 @@ const app = express();
 
 app.use(express.json());
 app.use(unifiedMiddleware);
+app.use(injectConsciousness);
+app.use(injectMind);
+app.use(injectCognition);
 app.use(injectReasoning);
 app.use(injectLogic);
 app.use(injectDesign);

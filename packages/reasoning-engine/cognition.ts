@@ -1,7 +1,7 @@
 export function buildCognition(logic: any) {
   return {
     logicCognition: logic.reasoning,
-    inferenceCognition: logic.inference,
+    flowCognition: logic.reasoning,
     timestamp: Date.now()
   };
 }

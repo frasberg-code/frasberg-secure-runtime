@@ -1,5 +1,8 @@
 import { useFrasbergClient } from "../hooks/useFrasbergClient";
 import { useState } from "react";
+import ConsciousnessViewer from "./ConsciousnessViewer";
+import MindViewer from "./MindViewer";
+import CognitionViewer from "./CognitionViewer";
 import ReasoningViewer from "./ReasoningViewer";
 import LogicViewer from "./LogicViewer";
 import DesignViewer from "./DesignViewer";
@@ -34,7 +37,7 @@ import InfluenceViewer from "./InfluenceViewer";
 import InteractionViewer from "./InteractionViewer";
 import ExchangeViewer from "./ExchangeViewer";
 
-export { ReasoningViewer, LogicViewer, DesignViewer, BlueprintViewer, ArchitectureViewer, StructureViewer, PatternViewer, ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer, EnforcementViewer, IntegrityViewer, CoherenceViewer, SyncViewer, RhythmViewer, FlowViewer, CirculationViewer, ConduitViewer, ChannelViewer, PathViewer, RouteViewer, NavigationViewer, TravelViewer, MotionViewer, DynamicsViewer, ForceViewer, VectorViewer, FieldViewer, InfluenceViewer, InteractionViewer, ExchangeViewer };
+export { ConsciousnessViewer, MindViewer, CognitionViewer, ReasoningViewer, LogicViewer, DesignViewer, BlueprintViewer, ArchitectureViewer, StructureViewer, PatternViewer, ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer, EnforcementViewer, IntegrityViewer, CoherenceViewer, SyncViewer, RhythmViewer, FlowViewer, CirculationViewer, ConduitViewer, ChannelViewer, PathViewer, RouteViewer, NavigationViewer, TravelViewer, MotionViewer, DynamicsViewer, ForceViewer, VectorViewer, FieldViewer, InfluenceViewer, InteractionViewer, ExchangeViewer };
 
 export default function WorldGraphPanel() {
   const client = useFrasbergClient();
