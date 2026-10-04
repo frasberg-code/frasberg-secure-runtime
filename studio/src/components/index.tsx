@@ -1,8 +1,10 @@
 import { useFrasbergClient } from "../hooks/useFrasbergClient";
 import { useState } from "react";
 import ZeroPointViewer from "./ZeroPointViewer";
+import SubstrateViewer from "./SubstrateViewer";
+import BedrockViewer from "./BedrockViewer";
 
-export { ZeroPointViewer };
+export { ZeroPointViewer, SubstrateViewer, BedrockViewer };
 
 export default function WorldGraphPanel() {
   const client = useFrasbergClient();

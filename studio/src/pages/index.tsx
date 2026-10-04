@@ -1,8 +1,10 @@
 import { useJob } from "../hooks/useJob";
-import { AssetViewer, SharePanel, ZeroPointViewer } from "../components";
+import { AssetViewer, SharePanel, ZeroPointViewer, SubstrateViewer, BedrockViewer } from "../components";
 import { publish } from "../actions";
 import { useState } from "react";
 import ZeroPoint from "./ZeroPoint";
+import Substrate from "./Substrate";
+import Bedrock from "./Bedrock";
 
 export default function RuntimeDashboard() {
   return (
@@ -137,4 +139,4 @@ function ActionPanel() {
   );
 }
 
-export { ZeroPoint };
+export { ZeroPoint, Substrate, Bedrock };
