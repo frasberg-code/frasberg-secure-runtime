@@ -23,6 +23,7 @@ import { motion } from "../../apps/public-api/motion";
 import { dynamics } from "../../apps/public-api/dynamics";
 import { force } from "../../apps/public-api/force";
 import { vector } from "../../apps/public-api/vector";
+import { field } from "../../apps/public-api/field";
 
 const router = express.Router();
 
@@ -38,6 +39,7 @@ router.post("/worldgraph", (req, res) => {
   }));
 });
 
+router.post("/field", field);
 router.post("/vector", vector);
 router.post("/force", force);
 router.post("/dynamics", dynamics);
