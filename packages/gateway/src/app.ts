@@ -115,7 +115,9 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
       routePath.startsWith('/v1/identity/') ||
       routePath.startsWith('/v1/continuity/') ||
       routePath === '/v1/diagnostics' ||
-      routePath.startsWith('/v1/diagnostics/');
+      routePath.startsWith('/v1/diagnostics/') ||
+      routePath === '/v1/policy' ||
+      routePath.startsWith('/v1/policy/');
     if (requiresSupabaseUser) {
       const limited = rateLimitRequest(
         request,
@@ -524,6 +526,147 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
       request.log.error({ err: error }, 'Supabase diagnostics write failed');
       return reply.code(502).send({
         error: 'Diagnostics storage is temporarily unavailable.',
+      });
+    }
+  });
+
+  app.get('/v1/policy', async (request, reply) => {
+    if (!request.authContext?.userId || !request.supabaseAccessToken) {
+      return reply.code(401).send(invalidKeyResponse());
+    }
+
+    try {
+      const result = await callSupabaseRpc(
+        'rpc_list_user_policies',
+        {},
+        request.supabaseAccessToken,
+        options.supabaseUrl ?? process.env.SUPABASE_URL,
+        options.supabaseAnonKey ?? process.env.SUPABASE_ANON_KEY,
+        fetchImpl,
+      );
+      if (!Array.isArray(result) || !result.every(isRecord)) {
+        throw new Error('Supabase returned an invalid policy list.');
+      }
+      return result.map(toPublicPolicy);
+    } catch (error) {
+      request.log.error({ err: error }, 'Supabase policy read failed');
+      return reply.code(502).send({
+        error: 'Policy storage is temporarily unavailable.',
+      });
+    }
+  });
+
+  app.put('/v1/policy', async (request, reply) => {
+    if (!request.authContext?.userId || !request.supabaseAccessToken) {
+      return reply.code(401).send(invalidKeyResponse());
+    }
+    if (
+      !isRecord(request.body) ||
+      (request.body.id !== undefined &&
+        (typeof request.body.id !== 'string' || !isUuid(request.body.id))) ||
+      typeof request.body.name !== 'string' ||
+      request.body.name.trim().length === 0 ||
+      request.body.name.trim().length > 100 ||
+      !isUnitInterval(request.body.meaningThreshold) ||
+      !isUnitInterval(request.body.riskThreshold) ||
+      (request.body.enabled !== undefined &&
+        typeof request.body.enabled !== 'boolean')
+    ) {
+      return reply.code(400).send({
+        error:
+          'Policy requires a name, thresholds between 0 and 1, and optional enabled flag.',
+      });
+    }
+
+    try {
+      const result = await callSupabaseRpc(
+        'rpc_upsert_user_policy',
+        {
+          p_id: request.body.id ?? null,
+          p_name: request.body.name.trim(),
+          p_meaning_threshold: request.body.meaningThreshold,
+          p_risk_threshold: request.body.riskThreshold,
+          p_enabled: request.body.enabled ?? true,
+        },
+        request.supabaseAccessToken,
+        options.supabaseUrl ?? process.env.SUPABASE_URL,
+        options.supabaseAnonKey ?? process.env.SUPABASE_ANON_KEY,
+        fetchImpl,
+      );
+      if (!isRecord(result)) {
+        throw new Error('Supabase returned an invalid policy.');
+      }
+      return reply
+        .code(request.body.id ? 200 : 201)
+        .send(toPublicPolicy(result));
+    } catch (error) {
+      request.log.error({ err: error }, 'Supabase policy write failed');
+      return reply.code(502).send({
+        error: 'Policy storage is temporarily unavailable.',
+      });
+    }
+  });
+
+  app.delete('/v1/policy/:id', async (request, reply) => {
+    if (!request.authContext?.userId || !request.supabaseAccessToken) {
+      return reply.code(401).send(invalidKeyResponse());
+    }
+    const params = request.params as { id: string };
+    if (!isUuid(params.id)) {
+      return reply.code(400).send({ error: 'policy id must be a UUID.' });
+    }
+
+    try {
+      const deleted = await callSupabaseRpc(
+        'rpc_delete_user_policy',
+        { p_id: params.id },
+        request.supabaseAccessToken,
+        options.supabaseUrl ?? process.env.SUPABASE_URL,
+        options.supabaseAnonKey ?? process.env.SUPABASE_ANON_KEY,
+        fetchImpl,
+      );
+      if (deleted !== true) {
+        return reply.code(404).send({ error: 'Policy not found.' });
+      }
+      return reply.code(204).send();
+    } catch (error) {
+      request.log.error({ err: error }, 'Supabase policy delete failed');
+      return reply.code(502).send({
+        error: 'Policy storage is temporarily unavailable.',
+      });
+    }
+  });
+
+  app.post('/v1/policy/enforce', async (request, reply) => {
+    if (!request.authContext?.userId || !request.supabaseAccessToken) {
+      return reply.code(401).send(invalidKeyResponse());
+    }
+    if (
+      !isRecord(request.body) ||
+      !isUnitInterval(request.body.meaningScore) ||
+      !isUnitInterval(request.body.riskProfile)
+    ) {
+      return reply.code(400).send({
+        error: 'meaningScore and riskProfile must be between 0 and 1.',
+      });
+    }
+
+    try {
+      return await callSupabaseRpc(
+        'rpc_enforce_user_policies',
+        {
+          p_meaning_score: request.body.meaningScore,
+          p_risk_profile: request.body.riskProfile,
+        },
+        request.supabaseAccessToken,
+        options.supabaseUrl ?? process.env.SUPABASE_URL,
+        options.supabaseAnonKey ?? process.env.SUPABASE_ANON_KEY,
+        fetchImpl,
+      );
+    } catch (error) {
+      request.log.error({ err: error }, 'Supabase policy evaluation failed');
+      return reply.code(502).send({
+        error: 'Policy evaluation is temporarily unavailable.',
       });
     }
   });
@@ -937,7 +1080,11 @@ async function callSupabaseRpc(
     | 'rpc_get_continuity_state'
     | 'rpc_update_continuity_state'
     | 'rpc_list_diagnostic_events'
-    | 'rpc_record_diagnostic_event',
+    | 'rpc_record_diagnostic_event'
+    | 'rpc_list_user_policies'
+    | 'rpc_upsert_user_policy'
+    | 'rpc_delete_user_policy'
+    | 'rpc_enforce_user_policies',
   payload: Record<string, unknown>,
   accessToken: string,
   supabaseUrl: string | undefined,
@@ -1025,6 +1172,41 @@ function isDiagnosticSeverity(
   value: unknown,
 ): value is 'info' | 'warning' | 'error' {
   return value === 'info' || value === 'warning' || value === 'error';
+}
+
+function isUnitInterval(value: unknown): value is number {
+  return (
+    typeof value === 'number' &&
+    Number.isFinite(value) &&
+    value >= 0 &&
+    value <= 1
+  );
+}
+
+function toPublicPolicy(value: Record<string, unknown>) {
+  if (
+    typeof value.id !== 'string' ||
+    !isUuid(value.id) ||
+    typeof value.name !== 'string' ||
+    typeof value.meaning_threshold !== 'number' ||
+    !isUnitInterval(value.meaning_threshold) ||
+    typeof value.risk_threshold !== 'number' ||
+    !isUnitInterval(value.risk_threshold) ||
+    typeof value.enabled !== 'boolean' ||
+    typeof value.updated_at !== 'string' ||
+    !Number.isFinite(Date.parse(value.updated_at))
+  ) {
+    throw new Error('Supabase returned an invalid policy.');
+  }
+
+  return {
+    id: value.id,
+    name: value.name,
+    meaningThreshold: value.meaning_threshold,
+    riskThreshold: value.risk_threshold,
+    enabled: value.enabled,
+    updatedAt: value.updated_at,
+  };
 }
 
 function verifyGovernanceAdminKey(

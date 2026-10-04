@@ -51,6 +51,15 @@ the database owner column from responses. Retention and deletion policy still
 need an explicit product decision before the event table is enabled for
 unbounded production ingestion.
 
+## User policy access
+
+`/v1/policy` stores and lists the authenticated user's meaning/risk thresholds;
+`DELETE /v1/policy/{id}` can remove only that user's policy. `POST
+/v1/policy/enforce` returns a server-evaluated decision for supplied scores.
+That endpoint does not yet intercept API-key-based job submission, because
+those API keys are not mapped to Supabase user identities. Do not treat its
+response as a guarantee that media or chat jobs have been blocked.
+
 ## Secrets
 
 Use the hosting platform’s environment/secrets manager for `SUPABASE_SERVICE_ROLE_KEY`, JWT verification secrets, database URLs, and engine credentials. Never put these values in SQL seed data, public tables, GitHub Actions logs, or committed `.env` files.

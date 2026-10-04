@@ -838,4 +838,152 @@ describe('gateway auth and routing', () => {
     expect(response.statusCode).toBe(400);
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
+
+  it('creates owner-scoped governance policies without a client owner ID', async () => {
+    const userId = 'de305d54-75b4-431b-adb2-eb6b9e546014';
+    const policyId = 'd9428888-122b-11e1-b85c-61cd3cbb3210';
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).endsWith('/auth/v1/user')) {
+        return new Response(JSON.stringify({ id: userId }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      }
+      return new Response(
+        JSON.stringify({
+          id: policyId,
+          owner_id: userId,
+          name: 'safe-runtime',
+          meaning_threshold: 0.6,
+          risk_threshold: 0.4,
+          enabled: true,
+          updated_at: '2026-10-04T12:00:00.000Z',
+        }),
+        {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        },
+      );
+    });
+    const app = buildApp({
+      apiKeys,
+      fetchImpl: fetchImpl as typeof fetch,
+      supabaseUrl: 'https://project.supabase.co',
+      supabaseAnonKey: 'anon-key',
+    });
+
+    const response = await app.inject({
+      method: 'PUT',
+      url: '/v1/policy',
+      headers: { authorization: 'Bearer user-access-token' },
+      payload: {
+        owner_id: '00000000-0000-4000-8000-000000000001',
+        name: ' safe-runtime ',
+        meaningThreshold: 0.6,
+        riskThreshold: 0.4,
+      },
+    });
+
+    expect(response.statusCode).toBe(201);
+    expect(response.json()).toEqual({
+      id: policyId,
+      name: 'safe-runtime',
+      meaningThreshold: 0.6,
+      riskThreshold: 0.4,
+      enabled: true,
+      updatedAt: '2026-10-04T12:00:00.000Z',
+    });
+    expect(String(fetchImpl.mock.calls[1]?.[0])).toContain(
+      'rpc_upsert_user_policy',
+    );
+    expect(fetchImpl.mock.calls[1]?.[1]?.body).toBe(
+      JSON.stringify({
+        p_id: null,
+        p_name: 'safe-runtime',
+        p_meaning_threshold: 0.6,
+        p_risk_threshold: 0.4,
+        p_enabled: true,
+      }),
+    );
+  });
+
+  it('evaluates policies using the verified Supabase user token', async () => {
+    const userId = 'de305d54-75b4-431b-adb2-eb6b9e546014';
+    const decision = {
+      allowed: false,
+      policiesEvaluated: 1,
+      violations: [
+        {
+          policyId: 'd9428888-122b-11e1-b85c-61cd3cbb3210',
+          name: 'safe-runtime',
+          violations: ['risk-above-threshold'],
+        },
+      ],
+    };
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).endsWith('/auth/v1/user')) {
+        return new Response(JSON.stringify({ id: userId }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      }
+      return new Response(JSON.stringify(decision), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    });
+    const app = buildApp({
+      apiKeys,
+      fetchImpl: fetchImpl as typeof fetch,
+      supabaseUrl: 'https://project.supabase.co',
+      supabaseAnonKey: 'anon-key',
+    });
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/policy/enforce',
+      headers: { authorization: 'Bearer user-access-token' },
+      payload: { meaningScore: 0.8, riskProfile: 0.7 },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual(decision);
+    expect(String(fetchImpl.mock.calls[1]?.[0])).toContain(
+      'rpc_enforce_user_policies',
+    );
+    expect(fetchImpl.mock.calls[1]?.[1]?.body).toBe(
+      JSON.stringify({ p_meaning_score: 0.8, p_risk_profile: 0.7 }),
+    );
+  });
+
+  it('rejects invalid policy thresholds before calling storage', async () => {
+    const userId = 'de305d54-75b4-431b-adb2-eb6b9e546014';
+    const fetchImpl = vi.fn(
+      async () =>
+        new Response(JSON.stringify({ id: userId }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+    );
+    const app = buildApp({
+      apiKeys,
+      fetchImpl: fetchImpl as typeof fetch,
+      supabaseUrl: 'https://project.supabase.co',
+      supabaseAnonKey: 'anon-key',
+    });
+
+    const response = await app.inject({
+      method: 'PUT',
+      url: '/v1/policy',
+      headers: { authorization: 'Bearer user-access-token' },
+      payload: {
+        name: 'invalid',
+        meaningThreshold: 1.1,
+        riskThreshold: 0.4,
+      },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
 });
