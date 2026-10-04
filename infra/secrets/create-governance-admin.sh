@@ -4,7 +4,6 @@ set -euo pipefail
 region="${AWS_REGION:-us-west-2}"
 secret_name="${GOVERNANCE_ADMIN_SECRET_NAME:-frasberg/runtime/governance-admin}"
 key="frb_live_governance_admin_$(openssl rand -hex 32)"
-secret_string="$(jq -cn --arg key "$key" '{GOVERNANCE_ADMIN_KEY:$key}')"
 
 if aws secretsmanager describe-secret \
   --secret-id "$secret_name" \
@@ -15,7 +14,7 @@ fi
 
 aws secretsmanager create-secret \
   --name "$secret_name" \
-  --secret-string "$secret_string" \
+  --secret-string "$key" \
   --region "$region" \
   --query ARN \
   --output text
