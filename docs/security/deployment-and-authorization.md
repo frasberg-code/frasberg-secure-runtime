@@ -42,6 +42,15 @@ world's existing `world_state`. Event creation delegates ownership and
 world-access checks to the existing `record_continuity_event` RPC. Event reads
 use a new owner-scoped, cursor-paginated RPC with a hard maximum page size of 100. The gateway never accepts an owner ID from the client.
 
+## Diagnostic event access
+
+`/v1/diagnostics` accepts and returns per-user diagnostic events using the
+verified Supabase user token. Records are owner-scoped, page-limited to 100,
+and constrained to `info`, `warning`, or `error` severity. The gateway excludes
+the database owner column from responses. Retention and deletion policy still
+need an explicit product decision before the event table is enabled for
+unbounded production ingestion.
+
 ## Secrets
 
 Use the hosting platform’s environment/secrets manager for `SUPABASE_SERVICE_ROLE_KEY`, JWT verification secrets, database URLs, and engine credentials. Never put these values in SQL seed data, public tables, GitHub Actions logs, or committed `.env` files.

@@ -682,4 +682,160 @@ describe('gateway auth and routing', () => {
       JSON.stringify({ p_world_id: worldId, p_state: { version: 4 } }),
     );
   });
+
+  it('records diagnostics for the verified user and strips owner IDs', async () => {
+    const userId = 'de305d54-75b4-431b-adb2-eb6b9e546014';
+    const eventId = 'd9428888-122b-11e1-b85c-61cd3cbb3210';
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).endsWith('/auth/v1/user')) {
+        return new Response(JSON.stringify({ id: userId }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      }
+      return new Response(
+        JSON.stringify({
+          id: eventId,
+          owner_id: userId,
+          event_type: 'runtime.warning',
+          severity: 'warning',
+          details: { code: 'retrying' },
+          created_at: '2026-10-04T12:00:00.000Z',
+        }),
+        {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        },
+      );
+    });
+    const app = buildApp({
+      apiKeys,
+      fetchImpl: fetchImpl as typeof fetch,
+      supabaseUrl: 'https://project.supabase.co',
+      supabaseAnonKey: 'anon-key',
+    });
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/diagnostics',
+      headers: { authorization: 'Bearer user-access-token' },
+      payload: {
+        owner_id: '00000000-0000-4000-8000-000000000001',
+        eventType: ' runtime.warning ',
+        severity: 'warning',
+        details: { code: 'retrying' },
+      },
+    });
+
+    expect(response.statusCode).toBe(201);
+    expect(response.json()).toEqual({
+      id: eventId,
+      eventType: 'runtime.warning',
+      severity: 'warning',
+      details: { code: 'retrying' },
+      createdAt: '2026-10-04T12:00:00.000Z',
+    });
+    expect(String(fetchImpl.mock.calls[1]?.[0])).toContain(
+      'rpc_record_diagnostic_event',
+    );
+    expect(fetchImpl.mock.calls[1]?.[1]?.body).toBe(
+      JSON.stringify({
+        p_event_type: 'runtime.warning',
+        p_severity: 'warning',
+        p_details: { code: 'retrying' },
+      }),
+    );
+  });
+
+  it('lists only sanitized, paginated diagnostic events', async () => {
+    const userId = 'de305d54-75b4-431b-adb2-eb6b9e546014';
+    const eventId = 'd9428888-122b-11e1-b85c-61cd3cbb3210';
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).endsWith('/auth/v1/user')) {
+        return new Response(JSON.stringify({ id: userId }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      }
+      return new Response(
+        JSON.stringify([
+          {
+            id: eventId,
+            owner_id: userId,
+            event_type: 'runtime.warning',
+            severity: 'warning',
+            details: { code: 'retrying' },
+            created_at: '2026-10-04T12:00:00.000Z',
+          },
+        ]),
+        {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        },
+      );
+    });
+    const app = buildApp({
+      apiKeys,
+      fetchImpl: fetchImpl as typeof fetch,
+      supabaseUrl: 'https://project.supabase.co',
+      supabaseAnonKey: 'anon-key',
+    });
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/diagnostics?limit=1',
+      headers: { authorization: 'Bearer user-access-token' },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      events: [
+        {
+          id: eventId,
+          eventType: 'runtime.warning',
+          severity: 'warning',
+          details: { code: 'retrying' },
+          createdAt: '2026-10-04T12:00:00.000Z',
+        },
+      ],
+      nextCursor: {
+        before: '2026-10-04T12:00:00.000Z',
+        beforeId: eventId,
+      },
+    });
+    expect(String(fetchImpl.mock.calls[1]?.[0])).toContain(
+      'rpc_list_diagnostic_events',
+    );
+  });
+
+  it('rejects unsupported diagnostic severities', async () => {
+    const userId = 'de305d54-75b4-431b-adb2-eb6b9e546014';
+    const fetchImpl = vi.fn(
+      async () =>
+        new Response(JSON.stringify({ id: userId }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+    );
+    const app = buildApp({
+      apiKeys,
+      fetchImpl: fetchImpl as typeof fetch,
+      supabaseUrl: 'https://project.supabase.co',
+      supabaseAnonKey: 'anon-key',
+    });
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/diagnostics',
+      headers: { authorization: 'Bearer user-access-token' },
+      payload: {
+        eventType: 'runtime.warning',
+        severity: 'debug',
+        details: {},
+      },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
 });

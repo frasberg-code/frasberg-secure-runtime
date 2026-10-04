@@ -7,6 +7,7 @@ The current contract is now represented by migration `20260920120000_authoritati
 - `continuity_events` has a required JSONB `continuity` payload. Legacy `event_type` and `payload` columns remain temporarily for compatibility with earlier monitoring migrations.
 - `identity_graph` stores one JSONB node/edge graph per authenticated user. Access is through authenticated-only RPCs; row ownership is derived from `auth.uid()`.
 - Continuity state and paginated event reads use authenticated RPCs that check world ownership. Event pages are limited to 100 records.
+- `diagnostic_events` contains owner-scoped user diagnostics, written and paginated only through authenticated RPCs.
 - Materialized views continue to refresh through the existing `monitor.refresh_materialized_views()` function.
 
 No seed users, default worlds, credentials, JWT secrets, service-role keys, or engine secrets are added.

@@ -102,17 +102,20 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
 
   app.addHook('preHandler', async (request, reply) => {
     const requestPath = request.raw.url ?? '';
+    const routePath = requestPath.split('?')[0] ?? requestPath;
     if (
-      requestPath.startsWith('/health') ||
-      requestPath.startsWith('/v1/health') ||
-      requestPath.startsWith('/runtime-health')
+      routePath.startsWith('/health') ||
+      routePath.startsWith('/v1/health') ||
+      routePath.startsWith('/runtime-health')
     ) {
       return;
     }
 
     const requiresSupabaseUser =
-      requestPath.startsWith('/v1/identity/') ||
-      requestPath.startsWith('/v1/continuity/');
+      routePath.startsWith('/v1/identity/') ||
+      routePath.startsWith('/v1/continuity/') ||
+      routePath === '/v1/diagnostics' ||
+      routePath.startsWith('/v1/diagnostics/');
     if (requiresSupabaseUser) {
       const limited = rateLimitRequest(
         request,
@@ -164,7 +167,7 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
     }
 
     if (
-      requestPath.startsWith('/v1/governance/') &&
+      routePath.startsWith('/v1/governance/') &&
       verifyGovernanceAdminKey(
         request.headers['x-governance-key'],
         options.governanceAdminKey ?? process.env.GOVERNANCE_ADMIN_KEY,
@@ -421,6 +424,106 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
       );
       return reply.code(502).send({
         error: 'Continuity storage is temporarily unavailable.',
+      });
+    }
+  });
+
+  app.get('/v1/diagnostics', async (request, reply) => {
+    if (!request.authContext?.userId || !request.supabaseAccessToken) {
+      return reply.code(401).send(invalidKeyResponse());
+    }
+    const query = request.query as {
+      limit?: string;
+      before?: string;
+      beforeId?: string;
+    };
+    const limit = query.limit === undefined ? 50 : Number(query.limit);
+    if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+      return reply
+        .code(400)
+        .send({ error: 'limit must be between 1 and 100.' });
+    }
+    if (
+      (query.before === undefined) !== (query.beforeId === undefined) ||
+      (query.beforeId !== undefined && !isUuid(query.beforeId)) ||
+      (query.before !== undefined && !Number.isFinite(Date.parse(query.before)))
+    ) {
+      return reply.code(400).send({ error: 'Invalid diagnostics cursor.' });
+    }
+
+    try {
+      const result = await callSupabaseRpc(
+        'rpc_list_diagnostic_events',
+        {
+          p_limit: limit,
+          p_before: query.before ?? null,
+          p_before_id: query.beforeId ?? null,
+        },
+        request.supabaseAccessToken,
+        options.supabaseUrl ?? process.env.SUPABASE_URL,
+        options.supabaseAnonKey ?? process.env.SUPABASE_ANON_KEY,
+        fetchImpl,
+      );
+      if (!Array.isArray(result) || !result.every(isRecord)) {
+        throw new Error('Supabase returned an invalid diagnostics list.');
+      }
+
+      const events = result.map(toPublicDiagnosticEvent);
+      const lastEvent = events.at(-1);
+      return {
+        events,
+        nextCursor:
+          events.length === limit && lastEvent
+            ? { before: lastEvent.createdAt, beforeId: lastEvent.id }
+            : null,
+      };
+    } catch (error) {
+      request.log.error({ err: error }, 'Supabase diagnostics read failed');
+      return reply.code(502).send({
+        error: 'Diagnostics storage is temporarily unavailable.',
+      });
+    }
+  });
+
+  app.post('/v1/diagnostics', async (request, reply) => {
+    if (!request.authContext?.userId || !request.supabaseAccessToken) {
+      return reply.code(401).send(invalidKeyResponse());
+    }
+    if (
+      !isRecord(request.body) ||
+      typeof request.body.eventType !== 'string' ||
+      request.body.eventType.trim().length === 0 ||
+      request.body.eventType.trim().length > 100 ||
+      !isDiagnosticSeverity(request.body.severity) ||
+      !isRecord(request.body.details)
+    ) {
+      return reply.code(400).send({
+        error:
+          'eventType, a supported severity, and object details are required.',
+      });
+    }
+
+    try {
+      const result = await callSupabaseRpc(
+        'rpc_record_diagnostic_event',
+        {
+          p_event_type: request.body.eventType.trim(),
+          p_severity: request.body.severity,
+          p_details: request.body.details,
+        },
+        request.supabaseAccessToken,
+        options.supabaseUrl ?? process.env.SUPABASE_URL,
+        options.supabaseAnonKey ?? process.env.SUPABASE_ANON_KEY,
+        fetchImpl,
+      );
+      if (!isRecord(result)) {
+        throw new Error('Supabase returned an invalid diagnostic event.');
+      }
+      return reply.code(201).send(toPublicDiagnosticEvent(result));
+    } catch (error) {
+      request.log.error({ err: error }, 'Supabase diagnostics write failed');
+      return reply.code(502).send({
+        error: 'Diagnostics storage is temporarily unavailable.',
       });
     }
   });
@@ -832,7 +935,9 @@ async function callSupabaseRpc(
     | 'rpc_list_continuity_events_page'
     | 'record_continuity_event'
     | 'rpc_get_continuity_state'
-    | 'rpc_update_continuity_state',
+    | 'rpc_update_continuity_state'
+    | 'rpc_list_diagnostic_events'
+    | 'rpc_record_diagnostic_event',
   payload: Record<string, unknown>,
   accessToken: string,
   supabaseUrl: string | undefined,
@@ -891,6 +996,35 @@ function toPublicContinuityEvent(value: Record<string, unknown>) {
     payload: value.payload,
     createdAt: value.created_at,
   };
+}
+
+function toPublicDiagnosticEvent(value: Record<string, unknown>) {
+  if (
+    typeof value.id !== 'string' ||
+    !isUuid(value.id) ||
+    typeof value.event_type !== 'string' ||
+    typeof value.severity !== 'string' ||
+    !['info', 'warning', 'error'].includes(value.severity) ||
+    !isRecord(value.details) ||
+    typeof value.created_at !== 'string' ||
+    !Number.isFinite(Date.parse(value.created_at))
+  ) {
+    throw new Error('Supabase returned an invalid diagnostic event.');
+  }
+
+  return {
+    id: value.id,
+    eventType: value.event_type,
+    severity: value.severity,
+    details: value.details,
+    createdAt: value.created_at,
+  };
+}
+
+function isDiagnosticSeverity(
+  value: unknown,
+): value is 'info' | 'warning' | 'error' {
+  return value === 'info' || value === 'warning' || value === 'error';
 }
 
 function verifyGovernanceAdminKey(
