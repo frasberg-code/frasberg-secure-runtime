@@ -1,5 +1,8 @@
 import express from "express";
 import { unifiedMiddleware } from "./middleware/unified";
+import { injectCoherence } from "./middleware/coherence";
+import { injectIntegrity } from "./middleware/integrity";
+import { injectEnforcement } from "./middleware/enforcement";
 import { injectLaw } from "./middleware/law";
 import { injectGroundTruth } from "./middleware/groundtruth";
 import { injectBedrock } from "./middleware/bedrock";
@@ -11,6 +14,9 @@ const app = express();
 
 app.use(express.json());
 app.use(unifiedMiddleware);
+app.use(injectCoherence);
+app.use(injectIntegrity);
+app.use(injectEnforcement);
 app.use(injectLaw);
 app.use(injectGroundTruth);
 app.use(injectBedrock);

@@ -5,8 +5,11 @@ import SubstrateViewer from "./SubstrateViewer";
 import BedrockViewer from "./BedrockViewer";
 import GroundTruthViewer from "./GroundTruthViewer";
 import LawViewer from "./LawViewer";
+import EnforcementViewer from "./EnforcementViewer";
+import IntegrityViewer from "./IntegrityViewer";
+import CoherenceViewer from "./CoherenceViewer";
 
-export { ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer };
+export { ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer, EnforcementViewer, IntegrityViewer, CoherenceViewer };
 
 export default function WorldGraphPanel() {
   const client = useFrasbergClient();
