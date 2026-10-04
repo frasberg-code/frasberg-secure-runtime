@@ -1,10 +1,13 @@
-export type FrasbergDomain = 'music' | 'video' | 'stt' | 'tts' | 'audio';
+export type FrasbergDomain =
+  'music' | 'video' | 'image' | 'voice' | 'stt' | 'tts' | 'audio';
 
 export type FrasbergJobState = 'queued' | 'running' | 'completed' | 'failed';
 
 export interface FrasbergGatewayKeys {
   FRASBERG_MUSIC_KEY?: string;
   FRASBERG_VIDEO_KEY?: string;
+  FRASBERG_IMAGE_KEY?: string;
+  FRASBERG_VOICE_KEY?: string;
   FRASBERG_STT_KEY?: string;
   FRASBERG_TTS_KEY?: string;
   FRASBERG_AUDIO_KEY?: string;
@@ -57,6 +60,8 @@ export class FrasbergClient {
 const DOMAIN_KEY_MAP: Record<FrasbergDomain, keyof FrasbergGatewayKeys> = {
   music: 'FRASBERG_MUSIC_KEY',
   video: 'FRASBERG_VIDEO_KEY',
+  image: 'FRASBERG_IMAGE_KEY',
+  voice: 'FRASBERG_VOICE_KEY',
   stt: 'FRASBERG_STT_KEY',
   tts: 'FRASBERG_TTS_KEY',
   audio: 'FRASBERG_AUDIO_KEY',
@@ -83,6 +88,14 @@ export class FrasbergGateway {
 
   async video<TResponse>(payload: unknown): Promise<TResponse> {
     return this.submit<TResponse>('video', '/video', payload);
+  }
+
+  async image<TResponse>(payload: unknown): Promise<TResponse> {
+    return this.submit<TResponse>('image', '/image', payload);
+  }
+
+  async voice<TResponse>(payload: unknown): Promise<TResponse> {
+    return this.submit<TResponse>('voice', '/voice', payload);
   }
 
   async stt<TResponse>(payload: unknown): Promise<TResponse> {
@@ -136,13 +149,75 @@ export class FrasbergGateway {
 export function resolveFrasbergGatewayKeys(
   env: NodeJS.ProcessEnv = process.env,
 ): FrasbergGatewayKeys {
+  const bundledKeys = readBundledEngineKeys(env.FRASBERG_ENGINE_KEYS_JSON);
   return {
-    FRASBERG_MUSIC_KEY: env.FRASBERG_MUSIC_KEY,
-    FRASBERG_VIDEO_KEY: env.FRASBERG_VIDEO_KEY,
-    FRASBERG_STT_KEY: env.FRASBERG_STT_KEY,
-    FRASBERG_TTS_KEY: env.FRASBERG_TTS_KEY,
-    FRASBERG_AUDIO_KEY: env.FRASBERG_AUDIO_KEY,
+    FRASBERG_MUSIC_KEY: preferConfiguredKey(
+      env.FRASBERG_MUSIC_KEY,
+      bundledKeys.FRASBERG_MUSIC_KEY,
+    ),
+    FRASBERG_VIDEO_KEY: preferConfiguredKey(
+      env.FRASBERG_VIDEO_KEY,
+      bundledKeys.FRASBERG_VIDEO_KEY,
+    ),
+    FRASBERG_IMAGE_KEY: preferConfiguredKey(
+      env.FRASBERG_IMAGE_KEY,
+      bundledKeys.FRASBERG_IMAGE_KEY,
+    ),
+    FRASBERG_VOICE_KEY: preferConfiguredKey(
+      env.FRASBERG_VOICE_KEY,
+      bundledKeys.FRASBERG_VOICE_KEY,
+    ),
+    FRASBERG_STT_KEY: preferConfiguredKey(
+      env.FRASBERG_STT_KEY,
+      bundledKeys.FRASBERG_STT_KEY,
+    ),
+    FRASBERG_TTS_KEY: preferConfiguredKey(
+      env.FRASBERG_TTS_KEY,
+      bundledKeys.FRASBERG_TTS_KEY,
+    ),
+    FRASBERG_AUDIO_KEY: preferConfiguredKey(
+      env.FRASBERG_AUDIO_KEY,
+      bundledKeys.FRASBERG_AUDIO_KEY,
+    ),
   };
+}
+
+function readBundledEngineKeys(raw: string | undefined): FrasbergGatewayKeys {
+  if (!raw) {
+    return {};
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error('FRASBERG_ENGINE_KEYS_JSON must contain valid JSON.');
+  }
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    throw new Error('FRASBERG_ENGINE_KEYS_JSON must contain a JSON object.');
+  }
+
+  const keys = parsed as Record<string, unknown>;
+  const readKey = (name: string) => {
+    const value = keys[name];
+    return typeof value === 'string' && value.length > 0 ? value : undefined;
+  };
+  return {
+    FRASBERG_MUSIC_KEY: readKey('FRB_MUSIC_GENERATION_KEY'),
+    FRASBERG_VIDEO_KEY: readKey('FRB_IMAGE_VIDEO_GENERATION_KEY'),
+    FRASBERG_IMAGE_KEY: readKey('FRB_IMAGE_VIDEO_GENERATION_KEY'),
+    FRASBERG_VOICE_KEY: readKey('FRB_VOICE_CLONING_KEY'),
+    FRASBERG_STT_KEY: readKey('FRB_GATEWAY_STT_KEY'),
+    FRASBERG_TTS_KEY: readKey('FRB_GATEWAY_TTS_KEY'),
+    FRASBERG_AUDIO_KEY: readKey('FRB_AUDIO_TOOLS_KEY'),
+  };
+}
+
+function preferConfiguredKey(
+  directValue: string | undefined,
+  bundledValue: string | undefined,
+): string | undefined {
+  return directValue?.trim() ? directValue : bundledValue;
 }
 
 function extractJobId(response: unknown): string | undefined {

@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { timingSafeEqual } from 'node:crypto';
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import Fastify, {
   FastifyInstance,
   FastifyReply,
@@ -95,6 +95,7 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
       redact: [
         'req.headers.authorization',
         'req.headers.x-api-key',
+        'req.headers.x-api-signature',
         'req.headers.x-governance-key',
       ],
     },
@@ -186,6 +187,23 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
     const { context, error } = authenticateRequest(request.headers, apiKeys);
     if (error) {
       return reply.code(401).send(error);
+    }
+
+    const signature = request.headers['x-api-signature'];
+    if (signature !== undefined) {
+      const apiKey = readApiKeySecret(request, apiKeys);
+      const body =
+        request.body === undefined ? undefined : JSON.stringify(request.body);
+      if (
+        typeof signature !== 'string' ||
+        !apiKey ||
+        body === undefined ||
+        !verifyRequestSignature(apiKey, signature, body)
+      ) {
+        return reply
+          .code(403)
+          .send({ error: 'Invalid API request signature.' });
+      }
     }
 
     request.authContext = context;
@@ -910,12 +928,16 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
 
   app.post('/api/music', frasbergRoute('media', 'music'));
   app.post('/api/video', frasbergRoute('video', 'video'));
+  app.post('/api/image', frasbergRoute('media', 'image'));
+  app.post('/api/voice', frasbergRoute('media', 'voice'));
   app.post('/api/stt', frasbergRoute('stt', 'stt'));
   app.post('/api/tts', frasbergRoute('tts', 'tts'));
   app.post('/api/audio', frasbergRoute('audio', 'audio'));
   app.get('/api/jobs/:id', frasbergJobRoute());
 
   app.post('/v1/music/generations', frasbergRoute('media', 'music'));
+  app.post('/v1/image', frasbergRoute('media', 'image'));
+  app.post('/v1/voice', frasbergRoute('media', 'voice'));
   app.post('/v1/audio/generations', frasbergRoute('audio', 'audio'));
   app.post('/v1/video/generations', frasbergRoute('video', 'video'));
   app.post('/v1/audio/transcriptions', frasbergRoute('stt', 'stt'));
@@ -989,6 +1011,10 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
         return frasbergGateway.music(payload);
       case 'video':
         return frasbergGateway.video(payload);
+      case 'image':
+        return frasbergGateway.image(payload);
+      case 'voice':
+        return frasbergGateway.voice(payload);
       case 'stt':
         return frasbergGateway.stt(payload);
       case 'tts':
@@ -1007,6 +1033,8 @@ function parseDomain(domain: string | undefined): FrasbergDomain | undefined {
   if (
     lowered === 'music' ||
     lowered === 'video' ||
+    lowered === 'image' ||
+    lowered === 'voice' ||
     lowered === 'stt' ||
     lowered === 'tts' ||
     lowered === 'audio'
@@ -1226,6 +1254,36 @@ function verifyGovernanceAdminKey(
   return timingSafeEqual(suppliedBytes, configuredBytes);
 }
 
+function readApiKeySecret(
+  request: FastifyRequest,
+  apiKeys: ApiKeyRecord[],
+): string | undefined {
+  const apiKeyHeader = request.headers['x-api-key'];
+  const authorization = request.headers.authorization;
+  const presentedKey =
+    typeof apiKeyHeader === 'string'
+      ? apiKeyHeader
+      : typeof authorization === 'string' && authorization.startsWith('Bearer ')
+        ? authorization.slice('Bearer '.length).trim()
+        : undefined;
+  return apiKeys.find((candidate) => candidate.secret === presentedKey)?.secret;
+}
+
+function verifyRequestSignature(
+  key: string,
+  signature: string,
+  body: string,
+): boolean {
+  if (!/^[0-9a-f]{64}$/i.test(signature)) {
+    return false;
+  }
+  const supplied = Buffer.from(signature, 'hex');
+  const expected = createHmac('sha256', key).update(body, 'utf8').digest();
+  return (
+    supplied.length === expected.length && timingSafeEqual(supplied, expected)
+  );
+}
+
 function rateLimitRequest(
   request: FastifyRequest,
   reply: FastifyReply,
@@ -1302,6 +1360,8 @@ function loadApiQuotas(): Record<FrasbergDomain, ApiQuota> {
   return {
     music: readApiQuota(parsed.music, 'music'),
     video: readApiQuota(parsed.video, 'video'),
+    image: readApiQuota(parsed.image, 'image'),
+    voice: readApiQuota(parsed.voice, 'voice'),
     stt: readApiQuota(parsed.stt, 'stt'),
     tts: readApiQuota(parsed.tts, 'tts'),
     audio: readApiQuota(parsed.audio, 'audio'),

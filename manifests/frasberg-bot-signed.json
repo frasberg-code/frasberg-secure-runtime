@@ -1,7 +1,7 @@
 {
   "name": "frasberg-bot-signed",
   "version": "0.1.0",
-  "signatureStatus": "unsigned-scaffold",
+  "signatureStatus": "signed-hmac-sha256",
   "signingWorker": "core-signature-worker",
   "endpoints": {
     "manifest": "/manifest-compilation",

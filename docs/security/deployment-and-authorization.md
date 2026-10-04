@@ -34,6 +34,11 @@ from `auth.uid()`. Clients cannot choose an `owner_id`; the graph is stored per
 authenticated user. The anonymous Supabase key identifies the project and is
 not sufficient to read or mutate identity data by itself.
 
+API-key requests may include `x-api-signature`, an HMAC-SHA-256 over the
+serialized JSON body using the same API key. The gateway verifies supplied
+signatures with a constant-time comparison and rejects invalid signatures.
+Signatures do not replace bearer API-key authentication or TLS.
+
 ## Continuity event access
 
 `/v1/continuity/worlds/{worldId}/state` and `/events` use the same verified

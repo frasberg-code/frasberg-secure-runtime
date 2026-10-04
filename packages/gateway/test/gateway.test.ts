@@ -1,3 +1,4 @@
+import { createHmac } from 'node:crypto';
 import { describe, expect, it, vi } from 'vitest';
 import { buildApp } from '../src/app';
 import type { FrasbergGateway } from '@frasberg/shared';
@@ -44,6 +45,45 @@ describe('gateway auth and routing', () => {
         message: 'Invalid or missing API key.',
       },
     });
+  });
+
+  it('verifies a body signature for signed API requests', async () => {
+    const app = buildApp({
+      apiKeys: [{ id: 'chat', secret: 'chat-secret', permissions: ['chat'] }],
+      fetchImpl: vi.fn(
+        async () =>
+          new Response(JSON.stringify({ ok: true }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }),
+      ) as unknown as typeof fetch,
+    });
+    const payload = { messages: [{ role: 'user', content: 'hello' }] };
+    const signature = createHmac('sha256', 'chat-secret')
+      .update(JSON.stringify(payload))
+      .digest('hex');
+
+    const accepted = await app.inject({
+      method: 'POST',
+      url: '/v1/chat/completions',
+      headers: {
+        'x-api-key': 'chat-secret',
+        'x-api-signature': signature,
+      },
+      payload,
+    });
+    const rejected = await app.inject({
+      method: 'POST',
+      url: '/v1/chat/completions',
+      headers: {
+        'x-api-key': 'chat-secret',
+        'x-api-signature': '0'.repeat(64),
+      },
+      payload,
+    });
+
+    expect(accepted.statusCode).toBe(200);
+    expect(rejected.statusCode).toBe(403);
   });
 
   it('returns FK-003 when permission is missing', async () => {
@@ -177,6 +217,52 @@ describe('gateway auth and routing', () => {
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({ job_id: 'job-1', state: 'queued' });
     expect(music).toHaveBeenCalledWith({ prompt: 'beat' });
+  });
+
+  it('routes image and voice generation through their authenticated domains', async () => {
+    const image = vi.fn(async () => ({ job_id: 'image-1', state: 'queued' }));
+    const voice = vi.fn(async () => ({ job_id: 'voice-1', state: 'queued' }));
+    const app = buildApp({
+      apiKeys: [
+        {
+          id: 'studio',
+          secret: 'studio-secret',
+          permissions: ['media'],
+          tenants: ['tenant-a'],
+        },
+      ],
+      fetchImpl: vi.fn() as unknown as typeof fetch,
+      frasbergGateway: {
+        music: vi.fn(),
+        video: vi.fn(),
+        image,
+        voice,
+        stt: vi.fn(),
+        tts: vi.fn(),
+        audio: vi.fn(),
+        job: vi.fn(),
+      } as unknown as FrasbergGateway,
+    });
+
+    const imageResponse = await app.inject({
+      method: 'POST',
+      url: '/api/image',
+      headers: { 'x-api-key': 'studio-secret' },
+      payload: { prompt: 'mountains at sunset' },
+    });
+    const voiceResponse = await app.inject({
+      method: 'POST',
+      url: '/api/voice',
+      headers: { 'x-api-key': 'studio-secret' },
+      payload: { prompt: 'welcome message' },
+    });
+
+    expect(imageResponse.statusCode).toBe(200);
+    expect(imageResponse.json().job_id).toBe('image-1');
+    expect(voiceResponse.statusCode).toBe(200);
+    expect(voiceResponse.json().job_id).toBe('voice-1');
+    expect(image).toHaveBeenCalledWith({ prompt: 'mountains at sunset' });
+    expect(voice).toHaveBeenCalledWith({ prompt: 'welcome message' });
   });
 
   it('applies a domain-specific burst quota by tenant', async () => {
