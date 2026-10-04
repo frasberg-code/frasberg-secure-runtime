@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import Fastify, {
   FastifyInstance,
   FastifyReply,
@@ -8,6 +10,7 @@ import {
   AuthContext,
   FrasbergDomain,
   FrasbergGateway,
+  ExistentialControlPlane,
   Permission,
   authenticateRequest,
   hasPermission,
@@ -28,6 +31,30 @@ interface RateLimitEntry {
   resetAt: number;
 }
 
+interface QuotaEntry {
+  tokens: number;
+  updatedAt: number;
+}
+
+interface ApiQuota {
+  rpm: number;
+  burst: number;
+}
+
+interface GovernanceConfig {
+  continuity: boolean | string;
+  diagnostics: boolean | string;
+  policy: {
+    enabled: boolean;
+    strict?: boolean;
+    mode?: string;
+    audit?: boolean;
+  };
+  membrane: { enabled: boolean; mode?: string };
+  hinge: { enabled: boolean; adaptive?: boolean };
+  tonal: { enabled: boolean; mode?: string };
+}
+
 export interface GatewayOptions {
   apiKeys?: ApiKeyRecord[];
   runtimeRouterUrl?: string;
@@ -36,6 +63,7 @@ export interface GatewayOptions {
   fetchImpl?: typeof fetch;
   rateLimitMax?: number;
   rateLimitWindowMs?: number;
+  apiQuotas?: Partial<Record<FrasbergDomain, ApiQuota>>;
 }
 
 export function buildApp(options: GatewayOptions = {}): FastifyInstance {
@@ -49,6 +77,13 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
   const rateLimitMax = options.rateLimitMax ?? 60;
   const rateLimitWindowMs = options.rateLimitWindowMs ?? 60_000;
   const rateLimitState = new Map<string, RateLimitEntry>();
+  const quotaState = new Map<string, QuotaEntry>();
+  const apiQuotas = {
+    ...loadApiQuotas(),
+    ...options.apiQuotas,
+  };
+  const governanceConfig = loadGovernanceConfig();
+  const existentialControlPlane = new ExistentialControlPlane();
 
   const app = Fastify({
     logger: {
@@ -82,6 +117,122 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
 
   app.get('/health', async () => ({ ok: true }));
   app.get('/runtime-health', async () => ({ ok: true }));
+
+  app.get('/v1/governance/status', async (request, reply) => {
+    const denied = requirePermission(request, reply, 'governance:admin');
+    if (denied) {
+      return denied;
+    }
+
+    return {
+      continuity: featureEnabled(governanceConfig.continuity),
+      diagnostics: featureEnabled(governanceConfig.diagnostics),
+      policy: governanceConfig.policy,
+      membrane: governanceConfig.membrane,
+      hinge: governanceConfig.hinge,
+      tonal: governanceConfig.tonal,
+      controlPlane: existentialControlPlane.getStatus(),
+    };
+  });
+
+  app.get('/v1/governance/continuity', async (request, reply) => {
+    const denied = requirePermission(request, reply, 'governance:admin');
+    if (denied) {
+      return denied;
+    }
+    if (!featureEnabled(governanceConfig.continuity)) {
+      return reply.code(404).send({ error: 'Continuity is disabled.' });
+    }
+
+    return existentialControlPlane.getStatus();
+  });
+
+  app.post('/v1/governance/continuity', async (request, reply) => {
+    const denied = requirePermission(request, reply, 'governance:admin');
+    if (denied) {
+      return denied;
+    }
+    if (!featureEnabled(governanceConfig.continuity)) {
+      return reply.code(404).send({ error: 'Continuity is disabled.' });
+    }
+
+    try {
+      return existentialControlPlane.simulateContinuity(
+        request.body as Parameters<
+          ExistentialControlPlane['simulateContinuity']
+        >[0],
+      );
+    } catch (error) {
+      return reply.code(400).send({ error: (error as Error).message });
+    }
+  });
+
+  app.post('/v1/governance/worlds', async (request, reply) => {
+    const denied = requirePermission(request, reply, 'governance:admin');
+    if (denied) {
+      return denied;
+    }
+
+    try {
+      const world = existentialControlPlane.registerWorld(
+        request.body as Parameters<
+          ExistentialControlPlane['registerWorld']
+        >[0],
+      );
+      return reply.code(201).send(world);
+    } catch (error) {
+      return reply.code(400).send({ error: (error as Error).message });
+    }
+  });
+
+  app.post('/v1/governance/policies', async (request, reply) => {
+    const denied = requirePermission(request, reply, 'governance:admin');
+    if (denied) {
+      return denied;
+    }
+    if (!governanceConfig.policy.enabled) {
+      return reply.code(404).send({ error: 'Policy enforcement is disabled.' });
+    }
+
+    try {
+      const policy = existentialControlPlane.policyRegistry.createPolicy(
+        request.body as Parameters<
+          ExistentialControlPlane['policyRegistry']['createPolicy']
+        >[0],
+      );
+      return reply.code(201).send(policy);
+    } catch (error) {
+      return reply.code(400).send({ error: (error as Error).message });
+    }
+  });
+
+  app.get('/v1/governance/diagnostics', async (request, reply) => {
+    const denied = requirePermission(request, reply, 'governance:admin');
+    if (denied) {
+      return denied;
+    }
+    if (!featureEnabled(governanceConfig.diagnostics)) {
+      return reply.code(404).send({ error: 'Diagnostics are disabled.' });
+    }
+
+    return existentialControlPlane.getDiagnostics();
+  });
+
+  app.post('/v1/governance/policy/enforce', async (request, reply) => {
+    const denied = requirePermission(request, reply, 'governance:admin');
+    if (denied) {
+      return denied;
+    }
+    if (!governanceConfig.policy.enabled) {
+      return reply.code(404).send({ error: 'Policy enforcement is disabled.' });
+    }
+
+    return {
+      mode: governanceConfig.policy.mode ?? 'evaluate',
+      enforcement: 'evaluation-only',
+      ...existentialControlPlane.runCycle(),
+    };
+  });
 
   app.post('/v1/chat/completions', async (request, reply) => {
     const limited = rateLimitRequest(
@@ -223,12 +374,12 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
 
   function frasbergRoute(permission: Permission, domain: FrasbergDomain) {
     return async (request: FastifyRequest, reply: FastifyReply) => {
-      const limited = rateLimitRequest(
+      const limited = quotaLimitRequest(
         request,
         reply,
-        rateLimitState,
-        rateLimitMax,
-        rateLimitWindowMs,
+        quotaState,
+        apiQuotas[domain],
+        domain,
       );
       if (limited) {
         return limited;
@@ -337,14 +488,7 @@ function rateLimitRequest(
   max: number,
   windowMs: number,
 ) {
-  if (
-    consumeRateLimit(
-      state,
-      `${request.ip}:${request.routeOptions.url}`,
-      max,
-      windowMs,
-    )
-  ) {
+  if (consumeRateLimit(state, `${request.ip}:${request.routeOptions.url}`, max, windowMs)) {
     return undefined;
   }
 
@@ -354,6 +498,126 @@ function rateLimitRequest(
       message: 'Too many requests.',
     },
   });
+}
+
+function quotaLimitRequest(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  state: Map<string, QuotaEntry>,
+  quota: ApiQuota,
+  domain: FrasbergDomain,
+) {
+  const key = `${request.authContext?.tenantId ?? request.authContext?.keyId ?? request.ip}:${domain}`;
+  const now = Date.now();
+  const current = state.get(key) ?? {
+    tokens: quota.burst,
+    updatedAt: now,
+  };
+  const elapsed = Math.max(0, now - current.updatedAt);
+  current.tokens = Math.min(
+    quota.burst,
+    current.tokens + (elapsed * quota.rpm) / 60_000,
+  );
+  current.updatedAt = now;
+
+  if (current.tokens < 1) {
+    state.set(key, current);
+    const retryAfter = Math.max(
+      1,
+      Math.ceil(((1 - current.tokens) * 60) / quota.rpm),
+    );
+    reply.header('retry-after', retryAfter);
+    return reply.code(429).send({
+      error: {
+        code: 'FK-429',
+        message: 'Too many requests.',
+      },
+    });
+  }
+
+  current.tokens -= 1;
+  state.set(key, current);
+  return undefined;
+}
+
+function loadApiQuotas(): Record<FrasbergDomain, ApiQuota> {
+  const path = resolve(process.cwd(), 'config/api-quotas.json');
+  const parsed: unknown = JSON.parse(readFileSync(path, 'utf8'));
+  if (!isRecord(parsed)) {
+    throw new Error(`API quota configuration at "${path}" must be an object.`);
+  }
+  return {
+    music: readApiQuota(parsed.music, 'music'),
+    video: readApiQuota(parsed.video, 'video'),
+    stt: readApiQuota(parsed.stt, 'stt'),
+    tts: readApiQuota(parsed.tts, 'tts'),
+    audio: readApiQuota(parsed.audio, 'audio'),
+  };
+}
+
+function loadGovernanceConfig(): GovernanceConfig {
+  const filename =
+    process.env.NODE_ENV === 'production'
+      ? 'config/governance-production.json'
+      : 'config/governance.json';
+  const path = resolve(process.cwd(), filename);
+  const parsed: unknown = JSON.parse(readFileSync(path, 'utf8'));
+  if (
+    !isRecord(parsed) ||
+    !isFeatureFlag(parsed.continuity) ||
+    !isFeatureFlag(parsed.diagnostics) ||
+    !isRecord(parsed.policy) ||
+    typeof parsed.policy.enabled !== 'boolean' ||
+    !isFeatureFlagObject(parsed.membrane) ||
+    !isFeatureFlagObject(parsed.hinge) ||
+    !isFeatureFlagObject(parsed.tonal)
+  ) {
+    throw new Error(`Governance configuration at "${path}" is invalid.`);
+  }
+
+  return parsed as unknown as GovernanceConfig;
+}
+
+function readApiQuota(value: unknown, domain: string): ApiQuota {
+  if (
+    !isRecord(value) ||
+    !isPositiveInteger(value.rpm) ||
+    !isPositiveInteger(value.burst)
+  ) {
+    throw new Error(
+      `API quota for "${domain}" must have positive integer rpm and burst values.`,
+    );
+  }
+  return { rpm: value.rpm, burst: value.burst };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isPositiveInteger(value: unknown): value is number {
+  return (
+    typeof value === 'number' && Number.isInteger(value) && value > 0
+  );
+}
+
+function isFeatureFlag(value: unknown): value is boolean | string {
+  return typeof value === 'boolean' || typeof value === 'string';
+}
+
+function isFeatureFlagObject(
+  value: unknown,
+): value is Record<string, unknown> & { enabled: boolean } {
+  return isRecord(value) && typeof value.enabled === 'boolean';
+}
+
+function featureEnabled(value: boolean | string): boolean {
+  return (
+    value === true ||
+    (typeof value === 'string' &&
+      value.trim().length > 0 &&
+      value.toLowerCase() !== 'disabled')
+  );
 }
 
 function consumeRateLimit(

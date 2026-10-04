@@ -1,0 +1,15 @@
+{
+  "domain": "runtime.aws.frasberg.com",
+  "hostedZoneId": "Z08230033N989ZCQD6I0B",
+  "region": "us-west-2",
+  "loadBalancer": {
+    "dnsName": "frasberg-runtime-alb-490613255.us-west-2.elb.amazonaws.com",
+    "hostedZoneId": "Z1H1FL5HABSF5",
+    "arn": "arn:aws:elasticloadbalancing:us-west-2:303004020510:loadbalancer/app/frasberg-runtime-alb/ee650a7619d2a3bb"
+  },
+  "certificate": {
+    "region": "us-west-2",
+    "arn": "arn:aws:acm:us-west-2:303004020510:certificate/4b702fe6-74b9-42e5-b4e1-2cc0b21a5d90",
+    "domain": "runtime.aws.frasberg.com"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "continuity": "strict",
+  "diagnostics": "full",
+  "policy": {
+    "enabled": true,
+    "mode": "enforce",
+    "audit": true
+  },
+  "membrane": {
+    "enabled": true,
+    "mode": "runtime"
+  },
+  "hinge": {
+    "enabled": true,
+    "adaptive": true
+  },
+  "tonal": {
+    "enabled": true,
+    "mode": "identity-preserving"
+  }
+}
