@@ -7,6 +7,14 @@
     "rpm": 60,
     "burst": 120
   },
+  "image": {
+    "rpm": 60,
+    "burst": 120
+  },
+  "voice": {
+    "rpm": 120,
+    "burst": 240
+  },
   "stt": {
     "rpm": 300,
     "burst": 600

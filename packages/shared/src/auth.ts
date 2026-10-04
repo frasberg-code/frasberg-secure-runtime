@@ -23,6 +23,7 @@ export interface AuthContext {
   keyId?: string;
   permissions: Permission[];
   tenantId?: string;
+  userId?: string;
 }
 
 export interface AuthErrorPayload {

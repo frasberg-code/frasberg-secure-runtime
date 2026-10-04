@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "tsc -b packages/shared packages/full-game-stack-schema packages/worldgraph-engine packages/builder-v2-orchestrator packages/engine packages/runtime-router packages/gateway packages/botbase-workers apps/gateway-server",
+    "build": "tsc -b packages/shared packages/full-game-stack-schema packages/worldgraph-engine packages/builder-v2-orchestrator packages/engine packages/runtime-router packages/gateway packages/botbase-workers apps/gateway-server sdk/typescript",
     "clean": "rm -rf packages/*/dist packages/*/tsconfig.tsbuildinfo apps/*/dist apps/*/tsconfig.tsbuildinfo",
     "format": "prettier --check .",
     "format:write": "prettier --write .",

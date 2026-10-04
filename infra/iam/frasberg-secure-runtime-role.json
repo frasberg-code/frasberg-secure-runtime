@@ -20,6 +20,7 @@
       "Resource": [
         "arn:aws:secretsmanager:us-west-2:__AWS_ACCOUNT_ID__:secret:frasberg/SUPABASE_URL-*",
         "arn:aws:secretsmanager:us-west-2:__AWS_ACCOUNT_ID__:secret:frasberg/SUPABASE_ANON_KEY-*",
+        "arn:aws:secretsmanager:us-west-2:__AWS_ACCOUNT_ID__:secret:frasberg/runtime/engine-keys-*",
         "arn:aws:secretsmanager:us-west-2:__AWS_ACCOUNT_ID__:secret:frasberg/runtime/governance-admin-*"
       ]
     }

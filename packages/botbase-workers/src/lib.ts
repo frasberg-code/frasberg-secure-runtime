@@ -29,7 +29,7 @@ export async function authenticateWorkerRequest(
   }
 
   const rawBody = await request.text();
-  if (rawBody.length > 16_384) {
+  if (new TextEncoder().encode(rawBody).byteLength > 16_384) {
     return {
       ok: false,
       response: json({ error: 'Payload exceeds bounded worker limit.' }, 413),
@@ -64,4 +64,59 @@ export function signingSecretOrFailClosed(env: WorkerEnv): string {
     );
   }
   return env.BOTBASE_SIGNING_SECRET;
+}
+
+export function canonicalJson(value: unknown): string {
+  if (
+    value === null ||
+    typeof value === 'boolean' ||
+    typeof value === 'string'
+  ) {
+    const serialized = JSON.stringify(value);
+    if (serialized === undefined) {
+      throw new Error('Signed value cannot be serialized as JSON.');
+    }
+    return serialized;
+  }
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) {
+      throw new Error('Signed JSON numbers must be finite.');
+    }
+    const serialized = JSON.stringify(value);
+    if (serialized === undefined) {
+      throw new Error('Signed value cannot be serialized as JSON.');
+    }
+    return serialized;
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map(canonicalJson).join(',')}]`;
+  }
+  if (isCanonicalJsonObject(value)) {
+    return `{${Object.keys(value)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`)
+      .join(',')}}`;
+  }
+  throw new Error('Signed payload must contain only JSON values.');
+}
+
+function isCanonicalJsonObject(
+  value: unknown,
+): value is Record<string, unknown> {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return false;
+  }
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
+}
+
+export function isPlainObject(
+  value: unknown,
+): value is Record<string, unknown> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    !Array.isArray(value) &&
+    Object.getPrototypeOf(value) === Object.prototype
+  );
 }

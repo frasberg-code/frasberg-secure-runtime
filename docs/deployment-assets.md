@@ -11,12 +11,16 @@ workflow. Its secret references match the existing production Supabase URL and
 anon-key secrets. The service-role key is deliberately not injected into this
 gateway task because the current runtime only uses the anon key and a
 service-role key bypasses Supabase row-level security.
+The task also reads the consolidated `frasberg/runtime/engine-keys` secret
+created by `infra/secrets/import-frasberg-keys.sh`; provision that secret before
+deploying. The gateway maps its FRB_* JSON fields to the FRASBERG_* domain
+clients at startup and fails on malformed secret JSON.
 
 `infra/iam/frasberg-secure-runtime-role.json` is an IAM permissions policy for
 the ECS task execution role, which retrieves task-definition secrets and
 writes container logs. It is not a trust policy and should not be attached to
-the GitHub deploy role. It scopes secret access to the runtime's Supabase
-secrets and log writes to its CloudWatch log group.
+the GitHub deploy role. It scopes secret access to the runtime's Supabase, engine-key, and
+governance-admin secrets and log writes to its CloudWatch log group.
 `infra/iam/apply-runtime-policy.sh` resolves the current AWS account ID and
 applies this policy to the existing ECS execution role.
 

@@ -29,6 +29,8 @@ The backend gateway exposes:
 
 - `POST /api/music`
 - `POST /api/video`
+- `POST /api/image`
+- `POST /api/voice`
 - `POST /api/stt`
 - `POST /api/tts`
 - `POST /api/audio`
@@ -48,9 +50,17 @@ All Frasberg calls use `https://frasberg.com/api` and attach an Authorization be
 
 - `FRASBERG_MUSIC_KEY`
 - `FRASBERG_VIDEO_KEY`
+- `FRASBERG_IMAGE_KEY`
+- `FRASBERG_VOICE_KEY`
 - `FRASBERG_STT_KEY`
 - `FRASBERG_TTS_KEY`
 - `FRASBERG_AUDIO_KEY`
+- `FRASBERG_ENGINE_KEYS_JSON` (consolidated secret used by ECS)
+
+The Studio backend client sends its configured API key to these protected
+endpoints. Keep it server-side; never embed runtime API keys in browser code.
+See [SDK documentation](docs/pages/sdk.md) for the TypeScript and Python
+clients.
 
 Music/video flows support job lifecycle polling (`queued -> running -> completed -> failed`) through `/api/jobs/:id`.
 
