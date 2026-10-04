@@ -3,15 +3,18 @@ WORKDIR /app
 COPY package.json package-lock.json tsconfig.json tsconfig.base.json .prettierrc.json ./
 COPY apps ./apps
 COPY packages ./packages
+COPY config ./config
 COPY scripts ./scripts
 RUN npm ci
 RUN npm run build
 
 FROM node:20-alpine
 WORKDIR /app
+ENV NODE_ENV=production
 RUN apk add --no-cache bash
 COPY --from=build /app/package.json /app/package-lock.json ./
 COPY --from=build /app/packages ./packages
+COPY --from=build /app/config ./config
 
 COPY scripts/graceful-start.sh /usr/local/bin/graceful-start.sh
 RUN chmod +x /usr/local/bin/graceful-start.sh

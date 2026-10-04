@@ -7,6 +7,7 @@ export type Permission =
   | 'video'
   | 'stt'
   | 'tts'
+  | 'governance:admin'
   | 'botbase:read'
   | 'botbase:write';
 

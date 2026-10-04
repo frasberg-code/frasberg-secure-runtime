@@ -39,3 +39,24 @@ Override component URLs and health paths through the environment when testing
 non-local deployments. `infra/network/security-group.sh` requires the ALB
 security-group ID and only opens the task port to that security group; it does
 not create public ingress rules.
+
+The gateway loads per-domain RPM and burst limits from
+`config/api-quotas.json`. These token-bucket limits are scoped to the tenant
+when available and otherwise to the API key, and are held in gateway-process
+memory. Governance settings are loaded from `config/governance.json` locally
+and `config/governance-production.json` in the production container. The
+`/v1/governance/*` endpoints require an API key with the
+`governance:admin` permission. Policy-cycle requests report evaluation results;
+they do not block media requests.
+
+Infrastructure changes are explicit operations, not part of application
+deployment. `infra/ecs/apply-autoscaling.sh`,
+`infra/cloudwatch/put-dashboard.sh`, and `infra/ecr/apply-replication.sh`
+apply their adjacent JSON configurations. The multi-region cluster helper
+creates only the clusters listed in `infra/ecs/multi-region-clusters.json`.
+Route 53 latency changes require every region in
+`infra/route53/latency-routing.json` to be marked ready; the apply script then
+verifies each public ALB, issued and attached certificate, and healthy target
+group before replacing a simple A alias with latency aliases. The current
+configuration keeps regions without a confirmed runtime service and TLS
+endpoint disabled.

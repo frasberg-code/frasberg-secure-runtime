@@ -178,4 +178,77 @@ describe('gateway auth and routing', () => {
     expect(response.json()).toEqual({ job_id: 'job-1', state: 'queued' });
     expect(music).toHaveBeenCalledWith({ prompt: 'beat' });
   });
+
+  it('applies a domain-specific burst quota by tenant', async () => {
+    const music = vi.fn(async () => ({ job_id: 'job-1', state: 'queued' }));
+    const frasbergGateway = {
+      music,
+      video: vi.fn(),
+      stt: vi.fn(),
+      tts: vi.fn(),
+      audio: vi.fn(),
+      job: vi.fn(),
+    } as unknown as FrasbergGateway;
+    const app = buildApp({
+      apiKeys: [
+        {
+          id: 'media',
+          secret: 'media-secret',
+          permissions: ['media'],
+          tenants: ['tenant-a'],
+        },
+      ],
+      fetchImpl: vi.fn() as unknown as typeof fetch,
+      frasbergGateway,
+      apiQuotas: {
+        music: { rpm: 1, burst: 1 },
+      },
+    });
+
+    const request = {
+      method: 'POST' as const,
+      url: '/api/music',
+      headers: { 'x-api-key': 'media-secret' },
+      payload: { prompt: 'beat' },
+    };
+    expect((await app.inject(request)).statusCode).toBe(200);
+
+    const limited = await app.inject(request);
+    expect(limited.statusCode).toBe(429);
+    expect(limited.headers['retry-after']).toBeDefined();
+    expect(limited.json()).toEqual({
+      error: {
+        code: 'FK-429',
+        message: 'Too many requests.',
+      },
+    });
+    expect(music).toHaveBeenCalledTimes(1);
+  });
+
+  it('serves governance diagnostics only to governance administrators', async () => {
+    const app = buildApp({
+      apiKeys: [
+        {
+          id: 'governance-admin',
+          secret: 'governance-secret',
+          permissions: ['governance:admin'],
+        },
+      ],
+      fetchImpl: vi.fn() as unknown as typeof fetch,
+    });
+
+    const denied = await app.inject({
+      method: 'GET',
+      url: '/v1/governance/diagnostics',
+    });
+    expect(denied.statusCode).toBe(401);
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/governance/diagnostics',
+      headers: { 'x-api-key': 'governance-secret' },
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().status.status).toBe('ok');
+  });
 });

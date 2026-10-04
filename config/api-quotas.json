@@ -1,0 +1,22 @@
+{
+  "music": {
+    "rpm": 120,
+    "burst": 240
+  },
+  "video": {
+    "rpm": 60,
+    "burst": 120
+  },
+  "stt": {
+    "rpm": 300,
+    "burst": 600
+  },
+  "tts": {
+    "rpm": 300,
+    "burst": 600
+  },
+  "audio": {
+    "rpm": 200,
+    "burst": 400
+  }
+}

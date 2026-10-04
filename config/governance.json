@@ -1,0 +1,17 @@
+{
+  "continuity": true,
+  "diagnostics": true,
+  "policy": {
+    "enabled": true,
+    "strict": true
+  },
+  "membrane": {
+    "enabled": true
+  },
+  "hinge": {
+    "enabled": true
+  },
+  "tonal": {
+    "enabled": true
+  }
+}
