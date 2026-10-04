@@ -23,6 +23,7 @@ jobs:
           python-version: '3.13'
       - run: npm ci
       - run: npm run build
+      - run: docker build --file packages/gateway/Dockerfile --tag frasberg-secure-runtime:ci .
       - run: npm run test
       - run: python -m unittest discover -s sdk/python -p test_client.py
       - run: npm run validate:manifests
