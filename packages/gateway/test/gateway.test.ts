@@ -286,4 +286,18 @@ describe('gateway auth and routing', () => {
     });
     expect(response.statusCode).toBe(401);
   });
+
+  it('rejects non-ASCII keys with a different byte length without throwing', async () => {
+    const app = buildApp({
+      governanceAdminKey: 'a',
+      apiKeys: [],
+    });
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/governance/diagnostics',
+      headers: { 'x-governance-key': 'é' },
+    });
+
+    expect(response.statusCode).toBe(401);
+  });
 });

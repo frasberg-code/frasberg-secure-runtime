@@ -506,15 +506,17 @@ function verifyGovernanceAdminKey(
   suppliedKey: string | string[] | undefined,
   configuredKey: string | undefined,
 ): boolean {
-  if (
-    typeof suppliedKey !== 'string' ||
-    !configuredKey ||
-    suppliedKey.length !== configuredKey.length
-  ) {
+  if (typeof suppliedKey !== 'string' || !configuredKey) {
     return false;
   }
 
-  return timingSafeEqual(Buffer.from(suppliedKey), Buffer.from(configuredKey));
+  const suppliedBytes = Buffer.from(suppliedKey);
+  const configuredBytes = Buffer.from(configuredKey);
+  if (suppliedBytes.length !== configuredBytes.length) {
+    return false;
+  }
+
+  return timingSafeEqual(suppliedBytes, configuredBytes);
 }
 
 function rateLimitRequest(
@@ -583,20 +585,6 @@ function loadApiQuotas(): Record<FrasbergDomain, ApiQuota> {
     throw new Error(`API quota configuration at "${path}" must be an object.`);
   }
 
-  function verifyGovernanceAdminKey(
-    suppliedKey: string | string[] | undefined,
-    configuredKey: string | undefined,
-  ): boolean {
-    if (
-      typeof suppliedKey !== 'string' ||
-      !configuredKey ||
-      suppliedKey.length !== configuredKey.length
-    ) {
-      return false;
-    }
-
-    return timingSafeEqual(Buffer.from(suppliedKey), Buffer.from(configuredKey));
-  }
   return {
     music: readApiQuota(parsed.music, 'music'),
     video: readApiQuota(parsed.video, 'video'),

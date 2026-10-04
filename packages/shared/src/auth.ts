@@ -85,13 +85,22 @@ export function authenticateRequest(
     return { error: invalidKeyResponse() };
   }
 
+  const requestedTenant = normalizeHeader(headers['x-tenant-id']);
+  if (
+    (requestedTenant !== undefined &&
+      !matchingKey.tenants?.includes(requestedTenant)) ||
+    (Array.isArray(headers['x-tenant-id']) &&
+      headers['x-tenant-id'].length !== 1)
+  ) {
+    return { error: invalidKeyResponse() };
+  }
+
   return {
     context: {
       authenticated: true,
       keyId: matchingKey.id,
       permissions: matchingKey.permissions,
-      tenantId:
-        normalizeHeader(headers['x-tenant-id']) ?? matchingKey.tenants?.[0],
+      tenantId: requestedTenant ?? matchingKey.tenants?.[0],
     },
   };
 }
