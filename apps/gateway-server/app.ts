@@ -1,5 +1,7 @@
 import express from "express";
 import { unifiedMiddleware } from "./middleware/unified";
+import { injectRhythm } from "./middleware/rhythm";
+import { injectSync } from "./middleware/sync";
 import { injectCoherence } from "./middleware/coherence";
 import { injectIntegrity } from "./middleware/integrity";
 import { injectEnforcement } from "./middleware/enforcement";
@@ -14,6 +16,8 @@ const app = express();
 
 app.use(express.json());
 app.use(unifiedMiddleware);
+app.use(injectRhythm);
+app.use(injectSync);
 app.use(injectCoherence);
 app.use(injectIntegrity);
 app.use(injectEnforcement);

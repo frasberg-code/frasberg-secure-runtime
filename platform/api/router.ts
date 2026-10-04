@@ -9,6 +9,8 @@ import { law } from "../../apps/public-api/law";
 import { enforcement } from "../../apps/public-api/enforcement";
 import { integrity } from "../../apps/public-api/integrity";
 import { coherence } from "../../apps/public-api/coherence";
+import { sync } from "../../apps/public-api/sync";
+import { rhythm } from "../../apps/public-api/rhythm";
 
 const router = express.Router();
 
@@ -24,6 +26,8 @@ router.post("/worldgraph", (req, res) => {
   }));
 });
 
+router.post("/rhythm", rhythm);
+router.post("/sync", sync);
 router.post("/coherence", coherence);
 router.post("/integrity", integrity);
 router.post("/enforcement", enforcement);

@@ -8,8 +8,10 @@ import LawViewer from "./LawViewer";
 import EnforcementViewer from "./EnforcementViewer";
 import IntegrityViewer from "./IntegrityViewer";
 import CoherenceViewer from "./CoherenceViewer";
+import SyncViewer from "./SyncViewer";
+import RhythmViewer from "./RhythmViewer";
 
-export { ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer, EnforcementViewer, IntegrityViewer, CoherenceViewer };
+export { ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer, EnforcementViewer, IntegrityViewer, CoherenceViewer, SyncViewer, RhythmViewer };
 
 export default function WorldGraphPanel() {
   const client = useFrasbergClient();
