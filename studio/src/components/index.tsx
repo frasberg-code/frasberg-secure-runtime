@@ -115,7 +115,8 @@ export function IdentityGraph() {
   const client = useFrasbergClient();
   const [graph, setGraph] = useState(null);
 
-  useState(() => {
+  import { useEffect } from "react";
+  useEffect(() => {
     client.request("/v1/worldgraph", { identity: true }).then(res => {
       setGraph(res.payload.identity);
     });
@@ -133,7 +134,8 @@ export function ContinuityTimeline() {
   const client = useFrasbergClient();
   const [events, setEvents] = useState([]);
 
-  useState(() => {
+  import { useEffect } from "react";
+  useEffect(() => {
     client.request("/v1/continuity", {}).then(res => {
       setEvents(res.continuity || res.payload?.continuity || []);
     });
@@ -157,7 +159,8 @@ export function DiagnosticsTimeline() {
   const client = useFrasbergClient();
   const [events, setEvents] = useState([]);
 
-  useState(() => {
+  import { useEffect } from "react";
+  useEffect(() => {
     client.request("/v1/diagnostics", {}).then(res => {
       setEvents(res.payload.diagnostics || []);
     });
@@ -181,7 +184,8 @@ export function PolicyViewer() {
   const client = useFrasbergClient();
   const [policy, setPolicy] = useState(null);
 
-  useState(() => {
+  import { useEffect } from "react";
+  useEffect(() => {
     client.request("/v1/policy", {}).then(res => {
       setPolicy(res.payload.policy);
     });
@@ -199,7 +203,8 @@ export function GovernanceViewer() {
   const client = useFrasbergClient();
   const [gov, setGov] = useState(null);
 
-  useState(() => {
+  import { useEffect } from "react";
+  useEffect(() => {
     client.request("/v1/governance", {}).then(res => {
       setGov(res.payload.governance);
     });
