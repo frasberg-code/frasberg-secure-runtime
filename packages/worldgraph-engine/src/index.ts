@@ -7,6 +7,7 @@ import {
 export interface WorldGraphRequestContext {
   accessToken: string;
   ownerId: string;
+  continuityId?: string;
   allowAdminReadAcrossOwners?: boolean;
 }
 

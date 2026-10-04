@@ -17,11 +17,15 @@ import {
   type WorldGraphRequestContext,
   type WorldGraphService,
 } from '@frasberg/worldgraph-engine';
+import {
+  registerUnifiedMiddleware,
+  type GatewayPrincipal,
+} from './middleware/unified';
 
 export type EngineDomain =
   'music' | 'video' | 'image' | 'voice' | 'stt' | 'tts';
 export type EngineJobState = 'queued' | 'running' | 'completed' | 'failed';
-export type TrustedRole = 'admin' | 'user';
+export type TrustedRole = GatewayPrincipal['role'];
 
 export interface EngineJobResult {
   jobId: string;
@@ -70,12 +74,6 @@ export interface GatewayServerOptions {
   auditStore?: AuditStore;
   rateLimitMax?: number;
   rateLimitWindowMs?: number;
-}
-
-declare module 'fastify' {
-  interface FastifyRequest {
-    principal?: { sub: string; role: TrustedRole };
-  }
 }
 
 interface GenerateRequestBody {
@@ -161,17 +159,9 @@ export function buildGatewayServerApp(
     },
   });
 
-  app.addHook('preHandler', async (request, reply) => {
-    if ((request.raw.url ?? '').startsWith('/v1/health')) {
-      return;
-    }
-
-    const principal = await authenticateBearerToken(request, options);
-    if (!principal) {
-      return reply.code(401).send({ error: 'Unauthorized.' });
-    }
-    request.principal = principal;
-  });
+  registerUnifiedMiddleware(app, (request) =>
+    authenticateBearerToken(request, options),
+  );
 
   app.get('/v1/health', async () => ({
     status: 'ok',
@@ -657,6 +647,7 @@ function readWorldGraphRequestContext(
   return {
     accessToken: token,
     ownerId: principal.sub,
+    ...(request.continuityId ? { continuityId: request.continuityId } : {}),
   };
 }
 

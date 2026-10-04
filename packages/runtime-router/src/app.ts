@@ -1,5 +1,6 @@
 import Fastify, { FastifyInstance } from 'fastify';
 import { validateChatRequest } from '@frasberg/shared';
+import { unifiedRouterMiddleware } from './middleware/unified';
 
 export interface RuntimeRouterOptions {
   upstreamUrl?: string;
@@ -40,17 +41,19 @@ export function buildApp(options: RuntimeRouterOptions = {}): FastifyInstance {
   app.get('/v1/health', async () => ({ status: 'ok', upstreamUrl }));
 
   app.post('/v1/chat/completions', async (request, reply) => {
+    reply.header('x-request-id', request.id);
     try {
       const payload = validateChatRequest(request.body);
+      const headers = new Headers({ 'content-type': 'application/json' });
+      for (const middleware of unifiedRouterMiddleware) {
+        middleware({ request, headers });
+      }
+      if (!headers.has('x-tenant-id')) {
+        headers.set('x-tenant-id', 'public');
+      }
       const upstreamResponse = await fetchImpl(upstreamUrl, {
         method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'x-tenant-id':
-            typeof request.headers['x-tenant-id'] === 'string'
-              ? request.headers['x-tenant-id']
-              : 'public',
-        },
+        headers,
         body: JSON.stringify(payload),
       });
 

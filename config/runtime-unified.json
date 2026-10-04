@@ -1,0 +1,11 @@
+{
+  "identity": true,
+  "continuity": true,
+  "diagnostics": true,
+  "policy": true,
+  "governance": true,
+  "mesh": {
+    "regions": ["us-west-2", "us-east-1", "eu-central-1"],
+    "mode": "active-active"
+  }
+}

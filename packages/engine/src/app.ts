@@ -1,10 +1,10 @@
-import Fastify, { FastifyInstance } from 'fastify';
+import Fastify, { FastifyInstance, FastifyRequest } from 'fastify';
 import {
   ChatCompletionRequest,
   InMemoryJobRepository,
   JobRecord,
-  validateChatRequest,
 } from '@frasberg/shared';
+import { unifiedEnforce } from './unified-enforce';
 
 export interface EngineOptions {
   jobRepository?: InMemoryJobRepository;
@@ -86,6 +86,10 @@ export function buildApp(options: EngineOptions = {}): FastifyInstance {
   const service = new JobService(jobs, options.processDelayMs ?? 0);
   const app = Fastify({ logger: false });
 
+  app.addHook('preHandler', async (request, reply) => {
+    reply.header('x-request-id', request.id);
+  });
+
   app.get('/v1/health', async () => ({
     status: 'ok',
     storage: 'in-memory-dev',
@@ -93,7 +97,15 @@ export function buildApp(options: EngineOptions = {}): FastifyInstance {
 
   app.post('/v1/generations/chat', async (request, reply) => {
     try {
-      const payload = validateChatRequest(request.body);
+      const payload = unifiedEnforce(
+        service,
+        readOwnerId(request.headers),
+        {
+          continuity: request.headers['x-continuity-id'],
+          requestId: request.id,
+          policy: request.body,
+        },
+      );
       return buildCompletion(payload);
     } catch (error) {
       return reply.code(400).send({ error: (error as Error).message });
@@ -102,12 +114,13 @@ export function buildApp(options: EngineOptions = {}): FastifyInstance {
 
   app.post('/v1/jobs', async (request, reply) => {
     try {
-      const payload = validateChatRequest(request.body);
-      const tenantId = request.headers['x-tenant-id'];
-      const job = service.enqueue(
-        payload,
-        typeof tenantId === 'string' ? tenantId : 'public',
-      );
+      const ownerId = readOwnerId(request.headers);
+      const payload = unifiedEnforce(service, ownerId, {
+        continuity: request.headers['x-continuity-id'],
+        requestId: request.id,
+        policy: request.body,
+      });
+      const job = service.enqueue(payload, ownerId);
       return reply.code(202).send(job);
     } catch (error) {
       return reply.code(400).send({ error: (error as Error).message });
@@ -124,4 +137,14 @@ export function buildApp(options: EngineOptions = {}): FastifyInstance {
   });
 
   return app;
+}
+
+function readOwnerId(
+  headers: FastifyRequest['headers'],
+): string {
+  const ownerId = headers['x-tenant-id'] ?? headers['x-owner-id'] ?? 'public';
+  if (typeof ownerId !== 'string') {
+    throw new Error('Owner identity must be a single string.');
+  }
+  return ownerId.trim();
 }

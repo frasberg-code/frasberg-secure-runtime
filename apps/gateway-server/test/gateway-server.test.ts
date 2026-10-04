@@ -34,6 +34,17 @@ describe('gateway-server security', () => {
     expect(response.statusCode).toBe(401);
   });
 
+  it('adds a request id diagnostic header to responses', async () => {
+    const app = testApp();
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/health',
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.headers['x-request-id']).toBeTruthy();
+  });
+
   it('rejects invalid token signature', async () => {
     const app = testApp();
     const response = await app.inject({
@@ -196,6 +207,30 @@ describe('gateway-server security', () => {
     });
 
     expect(response.statusCode).toBe(401);
+  });
+
+  it('propagates continuity context to WorldGraph requests', async () => {
+    const worldGraphService = new InMemoryWorldGraphService();
+    const createDefinition = vi.spyOn(worldGraphService, 'createDefinition');
+    const app = testApp({ worldGraphService });
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/worldgraph',
+      headers: {
+        authorization: bearerFor('admin-user'),
+        'x-continuity-id': 'continuity-1',
+      },
+      payload: baseWorldDefinition(),
+    });
+
+    expect(response.statusCode).toBe(201);
+    expect(createDefinition).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ownerId: 'admin-user',
+        continuityId: 'continuity-1',
+      }),
+      expect.anything(),
+    );
   });
 
   it('rejects invalid worldgraph schema payloads', async () => {
