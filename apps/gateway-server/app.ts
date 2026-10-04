@@ -1,5 +1,8 @@
 import express from "express";
 import { unifiedMiddleware } from "./middleware/unified";
+import { injectExchange } from "./middleware/exchange";
+import { injectInteraction } from "./middleware/interaction";
+import { injectInfluence } from "./middleware/influence";
 import { injectField } from "./middleware/field";
 import { injectVector } from "./middleware/vector";
 import { injectForce } from "./middleware/force";
@@ -29,6 +32,9 @@ const app = express();
 
 app.use(express.json());
 app.use(unifiedMiddleware);
+app.use(injectExchange);
+app.use(injectInteraction);
+app.use(injectInfluence);
 app.use(injectField);
 app.use(injectVector);
 app.use(injectForce);

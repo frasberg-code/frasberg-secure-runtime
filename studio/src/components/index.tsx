@@ -23,8 +23,11 @@ import DynamicsViewer from "./DynamicsViewer";
 import ForceViewer from "./ForceViewer";
 import VectorViewer from "./VectorViewer";
 import FieldViewer from "./FieldViewer";
+import InfluenceViewer from "./InfluenceViewer";
+import InteractionViewer from "./InteractionViewer";
+import ExchangeViewer from "./ExchangeViewer";
 
-export { ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer, EnforcementViewer, IntegrityViewer, CoherenceViewer, SyncViewer, RhythmViewer, FlowViewer, CirculationViewer, ConduitViewer, ChannelViewer, PathViewer, RouteViewer, NavigationViewer, TravelViewer, MotionViewer, DynamicsViewer, ForceViewer, VectorViewer, FieldViewer };
+export { ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer, EnforcementViewer, IntegrityViewer, CoherenceViewer, SyncViewer, RhythmViewer, FlowViewer, CirculationViewer, ConduitViewer, ChannelViewer, PathViewer, RouteViewer, NavigationViewer, TravelViewer, MotionViewer, DynamicsViewer, ForceViewer, VectorViewer, FieldViewer, InfluenceViewer, InteractionViewer, ExchangeViewer };
 
 export default function WorldGraphPanel() {
   const client = useFrasbergClient();

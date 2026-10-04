@@ -24,6 +24,9 @@ import { dynamics } from "../../apps/public-api/dynamics";
 import { force } from "../../apps/public-api/force";
 import { vector } from "../../apps/public-api/vector";
 import { field } from "../../apps/public-api/field";
+import { influence } from "../../apps/public-api/influence";
+import { interaction } from "../../apps/public-api/interaction";
+import { exchange } from "../../apps/public-api/exchange";
 
 const router = express.Router();
 
@@ -39,6 +42,9 @@ router.post("/worldgraph", (req, res) => {
   }));
 });
 
+router.post("/exchange", exchange);
+router.post("/interaction", interaction);
+router.post("/influence", influence);
 router.post("/field", field);
 router.post("/vector", vector);
 router.post("/force", force);
