@@ -1,5 +1,11 @@
 import express from "express";
 import { unifiedMiddleware } from "./middleware/unified";
+import { injectVector } from "./middleware/vector";
+import { injectForce } from "./middleware/force";
+import { injectDynamics } from "./middleware/dynamics";
+import { injectMotion } from "./middleware/motion";
+import { injectTravel } from "./middleware/travel";
+import { injectNavigation } from "./middleware/navigation";
 import { injectRoute } from "./middleware/route";
 import { injectPath } from "./middleware/path";
 import { injectChannel } from "./middleware/channel";
@@ -22,6 +28,12 @@ const app = express();
 
 app.use(express.json());
 app.use(unifiedMiddleware);
+app.use(injectVector);
+app.use(injectForce);
+app.use(injectDynamics);
+app.use(injectMotion);
+app.use(injectTravel);
+app.use(injectNavigation);
 app.use(injectRoute);
 app.use(injectPath);
 app.use(injectChannel);

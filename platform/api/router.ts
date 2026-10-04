@@ -17,6 +17,12 @@ import { conduit } from "../../apps/public-api/conduit";
 import { channel } from "../../apps/public-api/channel";
 import { path } from "../../apps/public-api/path";
 import { route } from "../../apps/public-api/route";
+import { navigation } from "../../apps/public-api/navigation";
+import { travel } from "../../apps/public-api/travel";
+import { motion } from "../../apps/public-api/motion";
+import { dynamics } from "../../apps/public-api/dynamics";
+import { force } from "../../apps/public-api/force";
+import { vector } from "../../apps/public-api/vector";
 
 const router = express.Router();
 
@@ -32,6 +38,12 @@ router.post("/worldgraph", (req, res) => {
   }));
 });
 
+router.post("/vector", vector);
+router.post("/force", force);
+router.post("/dynamics", dynamics);
+router.post("/motion", motion);
+router.post("/travel", travel);
+router.post("/navigation", navigation);
 router.post("/route", route);
 router.post("/path", path);
 router.post("/channel", channel);
