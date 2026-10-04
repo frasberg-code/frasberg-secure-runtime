@@ -506,15 +506,17 @@ function verifyGovernanceAdminKey(
   suppliedKey: string | string[] | undefined,
   configuredKey: string | undefined,
 ): boolean {
-  if (
-    typeof suppliedKey !== 'string' ||
-    !configuredKey ||
-    suppliedKey.length !== configuredKey.length
-  ) {
+  if (typeof suppliedKey !== 'string' || !configuredKey) {
     return false;
   }
 
-  return timingSafeEqual(Buffer.from(suppliedKey), Buffer.from(configuredKey));
+  const suppliedBytes = Buffer.from(suppliedKey);
+  const configuredBytes = Buffer.from(configuredKey);
+  if (suppliedBytes.length !== configuredBytes.length) {
+    return false;
+  }
+
+  return timingSafeEqual(suppliedBytes, configuredBytes);
 }
 
 function rateLimitRequest(
