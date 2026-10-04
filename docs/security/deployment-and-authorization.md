@@ -25,6 +25,15 @@ JWT claims may identify a subject, but an admin claim alone must not be the sour
 
 The production gateway also accepts `x-governance-key` as a narrowly scoped break-glass credential for `/v1/governance/*`. Configure it as `GOVERNANCE_ADMIN_KEY` in AWS Secrets Manager using `infra/secrets/create-governance-admin.sh`. The deployment workflow resolves the secret ARN and injects it into the ECS task; the ECS execution role is scoped to that secret. This key does not authorize chat, media, audit, or other admin routes. Do not pass it in URLs, log it, or reuse it as an API key.
 
+## Identity graph access
+
+`/v1/identity/graph` requires a Supabase user access token in the bearer
+authorization header. The gateway validates that token with Supabase Auth,
+then calls owner-scoped RPCs with the same token so Postgres derives the owner
+from `auth.uid()`. Clients cannot choose an `owner_id`; the graph is stored per
+authenticated user. The anonymous Supabase key identifies the project and is
+not sufficient to read or mutate identity data by itself.
+
 ## Secrets
 
 Use the hosting platform’s environment/secrets manager for `SUPABASE_SERVICE_ROLE_KEY`, JWT verification secrets, database URLs, and engine credentials. Never put these values in SQL seed data, public tables, GitHub Actions logs, or committed `.env` files.

@@ -300,4 +300,146 @@ describe('gateway auth and routing', () => {
 
     expect(response.statusCode).toBe(401);
   });
+
+  it('loads the identity graph through the authenticated Supabase user', async () => {
+    const accessToken = 'user-access-token';
+    const userId = 'de305d54-75b4-431b-adb2-eb6b9e546014';
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith('/auth/v1/user')) {
+        return new Response(JSON.stringify({ id: userId }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      }
+      return new Response(JSON.stringify({ node: [], edges: [] }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    });
+    const app = buildApp({
+      apiKeys,
+      fetchImpl: fetchImpl as typeof fetch,
+      supabaseUrl: 'https://project.supabase.co',
+      supabaseAnonKey: 'anon-key',
+    });
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/identity/graph',
+      headers: { authorization: `Bearer ${accessToken}` },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ node: [], edges: [] });
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    expect(String(fetchImpl.mock.calls[0]?.[0])).toBe(
+      'https://project.supabase.co/auth/v1/user',
+    );
+    expect(String(fetchImpl.mock.calls[1]?.[0])).toBe(
+      'https://project.supabase.co/rest/v1/rpc/rpc_get_identity_graph',
+    );
+    expect(fetchImpl.mock.calls[1]?.[1]?.headers).toMatchObject({
+      apikey: 'anon-key',
+      authorization: `Bearer ${accessToken}`,
+    });
+    expect(fetchImpl.mock.calls[1]?.[1]?.body).toBe('{}');
+  });
+
+  it('writes the identity graph without accepting a client-supplied owner', async () => {
+    const accessToken = 'user-access-token';
+    const userId = 'de305d54-75b4-431b-adb2-eb6b9e546014';
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).endsWith('/auth/v1/user')) {
+        return new Response(JSON.stringify({ id: userId }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      }
+      return new Response(JSON.stringify({ node: [{ id: 'n1' }], edges: [] }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    });
+    const app = buildApp({
+      apiKeys,
+      fetchImpl: fetchImpl as typeof fetch,
+      supabaseUrl: 'https://project.supabase.co',
+      supabaseAnonKey: 'anon-key',
+    });
+
+    const response = await app.inject({
+      method: 'PUT',
+      url: '/v1/identity/graph',
+      headers: { authorization: `Bearer ${accessToken}` },
+      payload: {
+        owner_id: '00000000-0000-4000-8000-000000000001',
+        node: [{ id: 'n1' }],
+        edges: [],
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+    const rpcCall = fetchImpl.mock.calls[1]?.[1];
+    expect(rpcCall?.body).toBe(
+      JSON.stringify({ p_node: [{ id: 'n1' }], p_edges: [] }),
+    );
+    expect(String(fetchImpl.mock.calls[1]?.[0])).toContain(
+      'rpc_upsert_identity_graph',
+    );
+  });
+
+  it('rejects invalid Supabase access tokens for identity endpoints', async () => {
+    const fetchImpl = vi.fn(
+      async () =>
+        new Response(JSON.stringify({ message: 'invalid token' }), {
+          status: 401,
+          headers: { 'content-type': 'application/json' },
+        }),
+    );
+    const app = buildApp({
+      apiKeys,
+      fetchImpl: fetchImpl as typeof fetch,
+      supabaseUrl: 'https://project.supabase.co',
+      supabaseAnonKey: 'anon-key',
+    });
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/identity/graph',
+      headers: { authorization: 'Bearer invalid-token' },
+    });
+
+    expect(response.statusCode).toBe(401);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects identity graph payloads with non-array node or edges', async () => {
+    const fetchImpl = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({ id: 'de305d54-75b4-431b-adb2-eb6b9e546014' }),
+          {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          },
+        ),
+    );
+    const app = buildApp({
+      apiKeys,
+      fetchImpl: fetchImpl as typeof fetch,
+      supabaseUrl: 'https://project.supabase.co',
+      supabaseAnonKey: 'anon-key',
+    });
+
+    const response = await app.inject({
+      method: 'PUT',
+      url: '/v1/identity/graph',
+      headers: { authorization: 'Bearer valid-token' },
+      payload: { node: {}, edges: [] },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
 });

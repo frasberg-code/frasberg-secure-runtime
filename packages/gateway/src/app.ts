@@ -24,6 +24,7 @@ import {
 declare module 'fastify' {
   interface FastifyRequest {
     authContext?: AuthContext;
+    identityAccessToken?: string;
   }
 }
 
@@ -59,6 +60,8 @@ interface GovernanceConfig {
 export interface GatewayOptions {
   apiKeys?: ApiKeyRecord[];
   governanceAdminKey?: string;
+  supabaseUrl?: string;
+  supabaseAnonKey?: string;
   runtimeRouterUrl?: string;
   engineServiceUrl?: string;
   frasbergGateway?: FrasbergGateway;
@@ -108,6 +111,43 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
     }
 
     if (
+      requestPath.startsWith('/v1/identity/') &&
+      typeof request.headers.authorization === 'string'
+    ) {
+      const accessToken = readBearerToken(request.headers.authorization);
+      if (accessToken) {
+        let userId: string | undefined;
+        try {
+          userId = await resolveSupabaseUserId(
+            accessToken,
+            options.supabaseUrl ?? process.env.SUPABASE_URL,
+            options.supabaseAnonKey ?? process.env.SUPABASE_ANON_KEY,
+            fetchImpl,
+          );
+        } catch (error) {
+          request.log.error(
+            { err: error },
+            'Supabase identity authentication failed',
+          );
+          return reply.code(503).send({
+            error: 'Identity authentication is temporarily unavailable.',
+          });
+        }
+
+        if (userId) {
+          request.authContext = {
+            authenticated: true,
+            keyId: `supabase-user:${userId}`,
+            permissions: [],
+            userId,
+          };
+          request.identityAccessToken = accessToken;
+          return;
+        }
+      }
+    }
+
+    if (
       requestPath.startsWith('/v1/governance/') &&
       verifyGovernanceAdminKey(
         request.headers['x-governance-key'],
@@ -138,6 +178,59 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
 
   app.get('/health', async () => ({ ok: true }));
   app.get('/runtime-health', async () => ({ ok: true }));
+
+  app.get('/v1/identity/graph', async (request, reply) => {
+    if (!request.authContext?.userId || !request.identityAccessToken) {
+      return reply.code(401).send(invalidKeyResponse());
+    }
+
+    try {
+      return await callIdentityRpc(
+        'rpc_get_identity_graph',
+        {},
+        request.identityAccessToken,
+        options.supabaseUrl ?? process.env.SUPABASE_URL,
+        options.supabaseAnonKey ?? process.env.SUPABASE_ANON_KEY,
+        fetchImpl,
+      );
+    } catch (error) {
+      request.log.error({ err: error }, 'Supabase identity graph read failed');
+      return reply.code(502).send({
+        error: 'Identity graph storage is temporarily unavailable.',
+      });
+    }
+  });
+
+  app.put('/v1/identity/graph', async (request, reply) => {
+    if (!request.authContext?.userId || !request.identityAccessToken) {
+      return reply.code(401).send(invalidKeyResponse());
+    }
+    if (
+      !isRecord(request.body) ||
+      !Array.isArray(request.body.node) ||
+      !Array.isArray(request.body.edges)
+    ) {
+      return reply.code(400).send({
+        error: 'Identity graph must contain node and edges arrays.',
+      });
+    }
+
+    try {
+      return await callIdentityRpc(
+        'rpc_upsert_identity_graph',
+        { p_node: request.body.node, p_edges: request.body.edges },
+        request.identityAccessToken,
+        options.supabaseUrl ?? process.env.SUPABASE_URL,
+        options.supabaseAnonKey ?? process.env.SUPABASE_ANON_KEY,
+        fetchImpl,
+      );
+    } catch (error) {
+      request.log.error({ err: error }, 'Supabase identity graph write failed');
+      return reply.code(502).send({
+        error: 'Identity graph storage is temporarily unavailable.',
+      });
+    }
+  });
 
   app.get('/v1/governance/status', async (request, reply) => {
     const denied = requirePermission(request, reply, 'governance:admin');
@@ -196,9 +289,7 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
 
     try {
       const world = existentialControlPlane.registerWorld(
-        request.body as Parameters<
-          ExistentialControlPlane['registerWorld']
-        >[0],
+        request.body as Parameters<ExistentialControlPlane['registerWorld']>[0],
       );
       return reply.code(201).send(world);
     } catch (error) {
@@ -502,6 +593,84 @@ function requirePermission(
   return undefined;
 }
 
+function readBearerToken(authorization: string): string | undefined {
+  if (!authorization.startsWith('Bearer ')) {
+    return undefined;
+  }
+  return authorization.slice('Bearer '.length).trim() || undefined;
+}
+
+async function resolveSupabaseUserId(
+  accessToken: string,
+  supabaseUrl: string | undefined,
+  supabaseAnonKey: string | undefined,
+  fetchImpl: typeof fetch,
+): Promise<string | undefined> {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error(
+      'Supabase URL and anonymous key are required for identity.',
+    );
+  }
+
+  const response = await fetchImpl(new URL('/auth/v1/user', supabaseUrl), {
+    headers: {
+      apikey: supabaseAnonKey,
+      authorization: `Bearer ${accessToken}`,
+    },
+  });
+  if (response.status === 401 || response.status === 403) {
+    return undefined;
+  }
+  if (!response.ok) {
+    throw new Error(`Supabase Auth returned HTTP ${response.status}.`);
+  }
+
+  const user: unknown = await response.json();
+  if (!isRecord(user) || typeof user.id !== 'string' || !isUuid(user.id)) {
+    throw new Error('Supabase Auth returned an invalid user identity.');
+  }
+  return user.id;
+}
+
+async function callIdentityRpc(
+  functionName: 'rpc_get_identity_graph' | 'rpc_upsert_identity_graph',
+  payload: Record<string, unknown>,
+  accessToken: string,
+  supabaseUrl: string | undefined,
+  supabaseAnonKey: string | undefined,
+  fetchImpl: typeof fetch,
+): Promise<unknown> {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error(
+      'Supabase URL and anonymous key are required for identity.',
+    );
+  }
+
+  const response = await fetchImpl(
+    new URL(`/rest/v1/rpc/${functionName}`, supabaseUrl),
+    {
+      method: 'POST',
+      headers: {
+        apikey: supabaseAnonKey,
+        authorization: `Bearer ${accessToken}`,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+  if (!response.ok) {
+    throw new Error(`Supabase identity RPC returned HTTP ${response.status}.`);
+  }
+
+  return response.json();
+}
+
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value,
+  );
+}
+
 function verifyGovernanceAdminKey(
   suppliedKey: string | string[] | undefined,
   configuredKey: string | undefined,
@@ -526,7 +695,14 @@ function rateLimitRequest(
   max: number,
   windowMs: number,
 ) {
-  if (consumeRateLimit(state, `${request.ip}:${request.routeOptions.url}`, max, windowMs)) {
+  if (
+    consumeRateLimit(
+      state,
+      `${request.ip}:${request.routeOptions.url}`,
+      max,
+      windowMs,
+    )
+  ) {
     return undefined;
   }
 
@@ -635,9 +811,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function isPositiveInteger(value: unknown): value is number {
-  return (
-    typeof value === 'number' && Number.isInteger(value) && value > 0
-  );
+  return typeof value === 'number' && Number.isInteger(value) && value > 0;
 }
 
 function isFeatureFlag(value: unknown): value is boolean | string {
