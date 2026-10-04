@@ -442,4 +442,244 @@ describe('gateway auth and routing', () => {
     expect(response.statusCode).toBe(400);
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
+
+  it('lists owner-scoped continuity events with a bounded page and opaque owner', async () => {
+    const userId = 'de305d54-75b4-431b-adb2-eb6b9e546014';
+    const worldId = 'a8098c1a-f86e-11da-bd1a-00112444be1e';
+    const eventId = 'd9428888-122b-11e1-b85c-61cd3cbb3210';
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).endsWith('/auth/v1/user')) {
+        return new Response(JSON.stringify({ id: userId }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      }
+      return new Response(
+        JSON.stringify([
+          {
+            id: eventId,
+            owner_id: userId,
+            world_id: worldId,
+            event_type: 'checkpoint',
+            payload: { version: 1 },
+            created_at: '2026-10-04T12:00:00.000Z',
+          },
+        ]),
+        {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        },
+      );
+    });
+    const app = buildApp({
+      apiKeys,
+      fetchImpl: fetchImpl as typeof fetch,
+      supabaseUrl: 'https://project.supabase.co',
+      supabaseAnonKey: 'anon-key',
+    });
+
+    const response = await app.inject({
+      method: 'GET',
+      url: `/v1/continuity/worlds/${worldId}/events?limit=1`,
+      headers: { authorization: 'Bearer user-access-token' },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      events: [
+        {
+          id: eventId,
+          worldId,
+          eventType: 'checkpoint',
+          payload: { version: 1 },
+          createdAt: '2026-10-04T12:00:00.000Z',
+        },
+      ],
+      nextCursor: {
+        before: '2026-10-04T12:00:00.000Z',
+        beforeId: eventId,
+      },
+    });
+    expect(String(fetchImpl.mock.calls[1]?.[0])).toContain(
+      'rpc_list_continuity_events_page',
+    );
+    expect(fetchImpl.mock.calls[1]?.[1]?.body).toBe(
+      JSON.stringify({
+        p_world_id: worldId,
+        p_limit: 1,
+        p_before: null,
+        p_before_id: null,
+      }),
+    );
+  });
+
+  it('records continuity events without trusting owner IDs from the client', async () => {
+    const userId = 'de305d54-75b4-431b-adb2-eb6b9e546014';
+    const worldId = 'a8098c1a-f86e-11da-bd1a-00112444be1e';
+    const eventId = 'd9428888-122b-11e1-b85c-61cd3cbb3210';
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).endsWith('/auth/v1/user')) {
+        return new Response(JSON.stringify({ id: userId }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      }
+      return new Response(
+        JSON.stringify({
+          id: eventId,
+          owner_id: userId,
+          world_id: worldId,
+          event_type: 'checkpoint',
+          payload: { version: 1 },
+          created_at: '2026-10-04T12:00:00.000Z',
+        }),
+        {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        },
+      );
+    });
+    const app = buildApp({
+      apiKeys,
+      fetchImpl: fetchImpl as typeof fetch,
+      supabaseUrl: 'https://project.supabase.co',
+      supabaseAnonKey: 'anon-key',
+    });
+
+    const response = await app.inject({
+      method: 'POST',
+      url: `/v1/continuity/worlds/${worldId}/events`,
+      headers: { authorization: 'Bearer user-access-token' },
+      payload: {
+        owner_id: '00000000-0000-4000-8000-000000000001',
+        eventType: ' checkpoint ',
+        payload: { version: 1 },
+      },
+    });
+
+    expect(response.statusCode).toBe(201);
+    expect(response.json()).toEqual({
+      id: eventId,
+      worldId,
+      eventType: 'checkpoint',
+      payload: { version: 1 },
+      createdAt: '2026-10-04T12:00:00.000Z',
+    });
+    expect(String(fetchImpl.mock.calls[1]?.[0])).toContain(
+      'record_continuity_event',
+    );
+    expect(fetchImpl.mock.calls[1]?.[1]?.body).toBe(
+      JSON.stringify({
+        p_world_id: worldId,
+        p_event_type: 'checkpoint',
+        p_payload: { version: 1 },
+      }),
+    );
+  });
+
+  it('rejects unbounded continuity event page sizes', async () => {
+    const userId = 'de305d54-75b4-431b-adb2-eb6b9e546014';
+    const fetchImpl = vi.fn(
+      async () =>
+        new Response(JSON.stringify({ id: userId }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+    );
+    const app = buildApp({
+      apiKeys,
+      fetchImpl: fetchImpl as typeof fetch,
+      supabaseUrl: 'https://project.supabase.co',
+      supabaseAnonKey: 'anon-key',
+    });
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/continuity/worlds/a8098c1a-f86e-11da-bd1a-00112444be1e/events?limit=101',
+      headers: { authorization: 'Bearer user-access-token' },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it('loads continuity state through the owner-scoped RPC', async () => {
+    const userId = 'de305d54-75b4-431b-adb2-eb6b9e546014';
+    const worldId = 'a8098c1a-f86e-11da-bd1a-00112444be1e';
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).endsWith('/auth/v1/user')) {
+        return new Response(JSON.stringify({ id: userId }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      }
+      return new Response(JSON.stringify({ version: 3 }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    });
+    const app = buildApp({
+      apiKeys,
+      fetchImpl: fetchImpl as typeof fetch,
+      supabaseUrl: 'https://project.supabase.co',
+      supabaseAnonKey: 'anon-key',
+    });
+
+    const response = await app.inject({
+      method: 'GET',
+      url: `/v1/continuity/worlds/${worldId}/state`,
+      headers: { authorization: 'Bearer user-access-token' },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ version: 3 });
+    expect(String(fetchImpl.mock.calls[1]?.[0])).toContain(
+      'rpc_get_continuity_state',
+    );
+    expect(fetchImpl.mock.calls[1]?.[1]?.body).toBe(
+      JSON.stringify({ p_world_id: worldId }),
+    );
+  });
+
+  it('updates only continuity state and ignores client owner IDs', async () => {
+    const userId = 'de305d54-75b4-431b-adb2-eb6b9e546014';
+    const worldId = 'a8098c1a-f86e-11da-bd1a-00112444be1e';
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).endsWith('/auth/v1/user')) {
+        return new Response(JSON.stringify({ id: userId }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      }
+      return new Response(JSON.stringify({ version: 4 }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    });
+    const app = buildApp({
+      apiKeys,
+      fetchImpl: fetchImpl as typeof fetch,
+      supabaseUrl: 'https://project.supabase.co',
+      supabaseAnonKey: 'anon-key',
+    });
+
+    const response = await app.inject({
+      method: 'PUT',
+      url: `/v1/continuity/worlds/${worldId}/state`,
+      headers: { authorization: 'Bearer user-access-token' },
+      payload: {
+        owner_id: '00000000-0000-4000-8000-000000000001',
+        state: { version: 4 },
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ version: 4 });
+    expect(String(fetchImpl.mock.calls[1]?.[0])).toContain(
+      'rpc_update_continuity_state',
+    );
+    expect(fetchImpl.mock.calls[1]?.[1]?.body).toBe(
+      JSON.stringify({ p_world_id: worldId, p_state: { version: 4 } }),
+    );
+  });
 });

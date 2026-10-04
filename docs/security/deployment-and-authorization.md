@@ -34,6 +34,14 @@ from `auth.uid()`. Clients cannot choose an `owner_id`; the graph is stored per
 authenticated user. The anonymous Supabase key identifies the project and is
 not sufficient to read or mutate identity data by itself.
 
+## Continuity event access
+
+`/v1/continuity/worlds/{worldId}/state` and `/events` use the same verified
+Supabase user token. State updates modify only the `continuity` member of the
+world's existing `world_state`. Event creation delegates ownership and
+world-access checks to the existing `record_continuity_event` RPC. Event reads
+use a new owner-scoped, cursor-paginated RPC with a hard maximum page size of 100. The gateway never accepts an owner ID from the client.
+
 ## Secrets
 
 Use the hosting platform’s environment/secrets manager for `SUPABASE_SERVICE_ROLE_KEY`, JWT verification secrets, database URLs, and engine credentials. Never put these values in SQL seed data, public tables, GitHub Actions logs, or committed `.env` files.

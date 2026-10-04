@@ -24,7 +24,7 @@ import {
 declare module 'fastify' {
   interface FastifyRequest {
     authContext?: AuthContext;
-    identityAccessToken?: string;
+    supabaseAccessToken?: string;
   }
 }
 
@@ -110,8 +110,24 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
       return;
     }
 
+    const requiresSupabaseUser =
+      requestPath.startsWith('/v1/identity/') ||
+      requestPath.startsWith('/v1/continuity/');
+    if (requiresSupabaseUser) {
+      const limited = rateLimitRequest(
+        request,
+        reply,
+        rateLimitState,
+        rateLimitMax,
+        rateLimitWindowMs,
+      );
+      if (limited) {
+        return limited;
+      }
+    }
+
     if (
-      requestPath.startsWith('/v1/identity/') &&
+      requiresSupabaseUser &&
       typeof request.headers.authorization === 'string'
     ) {
       const accessToken = readBearerToken(request.headers.authorization);
@@ -141,7 +157,7 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
             permissions: [],
             userId,
           };
-          request.identityAccessToken = accessToken;
+          request.supabaseAccessToken = accessToken;
           return;
         }
       }
@@ -180,15 +196,15 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
   app.get('/runtime-health', async () => ({ ok: true }));
 
   app.get('/v1/identity/graph', async (request, reply) => {
-    if (!request.authContext?.userId || !request.identityAccessToken) {
+    if (!request.authContext?.userId || !request.supabaseAccessToken) {
       return reply.code(401).send(invalidKeyResponse());
     }
 
     try {
-      return await callIdentityRpc(
+      return await callSupabaseRpc(
         'rpc_get_identity_graph',
         {},
-        request.identityAccessToken,
+        request.supabaseAccessToken,
         options.supabaseUrl ?? process.env.SUPABASE_URL,
         options.supabaseAnonKey ?? process.env.SUPABASE_ANON_KEY,
         fetchImpl,
@@ -202,7 +218,7 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
   });
 
   app.put('/v1/identity/graph', async (request, reply) => {
-    if (!request.authContext?.userId || !request.identityAccessToken) {
+    if (!request.authContext?.userId || !request.supabaseAccessToken) {
       return reply.code(401).send(invalidKeyResponse());
     }
     if (
@@ -216,10 +232,10 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
     }
 
     try {
-      return await callIdentityRpc(
+      return await callSupabaseRpc(
         'rpc_upsert_identity_graph',
         { p_node: request.body.node, p_edges: request.body.edges },
-        request.identityAccessToken,
+        request.supabaseAccessToken,
         options.supabaseUrl ?? process.env.SUPABASE_URL,
         options.supabaseAnonKey ?? process.env.SUPABASE_ANON_KEY,
         fetchImpl,
@@ -228,6 +244,183 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
       request.log.error({ err: error }, 'Supabase identity graph write failed');
       return reply.code(502).send({
         error: 'Identity graph storage is temporarily unavailable.',
+      });
+    }
+  });
+
+  app.get('/v1/continuity/worlds/:worldId/events', async (request, reply) => {
+    if (!request.authContext?.userId || !request.supabaseAccessToken) {
+      return reply.code(401).send(invalidKeyResponse());
+    }
+
+    const params = request.params as { worldId: string };
+    const query = request.query as {
+      limit?: string;
+      before?: string;
+      beforeId?: string;
+    };
+    if (!isUuid(params.worldId)) {
+      return reply.code(400).send({ error: 'worldId must be a UUID.' });
+    }
+
+    const limit = query.limit === undefined ? 50 : Number(query.limit);
+    if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+      return reply
+        .code(400)
+        .send({ error: 'limit must be between 1 and 100.' });
+    }
+    if (
+      (query.before === undefined) !== (query.beforeId === undefined) ||
+      (query.beforeId !== undefined && !isUuid(query.beforeId)) ||
+      (query.before !== undefined && !Number.isFinite(Date.parse(query.before)))
+    ) {
+      return reply.code(400).send({ error: 'Invalid continuity cursor.' });
+    }
+
+    try {
+      const result = await callSupabaseRpc(
+        'rpc_list_continuity_events_page',
+        {
+          p_world_id: params.worldId,
+          p_limit: limit,
+          p_before: query.before ?? null,
+          p_before_id: query.beforeId ?? null,
+        },
+        request.supabaseAccessToken,
+        options.supabaseUrl ?? process.env.SUPABASE_URL,
+        options.supabaseAnonKey ?? process.env.SUPABASE_ANON_KEY,
+        fetchImpl,
+      );
+      if (!Array.isArray(result) || !result.every(isRecord)) {
+        throw new Error('Supabase returned an invalid continuity event list.');
+      }
+
+      const events = result.map(toPublicContinuityEvent);
+      const lastEvent = events.at(-1);
+      return {
+        events,
+        nextCursor:
+          events.length === limit && lastEvent
+            ? { before: lastEvent.createdAt, beforeId: lastEvent.id }
+            : null,
+      };
+    } catch (error) {
+      request.log.error(
+        { err: error },
+        'Supabase continuity event read failed',
+      );
+      return reply.code(502).send({
+        error: 'Continuity storage is temporarily unavailable.',
+      });
+    }
+  });
+
+  app.post('/v1/continuity/worlds/:worldId/events', async (request, reply) => {
+    if (!request.authContext?.userId || !request.supabaseAccessToken) {
+      return reply.code(401).send(invalidKeyResponse());
+    }
+
+    const params = request.params as { worldId: string };
+    if (!isUuid(params.worldId)) {
+      return reply.code(400).send({ error: 'worldId must be a UUID.' });
+    }
+    if (
+      !isRecord(request.body) ||
+      typeof request.body.eventType !== 'string' ||
+      request.body.eventType.trim().length === 0 ||
+      request.body.eventType.trim().length > 100 ||
+      !isRecord(request.body.payload)
+    ) {
+      return reply.code(400).send({
+        error: 'eventType and an object payload are required.',
+      });
+    }
+
+    try {
+      const result = await callSupabaseRpc(
+        'record_continuity_event',
+        {
+          p_world_id: params.worldId,
+          p_event_type: request.body.eventType.trim(),
+          p_payload: request.body.payload,
+        },
+        request.supabaseAccessToken,
+        options.supabaseUrl ?? process.env.SUPABASE_URL,
+        options.supabaseAnonKey ?? process.env.SUPABASE_ANON_KEY,
+        fetchImpl,
+      );
+      if (!isRecord(result)) {
+        throw new Error('Supabase returned an invalid continuity event.');
+      }
+      return reply.code(201).send(toPublicContinuityEvent(result));
+    } catch (error) {
+      request.log.error(
+        { err: error },
+        'Supabase continuity event write failed',
+      );
+      return reply.code(502).send({
+        error: 'Continuity storage is temporarily unavailable.',
+      });
+    }
+  });
+
+  app.get('/v1/continuity/worlds/:worldId/state', async (request, reply) => {
+    if (!request.authContext?.userId || !request.supabaseAccessToken) {
+      return reply.code(401).send(invalidKeyResponse());
+    }
+    const params = request.params as { worldId: string };
+    if (!isUuid(params.worldId)) {
+      return reply.code(400).send({ error: 'worldId must be a UUID.' });
+    }
+
+    try {
+      return await callSupabaseRpc(
+        'rpc_get_continuity_state',
+        { p_world_id: params.worldId },
+        request.supabaseAccessToken,
+        options.supabaseUrl ?? process.env.SUPABASE_URL,
+        options.supabaseAnonKey ?? process.env.SUPABASE_ANON_KEY,
+        fetchImpl,
+      );
+    } catch (error) {
+      request.log.error(
+        { err: error },
+        'Supabase continuity state read failed',
+      );
+      return reply.code(502).send({
+        error: 'Continuity storage is temporarily unavailable.',
+      });
+    }
+  });
+
+  app.put('/v1/continuity/worlds/:worldId/state', async (request, reply) => {
+    if (!request.authContext?.userId || !request.supabaseAccessToken) {
+      return reply.code(401).send(invalidKeyResponse());
+    }
+    const params = request.params as { worldId: string };
+    if (!isUuid(params.worldId)) {
+      return reply.code(400).send({ error: 'worldId must be a UUID.' });
+    }
+    if (!isRecord(request.body) || !isRecord(request.body.state)) {
+      return reply.code(400).send({ error: 'state must be a JSON object.' });
+    }
+
+    try {
+      return await callSupabaseRpc(
+        'rpc_update_continuity_state',
+        { p_world_id: params.worldId, p_state: request.body.state },
+        request.supabaseAccessToken,
+        options.supabaseUrl ?? process.env.SUPABASE_URL,
+        options.supabaseAnonKey ?? process.env.SUPABASE_ANON_KEY,
+        fetchImpl,
+      );
+    } catch (error) {
+      request.log.error(
+        { err: error },
+        'Supabase continuity state write failed',
+      );
+      return reply.code(502).send({
+        error: 'Continuity storage is temporarily unavailable.',
       });
     }
   });
@@ -632,8 +825,14 @@ async function resolveSupabaseUserId(
   return user.id;
 }
 
-async function callIdentityRpc(
-  functionName: 'rpc_get_identity_graph' | 'rpc_upsert_identity_graph',
+async function callSupabaseRpc(
+  functionName:
+    | 'rpc_get_identity_graph'
+    | 'rpc_upsert_identity_graph'
+    | 'rpc_list_continuity_events_page'
+    | 'record_continuity_event'
+    | 'rpc_get_continuity_state'
+    | 'rpc_update_continuity_state',
   payload: Record<string, unknown>,
   accessToken: string,
   supabaseUrl: string | undefined,
@@ -669,6 +868,29 @@ function isUuid(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
     value,
   );
+}
+
+function toPublicContinuityEvent(value: Record<string, unknown>) {
+  if (
+    typeof value.id !== 'string' ||
+    !isUuid(value.id) ||
+    typeof value.world_id !== 'string' ||
+    !isUuid(value.world_id) ||
+    typeof value.event_type !== 'string' ||
+    !isRecord(value.payload) ||
+    typeof value.created_at !== 'string' ||
+    !Number.isFinite(Date.parse(value.created_at))
+  ) {
+    throw new Error('Supabase returned an invalid continuity event.');
+  }
+
+  return {
+    id: value.id,
+    worldId: value.world_id,
+    eventType: value.event_type,
+    payload: value.payload,
+    createdAt: value.created_at,
+  };
 }
 
 function verifyGovernanceAdminKey(
