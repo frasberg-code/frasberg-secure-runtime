@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { canonicalJson } from '../src/lib';
 import modulesWorker from '../src/modules';
 import type { WorkerEnv } from '../src/types';
 
@@ -20,6 +21,14 @@ function request(path: string, body: unknown): Request {
 }
 
 describe('BotBase modules worker', () => {
+  it('canonicalizes prototype-free objects without prototype pollution', () => {
+    const value = Object.create(null) as Record<string, unknown>;
+    value['__proto__'] = { polluted: true };
+
+    expect(canonicalJson(value)).toBe('{"__proto__":{"polluted":true}}');
+    expect(({} as { polluted?: boolean }).polluted).toBeUndefined();
+  });
+
   it('compiles a tenant-bound manifest and returns a verifiable HMAC', async () => {
     const response = await modulesWorker.fetch(
       request('/manifest-compilation', {
