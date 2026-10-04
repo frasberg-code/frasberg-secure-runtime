@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { timingSafeEqual } from 'node:crypto';
 import Fastify, {
   FastifyInstance,
   FastifyReply,
@@ -57,6 +58,7 @@ interface GovernanceConfig {
 
 export interface GatewayOptions {
   apiKeys?: ApiKeyRecord[];
+  governanceAdminKey?: string;
   runtimeRouterUrl?: string;
   engineServiceUrl?: string;
   frasbergGateway?: FrasbergGateway;
@@ -87,7 +89,11 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
 
   const app = Fastify({
     logger: {
-      redact: ['req.headers.authorization', 'req.headers.x-api-key'],
+      redact: [
+        'req.headers.authorization',
+        'req.headers.x-api-key',
+        'req.headers.x-governance-key',
+      ],
     },
   });
 
@@ -98,6 +104,21 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
       requestPath.startsWith('/v1/health') ||
       requestPath.startsWith('/runtime-health')
     ) {
+      return;
+    }
+
+    if (
+      requestPath.startsWith('/v1/governance/') &&
+      verifyGovernanceAdminKey(
+        request.headers['x-governance-key'],
+        options.governanceAdminKey ?? process.env.GOVERNANCE_ADMIN_KEY,
+      )
+    ) {
+      request.authContext = {
+        authenticated: true,
+        keyId: 'governance-admin-key',
+        permissions: ['governance:admin'],
+      };
       return;
     }
 
@@ -545,6 +566,21 @@ function loadApiQuotas(): Record<FrasbergDomain, ApiQuota> {
   const parsed: unknown = JSON.parse(readFileSync(path, 'utf8'));
   if (!isRecord(parsed)) {
     throw new Error(`API quota configuration at "${path}" must be an object.`);
+  }
+
+  function verifyGovernanceAdminKey(
+    suppliedKey: string | string[] | undefined,
+    configuredKey: string | undefined,
+  ): boolean {
+    if (
+      typeof suppliedKey !== 'string' ||
+      !configuredKey ||
+      suppliedKey.length !== configuredKey.length
+    ) {
+      return false;
+    }
+
+    return timingSafeEqual(Buffer.from(suppliedKey), Buffer.from(configuredKey));
   }
   return {
     music: readApiQuota(parsed.music, 'music'),
