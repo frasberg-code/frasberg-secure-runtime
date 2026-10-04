@@ -502,6 +502,21 @@ function requirePermission(
   return undefined;
 }
 
+function verifyGovernanceAdminKey(
+  suppliedKey: string | string[] | undefined,
+  configuredKey: string | undefined,
+): boolean {
+  if (
+    typeof suppliedKey !== 'string' ||
+    !configuredKey ||
+    suppliedKey.length !== configuredKey.length
+  ) {
+    return false;
+  }
+
+  return timingSafeEqual(Buffer.from(suppliedKey), Buffer.from(configuredKey));
+}
+
 function rateLimitRequest(
   request: FastifyRequest,
   reply: FastifyReply,
