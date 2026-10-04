@@ -3,8 +3,10 @@ import { useState } from "react";
 import ZeroPointViewer from "./ZeroPointViewer";
 import SubstrateViewer from "./SubstrateViewer";
 import BedrockViewer from "./BedrockViewer";
+import GroundTruthViewer from "./GroundTruthViewer";
+import LawViewer from "./LawViewer";
 
-export { ZeroPointViewer, SubstrateViewer, BedrockViewer };
+export { ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer };
 
 export default function WorldGraphPanel() {
   const client = useFrasbergClient();

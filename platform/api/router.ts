@@ -4,6 +4,8 @@ import { apiEnvelope } from "./envelope";
 import { zeropoint } from "../../apps/public-api/zeropoint";
 import { substrate } from "../../apps/public-api/substrate";
 import { bedrock } from "../../apps/public-api/bedrock";
+import { groundtruth } from "../../apps/public-api/groundtruth";
+import { law } from "../../apps/public-api/law";
 
 const router = express.Router();
 
@@ -19,6 +21,8 @@ router.post("/worldgraph", (req, res) => {
   }));
 });
 
+router.post("/law", law);
+router.post("/groundtruth", groundtruth);
 router.post("/bedrock", bedrock);
 router.post("/substrate", substrate);
 router.post("/zeropoint", zeropoint);
