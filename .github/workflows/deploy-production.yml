@@ -56,9 +56,19 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
+          GOVERNANCE_ADMIN_SECRET_ARN=$(aws secretsmanager describe-secret \
+            --secret-id frasberg/runtime/governance-admin \
+            --region "$AWS_REGION" \
+            --query ARN \
+            --output text)
+          if [ -z "$GOVERNANCE_ADMIN_SECRET_ARN" ] || [ "$GOVERNANCE_ADMIN_SECRET_ARN" = "None" ]; then
+            echo "Governance admin secret is not provisioned." >&2
+            exit 1
+          fi
           sed \
             -e "s|__AWS_ACCOUNT_ID__|$AWS_ACCOUNT_ID|g" \
             -e "s|__AWS_REGION__|$AWS_REGION|g" \
+            -e "s|__GOVERNANCE_ADMIN_SECRET_ARN__|$GOVERNANCE_ADMIN_SECRET_ARN|g" \
             -e "s|__IMAGE__|$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG|g" \
             deploy/ecs-task.json > ecs-task-rendered.json
 

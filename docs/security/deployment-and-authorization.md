@@ -23,6 +23,8 @@ Admin control-plane operations must pass all of these boundaries:
 
 JWT claims may identify a subject, but an admin claim alone must not be the source of truth for production authorization. Keep role promotion in a controlled server-side workflow and audit it.
 
+The production gateway also accepts `x-governance-key` as a narrowly scoped break-glass credential for `/v1/governance/*`. Configure it as `GOVERNANCE_ADMIN_KEY` in AWS Secrets Manager using `infra/secrets/create-governance-admin.sh`. The deployment workflow resolves the secret ARN and injects it into the ECS task; the ECS execution role is scoped to that secret. This key does not authorize chat, media, audit, or other admin routes. Do not pass it in URLs, log it, or reuse it as an API key.
+
 ## Secrets
 
 Use the hosting platform’s environment/secrets manager for `SUPABASE_SERVICE_ROLE_KEY`, JWT verification secrets, database URLs, and engine credentials. Never put these values in SQL seed data, public tables, GitHub Actions logs, or committed `.env` files.

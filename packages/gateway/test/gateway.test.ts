@@ -251,4 +251,39 @@ describe('gateway auth and routing', () => {
     expect(response.statusCode).toBe(200);
     expect(response.json().status.status).toBe('ok');
   });
+
+  it('accepts the dedicated governance admin key for governance routes only', async () => {
+    const app = buildApp({
+      governanceAdminKey: 'governance-test-key',
+      apiKeys: [],
+    });
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/governance/diagnostics',
+      headers: { 'x-governance-key': 'governance-test-key' },
+    });
+    expect(response.statusCode).toBe(200);
+
+    const denied = await app.inject({
+      method: 'POST',
+      url: '/v1/chat/completions',
+      headers: { 'x-governance-key': 'governance-test-key' },
+      payload: {},
+    });
+    expect(denied.statusCode).toBe(401);
+  });
+
+  it('rejects invalid governance admin keys', async () => {
+    const app = buildApp({
+      governanceAdminKey: 'governance-test-key',
+      apiKeys: [],
+    });
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/governance/diagnostics',
+      headers: { 'x-governance-key': 'invalid-key' },
+    });
+    expect(response.statusCode).toBe(401);
+  });
 });

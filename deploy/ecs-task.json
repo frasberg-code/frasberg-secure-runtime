@@ -34,6 +34,10 @@
         {
           "name": "SUPABASE_ANON_KEY",
           "valueFrom": "arn:aws:secretsmanager:__AWS_REGION__:__AWS_ACCOUNT_ID__:secret:frasberg/SUPABASE_ANON_KEY-1In7BZ"
+        },
+        {
+          "name": "GOVERNANCE_ADMIN_KEY",
+          "valueFrom": "__GOVERNANCE_ADMIN_SECRET_ARN__"
         }
       ],
       "logConfiguration": {

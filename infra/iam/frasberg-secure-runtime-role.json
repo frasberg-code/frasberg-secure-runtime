@@ -14,12 +14,13 @@
       "Resource": "arn:aws:logs:us-west-2:__AWS_ACCOUNT_ID__:log-group:/ecs/frasberg-secure-runtime:log-stream:*"
     },
     {
-      "Sid": "ReadRuntimeSupabaseSecrets",
+      "Sid": "ReadRuntimeSecrets",
       "Effect": "Allow",
       "Action": "secretsmanager:GetSecretValue",
       "Resource": [
         "arn:aws:secretsmanager:us-west-2:__AWS_ACCOUNT_ID__:secret:frasberg/SUPABASE_URL-*",
-        "arn:aws:secretsmanager:us-west-2:__AWS_ACCOUNT_ID__:secret:frasberg/SUPABASE_ANON_KEY-*"
+        "arn:aws:secretsmanager:us-west-2:__AWS_ACCOUNT_ID__:secret:frasberg/SUPABASE_ANON_KEY-*",
+        "arn:aws:secretsmanager:us-west-2:__AWS_ACCOUNT_ID__:secret:frasberg/runtime/governance-admin-*"
       ]
     }
   ]
