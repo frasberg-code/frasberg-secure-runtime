@@ -1,6 +1,7 @@
 import express from "express";
 import { publicApiMiddleware } from "./middleware";
 import { apiEnvelope } from "./envelope";
+import { zeropoint } from "../../apps/public-api/zeropoint";
 
 const router = express.Router();
 
@@ -16,4 +17,4 @@ router.post("/worldgraph", (req, res) => {
   }));
 });
 
-export default router;
+router.post("/zeropoint", zeropoint);

@@ -1,5 +1,8 @@
 import { useFrasbergClient } from "../hooks/useFrasbergClient";
 import { useState } from "react";
+import ZeroPointViewer from "./ZeroPointViewer";
+
+export { ZeroPointViewer };
 
 export default function WorldGraphPanel() {
   const client = useFrasbergClient();

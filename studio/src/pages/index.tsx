@@ -1,7 +1,8 @@
 import { useJob } from "../hooks/useJob";
-import { AssetViewer, SharePanel } from "../components";
+import { AssetViewer, SharePanel, ZeroPointViewer } from "../components";
 import { publish } from "../actions";
 import { useState } from "react";
+import ZeroPoint from "./ZeroPoint";
 
 export default function RuntimeDashboard() {
   return (
@@ -135,3 +136,5 @@ function ActionPanel() {
     </div>
   );
 }
+
+export { ZeroPoint };
