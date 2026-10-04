@@ -585,20 +585,6 @@ function loadApiQuotas(): Record<FrasbergDomain, ApiQuota> {
     throw new Error(`API quota configuration at "${path}" must be an object.`);
   }
 
-  function verifyGovernanceAdminKey(
-    suppliedKey: string | string[] | undefined,
-    configuredKey: string | undefined,
-  ): boolean {
-    if (
-      typeof suppliedKey !== 'string' ||
-      !configuredKey ||
-      suppliedKey.length !== configuredKey.length
-    ) {
-      return false;
-    }
-
-    return timingSafeEqual(Buffer.from(suppliedKey), Buffer.from(configuredKey));
-  }
   return {
     music: readApiQuota(parsed.music, 'music'),
     video: readApiQuota(parsed.video, 'video'),
