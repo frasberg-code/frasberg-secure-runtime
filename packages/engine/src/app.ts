@@ -97,15 +97,11 @@ export function buildApp(options: EngineOptions = {}): FastifyInstance {
 
   app.post('/v1/generations/chat', async (request, reply) => {
     try {
-      const payload = unifiedEnforce(
-        service,
-        readOwnerId(request.headers),
-        {
-          continuity: request.headers['x-continuity-id'],
-          requestId: request.id,
-          policy: request.body,
-        },
-      );
+      const payload = unifiedEnforce(service, readOwnerId(request.headers), {
+        continuity: request.headers['x-continuity-id'],
+        requestId: request.id,
+        policy: request.body,
+      });
       return buildCompletion(payload);
     } catch (error) {
       return reply.code(400).send({ error: (error as Error).message });
@@ -139,9 +135,7 @@ export function buildApp(options: EngineOptions = {}): FastifyInstance {
   return app;
 }
 
-function readOwnerId(
-  headers: FastifyRequest['headers'],
-): string {
+function readOwnerId(headers: FastifyRequest['headers']): string {
   const ownerId = headers['x-tenant-id'] ?? headers['x-owner-id'] ?? 'public';
   if (typeof ownerId !== 'string') {
     throw new Error('Owner identity must be a single string.');

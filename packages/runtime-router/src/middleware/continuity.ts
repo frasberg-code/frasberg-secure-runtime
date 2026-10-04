@@ -1,9 +1,6 @@
 import type { RouterMiddleware } from './types';
 
-export const propagateContinuity: RouterMiddleware = ({
-  request,
-  headers,
-}) => {
+export const propagateContinuity: RouterMiddleware = ({ request, headers }) => {
   const continuityId = request.headers['x-continuity-id'];
   if (continuityId === undefined) {
     return;

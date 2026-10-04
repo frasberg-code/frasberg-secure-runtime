@@ -1,4 +1,7 @@
-import { validateChatRequest, type ChatCompletionRequest } from '@frasberg/shared';
+import {
+  validateChatRequest,
+  type ChatCompletionRequest,
+} from '@frasberg/shared';
 
 export interface UnifiedEnforcementContext {
   continuity?: string | string[];
@@ -36,7 +39,9 @@ export function enforceContinuity(
     !continuity.trim() ||
     continuity.length > 256
   ) {
-    throw new Error('Continuity identifier must be a non-empty string of at most 256 characters.');
+    throw new Error(
+      'Continuity identifier must be a non-empty string of at most 256 characters.',
+    );
   }
 }
 

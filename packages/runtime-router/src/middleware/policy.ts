@@ -6,11 +6,7 @@ export const propagatePolicy: RouterMiddleware = ({ request, headers }) => {
     if (value === undefined) {
       continue;
     }
-    if (
-      typeof value !== 'string' ||
-      !value.trim() ||
-      value.length > 256
-    ) {
+    if (typeof value !== 'string' || !value.trim() || value.length > 256) {
       throw new Error(`Invalid ${header} header.`);
     }
     headers.set(header, value.trim());

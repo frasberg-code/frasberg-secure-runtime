@@ -9,4 +9,4 @@ fi
 
 curl --fail --silent --show-error --max-time 10 \
   -H 'x-owner-id: owner_123' \
-  "${RUNTIME_BASE_URL%/}/engine/worldgraph/ping"
+  "${RUNTIME_BASE_URL%/}/v1/worldgraph/health"

@@ -9,4 +9,4 @@ fi
 
 echo 'Testing platform orchestration...'
 curl --fail --silent --show-error --max-time 10 \
-  "${RUNTIME_BASE_URL%/}/engine/worldgraph/ping"
+  "${RUNTIME_BASE_URL%/}/v1/worldgraph/health"
