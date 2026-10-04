@@ -13,6 +13,10 @@ import { sync } from "../../apps/public-api/sync";
 import { rhythm } from "../../apps/public-api/rhythm";
 import { flow } from "../../apps/public-api/flow";
 import { circulation } from "../../apps/public-api/circulation";
+import { conduit } from "../../apps/public-api/conduit";
+import { channel } from "../../apps/public-api/channel";
+import { path } from "../../apps/public-api/path";
+import { route } from "../../apps/public-api/route";
 
 const router = express.Router();
 
@@ -28,6 +32,10 @@ router.post("/worldgraph", (req, res) => {
   }));
 });
 
+router.post("/route", route);
+router.post("/path", path);
+router.post("/channel", channel);
+router.post("/conduit", conduit);
 router.post("/circulation", circulation);
 router.post("/flow", flow);
 router.post("/rhythm", rhythm);

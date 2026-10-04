@@ -1,5 +1,9 @@
 import express from "express";
 import { unifiedMiddleware } from "./middleware/unified";
+import { injectRoute } from "./middleware/route";
+import { injectPath } from "./middleware/path";
+import { injectChannel } from "./middleware/channel";
+import { injectConduit } from "./middleware/conduit";
 import { injectCirculation } from "./middleware/circulation";
 import { injectFlow } from "./middleware/flow";
 import { injectRhythm } from "./middleware/rhythm";
@@ -18,6 +22,10 @@ const app = express();
 
 app.use(express.json());
 app.use(unifiedMiddleware);
+app.use(injectRoute);
+app.use(injectPath);
+app.use(injectChannel);
+app.use(injectConduit);
 app.use(injectCirculation);
 app.use(injectFlow);
 app.use(injectRhythm);

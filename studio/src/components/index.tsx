@@ -12,8 +12,12 @@ import SyncViewer from "./SyncViewer";
 import RhythmViewer from "./RhythmViewer";
 import FlowViewer from "./FlowViewer";
 import CirculationViewer from "./CirculationViewer";
+import ConduitViewer from "./ConduitViewer";
+import ChannelViewer from "./ChannelViewer";
+import PathViewer from "./PathViewer";
+import RouteViewer from "./RouteViewer";
 
-export { ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer, EnforcementViewer, IntegrityViewer, CoherenceViewer, SyncViewer, RhythmViewer, FlowViewer, CirculationViewer };
+export { ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer, EnforcementViewer, IntegrityViewer, CoherenceViewer, SyncViewer, RhythmViewer, FlowViewer, CirculationViewer, ConduitViewer, ChannelViewer, PathViewer, RouteViewer };
 
 export default function WorldGraphPanel() {
   const client = useFrasbergClient();

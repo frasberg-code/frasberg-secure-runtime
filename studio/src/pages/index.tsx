@@ -1,5 +1,5 @@
 import { useJob } from "../hooks/useJob";
-import { AssetViewer, SharePanel, ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer, EnforcementViewer, IntegrityViewer, CoherenceViewer, SyncViewer, RhythmViewer, FlowViewer, CirculationViewer } from "../components";
+import { AssetViewer, SharePanel, ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer, EnforcementViewer, IntegrityViewer, CoherenceViewer, SyncViewer, RhythmViewer, FlowViewer, CirculationViewer, ConduitViewer, ChannelViewer, PathViewer, RouteViewer } from "../components";
 import { publish } from "../actions";
 import { useState } from "react";
 import ZeroPoint from "./ZeroPoint";
@@ -14,6 +14,10 @@ import Sync from "./Sync";
 import Rhythm from "./Rhythm";
 import Flow from "./Flow";
 import Circulation from "./Circulation";
+import Conduit from "./Conduit";
+import Channel from "./Channel";
+import Path from "./Path";
+import Route from "./Route";
 
 export default function RuntimeDashboard() {
   return (
@@ -148,4 +152,4 @@ function ActionPanel() {
   );
 }
 
-export { ZeroPoint, Substrate, Bedrock, GroundTruth, Law, Enforcement, Integrity, Coherence, Sync, Rhythm, Flow, Circulation };
+export { ZeroPoint, Substrate, Bedrock, GroundTruth, Law, Enforcement, Integrity, Coherence, Sync, Rhythm, Flow, Circulation, Conduit, Channel, Path, Route };
