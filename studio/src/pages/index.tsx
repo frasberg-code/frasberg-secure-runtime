@@ -1,7 +1,14 @@
 import { useJob } from "../hooks/useJob";
-import { AssetViewer, SharePanel, ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer, EnforcementViewer, IntegrityViewer, CoherenceViewer, SyncViewer, RhythmViewer, FlowViewer, CirculationViewer, ConduitViewer, ChannelViewer, PathViewer, RouteViewer, NavigationViewer, TravelViewer, MotionViewer, DynamicsViewer, ForceViewer, VectorViewer, FieldViewer, InfluenceViewer, InteractionViewer, ExchangeViewer } from "../components";
+import { AssetViewer, SharePanel, ReasoningViewer, LogicViewer, DesignViewer, BlueprintViewer, ArchitectureViewer, StructureViewer, PatternViewer, ZeroPointViewer, SubstrateViewer, BedrockViewer, GroundTruthViewer, LawViewer, EnforcementViewer, IntegrityViewer, CoherenceViewer, SyncViewer, RhythmViewer, FlowViewer, CirculationViewer, ConduitViewer, ChannelViewer, PathViewer, RouteViewer, NavigationViewer, TravelViewer, MotionViewer, DynamicsViewer, ForceViewer, VectorViewer, FieldViewer, InfluenceViewer, InteractionViewer, ExchangeViewer } from "../components";
 import { publish } from "../actions";
 import { useState } from "react";
+import Reasoning from "./Reasoning";
+import Logic from "./Logic";
+import Design from "./Design";
+import Blueprint from "./Blueprint";
+import Architecture from "./Architecture";
+import Structure from "./Structure";
+import Pattern from "./Pattern";
 import ZeroPoint from "./ZeroPoint";
 import Substrate from "./Substrate";
 import Bedrock from "./Bedrock";
@@ -162,4 +169,4 @@ function ActionPanel() {
   );
 }
 
-export { ZeroPoint, Substrate, Bedrock, GroundTruth, Law, Enforcement, Integrity, Coherence, Sync, Rhythm, Flow, Circulation, Conduit, Channel, Path, Route, Navigation, Travel, Motion, Dynamics, Force, Vector, Field, Influence, Interaction, Exchange };
+export { Reasoning, Logic, Design, Blueprint, Architecture, Structure, Pattern, ZeroPoint, Substrate, Bedrock, GroundTruth, Law, Enforcement, Integrity, Coherence, Sync, Rhythm, Flow, Circulation, Conduit, Channel, Path, Route, Navigation, Travel, Motion, Dynamics, Force, Vector, Field, Influence, Interaction, Exchange };

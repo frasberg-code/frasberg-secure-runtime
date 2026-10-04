@@ -1,5 +1,12 @@
 import express from "express";
 import { unifiedMiddleware } from "./middleware/unified";
+import { injectReasoning } from "./middleware/reasoning";
+import { injectLogic } from "./middleware/logic";
+import { injectDesign } from "./middleware/design";
+import { injectBlueprint } from "./middleware/blueprint";
+import { injectArchitecture } from "./middleware/architecture";
+import { injectStructure } from "./middleware/structure";
+import { injectPattern } from "./middleware/pattern";
 import { injectExchange } from "./middleware/exchange";
 import { injectInteraction } from "./middleware/interaction";
 import { injectInfluence } from "./middleware/influence";
@@ -32,6 +39,13 @@ const app = express();
 
 app.use(express.json());
 app.use(unifiedMiddleware);
+app.use(injectReasoning);
+app.use(injectLogic);
+app.use(injectDesign);
+app.use(injectBlueprint);
+app.use(injectArchitecture);
+app.use(injectStructure);
+app.use(injectPattern);
 app.use(injectExchange);
 app.use(injectInteraction);
 app.use(injectInfluence);

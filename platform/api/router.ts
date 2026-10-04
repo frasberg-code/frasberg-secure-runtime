@@ -1,6 +1,13 @@
 import express from "express";
 import { publicApiMiddleware } from "./middleware";
 import { apiEnvelope } from "./envelope";
+import { reasoning } from "../../apps/public-api/reasoning";
+import { logic } from "../../apps/public-api/logic";
+import { design } from "../../apps/public-api/design";
+import { blueprint } from "../../apps/public-api/blueprint";
+import { architecture } from "../../apps/public-api/architecture";
+import { structure } from "../../apps/public-api/structure";
+import { pattern } from "../../apps/public-api/pattern";
 import { zeropoint } from "../../apps/public-api/zeropoint";
 import { substrate } from "../../apps/public-api/substrate";
 import { bedrock } from "../../apps/public-api/bedrock";
@@ -42,6 +49,13 @@ router.post("/worldgraph", (req, res) => {
   }));
 });
 
+router.post("/v1/reasoning", reasoning);
+router.post("/v1/logic", logic);
+router.post("/v1/design", design);
+router.post("/v1/blueprint", blueprint);
+router.post("/v1/architecture", architecture);
+router.post("/v1/structure", structure);
+router.post("/v1/pattern", pattern);
 router.post("/exchange", exchange);
 router.post("/interaction", interaction);
 router.post("/influence", influence);
