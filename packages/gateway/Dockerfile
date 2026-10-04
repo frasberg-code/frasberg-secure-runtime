@@ -3,6 +3,7 @@ WORKDIR /app
 COPY package.json package-lock.json tsconfig.json tsconfig.base.json .prettierrc.json ./
 COPY apps ./apps
 COPY packages ./packages
+COPY sdk ./sdk
 COPY config ./config
 COPY scripts ./scripts
 RUN npm ci
