@@ -18,6 +18,8 @@ export interface FrasbergClientOptions {
   fetchImpl?: typeof fetch;
 }
 
+export type FrasbergEndpoints = Partial<Record<FrasbergDomain, string>>;
+
 export class FrasbergClient {
   readonly baseUrl: string;
 
@@ -36,7 +38,10 @@ export class FrasbergClient {
     }
 
     const fetchImpl = this.options.fetchImpl ?? fetch;
-    const response = await fetchImpl(`${this.baseUrl}${path}`, {
+    const requestUrl = /^https?:\/\//i.test(path)
+      ? path
+      : `${this.baseUrl}${path}`;
+    const response = await fetchImpl(requestUrl, {
       method,
       headers: {
         authorization: ['Bearer', key].join(' '),
@@ -73,12 +78,14 @@ export class FrasbergGateway {
   constructor(
     private readonly client: FrasbergClient,
     private readonly keys: FrasbergGatewayKeys,
+    private readonly endpoints: FrasbergEndpoints = {},
   ) {}
 
   static fromEnv(options: FrasbergClientOptions = {}): FrasbergGateway {
     return new FrasbergGateway(
       new FrasbergClient(options),
       resolveFrasbergGatewayKeys(),
+      resolveFrasbergEndpoints(),
     );
   }
 
@@ -125,7 +132,7 @@ export class FrasbergGateway {
   ): Promise<TResponse> {
     const response = await this.client.request<TResponse>(
       'POST',
-      path,
+      this.endpoints[domain] ?? path,
       this.keyFor(domain),
       payload,
     );
@@ -179,6 +186,20 @@ export function resolveFrasbergGatewayKeys(
       env.FRASBERG_AUDIO_KEY,
       bundledKeys.FRASBERG_AUDIO_KEY,
     ),
+  };
+}
+
+export function resolveFrasbergEndpoints(
+  env: NodeJS.ProcessEnv = process.env,
+): FrasbergEndpoints {
+  return {
+    music: env.FRASBERG_MUSIC_URL,
+    video: env.FRASBERG_VIDEO_URL,
+    image: env.FRASBERG_IMAGE_URL,
+    audio: env.FRASBERG_AUDIO_TOOLS_URL,
+    voice: env.FRASBERG_VOICE_CLONE_URL,
+    stt: env.FRASBERG_STT_URL,
+    tts: env.FRASBERG_TTS_URL,
   };
 }
 

@@ -24,6 +24,34 @@
         {
           "name": "GATEWAY_PORT",
           "value": "4000"
+        },
+        {
+          "name": "FRASBERG_VIDEO_URL",
+          "value": "https://frasberg.com/api/generate/video"
+        },
+        {
+          "name": "FRASBERG_IMAGE_URL",
+          "value": "https://frasberg.com/api/generate/image"
+        },
+        {
+          "name": "FRASBERG_MUSIC_URL",
+          "value": "https://frasberg.com/api/generate/music"
+        },
+        {
+          "name": "FRASBERG_AUDIO_TOOLS_URL",
+          "value": "https://frasberg.com/api/audio/tools"
+        },
+        {
+          "name": "FRASBERG_VOICE_CLONE_URL",
+          "value": "https://frasberg.com/api/voice/clone"
+        },
+        {
+          "name": "FRASBERG_STT_URL",
+          "value": "https://frasberg.com/api/stt"
+        },
+        {
+          "name": "FRASBERG_TTS_URL",
+          "value": "https://frasberg.com/api/tts"
         }
       ],
       "secrets": [
@@ -38,6 +66,10 @@
         {
           "name": "GOVERNANCE_ADMIN_KEY",
           "valueFrom": "arn:aws:secretsmanager:__AWS_REGION__:__AWS_ACCOUNT_ID__:secret:frasberg/runtime/governance-admin-l56pSl"
+        },
+        {
+          "name": "FRASBERG_ENGINE_KEYS_JSON",
+          "valueFrom": "arn:aws:secretsmanager:__AWS_REGION__:__AWS_ACCOUNT_ID__:secret:frasberg/runtime/engine-keys-NZ30uY"
         }
       ],
       "logConfiguration": {
