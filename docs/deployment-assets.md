@@ -11,9 +11,8 @@ workflow. Its secret references match the existing production Supabase URL and
 anon-key secrets. The service-role key is deliberately not injected into this
 gateway task because the current runtime only uses the anon key and a
 service-role key bypasses Supabase row-level security.
-The gateway task does not reference optional engine-provider or governance
-secrets unless they have been provisioned. To enable provider-backed
-operations, create `frasberg/runtime/engine-keys` with
+The gateway task references the provisioned governance admin secret. To enable
+provider-backed operations, create `frasberg/runtime/engine-keys` with
 `infra/secrets/import-frasberg-keys.sh` and add its Secrets Manager ARN to the
 task definition as `FRASBERG_ENGINE_KEYS_JSON`. The gateway maps its FRB_* JSON
 fields to the FRASBERG_* domain clients and fails on malformed secret JSON.
