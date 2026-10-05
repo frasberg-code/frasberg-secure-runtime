@@ -1,0 +1,55 @@
+name: Dev Deploy
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    name: Dev Deploy
+    runs-on: ubuntu-latest
+    environment: development
+
+    permissions:
+      contents: write
+      deployments: write
+
+    env:
+      ENVIRONMENT: development
+      MODEL_NAME: LUCHII
+      FRASBERGAI_VERSION: v1
+      REGION: us-west-2
+      FRASBERGAI_API_KEY: ${{ secrets.FRASBERGAI_API_KEY }}
+      FRASBERGAI_MODEL_TOKEN: ${{ secrets.FRASBERGAI_MODEL_TOKEN }}
+      FRASBERGAI_DB_URL: ${{ secrets.FRASBERGAI_DB_URL }}
+      FRASBERGAI_DEV_DEPLOY_KEY: ${{ secrets.FRASBERGAI_DEV_DEPLOY_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install flake8 mypy
+
+      - name: Run tests
+        run: pytest
+
+      - name: Lint
+        run: flake8 .
+
+      - name: Type check
+        run: mypy .
+
+      - name: API contract tests
+        run: pytest tests/test_api.py -k model_name
+
+      - name: Deploy
+        if: success()
+        run: ./deploy.sh $ENVIRONMENT

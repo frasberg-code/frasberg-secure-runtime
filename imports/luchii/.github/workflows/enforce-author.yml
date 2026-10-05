@@ -1,0 +1,85 @@
+name: Enforce Commit Author Policy
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches:
+      - stable
+      - 'release/*'
+
+jobs:
+  enforce-author:
+    runs-on: ubuntu-latest
+    name: Validate Commit Authors
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check Commit Authors
+        run: |
+          echo "Checking commit authors against allowlist..."
+          
+          # Define allowed authors (maintainers)
+          ALLOWED_AUTHORS=(
+            "Frasberg Selassie"
+            "EmeraldOrbit"
+          )
+          
+          # Define rejected author patterns
+          REJECTED_PATTERNS=(
+            "copilot"
+            "bot"
+          )
+          
+          # Get commits in this PR/push
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            # For PRs, check the diff
+            COMMITS=$(git rev-list ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
+          else
+            # For push, check recent commits
+            COMMITS=$(git rev-list ${{ github.event.before }}..${{ github.sha }})
+          fi
+          
+          VIOLATIONS=0
+          
+          for commit in $COMMITS; do
+            AUTHOR=$(git log -1 --format='%an' "$commit")
+            
+            # Check against rejected patterns
+            for pattern in "${REJECTED_PATTERNS[@]}"; do
+              if [[ "$AUTHOR" =~ $pattern ]]; then
+                echo "❌ VIOLATION in commit $(git rev-parse --short "$commit"): Author '$AUTHOR' matches rejected pattern '$pattern'"
+                VIOLATIONS=$((VIOLATIONS + 1))
+              fi
+            done
+          done
+          
+          if [ $VIOLATIONS -gt 0 ]; then
+            echo ""
+            echo "❌ Policy violation: $VIOLATIONS commit(s) from disallowed authors detected"
+            echo "Allowed authors: ${ALLOWED_AUTHORS[*]}"
+            echo ""
+            echo "See governance/commit-author-policy.md for policy details"
+            exit 1
+          else
+            echo "✅ All commits comply with author policy"
+          fi
+
+  policy-reminder:
+    runs-on: ubuntu-latest
+    name: Remind of Author Policy
+    steps:
+      - name: Comment Policy
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '📋 **Commit Author Policy Reminder**\n\nAll commits must be authored by approved maintainers. See [governance/commit-author-policy.md](../../../blob/main/governance/commit-author-policy.md) for details.'
+            })

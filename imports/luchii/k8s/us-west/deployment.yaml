@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: luchii-us-west
+  labels:
+    app: luchii
+    region: us-west
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: luchii
+      region: us-west
+  template:
+    metadata:
+      labels:
+        app: luchii
+        region: us-west
+    spec:
+      containers:
+        - name: luchii
+          image: ghcr.io/frasbergai/luchii-engine:latest
+          ports:
+            - containerPort: 9000
+          env:
+            - name: REGION
+              value: "us-west"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: luchii-us-west
+spec:
+  selector:
+    app: luchii
+    region: us-west
+  ports:
+    - port: 9000
+      targetPort: 9000

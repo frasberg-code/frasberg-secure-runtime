@@ -1,0 +1,296 @@
+{
+  "collection": "Frasberg Dual-Reality Architecture Pack",
+  "version": 1,
+  "sourceFormat": "narrative architecture brief",
+  "summary": "A structured record of the Frasberg dual-reality banking, compliance, design-system, and Eternal-Origin law material for the Luchii documentation site.",
+  "normalizationNotes": [
+    "Repeated architecture fragments were merged into one canonical dataset.",
+    "Reality and mythic representations share the same underlying compliance model.",
+    "Implementation examples were reduced to schemas, contracts, and component signatures."
+  ],
+  "entries": [
+    {
+      "id": "fmr-bp-ui-states",
+      "title": "FMR-BP Dual-Reality UI States",
+      "category": "ui",
+      "formalName": "Frasberg Multi-Reality Banking Platform UI State Model",
+      "summary": "A three-mode rendering model for compliance outcomes across reality, mythic, and hybrid planes.",
+      "sections": [
+        {
+          "heading": "Reality Plane",
+          "items": [
+            {"name": "ALLOW", "detail": "Green compliant badge, low-friction state, and confirmation that the action meets regulatory requirements."},
+            {"name": "FLAG", "detail": "Amber review state with warning icon and expandable rule details."},
+            {"name": "BLOCK", "detail": "Red blocked state with remediation guidance and prevented primary action."},
+            {"name": "ESCALATE", "detail": "Orange investigation state with case id, status link, and workflow handoff."}
+          ]
+        },
+        {
+          "heading": "Mythic Plane",
+          "items": [
+            {"name": "HARMONIZED", "detail": "Origin Sigil, soft blue aura, and narrative that the action aligns with Eternal-Origin law."},
+            {"name": "DISTORTED", "detail": "Continuum Fracture glyph, amber distortion aura, and warning narrative for cosmic imbalance."},
+            {"name": "FORBIDDEN", "detail": "Non-Genesis Seal, crimson perimeter lock, and narrative that the action violates Eternal-Origin law."}
+          ]
+        },
+        {
+          "heading": "Hybrid Plane",
+          "items": [
+            {"name": "ALLOW + HARMONIZED", "detail": "Shows compliant status and cosmic alignment in the same card."},
+            {"name": "FLAG + DISTORTED", "detail": "Shows review status with astral distortion detected."},
+            {"name": "BLOCK + FORBIDDEN", "detail": "Shows blocked status with explicit Eternal-Origin prohibition."},
+            {"name": "ESCALATE + DISTORTED/FORBIDDEN", "detail": "Shows case creation with cosmic imbalance or prohibition context."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "canonical-event-schema",
+      "title": "FFG-OS Canonical Event Schema",
+      "category": "events",
+      "formalName": "Frasberg Canonical Compliance Event Envelope",
+      "summary": "A single envelope format emitted by FFG-OS services into EOC-Engine for compliance evaluation.",
+      "sections": [
+        {
+          "heading": "Envelope Fields",
+          "items": [
+            {"name": "envelopeVersion", "detail": "Top-level structural version for the event envelope."},
+            {"name": "eventId", "detail": "UUID for idempotency and event traceability."},
+            {"name": "eventType", "detail": "IdentityEvent, TransactionEvent, MarketEvent, or AccessEvent."},
+            {"name": "entityType", "detail": "User, Account, Wallet, Portfolio, or Device."},
+            {"name": "entityId", "detail": "Primary entity identifier for evaluation scope."},
+            {"name": "sourceService", "detail": "Service name that emitted the event."},
+            {"name": "timestamp", "detail": "ISO-8601 event time."},
+            {"name": "payloadVersion", "detail": "Domain payload version for backward compatibility."},
+            {"name": "payload", "detail": "Domain-specific body normalized by event type."},
+            {"name": "context", "detail": "Optional request metadata such as IP, deviceId, sessionId, and geo."},
+            {"name": "correlationId", "detail": "Cross-service request correlation id."}
+          ]
+        },
+        {
+          "heading": "Payload Schemas",
+          "items": [
+            {"name": "IdentityEvent", "detail": "Uses changeType, kycStatus, and riskTier for onboarding and profile changes."},
+            {"name": "TransactionEvent", "detail": "Uses txnType, amount, currency, direction, and account or wallet references."},
+            {"name": "MarketEvent", "detail": "Uses symbol, side, quantity, price, and simulationId for market simulations."},
+            {"name": "AccessEvent", "detail": "Uses action, deviceRisk, and behaviorScore for authentication and session events."}
+          ]
+        },
+        {
+          "heading": "Evaluation Metadata",
+          "items": [
+            {"name": "reality.decision", "detail": "ALLOW, FLAG, BLOCK, or ESCALATE."},
+            {"name": "reality.riskScore", "detail": "Numeric risk score aggregated by the compliance pipeline."},
+            {"name": "reality.rulesTriggered", "detail": "Triggered regulatory rule identifiers."},
+            {"name": "mythic.status", "detail": "HARMONIZED, DISTORTED, or FORBIDDEN."},
+            {"name": "mythic.cosmicRiskIndex", "detail": "Numeric mythic risk overlay derived from the same event."},
+            {"name": "mythic.lawsTriggered", "detail": "Triggered Eternal-Origin law identifiers."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "service-event-contracts",
+      "title": "FFG-OS Service Event Contracts",
+      "category": "integration",
+      "formalName": "Frasberg Service-to-Service Compliance Contracts",
+      "summary": "Service-specific event payload contracts built on top of the canonical compliance envelope.",
+      "sections": [
+        {
+          "heading": "Producer to Consumer Contracts",
+          "items": [
+            {"name": "identity-service -> compliance-rules-service", "detail": "IdentityEvent with changeType, kycStatus, and riskTier."},
+            {"name": "ledger-service -> compliance-rules-service", "detail": "TransactionEvent with txnType LEDGER_POST and ledger transaction fields."},
+            {"name": "wallet-blueprint-service -> compliance-rules-service", "detail": "TransactionEvent with txnType WALLET_SIM and wallet simulation fields."},
+            {"name": "trading-sim-service -> compliance-rules-service", "detail": "MarketEvent with symbol, side, quantity, price, and simulationId."},
+            {"name": "auth-gateway -> compliance-rules-service", "detail": "AccessEvent with action, deviceRisk, and behaviorScore."}
+          ]
+        },
+        {
+          "heading": "Versioning Rules",
+          "items": [
+            {"name": "Envelope Versioning", "detail": "Increment only for top-level structural changes."},
+            {"name": "Payload Versioning", "detail": "Increment when per-domain payload contracts change."},
+            {"name": "Compatibility Window", "detail": "Services support current and previous versions during rolling upgrades."},
+            {"name": "Normalization", "detail": "EOC-Engine accepts multiple versions and normalizes internally."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "eternal-origin-law-codex",
+      "title": "Eternal-Origin Law Codex v1.0",
+      "category": "governance",
+      "formalName": "Eternal-Origin Law Codex",
+      "summary": "A law mapping layer that translates enterprise compliance domains into Eternal-Origin mythic interpretations.",
+      "sections": [
+        {
+          "heading": "Canonical Laws",
+          "items": [
+            {"name": "EO-L1 Law of Origin-Identity", "detail": "Identity coherence; mapped to KYC, KYB, CDD, and EDD."},
+            {"name": "EO-L2 Law of Continuum Purity", "detail": "Clean value flows; mapped to AML, sanctions, and transaction monitoring."},
+            {"name": "EO-L3 Law of Balanced Exchange", "detail": "Market fairness and equilibrium; mapped to suitability and best execution."},
+            {"name": "EO-L4 Law of Veiled Identity", "detail": "Privacy and consent; mapped to data protection and retention rules."},
+            {"name": "EO-L5 Law of Cosmic Accountability", "detail": "Auditability and governance; mapped to reporting, oversight, and internal controls."}
+          ]
+        },
+        {
+          "heading": "Mythic Attributes",
+          "items": [
+            {"name": "originClarity", "detail": "Used to assess EO-L1 thresholds."},
+            {"name": "continuumIntegrity", "detail": "Used to assess EO-L2 thresholds."},
+            {"name": "exchangeBalance", "detail": "Used to assess EO-L3 thresholds."},
+            {"name": "veilStrength", "detail": "Used to assess EO-L4 thresholds."},
+            {"name": "ledgerEchoIntensity", "detail": "Used to assess EO-L5 thresholds."}
+          ]
+        },
+        {
+          "heading": "Status Threshold Model",
+          "items": [
+            {"name": "HARMONIZED", "detail": "High attribute integrity and no material mythic violations."},
+            {"name": "DISTORTED", "detail": "Intermediate attribute integrity requiring scrutiny or review."},
+            {"name": "FORBIDDEN", "detail": "Low integrity state with a hard law violation or prohibition."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "design-tokens",
+      "title": "Reality-Mythic Design Tokens",
+      "category": "design-system",
+      "formalName": "Frasberg Reality-Mythic Design Tokens",
+      "summary": "A token layer for shared colors, typography, spacing, glyph references, motion, and grid behavior.",
+      "sections": [
+        {
+          "heading": "Color Tokens",
+          "items": [
+            {"name": "status.compliant", "detail": "#1DB954"},
+            {"name": "status.review", "detail": "#FFC107"},
+            {"name": "status.blocked", "detail": "#F44336"},
+            {"name": "status.escalated", "detail": "#FF9800"},
+            {"name": "mythic.origin", "detail": "#4FC3F7"},
+            {"name": "mythic.distortion", "detail": "#FFB74D"},
+            {"name": "mythic.forbidden", "detail": "#EF5350"}
+          ]
+        },
+        {
+          "heading": "Typography and Layout Tokens",
+          "items": [
+            {"name": "font.family.primary", "detail": "Frasberg Sans, system-ui"},
+            {"name": "font.family.mythic", "detail": "Frasberg Astral Serif, serif"},
+            {"name": "space", "detail": "xs 4px, sm 8px, md 16px, lg 24px."},
+            {"name": "radius", "detail": "sm 4px, md 8px, lg 12px."},
+            {"name": "grid", "detail": "12 columns, 16px gutter, 24px desktop margin, 16px mobile margin."}
+          ]
+        },
+        {
+          "heading": "Motion Tokens",
+          "items": [
+            {"name": "duration.fast", "detail": "120ms"},
+            {"name": "duration.medium", "detail": "200ms"},
+            {"name": "duration.slow", "detail": "280ms"},
+            {"name": "duration.mythicPulse", "detail": "800ms"},
+            {"name": "duration.mythicWave", "detail": "1200ms"},
+            {"name": "duration.mythicLock", "detail": "400ms"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "component-blueprint-library",
+      "title": "Component Blueprint Library",
+      "category": "design-system",
+      "formalName": "Frasberg Component Blueprint Library",
+      "summary": "Core frontend primitives for reality, mythic, and hybrid compliance rendering.",
+      "sections": [
+        {
+          "heading": "Reality Components",
+          "items": [
+            {"name": "StatusBadge", "detail": "Renders ALLOW, FLAG, BLOCK, and ESCALATE status badges."},
+            {"name": "RiskMeter", "detail": "Maps numeric risk to low, medium, and high visual bands."},
+            {"name": "RuleList", "detail": "Shows triggered regulatory rules as a structured list."},
+            {"name": "CaseLink", "detail": "Links to case-management state when escalation occurs."}
+          ]
+        },
+        {
+          "heading": "Mythic Components",
+          "items": [
+            {"name": "GlyphStatus", "detail": "Renders HARMONIZED, DISTORTED, or FORBIDDEN glyph states."},
+            {"name": "AstralIndexBar", "detail": "Displays cosmicRiskIndex with mythic thresholds."},
+            {"name": "LawTagList", "detail": "Shows triggered Eternal-Origin law tags."},
+            {"name": "MythicNarrative", "detail": "Provides short lore text tied to the law state."}
+          ]
+        },
+        {
+          "heading": "Hybrid Components",
+          "items": [
+            {"name": "HybridComplianceCard", "detail": "Fuses reality decisioning and mythic overlay into one card."},
+            {"name": "RealityToggle", "detail": "Switches between reality, mythic, and hybrid render modes."},
+            {"name": "ModeProvider", "detail": "Persists and distributes active rendering mode at runtime."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "event-bus-topology",
+      "title": "Event Bus Topics and Subscriptions",
+      "category": "integration",
+      "formalName": "Frasberg Compliance Event Bus Topology",
+      "summary": "Topic-level data flow showing how services publish, consume, and render compliance evaluations.",
+      "sections": [
+        {
+          "heading": "Core Topics",
+          "items": [
+            {"name": "identity.events", "detail": "Produced by identity-service, auth-gateway, and device-trust-service."},
+            {"name": "transaction.events", "detail": "Produced by ledger-service, wallet-blueprint-service, and payments-blueprint-service."},
+            {"name": "market.events", "detail": "Produced by trading-sim-service and treasury-service."},
+            {"name": "access.events", "detail": "Produced by auth-gateway and device-trust-service."},
+            {"name": "compliance.evaluations.v1", "detail": "Produced by EOC-Engine and consumed by UI and case workflows."}
+          ]
+        },
+        {
+          "heading": "Subscription Patterns",
+          "items": [
+            {"name": "EOC-Engine", "detail": "Subscribes to identity, transaction, market, and access topics and publishes evaluations."},
+            {"name": "risk-ai-service", "detail": "Subscribes to identity, transaction, and market topics for risk scoring."},
+            {"name": "fraud-ai-service", "detail": "Subscribes to access and transaction topics and publishes fraud alerts."},
+            {"name": "FMR-BP", "detail": "Subscribes to compliance evaluations and fraud alerts to render reality, mythic, and hybrid states."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ui-runtime-patterns",
+      "title": "UI Runtime Patterns",
+      "category": "frontend",
+      "formalName": "Frasberg Multi-Reality Runtime Patterns",
+      "summary": "Shared runtime behavior for mode switching, animation, interaction, accessibility, and layout.",
+      "sections": [
+        {
+          "heading": "Mode and Interaction Rules",
+          "items": [
+            {"name": "Mode Persistence", "detail": "Rendering mode is stored per user and reused across screens."},
+            {"name": "Interaction States", "detail": "Reality uses elevation and focus rings; mythic uses aura and glyph glow; hybrid uses both."},
+            {"name": "Action Gating", "detail": "BLOCK disables primary actions; ESCALATE exposes case-management paths."}
+          ]
+        },
+        {
+          "heading": "Accessibility and Performance",
+          "items": [
+            {"name": "Text Equivalents", "detail": "Every glyph must have an accessible label and text equivalent."},
+            {"name": "Reduced Motion", "detail": "Mythic pulses, flickers, and waves can be disabled globally."},
+            {"name": "Rendering Budget", "detail": "Hybrid mode switches target sub-200ms transitions with GPU-friendly transforms."}
+          ]
+        },
+        {
+          "heading": "Layout Patterns",
+          "items": [
+            {"name": "Dual Panel Desktop", "detail": "Reality and mythic planes split into paired panels on larger screens."},
+            {"name": "Stacked Mobile", "detail": "Reality and mythic content stacks vertically on smaller screens."},
+            {"name": "Hybrid Center Card", "detail": "Hybrid mode centers a fused card with optional context panels."}
+          ]
+        }
+      ]
+    }
+  ]
+}

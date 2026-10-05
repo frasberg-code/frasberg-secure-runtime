@@ -1,0 +1,91 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ai_court
+      POSTGRES_PASSWORD: dev_password
+      POSTGRES_DB: ai_court
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  case-service:
+    build: ./ai-court/services/case-service
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://ai_court:dev_password@postgres/ai_court
+    depends_on:
+      - postgres
+
+  evidence-service:
+    build: ./ai-court/services/evidence-service
+    ports:
+      - "3002:3002"
+    environment:
+      DATABASE_URL: postgresql://ai_court:dev_password@postgres/ai_court
+    depends_on:
+      - postgres
+
+  law-service:
+    build: ./ai-court/services/law-service
+    ports:
+      - "3003:3003"
+    environment:
+      DATABASE_URL: postgresql://ai_court:dev_password@postgres/ai_court
+    depends_on:
+      - postgres
+
+  integrity-service:
+    build: ./ai-court/services/integrity-service
+    ports:
+      - "3004:3004"
+    environment:
+      FLIA_URL: http://localhost:9000
+
+  audit-service:
+    build: ./ai-court/services/audit-governance-service
+    ports:
+      - "3005:3005"
+    environment:
+      DATABASE_URL: postgresql://ai_court:dev_password@postgres/ai_court
+    depends_on:
+      - postgres
+
+  user-service:
+    build: ./ai-court/services/user-role-service
+    ports:
+      - "3006:3006"
+    environment:
+      DATABASE_URL: postgresql://ai_court:dev_password@postgres/ai_court
+    depends_on:
+      - postgres
+
+  gateway:
+    build: ./ai-court/gateway
+    ports:
+      - "3000:3000"
+    environment:
+      CASE_URL: http://case-service:3001
+      EVIDENCE_URL: http://evidence-service:3002
+      LAW_URL: http://law-service:3003
+      INTEGRITY_URL: http://integrity-service:3004
+      AUDIT_URL: http://audit-service:3005
+      USER_URL: http://user-service:3006
+    depends_on:
+      - case-service
+      - evidence-service
+      - law-service
+      - integrity-service
+      - audit-service
+      - user-service
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    name: ai-court-network

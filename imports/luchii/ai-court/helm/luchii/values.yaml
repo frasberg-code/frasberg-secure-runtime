@@ -1,0 +1,45 @@
+replicaCount: 3
+
+image:
+  repository: ai-court
+  tag: "1.0.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 3000
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: api.ai-court.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: ai-court-tls
+      hosts:
+        - api.ai-court.local
+
+env:
+  GOVERNANCE_AUTHORITY: "Frasberg"
+  ANCHOR_SHA: "09b70b557e3539fba67249e4951e2373dc33f434"
+  PHASE: "17"

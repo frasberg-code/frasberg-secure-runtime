@@ -1,0 +1,27 @@
+name: Apply Rulesets
+
+on:
+  workflow_dispatch:
+
+jobs:
+  apply-rulesets:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      administration: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Apply rulesets
+        env:
+          GITHUB_TOKEN: ${{ secrets.FRASBERGAI_AUTOMATION_TOKEN || github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python .github/policy/apply_rulesets.py

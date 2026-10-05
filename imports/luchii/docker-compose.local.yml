@@ -1,0 +1,150 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: luchii-postgres-local
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-luchii_dev}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-luchii_dev}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - luchii-local
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-luchii_dev}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis (optional caching)
+  redis:
+    image: redis:7-alpine
+    container_name: luchii-redis-local
+    ports:
+      - "6379:6379"
+    networks:
+      - luchii-local
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API Server
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: luchii-backend-local
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-local}
+      DEBUG: ${DEBUG:-1}
+      FRASBERGAI_DB_URL: postgresql://${POSTGRES_USER:-luchii_dev}:${POSTGRES_PASSWORD:-local_dev_password}@postgres:5432/${POSTGRES_DB:-luchii_dev}
+      FRASBERGAI_API_KEY: ${FRASBERGAI_API_KEY:-local-dev-key}
+      FRASBERGAI_MODEL_TOKEN: ${FRASBERGAI_MODEL_TOKEN:-local-dev-token}
+      FRASBERGAI_DEPLOY_KEY: ${FRASBERGAI_DEPLOY_KEY:-local-dev-deploy-key}
+      MODEL_NAME: ${MODEL_NAME:-LUCHII}
+      FRASBERGAI_VERSION: ${FRASBERGAI_VERSION:-v1}
+      PORT: 8080
+      HOST: 0.0.0.0
+      REDIS_URL: redis://redis:6379
+      CORS_ORIGINS: http://localhost:5173,http://localhost:5174,http://localhost:5175
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - luchii-local
+    volumes:
+      - .:/app
+    command: python server.py
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # UI Development Server (Judge Dashboard)
+  judge-dashboard:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile.local
+      target: dev
+      args:
+        PORT: 5173
+    container_name: luchii-judge-dashboard-local
+    environment:
+      VITE_API_URL: http://backend:8080
+      PORT: 5173
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - luchii-local
+    volumes:
+      - ./ui:/app
+      - /app/node_modules
+    command: npm run dev:judge
+
+  # UI Development Server (Lawyer Dashboard)
+  lawyer-dashboard:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile.local
+      target: dev
+      args:
+        PORT: 5174
+    container_name: luchii-lawyer-dashboard-local
+    environment:
+      VITE_API_URL: http://backend:8080
+      PORT: 5174
+    ports:
+      - "5174:5174"
+    depends_on:
+      - backend
+    networks:
+      - luchii-local
+    volumes:
+      - ./ui:/app
+      - /app/node_modules
+    command: npm run dev:lawyer
+
+  # UI Development Server (Clerk Dashboard)
+  clerk-dashboard:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile.local
+      target: dev
+      args:
+        PORT: 5175
+    container_name: luchii-clerk-dashboard-local
+    environment:
+      VITE_API_URL: http://backend:8080
+      PORT: 5175
+    ports:
+      - "5175:5175"
+    depends_on:
+      - backend
+    networks:
+      - luchii-local
+    volumes:
+      - ./ui:/app
+      - /app/node_modules
+    command: npm run dev:clerk
+
+networks:
+  luchii-local:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

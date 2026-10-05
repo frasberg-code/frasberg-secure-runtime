@@ -1,0 +1,19 @@
+replicaCount: 3
+
+service:
+  type: LoadBalancer
+
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: region
+              operator: In
+              values:
+                - us-west-2
+
+env:
+  REGION: "us-west-2"
+  PRIMARY_REGION: "true"
+  DATABASE_URL: "postgresql://user:pass@db-us-west.rds.amazonaws.com/aiCourt"

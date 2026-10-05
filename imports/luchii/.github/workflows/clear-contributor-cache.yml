@@ -1,0 +1,21 @@
+name: Clear Contributor Cache
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev
+
+jobs:
+  clear-cache:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      repository-projects: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clear contributor cache
+        run: ./scripts/clear_contributor_cache.sh

@@ -1,0 +1,44 @@
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/cases:
+    post:
+      summary: Create case
+      security:
+        - bearerAuth: []
+      responses:
+        "201":
+          description: Case created
+        "403":
+          description: Autonomous adjudication forbidden
+
+  /api/verdicts:
+    post:
+      summary: FORBIDDEN - Autonomous adjudication not allowed
+      responses:
+        "403":
+          description: Cycle 2 governance violation
+
+  /api/sentencing:
+    post:
+      summary: FORBIDDEN - Sentencing not allowed
+      responses:
+        "403":
+          description: Cycle 2 governance violation
+
+  /api/integrity/analyze:
+    post:
+      summary: Advisory-only integrity analysis
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Advisory analysis complete

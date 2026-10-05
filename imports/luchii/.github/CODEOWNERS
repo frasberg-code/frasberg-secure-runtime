@@ -1,0 +1,23 @@
+# Frasberg AI Luchii - Code Ownership & Review Requirements
+# This file defines mandatory code owners for critical paths
+
+# PRODUCTION CORE - Requires 2 approvals from core team
+/src/core/**                @FrasbergAI/core-team
+/src/inference/**           @FrasbergAI/core-team
+/src/model/**               @FrasbergAI/ml-team
+/deployment/**              @FrasbergAI/devops-team
+
+# GOVERNANCE & COMPLIANCE - Requires governance team review
+/docs/governance/**         @FrasbergAI/governance-team
+/docs/legal/**              @FrasbergAI/governance-team
+/docs/safety/**             @FrasbergAI/governance-team
+governance/**               @FrasbergAI/governance-team
+
+# SECURITY & INFRASTRUCTURE
+/security/**                @FrasbergAI/security-team
+/.github/workflows/**       @FrasbergAI/devops-team
+docker/**                   @FrasbergAI/devops-team
+kubernetes/**               @FrasbergAI/devops-team
+
+# DEFAULT - All contributors
+*                           @FrasbergAI/luchii-maintainers

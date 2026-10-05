@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: luchii
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: luchii
+  template:
+    metadata:
+      labels:
+        app: luchii
+    spec:
+      containers:
+        - name: luchii
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          env:
+            - name: REGION
+              value: "{{ .Values.env.REGION }}"

@@ -1,0 +1,52 @@
+name: AI Court CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - case-service
+          - evidence-service
+          - law-service
+          - integrity-service
+          - audit-governance-service
+          - user-role-service
+          - gateway
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install dependencies
+        working-directory: ./ai-court/services/${{ matrix.service }}
+        run: npm ci
+
+      - name: Run tests
+        working-directory: ./ai-court/services/${{ matrix.service }}
+        run: npm test
+
+      - name: Build
+        working-directory: ./ai-court/services/${{ matrix.service }}
+        run: npm run build
+
+      - name: Build Docker image
+        working-directory: ./ai-court/services/${{ matrix.service }}
+        run: |
+          docker build -t ai-court:${{ matrix.service }}-${{ github.sha }} .
+
+      - name: Push to registry
+        if: github.ref == 'refs/heads/main'
+        run: |
+          docker tag ai-court:${{ matrix.service }}-${{ github.sha }} gcr.io/frasberg/ai-court:${{ matrix.service }}-latest
+          docker push gcr.io/frasberg/ai-court:${{ matrix.service }}-latest

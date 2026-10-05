@@ -1,0 +1,30 @@
+site_name: Luchii Documentation
+theme:
+  name: material
+  palette:
+    - scheme: slate
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/weather-night
+        name: Switch theme
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Architecture: architecture.md
+  - Engine Spec: engine-spec.md
+  - Codex Map: codex-map.md
+  - API Reference: api.md
+  - Model Card: model-card.md
+  - Release: release.md
+  - Deployment Governance: DEPLOYMENT_GOVERNANCE.md
+  - Security Policy: SECURITY_POLICY.md
+  - CI/CD Overview: CI_CD_OVERVIEW.md
+  - Codices:
+      - Genesis Era Codex: codex/genesis-era-codex.md
+      - Creation Era Codex: codex/creation-era-codex.md
+      - Origin-Prime Era Codex: codex/origin-prime-era-codex.md

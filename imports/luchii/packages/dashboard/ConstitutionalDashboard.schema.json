@@ -1,0 +1,224 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ConstitutionalDashboardState",
+  "description": "Real-time constitutional status and system health of the Frasberg Autonomous Cloud",
+  "type": "object",
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this dashboard state was generated"
+    },
+    "safetyEnvelope": {
+      "type": "object",
+      "description": "Overall safety envelope status across all dimensions",
+      "properties": {
+        "slaOk": {
+          "type": "boolean",
+          "description": "Service level agreement is met"
+        },
+        "latencyOk": {
+          "type": "boolean",
+          "description": "Latency is within acceptable bounds"
+        },
+        "complianceOk": {
+          "type": "boolean",
+          "description": "Compliance requirements are satisfied"
+        },
+        "sovereigntyOk": {
+          "type": "boolean",
+          "description": "Sovereignty and residency constraints are met"
+        },
+        "meshOk": {
+          "type": "boolean",
+          "description": "Mesh routing and federation are healthy"
+        },
+        "evolutionOk": {
+          "type": "boolean",
+          "description": "Evolution operations are within safety bounds"
+        },
+        "overallHealthy": {
+          "type": "boolean",
+          "description": "All dimensions are within safe operating parameters"
+        }
+      },
+      "required": [
+        "slaOk",
+        "latencyOk",
+        "complianceOk",
+        "sovereigntyOk",
+        "meshOk",
+        "evolutionOk",
+        "overallHealthy"
+      ]
+    },
+    "mode": {
+      "type": "object",
+      "description": "Current kernel operating mode",
+      "properties": {
+        "currentMode": {
+          "type": "string",
+          "enum": ["steady_state", "self_governing", "evolution", "federation"],
+          "description": "Current kernel mode"
+        },
+        "allowedTransitions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["steady_state", "self_governing", "evolution", "federation"]
+          },
+          "description": "Modes that can be transitioned to from current mode"
+        },
+        "lastTransitionTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the last mode transition occurred"
+        }
+      },
+      "required": ["currentMode", "allowedTransitions", "lastTransitionTime"]
+    },
+    "sovereignStats": {
+      "type": "object",
+      "description": "Sovereignty and governance metrics",
+      "properties": {
+        "residencyViolations": {
+          "type": "integer",
+          "description": "Number of residency constraint violations"
+        },
+        "corridorViolations": {
+          "type": "integer",
+          "description": "Number of corridor routing violations"
+        },
+        "overridesActive": {
+          "type": "integer",
+          "description": "Number of currently active sovereign overrides"
+        },
+        "evolutionBlocksRecent": {
+          "type": "integer",
+          "description": "Number of evolution plans blocked in recent period"
+        },
+        "meshImbalancedRegions": {
+          "type": "integer",
+          "description": "Number of regions with mesh imbalance"
+        }
+      },
+      "required": [
+        "residencyViolations",
+        "corridorViolations",
+        "overridesActive",
+        "evolutionBlocksRecent",
+        "meshImbalancedRegions"
+      ]
+    },
+    "corridorHealth": {
+      "type": "array",
+      "description": "Health status of all federation corridors",
+      "items": {
+        "type": "object",
+        "properties": {
+          "corridorId": {
+            "type": "string",
+            "description": "Unique identifier of the corridor"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable corridor name"
+          },
+          "healthScore": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Health score (0-1)"
+          },
+          "latencyP95Ms": {
+            "type": "number",
+            "description": "95th percentile latency in milliseconds"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["healthy", "degraded", "critical", "frozen"],
+            "description": "Overall health status"
+          },
+          "saturation": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Capacity saturation (0-1)"
+          }
+        },
+        "required": [
+          "corridorId",
+          "name",
+          "healthScore",
+          "latencyP95Ms",
+          "status",
+          "saturation"
+        ]
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "description": "System-wide performance metrics",
+      "properties": {
+        "uptimePercent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "System uptime percentage"
+        },
+        "avgLatencyMs": {
+          "type": "number",
+          "description": "Average response latency"
+        },
+        "p99LatencyMs": {
+          "type": "number",
+          "description": "99th percentile latency"
+        },
+        "throughputRps": {
+          "type": "number",
+          "description": "Requests per second"
+        },
+        "errorRatePercent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Error rate percentage"
+        }
+      },
+      "required": [
+        "uptimePercent",
+        "avgLatencyMs",
+        "p99LatencyMs",
+        "throughputRps",
+        "errorRatePercent"
+      ]
+    },
+    "insights": {
+      "type": "array",
+      "description": "SIE-generated constitutional insights",
+      "items": { "type": "object" }
+    },
+    "recommendations": {
+      "type": "array",
+      "description": "SIE-generated constitutional recommendations",
+      "items": { "type": "object" }
+    },
+    "systemScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Overall system health score (0-100)"
+    }
+  },
+  "required": [
+    "timestamp",
+    "safetyEnvelope",
+    "mode",
+    "sovereignStats",
+    "corridorHealth",
+    "metrics",
+    "insights",
+    "recommendations",
+    "systemScore"
+  ]
+}
