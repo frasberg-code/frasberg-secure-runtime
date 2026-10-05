@@ -13,9 +13,13 @@ gateway task because the current runtime only uses the anon key and a
 service-role key bypasses Supabase row-level security.
 The gateway task reads the governance admin and consolidated engine-key
 secrets from Secrets Manager. The engine-key JSON maps its FRB_* fields to the
-FRASBERG_* domain clients and fails on malformed JSON. Provider submission
-routes are configured through the matching `FRASBERG_*_URL` task environment
-variables so each engine uses its explicit provider endpoint.
+FRASBERG_* domain clients and fails on malformed JSON. Music generation uses
+`FRB_MUSIC_GENERATION_KEY`, while music job polling uses
+`FRB_MUSIC_ENGINE_KEY`. Video operations use `FRB_VIDEO_ENGINE_KEY`; image
+operations use `FRB_IMAGE_VIDEO_GENERATION_KEY`. Audio, voice, STT, and TTS use
+their matching FRB_* keys. Provider submission routes are configured through
+the matching `FRASBERG_*_URL` task environment variables so each engine uses
+its explicit provider endpoint.
 
 `infra/iam/frasberg-secure-runtime-role.json` is an IAM permissions policy for
 the ECS task execution role, which retrieves task-definition secrets and
