@@ -974,7 +974,7 @@ async def _image_engine_auth(request: Request) -> dict:
 
 
 @api_router.post("/generate/image")
-async def generate_image(req: ImageGenRequest, user: dict = Depends(_image_engine_auth)):
+async def generate_image(req: ImageGenRequest, request: Request, user: dict = Depends(_image_engine_auth)):
     prompt = (req.prompt or "").strip()
     if not prompt:
         raise HTTPException(status_code=400, detail="A prompt is required")
@@ -989,7 +989,9 @@ async def generate_image(req: ImageGenRequest, user: dict = Depends(_image_engin
                             detail=f"Daily image limit reached ({limit}/day on your plan). Upgrade to Luchii Pro for {IMAGE_LIMIT_PRO}/day.")
     session_id = req.session_id or str(uuid.uuid4())
     try:
-        img_bytes = await _try_upstream_image(prompt)
+        # Loop guard: requests arriving FROM the gateway must not route back upstream to it
+        from_gateway = bool(request.headers.get("x-frasberg-gateway"))
+        img_bytes = None if from_gateway else await _try_upstream_image(prompt)
         if img_bytes is None:
             image_gen = OpenAIImageGeneration(api_key=EMERGENT_LLM_KEY)
             images = await image_gen.generate_images(prompt=prompt, model="gpt-image-1", number_of_images=1)
