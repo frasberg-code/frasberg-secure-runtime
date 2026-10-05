@@ -251,6 +251,46 @@ describe('FrasbergGateway', () => {
     );
   });
 
+  it('forwards a Supabase user token for website-authenticated image jobs', async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({ job_id: 'image-user-job' }))
+      .mockResolvedValueOnce(jsonResponse({ id: 'image-user-job' }));
+    const gateway = new FrasbergGateway(
+      new FrasbergClient({ fetchImpl: fetchImpl as typeof fetch }),
+      { FRASBERG_IMAGE_KEY: 'service-image-key' },
+      { image: 'https://frasberg.com/api/generate/image' },
+    );
+
+    await gateway.imageForUser(
+      { prompt: 'a track at sunset' },
+      'supabase-user-token',
+    );
+    await gateway.job('image-user-job', {
+      domain: 'image',
+      accessToken: 'supabase-user-token',
+    });
+
+    expect(fetchImpl).toHaveBeenNthCalledWith(
+      1,
+      'https://frasberg.com/api/generate/image',
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          authorization: 'Bearer supabase-user-token',
+        }),
+      }),
+    );
+    expect(fetchImpl).toHaveBeenNthCalledWith(
+      2,
+      'https://frasberg.com/api/jobs/image-user-job',
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          authorization: 'Bearer supabase-user-token',
+        }),
+      }),
+    );
+  });
+
   it('routes provider requests to configured domain endpoints', async () => {
     const fetchImpl = vi.fn(async () =>
       jsonResponse({ job_id: 'job-1', state: 'queued' }),
