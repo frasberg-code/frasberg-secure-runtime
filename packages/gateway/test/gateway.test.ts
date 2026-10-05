@@ -13,6 +13,76 @@ const apiKeys = [
 ];
 
 describe('gateway auth and routing', () => {
+  it('executes each engine through the authenticated API gateway', async () => {
+    const app = buildApp({
+      apiKeys: [
+        { id: 'engine', secret: 'engine-secret', permissions: ['chat'] },
+      ],
+      fetchImpl: vi.fn() as unknown as typeof fetch,
+    });
+    const domains = [
+      'identity',
+      'persona',
+      'character',
+      'role',
+      'function',
+      'task',
+      'action',
+      'behavior',
+      'pattern',
+      'structure',
+    ] as const;
+
+    for (const domain of domains) {
+      const input = `hello ${domain}`;
+      const payload = { input, awareness: createEngineAwareness() };
+      const signature = createHmac('sha256', 'engine-secret')
+        .update(JSON.stringify(payload))
+        .digest('hex');
+      const response = await app.inject({
+        method: 'POST',
+        url: `/v1/${domain}`,
+        headers: {
+          'x-api-key': 'engine-secret',
+          'x-api-signature': signature,
+        },
+        payload,
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json().payload.output).toBe(
+        `${domain[0].toUpperCase()}${domain.slice(1)} processed: ${input}`,
+      );
+    }
+  });
+
+  it('rejects engine requests without awareness', async () => {
+    const app = buildApp({
+      apiKeys: [
+        { id: 'engine', secret: 'engine-secret', permissions: ['chat'] },
+      ],
+      fetchImpl: vi.fn() as unknown as typeof fetch,
+    });
+    const payload = { input: 'hello identity' };
+    const signature = createHmac('sha256', 'engine-secret')
+      .update(JSON.stringify(payload))
+      .digest('hex');
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/identity',
+      headers: {
+        'x-api-key': 'engine-secret',
+        'x-api-signature': signature,
+      },
+      payload,
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toEqual({
+      error: 'Request must include a string input and valid awareness.',
+    });
+  });
+
   it('serves the ALB health endpoint without authentication', async () => {
     const app = buildApp({
       apiKeys,
@@ -1073,3 +1143,42 @@ describe('gateway auth and routing', () => {
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 });
+
+function createEngineAwareness() {
+  const path = [
+    'consciousnessPerception',
+    'mindAwareness',
+    'cognitiveMindspace',
+    'reasoningArchitecture',
+    'logicCognition',
+    'designReasoning',
+    'blueprintLogic',
+    'architecturePlan',
+    'structureBlueprint',
+    'patternArchitecture',
+    'exchangeStructure',
+    'interactionFlow',
+    'influenceExchange',
+    'fieldPropagation',
+    'vectorInfluence',
+    'forceDirection',
+    'dynamicsVector',
+    'motionForce',
+    'travelKinetics',
+    'navigationMotion',
+    'routeDecision',
+    'pathNavigation',
+    'directionMap',
+    'pathwayDirection',
+  ];
+  let perception: Record<string, any> = { structuralPathway: 'open' };
+
+  for (const key of path.reverse()) {
+    perception = { [key]: perception };
+  }
+
+  return {
+    perception,
+    field: { harmonyAwarenessField: 'balanced' },
+  };
+}
