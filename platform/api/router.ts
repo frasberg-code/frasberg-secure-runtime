@@ -37,6 +37,28 @@ import { field } from "../../apps/public-api/field";
 import { influence } from "../../apps/public-api/influence";
 import { interaction } from "../../apps/public-api/interaction";
 import { exchange } from "../../apps/public-api/exchange";
+import { identity } from "../../apps/public-api/identity";
+import { persona } from "../../apps/public-api/persona";
+import { character } from "../../apps/public-api/character";
+import { role } from "../../apps/public-api/role";
+import { func } from "../../apps/public-api/function";
+import { task } from "../../apps/public-api/task";
+import { action } from "../../apps/public-api/action";
+import { behavior } from "../../apps/public-api/behavior";
+import { enginePattern } from "../../apps/public-api/engine-pattern";
+import { engineStructure } from "../../apps/public-api/engine-structure";
+import {
+  identityEngineFlow,
+  personaEngineFlow,
+  characterEngineFlow,
+  roleEngineFlow,
+  functionEngineFlow,
+  taskEngineFlow,
+  actionEngineFlow,
+  behaviorEngineFlow,
+  patternEngineFlow,
+  structureEngineFlow
+} from "../../apps/gateway-server/middleware/engine-flow";
 
 const router = express.Router();
 
@@ -62,6 +84,16 @@ router.post("/v1/blueprint", blueprint);
 router.post("/v1/architecture", architecture);
 router.post("/v1/structure", structure);
 router.post("/v1/pattern", pattern);
+router.post("/identity", ...identityEngineFlow, identity);
+router.post("/persona", ...personaEngineFlow, persona);
+router.post("/character", ...characterEngineFlow, character);
+router.post("/role", ...roleEngineFlow, role);
+router.post("/function", ...functionEngineFlow, func);
+router.post("/task", ...taskEngineFlow, task);
+router.post("/action", ...actionEngineFlow, action);
+router.post("/behavior", ...behaviorEngineFlow, behavior);
+router.post("/engine-pattern", ...patternEngineFlow, enginePattern);
+router.post("/engine-structure", ...structureEngineFlow, engineStructure);
 router.post("/exchange", exchange);
 router.post("/interaction", interaction);
 router.post("/influence", influence);
