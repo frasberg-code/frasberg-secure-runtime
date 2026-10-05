@@ -34,3 +34,5 @@ export const exportStatus = (jobId: string) =>
 export const getRaceStory = (raceId: string) => request<{ beats: string[] }>(`${race(raceId)}/story`);
 export const saveRaceStory = (raceId: string, beats: string[]) =>
   request(`${race(raceId)}/story`, { method: 'PUT', body: JSON.stringify({ beats }) });
+export const setLiveCamera = (raceId: string, camera: string) =>
+  request(`/api/gt6/${encodeURIComponent(raceId)}/camera`, { method: 'POST', body: JSON.stringify({ camera }) });
