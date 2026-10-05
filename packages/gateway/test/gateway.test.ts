@@ -407,6 +407,57 @@ describe('gateway auth and routing', () => {
     expect(voice).toHaveBeenCalledWith({ prompt: 'welcome message' });
   });
 
+  it('verifies Supabase sessions and forwards them for image generation and polling', async () => {
+    const accessToken = 'verified-supabase-session';
+    const userId = '4b682ba7-921a-4d02-aad8-3b210a7561af';
+    const imageForUser = vi.fn(async () => ({
+      job_id: 'image-user-1',
+      state: 'queued',
+    }));
+    const job = vi.fn(async () => ({ id: 'image-user-1', state: 'completed' }));
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL) => {
+      expect(String(input)).toBe('https://supabase.test/auth/v1/user');
+      return new Response(JSON.stringify({ id: userId }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    });
+    const app = buildApp({
+      apiKeys: [],
+      fetchImpl: fetchImpl as typeof fetch,
+      supabaseUrl: 'https://supabase.test',
+      supabaseAnonKey: 'supabase-anon-key',
+      frasbergGateway: {
+        imageForUser,
+        job,
+      } as unknown as FrasbergGateway,
+    });
+
+    const image = await app.inject({
+      method: 'POST',
+      url: '/api/image',
+      headers: { authorization: `Bearer ${accessToken}` },
+      payload: { prompt: 'a track at sunset' },
+    });
+    const polled = await app.inject({
+      method: 'GET',
+      url: '/api/jobs/image-user-1?domain=image',
+      headers: { authorization: `Bearer ${accessToken}` },
+    });
+
+    expect(image.statusCode).toBe(200);
+    expect(imageForUser).toHaveBeenCalledWith(
+      { prompt: 'a track at sunset' },
+      accessToken,
+    );
+    expect(polled.statusCode).toBe(200);
+    expect(job).toHaveBeenCalledWith('image-user-1', {
+      domain: 'image',
+      accessToken,
+    });
+    await app.close();
+  });
+
   it('applies a domain-specific burst quota by tenant', async () => {
     const music = vi.fn(async () => ({ job_id: 'job-1', state: 'queued' }));
     const frasbergGateway = {

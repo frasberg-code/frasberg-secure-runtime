@@ -137,6 +137,8 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
     }
 
     const requiresSupabaseUser =
+      routePath === '/api/image' ||
+      routePath.startsWith('/api/jobs/') ||
       routePath.startsWith('/v1/identity/') ||
       routePath.startsWith('/v1/continuity/') ||
       routePath === '/v1/diagnostics' ||
@@ -161,7 +163,10 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
       typeof request.headers.authorization === 'string'
     ) {
       const accessToken = readBearerToken(request.headers.authorization);
-      if (accessToken) {
+      if (
+        accessToken &&
+        !apiKeys.some((candidate) => candidate.secret === accessToken)
+      ) {
         let userId: string | undefined;
         try {
           userId = await resolveSupabaseUserId(
@@ -993,11 +998,6 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
       return limited;
     }
 
-    const denied = requirePermission(request, reply, 'jobs:read');
-    if (denied) {
-      return denied;
-    }
-
     const params = request.params as { id: string };
     return proxyRequest(
       reply,
@@ -1081,7 +1081,10 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
         return limited;
       }
 
-      const denied = requirePermission(request, reply, permission);
+      const denied =
+        domain === 'image' && request.supabaseAccessToken
+          ? undefined
+          : requirePermission(request, reply, permission);
       if (denied) {
         return denied;
       }
@@ -1095,7 +1098,11 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
               'Speech-to-text requests require multipart/form-data with an audio file.',
           });
         }
-        const response = await routeFrasberg(domain, payload);
+        const response = await routeFrasberg(
+          domain,
+          payload,
+          request.supabaseAccessToken,
+        );
         return reply.code(200).send(response);
       } catch (error) {
         return reply.code(502).send({ error: (error as Error).message });
@@ -1116,18 +1123,22 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
         return limited;
       }
 
-      const denied = requirePermission(request, reply, 'jobs:read');
+      const params = request.params as { id: string };
+      const query = request.query as { domain?: string };
+      const parsedDomain = parseDomain(query.domain);
+      const denied = request.supabaseAccessToken
+        ? undefined
+        : requirePermission(request, reply, 'jobs:read');
       if (denied) {
         return denied;
       }
 
-      const params = request.params as { id: string };
-      const query = request.query as { domain?: string };
-      const parsedDomain = parseDomain(query.domain);
-
       try {
         const response = await frasbergGateway.job(params.id, {
           domain: parsedDomain,
+          ...(request.supabaseAccessToken
+            ? { accessToken: request.supabaseAccessToken }
+            : {}),
         });
         return reply.code(200).send(response);
       } catch (error) {
@@ -1136,14 +1147,20 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
     };
   }
 
-  function routeFrasberg(domain: FrasbergDomain, payload: unknown) {
+  function routeFrasberg(
+    domain: FrasbergDomain,
+    payload: unknown,
+    accessToken?: string,
+  ) {
     switch (domain) {
       case 'music':
         return frasbergGateway.music(payload);
       case 'video':
         return frasbergGateway.video(payload);
       case 'image':
-        return frasbergGateway.image(payload);
+        return accessToken
+          ? frasbergGateway.imageForUser(payload, accessToken)
+          : frasbergGateway.image(payload);
       case 'voice':
         return frasbergGateway.voice(payload);
       case 'stt':

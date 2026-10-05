@@ -169,6 +169,13 @@ export class FrasbergGateway {
     return this.submit<TResponse>('image', '/image', payload);
   }
 
+  async imageForUser<TResponse>(
+    payload: unknown,
+    accessToken: string,
+  ): Promise<TResponse> {
+    return this.submit<TResponse>('image', '/image', payload, accessToken);
+  }
+
   async voice<TResponse>(payload: unknown): Promise<TResponse> {
     return this.submit<TResponse>('voice', '/voice', payload);
   }
@@ -187,7 +194,7 @@ export class FrasbergGateway {
 
   async job<TResponse>(
     id: string,
-    options: { domain?: FrasbergDomain } = {},
+    options: { domain?: FrasbergDomain; accessToken?: string } = {},
   ): Promise<TResponse> {
     const domain = options.domain ?? this.jobDomains.get(id) ?? 'music';
     const engineKeyName =
@@ -200,7 +207,7 @@ export class FrasbergGateway {
     return this.client.request(
       'GET',
       `/jobs/${id}`,
-      engineKey ?? this.keyFor(domain),
+      options.accessToken ?? engineKey ?? this.keyFor(domain),
     );
   }
 
@@ -252,11 +259,12 @@ export class FrasbergGateway {
     domain: FrasbergDomain,
     path: string,
     payload: unknown,
+    accessToken?: string,
   ): Promise<TResponse> {
     const response = await this.client.request<TResponse>(
       'POST',
       this.endpoints[domain] ?? path,
-      this.keyFor(domain),
+      accessToken ?? this.keyFor(domain),
       payload,
     );
     const id = extractJobId(response);

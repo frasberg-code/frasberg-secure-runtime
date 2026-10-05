@@ -26,9 +26,11 @@ The provider's own application uses `/api/audio/tools/enhance`,
 `/api/voice/transcribe`, and `/api/voice/speak` for audio enhancement,
 transcription, and speech generation respectively; the production task uses
 those exact routes. STT requests to this gateway must upload an audio file as
-`multipart/form-data`. The website image flow authenticates with a Supabase
-user session; do not treat the gateway's image-generation API key as an
-equivalent website session token.
+`multipart/form-data`. Image requests may authenticate with a verified
+Supabase user session; the gateway verifies the user with Supabase Auth and
+forwards that session to the configured image endpoint so website entitlement
+checks remain authoritative. Existing API-key image requests continue to use
+the `media` permission and the configured image API key.
 
 ## Shared runtime state and Studio
 
