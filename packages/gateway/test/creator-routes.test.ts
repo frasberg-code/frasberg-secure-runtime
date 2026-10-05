@@ -37,4 +37,8 @@ describe('creator routes', () => {
     expect((await app(['chat']).inject({ method: 'GET', url: '/api/creator/assets', headers: auth })).statusCode).toBe(403);
     expect((await app(['jobs:read']).inject({ method: 'GET', url: '/api/gt6/zzz/mixed', headers: auth })).statusCode).toBe(404);
   });
+  it('validates camera input and 404s unknown races', async () => {
+    const a = app(['jobs:read', 'jobs:write']);
+    expect((await a.inject({ method: 'POST', url: '/api/gt6/zzz/camera', headers: auth, payload: { camera: 'drone' } })).statusCode).toBe(404);
+  });
 });

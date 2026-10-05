@@ -38,6 +38,8 @@ const MAX_ITEMS = 500;
 const graphs = new Map<string, AssetGraphV2>();
 const licenses: AssetLicense[] = [];
 const stories = new Map<string, RaceStory>();
+const CAMERAS = ['static_track', 'chase_cam', 'cockpit', 'drone'];
+const cameras = new Map<string, string>();
 
 const owner = (request: FastifyRequest) =>
   String((request as any).authContext?.keyId ?? 'anonymous');
@@ -113,6 +115,24 @@ export function registerCreatorRoutes(
     return story;
   });
 
+
+  app.post('/api/gt6/:raceId/camera', { preHandler: guard('jobs:write') }, async (request, reply) => {
+    const raceId = (request.params as { raceId: string }).raceId;
+    if (!loadRaceState(raceId)) return reply.code(404).send({ error: 'race not found' });
+    const camera = (request.body as any)?.camera;
+    if (!CAMERAS.includes(camera)) {
+      return reply.code(400).send({ error: `camera must be one of ${CAMERAS.join(', ')}` });
+    }
+    cameras.set(storyKey(request, raceId), camera);
+    capMap(cameras);
+    return { raceId, camera };
+  });
+
+  app.get('/api/gt6/:raceId/camera', { preHandler: guard('jobs:read') }, async (request, reply) => {
+    const raceId = (request.params as { raceId: string }).raceId;
+    if (!loadRaceState(raceId)) return reply.code(404).send({ error: 'race not found' });
+    return { raceId, camera: cameras.get(storyKey(request, raceId)) ?? 'static_track' };
+  });
   app.post('/api/publish', { preHandler: guard('jobs:write') }, async (request, reply) => {
     const { mp4Url, story } = (request.body ?? {}) as { mp4Url?: string; story?: RaceStory };
     if (typeof mp4Url !== 'string' || !/^https?:\/\//i.test(mp4Url) || !story) {
