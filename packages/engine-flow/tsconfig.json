@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "./dist",
+    "rootDir": ".."
+  },
+  "include": [
+    "index.ts",
+    "../identity-engine/**/*.ts",
+    "../persona-engine/**/*.ts",
+    "../character-engine/**/*.ts",
+    "../role-engine/**/*.ts",
+    "../function-engine/**/*.ts",
+    "../task-engine/**/*.ts",
+    "../action-engine/**/*.ts",
+    "../behavior-engine/**/*.ts",
+    "../pattern-engine/**/*.ts",
+    "../structure-engine/**/*.ts"
+  ]
+}

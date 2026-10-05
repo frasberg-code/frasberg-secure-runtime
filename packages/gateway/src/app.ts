@@ -20,6 +20,11 @@ import {
   parseApiKeys,
   validateChatRequest,
 } from '@frasberg/shared';
+import {
+  executeEngine,
+  isEngineAwareness,
+  type EngineDomain,
+} from '../../engine-flow/dist/engine-flow';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -217,6 +222,62 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
 
   app.get('/health', async () => ({ ok: true }));
   app.get('/runtime-health', async () => ({ ok: true }));
+
+  const engineDomains: EngineDomain[] = [
+    'identity',
+    'persona',
+    'character',
+    'role',
+    'function',
+    'task',
+    'action',
+    'behavior',
+    'pattern',
+    'structure',
+  ];
+
+  for (const domain of engineDomains) {
+    app.post(`/v1/${domain}`, async (request, reply) => {
+      const limited = rateLimitRequest(
+        request,
+        reply,
+        rateLimitState,
+        rateLimitMax,
+        rateLimitWindowMs,
+      );
+      if (limited) {
+        return limited;
+      }
+
+      const denied = requirePermission(request, reply, 'chat');
+      if (denied) {
+        return denied;
+      }
+
+      if (
+        !isRecord(request.body) ||
+        typeof request.body.input !== 'string' ||
+        !isEngineAwareness(request.body.awareness)
+      ) {
+        return reply.code(400).send({
+          error: 'Request must include a string input and valid awareness.',
+        });
+      }
+
+      const result = executeEngine(
+        domain,
+        request.body.awareness,
+        request.body.input,
+      );
+
+      return reply.code(200).send({
+        version: '1.0',
+        owner: request.authContext?.userId ?? request.authContext?.keyId,
+        payload: result,
+        timestamp: Date.now(),
+      });
+    });
+  }
 
   app.get('/v1/identity/graph', async (request, reply) => {
     if (!request.authContext?.userId || !request.supabaseAccessToken) {
