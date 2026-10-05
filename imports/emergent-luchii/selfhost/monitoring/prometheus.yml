@@ -1,0 +1,43 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: luchii-mesh
+    owner: frasberg
+
+rule_files:
+  - /etc/prometheus/alert_rules.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+scrape_configs:
+  - job_name: luchii-backend
+    metrics_path: /api/metrics
+    static_configs:
+      - targets: ["backend:8001"]
+        labels:
+          service: luchii-api
+          region: primary
+
+  - job_name: luchii-mesh-ws
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["mesh:8002"]
+        labels:
+          service: luchii-mesh-ws
+          region: primary
+
+  - job_name: node
+    static_configs:
+      - targets: ["node-exporter:9100"]
+
+  - job_name: cadvisor
+    static_configs:
+      - targets: ["cadvisor:8080"]
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

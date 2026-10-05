@@ -1,0 +1,17 @@
+name: Deploy to AWS ECS
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to AWS ECS
+    uses: ./.github/workflows/deploy-production.yml
+    permissions:
+      id-token: write
+      contents: read

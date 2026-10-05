@@ -1,0 +1,74 @@
+services:
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: luchii-prometheus
+    restart: always
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=30d
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - luchii-mesh
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: luchii-grafana
+    restart: always
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+      GF_SERVER_ROOT_URL: https://grafana.frasberg.com
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3001:3000"
+    networks:
+      - luchii-mesh
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: luchii-alertmanager
+    restart: always
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    networks:
+      - luchii-mesh
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: luchii-node-exporter
+    restart: always
+    pid: host
+    volumes:
+      - /:/host:ro,rslave
+    command:
+      - --path.rootfs=/host
+    networks:
+      - luchii-mesh
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: luchii-cadvisor
+    restart: always
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - luchii-mesh
+
+networks:
+  luchii-mesh:
+    external: true
+
+volumes:
+  prometheus_data:
+  grafana_data:

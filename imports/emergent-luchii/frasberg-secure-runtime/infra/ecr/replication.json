@@ -1,0 +1,24 @@
+{
+  "replicationConfiguration": {
+    "rules": [
+      {
+        "destinations": [
+          {
+            "region": "us-east-1",
+            "registryId": "__AWS_ACCOUNT_ID__"
+          },
+          {
+            "region": "eu-central-1",
+            "registryId": "__AWS_ACCOUNT_ID__"
+          }
+        ],
+        "repositoryFilters": [
+          {
+            "filter": "frasberg-secure-runtime",
+            "filterType": "PREFIX_MATCH"
+          }
+        ]
+      }
+    ]
+  }
+}

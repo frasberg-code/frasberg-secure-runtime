@@ -1,0 +1,19 @@
+{
+  "region": "us-west-2",
+  "cluster": "frasberg-secure-runtime-cluster",
+  "service": "frasberg-secure-runtime-service",
+  "minCapacity": 2,
+  "maxCapacity": 10,
+  "policies": [
+    {
+      "name": "frasberg-cpu-scale",
+      "metric": "ECSServiceAverageCPUUtilization",
+      "targetValue": 60
+    },
+    {
+      "name": "frasberg-memory-scale",
+      "metric": "ECSServiceAverageMemoryUtilization",
+      "targetValue": 70
+    }
+  ]
+}

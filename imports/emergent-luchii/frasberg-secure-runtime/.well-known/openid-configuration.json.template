@@ -1,0 +1,6 @@
+{
+  "issuer": "https://example.invalid",
+  "authorization_endpoint": "https://example.invalid/authorize",
+  "token_endpoint": "https://example.invalid/token",
+  "jwks_uri": "https://example.invalid/.well-known/jwks.json"
+}

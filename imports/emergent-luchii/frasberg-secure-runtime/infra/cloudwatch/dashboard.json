@@ -1,0 +1,60 @@
+{
+  "widgets": [
+    {
+      "type": "metric",
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/ECS",
+            "CPUUtilization",
+            "ClusterName",
+            "frasberg-secure-runtime-cluster",
+            "ServiceName",
+            "frasberg-secure-runtime-service"
+          ],
+          [
+            ".",
+            "MemoryUtilization",
+            ".",
+            ".",
+            ".",
+            "."
+          ]
+        ],
+        "period": 60,
+        "stat": "Average",
+        "region": "us-west-2",
+        "title": "Runtime ECS CPU and memory"
+      }
+    },
+    {
+      "type": "metric",
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/ApplicationELB",
+            "TargetResponseTime",
+            "LoadBalancer",
+            "app/frasberg-runtime-alb/ee650a7619d2a3bb",
+            "TargetGroup",
+            "targetgroup/frasberg-runtime-tg/72de5439dc897e84"
+          ],
+          [
+            "AWS/ApplicationELB",
+            "HTTPCode_Target_5XX_Count",
+            "LoadBalancer",
+            "app/frasberg-runtime-alb/ee650a7619d2a3bb"
+          ]
+        ],
+        "period": 60,
+        "stat": "Average",
+        "region": "us-west-2",
+        "title": "Runtime ALB latency and target errors"
+      }
+    }
+  ]
+}

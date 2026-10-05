@@ -1,0 +1,25 @@
+{
+  "provider": "frasberg",
+  "models": [
+    {
+      "id": "luchii-6-plus",
+      "type": "chat",
+      "context_window": 128000,
+      "streaming": true,
+      "description": "Flagship long-context reasoning model"
+    },
+    {
+      "id": "luchii-6-mini",
+      "type": "chat",
+      "context_window": 64000,
+      "streaming": true,
+      "description": "Fast, cost-efficient chat model for agents and automation"
+    },
+    {
+      "id": "luchii-6-embed",
+      "type": "embedding",
+      "dimensions": 384,
+      "description": "High-performance embeddings for search, retrieval and similarity"
+    }
+  ]
+}

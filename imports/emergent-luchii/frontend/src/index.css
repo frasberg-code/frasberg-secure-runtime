@@ -1,0 +1,270 @@
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&f[]=clash-display@400,500,600,700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --lux-bg: #1e2327;
+  --lux-surface: #161a1d;
+  --lux-surface-2: #2a3136;
+  --lux-text: #f8f9fa;
+  --lux-text-2: #a1aab0;
+  --lux-border: #2a3136;
+  --lux-accent: #00f0ff;
+  --lux-accent-2: #7c9cff;
+  --lux-glow: rgba(0, 240, 255, 0.2);
+
+  --dash-bg: #08090A;
+  --dash-surface: #121316;
+  --dash-inset: #050505;
+  --dash-border: rgba(255, 255, 255, 0.08);
+  --dash-border-sub: rgba(255, 255, 255, 0.04);
+  --dash-text: #F2F2F2;
+  --dash-text2: #A6ACB8;
+  --dash-muted: #8A919C;
+  --dash-accent: #00F0FF;
+  --dash-header-bg: rgba(8, 9, 10, 0.85);
+
+
+  --background: 200 12% 14%;
+  --foreground: 210 17% 98%;
+  --card: 200 14% 10%;
+  --card-foreground: 210 17% 98%;
+  --popover: 200 14% 10%;
+  --popover-foreground: 210 17% 98%;
+  --primary: 184 100% 50%;
+  --primary-foreground: 200 12% 10%;
+  --secondary: 200 11% 19%;
+  --secondary-foreground: 210 17% 98%;
+  --muted: 200 11% 19%;
+  --muted-foreground: 204 8% 66%;
+  --accent: 200 11% 19%;
+  --accent-foreground: 210 17% 98%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 200 11% 19%;
+  --input: 200 11% 19%;
+  --ring: 184 100% 50%;
+  --radius: 0.75rem;
+}
+
+.light {
+  --lux-bg: #f7f8fb;
+  --lux-surface: #ffffff;
+  --lux-surface-2: #eef1f6;
+  --lux-text: #1a2233;
+  --lux-text-2: #44506a;
+  --lux-border: #dbe1ec;
+  --lux-accent: #007AFF;
+  --lux-accent-2: #5e5ce6;
+  --lux-glow: rgba(0, 122, 255, 0.15);
+
+  --dash-bg: #f7f8fb;
+  --dash-surface: #ffffff;
+  --dash-inset: #eef1f6;
+  --dash-border: rgba(26, 34, 51, 0.14);
+  --dash-border-sub: rgba(26, 34, 51, 0.07);
+  --dash-text: #1a2233;
+  --dash-text2: #44506a;
+  --dash-muted: #66738f;
+  --dash-accent: #007AFF;
+  --dash-header-bg: rgba(247, 248, 251, 0.9);
+
+  --background: 210 17% 98%;
+  --foreground: 200 12% 14%;
+  --card: 0 0% 100%;
+  --card-foreground: 200 12% 14%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 200 12% 14%;
+  --primary: 211 100% 50%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 16% 93%;
+  --secondary-foreground: 200 12% 14%;
+  --muted: 210 16% 93%;
+  --muted-foreground: 208 7% 46%;
+  --accent: 210 16% 93%;
+  --accent-foreground: 200 12% 14%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 210 14% 89%;
+  --input: 210 14% 89%;
+  --ring: 211 100% 50%;
+  --radius: 0.75rem;
+}
+
+.dark {
+  --lux-bg: #1e2327;
+  --lux-surface: #161a1d;
+  --lux-surface-2: #2a3136;
+  --lux-text: #f8f9fa;
+  --lux-text-2: #a1aab0;
+  --lux-border: #2a3136;
+  --lux-accent: #00f0ff;
+  --lux-accent-2: #7c9cff;
+  --lux-glow: rgba(0, 240, 255, 0.2);
+
+  --background: 200 12% 14%;
+  --foreground: 210 17% 98%;
+  --card: 200 14% 10%;
+  --card-foreground: 210 17% 98%;
+  --popover: 200 14% 10%;
+  --popover-foreground: 210 17% 98%;
+  --primary: 184 100% 50%;
+  --primary-foreground: 200 12% 10%;
+  --secondary: 200 11% 19%;
+  --secondary-foreground: 210 17% 98%;
+  --muted: 200 11% 19%;
+  --muted-foreground: 205 8% 66%;
+  --accent: 200 11% 19%;
+  --accent-foreground: 210 17% 98%;
+  --destructive: 0 62% 45%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 200 11% 19%;
+  --input: 200 11% 19%;
+  --ring: 184 100% 50%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--lux-surface-2) transparent;
+  font-size: 17px;
+}
+
+@media (max-width: 640px) {
+  html {
+    font-size: 18px;
+  }
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: var(--lux-bg);
+  color: var(--lux-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* Grain overlay */
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.glass {
+  background-color: color-mix(in srgb, var(--lux-surface) 70%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid color-mix(in srgb, var(--lux-border) 80%, transparent);
+}
+
+.text-glow {
+  text-shadow: 0 0 40px var(--lux-glow);
+}
+
+.accent-grad {
+  background: linear-gradient(120deg, var(--lux-accent), var(--lux-accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+::selection {
+  background: var(--lux-accent);
+  color: var(--lux-bg);
+}
+
+.tracing-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.tracing-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  background: radial-gradient(300px circle at var(--mx, 50%) var(--my, 0%), var(--lux-accent), transparent 40%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.tracing-card:hover::before { opacity: 0.6; }
+
+@keyframes turn-step {
+  0%, 20% { transform: rotate(0deg); }
+  25%, 45% { transform: rotate(90deg); }
+  50%, 70% { transform: rotate(180deg); }
+  75%, 95% { transform: rotate(270deg); }
+  100% { transform: rotate(360deg); }
+}
+.turn-step {
+  animation: turn-step 6.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+/* Emergent-style console theme — scoped override (Dashboard-family pages) */
+.console-dark {
+  --lux-bg: #08090A;
+  --lux-surface: #121316;
+  --lux-surface-2: #050505;
+  --lux-text: #EDEDED;
+  --lux-text-2: #A6ACB8;
+  --lux-border: rgba(255, 255, 255, 0.08);
+  --lux-accent: #00F0FF;
+  --lux-accent-2: #7c9cff;
+  --lux-glow: rgba(0, 240, 255, 0.22);
+  background-color: #08090A;
+  color: #EDEDED;
+}
+.console-dark .rounded-3xl { border-radius: 4px; }
+.console-dark .rounded-2xl { border-radius: 3px; }
+.console-dark .rounded-xl { border-radius: 2px; }
+.console-dark button.rounded-full,
+.console-dark a.rounded-full,
+.console-dark select.rounded-full,
+.console-dark input.rounded-full { border-radius: 2px; }
+.console-dark span.rounded-full:not(.h-1):not(.h-1\.5) { border-radius: 2px; }
+.console-dark .glass {
+  background: rgba(8, 9, 10, 0.85);
+  backdrop-filter: blur(12px);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+.console-dark > .pointer-events-none canvas { opacity: 0.3; }
+
+/* ---- Light-theme overrides for legacy hardcoded dark utility classes ---- */
+.light [class*="bg-[#0f172a]"], .light [class*="bg-[#020617]"], .light [class*="bg-[#111122]"],
+.light [class*="bg-[#1a1a2e]"], .light [class*="bg-[#0d1013]"], .light [class*="bg-[#12121e]"],
+.light [class*="bg-[#0d0d1a]"], .light [class*="bg-[#05070C]"], .light [class*="bg-[#05070B]"],
+.light [class*="bg-[#08090A]"], .light [class*="bg-[#0B0E13]"], .light [class*="bg-[#1f1f3a]"],
+.light [class*="bg-[#111018]"], .light [class*="bg-[#0b1220]"] {
+  background-color: var(--lux-surface) !important;
+}
+.light [class*="text-[#f8fafc]"], .light [class*="text-[#EDEDED]"], .light [class*="text-[#cbd5e1]"],
+.light [class*="text-[#e2e8f0]"], .light [class*="text-[#F2F2F2]"] {
+  color: var(--lux-text) !important;
+}
+.light [class*="text-[#94a3b8]"], .light [class*="text-[#b3bac7]"], .light [class*="text-[#9aa3b8]"],
+.light [class*="text-[#8A8F98]"], .light [class*="text-[#A6ACB8]"] {
+  color: var(--lux-text-2) !important;
+}
+.light [class*="text-[#64748b]"] { color: #5a6478 !important; }
+.light [class*="border-[#1e293b]"], .light [class*="border-[#1a1a2e]"], .light [class*="border-[#2d2d4a]"],
+.light [class*="border-[#2a2740]"], .light [class*="border-[#1f2937]"] {
+  border-color: var(--lux-border) !important;
+}

@@ -1,0 +1,29 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  build-test-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: npm ci
+      - run: npm run build
+      - run: docker build --file packages/gateway/Dockerfile --tag frasberg-secure-runtime:ci .
+      - run: npm run test
+      - run: python -m unittest discover -s sdk/python -p test_client.py
+      - run: npm run validate:manifests

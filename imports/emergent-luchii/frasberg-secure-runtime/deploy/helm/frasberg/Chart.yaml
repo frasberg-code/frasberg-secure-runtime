@@ -1,0 +1,5 @@
+apiVersion: v2
+name: frasberg
+version: 0.1.0
+appVersion: 0.1.0
+description: Private scaffold for Frasberg secure runtime services

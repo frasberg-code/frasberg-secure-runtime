@@ -1,0 +1,6 @@
+name = "frasberg-botbase-workers"
+main = "dist/index.js"
+compatibility_date = "2026-09-18"
+
+# Intentionally do not place BOTBASE_SIGNING_SECRET or BOTBASE_SHARED_TOKEN in [vars].
+# Use `wrangler secret put BOTBASE_SIGNING_SECRET` and `wrangler secret put BOTBASE_SHARED_TOKEN`.
