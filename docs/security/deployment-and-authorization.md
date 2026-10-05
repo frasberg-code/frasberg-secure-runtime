@@ -23,7 +23,7 @@ Admin control-plane operations must pass all of these boundaries:
 
 JWT claims may identify a subject, but an admin claim alone must not be the source of truth for production authorization. Keep role promotion in a controlled server-side workflow and audit it.
 
-The production gateway also accepts `x-governance-key` as a narrowly scoped break-glass credential for `/v1/governance/*`. Configure it in AWS Secrets Manager using `infra/secrets/create-governance-admin.sh`, then add its Secrets Manager ARN to the ECS task definition as `GOVERNANCE_ADMIN_KEY`. Until configured, governance administration remains unavailable (fail-closed). The ECS execution role policy scopes access to the named governance secret. This key does not authorize chat, media, audit, or other admin routes. Do not pass it in URLs, log it, or reuse it as an API key.
+The production gateway also accepts `x-governance-key` as a narrowly scoped break-glass credential for `/v1/governance/*`. It is stored in AWS Secrets Manager and injected into the ECS task as `GOVERNANCE_ADMIN_KEY`; the ECS execution role policy scopes access to the named governance secret. This key does not authorize chat, media, audit, or other admin routes. Do not pass it in URLs, log it, or reuse it as an API key.
 
 ## Identity graph access
 
