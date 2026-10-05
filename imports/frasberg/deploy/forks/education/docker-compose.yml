@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  education-fork:
+    build:
+      context: /../../..
+      dockerfile: deploy/forks/education/Dockerfile
+    container_name: frasberg_education_fork
+    ports:
+      - "8001:8001"
+    environment:
+      - FORK_NAME=education
+      - FORK_ISOLATED=true
+    restart: unless-stopped

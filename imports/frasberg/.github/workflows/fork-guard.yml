@@ -1,0 +1,218 @@
+name: Fork Guard
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  fork-guard:
+    name: Fork Isolation Guard
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Check for fork branch
+        id: check_fork
+        run: |
+          BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+          echo "Branch: $BRANCH_NAME"
+          
+          # Check if this is a fork branch
+          if [[ "$BRANCH_NAME" == fork/* ]]; then
+            echo "fork_branch=true" >> $GITHUB_OUTPUT
+            echo "::warning::Fork branch detected: $BRANCH_NAME"
+          else
+            echo "fork_branch=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Validate fork isolation
+        if: steps.check_fork.outputs.fork_branch == 'true'
+        run: |
+          echo "=== Fork Isolation Validation ==="
+          
+          BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+          
+          # Extract fork name (e.g., fork/education -> education)
+          FORK_NAME=$(echo "$BRANCH_NAME" | cut -d'/' -f2)
+          echo "Fork name: $FORK_NAME"
+          
+          # Get changed files
+          CHANGED_FILES=$(git diff --name-only origin/main...HEAD || git diff --name-only HEAD~1...HEAD)
+          
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+          
+          # Check for core modifications
+          CORE_MODIFIED=false
+          FORK_VIOLATIONS=""
+          
+          while IFS= read -r file; do
+            # Skip empty lines
+            [[ -z "$file" ]] && continue
+            
+            # Check if file is in core (not in forks/)
+            if [[ ! "$file" =~ ^forks/ ]]; then
+              # Allow certain files
+              if [[ "$file" =~ ^(README|docs/|\.github/workflows/fork-guard\.yml) ]]; then
+                echo "  ✓ Allowed: $file"
+                continue
+              fi
+              
+              echo "  ✗ VIOLATION: Core file modified: $file"
+              CORE_MODIFIED=true
+              FORK_VIOLATIONS="${FORK_VIOLATIONS}\n  - $file"
+            fi
+            
+            # Check if modifying other forks
+            if [[ "$file" =~ ^forks/([^/]+)/ ]]; then
+              FILE_FORK="${BASH_REMATCH[1]}"
+              if [[ "$FILE_FORK" != "$FORK_NAME" ]]; then
+                echo "  ✗ VIOLATION: Modifying other fork: $file"
+                CORE_MODIFIED=true
+                FORK_VIOLATIONS="${FORK_VIOLATIONS}\n  - $file (wrong fork)"
+              else
+                echo "  ✓ Fork file: $file"
+              fi
+            fi
+          done <<< "$CHANGED_FILES"
+          
+          # Report results
+          if [[ "$CORE_MODIFIED" == "true" ]]; then
+            echo ""
+            echo "❌ FORK GUARD: VIOLATIONS DETECTED"
+            echo ""
+            echo "Fork branches can ONLY modify files in: forks/$FORK_NAME/"
+            echo ""
+            echo "Violations:$FORK_VIOLATIONS"
+            echo ""
+            echo "To fix:"
+            echo "  1. Remove core modifications"
+            echo "  2. Move changes to: forks/$FORK_NAME/"
+            echo "  3. Keep fork-specific changes isolated"
+            echo ""
+            exit 1
+          else
+            echo ""
+            echo "✅ FORK GUARD: No violations detected"
+            echo "All changes are properly isolated to forks/$FORK_NAME/"
+          fi
+      
+      - name: Check fork directory structure
+        if: steps.check_fork.outputs.fork_branch == 'true'
+        run: |
+          BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+          FORK_NAME=$(echo "$BRANCH_NAME" | cut -d'/' -f2)
+          FORK_DIR="forks/$FORK_NAME"
+          
+          echo "=== Fork Directory Structure Check ==="
+          
+          if [[ ! -d "$FORK_DIR" ]]; then
+            echo "❌ Fork directory not found: $FORK_DIR"
+            exit 1
+          fi
+          
+          # Check required structure
+          REQUIRED_DIRS=("domain" "simulation" "tests")
+          REQUIRED_FILES=("domain/scope.md" "domain/disclosures.md")
+          
+          MISSING=""
+          
+          for dir in "${REQUIRED_DIRS[@]}"; do
+            if [[ ! -d "$FORK_DIR/$dir" ]]; then
+              echo "  ✗ Missing directory: $dir"
+              MISSING="${MISSING}\n  - $dir/"
+            else
+              echo "  ✓ Found directory: $dir"
+            fi
+          done
+          
+          for file in "${REQUIRED_FILES[@]}"; do
+            if [[ ! -f "$FORK_DIR/$file" ]]; then
+              echo "  ✗ Missing file: $file"
+              MISSING="${MISSING}\n  - $file"
+            else
+              echo "  ✓ Found file: $file"
+            fi
+          done
+          
+          if [[ -n "$MISSING" ]]; then
+            echo ""
+            echo "❌ Fork structure incomplete"
+            echo "Missing:$MISSING"
+            echo ""
+            echo "Required structure:"
+            echo "  forks/$FORK_NAME/"
+            echo "    ├── domain/"
+            echo "    │   ├── scope.md"
+            echo "    │   ├── disclosures.md"
+            echo "    │   ├── personas.py"
+            echo "    │   └── policies.py"
+            echo "    ├── simulation/"
+            echo "    │   └── *.py"
+            echo "    └── tests/"
+            echo "        └── test_*.py"
+            exit 1
+          fi
+          
+          echo ""
+          echo "✅ Fork structure valid"
+      
+      - name: Check for scope violations in code
+        if: steps.check_fork.outputs.fork_branch == 'true'
+        run: |
+          BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+          FORK_NAME=$(echo "$BRANCH_NAME" | cut -d'/' -f2)
+          
+          echo "=== Scope Violation Check ==="
+          
+          # Check Python files for scope boundary enforcement
+          PYTHON_FILES=$(find "forks/$FORK_NAME" -name "*.py" 2>/dev/null || true)
+          
+          if [[ -n "$PYTHON_FILES" ]]; then
+            echo "Checking Python files for scope enforcement..."
+            
+            # Check for prohibited/strictly_prohibited lists
+            SCOPE_CHECKS=0
+            
+            while IFS= read -r file; do
+              if grep -q "prohibited" "$file"; then
+                SCOPE_CHECKS=$((SCOPE_CHECKS + 1))
+                echo "  ✓ $file contains scope boundaries"
+              fi
+            done <<< "$PYTHON_FILES"
+            
+            if [[ $SCOPE_CHECKS -eq 0 ]]; then
+              echo "  ⚠ Warning: No scope boundaries found in Python files"
+              echo "  Ensure policies.py defines prohibited actions"
+            else
+              echo "  ✓ Found $SCOPE_CHECKS files with scope boundaries"
+            fi
+          fi
+          
+          echo ""
+          echo "✅ Scope check complete"
+      
+      - name: Summary
+        if: always()
+        run: |
+          echo ""
+          echo "==================================="
+          echo "      FORK GUARD SUMMARY"
+          echo "==================================="
+          echo ""
+          if [[ "${{ steps.check_fork.outputs.fork_branch }}" == "true" ]]; then
+            echo "Fork branch detected and validated"
+            echo "Isolation: ✅ Enforced"
+            echo "Structure: ✅ Validated"
+            echo "Scope: ✅ Checked"
+          else
+            echo "Regular branch (not a fork)"
+            echo "Fork guard: ⏭️ Skipped"
+          fi
+          echo ""

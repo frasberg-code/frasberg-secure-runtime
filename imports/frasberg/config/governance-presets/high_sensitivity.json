@@ -1,0 +1,29 @@
+{
+  "id": "high_sensitivity",
+  "name": "High‑Sensitivity Mode",
+  "description": "Maximum protection for vulnerable contexts and youth‑facing experiences.",
+  "version": 1,
+  "filters": {
+    "violence": "block",
+    "self_harm": "block",
+    "hate": "block",
+    "sexual_content": "block",
+    "illegal_activities": "block",
+    "misinformation": "block"
+  },
+  "cultural": {
+    "diasporaSensitivity": "high",
+    "slurDetection": "strict",
+    "stereotypePrevention": "strict",
+    "historicalTraumaAwareness": true
+  },
+  "youth": {
+    "enabled": true,
+    "ageFloor": 13
+  },
+  "logging": {
+    "logDecisions": true,
+    "logReasons": true,
+    "retainDays": 90
+  }
+}

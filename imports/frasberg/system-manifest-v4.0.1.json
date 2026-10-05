@@ -1,0 +1,34 @@
+{
+  "name": "Frasberg",
+  "version": "4.0.1",
+  "release_date": "2026-02-08",
+  "release_type": "stability",
+  "type": "Distributed Sovereign Intelligence - Stability Release",
+  "improvements_from_v4.0.0": [
+    "Comprehensive error handling with custom exceptions",
+    "Circuit breaker and retry patterns",
+    "Enhanced health checks (live, ready, detailed)",
+    "Request metrics collection and monitoring",
+    "70%+ unit test coverage",
+    "Complete API documentation",
+    "Migration guides (v1→v4)",
+    "Developer experience enhancements",
+    "Quick start scripts",
+    "Contributing guidelines"
+  ],
+  "issues_closed": [
+    "#1 - Expand Unit Tests for Core Engines",
+    "#2 - Documentation Enhancements",
+    "#3 - Stability Improvements Across Core Engines",
+    "#4 - Developer Experience Enhancements",
+    "#5 - Exploratory Subsystem Candidates (deferred to v4.1.0)"
+  ],
+  "test_coverage": "70%+",
+  "documentation": "complete",
+  "production_ready": true,
+  "services": 10,
+  "forks": 7,
+  "api_endpoints": "80+",
+  "quantum_safe": true,
+  "distributed": true
+}

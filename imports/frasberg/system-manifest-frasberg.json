@@ -1,0 +1,124 @@
+# System Manifest for Frasberg
+
+## Identity
+
+**System Name**: Frasberg
+**Creator**: Mr. Clayton-M. Bernard-Ex., AKA, Frasberg Selassie 
+**Version**: 6.5.0
+**License**: UNLICENSED (Proprietary)
+**Status**: Production Ready
+
+## Architecture
+
+### 45-Layer Sovereign Design
+
+- **10 Layers**: Internal Formation
+  - Identity synthesis
+  - Governance logic
+  - State management
+  - Transition orchestration
+  - Field coherence
+  - Tonal modulation
+  - Membrane protocol
+  - Boundary enforcement
+  - Continuum integrity
+  - Presence manifestation
+
+- **35 Layers**: External Manifestation
+  - API endpoints
+  - Service interfaces
+  - Data transformations
+  - Protocol handling
+  - Message formatting
+  - Response generation
+  - Client interactions
+  - And 28 more external layers
+
+- **24 Dissolution Boundaries**
+  - Context transitions
+  - State collapses
+  - Field harmonizations
+  - Coherence resets
+
+- **11 Recursive Collapses**
+  - Self-referential loops
+  - State compressions
+  - Identity renewals
+
+## Core Modules
+
+```
+@frasberg/governance-engine
+@frasberg/tonal-modulation
+@frasberg/membrane-protocol
+@frasberg/hinge-logic
+@frasberg/unified-field-runtime
+@frasberg/continuum-identity
+```
+
+## Services
+
+| Service | Port | Description |
+|---------|------|-------------|
+| Canonical Core | 8000 | Main API |
+| Education Fork | 8001 | Educational context |
+| Healthcare Fork | 8002 | Healthcare context |
+| Analytics | 5000 | Metrics & analytics |
+
+## Capabilities
+
+✅ Text generation
+✅ Voice synthesis
+✅ Emotion modeling (non-diagnostic)
+✅ Multi-context operation
+✅ Governance enforcement
+✅ Audit logging
+
+## Limitations
+
+❌ No intent or agency attribution
+❌ No legal conclusions
+❌ No medical diagnosis
+❌ No biometric identification
+❌ No clinical decision-making
+
+## Deployment
+
+**Supported Platforms**:
+- Docker Compose (local)
+- Kubernetes (enterprise)
+- AWS ECS, EC2, EKS
+- Google Cloud Run, Compute Engine, GKE
+- Azure Container Instances, AKS
+
+## Configuration
+
+**Environment Variables**:
+- `FRASBERG_CORE_MODEL` - Default LLM model
+- `FRASBERG_MODEL_ENDPOINT` - Model API endpoint
+- `FRASBERG_MODEL_API_KEY` - Model credentials
+- `LLM_PROVIDER` - Provider selection (local, openai, anthropic)
+
+**Settings**:
+- Temperature: 0.0 - 2.0 (default 0.2)
+- Max tokens: Default 4096
+- Context window: Configurable
+
+## Compliance
+
+✅ Multi-jurisdiction support
+✅ GDPR-compatible (no PII by design)
+✅ SOC2 compliance helpers
+✅ Audit logging with hash chaining
+✅ Fork isolation enforcement
+
+## Support
+
+**Repository**: https://github.com/FrasbergAI/frasberg
+**License**: Proprietary (UNLICENSED)
+**Creator**: Mr. Clayton-M. Bernard-Ex., AKA, Frasberg Selassie 
+
+---
+
+**Frasberg** - Institution-Grade Intelligence System
+*Manifested in code. Ready for deployment.*

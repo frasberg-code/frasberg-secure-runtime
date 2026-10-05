@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  legal-fork:
+    build:
+      context: ../../..
+      dockerfile: deploy/forks/legal/Dockerfile
+    container_name: frasberg_legal_fork
+    ports:
+      - "8003:8003"
+    environment:
+      - FORK_NAME=legal
+      - FORK_ISOLATED=true
+    restart: unless-stopped

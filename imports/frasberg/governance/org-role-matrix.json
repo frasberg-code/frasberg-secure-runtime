@@ -1,0 +1,95 @@
+{
+  "version": "1.0.0",
+  "org": "FrasbergAI",
+  "lastUpdated": "2026-08-14T15:08:26Z",
+  "roles": {
+    "llmProvider": ["Frasberg", "Luchii"],
+    "llmBearer": ["Frasberg", "LINQ"],
+    "llmDistributor": ["sdk-js", "sdk-python", "sdk-go", "sdk-rust"]
+  },
+  "repos": [
+    {
+      "name": "Frasberg",
+      "roles": ["llmProvider", "llmBearer"],
+      "authority": "Governance engine and mesh authority",
+      "certification": {
+        "status": "certified",
+        "issuedAt": "2026-08-14T12:00:00Z"
+      }
+    },
+    {
+      "name": "Luchii",
+      "roles": ["llmProvider"],
+      "authority": "Text generation and inference services",
+      "certification": {
+        "status": "certified",
+        "issuedAt": "2026-08-14T12:00:00Z"
+      }
+    },
+    {
+      "name": "LINQ",
+      "roles": ["llmBearer"],
+      "authority": "UI and runtime interfaces",
+      "certification": {
+        "status": "certified",
+        "issuedAt": "2026-08-14T12:00:00Z"
+      }
+    },
+    {
+      "name": "sdk-js",
+      "roles": ["llmDistributor"],
+      "authority": "JavaScript SDK distribution",
+      "certification": {
+        "status": "certified",
+        "issuedAt": "2026-08-14T12:00:00Z"
+      }
+    },
+    {
+      "name": "sdk-python",
+      "roles": ["llmDistributor"],
+      "authority": "Python SDK distribution",
+      "certification": {
+        "status": "certified",
+        "issuedAt": "2026-08-14T12:00:00Z"
+      }
+    },
+    {
+      "name": "sdk-go",
+      "roles": ["llmDistributor"],
+      "authority": "Go SDK distribution",
+      "certification": {
+        "status": "certified",
+        "issuedAt": "2026-08-14T12:00:00Z"
+      }
+    },
+    {
+      "name": "sdk-rust",
+      "roles": ["llmDistributor"],
+      "authority": "Rust SDK distribution",
+      "certification": {
+        "status": "certified",
+        "issuedAt": "2026-08-14T12:00:00Z"
+      }
+    }
+  ],
+  "roleDefinitions": {
+    "llmProvider": {
+      "description": "Defines and enforces governance rules, mesh versioning, and release integrity",
+      "capabilities": ["define-governance", "promote-releases", "update-mesh", "manage-sync"],
+      "restrictions": ["no-unauthorized-promotion"],
+      "certification": "Must pass license, mesh, release, and identity preservation checks"
+    },
+    "llmBearer": {
+      "description": "Consumes governance metadata and enforces behavioral identity constraints",
+      "capabilities": ["consume-governance", "enforce-identity", "emit-compliance-signals"],
+      "restrictions": ["no-governance-override"],
+      "certification": "Must respect mesh versioning and enforce identity rules"
+    },
+    "llmDistributor": {
+      "description": "Packages and distributes governance artifacts with full traceability",
+      "capabilities": ["embed-licenses", "generate-hashes", "publish-provenance"],
+      "restrictions": ["no-governance-modification"],
+      "certification": "Must embed LICENSE, SPDX, hashes, and provenance in all artifacts"
+    }
+  }
+}

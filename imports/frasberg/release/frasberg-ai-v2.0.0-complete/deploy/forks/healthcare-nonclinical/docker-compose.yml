@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  healthcare-fork:
+    build:
+      context: ../../..
+      dockerfile: deploy/forks/healthcare-nonclinical/Dockerfile
+    container_name: frasberg_healthcare_fork
+    ports:
+      - "8002:8002"
+    environment:
+      - FORK_NAME=healthcare-nonclinical
+      - FORK_ISOLATED=true
+      - CLINICAL_CAPABILITIES=NONE
+    restart: unless-stopped

@@ -1,0 +1,108 @@
+Metadata-Version: 2.4
+Name: frasberg-sdk
+Version: 5.0.0
+Summary: Python SDK for Frasberg AI
+Home-page: https://github.com/frasberg/frasberg-ai-backend
+Author: Frasberg AI Team
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.11
+Description-Content-Type: text/markdown
+Requires-Dist: requests>=2.28.0
+Dynamic: author
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: requires-dist
+Dynamic: summary
+
+# Frasberg SDK for Python
+
+Official Python SDK for Frasberg AI v5.0.0.
+
+## Installation
+
+```bash
+pip install frasberg-sdk
+```
+
+## Quick Start
+
+```python
+from frasberg_sdk import FrasbergClient
+
+# Initialize client
+client = FrasbergClient(base_url="http://localhost:8000")
+
+# Check health
+health = client.health()
+print(health)
+
+# Generate speech
+audio = client.synthesize_speech("Hello world", language="en")
+print(audio['audio_url'])
+
+# Generate AI response
+response = client.generate("Explain quantum computing")
+print(response['response'])
+
+# Store memory
+memory = client.store_memory(
+    user_id="user123",
+    content="User prefers technical explanations",
+    memory_type="preference",
+    importance=0.9
+)
+
+# Recall memories
+memories = client.recall_memories(user_id="user123", query="preferences")
+print(memories)
+```
+
+## Features
+
+- **Health Monitoring**: Check system health and metrics
+- **Voice**: Text-to-speech and speech-to-text
+- **AI**: LLM generation, validation, reasoning
+- **Memory**: Long-term memory storage and recall
+- **Distributed**: Mesh network operations
+- **Quantum**: Post-quantum cryptography
+- **v5 Features**: Biological computing, swarm intelligence, temporal reasoning
+
+## v5.0.0 New Features
+
+### DNA Computing
+```python
+result = client.dna_compute(
+    sequence="ATCGATCGATCG",
+    computation_type="parallel_search"
+)
+```
+
+### Swarm Intelligence
+```python
+swarm = client.create_swarm(
+    num_agents=100,
+    coordination_strategy="consensus",
+    objective="network_optimization"
+)
+```
+
+### Temporal Reasoning
+```python
+prediction = client.temporal_reasoning(
+    query="Technology trends",
+    time_context="last_decade",
+    prediction_horizon=365
+)
+```
+
+## Documentation
+
+See full documentation at: https://docs.frasberg-ai.ai
+
+## License
+
+MIT License

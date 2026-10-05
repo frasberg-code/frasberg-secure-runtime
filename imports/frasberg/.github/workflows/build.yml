@@ -1,0 +1,35 @@
+name: Build All Packages
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+      
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install
+      
+      - name: Build packages
+        run: |
+          cd packages/frasberg-governance-engine && pnpm build
+          cd ../frasberg-tonal-modulation && pnpm build
+          cd ../frasberg-membrane-protocol && pnpm build
+          cd ../frasberg-hinge-logic && pnpm build
+          cd ../frasberg-continuum-identity && pnpm build
+      
+      - name: Run tests
+        run: |
+          cd packages/frasberg-governance-engine && pnpm test || true

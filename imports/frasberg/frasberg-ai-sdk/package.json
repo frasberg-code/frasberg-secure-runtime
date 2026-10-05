@@ -1,0 +1,30 @@
+{
+  "name": "@frasberg/core-sdk",
+  "version": "1.0.0",
+  "description": "Frasberg AI SDK — unified client for text, image, and video generation.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.mjs",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "prepare": "npm run build",
+    "test": "vitest"
+  },
+  "keywords": ["frasberg", "ai", "sdk", "llm", "image-generation", "video-generation"],
+  "author": "Emerald Estates",
+  "license": "UNLICENSED",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.1.9"
+  }
+}
