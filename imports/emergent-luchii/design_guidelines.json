@@ -1,0 +1,101 @@
+{
+  "theme_and_context": {
+    "app_type": "Developer Console / SaaS Dashboard",
+    "persona": "Emergent Style, Exact, Professional",
+    "archetype": "Swiss & High-Contrast (Archetype 4) mixed with Technical Retro-Futurism",
+    "vibe": "Objective, rigid, functional, highly polished, zero-noise, cognition-first minimalism.",
+    "primary_theme": "dark"
+  },
+  "typography": {
+    "strategy": "Cognition-first minimalism. Strict hierarchy. No generic rounded sans.",
+    "fonts": {
+      "display": "Unbounded (for App Name/Logo and major marketing headers only)",
+      "headings": "Satoshi (tight tracking, e.g., tracking-tight or tracking-tighter)",
+      "body": "Satoshi (normal tracking)",
+      "mono": "JetBrains Mono (CRITICAL: Use extensively for API keys, usage numbers, code snippets, and data tables)"
+    },
+    "rules": [
+      "No Inter for headings.",
+      "Use mono extensively for 'developer' context to reinforce the technical vibe.",
+      "Apply subtle negative tracking for larger headings (-0.02em to -0.04em)."
+    ]
+  },
+  "colors": {
+    "strategy": "Near-black canvas with layered surfaces in single-digit luminance steps. Depth comes from subtle borders and brightness, not shadows.",
+    "palette": {
+      "background": "#08090A",
+      "surface": "#121316",
+      "surface_hover": "rgba(255, 255, 255, 0.04)",
+      "border": "rgba(255, 255, 255, 0.08)",
+      "border_subtle": "rgba(255, 255, 255, 0.04)",
+      "text_primary": "#EDEDED",
+      "text_secondary": "#8A8F98",
+      "text_muted": "#525860",
+      "accent": "#00F0FF",
+      "accent_glow": "rgba(0, 240, 255, 0.15)",
+      "success": "#10B981",
+      "warning": "#F59E0B",
+      "destructive": "#EF4444"
+    },
+    "rules": [
+      "Never use pure white (#FFFFFF) for large background areas.",
+      "Accent color should be used extremely sparingly (active states, primary CTAs).",
+      "Use border lines for hierarchy, not drop shadows."
+    ]
+  },
+  "grids_and_layouts": {
+    "strategy": "Mode B: High Density Grid. Information-dense, scannable sections.",
+    "structure": [
+      "Top Navigation: Extremely minimal. Height 64px, border-b border-white/5, transparent background with backdrop-blur.",
+      "Main Content: Max-width 1200px, centered, generous top padding (pt-12).",
+      "Bento Grid for Overview Widgets (Quota, Wallet, Alerts): grid-cols-1 md:grid-cols-3 or 4, gap-4.",
+      "API Keys Table: Full width section below widgets."
+    ],
+    "surface_treatment": "Grid Borders (Technical Look). Expose the skeleton. Cards have 1px borders, flat background, no rounded corners or max rounded-sm (2px to 4px). NO large border-radius."
+  },
+  "components": {
+    "Header": "Frasberg text logo (Unbounded) + 'Developer Console' (Satoshi, text-secondary). Right side: User avatar/menu.",
+    "Quota_Chip": "Small dense pill (JetBrains Mono). If close to limit, show warning color. Click to trigger Upgrade modal.",
+    "API_Keys_Table": "Use Shadcn Table but customize: border-collapse, thin borders. 'Reveal' button should be a ghost button. Key values in JetBrains Mono. Include 'Revoke' (destructive ghost action).",
+    "Upgrade_Modal": "Minimalist dialog. Show Free/Pro/Scale tiers. Highlight 'Scale via PayPal'. Recommend importing 'react-icons/fa' for FaPaypal.",
+    "Usage_Stats": "Recharts AreaChart or LineChart. Remove grid lines and axes for a sparkline look, or keep them extremely faint (stroke='rgba(255,255,255,0.05)'). Line color is accent (#00F0FF).",
+    "Wallet_Card": "Auto top-up pool. Show balance in huge mono font (text-4xl JetBrains Mono tracking-tighter).",
+    "Docs_Snippet": "Darker inset area (bg-[#050505] border border-white/5 p-4). Syntax highlighted cURL command. Copy button."
+  },
+  "motion_and_interactions": {
+    "rules": [
+      "Optimistic UI: interactions should feel instant.",
+      "Hover states: Change background brightness (e.g., bg-white/[0.02] to bg-white/[0.06]), NOT shadows.",
+      "Focus states: 1px solid accent color ring.",
+      "The 'Tracing Beam': Apply to the active API key row or the Upgrade Pro card for a high-tech feel."
+    ]
+  },
+  "libraries": {
+    "icons": "lucide-react (sleek, consistent) and react-icons (for FaPaypal)",
+    "charts": "recharts",
+    "toasts": "sonner",
+    "animations": "framer-motion (use for subtle presence animations, not bouncy)"
+  },
+  "accessibility_and_testing": {
+    "rules": [
+      "All interactive elements MUST have data-testid attributes (e.g., data-testid='create-key-button', data-testid='upgrade-paypal-button').",
+      "Ensure contrast ratio > 4.5:1 for text-secondary."
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Redesign the developer dashboard at /dashboard to strictly follow the 'Emergent' visual style (Vercel/Linear vibes).",
+    "Override the existing `lux-bg`, `lux-surface`, and `lux-border` CSS variables in your component or globally to use the deep blacks and subtle grays defined in this palette.",
+    "Implement the specific components requested: Header, Quota chip with Upgrade modal (PayPal), API Keys table (create, reveal, revoke), Usage stats, Wallet/Auto top-up, and Docs quickstart snippet.",
+    "Ensure the Shadcn UI components (Card, Table, Dialog, Button) are customized to have sharp corners (rounded-none or rounded-sm) and thin borders, overriding any default heavy radii.",
+    "Inject JetBrains Mono for all numeric data, API keys, and terminal snippets.",
+    "Use Recharts for the Usage Stats with a minimalist, un-decorated sparkline style."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Create a clean, brutalist-yet-polished 'Emergent' look similar to Vercel or Linear.",
+    "DO NOT use large gradients, heavy shadows, or generic card designs.",
+    "DO NOT apply `transition: all` globally.",
+    "Use JetBrains Mono for anything data-heavy (keys, usage limits, stats).",
+    "Make sure the Shadcn Table component uses `border-collapse` and removes the default heavy rounded corners. Use `rounded-none` or `rounded-sm`.",
+    "Ensure the Docs quickstart snippet actually shows a `curl` example using the user's API key (mocked or dynamically generated)."
+  ]
+}

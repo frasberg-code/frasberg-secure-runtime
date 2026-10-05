@@ -1,0 +1,13 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Frasberg Secure Runtime",
+  "name_for_model": "frasberg_secure_runtime",
+  "description_for_human": "Private scaffold for Frasberg runtime and BotBase services.",
+  "auth": {
+    "type": "service_http"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://example.invalid/openapi.json"
+  }
+}

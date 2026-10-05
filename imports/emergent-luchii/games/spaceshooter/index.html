@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Constellation Wars</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
+  canvas { display: block; }
+  #hud { position: fixed; top: 0; left: 0; right: 0; display: flex; justify-content: space-between;
+    padding: 16px 24px; color: #fff; font-size: 15px; pointer-events: none; z-index: 5; }
+  #hud span { background: rgba(13,13,26,0.6); padding: 6px 14px; border-radius: 8px; border: 1px solid #6c63ff44; }
+  .screen { position: fixed; inset: 0; background: rgba(13,13,26,0.94); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; color: #fff; z-index: 10; text-align: center; }
+  .screen h1 { color: #6c63ff; font-size: 44px; letter-spacing: 6px; margin-bottom: 12px; }
+  .screen p { color: #aaa; margin-bottom: 8px; }
+  .screen button { margin-top: 24px; padding: 14px 42px; background: #6c63ff; color: #fff; border: none;
+    border-radius: 30px; font-size: 17px; font-weight: bold; cursor: pointer; letter-spacing: 2px; font-family: inherit; }
+  .screen button:hover { background: #857dff; }
+  #gameover { display: none; }
+</style>
+</head>
+<body>
+<script src="/api/games/assets/env.js"></script>
+<div id="hud">
+  <span>❤️ <b id="lives">3</b></span>
+  <span>🔫 <b id="weapon">PULSE</b></span>
+  <span>⭐ SCORE <b id="score">0</b></span>
+  <span>🌊 WAVE <b id="wave">1</b></span>
+</div>
+<div id="bossbar" style="display:none;position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:6;width:min(420px,70vw);text-align:center">
+  <div style="color:#7dff9a;font:bold 12px 'Courier New';letter-spacing:2px;margin-bottom:4px">☠ ALIEN MOTHERSHIP</div>
+  <div style="height:10px;border:1px solid #7dff9a66;border-radius:6px;background:rgba(13,13,26,.7)"><div id="bossHp" style="height:100%;width:100%;background:#3ee06c;border-radius:6px;transition:width .15s"></div></div>
+</div>
+<div id="start" class="screen">
+  <h1>⬡ CONSTELLATION WARS</h1>
+  <p>Frasberg Engine · Defend the Constellation Layer</p>
+  <p>WASD/arrows move · Mouse aim · Space or Click fire · 1-4 switch weapons</p>
+  <p style="color:#7dff9a">Alien mothership boss every 5 waves · collect powerups</p>
+  <button id="startBtn">LAUNCH</button>
+</div>
+<div id="gameover" class="screen">
+  <h1>SHIP LOST</h1>
+  <p id="finalScore"></p>
+  <button id="restartBtn">REDEPLOY</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+<script>
+const scene = new THREE.Scene();
+scene.background = null;
+const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 200);
+camera.position.set(0, 0, 26);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+addEventListener("resize", () => {
+  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+const key = new THREE.DirectionalLight(0x6c63ff, 1.5); key.position.set(0, 5, 10); scene.add(key);
+
+// Starfield
+const starGeo = new THREE.BufferGeometry();
+const starPos = new Float32Array(1200 * 3);
+for (let i = 0; i < 1200; i++) {
+  starPos[i*3] = (Math.random()-0.5) * 90;
+  starPos[i*3+1] = (Math.random()-0.5) * 60;
+  starPos[i*3+2] = -Math.random() * 60;
+}
+starGeo.setAttribute("position", new THREE.BufferAttribute(starPos, 3));
+const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0x8888ff, size: 0.12 }));
+scene.add(stars);
+
+// Player ship
+const ship = new THREE.Group();
+const hull = new THREE.Mesh(new THREE.ConeGeometry(0.7, 2.2, 4), new THREE.MeshStandardMaterial({ color: 0x6c63ff, metalness: 0.5 }));
+hull.rotation.x = Math.PI/2; hull.rotation.y = Math.PI/4; ship.add(hull);
+[-1.1, 1.1].forEach(x => {
+  const wing = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.12, 0.9), new THREE.MeshStandardMaterial({ color: 0x2a2a4e }));
+  wing.position.set(x, 0, 0.4); ship.add(wing);
+});
+const thruster = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 6), new THREE.MeshBasicMaterial({ color: 0x4affd2 }));
+thruster.position.set(0, 0, 1.3); ship.add(thruster);
+ship.position.y = -9; scene.add(ship);
+ship.rotation.x = -Math.PI/2;
+
+let bullets = [], enemies = [], ebullets = [], powerups = [], keys = {};
+let touchMove = { x: 0, y: 0 }, touchFire = false;
+document.addEventListener("keydown", e => {
+  keys[e.code] = true;
+  if (e.code === "Space") fire();
+  if (/^Digit[1-4]$/.test(e.code)) switchWeapon(parseInt(e.code.slice(5)) - 1);
+});
+document.addEventListener("keyup", e => keys[e.code] = false);
+
+// ── 360° mouse aim ─────────────────────────────────────────
+let aim = { x: 0, y: 1 }, mouseDown = false;
+function toWorld(cx, cy) {
+  const halfH = Math.tan(THREE.MathUtils.degToRad(30)) * 26;
+  const halfW = halfH * (innerWidth / innerHeight);
+  return { x: (cx / innerWidth - 0.5) * 2 * halfW, y: -(cy / innerHeight - 0.5) * 2 * halfH };
+}
+document.addEventListener("mousemove", e => {
+  const w = toWorld(e.clientX, e.clientY);
+  const dx = w.x - ship.position.x, dy = w.y - ship.position.y;
+  const len = Math.hypot(dx, dy) || 1;
+  aim.x = dx / len; aim.y = dy / len;
+});
+document.addEventListener("mousedown", e => { if (e.target.tagName !== "BUTTON" && e.target.tagName !== "INPUT") { mouseDown = true; fire(); } });
+document.addEventListener("mouseup", () => mouseDown = false);
+
+// ── Weapons ────────────────────────────────────────────────
+const WEAPONS = [
+  { name: "PULSE",   cd: 0.20, unlock: 1, color: 0xffff66 },
+  { name: "SPREAD",  cd: 0.34, unlock: 2, color: 0xff9a3c },
+  { name: "LASER",   cd: 0.06, unlock: 4, color: 0x4affd2 },
+  { name: "MISSILE", cd: 0.55, unlock: 6, color: 0xff5a8a },
+];
+let weapon = 0, maxWave = 1, rapidTimer = 0, shield = 0;
+function switchWeapon(i) {
+  if (maxWave >= WEAPONS[i].unlock) { weapon = i; hud(); window.SFX && SFX.tone(500, 900, 0.1, "square", 0.15); }
+  else flashMsg(`${WEAPONS[i].name} unlocks at wave ${WEAPONS[i].unlock}`);
+}
+function flashMsg(t) {
+  let el = document.getElementById("flashMsg");
+  if (!el) {
+    el = document.createElement("div"); el.id = "flashMsg";
+    el.style.cssText = "position:fixed;top:34%;left:50%;transform:translateX(-50%);z-index:7;color:#ffd24a;font:bold 16px 'Courier New';letter-spacing:2px;text-shadow:0 0 12px #000";
+    document.body.appendChild(el);
+  }
+  el.textContent = t;
+  el.style.opacity = 1;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.style.opacity = 0, 1400);
+}
+function makeBullet(vx, vy, dmg, color, homing) {
+  const b = new THREE.Mesh(new THREE.CapsuleGeometry(homing ? 0.14 : 0.08, homing ? 0.6 : 0.5), new THREE.MeshBasicMaterial({ color }));
+  b.position.copy(ship.position);
+  b.position.x += aim.x * 1.2; b.position.y += aim.y * 1.2;
+  b.userData = { vx, vy, dmg, homing: !!homing };
+  b.rotation.z = Math.atan2(vy, vx) - Math.PI/2;
+  scene.add(b); bullets.push(b);
+}
+
+let running = false, score = 0, lives = 3, wave = 1, cooldown = 0, invuln = 0;
+function hud() {
+  document.getElementById("lives").textContent = lives + (shield ? " 🛡" : "");
+  document.getElementById("score").textContent = score;
+  document.getElementById("wave").textContent = wave;
+  document.getElementById("weapon").textContent = WEAPONS[weapon].name + (rapidTimer > 0 ? " ⚡" : "");
+}
+function fire() {
+  if (!running || cooldown > 0) return;
+  const w = WEAPONS[weapon];
+  cooldown = w.cd * (rapidTimer > 0 ? 0.5 : 1);
+  const sp = 26;
+  if (w.name === "PULSE") makeBullet(aim.x * sp, aim.y * sp, 1, w.color);
+  else if (w.name === "SPREAD") {
+    for (const a of [-0.25, 0, 0.25]) {
+      const c = Math.cos(a), s = Math.sin(a);
+      makeBullet((aim.x * c - aim.y * s) * sp, (aim.x * s + aim.y * c) * sp, 1, w.color);
+    }
+  }
+  else if (w.name === "LASER") makeBullet(aim.x * 44, aim.y * 44, 0.6, w.color);
+  else makeBullet(aim.x * 16, aim.y * 16, 3, w.color, true);
+}
+
+// ── Enemies + AI alien boss ────────────────────────────────
+// ── Campaign sectors — AI-generated nebula levels ──────────
+const SECTORS = [
+  { name: "CRIMSON REACH", bg: "/api/games/assets/nebula-crimson.jpg", star: 0xffaa88, boss: "aimed" },
+  { name: "EMERALD VEIL",  bg: "/api/games/assets/nebula-emerald.jpg", star: 0x88ffcc, boss: "burst" },
+  { name: "VIOLET ABYSS",  bg: "/api/games/assets/nebula-violet.jpg",  star: 0xcc99ff, boss: "spiral" },
+];
+function sectorFor(w) { return SECTORS[Math.floor((w - 1) / 5) % SECTORS.length]; }
+function applySector(w) {
+  const s = sectorFor(w);
+  let bd = document.getElementById("sectorBg");
+  if (!bd) {
+    bd = document.createElement("div"); bd.id = "sectorBg";
+    bd.style.cssText = "position:fixed;inset:0;z-index:-1;background:#05050f center/cover no-repeat;filter:brightness(0.55);transition:opacity 1.5s";
+    document.body.appendChild(bd);
+  }
+  bd.style.backgroundImage = `url('${s.bg}')`;
+  stars.material.color.setHex(s.star);
+  flashMsg("⟡ ENTERING " + s.name);
+}
+
+const bossTex = new THREE.TextureLoader().load("/api/games/assets/boss-alien.png");
+let boss = null;
+function spawnWave() {
+  if (wave % 5 === 0) { spawnBoss(); return; }
+  const rows = 2 + Math.min(wave, 4), cols = 6;
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    const striker = wave >= 3 && Math.random() < 0.18;
+    const e = striker
+      ? new THREE.Mesh(new THREE.TetrahedronGeometry(0.8), new THREE.MeshStandardMaterial({ color: 0x22ccff, emissive: 0x003344 }))
+      : new THREE.Mesh(new THREE.OctahedronGeometry(0.7), new THREE.MeshStandardMaterial({ color: 0xff3355, emissive: 0x440011 }));
+    e.position.set((c - cols/2 + 0.5) * 2.6, 12 + r * 2.2, 0);
+    e.userData = { vx: 2 + wave * 0.4, hp: striker ? 1 : 1, type: striker ? "striker" : "basic", diving: false, r: 0.9 };
+    scene.add(e); enemies.push(e);
+  }
+}
+function spawnBoss() {
+  boss = new THREE.Mesh(new THREE.PlaneGeometry(9.5, 8.8), new THREE.MeshBasicMaterial({ map: bossTex, transparent: true }));
+  boss.position.set(0, 9, 0);
+  boss.userData = { hp: 50 + wave * 12, hpMax: 50 + wave * 12, type: "boss", t: 0, shotT: 1.4, r: 3.4, pattern: sectorFor(wave).boss, spiral: 0 };
+  scene.add(boss); enemies.push(boss);
+  document.getElementById("bossbar").style.display = "block";
+  flashMsg("☠ MOTHERSHIP OF " + sectorFor(wave).name);
+}
+function spawnPowerup(x, y) {
+  const types = [
+    { k: "LIFE",   color: 0xff5a8a },
+    { k: "RAPID",  color: 0xffd24a },
+    { k: "SHIELD", color: 0x4affd2 },
+  ];
+  const t = types[Math.floor(Math.random() * types.length)];
+  const p = new THREE.Mesh(new THREE.IcosahedronGeometry(0.5), new THREE.MeshBasicMaterial({ color: t.color }));
+  p.position.set(x, y, 0);
+  p.userData = { k: t.k };
+  scene.add(p); powerups.push(p);
+}
+function killEnemy(e, i) {
+  scene.remove(e);
+  enemies.splice(i, 1);
+  if (e.userData.type === "boss") {
+    score += 1000;
+    boss = null;
+    document.getElementById("bossbar").style.display = "none";
+    spawnPowerup(e.position.x - 2, e.position.y);
+    spawnPowerup(e.position.x + 2, e.position.y);
+    flashMsg("+1000 · MOTHERSHIP DESTROYED");
+  } else {
+    score += e.userData.type === "striker" ? 80 : 50;
+    if (Math.random() < 0.08) spawnPowerup(e.position.x, e.position.y);
+  }
+  hud();
+}
+function enemyFire(e, spread) {
+  const dx = ship.position.x - e.position.x, dy = ship.position.y - e.position.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const angles = spread ? [-0.3, 0, 0.3] : [0];
+  for (const a of angles) {
+    const c = Math.cos(a), s = Math.sin(a);
+    const vx = (dx/len * c - dy/len * s) * 9, vy = (dx/len * s + dy/len * c) * 9;
+    const b = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 6), new THREE.MeshBasicMaterial({ color: 0x3ee06c }));
+    b.position.copy(e.position);
+    b.userData = { vx, vy };
+    scene.add(b); ebullets.push(b);
+  }
+}
+function enemyRadial(e, count, offset) {
+  for (let i = 0; i < count; i++) {
+    const a = offset + (i / count) * Math.PI * 2;
+    const b = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 6), new THREE.MeshBasicMaterial({ color: 0x3ee06c }));
+    b.position.copy(e.position);
+    b.userData = { vx: Math.cos(a) * 8, vy: Math.sin(a) * 8 };
+    scene.add(b); ebullets.push(b);
+  }
+}
+function playerHit() {
+  if (invuln > 0) return;
+  if (shield > 0) { shield--; invuln = 1.2; hud(); flashMsg("🛡 SHIELD ABSORBED"); return; }
+  lives--; invuln = 2; hud();
+  if (lives <= 0) gameOver();
+}
+
+function start() {
+  [bullets, enemies, ebullets, powerups].forEach(arr => arr.forEach(o => scene.remove(o)));
+  bullets = []; enemies = []; ebullets = []; powerups = []; boss = null;
+  document.getElementById("bossbar").style.display = "none";
+  score = 0; lives = 3; wave = 1; weapon = 0; rapidTimer = 0; shield = 0; invuln = 0;
+  ship.position.set(0, -9, 0);
+  hud();
+  applySector(wave);
+  spawnWave();
+  document.getElementById("start").style.display = "none";
+  document.getElementById("gameover").style.display = "none";
+  running = true;
+}
+function gameOver() {
+  running = false;
+  document.getElementById("finalScore").textContent = `Score ${score} · Wave ${wave}`;
+  document.getElementById("gameover").style.display = "flex";
+}
+document.getElementById("startBtn").onclick = start;
+document.getElementById("restartBtn").onclick = start;
+
+let dir = 1, shotClock = 0;
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  stars.position.y -= dt * 2; if (stars.position.y < -30) stars.position.y = 0;
+  if (running) {
+    if (cooldown > 0) cooldown -= dt;
+    if (invuln > 0) invuln -= dt;
+    if (rapidTimer > 0) { rapidTimer -= dt; if (rapidTimer <= 0) hud(); }
+    ship.visible = invuln <= 0 || Math.floor(invuln * 10) % 2 === 0;
+    if (mouseDown || keys["Space"] || touchFire) fire();
+    // ── 360° movement ──
+    let mx = 0, my = 0;
+    if (keys["ArrowLeft"] || keys["KeyA"]) mx -= 1;
+    if (keys["ArrowRight"] || keys["KeyD"]) mx += 1;
+    if (keys["ArrowUp"] || keys["KeyW"]) my += 1;
+    if (keys["ArrowDown"] || keys["KeyS"]) my -= 1;
+    mx += touchMove.x; my += touchMove.y;
+    const ml = Math.hypot(mx, my) || 1;
+    ship.position.x += (mx / ml) * 15 * dt;
+    ship.position.y += (my / ml) * 15 * dt;
+    ship.position.x = Math.max(-14, Math.min(14, ship.position.x));
+    ship.position.y = Math.max(-10, Math.min(5, ship.position.y));
+    ship.rotation.y = Math.atan2(aim.x, aim.y) * 0.5;
+    ship.rotation.z = -mx * 0.22;
+    thruster.scale.setScalar(1 + Math.sin(Date.now() * 0.02) * 0.3 + (ml > 1 ? 0.4 : 0));
+
+    // ── Player bullets ──
+    bullets = bullets.filter(b => {
+      if (b.userData.homing && enemies.length) {
+        let best = null, bd = 1e9;
+        for (const e of enemies) { const d = e.position.distanceTo(b.position); if (d < bd) { bd = d; best = e; } }
+        if (best) {
+          const dx = best.position.x - b.position.x, dy = best.position.y - b.position.y, l = Math.hypot(dx, dy) || 1;
+          b.userData.vx += (dx/l) * 60 * dt; b.userData.vy += (dy/l) * 60 * dt;
+          const sp = Math.hypot(b.userData.vx, b.userData.vy);
+          if (sp > 24) { b.userData.vx *= 24/sp; b.userData.vy *= 24/sp; }
+          b.rotation.z = Math.atan2(b.userData.vy, b.userData.vx) - Math.PI/2;
+        }
+      }
+      b.position.x += b.userData.vx * dt;
+      b.position.y += b.userData.vy * dt;
+      if (Math.abs(b.position.y) > 17 || Math.abs(b.position.x) > 24) { scene.remove(b); return false; }
+      return true;
+    });
+
+    // ── Enemies ──
+    let edge = false;
+    shotClock -= dt;
+    for (const e of enemies) {
+      if (e.userData.type === "boss") {
+        e.userData.t += dt;
+        e.position.x = Math.sin(e.userData.t * 0.6) * 9;
+        e.position.y = 8 + Math.sin(e.userData.t * 1.3) * 1.4;
+        e.userData.shotT -= dt;
+        if (e.userData.shotT <= 0) {
+          const pat = e.userData.pattern || "aimed";
+          if (pat === "burst") { e.userData.shotT = Math.max(1.2, 2.2 - wave * 0.05); enemyRadial(e, 8, Math.random() * Math.PI); }
+          else if (pat === "spiral") { e.userData.shotT = 0.22; e.userData.spiral += 0.55; enemyRadial(e, 2, e.userData.spiral); }
+          else { e.userData.shotT = Math.max(0.7, 1.6 - wave * 0.05); enemyFire(e, true); }
+        }
+        continue;
+      }
+      if (e.userData.type === "striker" && !e.userData.diving && e.position.y < 9 && Math.random() < dt * 0.4) e.userData.diving = true;
+      if (e.userData.diving) {
+        const dx = ship.position.x - e.position.x, l = Math.abs(dx) || 1;
+        e.position.x += (dx/l) * 5 * dt;
+        e.position.y -= 7 * dt;
+      } else {
+        e.position.x += e.userData.vx * dir * dt;
+      }
+      e.rotation.y += dt * 2; e.rotation.x += dt;
+      if (Math.abs(e.position.x) > 15) edge = true;
+      if (wave >= 2 && shotClock <= 0 && Math.random() < 0.004) enemyFire(e, false);
+      if (e.position.distanceTo(ship.position) < 1.3) playerHit();
+    }
+    if (edge) { dir *= -1; enemies.forEach(e => { if (e.userData.type !== "boss" && !e.userData.diving) e.position.y -= 0.8; }); }
+
+    // ── Enemy bullets ──
+    ebullets = ebullets.filter(b => {
+      b.position.x += b.userData.vx * dt;
+      b.position.y += b.userData.vy * dt;
+      if (b.position.distanceTo(ship.position) < 1) { playerHit(); scene.remove(b); return false; }
+      if (Math.abs(b.position.y) > 17 || Math.abs(b.position.x) > 24) { scene.remove(b); return false; }
+      return true;
+    });
+
+    // ── Powerups ──
+    powerups = powerups.filter(p => {
+      p.position.y -= 3.2 * dt;
+      p.rotation.y += dt * 3;
+      if (p.position.distanceTo(ship.position) < 1.5) {
+        if (p.userData.k === "LIFE") lives++;
+        if (p.userData.k === "RAPID") rapidTimer = 8;
+        if (p.userData.k === "SHIELD") shield = Math.min(2, shield + 1);
+        hud(); flashMsg("+" + p.userData.k);
+        window.SFX && SFX.tone(600, 1200, 0.15, "sine", 0.2);
+        scene.remove(p); return false;
+      }
+      if (p.position.y < -13) { scene.remove(p); return false; }
+      return true;
+    });
+
+    // ── Bullet hits ──
+    for (let ei = enemies.length - 1; ei >= 0; ei--) {
+      const e = enemies[ei];
+      for (let i = 0; i < bullets.length; i++) {
+        if (e.position.distanceTo(bullets[i].position) < e.userData.r) {
+          e.userData.hp -= bullets[i].userData.dmg;
+          scene.remove(bullets[i]); bullets.splice(i, 1);
+          if (e.userData.type === "boss") {
+            document.getElementById("bossHp").style.width = Math.max(0, (e.userData.hp / e.userData.hpMax) * 100) + "%";
+          }
+          if (e.userData.hp <= 0) killEnemy(e, ei);
+          break;
+        }
+      }
+      if (enemies[ei] === e && e.userData.type !== "boss" && e.position.y < -7.5) {
+        scene.remove(e); enemies.splice(ei, 1);
+        lives--; hud();
+        if (lives <= 0) gameOver();
+      }
+    }
+    if (enemies.length === 0 && running) {
+      wave++; maxWave = Math.max(maxWave, wave); hud();
+      if ((wave - 1) % 5 === 0 && wave > 1) applySector(wave);
+      spawnWave();
+      if (WEAPONS.some(w => w.unlock === wave)) flashMsg(WEAPONS.find(w => w.unlock === wave).name + " UNLOCKED — press " + (WEAPONS.findIndex(w => w.unlock === wave) + 1));
+    }
+  }
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+<script>
+// ─── Leaderboard ──────────────────────────────────────────
+const GID = "spaceshooter";
+const lbScore = () => score;
+(function () {
+  document.getElementById("gameover").insertAdjacentHTML("beforeend", `
+    <div style="margin-top:20px;width:min(340px,84vw)">
+      <div style="display:flex;gap:8px">
+        <input id="lbName" maxlength="20" placeholder="Your name" style="flex:1;min-width:0;padding:10px 14px;border-radius:12px;border:1px solid #6c63ff66;background:#1a1a2e;color:#fff;font-family:inherit;outline:none">
+        <button id="lbSubmit" style="padding:10px 18px;border-radius:12px;border:none;background:#6c63ff;color:#fff;font-weight:bold;font-family:inherit;cursor:pointer;letter-spacing:1px">SUBMIT</button>
+      </div>
+      <div style="margin-top:14px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px">
+        <span style="color:#6c63ff;font-size:12px;letter-spacing:2px">⬡ TOP PILOTS</span>
+        <span style="display:flex;gap:6px">
+          <button id="lbAll" class="lbTab" style="background:#6c63ff">ALL-TIME</button>
+          <button id="lbWeek" class="lbTab" style="background:transparent">WEEK</button>
+        </span>
+      </div>
+      <style>.lbTab{padding:4px 10px;border-radius:8px;border:1px solid #6c63ff66;color:#fff;font-family:inherit;font-size:10px;letter-spacing:1px;cursor:pointer}</style>
+      <ol id="lbList" style="list-style:none;margin-top:8px;text-align:left;font-size:13px;color:#aaa;max-height:170px;overflow:auto"></ol>
+    </div>`);
+  const esc = (s) => String(s).replace(/[<>&]/g, "");
+  let lbPeriod = "all";
+  function setPeriod(p) {
+    lbPeriod = p;
+    document.getElementById("lbAll").style.background = p === "all" ? "#6c63ff" : "transparent";
+    document.getElementById("lbWeek").style.background = p === "weekly" ? "#6c63ff" : "transparent";
+    lbLoad();
+  }
+  document.getElementById("lbAll").addEventListener("click", () => setPeriod("all"));
+  document.getElementById("lbWeek").addEventListener("click", () => setPeriod("weekly"));
+  async function lbLoad() {
+    try {
+      const d = await (await fetch("/api/games/" + GID + "/scores?period=" + lbPeriod)).json();
+      document.getElementById("lbList").innerHTML = d.map((s, i) =>
+        `<li style="display:flex;justify-content:space-between;padding:3px 2px"><span>${i + 1}. ${esc(s.name)}</span><b style="color:#fff">${s.score}</b></li>`).join("") || "<li>No scores yet — be the first.</li>";
+    } catch (_) {}
+  }
+  document.getElementById("lbName").value = localStorage.getItem("luchii-player-name") || "";
+  document.getElementById("lbSubmit").addEventListener("click", async () => {
+    const name = (document.getElementById("lbName").value || "PLAYER").trim().slice(0, 20) || "PLAYER";
+    try { localStorage.setItem("luchii-player-name", name); } catch (_) {}
+    try {
+      await fetch("/api/games/" + GID + "/scores", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, score: lbScore() }) });
+      document.getElementById("lbSubmit").textContent = "SAVED ✓";
+      lbLoad();
+    } catch (_) {}
+  });
+  const _gameOver = gameOver;
+  gameOver = function () { _gameOver(); document.getElementById("lbSubmit").textContent = "SUBMIT"; lbLoad(); };
+})();
+
+// ─── Touch Controls — twin 360° sticks ─────────────────────
+(function () {
+  if (!(matchMedia("(pointer: coarse)").matches || new URLSearchParams(location.search).has("touch"))) return;
+  document.body.insertAdjacentHTML("beforeend", `
+    <style>
+      .stick{position:fixed;bottom:26px;z-index:8;width:118px;height:118px;border-radius:50%;
+        background:rgba(108,99,255,.10);border:1px solid rgba(108,99,255,.45);
+        user-select:none;-webkit-user-select:none;touch-action:none}
+      .knob{position:absolute;left:37px;top:37px;width:44px;height:44px;border-radius:50%;
+        background:rgba(108,99,255,.55);pointer-events:none}
+      .stickLbl{position:absolute;top:-18px;left:0;right:0;text-align:center;color:rgba(160,155,255,.7);
+        font:bold 9px 'Courier New';letter-spacing:2px}
+    </style>
+    <div id="stickL" class="stick" style="left:22px"><div class="knob"></div><span class="stickLbl">MOVE</span></div>
+    <div id="stickR" class="stick" style="right:22px;border-color:rgba(255,120,140,.45);background:rgba(255,90,138,.08)">
+      <div class="knob" style="background:rgba(255,90,138,.55)"></div><span class="stickLbl" style="color:rgba(255,140,160,.75)">AIM · FIRE</span></div>`);
+  function bindStick(el, onMove, onEnd) {
+    const knob = el.querySelector(".knob");
+    let id = null, cx = 0, cy = 0;
+    const reset = () => { id = null; knob.style.transform = ""; onEnd(); };
+    el.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      const t = e.changedTouches[0]; id = t.identifier;
+      const r = el.getBoundingClientRect(); cx = r.left + r.width / 2; cy = r.top + r.height / 2;
+    });
+    el.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+      for (const t of e.changedTouches) if (t.identifier === id) {
+        const dx = t.clientX - cx, dy = t.clientY - cy;
+        const m = Math.min(Math.hypot(dx, dy), 40), a = Math.atan2(dy, dx);
+        knob.style.transform = `translate(${Math.cos(a) * m}px,${Math.sin(a) * m}px)`;
+        onMove(Math.cos(a) * (m / 40), Math.sin(a) * (m / 40), m / 40);
+      }
+    });
+    el.addEventListener("touchend", reset);
+    el.addEventListener("touchcancel", reset);
+  }
+  bindStick(document.getElementById("stickL"),
+    (x, y) => { touchMove.x = x; touchMove.y = -y; },
+    () => { touchMove.x = 0; touchMove.y = 0; });
+  bindStick(document.getElementById("stickR"),
+    (x, y, mag) => {
+      if (mag > 0.25) { const l = Math.hypot(x, y) || 1; aim.x = x / l; aim.y = -y / l; touchFire = true; }
+      else touchFire = false;
+    },
+    () => { touchFire = false; });
+})();
+</script>
+<script>
+// ─── SFX Engine + Champion banner ─────────────────────────
+(function () {
+  let ctx = null, muted = false;
+  try { muted = localStorage.getItem("luchii-sfx-muted") === "1"; } catch (_) {}
+  const ac = () => (ctx = ctx || new (window.AudioContext || window.webkitAudioContext)());
+  function tone(f0, f1, dur, type, vol) {
+    if (muted) return;
+    try {
+      const c = ac(), o = c.createOscillator(), g = c.createGain(), t = c.currentTime;
+      o.type = type; o.frequency.setValueAtTime(f0, t);
+      o.frequency.exponentialRampToValueAtTime(Math.max(f1, 1), t + dur);
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur);
+    } catch (_) {}
+  }
+  window.SFX = {
+    tone,
+    toggle() { muted = !muted; try { localStorage.setItem("luchii-sfx-muted", muted ? "1" : "0"); } catch (_) {} return muted; },
+  };
+  document.body.insertAdjacentHTML("beforeend",
+    `<button id="sfxBtn" style="position:fixed;top:60px;right:24px;z-index:9;padding:8px 14px;border-radius:20px;border:1px solid #6c63ff66;background:rgba(13,13,26,.7);color:#fff;font:bold 11px 'Courier New';letter-spacing:1px;cursor:pointer">SFX ${muted ? "OFF" : "ON"}</button>`);
+  document.getElementById("sfxBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    document.getElementById("sfxBtn").textContent = "SFX " + (window.SFX.toggle() ? "OFF" : "ON");
+  });
+  // Hooks: laser / explosion / life lost / ship lost
+  const _fireSh = fire;
+  fire = function () { const n = bullets.length; _fireSh(); if (bullets.length > n && !muted) LuchiiAudio.sfx("laser", 0.3); };
+  let _sc = 0, _lv = 3;
+  setInterval(() => {
+    if (running) {
+      if (score > _sc && !muted) LuchiiAudio.sfx("explosion", 0.4);
+      if (lives < _lv && !muted) LuchiiAudio.sfx("hit", 0.5);
+    }
+    _sc = score; _lv = lives;
+  }, 100);
+  const _goSh = gameOver;
+  gameOver = function () { if (!muted) LuchiiAudio.sfx("lose", 0.6); _goSh(); };
+})();
+// Champion — score to beat
+(function () {
+  fetch("/api/games/" + GID + "/scores").then((r) => r.json()).then((d) => {
+    if (!d.length) return;
+    const c = d[0];
+    document.querySelector("#start button").insertAdjacentHTML("beforebegin",
+      `<p id="champLine" style="color:#fbbf24;margin-top:6px">♛ CHAMPION: ${String(c.name).replace(/[<>&]/g, "")} · ${c.score} — the score to beat</p>`);
+  }).catch(() => {});
+})();
+// ─── Music + Gamepad ──────────────────────────────────────
+(function () {
+  let ctx = null, playing = false, timer = null, master = null;
+  let mMuted = false, vol = 0.5;
+  try { mMuted = localStorage.getItem("luchii-music-muted") === "1"; vol = parseFloat(localStorage.getItem("luchii-music-vol") || "0.5"); } catch (_) {}
+  const ac = () => (ctx = ctx || new (window.AudioContext || window.webkitAudioContext)());
+  const CFG = { bpm: 120, root: 49, bass: [0, 0, 3, -2], lead: [0, 3, 7, 12, 15, 12, 7, 3] };
+  function note(f, t, dur, type, g, slide) {
+    const c = ac(), o = c.createOscillator(), gn = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t);
+    if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(f / 4, 1), t + dur);
+    gn.gain.setValueAtTime(g, t); gn.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(gn).connect(master); o.start(t); o.stop(t + dur);
+  }
+  function startMusic() {
+    if (playing || mMuted) return;
+    playing = true;
+    window.LuchiiAudio && LuchiiAudio.music.start("/api/games/assets/music-spaceshooter.ogg", vol);
+  }
+  function stopMusic() { playing = false; window.LuchiiAudio && LuchiiAudio.music.stop(); }
+  document.body.insertAdjacentHTML("beforeend", `
+    <div id="musicCtl" style="position:fixed;top:102px;right:24px;z-index:9;display:flex;gap:8px;align-items:center;background:rgba(13,13,26,.7);border:1px solid #6c63ff66;border-radius:20px;padding:6px 12px">
+      <button id="musicBtn" style="border:none;background:none;color:#fff;font:bold 11px 'Courier New';letter-spacing:1px;cursor:pointer">MUSIC ${mMuted ? "OFF" : "ON"}</button>
+      <input id="musicVol" type="range" min="0" max="1" step="0.05" value="${vol}" style="width:70px;accent-color:#6c63ff">
+    </div>
+    <div id="padPill" style="display:none;position:fixed;top:60px;right:110px;z-index:9;padding:8px 14px;border-radius:20px;border:1px solid #44ffaa66;background:rgba(13,13,26,.7);color:#44ffaa;font:bold 11px 'Courier New';letter-spacing:1px">PAD CONNECTED</div>`);
+  document.getElementById("musicBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    mMuted = !mMuted;
+    try { localStorage.setItem("luchii-music-muted", mMuted ? "1" : "0"); } catch (_) {}
+    document.getElementById("musicBtn").textContent = "MUSIC " + (mMuted ? "OFF" : "ON");
+    if (mMuted) stopMusic(); else if (running) startMusic();
+  });
+  document.getElementById("musicVol").addEventListener("input", (e) => {
+    vol = parseFloat(e.target.value);
+    try { localStorage.setItem("luchii-music-vol", String(vol)); } catch (_) {}
+    window.LuchiiAudio && LuchiiAudio.music.setVol(vol);
+  });
+  document.getElementById("startBtn").addEventListener("click", startMusic);
+  document.getElementById("restartBtn").addEventListener("click", startMusic);
+  // Gamepad
+  let padIdx = null, prevBtns = {}, padKeys = {};
+  window.addEventListener("gamepadconnected", (e) => { padIdx = e.gamepad.index; document.getElementById("padPill").style.display = "block"; });
+  window.addEventListener("gamepaddisconnected", (e) => { if (e.gamepad.index === padIdx) { padIdx = null; document.getElementById("padPill").style.display = "none"; } });
+  function pressStart() {
+    for (const id of ["startBtn", "restartBtn"]) {
+      const el = document.getElementById(id);
+      if (el && el.offsetParent !== null) { el.click(); return; }
+    }
+  }
+  const DZ = 0.28;
+  (function padLoop() {
+    requestAnimationFrame(padLoop);
+    const gp = padIdx !== null ? navigator.getGamepads()[padIdx] : null;
+    if (!gp) return;
+    const lx = gp.axes[0] || 0, ly = gp.axes[1] || 0, rx = gp.axes[2] || 0, ry = gp.axes[3] || 0;
+    const set = {};
+    if (lx < -DZ) set["ArrowLeft"] = 1; if (lx > DZ) set["ArrowRight"] = 1;
+    if (ly < -DZ) set["ArrowUp"] = 1;   if (ly > DZ) set["ArrowDown"] = 1;
+    // Right stick = 360° aim
+    if (Math.hypot(rx, ry) > DZ) { const l = Math.hypot(rx, ry); aim.x = rx / l; aim.y = -ry / l; }
+    for (const k in padKeys) if (!set[k]) keys[k] = false;
+    for (const k in set) keys[k] = true;
+    padKeys = set;
+    if (running && (gp.buttons[0]?.pressed || gp.buttons[7]?.pressed)) fire();
+    if (gp.buttons[9]?.pressed && !prevBtns[9]) pressStart();
+    prevBtns = { 9: gp.buttons[9]?.pressed };
+  })();
+})();
+</script>
+<div id="cinematic-vignette" style="position:fixed;inset:0;pointer-events:none;z-index:7;background:radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,.5) 100%)"></div>
+<script>try{renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;renderer.domElement.style.filter="saturate(1.12) contrast(1.05)";}catch(_){}</script>
+</body>
+</html>
+;
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Meta Maze</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
+  canvas { display: block; }
+  #hud { position: fixed; top: 0; left: 0; right: 0; display: flex; justify-content: space-between;
+    padding: 16px 24px; color: #fff; font-size: 15px; pointer-events: none; z-index: 5; }
+  #hud span { background: rgba(13,13,26,0.6); padding: 6px 14px; border-radius: 8px; border: 1px solid #6c63ff44; }
+  .screen { position: fixed; inset: 0; background: rgba(13,13,26,0.94); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; color: #fff; z-index: 10; text-align: center; }
+  .screen h1 { color: #6c63ff; font-size: 44px; letter-spacing: 6px; margin-bottom: 12px; }
+  .screen p { color: #aaa; margin-bottom: 8px; }
+  .screen button { margin-top: 24px; padding: 14px 42px; background: #6c63ff; color: #fff; border: none;
+    border-radius: 30px; font-size: 17px; font-weight: bold; cursor: pointer; letter-spacing: 2px; font-family: inherit; }
+  .screen button:hover { background: #857dff; }
+  #win, #lose { display: none; }
+</style>
+</head>
+<body>
+<script src="/api/games/assets/env.js"></script>
+<div id="hud">
+  <span>⏱ <b id="time">90</b>s</span>
+  <span>🏆 LEVEL <b id="level">1</b></span>
+</div>
+<div id="start" class="screen">
+  <h1>⬡ META MAZE</h1>
+  <p>Frasberg Engine · Procedural Labyrinth</p>
+  <p>WASD move · Mouse look · Reach the beacon before time runs out</p>
+  <button id="startBtn">ENTER THE MAZE</button>
+</div>
+<div id="win" class="screen">
+  <h1>BEACON REACHED</h1>
+  <p id="winText"></p>
+  <button id="nextBtn">NEXT LEVEL</button>
+</div>
+<div id="lose" class="screen">
+  <h1>LOST IN THE MAZE</h1>
+  <p id="loseText"></p>
+  <button id="restartBtn">TRY AGAIN</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+<script>
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x0d0d1a, 0.09);
+scene.background = null;
+const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 100);
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+addEventListener("resize", () => {
+  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+scene.add(new THREE.AmbientLight(0x8888ff, 0.35));
+const lamp = new THREE.PointLight(0x6c63ff, 2, 14);
+scene.add(lamp);
+
+const CELL = 4;
+let SIZE = 9;
+let grid = [], wallMeshes = [], beacon = null, beaconLight = null;
+
+function genMaze(n) {
+  // recursive backtracker on odd grid
+  const g = Array.from({ length: n }, () => Array(n).fill(1));
+  const stack = [[1, 1]];
+  g[1][1] = 0;
+  while (stack.length) {
+    const [x, y] = stack[stack.length - 1];
+    const dirs = [[2,0],[-2,0],[0,2],[0,-2]].sort(() => Math.random() - 0.5);
+    let moved = false;
+    for (const [dx, dy] of dirs) {
+      const nx = x + dx, ny = y + dy;
+      if (nx > 0 && ny > 0 && nx < n-1 && ny < n-1 && g[ny][nx] === 1) {
+        g[ny][nx] = 0; g[y + dy/2][x + dx/2] = 0;
+        stack.push([nx, ny]); moved = true; break;
+      }
+    }
+    if (!moved) stack.pop();
+  }
+  return g;
+}
+
+function buildMaze() {
+  wallMeshes.forEach(m => scene.remove(m)); wallMeshes = [];
+  if (beacon) { scene.remove(beacon); scene.remove(beaconLight); }
+  grid = genMaze(SIZE);
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0x2a2a4e, roughness: 0.85 });
+  const wallGeo = new THREE.BoxGeometry(CELL, 4, CELL);
+  for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
+    if (grid[y][x] === 1) {
+      const w = new THREE.Mesh(wallGeo, wallMat);
+      w.position.set(x * CELL, 2, y * CELL);
+      scene.add(w); wallMeshes.push(w);
+    }
+  }
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(SIZE * CELL + 8, SIZE * CELL + 8),
+    new THREE.MeshStandardMaterial({ color: 0x1c1c30, roughness: 0.95 }));
+  floor.rotation.x = -Math.PI/2;
+  floor.position.set(SIZE * CELL / 2, 0, SIZE * CELL / 2);
+  scene.add(floor); wallMeshes.push(floor);
+  // beacon at far corner
+  beacon = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 8, 16),
+    new THREE.MeshBasicMaterial({ color: 0x44ffaa, transparent: true, opacity: 0.7 }));
+  beacon.position.set((SIZE-2) * CELL, 4, (SIZE-2) * CELL);
+  scene.add(beacon);
+  beaconLight = new THREE.PointLight(0x44ffaa, 3, 20);
+  beaconLight.position.copy(beacon.position);
+  scene.add(beaconLight);
+}
+
+const player = { pos: new THREE.Vector3(CELL, 1.6, CELL), yaw: 0, pitch: 0 };
+const keys = {};
+document.addEventListener("keydown", e => keys[e.code] = true);
+document.addEventListener("keyup", e => keys[e.code] = false);
+document.addEventListener("mousemove", e => {
+  if (!document.pointerLockElement) return;
+  player.yaw -= e.movementX * 0.002;
+  player.pitch = Math.max(-1.2, Math.min(1.2, player.pitch - e.movementY * 0.002));
+});
+
+function isWall(x, z) {
+  const gx = Math.round(x / CELL), gz = Math.round(z / CELL);
+  if (gx < 0 || gz < 0 || gx >= SIZE || gz >= SIZE) return true;
+  return grid[gz][gx] === 1;
+}
+
+let running = false, timeLeft = 90, level = 1;
+function hud() {
+  document.getElementById("time").textContent = Math.ceil(timeLeft);
+  document.getElementById("level").textContent = level;
+}
+function start(reset) {
+  if (reset) { level = 1; SIZE = 9; }
+  buildMaze();
+  player.pos.set(CELL, 1.6, CELL); player.yaw = Math.PI / 4;
+  timeLeft = 60 + SIZE * 4; hud();
+  ["start","win","lose"].forEach(id => document.getElementById(id).style.display = "none");
+  running = true;
+  document.body.requestPointerLock();
+}
+function win() {
+  running = false; document.exitPointerLock();
+  document.getElementById("winText").textContent = `Level ${level} cleared with ${Math.ceil(timeLeft)}s left`;
+  document.getElementById("win").style.display = "flex";
+  level++; SIZE = Math.min(SIZE + 2, 19);
+}
+function lose() {
+  running = false; document.exitPointerLock();
+  document.getElementById("loseText").textContent = `The maze kept you · Level ${level}`;
+  document.getElementById("lose").style.display = "flex";
+}
+document.getElementById("startBtn").onclick = () => start(true);
+document.getElementById("restartBtn").onclick = () => start(true);
+document.getElementById("nextBtn").onclick = () => start(false);
+
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  if (running) {
+    timeLeft -= dt;
+    if (timeLeft <= 0) { lose(); }
+    const f = { x: Math.sin(player.yaw), z: Math.cos(player.yaw) };
+    const r = { x: Math.cos(player.yaw), z: -Math.sin(player.yaw) };
+    let dx = 0, dz = 0;
+    if (keys["KeyW"]) { dx -= f.x; dz -= f.z; }
+    if (keys["KeyS"]) { dx += f.x; dz += f.z; }
+    if (keys["KeyA"]) { dx -= r.x; dz -= r.z; }
+    if (keys["KeyD"]) { dx += r.x; dz += r.z; }
+    const len = Math.hypot(dx, dz) || 1; dx /= len; dz /= len;
+    const nx = player.pos.x + dx * 6 * dt, nz = player.pos.z + dz * 6 * dt;
+    if (!isWall(nx, player.pos.z)) player.pos.x = nx;
+    if (!isWall(player.pos.x, nz)) player.pos.z = nz;
+    camera.position.copy(player.pos);
+    camera.rotation.order = "YXZ";
+    camera.rotation.y = player.yaw;
+    camera.rotation.x = player.pitch;
+    lamp.position.set(player.pos.x, 3, player.pos.z);
+    beacon.rotation.y += dt;
+    beacon.material.opacity = 0.55 + Math.sin(Date.now() * 0.004) * 0.25;
+    if (player.pos.distanceTo(beacon.position.clone().setY(1.6)) < 2.2) win();
+    hud();
+  }
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+<script>
+// ─── Leaderboard (score = level reached) ──────────────────
+const GID = "maze3d";
+const lbScore = () => level;
+(function () {
+  document.getElementById("lose").insertAdjacentHTML("beforeend", `
+    <div style="margin-top:20px;width:min(340px,84vw)">
+      <div style="display:flex;gap:8px">
+        <input id="lbName" maxlength="20" placeholder="Your name" style="flex:1;min-width:0;padding:10px 14px;border-radius:12px;border:1px solid #6c63ff66;background:#1a1a2e;color:#fff;font-family:inherit;outline:none">
+        <button id="lbSubmit" style="padding:10px 18px;border-radius:12px;border:none;background:#6c63ff;color:#fff;font-weight:bold;font-family:inherit;cursor:pointer;letter-spacing:1px">SUBMIT</button>
+      </div>
+      <div style="margin-top:14px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px">
+        <span style="color:#6c63ff;font-size:12px;letter-spacing:2px">⬡ DEEPEST RUNNERS</span>
+        <span style="display:flex;gap:6px">
+          <button id="lbAll" class="lbTab" style="background:#6c63ff">ALL-TIME</button>
+          <button id="lbWeek" class="lbTab" style="background:transparent">WEEK</button>
+        </span>
+      </div>
+      <style>.lbTab{padding:4px 10px;border-radius:8px;border:1px solid #6c63ff66;color:#fff;font-family:inherit;font-size:10px;letter-spacing:1px;cursor:pointer}</style>
+      <ol id="lbList" style="list-style:none;margin-top:8px;text-align:left;font-size:13px;color:#aaa;max-height:170px;overflow:auto"></ol>
+    </div>`);
+  const esc = (s) => String(s).replace(/[<>&]/g, "");
+  let lbPeriod = "all";
+  function setPeriod(p) {
+    lbPeriod = p;
+    document.getElementById("lbAll").style.background = p === "all" ? "#6c63ff" : "transparent";
+    document.getElementById("lbWeek").style.background = p === "weekly" ? "#6c63ff" : "transparent";
+    lbLoad();
+  }
+  document.getElementById("lbAll").addEventListener("click", () => setPeriod("all"));
+  document.getElementById("lbWeek").addEventListener("click", () => setPeriod("weekly"));
+  async function lbLoad() {
+    try {
+      const d = await (await fetch("/api/games/" + GID + "/scores?period=" + lbPeriod)).json();
+      document.getElementById("lbList").innerHTML = d.map((s, i) =>
+        `<li style="display:flex;justify-content:space-between;padding:3px 2px"><span>${i + 1}. ${esc(s.name)}</span><b style="color:#fff">Lv ${s.score}</b></li>`).join("") || "<li>No runs yet — be the first.</li>";
+    } catch (_) {}
+  }
+  document.getElementById("lbName").value = localStorage.getItem("luchii-player-name") || "";
+  document.getElementById("lbSubmit").addEventListener("click", async () => {
+    const name = (document.getElementById("lbName").value || "PLAYER").trim().slice(0, 20) || "PLAYER";
+    try { localStorage.setItem("luchii-player-name", name); } catch (_) {}
+    try {
+      await fetch("/api/games/" + GID + "/scores", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, score: lbScore() }) });
+      document.getElementById("lbSubmit").textContent = "SAVED ✓";
+      lbLoad();
+    } catch (_) {}
+  });
+  const _lose = lose;
+  lose = function () { _lose(); document.getElementById("lbSubmit").textContent = "SUBMIT"; lbLoad(); };
+})();
+
+// ─── Touch Controls ───────────────────────────────────────
+(function () {
+  if (!(matchMedia("(pointer: coarse)").matches || new URLSearchParams(location.search).has("touch"))) return;
+  document.body.insertAdjacentHTML("beforeend", `
+    <style>
+      .tc{position:fixed;z-index:8;user-select:none;-webkit-user-select:none;touch-action:none}
+      #joy{left:20px;bottom:28px;width:124px;height:124px;border-radius:50%;background:rgba(108,99,255,.12);border:1px solid rgba(108,99,255,.45)}
+      #joyKnob{position:absolute;left:40px;top:40px;width:44px;height:44px;border-radius:50%;background:rgba(108,99,255,.55)}
+    </style>
+    <div id="joy" class="tc"><div id="joyKnob"></div></div>`);
+  function bindJoy(el, knob, map) {
+    let id = null, cx = 0, cy = 0;
+    const reset = () => { Object.values(map).forEach((k) => keys[k] = false); knob.style.transform = ""; id = null; };
+    el.addEventListener("touchstart", (e) => { e.preventDefault(); const t = e.changedTouches[0]; id = t.identifier; const r = el.getBoundingClientRect(); cx = r.left + r.width / 2; cy = r.top + r.height / 2; });
+    el.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+      for (const t of e.changedTouches) if (t.identifier === id) {
+        const dx = t.clientX - cx, dy = t.clientY - cy;
+        const m = Math.min(Math.hypot(dx, dy), 42), a = Math.atan2(dy, dx);
+        knob.style.transform = `translate(${Math.cos(a) * m}px,${Math.sin(a) * m}px)`;
+        keys[map.left] = dx < -14; keys[map.right] = dx > 14;
+        keys[map.up] = dy < -14; keys[map.down] = dy > 14;
+      }
+    });
+    el.addEventListener("touchend", reset); el.addEventListener("touchcancel", reset);
+  }
+  bindJoy(document.getElementById("joy"), document.getElementById("joyKnob"), { up: "KeyW", down: "KeyS", left: "KeyA", right: "KeyD" });
+  // Right-side drag = look
+  let lookId = null, lx = 0, ly = 0;
+  document.addEventListener("touchstart", (e) => {
+    if (e.target.closest(".tc") || e.target.closest(".screen") || lookId !== null) return;
+    const t = e.changedTouches[0];
+    if (t.clientX < innerWidth * 0.4) return;
+    lookId = t.identifier; lx = t.clientX; ly = t.clientY;
+  }, { passive: true });
+  document.addEventListener("touchmove", (e) => {
+    for (const t of e.changedTouches) if (t.identifier === lookId) {
+      player.yaw -= (t.clientX - lx) * 0.005;
+      player.pitch = Math.max(-1.2, Math.min(1.2, player.pitch - (t.clientY - ly) * 0.005));
+      lx = t.clientX; ly = t.clientY;
+    }
+  }, { passive: true });
+  document.addEventListener("touchend", (e) => { for (const t of e.changedTouches) if (t.identifier === lookId) lookId = null; });
+})();
+</script>
+<script>
+// ─── SFX Engine + Champion banner ─────────────────────────
+(function () {
+  let ctx = null, muted = false;
+  try { muted = localStorage.getItem("luchii-sfx-muted") === "1"; } catch (_) {}
+  const ac = () => (ctx = ctx || new (window.AudioContext || window.webkitAudioContext)());
+  function tone(f0, f1, dur, type, vol) {
+    if (muted) return;
+    try {
+      const c = ac(), o = c.createOscillator(), g = c.createGain(), t = c.currentTime;
+      o.type = type; o.frequency.setValueAtTime(f0, t);
+      o.frequency.exponentialRampToValueAtTime(Math.max(f1, 1), t + dur);
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur);
+    } catch (_) {}
+  }
+  window.SFX = {
+    tone,
+    toggle() { muted = !muted; try { localStorage.setItem("luchii-sfx-muted", muted ? "1" : "0"); } catch (_) {} return muted; },
+  };
+  document.body.insertAdjacentHTML("beforeend",
+    `<button id="sfxBtn" style="position:fixed;top:60px;right:24px;z-index:9;padding:8px 14px;border-radius:20px;border:1px solid #6c63ff66;background:rgba(13,13,26,.7);color:#fff;font:bold 11px 'Courier New';letter-spacing:1px;cursor:pointer">SFX ${muted ? "OFF" : "ON"}</button>`);
+  document.getElementById("sfxBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    document.getElementById("sfxBtn").textContent = "SFX " + (window.SFX.toggle() ? "OFF" : "ON");
+  });
+  // Hooks: beacon chime on win, buzz on lose
+  const _winM = win;
+  win = function () { if (!muted) LuchiiAudio.sfx("win", 0.6); _winM(); };
+  const _loseM = lose;
+  lose = function () { if (!muted) LuchiiAudio.sfx("lose", 0.6); _loseM(); };
+})();
+// Champion — level to beat
+(function () {
+  fetch("/api/games/" + GID + "/scores").then((r) => r.json()).then((d) => {
+    if (!d.length) return;
+    const c = d[0];
+    document.querySelector("#start button").insertAdjacentHTML("beforebegin",
+      `<p id="champLine" style="color:#fbbf24;margin-top:6px">♛ DEEPEST RUNNER: ${String(c.name).replace(/[<>&]/g, "")} · Lv ${c.score} — the depth to beat</p>`);
+  }).catch(() => {});
+})();
+// ─── Music + Gamepad ──────────────────────────────────────
+(function () {
+  let ctx = null, playing = false, timer = null, master = null;
+  let mMuted = false, vol = 0.5;
+  try { mMuted = localStorage.getItem("luchii-music-muted") === "1"; vol = parseFloat(localStorage.getItem("luchii-music-vol") || "0.5"); } catch (_) {}
+  const ac = () => (ctx = ctx || new (window.AudioContext || window.webkitAudioContext)());
+  const CFG = { bpm: 90, root: 36.7, bass: [0, 0, -4, 3], lead: [0, 2, 3, 7, 8, 7, 3, 2] };
+  function note(f, t, dur, type, g, slide) {
+    const c = ac(), o = c.createOscillator(), gn = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t);
+    if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(f / 4, 1), t + dur);
+    gn.gain.setValueAtTime(g, t); gn.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(gn).connect(master); o.start(t); o.stop(t + dur);
+  }
+  function startMusic() {
+    if (playing || mMuted) return;
+    playing = true;
+    window.LuchiiAudio && LuchiiAudio.music.start("/api/games/assets/music-maze3d.ogg", vol);
+  }
+  function stopMusic() { playing = false; window.LuchiiAudio && LuchiiAudio.music.stop(); }
+  document.body.insertAdjacentHTML("beforeend", `
+    <div id="musicCtl" style="position:fixed;top:102px;right:24px;z-index:9;display:flex;gap:8px;align-items:center;background:rgba(13,13,26,.7);border:1px solid #6c63ff66;border-radius:20px;padding:6px 12px">
+      <button id="musicBtn" style="border:none;background:none;color:#fff;font:bold 11px 'Courier New';letter-spacing:1px;cursor:pointer">MUSIC ${mMuted ? "OFF" : "ON"}</button>
+      <input id="musicVol" type="range" min="0" max="1" step="0.05" value="${vol}" style="width:70px;accent-color:#6c63ff">
+    </div>
+    <div id="padPill" style="display:none;position:fixed;top:60px;right:110px;z-index:9;padding:8px 14px;border-radius:20px;border:1px solid #44ffaa66;background:rgba(13,13,26,.7);color:#44ffaa;font:bold 11px 'Courier New';letter-spacing:1px">PAD CONNECTED</div>`);
+  document.getElementById("musicBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    mMuted = !mMuted;
+    try { localStorage.setItem("luchii-music-muted", mMuted ? "1" : "0"); } catch (_) {}
+    document.getElementById("musicBtn").textContent = "MUSIC " + (mMuted ? "OFF" : "ON");
+    if (mMuted) stopMusic(); else if (running) startMusic();
+  });
+  document.getElementById("musicVol").addEventListener("input", (e) => {
+    vol = parseFloat(e.target.value);
+    try { localStorage.setItem("luchii-music-vol", String(vol)); } catch (_) {}
+    window.LuchiiAudio && LuchiiAudio.music.setVol(vol);
+  });
+  ["startBtn", "restartBtn", "nextBtn"].forEach((id) => document.getElementById(id).addEventListener("click", startMusic));
+  // Gamepad
+  let padIdx = null, prevBtns = {}, padKeys = {};
+  window.addEventListener("gamepadconnected", (e) => { padIdx = e.gamepad.index; document.getElementById("padPill").style.display = "block"; });
+  window.addEventListener("gamepaddisconnected", (e) => { if (e.gamepad.index === padIdx) { padIdx = null; document.getElementById("padPill").style.display = "none"; } });
+  function pressStart() {
+    for (const id of ["startBtn", "restartBtn", "nextBtn"]) {
+      const el = document.getElementById(id);
+      if (el && el.offsetParent !== null) { el.click(); return; }
+    }
+  }
+  const DZ = 0.28;
+  (function padLoop() {
+    requestAnimationFrame(padLoop);
+    const gp = padIdx !== null ? navigator.getGamepads()[padIdx] : null;
+    if (!gp) return;
+    const lx = gp.axes[0] || 0, ly = gp.axes[1] || 0, rx = gp.axes[2] || 0, ry = gp.axes[3] || 0;
+    const set = {};
+    if (lx < -DZ) set["KeyA"] = 1; if (lx > DZ) set["KeyD"] = 1;
+    if (ly < -DZ) set["KeyW"] = 1; if (ly > DZ) set["KeyS"] = 1;
+    for (const k in padKeys) if (!set[k]) keys[k] = false;
+    for (const k in set) keys[k] = true;
+    padKeys = set;
+    if (Math.abs(rx) > DZ) player.yaw -= rx * 0.045;
+    if (Math.abs(ry) > DZ) player.pitch = Math.max(-1.2, Math.min(1.2, player.pitch - ry * 0.035));
+    if (gp.buttons[9]?.pressed && !prevBtns[9]) pressStart();
+    prevBtns = { 9: gp.buttons[9]?.pressed };
+  })();
+})();
+</script>
+<div id="cinematic-vignette" style="position:fixed;inset:0;pointer-events:none;z-index:7;background:radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,.5) 100%)"></div>
+<script>try{renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;renderer.domElement.style.filter="saturate(1.12) contrast(1.05)";}catch(_){}</script>
+</body>
+</html>

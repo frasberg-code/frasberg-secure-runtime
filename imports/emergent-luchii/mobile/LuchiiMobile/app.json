@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "Luchii",
+    "slug": "luchii-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#07060B",
+    "ios": { "bundleIdentifier": "com.frasberg.luchii" },
+    "android": { "package": "com.frasberg.luchii" }
+  }
+}

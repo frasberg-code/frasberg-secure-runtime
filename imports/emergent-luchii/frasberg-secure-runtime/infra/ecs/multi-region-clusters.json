@@ -1,0 +1,19 @@
+{
+  "regions": [
+    {
+      "region": "us-west-2",
+      "cluster": "frasberg-secure-runtime-cluster",
+      "existing": true
+    },
+    {
+      "region": "us-east-1",
+      "cluster": "frasberg-secure-runtime-cluster",
+      "existing": true
+    },
+    {
+      "region": "eu-central-1",
+      "cluster": "frasberg-runtime-cluster-eu",
+      "existing": true
+    }
+  ]
+}

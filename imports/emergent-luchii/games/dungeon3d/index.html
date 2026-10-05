@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Luchii Dungeon 3D</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
+  canvas { display: block; }
+  #hud {
+    position: fixed; top: 0; left: 0; right: 0;
+    display: flex; justify-content: space-between;
+    padding: 16px 24px; color: #fff; font-size: 15px;
+    text-shadow: 0 0 6px #000; pointer-events: none; z-index: 5;
+  }
+  #hud span { background: rgba(13,13,26,0.6); padding: 6px 14px; border-radius: 8px; border: 1px solid #6c63ff44; }
+  #crosshair {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    color: #6c63ff; font-size: 22px; pointer-events: none; z-index: 5;
+  }
+  .screen {
+    position: fixed; inset: 0; background: rgba(13,13,26,0.94);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: #fff; z-index: 10; text-align: center;
+  }
+  .screen h1 { color: #6c63ff; font-size: 44px; letter-spacing: 6px; margin-bottom: 12px; }
+  .screen p { color: #aaa; margin-bottom: 8px; }
+  .screen button {
+    margin-top: 24px; padding: 14px 42px; background: #6c63ff; color: #fff;
+    border: none; border-radius: 30px; font-size: 17px; font-weight: bold;
+    cursor: pointer; letter-spacing: 2px; font-family: inherit;
+  }
+  .screen button:hover { background: #857dff; }
+  #gameover { display: none; }
+  #hitFlash { position: fixed; inset: 0; background: #ff2222; opacity: 0; pointer-events: none; z-index: 4; transition: opacity 0.2s; }
+</style>
+</head>
+<body>
+<script src="/api/games/assets/env.js"></script>
+<div id="hud">
+  <span>❤️ <b id="hp">100</b></span>
+  <span>⭐ SCORE <b id="score">0</b></span>
+  <span>🌊 WAVE <b id="wave">1</b></span>
+  <span>🔫 <b id="ammo">30</b>/30</span>
+</div>
+<div id="crosshair">+</div>
+<div id="hitFlash"></div>
+<div id="start" class="screen">
+  <h1>⬡ LUCHII DUNGEON 3D</h1>
+  <p>Frasberg Sovereign Engine · Layer 1-6</p>
+  <p>WASD move · Mouse aim · Click shoot · R reload · Space jump</p>
+  <button id="startBtn">ENTER THE DUNGEON</button>
+</div>
+<div id="gameover" class="screen">
+  <h1>YOU FELL</h1>
+  <p id="finalScore"></p>
+  <button id="restartBtn">RISE AGAIN</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+<script>
+// ─── Layer 1: Renderer ────────────────────────────────────
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x0d0d1a, 0.045);
+scene.background = null;
+const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+document.body.appendChild(renderer.domElement);
+addEventListener("resize", () => {
+  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+scene.add(new THREE.AmbientLight(0x8888ff, 0.25));
+const moody = new THREE.PointLight(0x6c63ff, 2, 40); moody.position.set(0,6,0); moody.castShadow = true; scene.add(moody);
+
+// ─── Layer 4: Dungeon floor + walls ───────────────────────
+const SIZE = 60;
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(SIZE, SIZE, 32, 32),
+  new THREE.MeshStandardMaterial({ color: 0x1c1c30, roughness: 0.9 })
+);
+floor.rotation.x = -Math.PI/2; floor.receiveShadow = true; scene.add(floor);
+const walls = [];
+function wall(x, z, w, d) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, 5, d),
+    new THREE.MeshStandardMaterial({ color: 0x2a2a4e, roughness: 0.8 }));
+  m.position.set(x, 2.5, z); m.castShadow = m.receiveShadow = true;
+  scene.add(m); walls.push(m);
+}
+wall(0, -SIZE/2, SIZE, 1); wall(0, SIZE/2, SIZE, 1);
+wall(-SIZE/2, 0, 1, SIZE); wall(SIZE/2, 0, 1, SIZE);
+for (let i = 0; i < 10; i++) wall((Math.random()-0.5)*44, (Math.random()-0.5)*44, 3+Math.random()*5, 3+Math.random()*5);
+// Torches
+for (let i = 0; i < 6; i++) {
+  const t = new THREE.PointLight(0xff8833, 1.4, 18);
+  t.position.set((Math.random()-0.5)*48, 3, (Math.random()-0.5)*48);
+  scene.add(t);
+}
+
+// ─── Layer 3: First Person Controller ─────────────────────
+const player = { pos: new THREE.Vector3(0, 1, 12), vy: 0, yaw: 0, pitch: 0, hp: 100, grounded: true };
+const keys = {};
+document.addEventListener("keydown", e => { keys[e.code] = true; if (e.code === "KeyR") reload(); });
+document.addEventListener("keyup", e => keys[e.code] = false);
+document.addEventListener("mousemove", e => {
+  if (!document.pointerLockElement) return;
+  player.yaw -= e.movementX * 0.002;
+  player.pitch = Math.max(-Math.PI/2.5, Math.min(Math.PI/2.5, player.pitch - e.movementY * 0.002));
+});
+
+// ─── Layer 5: Enemy AI ────────────────────────────────────
+const enemies = [];
+function spawnEnemy() {
+  const mesh = new THREE.Mesh(new THREE.CapsuleGeometry(0.45, 1.0),
+    new THREE.MeshStandardMaterial({ color: 0xff3333, emissive: 0x550000 }));
+  let x, z;
+  do { x = (Math.random()-0.5)*48; z = (Math.random()-0.5)*48; }
+  while (Math.hypot(x-player.pos.x, z-player.pos.z) < 12);
+  mesh.position.set(x, 1.1, z); mesh.castShadow = true; scene.add(mesh);
+  enemies.push({ mesh, health: 100, speed: 2.5 + Math.random()*2, state: "patrol",
+    patrolTarget: mesh.position.clone(), alertRange: 20, attackRange: 2, attackCooldown: 0, roamTimer: 0 });
+}
+function updateEnemies(dt) {
+  for (const e of enemies) {
+    if (e.state === "dead") continue;
+    const dist = e.mesh.position.distanceTo(player.pos);
+    e.state = dist < e.attackRange ? "attack" : dist < e.alertRange ? "chase" : "patrol";
+    if (e.state === "chase") {
+      const dir = player.pos.clone().sub(e.mesh.position); dir.y = 0; dir.normalize();
+      e.mesh.position.addScaledVector(dir, e.speed * dt);
+      e.mesh.lookAt(player.pos.x, e.mesh.position.y, player.pos.z);
+    } else if (e.state === "patrol") {
+      e.roamTimer -= dt;
+      if (e.roamTimer <= 0) {
+        e.patrolTarget.set(e.mesh.position.x + (Math.random()-0.5)*16, e.mesh.position.y, e.mesh.position.z + (Math.random()-0.5)*16);
+        e.roamTimer = 3 + Math.random()*4;
+      }
+      const dir = e.patrolTarget.clone().sub(e.mesh.position); dir.y = 0;
+      if (dir.length() > 0.5) e.mesh.position.addScaledVector(dir.normalize(), e.speed * 0.4 * dt);
+    } else if (e.state === "attack") {
+      e.attackCooldown -= dt;
+      if (e.attackCooldown <= 0) {
+        player.hp -= 10; e.attackCooldown = 1.5;
+        flash.style.opacity = 0.35; setTimeout(() => flash.style.opacity = 0, 180);
+        if (player.hp <= 0) gameOver();
+      }
+    }
+  }
+}
+
+// ─── Layer 6: Weapon ──────────────────────────────────────
+const raycaster = new THREE.Raycaster();
+let ammo = 30, cooldown = 0, score = 0, wave = 1;
+const flashMesh = new THREE.Mesh(new THREE.SphereGeometry(0.08), new THREE.MeshBasicMaterial({ color: 0xffff00 }));
+flashMesh.visible = false; scene.add(flashMesh);
+document.addEventListener("mousedown", e => { if (e.button === 0 && running && document.pointerLockElement) fire(); });
+function fire() {
+  if (cooldown > 0 || ammo <= 0) return;
+  cooldown = 0.12; ammo--; hud();
+  raycaster.setFromCamera({ x: 0, y: 0 }, camera);
+  const hits = raycaster.intersectObjects(enemies.filter(e => e.state !== "dead").map(e => e.mesh));
+  if (hits.length && hits[0].distance <= 100) {
+    flashMesh.position.copy(hits[0].point); flashMesh.visible = true;
+    setTimeout(() => flashMesh.visible = false, 60);
+    const en = enemies.find(e => e.mesh === hits[0].object);
+    if (en) {
+      en.health -= 34;
+      if (en.health <= 0) {
+        en.state = "dead"; scene.remove(en.mesh); score += 100; hud();
+        if (enemies.every(x => x.state === "dead")) nextWave();
+      }
+    }
+  }
+}
+function reload() { ammo = 30; hud(); }
+function nextWave() {
+  wave++; hud();
+  for (let i = 0; i < 3 + wave * 2; i++) spawnEnemy();
+}
+
+// ─── HUD / game state ─────────────────────────────────────
+const flash = document.getElementById("hitFlash");
+function hud() {
+  document.getElementById("hp").textContent = Math.max(0, player.hp);
+  document.getElementById("score").textContent = score;
+  document.getElementById("wave").textContent = wave;
+  document.getElementById("ammo").textContent = ammo;
+}
+let running = false;
+function start() {
+  enemies.forEach(e => scene.remove(e.mesh)); enemies.length = 0;
+  player.pos.set(0, 1, 12); player.hp = 100; player.yaw = 0; player.pitch = 0;
+  ammo = 30; score = 0; wave = 1; hud();
+  for (let i = 0; i < 5; i++) spawnEnemy();
+  document.getElementById("start").style.display = "none";
+  document.getElementById("gameover").style.display = "none";
+  running = true;
+  document.body.requestPointerLock();
+}
+function gameOver() {
+  running = false;
+  document.exitPointerLock();
+  document.getElementById("finalScore").textContent = `Score ${score} · Wave ${wave}`;
+  document.getElementById("gameover").style.display = "flex";
+}
+document.getElementById("startBtn").onclick = start;
+document.getElementById("restartBtn").onclick = start;
+
+// ─── Layer 2: Physics-lite + main loop ────────────────────
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  if (running) {
+    const f = { x: Math.sin(player.yaw), z: Math.cos(player.yaw) };
+    const r = { x: Math.cos(player.yaw), z: -Math.sin(player.yaw) };
+    let dx = 0, dz = 0;
+    if (keys["KeyW"]) { dx -= f.x; dz -= f.z; }
+    if (keys["KeyS"]) { dx += f.x; dz += f.z; }
+    if (keys["KeyA"]) { dx -= r.x; dz -= r.z; }
+    if (keys["KeyD"]) { dx += r.x; dz += r.z; }
+    const len = Math.hypot(dx, dz) || 1; dx /= len; dz /= len;
+    player.grounded = player.pos.y <= 1.05;
+    if (keys["Space"] && player.grounded) player.vy = 6;
+    player.vy -= 20 * dt;
+    if (player.grounded && player.vy < 0) player.vy = 0;
+    player.pos.x = Math.max(-SIZE/2+1, Math.min(SIZE/2-1, player.pos.x + dx * 8 * dt));
+    player.pos.z = Math.max(-SIZE/2+1, Math.min(SIZE/2-1, player.pos.z + dz * 8 * dt));
+    player.pos.y = Math.max(1, player.pos.y + player.vy * dt);
+    camera.position.set(player.pos.x, player.pos.y + 0.8, player.pos.z);
+    camera.rotation.order = "YXZ";
+    camera.rotation.y = player.yaw;
+    camera.rotation.x = player.pitch;
+    if (cooldown > 0) cooldown -= dt;
+    updateEnemies(dt);
+  }
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+<script>
+// ─── Leaderboard ──────────────────────────────────────────
+const GID = "dungeon3d";
+const lbScore = () => score;
+(function () {
+  document.getElementById("gameover").insertAdjacentHTML("beforeend", `
+    <div style="margin-top:20px;width:min(340px,84vw)">
+      <div style="display:flex;gap:8px">
+        <input id="lbName" maxlength="20" placeholder="Your name" style="flex:1;min-width:0;padding:10px 14px;border-radius:12px;border:1px solid #6c63ff66;background:#1a1a2e;color:#fff;font-family:inherit;outline:none">
+        <button id="lbSubmit" style="padding:10px 18px;border-radius:12px;border:none;background:#6c63ff;color:#fff;font-weight:bold;font-family:inherit;cursor:pointer;letter-spacing:1px">SUBMIT</button>
+      </div>
+      <div style="margin-top:14px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px">
+        <span style="color:#6c63ff;font-size:12px;letter-spacing:2px">⬡ TOP PLAYERS</span>
+        <span style="display:flex;gap:6px">
+          <button id="lbAll" class="lbTab" style="background:#6c63ff">ALL-TIME</button>
+          <button id="lbWeek" class="lbTab" style="background:transparent">WEEK</button>
+        </span>
+      </div>
+      <style>.lbTab{padding:4px 10px;border-radius:8px;border:1px solid #6c63ff66;color:#fff;font-family:inherit;font-size:10px;letter-spacing:1px;cursor:pointer}</style>
+      <ol id="lbList" style="list-style:none;margin-top:8px;text-align:left;font-size:13px;color:#aaa;max-height:170px;overflow:auto"></ol>
+    </div>`);
+  const esc = (s) => String(s).replace(/[<>&]/g, "");
+  let lbPeriod = "all";
+  function setPeriod(p) {
+    lbPeriod = p;
+    document.getElementById("lbAll").style.background = p === "all" ? "#6c63ff" : "transparent";
+    document.getElementById("lbWeek").style.background = p === "weekly" ? "#6c63ff" : "transparent";
+    lbLoad();
+  }
+  document.getElementById("lbAll").addEventListener("click", () => setPeriod("all"));
+  document.getElementById("lbWeek").addEventListener("click", () => setPeriod("weekly"));
+  async function lbLoad() {
+    try {
+      const d = await (await fetch("/api/games/" + GID + "/scores?period=" + lbPeriod)).json();
+      document.getElementById("lbList").innerHTML = d.map((s, i) =>
+        `<li style="display:flex;justify-content:space-between;padding:3px 2px"><span>${i + 1}. ${esc(s.name)}</span><b style="color:#fff">${s.score}</b></li>`).join("") || "<li>No scores yet — be the first.</li>";
+    } catch (_) {}
+  }
+  document.getElementById("lbName").value = localStorage.getItem("luchii-player-name") || "";
+  document.getElementById("lbSubmit").addEventListener("click", async () => {
+    const name = (document.getElementById("lbName").value || "PLAYER").trim().slice(0, 20) || "PLAYER";
+    try { localStorage.setItem("luchii-player-name", name); } catch (_) {}
+    try {
+      await fetch("/api/games/" + GID + "/scores", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, score: lbScore() }) });
+      document.getElementById("lbSubmit").textContent = "SAVED ✓";
+      lbLoad();
+    } catch (_) {}
+  });
+  const _gameOver = gameOver;
+  gameOver = function () { _gameOver(); document.getElementById("lbSubmit").textContent = "SUBMIT"; lbLoad(); };
+})();
+
+// ─── Touch Controls ───────────────────────────────────────
+(function () {
+  if (!(matchMedia("(pointer: coarse)").matches || new URLSearchParams(location.search).has("touch"))) return;
+  document.body.insertAdjacentHTML("beforeend", `
+    <style>
+      .tc{position:fixed;z-index:8;user-select:none;-webkit-user-select:none;touch-action:none}
+      #joy{left:20px;bottom:28px;width:124px;height:124px;border-radius:50%;background:rgba(108,99,255,.12);border:1px solid rgba(108,99,255,.45)}
+      #joyKnob{position:absolute;left:40px;top:40px;width:44px;height:44px;border-radius:50%;background:rgba(108,99,255,.55)}
+      .tcBtn{width:66px;height:66px;border-radius:50%;background:rgba(108,99,255,.22);border:1px solid rgba(108,99,255,.6);color:#fff;font:bold 12px 'Courier New';letter-spacing:1px}
+    </style>
+    <div id="joy" class="tc"><div id="joyKnob"></div></div>
+    <button id="btnFire" class="tc tcBtn" style="right:22px;bottom:100px">FIRE</button>
+    <button id="btnJump" class="tc tcBtn" style="right:106px;bottom:30px">JUMP</button>
+    <button id="btnReload" class="tc tcBtn" style="right:30px;bottom:200px;width:52px;height:52px">R</button>`);
+  function bindJoy(el, knob, map) {
+    let id = null, cx = 0, cy = 0;
+    const reset = () => { Object.values(map).forEach((k) => keys[k] = false); knob.style.transform = ""; id = null; };
+    el.addEventListener("touchstart", (e) => { e.preventDefault(); const t = e.changedTouches[0]; id = t.identifier; const r = el.getBoundingClientRect(); cx = r.left + r.width / 2; cy = r.top + r.height / 2; });
+    el.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+      for (const t of e.changedTouches) if (t.identifier === id) {
+        const dx = t.clientX - cx, dy = t.clientY - cy;
+        const m = Math.min(Math.hypot(dx, dy), 42), a = Math.atan2(dy, dx);
+        knob.style.transform = `translate(${Math.cos(a) * m}px,${Math.sin(a) * m}px)`;
+        keys[map.left] = dx < -14; keys[map.right] = dx > 14;
+        keys[map.up] = dy < -14; keys[map.down] = dy > 14;
+      }
+    });
+    el.addEventListener("touchend", reset); el.addEventListener("touchcancel", reset);
+  }
+  bindJoy(document.getElementById("joy"), document.getElementById("joyKnob"), { up: "KeyW", down: "KeyS", left: "KeyA", right: "KeyD" });
+  let fireIv = null;
+  const bf = document.getElementById("btnFire");
+  bf.addEventListener("touchstart", (e) => { e.preventDefault(); if (running) fire(); fireIv = setInterval(() => { if (running) fire(); }, 140); });
+  bf.addEventListener("touchend", (e) => { e.preventDefault(); clearInterval(fireIv); });
+  const bj = document.getElementById("btnJump");
+  bj.addEventListener("touchstart", (e) => { e.preventDefault(); keys["Space"] = true; });
+  bj.addEventListener("touchend", (e) => { e.preventDefault(); keys["Space"] = false; });
+  document.getElementById("btnReload").addEventListener("touchstart", (e) => { e.preventDefault(); reload(); });
+  // Right-side drag = look
+  let lookId = null, lx = 0, ly = 0;
+  document.addEventListener("touchstart", (e) => {
+    if (e.target.closest(".tc") || e.target.closest(".screen") || lookId !== null) return;
+    const t = e.changedTouches[0];
+    if (t.clientX < innerWidth * 0.4) return;
+    lookId = t.identifier; lx = t.clientX; ly = t.clientY;
+  }, { passive: true });
+  document.addEventListener("touchmove", (e) => {
+    for (const t of e.changedTouches) if (t.identifier === lookId) {
+      player.yaw -= (t.clientX - lx) * 0.005;
+      player.pitch = Math.max(-1.2, Math.min(1.2, player.pitch - (t.clientY - ly) * 0.005));
+      lx = t.clientX; ly = t.clientY;
+    }
+  }, { passive: true });
+  document.addEventListener("touchend", (e) => { for (const t of e.changedTouches) if (t.identifier === lookId) lookId = null; });
+})();
+</script>
+<script>
+// ─── SFX Engine + Champion banner ─────────────────────────
+(function () {
+  let ctx = null, muted = false;
+  try { muted = localStorage.getItem("luchii-sfx-muted") === "1"; } catch (_) {}
+  const ac = () => (ctx = ctx || new (window.AudioContext || window.webkitAudioContext)());
+  function tone(f0, f1, dur, type, vol) {
+    if (muted) return;
+    try {
+      const c = ac(), o = c.createOscillator(), g = c.createGain(), t = c.currentTime;
+      o.type = type; o.frequency.setValueAtTime(f0, t);
+      o.frequency.exponentialRampToValueAtTime(Math.max(f1, 1), t + dur);
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur);
+    } catch (_) {}
+  }
+  window.SFX = {
+    tone,
+    toggle() { muted = !muted; try { localStorage.setItem("luchii-sfx-muted", muted ? "1" : "0"); } catch (_) {} return muted; },
+  };
+  document.body.insertAdjacentHTML("beforeend",
+    `<button id="sfxBtn" style="position:fixed;top:60px;right:24px;z-index:9;padding:8px 14px;border-radius:20px;border:1px solid #6c63ff66;background:rgba(13,13,26,.7);color:#fff;font:bold 11px 'Courier New';letter-spacing:1px;cursor:pointer">SFX ${muted ? "OFF" : "ON"}</button>`);
+  document.getElementById("sfxBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    document.getElementById("sfxBtn").textContent = "SFX " + (window.SFX.toggle() ? "OFF" : "ON");
+  });
+  // Hooks: gunshot / kill / hurt / death
+  const _fireS = fire;
+  fire = function () {
+    const s0 = score, a0 = ammo;
+    _fireS();
+    if (ammo < a0) tone(600, 90, 0.12, "square", 0.12);
+    if (score > s0) tone(220, 40, 0.3, "sawtooth", 0.16);
+  };
+  const _goS = gameOver;
+  gameOver = function () { if (!muted) LuchiiAudio.sfx("lose", 0.55); _goS(); };
+  let _hp = 100;
+  setInterval(() => { if (running && player.hp < _hp && !muted) LuchiiAudio.sfx("hit", 0.4); _hp = player.hp; }, 120);
+})();
+// Champion — score to beat
+(function () {
+  fetch("/api/games/" + GID + "/scores").then((r) => r.json()).then((d) => {
+    if (!d.length) return;
+    const c = d[0];
+    document.querySelector("#start button").insertAdjacentHTML("beforebegin",
+      `<p id="champLine" style="color:#fbbf24;margin-top:6px">♛ CHAMPION: ${String(c.name).replace(/[<>&]/g, "")} · ${c.score} — the score to beat</p>`);
+  }).catch(() => {});
+})();
+// ─── Music + Gamepad ──────────────────────────────────────
+(function () {
+  let ctx = null, playing = false, timer = null, master = null;
+  let mMuted = false, vol = 0.5;
+  try { mMuted = localStorage.getItem("luchii-music-muted") === "1"; vol = parseFloat(localStorage.getItem("luchii-music-vol") || "0.5"); } catch (_) {}
+  const ac = () => (ctx = ctx || new (window.AudioContext || window.webkitAudioContext)());
+  const CFG = { bpm: 100, root: 41.2, bass: [0, 0, -2, 3], lead: [0, 3, 7, 10, 12, 10, 7, 3] };
+  function note(f, t, dur, type, g, slide) {
+    const c = ac(), o = c.createOscillator(), gn = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t);
+    if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(f / 4, 1), t + dur);
+    gn.gain.setValueAtTime(g, t); gn.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(gn).connect(master); o.start(t); o.stop(t + dur);
+  }
+  function startMusic() {
+    if (playing || mMuted) return;
+    playing = true;
+    window.LuchiiAudio && LuchiiAudio.music.start("/api/games/assets/music-dungeon3d.ogg", vol);
+  }
+  function stopMusic() { playing = false; window.LuchiiAudio && LuchiiAudio.music.stop(); }
+  document.body.insertAdjacentHTML("beforeend", `
+    <div id="musicCtl" style="position:fixed;top:102px;right:24px;z-index:9;display:flex;gap:8px;align-items:center;background:rgba(13,13,26,.7);border:1px solid #6c63ff66;border-radius:20px;padding:6px 12px">
+      <button id="musicBtn" style="border:none;background:none;color:#fff;font:bold 11px 'Courier New';letter-spacing:1px;cursor:pointer">MUSIC ${mMuted ? "OFF" : "ON"}</button>
+      <input id="musicVol" type="range" min="0" max="1" step="0.05" value="${vol}" style="width:70px;accent-color:#6c63ff">
+    </div>
+    <div id="padPill" style="display:none;position:fixed;top:60px;right:110px;z-index:9;padding:8px 14px;border-radius:20px;border:1px solid #44ffaa66;background:rgba(13,13,26,.7);color:#44ffaa;font:bold 11px 'Courier New';letter-spacing:1px">PAD CONNECTED</div>`);
+  document.getElementById("musicBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    mMuted = !mMuted;
+    try { localStorage.setItem("luchii-music-muted", mMuted ? "1" : "0"); } catch (_) {}
+    document.getElementById("musicBtn").textContent = "MUSIC " + (mMuted ? "OFF" : "ON");
+    if (mMuted) stopMusic(); else if (running) startMusic();
+  });
+  document.getElementById("musicVol").addEventListener("input", (e) => {
+    vol = parseFloat(e.target.value);
+    try { localStorage.setItem("luchii-music-vol", String(vol)); } catch (_) {}
+    window.LuchiiAudio && LuchiiAudio.music.setVol(vol);
+  });
+  document.getElementById("startBtn").addEventListener("click", startMusic);
+  document.getElementById("restartBtn").addEventListener("click", startMusic);
+  // Gamepad
+  let padIdx = null, prevBtns = {}, padKeys = {};
+  window.addEventListener("gamepadconnected", (e) => { padIdx = e.gamepad.index; document.getElementById("padPill").style.display = "block"; });
+  window.addEventListener("gamepaddisconnected", (e) => { if (e.gamepad.index === padIdx) { padIdx = null; document.getElementById("padPill").style.display = "none"; } });
+  function pressStart() {
+    for (const id of ["startBtn", "restartBtn"]) {
+      const el = document.getElementById(id);
+      if (el && el.offsetParent !== null) { el.click(); return; }
+    }
+  }
+  const DZ = 0.28;
+  (function padLoop() {
+    requestAnimationFrame(padLoop);
+    const gp = padIdx !== null ? navigator.getGamepads()[padIdx] : null;
+    if (!gp) return;
+    const lx = gp.axes[0] || 0, ly = gp.axes[1] || 0, rx = gp.axes[2] || 0, ry = gp.axes[3] || 0;
+    const set = {};
+    if (lx < -DZ) set["KeyA"] = 1; if (lx > DZ) set["KeyD"] = 1;
+    if (ly < -DZ) set["KeyW"] = 1; if (ly > DZ) set["KeyS"] = 1;
+    if (gp.buttons[0]?.pressed) set["Space"] = 1;
+    for (const k in padKeys) if (!set[k]) keys[k] = false;
+    for (const k in set) keys[k] = true;
+    padKeys = set;
+    if (Math.abs(rx) > DZ) player.yaw -= rx * 0.045;
+    if (Math.abs(ry) > DZ) player.pitch = Math.max(-1.2, Math.min(1.2, player.pitch - ry * 0.035));
+    if (running && gp.buttons[7]?.pressed) fire();
+    if (gp.buttons[2]?.pressed && !prevBtns[2]) reload();
+    if (gp.buttons[9]?.pressed && !prevBtns[9]) pressStart();
+    prevBtns = { 2: gp.buttons[2]?.pressed, 9: gp.buttons[9]?.pressed };
+  })();
+})();
+</script>
+<div id="cinematic-vignette" style="position:fixed;inset:0;pointer-events:none;z-index:7;background:radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,.5) 100%)"></div>
+<script>try{renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;renderer.domElement.style.filter="saturate(1.12) contrast(1.05)";}catch(_){}</script>
+</body>
+</html>

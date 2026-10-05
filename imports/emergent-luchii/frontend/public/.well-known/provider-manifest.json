@@ -1,0 +1,28 @@
+{
+  "provider": "frasberg",
+  "models": [
+    "luchii-6-plus",
+    "luchii-6-mini",
+    "luchii-6-embed",
+    "luchii-70b",
+    "luchii-7b",
+    "luchii-1b",
+    "luchii-200m"
+  ],
+  "endpoints": {
+    "chat": "https://api.frasberg.com/v1/chat/completions",
+    "embed": "https://api.frasberg.com/v1/embeddings",
+    "models": "https://api.frasberg.com/v1/models"
+  },
+  "authentication": {
+    "type": "bearer",
+    "header": "Authorization",
+    "format": "Bearer {FRASBERG_LLM_KEY}"
+  },
+  "streaming": true,
+  "sse": true,
+  "openai_compatible": true,
+  "documentation": "https://frasberg.com/docs",
+  "terms": "Frasberg Public License (FPL)",
+  "operator": "FRASBERG INC"
+}

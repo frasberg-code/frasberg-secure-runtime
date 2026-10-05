@@ -1,0 +1,5 @@
+image:
+  tag: 0.1.0
+  gateway: ghcr.io/sefaagov/frasberg-gateway
+  runtimeRouter: ghcr.io/sefaagov/frasberg-runtime-router
+  engine: ghcr.io/sefaagov/frasberg-engine

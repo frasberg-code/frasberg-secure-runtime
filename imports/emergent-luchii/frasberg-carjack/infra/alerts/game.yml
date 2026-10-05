@@ -1,0 +1,50 @@
+# ── Frasberg Game Alerts ──────────────────────────────────────────────────────
+groups:
+  - name: frasberg.game
+    interval: 30s
+    rules:
+      # Server down
+      - alert: GameServerDown
+        expr: up{job="frasberg-game-server"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "🚨 Frasberg game server is DOWN"
+          description: "Instance {{ $labels.instance }} has been down for 1 minute."
+      # High CPU
+      - alert: HighCPU
+        expr: rate(process_cpu_seconds_total{job="frasberg-game-server"}[5m]) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "⚠️ High CPU on game server"
+          description: "CPU usage at {{ $value | humanize }}% for 5 minutes."
+      # Too many players (scale trigger)
+      - alert: HighPlayerCount
+        expr: frasberg_active_players > 900
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "📈 Player count approaching limit"
+          description: "{{ $value }} active players — consider scaling."
+      # WebSocket error rate
+      - alert: HighWSErrors
+        expr: rate(frasberg_ws_errors_total[5m]) > 10
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "🔌 High WebSocket error rate"
+          description: "{{ $value }} WS errors/sec over 3 minutes."
+      # Redis down
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "🚨 Redis is DOWN"
+          description: "Redis has been unreachable for 1 minute — offline buffering active."
