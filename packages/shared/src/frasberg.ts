@@ -43,15 +43,18 @@ export class FrasbergClient {
     const requestUrl = /^https?:\/\//i.test(path)
       ? path
       : `${this.baseUrl}${path}`;
+    const isFormData = payload instanceof FormData;
     const response = await fetchImpl(requestUrl, {
       method,
       headers: {
         authorization: ['Bearer', key].join(' '),
-        ...(payload === undefined
+        ...(payload === undefined || isFormData
           ? {}
           : { 'content-type': 'application/json' }),
       },
-      ...(payload === undefined ? {} : { body: JSON.stringify(payload) }),
+      ...(payload === undefined
+        ? {}
+        : { body: isFormData ? payload : JSON.stringify(payload) }),
     });
 
     const body = (await response.json()) as TResponse;

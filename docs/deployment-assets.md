@@ -20,6 +20,11 @@ operations use `FRB_IMAGE_VIDEO_GENERATION_KEY`. Audio, voice, STT, and TTS use
 their matching FRB_* keys. Provider submission routes are configured through
 the matching `FRASBERG_*_URL` task environment variables so each engine uses
 its explicit provider endpoint.
+The provider's own application uses `/api/audio/tools/enhance`,
+`/api/voice/transcribe`, and `/api/voice/speak` for audio enhancement,
+transcription, and speech generation respectively; the production task uses
+those exact routes. STT requests to this gateway must upload an audio file as
+`multipart/form-data`.
 
 `infra/iam/frasberg-secure-runtime-role.json` is an IAM permissions policy for
 the ECS task execution role, which retrieves task-definition secrets and

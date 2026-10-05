@@ -48,6 +48,30 @@ describe('FrasbergClient', () => {
       expect.any(Object),
     );
   });
+
+  it('preserves multipart bodies and lets fetch set the boundary', async () => {
+    const fetchImpl = vi.fn(async () => jsonResponse({ text: 'test' }));
+    const client = new FrasbergClient({ fetchImpl: fetchImpl as typeof fetch });
+    const form = new FormData();
+    form.append('file', new Blob(['audio'], { type: 'audio/wav' }), 'test.wav');
+
+    await client.request(
+      'POST',
+      'https://frasberg.com/api/voice/transcribe',
+      'stt-key',
+      form,
+    );
+
+    const [url, init] = fetchImpl.mock.calls[0] as unknown as [
+      string,
+      RequestInit,
+    ];
+    expect(url).toBe('https://frasberg.com/api/voice/transcribe');
+    expect(init.body).toBe(form);
+    const headers = new Headers(init.headers);
+    expect(headers.get('authorization')).toBe('Bearer stt-key');
+    expect(headers.has('content-type')).toBe(false);
+  });
 });
 
 describe('FrasbergGateway', () => {
@@ -236,19 +260,20 @@ describe('FrasbergGateway', () => {
         FRASBERG_VIDEO_URL: 'https://frasberg.com/api/generate/video',
         FRASBERG_IMAGE_URL: 'https://frasberg.com/api/generate/image',
         FRASBERG_MUSIC_URL: 'https://frasberg.com/api/generate/music',
-        FRASBERG_AUDIO_TOOLS_URL: 'https://frasberg.com/api/audio/tools',
+        FRASBERG_AUDIO_TOOLS_URL:
+          'https://frasberg.com/api/audio/tools/enhance',
         FRASBERG_VOICE_CLONE_URL: 'https://frasberg.com/api/voice/clone',
-        FRASBERG_STT_URL: 'https://frasberg.com/api/stt',
-        FRASBERG_TTS_URL: 'https://frasberg.com/api/tts',
+        FRASBERG_STT_URL: 'https://frasberg.com/api/voice/transcribe',
+        FRASBERG_TTS_URL: 'https://frasberg.com/api/voice/speak',
       } as NodeJS.ProcessEnv),
     ).toEqual({
       music: 'https://frasberg.com/api/generate/music',
       video: 'https://frasberg.com/api/generate/video',
       image: 'https://frasberg.com/api/generate/image',
-      audio: 'https://frasberg.com/api/audio/tools',
+      audio: 'https://frasberg.com/api/audio/tools/enhance',
       voice: 'https://frasberg.com/api/voice/clone',
-      stt: 'https://frasberg.com/api/stt',
-      tts: 'https://frasberg.com/api/tts',
+      stt: 'https://frasberg.com/api/voice/transcribe',
+      tts: 'https://frasberg.com/api/voice/speak',
     });
   });
 });

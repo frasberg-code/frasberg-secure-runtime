@@ -6,6 +6,7 @@ import Fastify, {
   FastifyReply,
   FastifyRequest,
 } from 'fastify';
+import multipart from '@fastify/multipart';
 import {
   ApiKeyRecord,
   AuthContext,
@@ -104,6 +105,9 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
         'req.headers.x-governance-key',
       ],
     },
+  });
+  void app.register(multipart, {
+    limits: { files: 1, fileSize: 25 * 1024 * 1024 },
   });
 
   app.addHook('preHandler', async (request, reply) => {
@@ -1025,7 +1029,15 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
       }
 
       try {
-        const response = await routeFrasberg(domain, request.body);
+        const payload =
+          domain === 'stt' ? await readSttUpload(request) : request.body;
+        if (domain === 'stt' && !payload) {
+          return reply.code(400).send({
+            error:
+              'Speech-to-text requests require multipart/form-data with an audio file.',
+          });
+        }
+        const response = await routeFrasberg(domain, payload);
         return reply.code(200).send(response);
       } catch (error) {
         return reply.code(502).send({ error: (error as Error).message });
@@ -1083,6 +1095,30 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
       case 'audio':
         return frasbergGateway.audio(payload);
     }
+  }
+
+  async function readSttUpload(
+    request: FastifyRequest,
+  ): Promise<FormData | undefined> {
+    if (!request.isMultipart()) {
+      return undefined;
+    }
+
+    const file = await request.file();
+    if (!file) {
+      return undefined;
+    }
+
+    const contents = await file.toBuffer();
+    const bytes = new Uint8Array(contents.byteLength);
+    bytes.set(contents);
+    const form = new FormData();
+    form.append(
+      'file',
+      new Blob([bytes], { type: file.mimetype }),
+      file.filename,
+    );
+    return form;
   }
 }
 

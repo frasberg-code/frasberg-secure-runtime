@@ -13,6 +13,78 @@ const apiKeys = [
 ];
 
 describe('gateway auth and routing', () => {
+  it('forwards uploaded audio as multipart for the provider STT endpoint', async () => {
+    const stt = vi.fn(async (payload: FormData) => ({
+      forwarded: payload instanceof FormData,
+    }));
+    const app = buildApp({
+      apiKeys: [{ id: 'stt', secret: 'stt-secret', permissions: ['stt'] }],
+      fetchImpl: vi.fn() as unknown as typeof fetch,
+      frasbergGateway: {
+        music: vi.fn(),
+        video: vi.fn(),
+        image: vi.fn(),
+        voice: vi.fn(),
+        stt,
+        tts: vi.fn(),
+        audio: vi.fn(),
+        job: vi.fn(),
+      } as unknown as FrasbergGateway,
+    });
+    const boundary = 'stt-test-boundary';
+    const audioPayload = Buffer.from(
+      `--${boundary}\r\n` +
+        'Content-Disposition: form-data; name="file"; filename="test.wav"\r\n' +
+        'Content-Type: audio/wav\r\n\r\n' +
+        'test audio\r\n' +
+        `--${boundary}--\r\n`,
+    );
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/stt',
+      headers: {
+        'x-api-key': 'stt-secret',
+        'content-type': `multipart/form-data; boundary=${boundary}`,
+      },
+      payload: audioPayload,
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ forwarded: true });
+    expect(stt).toHaveBeenCalledOnce();
+    const form = stt.mock.calls[0]?.[0];
+    expect(form?.get('file')).toBeInstanceOf(Blob);
+  });
+
+  it('requires a multipart audio file for STT requests', async () => {
+    const stt = vi.fn();
+    const app = buildApp({
+      apiKeys: [{ id: 'stt', secret: 'stt-secret', permissions: ['stt'] }],
+      fetchImpl: vi.fn() as unknown as typeof fetch,
+      frasbergGateway: {
+        music: vi.fn(),
+        video: vi.fn(),
+        image: vi.fn(),
+        voice: vi.fn(),
+        stt,
+        tts: vi.fn(),
+        audio: vi.fn(),
+        job: vi.fn(),
+      } as unknown as FrasbergGateway,
+    });
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/stt',
+      headers: { 'x-api-key': 'stt-secret' },
+      payload: { text: 'not audio' },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(stt).not.toHaveBeenCalled();
+  });
+
   it('executes each engine through the authenticated API gateway', async () => {
     const app = buildApp({
       apiKeys: [
