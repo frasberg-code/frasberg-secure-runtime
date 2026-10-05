@@ -5,7 +5,9 @@ export type FrasbergJobState = 'queued' | 'running' | 'completed' | 'failed';
 
 export interface FrasbergGatewayKeys {
   FRASBERG_MUSIC_KEY?: string;
+  FRASBERG_MUSIC_ENGINE_KEY?: string;
   FRASBERG_VIDEO_KEY?: string;
+  FRASBERG_VIDEO_ENGINE_KEY?: string;
   FRASBERG_IMAGE_KEY?: string;
   FRASBERG_VOICE_KEY?: string;
   FRASBERG_STT_KEY?: string;
@@ -122,7 +124,18 @@ export class FrasbergGateway {
     options: { domain?: FrasbergDomain } = {},
   ): Promise<TResponse> {
     const domain = options.domain ?? this.jobDomains.get(id) ?? 'music';
-    return this.client.request('GET', `/jobs/${id}`, this.keyFor(domain));
+    const engineKeyName =
+      domain === 'music'
+        ? 'FRASBERG_MUSIC_ENGINE_KEY'
+        : domain === 'video'
+          ? 'FRASBERG_VIDEO_ENGINE_KEY'
+          : undefined;
+    const engineKey = engineKeyName ? this.keys[engineKeyName] : undefined;
+    return this.client.request(
+      'GET',
+      `/jobs/${id}`,
+      engineKey ?? this.keyFor(domain),
+    );
   }
 
   private async submit<TResponse>(
@@ -162,9 +175,17 @@ export function resolveFrasbergGatewayKeys(
       env.FRASBERG_MUSIC_KEY,
       bundledKeys.FRASBERG_MUSIC_KEY,
     ),
+    FRASBERG_MUSIC_ENGINE_KEY: preferConfiguredKey(
+      env.FRASBERG_MUSIC_ENGINE_KEY,
+      bundledKeys.FRASBERG_MUSIC_ENGINE_KEY,
+    ),
     FRASBERG_VIDEO_KEY: preferConfiguredKey(
       env.FRASBERG_VIDEO_KEY,
       bundledKeys.FRASBERG_VIDEO_KEY,
+    ),
+    FRASBERG_VIDEO_ENGINE_KEY: preferConfiguredKey(
+      env.FRASBERG_VIDEO_ENGINE_KEY,
+      bundledKeys.FRASBERG_VIDEO_ENGINE_KEY,
     ),
     FRASBERG_IMAGE_KEY: preferConfiguredKey(
       env.FRASBERG_IMAGE_KEY,
@@ -225,7 +246,9 @@ function readBundledEngineKeys(raw: string | undefined): FrasbergGatewayKeys {
   };
   return {
     FRASBERG_MUSIC_KEY: readKey('FRB_MUSIC_GENERATION_KEY'),
-    FRASBERG_VIDEO_KEY: readKey('FRB_IMAGE_VIDEO_GENERATION_KEY'),
+    FRASBERG_MUSIC_ENGINE_KEY: readKey('FRB_MUSIC_ENGINE_KEY'),
+    FRASBERG_VIDEO_KEY: readKey('FRB_VIDEO_ENGINE_KEY'),
+    FRASBERG_VIDEO_ENGINE_KEY: readKey('FRB_VIDEO_ENGINE_KEY'),
     FRASBERG_IMAGE_KEY: readKey('FRB_IMAGE_VIDEO_GENERATION_KEY'),
     FRASBERG_VOICE_KEY: readKey('FRB_VOICE_CLONING_KEY'),
     FRASBERG_STT_KEY: readKey('FRB_GATEWAY_STT_KEY'),

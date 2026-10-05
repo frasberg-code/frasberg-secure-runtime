@@ -63,7 +63,9 @@ describe('FrasbergGateway', () => {
 
     const keys: FrasbergGatewayKeys = {
       FRASBERG_MUSIC_KEY: 'music-key',
+      FRASBERG_MUSIC_ENGINE_KEY: 'music-engine-key',
       FRASBERG_VIDEO_KEY: 'video-key',
+      FRASBERG_VIDEO_ENGINE_KEY: 'video-engine-key',
       FRASBERG_IMAGE_KEY: 'image-key',
       FRASBERG_VOICE_KEY: 'voice-key',
       FRASBERG_STT_KEY: 'stt-key',
@@ -83,7 +85,38 @@ describe('FrasbergGateway', () => {
       'https://frasberg.com/api/jobs/job-1',
       expect.objectContaining({
         headers: expect.objectContaining({
-          authorization: ['Bearer', 'music-key'].join(' '),
+          authorization: ['Bearer', 'music-engine-key'].join(' '),
+        }),
+      }),
+    );
+  });
+
+  it('uses the video engine key for video job polling', async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockImplementationOnce(async () =>
+        jsonResponse({ job_id: 'video-job', state: 'queued' }),
+      )
+      .mockImplementationOnce(async () =>
+        jsonResponse({ id: 'video-job', state: 'running' }),
+      );
+    const gateway = new FrasbergGateway(
+      new FrasbergClient({ fetchImpl: fetchImpl as typeof fetch }),
+      {
+        FRASBERG_VIDEO_KEY: 'video-generation-key',
+        FRASBERG_VIDEO_ENGINE_KEY: 'video-engine-key',
+      },
+    );
+
+    await gateway.video({ prompt: 'generate video' });
+    await gateway.job('video-job');
+
+    expect(fetchImpl).toHaveBeenNthCalledWith(
+      2,
+      'https://frasberg.com/api/jobs/video-job',
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          authorization: ['Bearer', 'video-engine-key'].join(' '),
         }),
       }),
     );
@@ -170,7 +203,9 @@ describe('FrasbergGateway', () => {
     const resolved = resolveFrasbergGatewayKeys({
       FRASBERG_ENGINE_KEYS_JSON: JSON.stringify({
         FRB_MUSIC_GENERATION_KEY: 'music-from-secret',
+        FRB_MUSIC_ENGINE_KEY: 'music-engine-from-secret',
         FRB_IMAGE_VIDEO_GENERATION_KEY: 'image-video-from-secret',
+        FRB_VIDEO_ENGINE_KEY: 'video-engine-from-secret',
         FRB_VOICE_CLONING_KEY: 'voice-from-secret',
       }),
       FRASBERG_MUSIC_KEY: 'music-override',
@@ -179,7 +214,9 @@ describe('FrasbergGateway', () => {
 
     expect(resolved).toMatchObject({
       FRASBERG_MUSIC_KEY: 'music-override',
-      FRASBERG_VIDEO_KEY: 'image-video-from-secret',
+      FRASBERG_MUSIC_ENGINE_KEY: 'music-engine-from-secret',
+      FRASBERG_VIDEO_KEY: 'video-engine-from-secret',
+      FRASBERG_VIDEO_ENGINE_KEY: 'video-engine-from-secret',
       FRASBERG_IMAGE_KEY: 'image-video-from-secret',
       FRASBERG_VOICE_KEY: 'voice-from-secret',
     });
