@@ -99,6 +99,27 @@ async def _probe_upstreams():
         await asyncio.sleep(60)
 
 
+async def _try_upstream_image(prompt: str):
+    """Route image generation through the Frasberg gateway first — EMERGENT key is only a local-engine fallback."""
+    if not ACTIVE_UPSTREAM or not LUCHII_UPSTREAM_API_KEY:
+        return None
+    root = ACTIVE_UPSTREAM.split("/v1/")[0].rstrip("/")
+    try:
+        async with httpx.AsyncClient(timeout=90) as c:
+            r = await c.post(
+                f"{root}/v1/images/generations",
+                headers={"Authorization": f"Bearer {LUCHII_UPSTREAM_API_KEY}",
+                         "Content-Type": "application/json", "X-Luchii-Router": "1"},
+                json={"prompt": prompt, "model": "frasberg-image", "n": 1, "response_format": "b64_json"})
+        if r.status_code == 200:
+            b64 = ((r.json().get("data") or [{}])[0] or {}).get("b64_json")
+            if b64:
+                return base64.b64decode(b64)
+    except Exception:
+        logger.warning("upstream image route failed; falling back to engine core")
+    return None
+
+
 async def _try_upstream(message: str, system_base: str, model: str):
     """Route through the Frasberg gateway (frb_live_ key) — the primary stack. Returns None to use the local engine."""
     if not ACTIVE_UPSTREAM or not LUCHII_UPSTREAM_API_KEY:
@@ -948,8 +969,12 @@ IMAGE_LIMIT_FREE = 20
 IMAGE_LIMIT_PRO = 200
 
 
+async def _image_engine_auth(request: Request) -> dict:
+    return await engine_auth_read(request)
+
+
 @api_router.post("/generate/image")
-async def generate_image(req: ImageGenRequest, user: dict = Depends(auth_module.get_current_user)):
+async def generate_image(req: ImageGenRequest, user: dict = Depends(_image_engine_auth)):
     prompt = (req.prompt or "").strip()
     if not prompt:
         raise HTTPException(status_code=400, detail="A prompt is required")
@@ -964,10 +989,13 @@ async def generate_image(req: ImageGenRequest, user: dict = Depends(auth_module.
                             detail=f"Daily image limit reached ({limit}/day on your plan). Upgrade to Luchii Pro for {IMAGE_LIMIT_PRO}/day.")
     session_id = req.session_id or str(uuid.uuid4())
     try:
-        image_gen = OpenAIImageGeneration(api_key=EMERGENT_LLM_KEY)
-        images = await image_gen.generate_images(prompt=prompt, model="gpt-image-1", number_of_images=1)
-        if not images:
-            raise HTTPException(status_code=502, detail="No image was generated")
+        img_bytes = await _try_upstream_image(prompt)
+        if img_bytes is None:
+            image_gen = OpenAIImageGeneration(api_key=EMERGENT_LLM_KEY)
+            images = await image_gen.generate_images(prompt=prompt, model="gpt-image-1", number_of_images=1)
+            if not images:
+                raise HTTPException(status_code=502, detail="No image was generated")
+            img_bytes = images[0]
         now = datetime.now(timezone.utc).isoformat()
         await db.chat_messages.insert_one({
             "id": str(uuid.uuid4()), "session_id": session_id, "user_id": user["id"],
@@ -978,7 +1006,7 @@ async def generate_image(req: ImageGenRequest, user: dict = Depends(auth_module.
             "role": "assistant", "content": f"[Image created] {prompt}", "model": "luchii-image",
             "ts": datetime.now(timezone.utc).isoformat(),
         })
-        return {"image_base64": base64.b64encode(images[0]).decode("utf-8"), "session_id": session_id,
+        return {"image_base64": base64.b64encode(img_bytes).decode("utf-8"), "session_id": session_id,
                 "images_used_today": used + 1, "daily_limit": limit}
     except HTTPException:
         raise
@@ -2040,6 +2068,8 @@ import routes_admin
 import routes_provider
 import routes_workspace
 import routes_shield
+import routes_engines
+api_router.include_router(routes_engines.router)
 api_router.include_router(routes_payments.router)
 api_router.include_router(routes_admin.router)
 api_router.include_router(routes_provider.router)

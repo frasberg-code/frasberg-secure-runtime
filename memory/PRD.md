@@ -1,5 +1,11 @@
 # Frasberg / Luchii
 
+## June 2026 — Frasberg Engine Stack (Stages 80–89) + GT6 Orchestrator + FRB image/video key (self-tested via curl)
+- Registered user's key `FRB_IMAGE_VIDEO_GENERATION_KEY` (frb_live_be3354...) in preview DB: active, unlimited, scoped +image_generation/+video_generation/+image_video_generation (perm values are 'write'/'access'/'no_access' strings). Verified: /generate/image 200 with real image via Bearer key; 401 on bad key; /generate/video queues task.
+- NEW `/app/backend/routes_engines.py` (mounted in server.py): POST /api/v1/behavior|pattern|structure (identity→structure parallel chain per Option 1 — existing pipeline untouched, frb key or session auth via engine_ctx), GET /api/v1/engines (nodes+granted flags from key perms), POST /api/v1/gt6/orchestrate (cost-aware planner: engines gated by key permissions + maxCostWeight budget, declined list with reasons; physics sim stepPhysics 0.1s + AI driver decisions). Executions logged to db.engine_executions.
+- Monorepo file drop (user's "actual files" demand, 84 files): /app/packages/{identity,persona,character,role,function,task,action,behavior,pattern,structure}-engine/*.ts, /app/apps/{engine-server,gateway-server/middleware,public-api}/*.ts (incl identity-structure-parallel.ts Option 1 wiring), /app/studio/src/{components,pages,hooks}, /app/config/emergent/ (emergentAgent.prompt.md + 7 engine prompts + engine-graph/planner/simulation-state/physics-core/ai-drivers/gt6-orchestrator .ts). Generator: /app/scripts/gen_frasberg_stack.py.
+- Image gen now upstream-first: _try_upstream_image() posts to {LUCHII_UPSTREAM_URL root}/v1/images/generations with LUCHII_UPSTREAM_API_KEY; EMERGENT_LLM_KEY only as local fallback (user: "we dont use and will not any of EMERGENT_LLM_KEY" — fully honored once their gateway is live in prod).
+
 ## June 2026 — Key auth fixes + unlimited keys + edit/copy (self-tested via curl + screenshot)
 - FK-003 root cause: engine routes required canonical perms missing on legacy keys → added LEGACY_PERM_ALIASES fallback in engine_auth_factory (e.g. voice_generation ← voices/voice_changer).
 - /generate/video, /voice/transcribe, /voice/speak, /voice/clone now accept frb_live_ API keys (engine_auth_factory w/ speech_to_text, text_to_speech, voice_generation; video = any valid key) instead of session-JWT-only ("Invalid token" fixed). Verified: video task JSON + speak 200 with Bearer key.
@@ -554,3 +560,7 @@ See /app/memory/test_credentials.md (admin@frasberg.com / LuchiiAdmin2026!, doct
 - New endpoints: GET /api/v1/health (router health, their spec) + GET /api/admin/upstream (configured URL, active flag, masked key, routing mode).
 - Verified: contract test with their frb_live key returned chat.completion 'pong'; admin/upstream shows frasberg-gateway-primary; chat regression OK. Prober activates automatically once api.frasberg.com DNS resolves (currently HTTP 000 → active:false, engine core answers).
 - K8s/Helm/multi-region/SLO parts of the user's dump are deployment blueprints outside the Emergent runtime — not implemented as files (existing simulated mesh regions + /api/metrics cover observability asks).
+
+## June 2026 (cont.) — Image endpoint API-key auth fix
+- /generate/image switched from JWT-only (auth_module.get_current_user) to engine auth via _image_engine_auth shim -> engine_auth_read (frb_live_ keys + JWT fallback). Verified: frb_live key generated image (FK-001 for bad keys). Music/audio/STT/TTS 403s were correct FK-003 permission denials (user self-serves via Edit Permissions).
+- Production status: deployer RCA = stale inactive EMERGENT_LLM_KEY in prod Secrets (user must update value in Deployment Panel Secrets tab) + 512Mi tier too small for XTTS voice (needs Resources upgrade). Footer disclaimer text updated in ChatDemo.
