@@ -195,6 +195,15 @@ describe('FrasbergGateway', () => {
     await gateway.job('video-job');
 
     expect(fetchImpl).toHaveBeenNthCalledWith(
+      1,
+      'https://frasberg.com/api/video',
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          authorization: ['Bearer', 'video-generation-key'].join(' '),
+        }),
+      }),
+    );
+    expect(fetchImpl).toHaveBeenNthCalledWith(
       2,
       'https://frasberg.com/api/jobs/video-job',
       expect.objectContaining({
@@ -339,7 +348,7 @@ describe('FrasbergGateway', () => {
     expect(resolved).toMatchObject({
       FRASBERG_MUSIC_KEY: 'music-from-secret',
       FRASBERG_MUSIC_ENGINE_KEY: 'music-engine-from-secret',
-      FRASBERG_VIDEO_KEY: 'video-engine-from-secret',
+      FRASBERG_VIDEO_KEY: 'image-video-from-secret',
       FRASBERG_VIDEO_ENGINE_KEY: 'video-engine-from-secret',
       FRASBERG_IMAGE_KEY: 'image-video-from-secret',
       FRASBERG_VOICE_KEY: 'voice-from-secret',
@@ -356,6 +365,16 @@ describe('FrasbergGateway', () => {
         FRASBERG_MUSIC_KEY: 'music-override',
       } as NodeJS.ProcessEnv).FRASBERG_MUSIC_KEY,
     ).toBe('music-override');
+
+    const sharedImageVideo = resolveFrasbergGatewayKeys({
+      FRASBERG_ENGINE_KEYS_JSON: JSON.stringify({
+        FRB_IMAGE_VIDEO_GENERATION_KEY: 'shared-image-video-key',
+        FRB_VIDEO_ENGINE_KEY: 'video-polling-key',
+      }),
+    } as NodeJS.ProcessEnv);
+    expect(sharedImageVideo.FRASBERG_IMAGE_KEY).toBe('shared-image-video-key');
+    expect(sharedImageVideo.FRASBERG_VIDEO_KEY).toBe('shared-image-video-key');
+    expect(sharedImageVideo.FRASBERG_VIDEO_ENGINE_KEY).toBe('video-polling-key');
   });
 
   it('fails startup for malformed consolidated engine-key JSON', () => {
