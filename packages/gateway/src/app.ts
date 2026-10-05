@@ -26,6 +26,7 @@ import {
   isEngineAwareness,
   type EngineDomain,
 } from '../../engine-flow/dist/engine-flow';
+import { registerEmergentRoutes } from './emergent-routes';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -1010,6 +1011,7 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
   app.post('/api/tts', frasbergRoute('tts', 'tts'));
   app.post('/api/audio', frasbergRoute('audio', 'audio'));
   app.get('/api/jobs/:id', frasbergJobRoute());
+  registerEmergentRoutes(app, { gateway: frasbergGateway, requirePermission });
 
   app.post('/v1/music/generations', frasbergRoute('media', 'music'));
   app.post('/v1/image', frasbergRoute('media', 'image'));
