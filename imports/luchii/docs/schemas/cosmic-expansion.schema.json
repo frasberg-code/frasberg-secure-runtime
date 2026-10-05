@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://frasbergai.com/schemas/cosmic-expansion.schema.json",
+  "title": "Cosmic Expansion Dataset",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "collection",
+    "version",
+    "sourceFormat",
+    "summary",
+    "consistencyReview",
+    "omittedEntries",
+    "entries"
+  ],
+  "properties": {
+    "collection": {"type": "string", "minLength": 1},
+    "version": {"type": "integer", "minimum": 1},
+    "sourceFormat": {"type": "string", "minLength": 1},
+    "summary": {"type": "string", "minLength": 1},
+    "consistencyReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["overall", "strengths", "issues", "normalizationChoices"],
+      "properties": {
+        "overall": {"type": "string", "minLength": 1},
+        "strengths": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        },
+        "issues": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        },
+        "normalizationChoices": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "omittedEntries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "reason"],
+        "properties": {
+          "title": {"type": "string", "minLength": 1},
+          "reason": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "category", "formalName", "summary", "sections"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "title": {"type": "string", "minLength": 1},
+          "category": {"type": "string", "minLength": 1},
+          "formalName": {"type": "string", "minLength": 1},
+          "summary": {"type": "string", "minLength": 1},
+          "sections": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["heading", "items"],
+              "properties": {
+                "heading": {"type": "string", "minLength": 1},
+                "items": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["name", "detail"],
+                    "properties": {
+                      "name": {"type": "string", "minLength": 1},
+                      "detail": {"type": "string", "minLength": 1}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

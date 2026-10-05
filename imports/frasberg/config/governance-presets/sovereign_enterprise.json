@@ -1,0 +1,35 @@
+{
+  "id": "sovereign_enterprise",
+  "name": "Sovereign Enterprise Governance",
+  "description": "Compliance‑grade governance for governments and large institutions.",
+  "version": 1,
+  "filters": {
+    "violence": "block",
+    "self_harm": "block",
+    "hate": "block",
+    "sexual_content": "block",
+    "illegal_activities": "block",
+    "misinformation": "block"
+  },
+  "cultural": {
+    "diasporaSensitivity": "high",
+    "slurDetection": "strict",
+    "stereotypePrevention": "strict",
+    "localContextModules": ["jamaica", "caribbean", "african_diaspora"]
+  },
+  "compliance": {
+    "auditTrail": true,
+    "policyVersion": "1.0.0",
+    "regimes": ["GDPR", "HIPAA", "local_government"]
+  },
+  "youth": {
+    "enabled": true,
+    "ageFloor": 16
+  },
+  "logging": {
+    "logDecisions": true,
+    "logReasons": true,
+    "retainDays": 365,
+    "exportable": true
+  }
+}

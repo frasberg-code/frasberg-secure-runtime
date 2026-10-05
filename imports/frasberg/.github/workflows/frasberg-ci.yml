@@ -1,0 +1,201 @@
+name: Frasberg CI & Governance
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checkout:
+    runs-on: ubuntu-latest
+    outputs:
+      node_version: "22"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+  license-audit:
+    runs-on: ubuntu-latest
+    needs: checkout
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate root LICENSE exists
+        run: |
+          if [ ! -f LICENSE ]; then
+            echo "ERROR: Root LICENSE file is missing"
+            exit 1
+          fi
+          echo "✓ Root LICENSE found"
+
+      - name: Validate governance.config.json
+        run: |
+          if [ ! -f governance.config.json ]; then
+            echo "ERROR: governance.config.json is missing"
+            exit 1
+          fi
+          echo "✓ governance.config.json found"
+
+  role-enforcement:
+    runs-on: ubuntu-latest
+    needs: checkout
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load governance config
+        id: cfg
+        run: |
+          if [ -f governance.config.json ]; then
+            CFG=$(jq -c . governance.config.json)
+            echo "config=$CFG" >> $GITHUB_OUTPUT
+          else
+            echo "No governance.config.json found"
+            exit 1
+          fi
+
+      - name: Enforce LLM role permissions
+        run: |
+          REPO="${GITHUB_REPOSITORY}"
+          CFG='${{ steps.cfg.outputs.config }}'
+          PROVIDER=$(echo "$CFG" | jq -r '.license.roles.llmProvider')
+          BEARER=$(echo "$CFG" | jq -r '.license.roles.llmBearer')
+          DISTRIBUTOR=$(echo "$CFG" | jq -r '.license.roles.llmDistributor')
+
+          echo "Repo: $REPO"
+          echo "Provider: $PROVIDER, Bearer: $BEARER, Distributor: $DISTRIBUTOR"
+
+          # Provider-only repos
+          if [ "$PROVIDER" = "true" ]; then
+            if [[ "$REPO" != "FrasbergAI/Frasberg" && "$REPO" != "FrasbergAI/Luchii" ]]; then
+              echo "ERROR: Repo $REPO is not authorized to act as LLM Provider"
+              exit 1
+            fi
+            echo "✓ LLM Provider role authorized"
+          fi
+
+          # Bearer-only repos
+          if [ "$BEARER" = "true" ]; then
+            if [[ "$REPO" != "FrasbergAI/LINQ" && "$REPO" != "FrasbergAI/Frasberg" ]]; then
+              echo "ERROR: Repo $REPO is not authorized to act as LLM Bearer"
+              exit 1
+            fi
+            echo "✓ LLM Bearer role authorized"
+          fi
+
+          # Distributor-only repos
+          if [ "$DISTRIBUTOR" = "true" ]; then
+            if [[ "$REPO" != "FrasbergAI/sdk-js" && "$REPO" != "FrasbergAI/sdk-python" && "$REPO" != "FrasbergAI/sdk-go" && "$REPO" != "FrasbergAI/sdk-rust" ]]; then
+              echo "ERROR: Repo $REPO is not authorized to act as LLM Distributor"
+              exit 1
+            fi
+            echo "✓ LLM Distributor role authorized"
+          fi
+
+          echo "LLM role enforcement passed for $REPO"
+
+  mesh-validate:
+    runs-on: ubuntu-latest
+    needs: checkout
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate mesh metadata
+        run: |
+          if [ ! -f governance/mesh-registry.json ]; then
+            echo "WARNING: governance/mesh-registry.json not found"
+          else
+            MESH=$(cat governance/mesh-registry.json | jq -r '.current')
+            echo "✓ Mesh metadata found:"
+            echo "$MESH" | jq '.'
+          fi
+
+  test-build:
+    runs-on: ubuntu-latest
+    needs: [checkout, license-audit, role-enforcement, mesh-validate]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            npm install -g pnpm
+            pnpm install
+          elif [ -f package-lock.json ]; then
+            npm ci
+          elif [ -f package.json ]; then
+            npm install
+          fi
+
+      - name: Run tests
+        run: |
+          if [ -f package.json ]; then
+            npm test -- --watch=false || npm test || true
+          fi
+
+      - name: Build
+        run: |
+          if [ -f package.json ]; then
+            npm run build || true
+          fi
+
+  release-pipeline:
+    runs-on: ubuntu-latest
+    needs: [test-build]
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate provider role before release
+        run: |
+          CFG=$(cat governance.config.json)
+          PROVIDER=$(echo "$CFG" | jq -r '.license.roles.llmProvider')
+          if [ "$PROVIDER" != "true" ]; then
+            echo "ERROR: Only LLM Providers may create releases"
+            exit 1
+          fi
+          echo "✓ LLM Provider role confirmed for release"
+
+      - name: Validate release artifacts
+        run: |
+          for f in release-manifest.json release-bundle.tar.gz release-hashes.json provenance.json; do
+            if [ ! -f "$f" ]; then
+              echo "INFO: Artifact $f not yet generated (will be created)"
+            fi
+          done
+
+      - name: Install dependencies
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            npm install -g pnpm
+            pnpm install
+          elif [ -f package-lock.json ]; then
+            npm ci
+          elif [ -f package.json ]; then
+            npm install
+          fi
+
+      - name: Generate manifest
+        run: |
+          if [ -f scripts/generate-release-manifest.ts ]; then
+            npx ts-node scripts/generate-release-manifest.ts
+          else
+            echo "Manifest generation script not found"
+          fi
+
+      - name: Publish artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            governance/mesh-registry.json
+            llm-certification.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

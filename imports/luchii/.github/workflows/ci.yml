@@ -1,0 +1,68 @@
+name: Core CI
+
+on:
+  push:
+    branches:
+      - staging
+      - dev
+      - feature/*
+      - docs/*
+      - governance/*
+  pull_request:
+    branches:
+      - main
+      - staging
+      - dev
+      - docs/*
+      - governance/*
+
+jobs:
+  core-ci:
+    name: Core CI (tests, lint, mypy)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install flake8 mypy
+
+      - name: Run tests
+        run: pytest
+
+      - name: Lint
+        run: flake8 .
+
+      - name: Type check
+        run: mypy .
+
+      - name: API contract tests
+        run: pytest tests/test_api.py -k model_name
+
+  docs:
+    name: Build Documentation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install MkDocs
+        run: |
+          pip install mkdocs mkdocs-material
+
+      - name: Build docs
+        run: mkdocs build --strict

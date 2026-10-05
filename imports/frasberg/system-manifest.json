@@ -1,0 +1,311 @@
+{
+  "system": {
+    "name": "Frasberg",
+    "version": "2.0.0",
+    "type": "Institution-Grade Operational Intelligence with Voice & Governance",
+    "description": "Enterprise-grade operational intelligence with voice synthesis, speech recognition, and court-ready governance",
+    "release_date": "2026-02-08"
+  },
+  "architecture": {
+    "core": {
+      "description": "Base framework providing foundational capabilities",
+      "components": [
+        "Agent runtime",
+        "Context management",
+        "Policy engine",
+        "Persona system",
+        "Audit logging",
+        "Security framework"
+      ],
+      "isolation": "Protected - cannot be modified by forks"
+    },
+    "forks": {
+      "description": "Domain-specific extensions with strict scope boundaries",
+      "isolation": "Complete - forks cannot access each other or modify core",
+      "available_forks": [
+        "education",
+        "healthcare-nonclinical"
+      ]
+    },
+    "deployment": {
+      "modes": [
+        "standard",
+        "restricted-network",
+        "full-airgap"
+      ],
+      "air_gap_support": true
+    }
+  },
+  "forks": {
+    "education": {
+      "name": "Education Fork",
+      "version": "1.0.0",
+      "description": "Domain-specific fork for educational contexts",
+      "scope": {
+        "in_scope": [
+          "Instructional design support",
+          "Lesson planning assistance",
+          "Student learning support (non-evaluative)",
+          "Classroom management support",
+          "Educational resource curation",
+          "Professional development for educators"
+        ],
+        "strictly_prohibited": [
+          "Grade assignment",
+          "Student evaluation",
+          "Educational placement decisions",
+          "Disciplinary actions",
+          "Access to student records (FERPA protected)",
+          "Substitute for educator judgment"
+        ]
+      },
+      "compliance": {
+        "regulations": ["FERPA", "COPPA"],
+        "standards": ["Educational ethics", "Professional teaching standards"]
+      },
+      "personas": [
+        "instructional_designer",
+        "student_support_elementary",
+        "student_support_middle",
+        "student_support_high",
+        "student_support_college",
+        "classroom_management",
+        "professional_development"
+      ],
+      "safety_features": [
+        "Student safety detection",
+        "Academic integrity enforcement",
+        "Privacy protection (no student records)",
+        "Age-appropriate interactions",
+        "Mandatory disclosures"
+      ]
+    },
+    "healthcare-nonclinical": {
+      "name": "Healthcare Non-Clinical Fork",
+      "version": "1.0.0",
+      "description": "Strictly non-clinical healthcare administrative support",
+      "risk_level": "CRITICAL",
+      "scope": {
+        "in_scope": [
+          "Administrative support (appointment scheduling, etc.)",
+          "Patient communication (non-clinical)",
+          "Facility wayfinding",
+          "General health education (vetted, non-diagnostic)",
+          "Non-clinical comfort support",
+          "Resource coordination"
+        ],
+        "strictly_prohibited": [
+          "Medical diagnosis",
+          "Treatment recommendations",
+          "Clinical decision-making",
+          "Medication advice",
+          "Symptom assessment",
+          "Emergency response",
+          "Access to protected health information (HIPAA/PHI)",
+          "Test result interpretation",
+          "Substitute for healthcare professionals"
+        ]
+      },
+      "compliance": {
+        "regulations": ["HIPAA", "HITECH Act", "State medical practice acts"],
+        "standards": ["Patient safety", "Healthcare compliance"]
+      },
+      "personas": [
+        "administrative_assistant",
+        "patient_navigator",
+        "health_educator",
+        "appointment_scheduler",
+        "bedside_support"
+      ],
+      "safety_features": [
+        "Emergency detection and escalation",
+        "Clinical query rejection",
+        "Mental health crisis detection",
+        "PHI protection",
+        "Mandatory medical disclaimers",
+        "Multi-layer scope enforcement"
+      ],
+      "emergency_resources": {
+        "medical_emergency": "911",
+        "suicide_crisis": "988",
+        "poison_control": "1-800-222-1222"
+      }
+    }
+  },
+  "capabilities": {
+    "policy_enforcement": {
+      "description": "Automated scope boundary enforcement",
+      "features": [
+        "Real-time request validation",
+        "Keyword-based detection",
+        "Pattern matching for violations",
+        "Immediate rejection of out-of-scope requests",
+        "Audit logging of violations"
+      ]
+    },
+    "persona_system": {
+      "description": "Role-based interaction patterns with scope awareness",
+      "features": [
+        "Domain-specific personas",
+        "Capability boundaries per persona",
+        "Automatic disclosure generation",
+        "Age-appropriate adaptations (education)",
+        "Risk-level awareness (healthcare)"
+      ]
+    },
+    "disclosure_system": {
+      "description": "Mandatory disclosure delivery for transparency",
+      "features": [
+        "Initial session disclosures",
+        "Situational disclosures",
+        "Scope limitation notices",
+        "Emergency resource information",
+        "Age and context-appropriate messaging"
+      ]
+    },
+    "simulation_system": {
+      "description": "Safe testing environments for fork capabilities",
+      "features": [
+        "Domain-specific scenarios",
+        "No real user data",
+        "Policy validation",
+        "Scope integrity testing"
+      ]
+    }
+  },
+  "security": {
+    "isolation": {
+      "fork_to_fork": "Complete isolation - forks cannot access each other",
+      "fork_to_core": "Read-only - forks cannot modify core",
+      "core_to_fork": "Controlled - core manages fork lifecycle"
+    },
+    "data_protection": {
+      "education": {
+        "protected_data": "FERPA-protected student records",
+        "enforcement": "No student PII storage or access"
+      },
+      "healthcare": {
+        "protected_data": "HIPAA-protected health information (PHI)",
+        "enforcement": "Zero PHI access, multiple validation layers"
+      }
+    },
+    "audit_logging": {
+      "policy_violations": true,
+      "escalations": true,
+      "scope_boundary_attempts": true,
+      "emergency_situations": true
+    }
+  },
+  "deployment": {
+    "standard": {
+      "description": "Normal deployment with network access",
+      "network": "Full network access",
+      "updates": "Automatic",
+      "monitoring": "Enabled"
+    },
+    "restricted": {
+      "description": "Deployment with limited network access",
+      "network": "Internal only, external blocked",
+      "updates": "Manual with verification",
+      "monitoring": "Internal only"
+    },
+    "airgap": {
+      "description": "Fully isolated deployment with no network",
+      "network": "Completely disabled",
+      "updates": "Manual with physical media",
+      "monitoring": "Local only",
+      "validation": "Network isolation validator required",
+      "requirements": [
+        "Local model storage",
+        "Local data storage",
+        "Physical access control",
+        "Encryption required"
+      ]
+    }
+  },
+  "testing": {
+    "scope_integrity_tests": {
+      "education": "forks/education/tests/test_scope_integrity.py",
+      "healthcare": "forks/healthcare-nonclinical/tests/test_nonclinical_scope.py"
+    },
+    "validation": {
+      "policy_enforcement": true,
+      "persona_boundaries": true,
+      "disclosure_delivery": true,
+      "compliance_requirements": true
+    }
+  },
+  "ci_cd": {
+    "fork_guard": {
+      "description": "CI workflow that enforces fork isolation",
+      "workflow": ".github/workflows/fork-guard.yml",
+      "enforcement": [
+        "Prevents core modification from fork branches",
+        "Validates fork directory structure",
+        "Checks for scope enforcement code",
+        "Ensures fork isolation"
+      ]
+    }
+  },
+  "documentation": {
+    "fork_scope_documents": {
+      "education": "forks/education/domain/scope.md",
+      "healthcare": "forks/healthcare-nonclinical/domain/scope.md"
+    },
+    "disclosure_templates": {
+      "education": "forks/education/domain/disclosures.md",
+      "healthcare": "forks/healthcare-nonclinical/domain/disclosures.md"
+    },
+    "deployment_guides": {
+      "airgap": "backend/app/deployment/airgap/"
+    }
+  },
+  "limitations": {
+    "general": [
+      "AI system, not a replacement for human professionals",
+      "Operates within defined scope boundaries only",
+      "Requires human oversight for critical decisions",
+      "Not suitable for emergency situations"
+    ],
+    "education_fork": [
+      "Cannot replace educator professional judgment",
+      "Cannot access or store student records",
+      "Cannot assign grades or make educational placements",
+      "Cannot implement disciplinary actions"
+    ],
+    "healthcare_fork": [
+      "NOT a medical device",
+      "NOT FDA-cleared for clinical use",
+      "Cannot diagnose, treat, or provide medical advice",
+      "Cannot access protected health information",
+      "Cannot replace healthcare professionals",
+      "NOT for emergencies - call 911"
+    ]
+  },
+  "version_info": {
+    "release_date": "2024",
+    "status": "Production Ready",
+    "api_version": "1.0",
+    "breaking_changes": []
+  },
+  "governance": {
+    "fork_ownership": {
+      "education": "Education Domain Team",
+      "healthcare": "Healthcare Non-Clinical Domain Team + Clinical Advisory"
+    },
+    "review_cycles": {
+      "education": "Quarterly",
+      "healthcare": "Monthly (high-risk domain)"
+    },
+    "change_approval": {
+      "core": "Architecture team",
+      "forks": "Domain team + compliance review"
+    }
+  },
+  "support": {
+    "emergency_escalation": true,
+    "audit_trails": true,
+    "compliance_reporting": true,
+    "incident_response": true
+  }
+}

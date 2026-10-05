@@ -1,0 +1,16 @@
+apiVersion: v2
+name: luchii
+description: A Helm chart for AI Court (Frasberg FLIA)
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+maintainers:
+  - name: Frasberg
+    email: governance@frasberg.ai
+
+keywords:
+  - ai-court
+  - flia
+  - judicial
+  - governance

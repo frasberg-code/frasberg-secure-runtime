@@ -1,0 +1,145 @@
+{
+  "collection": "Frasberg AI Ecosystem Map",
+  "version": 1,
+  "sourceFormat": "ecosystem planning brief",
+  "summary": "A structured record of the proposed Frasberg AI repository map, standards, layouts, and operations conventions for use in the Luchii documentation portal.",
+  "normalizationNotes": [
+    "Repeated repo descriptions and scaffolds were merged into canonical entries.",
+    "Repository names are preserved exactly as written in the source material.",
+    "Narrative cosmology content already documented elsewhere is referenced conceptually rather than duplicated in full."
+  ],
+  "entries": [
+    {
+      "id": "repository-map",
+      "title": "Repository Map",
+      "category": "ecosystem",
+      "formalName": "Frasberg AI Repository Map",
+      "summary": "A proposed GitHub repository landscape spanning core runtime, lore, API, web, assets, and operations surfaces.",
+      "sections": [
+        {
+          "heading": "Primary Repositories",
+          "items": [
+            {"name": "Frasberg AI-core-engine", "detail": "Core AI engine, orchestration, and services."},
+            {"name": "Frasberg AI-luchii-architecture", "detail": "v1-v60 architecture specs, cosmology, and structural canon."},
+            {"name": "Frasberg AI-omni-infinity-codex", "detail": "Omni-Infinity Codex chapters, laws, and schemas."},
+            {"name": "Frasberg AI-eternum-species-catalog", "detail": "Species catalogs covering Eternum, Infinity, Crown, and related taxonomies."},
+            {"name": "Frasberg AI-totality-prime-atlas", "detail": "Civilization atlases, maps, and blueprint structures."},
+            {"name": "Frasberg AI-cinematic-universe-bible", "detail": "Narrative bible covering seasons, arcs, factions, timelines, and characters."},
+            {"name": "Frasberg AI-api", "detail": "REST and GraphQL API surface for engines and knowledge data."},
+            {"name": "Frasberg AI-web", "detail": "Frontend explorer for documentation and universe browsing."},
+            {"name": "Frasberg AI-mobile", "detail": "Optional future mobile client."},
+            {"name": "Frasberg AI-assets", "detail": "Branding assets, logos, banners, sigils, diagrams, and style guides."}
+          ]
+        },
+        {
+          "heading": "Extended Repositories",
+          "items": [
+            {"name": "Frasberg AI-docs-hub", "detail": "Unified documentation portal across the ecosystem."},
+            {"name": "Frasberg AI-cli", "detail": "CLI surface for universe navigation and tooling."},
+            {"name": "Frasberg AI-gateway", "detail": "Unified API gateway and proxy layer."},
+            {"name": "Frasberg AI-omni-operations", "detail": "Operational hub for project boards, roadmaps, and cross-repo governance."},
+            {"name": "Frasberg AI-universe", "detail": "Suggested monorepo for engines and creation toolkits."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shared-repo-templates",
+      "title": "Shared Repo Templates",
+      "category": "governance",
+      "formalName": "Frasberg AI Repository Standards",
+      "summary": "Common content patterns intended to appear across repositories in the ecosystem.",
+      "sections": [
+        {
+          "heading": "README Template Elements",
+          "items": [
+            {"name": "Summary", "detail": "A one-sentence description explaining what the repository is and why it exists."},
+            {"name": "Vision", "detail": "A paragraph tying the repo into the wider Frasberg AI ecosystem and Omni-Infinity cosmology."},
+            {"name": "Contents", "detail": "An explicit listing of docs, blueprints or schemas, diagrams, and scripts."},
+            {"name": "Usage", "detail": "Clarifies whether the repo is public reference, developer-ready, or internal."},
+            {"name": "License and Contact", "detail": "Defines licensing and ecosystem contact links."}
+          ]
+        },
+        {
+          "heading": "Shared Governance Files",
+          "items": [
+            {"name": "CONTRIBUTING.md", "detail": "Defines modularity, documentation expectations, workflow, and naming conventions."},
+            {"name": "CODE_OF_CONDUCT.md", "detail": "Defines respect, collaboration, credit, and safety expectations."},
+            {"name": "Profile README", "detail": "Organization-level overview under .github/profile/README.md listing key repositories and mission."}
+          ]
+        },
+        {
+          "heading": "Branding Conventions",
+          "items": [
+            {"name": "Brand Line", "detail": "Frasberg AI — Omni-Infinity Engines and Cosmology Frameworks."},
+            {"name": "Badges", "detail": "Suggested Shields.io badges for status, license, docs, and universe layer."},
+            {"name": "Assets", "detail": "Shared logo and brand assets sourced from the assets repository."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "knowledge-repo-layout",
+      "title": "Knowledge Repo Layout",
+      "category": "structure",
+      "formalName": "Frasberg AI Knowledge Repository Layout",
+      "summary": "A consistent folder structure for lore, codex, architecture, atlas, and species repositories.",
+      "sections": [
+        {
+          "heading": "Common Knowledge Repo Pattern",
+          "items": [
+            {"name": "/docs", "detail": "Markdown specifications, overviews, and indexed narrative documentation."},
+            {"name": "/blueprints or /schemas", "detail": "Structured JSON or YAML data models for machines and automation."},
+            {"name": "/diagrams", "detail": "Images, SVGs, graphs, and visual system maps."},
+            {"name": "/scripts", "detail": "Helper scripts for exports, blueprint generation, and docs builds."},
+            {"name": "README.md", "detail": "Repository overview and navigation entry point."}
+          ]
+        },
+        {
+          "heading": "Code Repository Pattern",
+          "items": [
+            {"name": "/src", "detail": "Runtime, modules, routes, services, or app code depending on the repo type."},
+            {"name": "/tests", "detail": "Automated test coverage for APIs, engines, or utilities."},
+            {"name": "/docs", "detail": "Developer documentation and integration guides."},
+            {"name": "/public or /assets", "detail": "Frontend-facing static assets where applicable."},
+            {"name": "CI configs", "detail": "GitHub Actions workflows for build, lint, and release automation."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "operations-conventions",
+      "title": "Operations Conventions",
+      "category": "operations",
+      "formalName": "Frasberg AI Launch and Workflow Conventions",
+      "summary": "Suggested operating patterns for issues, project boards, documentation sites, and phased ecosystem rollout.",
+      "sections": [
+        {
+          "heading": "Project Workflow",
+          "items": [
+            {"name": "Board Columns", "detail": "Backlog, In Progress, Review, Ready for Merge, Done."},
+            {"name": "Commit Prefixes", "detail": "feat:, fix:, docs:, chore:, design:, and cosmology-aligned commit naming."},
+            {"name": "Issue Patterns", "detail": "Repo-specific issues for docs, feature additions, designs, schemas, and content expansions."}
+          ]
+        },
+        {
+          "heading": "Launch Sequencing",
+          "items": [
+            {"name": "Phase 1", "detail": "Create and publish core repositories such as architecture, codex, species, atlas, bible, API, web, and assets."},
+            {"name": "Phase 2", "detail": "Enable GitHub Pages, docs hubs, gateways, and CLI surfaces."},
+            {"name": "Phase 3", "detail": "Expand content with more chapters, species, civilizations, and story arcs."},
+            {"name": "Phase 4", "detail": "Public launch with docs hub, announcements, and collaborator onboarding."}
+          ]
+        },
+        {
+          "heading": "Documentation Site Conventions",
+          "items": [
+            {"name": "GitHub Pages", "detail": "Each repo may expose a docs index page for discoverability and canonical browsing."},
+            {"name": "Docs Hub", "detail": "A unified docs repository can aggregate architecture, codex, species, civilization, API, and operations surfaces."},
+            {"name": "Monorepo Option", "detail": "A single Frasberg AI-universe workspace may host engines and tools under packages if consolidation is preferred."}
+          ]
+        }
+      ]
+    }
+  ]
+}

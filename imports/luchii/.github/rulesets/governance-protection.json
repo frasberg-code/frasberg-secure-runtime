@@ -1,0 +1,73 @@
+{
+  "name": "FrasbergAI-Governance-Protection",
+  "description": "High-security governance enforcement for policy, constitution, and legal documentation branches",
+  "target": "branch",
+  "enforcement": "active",
+  "bypass_actors": [
+    {
+      "actor_type": "OrganizationAdmin",
+      "actor_id": null
+    },
+    {
+      "actor_type": "Team",
+      "actor_id": "governance-team"
+    }
+  ],
+  "conditions": {
+    "ref_name": {
+      "include": [
+        "refs/heads/governance/*",
+        "refs/heads/docs/*"
+      ],
+      "exclude": []
+    }
+  },
+  "rules": [
+    {
+      "type": "pull_request",
+      "parameters": {
+        "dismiss_stale_reviews_on_push": false,
+        "require_code_owner_review": true,
+        "require_last_push_approval": true,
+        "required_approving_review_count": 1,
+        "required_review_thread_resolution": true
+      }
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": true,
+        "required_status_checks": [
+          {
+            "context": "linting/markdown"
+          },
+          {
+            "context": "governance-validation/compliance"
+          }
+        ]
+      }
+    },
+    {
+      "type": "required_signatures",
+      "parameters": {}
+    },
+    {
+      "type": "non_fast_forward",
+      "parameters": {}
+    },
+    {
+      "type": "deletion",
+      "parameters": {}
+    },
+    {
+      "type": "update",
+      "parameters": {
+        "allowed_update_rules": [
+          {
+            "type": "pull_request"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Evidence {
+  id           String         @id @default(cuid())
+  caseId       String
+  type         String
+  metadata     Json
+  storagePath  String
+  chain        ChainOfCustody[]
+  createdAt    DateTime       @default(now())
+}
+
+model ChainOfCustody {
+  id         String   @id @default(cuid())
+  evidenceId String
+  actor      String
+  action     String
+  timestamp  DateTime @default(now())
+  evidence   Evidence @relation(fields: [evidenceId], references: [id])
+}

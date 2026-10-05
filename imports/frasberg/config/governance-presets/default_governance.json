@@ -1,0 +1,28 @@
+{
+  "id": "default_governance",
+  "name": "Default Governance",
+  "description": "Balanced safety and expressiveness for general use.",
+  "version": 1,
+  "filters": {
+    "violence": "block",
+    "self_harm": "block",
+    "hate": "block",
+    "sexual_content": "filter",
+    "illegal_activities": "block",
+    "misinformation": "filter"
+  },
+  "cultural": {
+    "diasporaSensitivity": "medium",
+    "slurDetection": "strict",
+    "stereotypePrevention": "strict"
+  },
+  "youth": {
+    "enabled": false,
+    "ageFloor": 16
+  },
+  "logging": {
+    "logDecisions": true,
+    "logReasons": true,
+    "retainDays": 30
+  }
+}

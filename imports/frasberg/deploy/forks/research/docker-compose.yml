@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  research-fork:
+    build:
+      context: ../../..
+      dockerfile: deploy/forks/research/Dockerfile
+    container_name: frasberg_research_fork
+    ports:
+      - "8004:8004"
+    environment:
+      - FORK_NAME=research
+      - FORK_ISOLATED=true
+    restart: unless-stopped

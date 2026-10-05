@@ -1,0 +1,75 @@
+name: Deploy to Supabase
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_migrations:
+        description: 'Deploy database migrations'
+        required: false
+        default: 'true'
+        type: boolean
+      deploy_functions:
+        description: 'Deploy edge functions'
+        required: false
+        default: 'true'
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to Supabase (production)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate required secrets
+        run: |
+          if [ -z "${{ secrets.SUPABASE_ACCESS_TOKEN }}" ]; then
+            echo "::error::SUPABASE_ACCESS_TOKEN secret is not set. Aborting deployment."
+            exit 1
+          fi
+          if [ -z "${{ secrets.SUPABASE_PROJECT_REF }}" ]; then
+            echo "::error::SUPABASE_PROJECT_REF secret is not set. Aborting deployment."
+            exit 1
+          fi
+          echo "✓ Required secrets are present"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js (LTS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Install Supabase CLI
+        run: npm install -g supabase@latest
+
+      - name: Authenticate with Supabase
+        run: supabase login --token "${{ secrets.SUPABASE_ACCESS_TOKEN }}"
+
+      - name: Link Supabase project
+        run: supabase link --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}"
+
+      - name: Deploy database migrations
+        if: ${{ inputs.deploy_migrations }}
+        run: |
+          if [ -d "supabase/migrations" ] && [ -n "$(ls -A supabase/migrations/*.sql 2>/dev/null)" ]; then
+            echo "Deploying database migrations..."
+            supabase db push
+            echo "✓ Database migrations deployed"
+          else
+            echo "No migration files found in supabase/migrations — skipping."
+          fi
+
+      - name: Deploy edge functions
+        if: ${{ inputs.deploy_functions }}
+        run: |
+          if [ -d "supabase/functions" ]; then
+            echo "Deploying edge functions..."
+            supabase functions deploy --no-verify-jwt
+            echo "✓ Edge functions deployed"
+          else
+            echo "No supabase/functions directory found — skipping."
+          fi

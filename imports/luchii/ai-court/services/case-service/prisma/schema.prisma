@@ -1,0 +1,36 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Case {
+  id        String   @id @default(cuid())
+  title     String
+  status    String   @default("OPEN")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  evidence  Evidence[]
+  events    CaseEvent[]
+}
+
+model CaseEvent {
+  id        String   @id @default(cuid())
+  caseId    String
+  type      String
+  payload   Json
+  timestamp DateTime @default(now())
+  case      Case     @relation(fields: [caseId], references: [id])
+}
+
+model Evidence {
+  id        String   @id @default(cuid())
+  caseId    String
+  type      String
+  title     String
+  createdAt DateTime @default(now())
+  case      Case     @relation(fields: [caseId], references: [id])
+}

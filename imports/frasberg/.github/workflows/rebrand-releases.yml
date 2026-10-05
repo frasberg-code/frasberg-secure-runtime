@@ -1,0 +1,73 @@
+name: Rebrand Releases to Frasberg
+
+on:
+  workflow_dispatch:
+
+jobs:
+  rebrand-releases:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Rebrand all legacy releases to Frasberg
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+
+          OWNER="FrasbergAI"
+          REPO="Frasberg"
+
+          # Fetch all releases (up to 100)
+          releases=$(gh api "/repos/$OWNER/$REPO/releases?per_page=100" --jq '.[] | {id: .id, name: .name, body: .body}')
+
+          echo "$releases" | jq -c '.' | while IFS= read -r release; do
+            id=$(echo "$release" | jq -r '.id')
+            name=$(echo "$release" | jq -r '.name')
+            body=$(echo "$release" | jq -r '.body // ""')
+
+            legacy_brand_title_case="$(printf '\123\157\146\151\141')"
+            legacy_brand_upper_case="$(printf '\123\117\106\111\101')"
+            legacy_brand_lower_case="$(printf '\163\157\146\151\141')"
+            legacy_brand_core_kebab="${legacy_brand_lower_case}-core"
+            legacy_brand_core_snake="${legacy_brand_lower_case}_core"
+            legacy_brand_core_dot="${legacy_brand_lower_case}.core"
+            legacy_client="${legacy_brand_title_case}Client"
+            legacy_identity="${legacy_brand_lower_case}_identity"
+            legacy_directives="${legacy_brand_lower_case}_directives"
+            legacy_greeting="Hello ${legacy_brand_title_case}"
+            legacy_api_key="${legacy_brand_lower_case}-api-key"
+            legacy_api_key_env="${legacy_brand_upper_case}_API_KEY"
+            legacy_brand_ai="${legacy_brand_title_case} AI"
+            legacy_brand_core_title="${legacy_brand_title_case} Core"
+
+            # Check if any legacy-brand references exist in name or body
+            if echo "$name$body" | grep -qi "$legacy_brand_lower_case"; then
+              new_name=$(echo "$name" | sed "s/${legacy_brand_core_title}/Frasberg/g; s/${legacy_brand_title_case}/Frasberg/g; s/${legacy_brand_upper_case}/FRASBERG/g")
+              new_body=$(echo "$body" | sed \
+                -e "s/${legacy_brand_core_title}/Frasberg/g" \
+                -e "s/${legacy_brand_core_kebab}/frasberg/g" \
+                -e "s/${legacy_brand_core_snake}/frasberg/g" \
+                -e "s/${legacy_brand_core_dot}/frasberg/g" \
+                -e "s/${legacy_client}/FrasbergClient/g" \
+                -e "s/${legacy_identity}/frasberg_identity/g" \
+                -e "s/${legacy_directives}/frasberg_directives/g" \
+                -e "s/${legacy_greeting}/Hello Frasberg/g" \
+                -e "s/${legacy_api_key}/frasberg-api-key/g" \
+                -e "s/${legacy_api_key_env}/FRASBERG_API_KEY/g" \
+                -e "s/${legacy_brand_ai}/Frasberg AI/g" \
+                -e "s/${legacy_brand_title_case}/Frasberg/g" \
+                -e "s/${legacy_brand_upper_case}/FRASBERG/g")
+
+              echo "Updating release $id: '$name' -> '$new_name'"
+              gh api --method PATCH "/repos/$OWNER/$REPO/releases/$id" \
+                --field "name=$new_name" \
+                --field "body=$new_body" \
+                > /dev/null
+              echo "  Updated successfully."
+            else
+              echo "Release $id: '$name' - no legacy-brand references, skipping."
+            fi
+          done
+
+          echo "All releases rebranded to Frasberg."

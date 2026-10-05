@@ -1,0 +1,131 @@
+name: LLM Role Certification Check
+
+on:
+  pull_request:
+    branches: [ main, master ]
+  push:
+    branches: [ main, master ]
+
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate certification manifest exists
+        run: |
+          if [ ! -f llm-certification.json ]; then
+            echo "ERROR: llm-certification.json is required"
+            exit 1
+          fi
+          echo "✓ Certification manifest found"
+
+      - name: Validate governance config exists
+        run: |
+          if [ ! -f governance.config.json ]; then
+            echo "ERROR: governance.config.json is required"
+            exit 1
+          fi
+          echo "✓ Governance config found"
+
+      - name: Validate certification manifest structure
+        run: |
+          CERT=$(cat llm-certification.json)
+          
+          # Check required fields
+          REPO=$(echo "$CERT" | jq -r '.repo' 2>/dev/null)
+          STATUS=$(echo "$CERT" | jq -r '.certification.status' 2>/dev/null)
+          
+          if [ -z "$REPO" ] || [ -z "$STATUS" ]; then
+            echo "ERROR: Certification manifest missing required fields"
+            exit 1
+          fi
+          
+          echo "✓ Certification manifest structure valid"
+          echo "  Repo: $REPO"
+          echo "  Status: $STATUS"
+
+      - name: Validate role alignment
+        run: |
+          CFG=$(cat governance.config.json)
+          CERT=$(cat llm-certification.json)
+          
+          CERT_ROLES=$(echo "$CERT" | jq -r '.roles[]')
+          CFG_ROLES=$(echo "$CFG" | jq -r '.license.roles | to_entries[] | select(.value==true) | .key')
+          
+          echo "Config roles: $CFG_ROLES"
+          echo "Certified roles: $CERT_ROLES"
+          
+          for r in $CERT_ROLES; do
+            VAL=$(echo "$CFG" | jq -r ".license.roles.${r}")
+            if [ "$VAL" != "true" ]; then
+              echo "ERROR: Role $r is certified but not enabled in governance.config.json"
+              exit 1
+            fi
+          done
+          
+          echo "✓ LLM role alignment validated"
+
+      - name: Validate certification criteria
+        run: |
+          CERT=$(cat llm-certification.json)
+          CRITERIA=$(echo "$CERT" | jq -r '.certification.criteria')
+          
+          # All criteria must be true for certified status
+          STATUS=$(echo "$CERT" | jq -r '.certification.status')
+          
+          if [ "$STATUS" = "certified" ]; then
+            LICENSE=$(echo "$CRITERIA" | jq -r '.licenseCompliance')
+            MESH=$(echo "$CRITERIA" | jq -r '.meshGovernance')
+            RELEASE=$(echo "$CRITERIA" | jq -r '.releaseIntegrity')
+            ROLE_ALIGN=$(echo "$CRITERIA" | jq -r '.orgRoleAlignment')
+            
+            if [ "$LICENSE" != "true" ] || [ "$MESH" != "true" ] || [ "$RELEASE" != "true" ] || [ "$ROLE_ALIGN" != "true" ]; then
+              echo "ERROR: Some certification criteria are not met for certified status"
+              exit 1
+            fi
+          fi
+          
+          echo "✓ Certification criteria validated"
+          echo "  License Compliance: $LICENSE"
+          echo "  Mesh Governance: $MESH"
+          echo "  Release Integrity: $RELEASE"
+          echo "  Org Role Alignment: $ROLE_ALIGN"
+
+      - name: Validate org role matrix alignment
+        run: |
+          CERT=$(cat llm-certification.json)
+          REPO=$(echo "$CERT" | jq -r '.repo')
+          CERT_ROLES=$(echo "$CERT" | jq -r '.roles | @csv')
+          
+          # Check if this repo is in the org role matrix
+          if [ -f governance/org-role-matrix.json ]; then
+            MATRIX=$(cat governance/org-role-matrix.json)
+            MATRIX_REPOS=$(echo "$MATRIX" | jq -r '.repos[] | select(.name=="'$REPO'") | .roles | @csv')
+            
+            if [ -z "$MATRIX_REPOS" ]; then
+              echo "ERROR: Repo $REPO not found in org-role-matrix.json"
+              exit 1
+            fi
+            
+            echo "✓ Repo found in org-role-matrix"
+            echo "  Certified Roles: $CERT_ROLES"
+            echo "  Matrix Roles: $MATRIX_REPOS"
+          else
+            echo "WARNING: org-role-matrix.json not found, skipping matrix validation"
+          fi
+
+      - name: Summary
+        run: |
+          CERT=$(cat llm-certification.json)
+          REPO=$(echo "$CERT" | jq -r '.repo')
+          STATUS=$(echo "$CERT" | jq -r '.certification.status')
+          ISSUED_AT=$(echo "$CERT" | jq -r '.certification.issuedAt')
+          ISSUED_BY=$(echo "$CERT" | jq -r '.certification.issuedBy')
+          
+          echo "✅ LLM Certification Check Passed"
+          echo ""
+          echo "Repository: $REPO"
+          echo "Status: $STATUS"
+          echo "Issued At: $ISSUED_AT"
+          echo "Issued By: $ISSUED_BY"

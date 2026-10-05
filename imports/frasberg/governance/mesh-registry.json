@@ -1,0 +1,30 @@
+{
+  "current": {
+    "meshVersion": "2.0.0",
+    "raftTerm": 42,
+    "snapshotVersion": "2026.08.14"
+  },
+  "history": [
+    {
+      "meshVersion": "1.0.0",
+      "raftTerm": 0,
+      "snapshotVersion": "0",
+      "timestamp": "2025-11-01T00:00:00Z",
+      "reason": "Initial mesh bootstrap"
+    },
+    {
+      "meshVersion": "1.1.0",
+      "raftTerm": 12,
+      "snapshotVersion": "2026.04.10",
+      "timestamp": "2026-04-10T10:00:00Z",
+      "reason": "Governance patch + snapshot update"
+    },
+    {
+      "meshVersion": "2.0.0",
+      "raftTerm": 42,
+      "snapshotVersion": "2026.08.14",
+      "timestamp": "2026-08-14T12:00:00Z",
+      "reason": "Major release alignment"
+    }
+  ]
+}

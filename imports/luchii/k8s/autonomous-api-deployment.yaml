@@ -1,0 +1,148 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: autonomous-cloud
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: autonomous-config
+  namespace: autonomous-cloud
+data:
+  REGIONS: "us-west,us-east,eu-central,apac,latam,middle-east,africa"
+  LOG_LEVEL: "info"
+  ENABLE_BILLING: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: autonomous-secrets
+  namespace: autonomous-cloud
+type: Opaque
+stringData:
+  JWT_SECRET: "production-secret-key-change-me"
+  DB_PASSWORD: "production-db-password-change-me"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autonomous-api
+  namespace: autonomous-cloud
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: autonomous-api
+  template:
+    metadata:
+      labels:
+        app: autonomous-api
+    spec:
+      containers:
+      - name: api
+        image: frasberg/autonomous-cloud:latest
+        ports:
+        - containerPort: 3001
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "3001"
+        - name: DB_HOST
+          value: "autonomous-postgres"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_NAME
+          value: "autonomous_cloud"
+        - name: DB_USER
+          value: "postgres"
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: autonomous-secrets
+              key: DB_PASSWORD
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: autonomous-secrets
+              key: JWT_SECRET
+        - name: REGIONS
+          valueFrom:
+            configMapKeyRef:
+              name: autonomous-config
+              key: REGIONS
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: 250m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: autonomous-api
+  namespace: autonomous-cloud
+spec:
+  type: ClusterIP
+  selector:
+    app: autonomous-api
+  ports:
+  - protocol: TCP
+    port: 3001
+    targetPort: 3001
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: autonomous-api-hpa
+  namespace: autonomous-cloud
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: autonomous-api
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: autonomous-api-pdb
+  namespace: autonomous-cloud
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: autonomous-api

@@ -1,0 +1,30 @@
+{
+  "id": "experimental_governance",
+  "name": "Experimental Governance",
+  "description": "Looser boundaries for internal testing and research, not for production.",
+  "version": 1,
+  "filters": {
+    "violence": "filter",
+    "self_harm": "block",
+    "hate": "block",
+    "sexual_content": "filter",
+    "illegal_activities": "block",
+    "misinformation": "filter"
+  },
+  "cultural": {
+    "diasporaSensitivity": "medium",
+    "slurDetection": "strict",
+    "stereotypePrevention": "medium"
+  },
+  "youth": {
+    "enabled": false
+  },
+  "logging": {
+    "logDecisions": true,
+    "logReasons": true,
+    "retainDays": 14
+  },
+  "flags": {
+    "internalOnly": true
+  }
+}

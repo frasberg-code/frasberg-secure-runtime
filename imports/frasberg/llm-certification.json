@@ -1,0 +1,18 @@
+{
+  "repo": "Frasberg",
+  "roles": ["llmProvider", "llmBearer"],
+  "certification": {
+    "status": "certified",
+    "issuedAt": "2026-08-14T12:00:00Z",
+    "issuedBy": "Frasberg Governance Council",
+    "expiresAt": "2027-08-14T12:00:00Z",
+    "criteria": {
+      "licenseCompliance": true,
+      "meshGovernance": true,
+      "releaseIntegrity": true,
+      "orgRoleAlignment": true,
+      "identityPreservation": true
+    },
+    "notes": "Frasberg is the authoritative governance repo for the Frasberg organization. All other repos inherit and enforce rules from this repo."
+  }
+}

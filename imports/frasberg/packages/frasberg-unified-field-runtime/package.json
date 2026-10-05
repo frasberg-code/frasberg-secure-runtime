@@ -1,0 +1,31 @@
+{
+  "name": "@frasberg/unified-field-runtime",
+  "version": "1.0.0",
+  "description": "Unified Field Runtime for Frasberg AI, integrating all identity modules into a single continuous field.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "jest",
+    "lint": "echo 'No linting configured'"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@frasberg/governance-engine": "workspace:*",
+    "@frasberg/tonal-modulation": "workspace:*",
+    "@frasberg/membrane-protocol": "workspace:*",
+    "@frasberg/hinge-logic": "workspace:*",
+    "@frasberg/continuum-identity": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@types/node": "^20.0.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "author": "Frasberg Selassie (Mr. Clayton-M. Bernard-Ex.)"
+}

@@ -1,0 +1,18 @@
+image:
+  repository: ghcr.io/frasbergai/luchii-engine
+  tag: latest
+
+service:
+  port: 9000
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: api.frasbergai.com
+      paths:
+        - path: /luchii/us-west
+          pathType: Prefix
+
+env:
+  REGION: "us-west"
