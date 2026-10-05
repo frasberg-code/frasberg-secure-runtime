@@ -127,7 +127,7 @@ export function executeEngine(
 function buildEngineStages(
   awareness: EngineAwareness,
 ): Record<EngineDomain, EngineStage> {
-  const self = buildSelf(awareness);
+  const self = buildSelf();
   const integration = buildIntegration(self);
   const identity = {
     identityId: randomUUID(),
