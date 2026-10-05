@@ -11,13 +11,11 @@ workflow. Its secret references match the existing production Supabase URL and
 anon-key secrets. The service-role key is deliberately not injected into this
 gateway task because the current runtime only uses the anon key and a
 service-role key bypasses Supabase row-level security.
-The gateway task references the provisioned governance admin secret. To enable
-provider-backed operations, create `frasberg/runtime/engine-keys` with
-`infra/secrets/import-frasberg-keys.sh` and add its Secrets Manager ARN to the
-task definition as `FRASBERG_ENGINE_KEYS_JSON`. The gateway maps its FRB_* JSON
-fields to the FRASBERG_* domain clients and fails on malformed secret JSON.
-Without that secret the gateway can start, but provider-backed operations fail
-explicitly when they require an unset provider key.
+The gateway task reads the governance admin and consolidated engine-key
+secrets from Secrets Manager. The engine-key JSON maps its FRB_* fields to the
+FRASBERG_* domain clients and fails on malformed JSON. Provider submission
+routes are configured through the matching `FRASBERG_*_URL` task environment
+variables so each engine uses its explicit provider endpoint.
 
 `infra/iam/frasberg-secure-runtime-role.json` is an IAM permissions policy for
 the ECS task execution role, which retrieves task-definition secrets and

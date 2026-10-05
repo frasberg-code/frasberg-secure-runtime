@@ -3,6 +3,7 @@ import {
   FrasbergClient,
   FrasbergGateway,
   type FrasbergGatewayKeys,
+  resolveFrasbergEndpoints,
   resolveFrasbergGatewayKeys,
 } from '../src/frasberg';
 
@@ -28,6 +29,23 @@ describe('FrasbergClient', () => {
           authorization: ['Bearer', 'music-key'].join(' '),
         }),
       }),
+    );
+  });
+
+  it('uses configured absolute endpoint URLs', async () => {
+    const fetchImpl = vi.fn(async () => jsonResponse({ ok: true }));
+    const client = new FrasbergClient({ fetchImpl: fetchImpl as typeof fetch });
+
+    await client.request(
+      'POST',
+      'https://frasberg.com/api/generate/music',
+      'music-key',
+      { prompt: 'hello' },
+    );
+
+    expect(fetchImpl).toHaveBeenCalledWith(
+      'https://frasberg.com/api/generate/music',
+      expect.any(Object),
     );
   });
 });
@@ -117,6 +135,37 @@ describe('FrasbergGateway', () => {
     );
   });
 
+  it('routes provider requests to configured domain endpoints', async () => {
+    const fetchImpl = vi.fn(async () =>
+      jsonResponse({ job_id: 'job-1', state: 'queued' }),
+    );
+    const gateway = new FrasbergGateway(
+      new FrasbergClient({ fetchImpl: fetchImpl as typeof fetch }),
+      {
+        FRASBERG_MUSIC_KEY: 'music-key',
+        FRASBERG_VIDEO_KEY: 'video-key',
+      },
+      {
+        music: 'https://frasberg.com/api/generate/music',
+        video: 'https://frasberg.com/api/generate/video',
+      },
+    );
+
+    await gateway.music({ prompt: 'music' });
+    await gateway.video({ prompt: 'video' });
+
+    expect(fetchImpl).toHaveBeenNthCalledWith(
+      1,
+      'https://frasberg.com/api/generate/music',
+      expect.any(Object),
+    );
+    expect(fetchImpl).toHaveBeenNthCalledWith(
+      2,
+      'https://frasberg.com/api/generate/video',
+      expect.any(Object),
+    );
+  });
+
   it('maps the consolidated engine secret and lets explicit keys override it', () => {
     const resolved = resolveFrasbergGatewayKeys({
       FRASBERG_ENGINE_KEYS_JSON: JSON.stringify({
@@ -142,5 +191,27 @@ describe('FrasbergGateway', () => {
         FRASBERG_ENGINE_KEYS_JSON: 'not-json',
       } as NodeJS.ProcessEnv),
     ).toThrow('FRASBERG_ENGINE_KEYS_JSON must contain valid JSON.');
+  });
+
+  it('maps configured route URLs to engine domains', () => {
+    expect(
+      resolveFrasbergEndpoints({
+        FRASBERG_VIDEO_URL: 'https://frasberg.com/api/generate/video',
+        FRASBERG_IMAGE_URL: 'https://frasberg.com/api/generate/image',
+        FRASBERG_MUSIC_URL: 'https://frasberg.com/api/generate/music',
+        FRASBERG_AUDIO_TOOLS_URL: 'https://frasberg.com/api/audio/tools',
+        FRASBERG_VOICE_CLONE_URL: 'https://frasberg.com/api/voice/clone',
+        FRASBERG_STT_URL: 'https://frasberg.com/api/stt',
+        FRASBERG_TTS_URL: 'https://frasberg.com/api/tts',
+      } as NodeJS.ProcessEnv),
+    ).toEqual({
+      music: 'https://frasberg.com/api/generate/music',
+      video: 'https://frasberg.com/api/generate/video',
+      image: 'https://frasberg.com/api/generate/image',
+      audio: 'https://frasberg.com/api/audio/tools',
+      voice: 'https://frasberg.com/api/voice/clone',
+      stt: 'https://frasberg.com/api/stt',
+      tts: 'https://frasberg.com/api/tts',
+    });
   });
 });
