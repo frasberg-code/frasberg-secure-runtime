@@ -21,6 +21,8 @@ export default function Layout() {
           <Link to="/export/demo-race">Export</Link>
           {' | '}
           <Link to="/story/demo-race">Story</Link>
+          {' | '}
+          <Link to="/releases">Releases</Link>
         </nav>
         <div>
           <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>Theme: {theme}</button>

@@ -3,8 +3,9 @@
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
-  "memory": "512",
+  "memory": "1024",
   "executionRoleArn": "arn:aws:iam::__AWS_ACCOUNT_ID__:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::__AWS_ACCOUNT_ID__:role/frasberg-secure-runtime-task",
   "containerDefinitions": [
     {
       "name": "frasberg-secure-runtime",
@@ -24,6 +25,14 @@
         {
           "name": "GATEWAY_PORT",
           "value": "4000"
+        },
+        {
+          "name": "RUNTIME_STATE_TABLE",
+          "value": "frasberg-secure-runtime-state-__AWS_ACCOUNT_ID__"
+        },
+        {
+          "name": "RUNTIME_ASSETS_BUCKET",
+          "value": "frasberg-secure-runtime-assets-__AWS_ACCOUNT_ID__"
         },
         {
           "name": "FRASBERG_VIDEO_URL",

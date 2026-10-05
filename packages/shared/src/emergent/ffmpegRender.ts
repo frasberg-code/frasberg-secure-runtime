@@ -14,13 +14,14 @@ export interface RenderJob {
 export interface RenderResult {
   jobId: string;
   status: 'queued' | 'running' | 'completed' | 'failed';
+  renderMode?: 'color-placeholder';
   mp4Url?: string;
   outputPath?: string;
   error?: string;
 }
 
-// Renders a title-card MP4 sized to the cut's shot durations with ffmpeg.
-// mp4Url is only set when EXPORT_PUBLIC_BASE_URL points at where EXPORT_DIR is served.
+// Until the renderer has GT6 frame assets, this creates a color placeholder only.
+// It must not be presented as rendered race footage or mixed broadcast audio.
 export function ffmpegRenderWorker(job: RenderJob): Promise<RenderResult> {
   const dir = process.env.EXPORT_DIR ?? join(process.cwd(), 'exports');
   const safeId = job.id.replace(/[^A-Za-z0-9_-]/g, '_');
@@ -67,6 +68,7 @@ export function ffmpegRenderWorker(job: RenderJob): Promise<RenderResult> {
       resolve({
         jobId: job.id,
         status: 'completed',
+        renderMode: 'color-placeholder',
         outputPath,
         ...(base ? { mp4Url: `${base}/${safeId}.mp4` } : {}),
       });

@@ -1,21 +1,26 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json tsconfig.json tsconfig.base.json .prettierrc.json ./
+COPY studio/package.json studio/package-lock.json ./studio/
 COPY apps ./apps
 COPY packages ./packages
 COPY sdk ./sdk
 COPY config ./config
 COPY scripts ./scripts
+COPY studio/src ./studio/src
+COPY studio/index.html studio/vite.config.ts studio/tsconfig.json ./studio/
 RUN npm ci
 RUN npm run build
+RUN cd studio && npm ci && npm run build
 
 FROM node:20-alpine
 WORKDIR /app
 ENV NODE_ENV=production
-RUN apk add --no-cache bash
+RUN apk add --no-cache bash ffmpeg
 COPY --from=build /app/package.json /app/package-lock.json ./
 COPY --from=build /app/packages ./packages
 COPY --from=build /app/config ./config
+COPY --from=build /app/studio/dist /app/packages/gateway/dist/public
 
 COPY scripts/graceful-start.sh /usr/local/bin/graceful-start.sh
 RUN chmod +x /usr/local/bin/graceful-start.sh

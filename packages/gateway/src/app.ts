@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import Fastify, {
@@ -7,6 +7,7 @@ import Fastify, {
   FastifyRequest,
 } from 'fastify';
 import multipart from '@fastify/multipart';
+import fastifyStatic from '@fastify/static';
 import {
   ApiKeyRecord,
   AuthContext,
@@ -28,6 +29,10 @@ import {
 } from '../../engine-flow/dist/engine-flow';
 import { registerEmergentRoutes } from './emergent-routes';
 import { registerCreatorRoutes } from './creator-routes';
+import { RaceStateRepository } from './race-state-repository';
+import { RuntimeAssetStore } from './runtime-asset-store';
+import { DynamoRuntimeStateStore } from './runtime-state-store';
+import { registerReleaseRoutes } from './release-routes';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -77,6 +82,9 @@ export interface GatewayOptions {
   rateLimitMax?: number;
   rateLimitWindowMs?: number;
   apiQuotas?: Partial<Record<FrasbergDomain, ApiQuota>>;
+  runtimeStateStore?: DynamoRuntimeStateStore;
+  runtimeAssetStore?: RuntimeAssetStore;
+  studioRoot?: string;
 }
 
 export function buildApp(options: GatewayOptions = {}): FastifyInstance {
@@ -97,6 +105,11 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
   };
   const governanceConfig = loadGovernanceConfig();
   const existentialControlPlane = new ExistentialControlPlane();
+  const runtimeStateStore =
+    options.runtimeStateStore ?? new DynamoRuntimeStateStore();
+  const runtimeAssetStore =
+    options.runtimeAssetStore ?? new RuntimeAssetStore();
+  const raceStates = new RaceStateRepository(runtimeStateStore);
 
   const app = Fastify({
     logger: {
@@ -1012,8 +1025,38 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
   app.post('/api/tts', frasbergRoute('tts', 'tts'));
   app.post('/api/audio', frasbergRoute('audio', 'audio'));
   app.get('/api/jobs/:id', frasbergJobRoute());
-  registerEmergentRoutes(app, { gateway: frasbergGateway, requirePermission });
-  registerCreatorRoutes(app, { requirePermission });
+  registerEmergentRoutes(app, {
+    gateway: frasbergGateway,
+    requirePermission,
+    store: runtimeStateStore,
+    raceStates,
+    assets: runtimeAssetStore,
+  });
+  registerCreatorRoutes(app, {
+    requirePermission,
+    store: runtimeStateStore,
+    raceStates,
+    assets: runtimeAssetStore,
+  });
+  registerReleaseRoutes(app, { requirePermission, fetchImpl });
+
+  const studioRoot = options.studioRoot ?? resolve(__dirname, 'public');
+  if (existsSync(resolve(studioRoot, 'index.html'))) {
+    void app.register(fastifyStatic, {
+      root: studioRoot,
+      prefix: '/',
+      wildcard: false,
+    });
+    app.setNotFoundHandler((request, reply) => {
+      if (
+        request.method === 'GET' &&
+        request.headers.accept?.includes('text/html')
+      ) {
+        return reply.type('text/html').sendFile('index.html');
+      }
+      return reply.code(404).send({ error: 'Not Found' });
+    });
+  }
 
   app.post('/v1/music/generations', frasbergRoute('media', 'music'));
   app.post('/v1/image', frasbergRoute('media', 'image'));
