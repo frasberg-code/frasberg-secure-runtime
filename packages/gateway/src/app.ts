@@ -991,6 +991,17 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
     );
   });
 
+  app.get('/v1/providers/status', async (request, reply) => {
+    const denied = requirePermission(request, reply, 'governance:admin');
+    if (denied) {
+      return denied;
+    }
+    return {
+      checkedAt: new Date().toISOString(),
+      providers: await frasbergGateway.diagnose(),
+    };
+  });
+
   app.post('/api/music', frasbergRoute('media', 'music'));
   app.post('/api/video', frasbergRoute('video', 'video'));
   app.post('/api/image', frasbergRoute('media', 'image'));

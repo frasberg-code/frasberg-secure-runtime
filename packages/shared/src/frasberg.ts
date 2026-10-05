@@ -23,11 +23,35 @@ export interface FrasbergClientOptions {
 
 export type FrasbergEndpoints = Partial<Record<FrasbergDomain, string>>;
 
+export interface FrasbergProviderStatus {
+  domain: FrasbergDomain;
+  keyConfigured: boolean;
+  endpoint: string;
+  reachable?: boolean;
+  endpointStatus?: number;
+  keyAccepted?: boolean;
+  keyStatus?: number;
+  error?: string;
+}
+
 export class FrasbergClient {
   readonly baseUrl: string;
 
   constructor(private readonly options: FrasbergClientOptions = {}) {
     this.baseUrl = options.baseUrl ?? 'https://frasberg.com/api';
+  }
+
+  resolveUrl(path: string): string {
+    return /^https?:\/\//i.test(path) ? path : `${this.baseUrl}${path}`;
+  }
+
+  async probe(url: string, key?: string): Promise<number> {
+    const fetchImpl = this.options.fetchImpl ?? fetch;
+    const response = await fetchImpl(url, {
+      method: 'GET',
+      headers: key ? { authorization: ['Bearer', key].join(' ') } : {},
+    });
+    return response.status;
   }
 
   async request<TResponse>(
@@ -177,6 +201,50 @@ export class FrasbergGateway {
       'GET',
       `/jobs/${id}`,
       engineKey ?? this.keyFor(domain),
+    );
+  }
+
+  // Read-only: never submits a job and never returns key values.
+  async diagnose(): Promise<FrasbergProviderStatus[]> {
+    const domains: FrasbergDomain[] = [
+      'music',
+      'video',
+      'image',
+      'voice',
+      'stt',
+      'tts',
+      'audio',
+    ];
+    return Promise.all(
+      domains.map(async (domain): Promise<FrasbergProviderStatus> => {
+        const keyName = DOMAIN_KEY_MAP[domain];
+        const key = this.keys[keyName];
+        const endpoint = this.client.resolveUrl(
+          this.endpoints[domain] ?? `/${domain}`,
+        );
+        const status: FrasbergProviderStatus = {
+          domain,
+          keyConfigured: Boolean(key),
+          endpoint,
+        };
+        try {
+          const reach = await this.client.probe(endpoint);
+          status.endpointStatus = reach;
+          status.reachable = reach < 500;
+          if (key) {
+            const auth = await this.client.probe(
+              this.client.resolveUrl('/jobs/diagnostic-probe'),
+              key,
+            );
+            status.keyAccepted = auth !== 401 && auth !== 403;
+            status.keyStatus = auth;
+          }
+        } catch (error) {
+          status.reachable = false;
+          status.error = (error as Error).message;
+        }
+        return status;
+      }),
     );
   }
 
