@@ -72,6 +72,56 @@ describe('FrasbergClient', () => {
     expect(headers.get('authorization')).toBe('Bearer stt-key');
     expect(headers.has('content-type')).toBe(false);
   });
+
+  it('retries transient edge errors on GET and then succeeds', async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockImplementationOnce(
+        async () => new Response('<html>520</html>', { status: 520 }),
+      )
+      .mockImplementationOnce(async () =>
+        jsonResponse({ id: 'j', state: 'completed' }),
+      );
+    const sleepImpl = vi.fn(async () => undefined);
+    const client = new FrasbergClient({
+      fetchImpl: fetchImpl as typeof fetch,
+      sleepImpl,
+    });
+
+    await expect(client.request('GET', '/jobs/j', 'k')).resolves.toEqual({
+      id: 'j',
+      state: 'completed',
+    });
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    expect(sleepImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not retry POST on edge errors and reports status for non-JSON bodies', async () => {
+    const fetchImpl = vi.fn(
+      async () => new Response('<html>520</html>', { status: 520 }),
+    );
+    const client = new FrasbergClient({ fetchImpl: fetchImpl as typeof fetch });
+
+    await expect(
+      client.request('POST', '/tts', 'k', { text: 'hi' }),
+    ).rejects.toThrow(
+      'Frasberg request failed (520): non-JSON response from provider edge',
+    );
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it('stops retrying GET after the bounded attempts', async () => {
+    const fetchImpl = vi.fn(async () => new Response('x', { status: 520 }));
+    const client = new FrasbergClient({
+      fetchImpl: fetchImpl as typeof fetch,
+      sleepImpl: async () => undefined,
+    });
+
+    await expect(client.request('GET', '/jobs/j', 'k')).rejects.toThrow(
+      '(520)',
+    );
+    expect(fetchImpl).toHaveBeenCalledTimes(3);
+  });
 });
 
 describe('FrasbergGateway', () => {
@@ -104,6 +154,15 @@ describe('FrasbergGateway', () => {
     await gateway.music({ prompt: 'generate song' });
     await gateway.job('job-1');
 
+    expect(fetchImpl).toHaveBeenNthCalledWith(
+      1,
+      'https://frasberg.com/api/music',
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          authorization: ['Bearer', 'music-key'].join(' '),
+        }),
+      }),
+    );
     expect(fetchImpl).toHaveBeenNthCalledWith(
       2,
       'https://frasberg.com/api/jobs/job-1',
@@ -231,6 +290,9 @@ describe('FrasbergGateway', () => {
         FRB_IMAGE_VIDEO_GENERATION_KEY: 'image-video-from-secret',
         FRB_VIDEO_ENGINE_KEY: 'video-engine-from-secret',
         FRB_VOICE_CLONING_KEY: 'voice-from-secret',
+        FRB_GATEWAY_STT_KEY: 'stt-field',
+        FRB_GATEWAY_TTS_KEY: 'tts-field',
+        FRB_AUDIO_TOOLS_KEY: 'audio-field-unused',
       }),
       FRASBERG_MUSIC_KEY: 'music-override',
       FRASBERG_IMAGE_KEY: '',
@@ -243,6 +305,9 @@ describe('FrasbergGateway', () => {
       FRASBERG_VIDEO_ENGINE_KEY: 'video-engine-from-secret',
       FRASBERG_IMAGE_KEY: 'image-video-from-secret',
       FRASBERG_VOICE_KEY: 'voice-from-secret',
+      FRASBERG_STT_KEY: 'tts-field',
+      FRASBERG_TTS_KEY: 'stt-field',
+      FRASBERG_AUDIO_KEY: 'music-from-secret',
     });
   });
 
