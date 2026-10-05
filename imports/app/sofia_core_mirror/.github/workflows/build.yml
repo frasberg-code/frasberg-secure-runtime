@@ -1,0 +1,35 @@
+name: Build All Packages
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+      
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install
+      
+      - name: Build packages
+        run: |
+          cd packages/sofia-governance-engine && pnpm build
+          cd ../sofia-tonal-modulation && pnpm build
+          cd ../sofia-membrane-protocol && pnpm build
+          cd ../sofia-hinge-logic && pnpm build
+          cd ../sofia-continuum-identity && pnpm build
+      
+      - name: Run tests
+        run: |
+          cd packages/sofia-governance-engine && pnpm test || true

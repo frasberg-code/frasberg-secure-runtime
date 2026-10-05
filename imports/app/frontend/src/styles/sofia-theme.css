@@ -1,0 +1,209 @@
+/* -----------------------------------------------------------
+   SOFIA GLOBAL THEME TOKENS
+   Unified identity layer for 168 Emerald Estates LLC
+----------------------------------------------------------- */
+
+:root {
+  /* Backgrounds */
+  --sofia-bg-primary: #0d0d0d;
+  --sofia-bg-secondary: #111111;
+  --sofia-bg-tertiary: #1a1a1a;
+
+  /* Borders */
+  --sofia-border-default: #2a2a2a;
+  --sofia-border-hover: #3a3a3a;
+
+  /* Text */
+  --sofia-text-primary: #ffffff;
+  --sofia-text-secondary: #cccccc;
+  --sofia-text-muted: #888888;
+
+  /* Accent */
+  --sofia-accent-primary: #8b5cf6;
+  --sofia-accent-hover: #a78bfa;
+
+  /* States */
+  --sofia-state-focus: rgba(139, 92, 246, 0.35);
+  --sofia-state-hover: rgba(255, 255, 255, 0.08);
+
+  /* Typography */
+  --sofia-font-family: 'Inter', system-ui, sans-serif;
+  --sofia-font-size-sm: 0.875rem;
+  --sofia-font-size-md: 1rem;
+  --sofia-font-weight-normal: 400;
+  --sofia-font-weight-medium: 500;
+
+  /* Spacing */
+  --sofia-space-1: 4px;
+  --sofia-space-2: 8px;
+  --sofia-space-3: 12px;
+  --sofia-space-4: 16px;
+  --sofia-space-5: 20px;
+
+  /* Radius */
+  --sofia-radius-sm: 6px;
+  --sofia-radius-md: 10px;
+  --sofia-radius-lg: 14px;
+  --sofia-radius-xl: 16px;
+
+  /* Icons */
+  --sofia-icon-size-sm: 18px;
+  --sofia-icon-size-md: 20px;
+  --sofia-icon-size-lg: 22px;
+
+  /* Component-Level */
+  --sofia-input-bg: var(--sofia-bg-primary);
+  --sofia-input-border: var(--sofia-border-default);
+  --sofia-input-padding-x: var(--sofia-space-4);
+  --sofia-input-padding-y: var(--sofia-space-3);
+  --sofia-input-radius: var(--sofia-radius-xl);
+  --sofia-input-text: var(--sofia-text-primary);
+  --sofia-input-placeholder: var(--sofia-text-muted);
+  --sofia-dropdown-text: var(--sofia-text-secondary);
+  --sofia-dropdown-hover-bg: var(--sofia-state-hover);
+  --sofia-icon-color: var(--sofia-text-secondary);
+  --sofia-icon-hover: var(--sofia-text-primary);
+}
+
+/* -----------------------------------------------------------
+   SOFIA MESSAGE INPUT BLOCK
+----------------------------------------------------------- */
+
+.sofia-input-container {
+  transition: all 0.2s ease;
+}
+
+.sofia-input-container:focus-within {
+  box-shadow: 0 0 0 2px var(--sofia-state-focus);
+}
+
+/* Dropdown Animation */
+.sofia-mode-dropdown {
+  background: transparent;
+  color: var(--sofia-dropdown-text);
+  font-size: var(--sofia-font-size-sm);
+  border: none;
+  outline: none;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.sofia-mode-dropdown:hover {
+  background: var(--sofia-dropdown-hover-bg);
+  color: var(--sofia-text-primary);
+}
+
+/* Icons */
+.sofia-icon {
+  font-size: var(--sofia-icon-size-md);
+  color: var(--sofia-icon-color);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.sofia-icon:hover {
+  color: var(--sofia-icon-hover);
+}
+
+.sofia-send-icon {
+  font-size: var(--sofia-icon-size-md);
+  color: var(--sofia-accent-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sofia-send-icon:hover {
+  color: var(--sofia-accent-hover);
+  transform: scale(1.05);
+}
+
+/* Smooth transitions for all interactive elements */
+button, select, input, textarea {
+  transition: all 0.15s ease;
+}
+
+/* Focus states */
+.sofia-input-container input:focus,
+.sofia-input-container textarea:focus {
+  outline: none;
+}
+
+/* Animated loading state */
+@keyframes sofia-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.sofia-loading {
+  animation: sofia-pulse 1.5s ease-in-out infinite;
+}
+
+/* Recording indicator animation */
+@keyframes sofia-recording {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+}
+
+.sofia-recording {
+  animation: sofia-recording 1.5s ease-in-out infinite;
+}
+
+/* Dropdown menu animation */
+@keyframes sofia-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+[data-radix-popper-content-wrapper] {
+  animation: sofia-dropdown-in 0.15s ease-out;
+}
+
+/* Mode pill styles */
+.sofia-mode-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.sofia-mode-pill.active {
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+/* Scrollbar styling for dark theme */
+.sofia-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sofia-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sofia-scrollbar::-webkit-scrollbar-thumb {
+  background: #3a3a3a;
+  border-radius: 3px;
+}
+
+.sofia-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #4a4a4a;
+}

@@ -1,0 +1,14 @@
+{
+  "registers": ["ceremonial", "operational", "conceptual"],
+  "default_register": "operational",
+  "transition_rules": {
+    "ceremonial_to_operational": "allowed",
+    "operational_to_conceptual": "allowed",
+    "conceptual_to_ceremonial": "restricted"
+  },
+  "enforcement": {
+    "validate_register_presence": true,
+    "reject_invalid_transitions": true,
+    "log_transition_events": true
+  }
+}

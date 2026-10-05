@@ -1,0 +1,82 @@
+{
+  "engine": "deviation_engine",
+  "version": "1.0.1",
+  "description": "Computes deviation, drift direction, alert thresholds, stability scoring, and structured history events for Sofia Core.",
+
+  "inputs": {
+    "delta": {
+      "type": "number",
+      "description": "The change applied to the current deviation value."
+    }
+  },
+
+  "state": {
+    "baseline": {
+      "type": "number",
+      "default": 0
+    },
+    "deviation": {
+      "type": "number",
+      "description": "Current deviation value, clamped between -100 and 100."
+    },
+    "direction": {
+      "type": "string",
+      "enum": ["positive", "negative", "neutral"],
+      "description": "Direction of drift relative to previous deviation."
+    },
+    "alert": {
+      "type": "string",
+      "enum": ["high_drift", "critical_drift", null],
+      "description": "Alert level based on deviation magnitude."
+    },
+    "stability": {
+      "type": "number",
+      "description": "A normalized stability score between 0.0 and 1.0."
+    },
+    "history": {
+      "type": "array",
+      "description": "List of drift events with timestamps.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "previous": { "type": "number" },
+          "next": { "type": "number" },
+          "delta": { "type": "number" },
+          "direction": { "type": "string" },
+          "alert": { "type": "string" },
+          "stability": { "type": "number" },
+          "timestamp": { "type": "number" }
+        }
+      }
+    }
+  },
+
+  "thresholds": {
+    "HIGH_DRIFT_THRESHOLD": 40,
+    "CRITICAL_DRIFT_THRESHOLD": 75
+  },
+
+  "behavior": {
+    "initialize": {
+      "description": "Creates a new deviation state with baseline, zero deviation, neutral direction, null alert, full stability, and empty history."
+    },
+
+    "update": {
+      "description": "Applies delta, clamps deviation, determines direction, evaluates alert thresholds, computes stability score, and records a structured event.",
+      "steps": [
+        "Apply delta to deviation.",
+        "Clamp deviation to [-100, 100].",
+        "Determine direction based on change.",
+        "Trigger alert if magnitude exceeds thresholds.",
+        "Compute stability = 1 - (|deviation| / 100).",
+        "Apply penalties for high or critical drift.",
+        "Clamp stability to [0.0, 1.0].",
+        "Record event with timestamp."
+      ]
+    },
+
+    "compute": {
+      "description": "Returns the current deviation, magnitude, direction, alert, stability, and full history."
+    }
+  }
+}
