@@ -282,7 +282,7 @@ describe('FrasbergGateway', () => {
     );
   });
 
-  it('maps the consolidated engine secret and lets explicit keys override it', () => {
+  it('maps each consolidated provider key to its domain', () => {
     const resolved = resolveFrasbergGatewayKeys({
       FRASBERG_ENGINE_KEYS_JSON: JSON.stringify({
         FRB_MUSIC_GENERATION_KEY: 'music-from-secret',
@@ -292,23 +292,30 @@ describe('FrasbergGateway', () => {
         FRB_VOICE_CLONING_KEY: 'voice-from-secret',
         FRB_GATEWAY_STT_KEY: 'stt-field',
         FRB_GATEWAY_TTS_KEY: 'tts-field',
-        FRB_AUDIO_TOOLS_KEY: 'audio-field-unused',
+        FRB_AUDIO_TOOLS_KEY: 'audio-tools-from-secret',
       }),
-      FRASBERG_MUSIC_KEY: 'music-override',
-      FRASBERG_IMAGE_KEY: '',
     } as NodeJS.ProcessEnv);
 
     expect(resolved).toMatchObject({
-      FRASBERG_MUSIC_KEY: 'music-override',
+      FRASBERG_MUSIC_KEY: 'music-from-secret',
       FRASBERG_MUSIC_ENGINE_KEY: 'music-engine-from-secret',
       FRASBERG_VIDEO_KEY: 'video-engine-from-secret',
       FRASBERG_VIDEO_ENGINE_KEY: 'video-engine-from-secret',
       FRASBERG_IMAGE_KEY: 'image-video-from-secret',
       FRASBERG_VOICE_KEY: 'voice-from-secret',
-      FRASBERG_STT_KEY: 'tts-field',
-      FRASBERG_TTS_KEY: 'stt-field',
-      FRASBERG_AUDIO_KEY: 'music-from-secret',
+      FRASBERG_STT_KEY: 'stt-field',
+      FRASBERG_TTS_KEY: 'tts-field',
+      FRASBERG_AUDIO_KEY: 'audio-tools-from-secret',
     });
+
+    expect(
+      resolveFrasbergGatewayKeys({
+        FRASBERG_ENGINE_KEYS_JSON: JSON.stringify({
+          FRB_MUSIC_GENERATION_KEY: 'music-from-secret',
+        }),
+        FRASBERG_MUSIC_KEY: 'music-override',
+      } as NodeJS.ProcessEnv).FRASBERG_MUSIC_KEY,
+    ).toBe('music-override');
   });
 
   it('fails startup for malformed consolidated engine-key JSON', () => {

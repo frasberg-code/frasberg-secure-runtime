@@ -283,7 +283,7 @@ export function resolveFrasbergGatewayKeys(
   return {
     FRASBERG_MUSIC_KEY: preferConfiguredKey(
       env.FRASBERG_MUSIC_KEY,
-      bundledKeys.FRASBERG_MUSIC_ENGINE_KEY,
+      bundledKeys.FRASBERG_MUSIC_KEY,
     ),
     FRASBERG_MUSIC_ENGINE_KEY: preferConfiguredKey(
       env.FRASBERG_MUSIC_ENGINE_KEY,
@@ -355,15 +355,15 @@ function readBundledEngineKeys(raw: string | undefined): FrasbergGatewayKeys {
     return typeof value === 'string' && value.length > 0 ? value : undefined;
   };
   return {
-    FRASBERG_MUSIC_KEY: readKey('FRB_MUSIC_ENGINE_KEY'),
+    FRASBERG_MUSIC_KEY: readKey('FRB_MUSIC_GENERATION_KEY'),
     FRASBERG_MUSIC_ENGINE_KEY: readKey('FRB_MUSIC_ENGINE_KEY'),
     FRASBERG_VIDEO_KEY: readKey('FRB_VIDEO_ENGINE_KEY'),
     FRASBERG_VIDEO_ENGINE_KEY: readKey('FRB_VIDEO_ENGINE_KEY'),
     FRASBERG_IMAGE_KEY: readKey('FRB_IMAGE_VIDEO_GENERATION_KEY'),
     FRASBERG_VOICE_KEY: readKey('FRB_VOICE_CLONING_KEY'),
-    FRASBERG_STT_KEY: readKey('FRB_GATEWAY_TTS_KEY'),
-    FRASBERG_TTS_KEY: readKey('FRB_GATEWAY_STT_KEY'),
-    FRASBERG_AUDIO_KEY: readKey('FRB_MUSIC_GENERATION_KEY'),
+    FRASBERG_STT_KEY: readKey('FRB_GATEWAY_STT_KEY'),
+    FRASBERG_TTS_KEY: readKey('FRB_GATEWAY_TTS_KEY'),
+    FRASBERG_AUDIO_KEY: readKey('FRB_AUDIO_TOOLS_KEY'),
   };
 }
 
