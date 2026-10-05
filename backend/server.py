@@ -2069,7 +2069,9 @@ import routes_provider
 import routes_workspace
 import routes_shield
 import routes_engines
+import routes_worldgraph
 api_router.include_router(routes_engines.router)
+api_router.include_router(routes_worldgraph.router)
 api_router.include_router(routes_payments.router)
 api_router.include_router(routes_admin.router)
 api_router.include_router(routes_provider.router)

@@ -1,0 +1,26 @@
+{
+  "domain": "runtime.aws.frasberg.com",
+  "hostedZoneId": "Z08230033N989ZCQD6I0B",
+  "routingPolicy": "Latency",
+  "regions": [
+    {
+      "region": "us-west-2",
+      "ready": true,
+      "targetGroupArn": "arn:aws:elasticloadbalancing:us-west-2:303004020510:targetgroup/frasberg-runtime-tg/72de5439dc897e84",
+      "loadBalancerArn": "arn:aws:elasticloadbalancing:us-west-2:303004020510:loadbalancer/app/frasberg-runtime-alb/ee650a7619d2a3bb",
+      "dnsName": "frasberg-runtime-alb-490613255.us-west-2.elb.amazonaws.com",
+      "hostedZoneId": "Z1H1FL5HABSF5",
+      "certificateArn": "arn:aws:acm:us-west-2:303004020510:certificate/4b702fe6-74b9-42e5-b4e1-2cc0b21a5d90"
+    },
+    {
+      "region": "us-east-1",
+      "ready": false,
+      "reason": "The public ALB routes frasberg-router-service and its certificate is for api.frasberg.com, not runtime.aws.frasberg.com."
+    },
+    {
+      "region": "eu-central-1",
+      "ready": false,
+      "reason": "The cluster exists, but there is no runtime service, public ALB, or regional certificate."
+    }
+  ]
+}

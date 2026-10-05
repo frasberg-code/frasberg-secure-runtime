@@ -1,0 +1,11 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: frasberg-gateway
+spec:
+  selector:
+    matchLabels:
+      app: frasberg-gateway
+  endpoints:
+    - port: http
+      interval: 30s

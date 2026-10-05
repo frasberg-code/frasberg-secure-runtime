@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frasberg-engine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frasberg-engine
+  template:
+    metadata:
+      labels:
+        app: frasberg-engine
+    spec:
+      containers:
+        - name: engine
+          image: ghcr.io/sefaagov/frasberg-engine:0.1.0
+          ports:
+            - containerPort: 4002
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frasberg-engine
+spec:
+  selector:
+    app: frasberg-engine
+  ports:
+    - port: 4002
+      targetPort: 4002

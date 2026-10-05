@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frasberg-runtime-router
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frasberg-runtime-router
+  template:
+    metadata:
+      labels:
+        app: frasberg-runtime-router
+    spec:
+      containers:
+        - name: runtime-router
+          image: ghcr.io/sefaagov/frasberg-runtime-router:0.1.0
+          ports:
+            - containerPort: 4001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frasberg-runtime-router
+spec:
+  selector:
+    app: frasberg-runtime-router
+  ports:
+    - port: 4001
+      targetPort: 4001

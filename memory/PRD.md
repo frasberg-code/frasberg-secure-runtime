@@ -1,5 +1,16 @@
 # Frasberg / Luchii
 
+## June 2026 — frasberg-secure-runtime import + WorldGraph live wiring (self-tested via curl, all green)
+- Synced github.com/frasberg-code/frasberg-secure-runtime (853 files) → /app/frasberg-secure-runtime/ (full monorepo: 60 packages incl worldgraph-engine/full-game-stack-schema/law/policy/governance engines, apps/gateway-server+runtime-router+engine-server, infra/ CDK+terraform, deploy/ helm+k8s, supabase/, sdk/, platform/).
+- NEW `/app/backend/routes_worldgraph.py` (mounted in server.py) implementing repo contracts live:
+  - POST/GET/PATCH/DELETE `/api/v1/worldgraph[/{id}]` + `/{id}/materialize` — owner-scoped CRUD, WorldDefinition pydantic validation per full-game-stack-schema (kind game/app/site, metadata.schemaVersion, track/vehicleClasses/raceRuleset), 409 dup, 422 invalid kind.
+  - apiEnvelope response format: {version:"v1", owner, continuity{recent}, diagnostics{traces}, policy{rules}, payload, timestamp}.
+  - Continuity timeline (db.continuity_state) + diagnostics traces (db.wg_diagnostics) + audit (db.wg_audit) on every mutation; GET /api/v1/continuity.
+  - Policy engine: db.policy_rules {rule:{action,effect:"deny"}} → 403 FK-POLICY on matching mutations.
+  - Governance routes (admin role OR x-governance-key == GOVERNANCE_ADMIN_KEY in backend/.env = frb_gov_7d1e9b4ac3f82056de1a): GET /governance/diagnostics|continuity|policy, POST /governance/policy/enforce, DELETE /governance/policy/{rule_id}.
+  - Identity: x-owner-id header mismatch → 403 (admin may impersonate); optional HMAC request signing x-api-signature = HMAC-SHA256(body, api_key) → 401 on bad sig.
+- Verified by curl: create/list/get/patch/delete/materialize, envelope shape, policy deny+remove, governance gating, owner mismatch 403, HMAC good/bad, continuity timeline.
+
 ## June 2026 — Frasberg Engine Stack (Stages 80–89) + GT6 Orchestrator + FRB image/video key (self-tested via curl)
 - Registered user's key `FRB_IMAGE_VIDEO_GENERATION_KEY` (frb_live_be3354...) in preview DB: active, unlimited, scoped +image_generation/+video_generation/+image_video_generation (perm values are 'write'/'access'/'no_access' strings). Verified: /generate/image 200 with real image via Bearer key; 401 on bad key; /generate/video queues task.
 - NEW `/app/backend/routes_engines.py` (mounted in server.py): POST /api/v1/behavior|pattern|structure (identity→structure parallel chain per Option 1 — existing pipeline untouched, frb key or session auth via engine_ctx), GET /api/v1/engines (nodes+granted flags from key perms), POST /api/v1/gt6/orchestrate (cost-aware planner: engines gated by key permissions + maxCostWeight budget, declined list with reasons; physics sim stepPhysics 0.1s + AI driver decisions). Executions logged to db.engine_executions.

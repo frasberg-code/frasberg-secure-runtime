@@ -1,0 +1,12 @@
+{
+  "HealthCheckProtocol": "HTTP",
+  "HealthCheckPort": "traffic-port",
+  "HealthCheckPath": "/health",
+  "HealthCheckIntervalSeconds": 30,
+  "HealthCheckTimeoutSeconds": 5,
+  "HealthyThresholdCount": 3,
+  "UnhealthyThresholdCount": 3,
+  "Matcher": {
+    "HttpCode": "200"
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "family": "frasberg-secure-runtime",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::__AWS_ACCOUNT_ID__:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "frasberg-secure-runtime",
+      "image": "__IMAGE__",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 4000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "GATEWAY_HOST",
+          "value": "0.0.0.0"
+        },
+        {
+          "name": "GATEWAY_PORT",
+          "value": "4000"
+        },
+        {
+          "name": "FRASBERG_VIDEO_URL",
+          "value": "https://frasberg.com/api/generate/video"
+        },
+        {
+          "name": "FRASBERG_IMAGE_URL",
+          "value": "https://frasberg.com/api/generate/image"
+        },
+        {
+          "name": "FRASBERG_MUSIC_URL",
+          "value": "https://frasberg.com/api/generate/music"
+        },
+        {
+          "name": "FRASBERG_AUDIO_TOOLS_URL",
+          "value": "https://frasberg.com/api/audio/tools/enhance"
+        },
+        {
+          "name": "FRASBERG_VOICE_CLONE_URL",
+          "value": "https://frasberg.com/api/voice/clone"
+        },
+        {
+          "name": "FRASBERG_STT_URL",
+          "value": "https://frasberg.com/api/voice/transcribe"
+        },
+        {
+          "name": "FRASBERG_TTS_URL",
+          "value": "https://frasberg.com/api/voice/speak"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "SUPABASE_URL",
+          "valueFrom": "arn:aws:secretsmanager:__AWS_REGION__:__AWS_ACCOUNT_ID__:secret:frasberg/SUPABASE_URL-XBH4Zm"
+        },
+        {
+          "name": "SUPABASE_ANON_KEY",
+          "valueFrom": "arn:aws:secretsmanager:__AWS_REGION__:__AWS_ACCOUNT_ID__:secret:frasberg/SUPABASE_ANON_KEY-1In7BZ"
+        },
+        {
+          "name": "GOVERNANCE_ADMIN_KEY",
+          "valueFrom": "arn:aws:secretsmanager:__AWS_REGION__:__AWS_ACCOUNT_ID__:secret:frasberg/runtime/governance-admin-l56pSl"
+        },
+        {
+          "name": "FRASBERG_ENGINE_KEYS_JSON",
+          "valueFrom": "arn:aws:secretsmanager:__AWS_REGION__:__AWS_ACCOUNT_ID__:secret:frasberg/runtime/engine-keys-NZ30uY"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/frasberg-secure-runtime",
+          "awslogs-region": "__AWS_REGION__",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "node -e \"fetch('http://127.0.0.1:4000/health').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))\""
+        ],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 10
+      }
+    }
+  ]
+}

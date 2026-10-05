@@ -1,0 +1,15 @@
+{
+  "Records": [
+    {
+      "Name": "runtime.frasberg.com",
+      "Type": "A",
+      "RoutingPolicy": "Weighted",
+      "HealthCheck": true,
+      "Weights": {
+        "us-west-2": 60,
+        "us-east-1": 30,
+        "eu-central-1": 10
+      }
+    }
+  ]
+}

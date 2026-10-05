@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: frasberg-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frasberg-gateway
+  template:
+    metadata:
+      labels:
+        app: frasberg-gateway
+    spec:
+      containers:
+        - name: gateway
+          image: ghcr.io/sefaagov/frasberg-gateway:0.1.0
+  strategy:
+    canary:
+      steps:
+        - setWeight: 25
+        - pause: {}

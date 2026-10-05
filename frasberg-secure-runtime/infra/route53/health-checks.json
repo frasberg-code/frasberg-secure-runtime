@@ -1,0 +1,22 @@
+{
+  "HealthChecks": [
+    {
+      "Id": "west-health",
+      "ResourcePath": "/health",
+      "Region": "us-west-2",
+      "ALB": "<ALB-WEST>"
+    },
+    {
+      "Id": "east-health",
+      "ResourcePath": "/health",
+      "Region": "us-east-1",
+      "ALB": "<ALB-EAST>"
+    },
+    {
+      "Id": "eu-health",
+      "ResourcePath": "/health",
+      "Region": "eu-central-1",
+      "ALB": "<ALB-EU>"
+    }
+  ]
+}

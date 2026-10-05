@@ -4,6 +4,8 @@ module.exports = [
   {
     ignores: [
       "backend/**", "games/**", "memory/**", "test_reports/**", "tests/**", "mobile/**", "frasberg-carjack/**",
+      "frasberg-secure-runtime/**", "packages/**", "apps/**", "studio/**", "config/**", "scripts/**",
+      "provider-kit/**", "selfhost/**", "streaming-server/**", "deployer-agent-docs/**",
       "frontend/build/**", "frontend/node_modules/**", "frontend/plugins/**",
       "node_modules/**", "**/*.min.js",
     ],
