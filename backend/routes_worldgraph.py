@@ -7,7 +7,7 @@ import logging
 from typing import Optional, List, Dict, Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from core import db
 from routes_engines import engine_ctx
@@ -29,6 +29,7 @@ def _now_ms() -> int:
 
 # ---- full-game-stack-schema: WorldDefinition ----
 class SchemaMetadata(BaseModel):
+    model_config = ConfigDict(extra="allow")
     schemaVersion: str = SCHEMA_VERSION
     createdWith: Optional[str] = None
     tags: List[str] = []
@@ -71,6 +72,8 @@ class WorldDefinition(BaseModel):
     track: Optional[TrackDefinition] = None
     vehicleClasses: List[VehicleClassDefinition] = []
     raceRuleset: Optional[RaceRuleset] = None
+    nodes: List[Dict[str, Any]] = []
+    status: Optional[Literal["draft", "active", "archived"]] = None
 
 
 class WorldPatch(BaseModel):
@@ -85,6 +88,8 @@ class WorldPatch(BaseModel):
     track: Optional[TrackDefinition] = None
     vehicleClasses: Optional[List[VehicleClassDefinition]] = None
     raceRuleset: Optional[RaceRuleset] = None
+    nodes: Optional[List[Dict[str, Any]]] = None
+    status: Optional[Literal["draft", "active", "archived"]] = None
 
 
 # ---- identity middleware: x-owner-id is read-only context, key owner stays authoritative ----
@@ -212,9 +217,14 @@ async def materialize_scene(world_id: str, ctx: dict = Depends(owner_ctx)):
     owner = ctx["owner"]
     doc = await _get_world_doc(owner, world_id)
     w = doc["world"]
-    nodes = ([{"id": s.get("id"), "label": s.get("name") or s.get("title") or s.get("id"), "type": t}
-              for t, items in (("scene", w["scenes"]), ("page", w["pages"]), ("screen", w["screens"]), ("flow", w["flows"]))
-              for s in items])
+    native = [{"id": n.get("id"), "kind": n.get("kind", "node"), "label": n.get("label") or n.get("id"),
+               "parentId": n.get("parentId"), "tags": n.get("tags") or [], "config": n.get("config") or {}}
+              for n in (w.get("nodes") or [])]
+    derived = [{"id": s.get("id"), "kind": t, "label": s.get("name") or s.get("title") or s.get("id"),
+                "parentId": None, "tags": [], "config": {}}
+               for t, items in (("scene", w["scenes"]), ("page", w["pages"]), ("screen", w["screens"]), ("flow", w["flows"]))
+               for s in items]
+    nodes = native + derived
     nodes.sort(key=lambda n: (n["label"] or ""))
     await _diagnostics_log(owner, "worldgraph", {"op": "materialize", "world_id": world_id})
     return await api_envelope(owner, {"worldId": world_id, "rootId": nodes[0]["id"] if nodes else world_id,

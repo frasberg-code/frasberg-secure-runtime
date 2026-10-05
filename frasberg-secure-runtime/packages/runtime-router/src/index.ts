@@ -11,3 +11,4 @@ export * from './router';
 export * from './server-runtime';
 export * from './service-map';
 export * from './worldgraph-runtime';
+export * from './platform-worldgraph-service';

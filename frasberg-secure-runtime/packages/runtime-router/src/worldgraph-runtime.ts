@@ -11,6 +11,7 @@ import {
   type WorldGraphService,
   createBuilderOperationRequest,
 } from '@frasberg/shared';
+import { PlatformWorldGraphService } from './platform-worldgraph-service';
 
 export interface WorldGraphRuntimeOptions {
   service?: WorldGraphService;
@@ -20,7 +21,11 @@ export interface WorldGraphRuntimeOptions {
 export function buildWorldGraphRuntimeApp(
   options: WorldGraphRuntimeOptions = {},
 ): FastifyInstance {
-  const service = options.service ?? new InMemoryWorldGraphService();
+  const service =
+    options.service ??
+    (process.env.FRASBERG_PLATFORM_URL
+      ? new PlatformWorldGraphService()
+      : new InMemoryWorldGraphService());
   const builderOrchestrator =
     options.builderOrchestrator ?? new InMemoryBuilderOrchestrator();
 
@@ -32,13 +37,13 @@ export function buildWorldGraphRuntimeApp(
   }));
 
   app.get('/v1/worldgraph/worlds', async () => ({
-    worlds: service.listWorlds(),
+    worlds: await service.listWorlds(),
   }));
 
   app.post('/v1/worldgraph/worlds', async (request, reply) => {
     try {
       const body = readWorldGraphCreateInput(request.body);
-      return reply.code(201).send(service.createWorld(body));
+      return reply.code(201).send(await service.createWorld(body));
     } catch (error) {
       return reply.code(400).send({ error: (error as Error).message });
     }
@@ -47,7 +52,7 @@ export function buildWorldGraphRuntimeApp(
   app.get('/v1/worldgraph/worlds/:id', async (request, reply) => {
     try {
       const id = readIdParam((request.params as { id?: string }).id, 'id');
-      const world = service.getWorld(id);
+      const world = await service.getWorld(id);
       if (!world) {
         return reply.code(404).send({ error: `World "${id}" was not found.` });
       }
@@ -60,7 +65,7 @@ export function buildWorldGraphRuntimeApp(
   app.patch('/v1/worldgraph/worlds/:id', async (request, reply) => {
     try {
       const id = readIdParam((request.params as { id?: string }).id, 'id');
-      const world = service.updateWorld(
+      const world = await service.updateWorld(
         id,
         readWorldGraphUpdateInput(request.body),
       );
@@ -76,7 +81,7 @@ export function buildWorldGraphRuntimeApp(
   app.delete('/v1/worldgraph/worlds/:id', async (request, reply) => {
     try {
       const id = readIdParam((request.params as { id?: string }).id, 'id');
-      const deleted = service.deleteWorld(id);
+      const deleted = await service.deleteWorld(id);
       if (!deleted) {
         return reply.code(404).send({ error: `World "${id}" was not found.` });
       }
@@ -89,7 +94,7 @@ export function buildWorldGraphRuntimeApp(
   app.get('/v1/worldgraph/worlds/:id/scene', async (request, reply) => {
     try {
       const id = readIdParam((request.params as { id?: string }).id, 'id');
-      return reply.code(200).send(service.materializeScene(id));
+      return reply.code(200).send(await service.materializeScene(id));
     } catch (error) {
       const message = (error as Error).message;
       return reply.code(message.includes('does not exist') ? 404 : 400).send({
@@ -113,7 +118,7 @@ export function buildWorldGraphRuntimeApp(
     try {
       const payload = readRecord(request.body, 'request body');
       const id = readIdParam(payload.worldId, 'worldId');
-      const world = service.getWorld(id);
+      const world = await service.getWorld(id);
       if (!world) {
         return reply.code(404).send({ error: `World "${id}" was not found.` });
       }

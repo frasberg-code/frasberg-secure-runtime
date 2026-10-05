@@ -1,5 +1,11 @@
 # Frasberg / Luchii
 
+## June 2026 — Runtime Router ↔ Platform WorldGraph hookup (ONE shared state, e2e tested)
+- NEW `packages/runtime-router/src/platform-worldgraph-service.ts` (frasberg-secure-runtime): PlatformWorldGraphService implements WorldGraphService against live `/api/v1/worldgraph` (env: FRASBERG_PLATFORM_URL, FRASBERG_PLATFORM_API_KEY, FRASBERG_SIGN_REQUESTS=true adds x-api-signature HMAC). Maps router contract (nodes/kind 'world' etc./status/schemaVersion) ↔ platform WorldDefinition (routerKind preserved in metadata; unwraps apiEnvelope; 404→undefined/'does not exist' errors for runtime's 404 mapping).
+- Shared `WorldGraphService` interface → MaybePromise returns; `worldgraph-runtime.ts` awaits all service calls + auto-selects Platform service when FRASBERG_PLATFORM_URL set (else InMemory). New entry `worldgraph-server.ts` (WORLDGRAPH_RUNTIME_PORT=4100). Exported from index.ts; .env.example updated.
+- Platform `routes_worldgraph.py` superset: WorldDefinition += `nodes: List[Dict]` + `status` (draft/active/archived); SchemaMetadata extra=allow; WorldPatch += nodes/status; materialize merges native node specs (id/kind/label/parentId/tags/config) + derived scene/page nodes.
+- E2E verified (node 20, npm i + tsc -b, fastify on :4100 → preview platform): create via router→visible via platform API (same owner, nodes intact), patch via router→platform reflects, list/materialize/schema via router, delete via router→platform 404, continuity timeline shows router-driven events, HMAC signing on. Repo vitest suites 4/4 pass. Run: `cd /app/frasberg-secure-runtime && npx tsc -b packages/shared packages/runtime-router && FRASBERG_PLATFORM_URL=... FRASBERG_PLATFORM_API_KEY=frb_live_... node packages/runtime-router/dist/worldgraph-server.js`.
+
 ## June 2026 — frasberg-secure-runtime import + WorldGraph live wiring (self-tested via curl, all green)
 - Synced github.com/frasberg-code/frasberg-secure-runtime (853 files) → /app/frasberg-secure-runtime/ (full monorepo: 60 packages incl worldgraph-engine/full-game-stack-schema/law/policy/governance engines, apps/gateway-server+runtime-router+engine-server, infra/ CDK+terraform, deploy/ helm+k8s, supabase/, sdk/, platform/).
 - NEW `/app/backend/routes_worldgraph.py` (mounted in server.py) implementing repo contracts live:
