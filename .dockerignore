@@ -1,0 +1,7 @@
+.git
+imports
+**/node_modules
+**/dist
+**/*.tsbuildinfo
+exports
+data

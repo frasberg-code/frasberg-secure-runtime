@@ -3,7 +3,7 @@ import { exportMp4, exportStatus } from '../lib/api';
 
 export default function Mp4ExportPanel({ raceId }: { raceId: string }) {
   const [jobId, setJobId] = useState<string>();
-  const [state, setState] = useState<{ status: string; mp4Url?: string; error?: string }>();
+  const [state, setState] = useState<{ status: string; mp4Url?: string; error?: string; renderMode?: string }>();
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -37,6 +37,9 @@ export default function Mp4ExportPanel({ raceId }: { raceId: string }) {
       {state && <p>Status: {state.status}</p>}
       {state?.mp4Url && <a href={state.mp4Url}>Download MP4</a>}
       {state?.status === 'completed' && !state.mp4Url && <p>Rendered on the server; no public URL configured.</p>}
+      {state?.renderMode === 'color-placeholder' && (
+        <p role="status">This MP4 is a color placeholder, not race footage; broadcast video and audio are not rendered yet.</p>
+      )}
       {state?.error && <p role="alert">{state.error}</p>}
       {error && <p role="alert">{error}</p>}
     </div>

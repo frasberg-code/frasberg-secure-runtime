@@ -2,6 +2,23 @@
 
 The gateway provides health, auth, OpenAI-compatible routing, queued job access, and Frasberg backend wrappers.
 
+## GT6 and Studio routes
+
+Authenticated endpoints include:
+
+- `POST /api/emergent` and `GET /api/emergent/jobs*`
+- `GET /api/gt6/:raceId/{cinematic,broadcast,live,export,keyframes,analytics,story,camera}`
+- `POST /api/gt6/:raceId/{camera,automation,export/mp4}` and `PUT /api/gt6/:raceId/story`
+- `GET /api/exports/:jobId/status`
+- `GET /api/creator/assets`, `GET /api/creator/licenses`, and creator write routes
+- `GET /api/releases`; `POST /api/releases/new` requires `governance:admin` and a configured `GITHUB_RELEASE_TOKEN`
+
+Race snapshots/replay and creator/job metadata use DynamoDB. Export files use a
+private S3 bucket and presigned download URLs. Studio is served from the gateway
+root in the production container. LiveKit video, payment processing, and
+actual GT6 frame/audio rendering are not implemented; placeholder renders are
+explicitly identified in export status.
+
 ## Frasberg backend routes
 
 - `POST /api/music`

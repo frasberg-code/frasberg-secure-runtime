@@ -26,6 +26,29 @@ transcription, and speech generation respectively; the production task uses
 those exact routes. STT requests to this gateway must upload an audio file as
 `multipart/form-data`.
 
+## Shared runtime state and Studio
+
+`infra/aws/runtime-storage.yaml` provisions the private S3 bucket,
+DynamoDB table, and ECS task role used by GT6 state, replay frames, Studio
+stories/camera selections, creator records, and export-job status. The
+production stack `frasberg-secure-runtime-storage` has been deployed in
+`us-west-2`. Its outputs are injected as `RUNTIME_STATE_TABLE` and
+`RUNTIME_ASSETS_BUCKET`, and the ECS task definition uses the
+`frasberg-secure-runtime-task` role. The S3 bucket blocks public access;
+completed export jobs return short-lived presigned download URLs.
+
+The gateway image builds `studio/` and serves its Vite output from the same
+origin as the `/api` routes. Studio CI checks the frontend build, and the ECS
+image build repeats it before deployment. The container includes FFmpeg and
+uses 1 GiB of memory. The current FFmpeg worker still emits a color placeholder
+because no GT6 rendered-frame source or audio-mixing pipeline exists yet; Studio
+labels that output instead of presenting it as race footage.
+
+GitHub releases are listed through `GET /api/releases`. Publishing from Studio
+requires a dedicated `GITHUB_RELEASE_TOKEN` secret with release-write access;
+the production task does not currently receive that token. Releases can still
+be published by the repository's authorized GitHub maintainers.
+
 `infra/iam/frasberg-secure-runtime-role.json` is an IAM permissions policy for
 the ECS task execution role, which retrieves task-definition secrets and
 writes container logs. It is not a trust policy and should not be attached to
