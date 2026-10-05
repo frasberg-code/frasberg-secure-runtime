@@ -1,0 +1,20 @@
+{
+  "version": "v1",
+  "routes": {
+    "worldgraph": "/v1/worldgraph",
+    "music": "/v1/music",
+    "image": "/v1/image",
+    "video": "/v1/video",
+    "audio": "/v1/audio",
+    "voice": "/v1/voice",
+    "stt": "/v1/stt",
+    "tts": "/v1/tts"
+  },
+  "metadata": {
+    "ownerScoped": true,
+    "continuityAware": true,
+    "diagnosticsAware": true,
+    "policyAware": true,
+    "governanceAware": true
+  }
+}

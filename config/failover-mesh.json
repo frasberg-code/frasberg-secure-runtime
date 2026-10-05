@@ -1,0 +1,23 @@
+{
+  "regions": [
+    {
+      "name": "us-west-2",
+      "priority": 1,
+      "alb": "<ALB-WEST>",
+      "cluster": "frasberg-runtime-cluster"
+    },
+    {
+      "name": "us-east-1",
+      "priority": 2,
+      "alb": "<ALB-EAST>",
+      "cluster": "frasberg-runtime-cluster-east"
+    },
+    {
+      "name": "eu-central-1",
+      "priority": 3,
+      "alb": "<ALB-EU>",
+      "cluster": "frasberg-runtime-cluster-eu"
+    }
+  ],
+  "mode": "active-active"
+}
