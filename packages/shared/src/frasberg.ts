@@ -18,6 +18,7 @@ export interface FrasbergGatewayKeys {
 export interface FrasbergClientOptions {
   baseUrl?: string;
   fetchImpl?: typeof fetch;
+  sleepImpl?: (ms: number) => Promise<void>;
 }
 
 export type FrasbergEndpoints = Partial<Record<FrasbergDomain, string>>;
@@ -44,28 +45,66 @@ export class FrasbergClient {
       ? path
       : `${this.baseUrl}${path}`;
     const isFormData = payload instanceof FormData;
-    const response = await fetchImpl(requestUrl, {
-      method,
-      headers: {
-        authorization: ['Bearer', key].join(' '),
-        ...(payload === undefined || isFormData
+    // Only idempotent reads are retried; retrying a POST could duplicate a job.
+    const attempts =
+      method === 'GET' ? TRANSIENT_RETRY_DELAYS_MS.length + 1 : 1;
+    let response: Response;
+    for (let attempt = 0; ; attempt += 1) {
+      response = await fetchImpl(requestUrl, {
+        method,
+        headers: {
+          authorization: ['Bearer', key].join(' '),
+          ...(payload === undefined || isFormData
+            ? {}
+            : { 'content-type': 'application/json' }),
+        },
+        ...(payload === undefined
           ? {}
-          : { 'content-type': 'application/json' }),
-      },
-      ...(payload === undefined
-        ? {}
-        : { body: isFormData ? payload : JSON.stringify(payload) }),
-    });
-
-    const body = (await response.json()) as TResponse;
-    if (!response.ok) {
-      throw new Error(
-        `Frasberg request failed (${response.status}): ${JSON.stringify(body)}`,
+          : { body: isFormData ? payload : JSON.stringify(payload) }),
+      });
+      if (
+        !TRANSIENT_EDGE_STATUSES.has(response.status) ||
+        attempt + 1 >= attempts
+      ) {
+        break;
+      }
+      await (this.options.sleepImpl ?? defaultSleep)(
+        TRANSIENT_RETRY_DELAYS_MS[attempt] ?? 0,
       );
     }
-    return body;
+
+    const text = await response.text();
+    let body: unknown;
+    try {
+      body = text.length > 0 ? JSON.parse(text) : {};
+    } catch {
+      // Edge errors (for example Cloudflare 520) return HTML, not JSON.
+      body = undefined;
+    }
+    if (!response.ok) {
+      const detail =
+        body === undefined
+          ? 'non-JSON response from provider edge'
+          : JSON.stringify(body);
+      throw new Error(
+        `Frasberg request failed (${response.status}): ${detail}`,
+      );
+    }
+    if (body === undefined) {
+      throw new Error(
+        `Frasberg request returned a non-JSON response (${response.status}).`,
+      );
+    }
+    return body as TResponse;
   }
 }
+
+const TRANSIENT_EDGE_STATUSES = new Set([
+  502, 503, 504, 520, 521, 522, 523, 524,
+]);
+const TRANSIENT_RETRY_DELAYS_MS = [500, 1500];
+const defaultSleep = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
 
 const DOMAIN_KEY_MAP: Record<FrasbergDomain, keyof FrasbergGatewayKeys> = {
   music: 'FRASBERG_MUSIC_KEY',
@@ -176,7 +215,7 @@ export function resolveFrasbergGatewayKeys(
   return {
     FRASBERG_MUSIC_KEY: preferConfiguredKey(
       env.FRASBERG_MUSIC_KEY,
-      bundledKeys.FRASBERG_MUSIC_KEY,
+      bundledKeys.FRASBERG_MUSIC_ENGINE_KEY,
     ),
     FRASBERG_MUSIC_ENGINE_KEY: preferConfiguredKey(
       env.FRASBERG_MUSIC_ENGINE_KEY,
@@ -248,15 +287,15 @@ function readBundledEngineKeys(raw: string | undefined): FrasbergGatewayKeys {
     return typeof value === 'string' && value.length > 0 ? value : undefined;
   };
   return {
-    FRASBERG_MUSIC_KEY: readKey('FRB_MUSIC_GENERATION_KEY'),
+    FRASBERG_MUSIC_KEY: readKey('FRB_MUSIC_ENGINE_KEY'),
     FRASBERG_MUSIC_ENGINE_KEY: readKey('FRB_MUSIC_ENGINE_KEY'),
     FRASBERG_VIDEO_KEY: readKey('FRB_VIDEO_ENGINE_KEY'),
     FRASBERG_VIDEO_ENGINE_KEY: readKey('FRB_VIDEO_ENGINE_KEY'),
     FRASBERG_IMAGE_KEY: readKey('FRB_IMAGE_VIDEO_GENERATION_KEY'),
     FRASBERG_VOICE_KEY: readKey('FRB_VOICE_CLONING_KEY'),
-    FRASBERG_STT_KEY: readKey('FRB_GATEWAY_STT_KEY'),
-    FRASBERG_TTS_KEY: readKey('FRB_GATEWAY_TTS_KEY'),
-    FRASBERG_AUDIO_KEY: readKey('FRB_AUDIO_TOOLS_KEY'),
+    FRASBERG_STT_KEY: readKey('FRB_GATEWAY_TTS_KEY'),
+    FRASBERG_TTS_KEY: readKey('FRB_GATEWAY_STT_KEY'),
+    FRASBERG_AUDIO_KEY: readKey('FRB_MUSIC_GENERATION_KEY'),
   };
 }
 

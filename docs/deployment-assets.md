@@ -13,13 +13,13 @@ gateway task because the current runtime only uses the anon key and a
 service-role key bypasses Supabase row-level security.
 The gateway task reads the governance admin and consolidated engine-key
 secrets from Secrets Manager. The engine-key JSON maps its FRB_* fields to the
-FRASBERG_* domain clients and fails on malformed JSON. Music generation uses
-`FRB_MUSIC_GENERATION_KEY`, while music job polling uses
-`FRB_MUSIC_ENGINE_KEY`. Video operations use `FRB_VIDEO_ENGINE_KEY`; image
-operations use `FRB_IMAGE_VIDEO_GENERATION_KEY`. Audio, voice, STT, and TTS use
-their matching FRB_* keys. Provider submission routes are configured through
-the matching `FRASBERG_*_URL` task environment variables so each engine uses
-its explicit provider endpoint.
+FRASBERG_* domain clients and fails on malformed JSON. The provider's observed
+authorization scopes require the music engine key for music generation,
+the music generation key for audio enhancement, the TTS-labeled key for STT,
+and the STT-labeled key for TTS. Video uses `FRB_VIDEO_ENGINE_KEY`; image uses
+`FRB_IMAGE_VIDEO_GENERATION_KEY`; voice uses `FRB_VOICE_CLONING_KEY`. Provider
+submission routes are configured through the matching `FRASBERG_*_URL` task
+environment variables so each engine uses its explicit provider endpoint.
 The provider's own application uses `/api/audio/tools/enhance`,
 `/api/voice/transcribe`, and `/api/voice/speak` for audio enhancement,
 transcription, and speech generation respectively; the production task uses
