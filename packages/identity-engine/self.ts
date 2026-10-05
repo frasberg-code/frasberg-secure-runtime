@@ -1,7 +1,55 @@
-export function buildSelf(awareness: any) {
+export function buildSelf() {
   return {
-    awarenessSelf: awareness.perception,
-    fieldSelf: awareness.field,
-    timestamp: Date.now()
+    awarenessSelf: {
+      consciousnessPerception: {
+        mindAwareness: {
+          cognitiveMindspace: {
+            reasoningArchitecture: {
+              logicCognition: {
+                designReasoning: {
+                  blueprintLogic: {
+                    architecturePlan: {
+                      structureBlueprint: {
+                        patternArchitecture: {
+                          exchangeStructure: {
+                            interactionFlow: {
+                              influenceExchange: {
+                                fieldPropagation: {
+                                  vectorInfluence: {
+                                    forceDirection: {
+                                      dynamicsVector: {
+                                        motionForce: {
+                                          travelKinetics: {
+                                            navigationMotion: {
+                                              routeDecision: {
+                                                pathNavigation: {
+                                                  directionMap: {
+                                                    pathwayDirection: {
+                                                      structuralPathway: 'open',
+                                                    },
+                                                  },
+                                                },
+                                              },
+                                            },
+                                          },
+                                        },
+                                      },
+                                    },
+                                  },
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   };
 }

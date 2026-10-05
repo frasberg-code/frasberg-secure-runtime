@@ -19,7 +19,7 @@ export function injectEngineIdentity(req: any, res: any, next: any) {
       .json({ error: 'Missing awareness for identity construction' });
   }
 
-  const self = buildSelf(awareness);
+  const self = buildSelf();
   const integration = buildIntegration(self);
   const graph = buildIdentityGraph(integration);
 

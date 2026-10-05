@@ -50,7 +50,12 @@ describe('structure engine flow', () => {
       middleware(req, res, next);
     }
 
-    expect(req.identity.integration.structuralIntegration).toBe('integrated');
+    expect(req.identity.integration.harmonyIntegration).toBe('stable');
+    expect(req.identity.identityGraph.nodes[0]).toEqual({
+      id: 'self',
+      weight: 1,
+    });
+    expect(req.identity.identityGraph.edges[0].relation).toBe('integrates');
     expect(req.persona.projection.structuralProjection).toBe('expressed');
     expect(req.character.expression.structuralExpression).toBe('manifested');
     expect(req.role.dynamics.structuralRoleDynamics).toBe('active');
