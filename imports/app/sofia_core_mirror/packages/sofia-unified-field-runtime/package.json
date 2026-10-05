@@ -1,0 +1,30 @@
+{
+  "name": "@emeraldorbit/sofia-unified-field-runtime",
+  "version": "1.0.0",
+  "description": "Unified Field Runtime for Sofia Core, integrating all identity modules into a single continuous field.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "jest",
+    "lint": "echo 'No linting configured'"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@emeraldorbit/sofia-governance-engine": "workspace:*",
+    "@emeraldorbit/sofia-tonal-modulation": "workspace:*",
+    "@emeraldorbit/sofia-membrane-protocol": "workspace:*",
+    "@emeraldorbit/sofia-hinge-logic": "workspace:*",
+    "@emeraldorbit/sofia-continuum-identity": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@types/node": "^20.0.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "membrane": {
+    "pressure_min": 0.4,
+    "pressure_max": 1.0,
+    "symmetry_min": 0.5,
+    "symmetry_max": 1.0
+  },
+  "enforcement": {
+    "validate_pressure": true,
+    "validate_symmetry": true,
+    "reject_if_outside_bounds": true,
+    "log_membrane_events": true
+  }
+}

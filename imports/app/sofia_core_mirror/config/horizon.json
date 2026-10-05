@@ -1,0 +1,104 @@
+{
+  "metadata": {
+    "name": "Horizon Configuration",
+    "version": "1.0.0",
+    "description": "World-level routing and profiling configuration for Sofia Core Codex Architecture"
+  },
+  "worlds": [
+    {
+      "name": "alpha",
+      "description": "Alpha world - development and testing environment",
+      "profiles": [
+        {
+          "name": "development",
+          "engineType": "beam",
+          "priority": 10,
+          "config": {
+            "maxRetries": 1,
+            "timeout": 5000
+          }
+        },
+        {
+          "name": "testing",
+          "engineType": "fieldbeam",
+          "priority": 20,
+          "config": {
+            "maxRetries": 2,
+            "timeout": 10000,
+            "fieldStrength": 0.8
+          }
+        }
+      ]
+    },
+    {
+      "name": "beta",
+      "description": "Beta world - staging environment",
+      "profiles": [
+        {
+          "name": "staging",
+          "engineType": "fieldbeam",
+          "priority": 30,
+          "config": {
+            "maxRetries": 3,
+            "timeout": 15000,
+            "fieldStrength": 0.9
+          }
+        }
+      ]
+    },
+    {
+      "name": "production",
+      "description": "Production world - live environment",
+      "profiles": [
+        {
+          "name": "production",
+          "engineType": "fieldbeam",
+          "priority": 50,
+          "config": {
+            "maxRetries": 5,
+            "timeout": 30000,
+            "fieldStrength": 1.0
+          }
+        },
+        {
+          "name": "production-critical",
+          "engineType": "fieldbeam",
+          "priority": 100,
+          "config": {
+            "maxRetries": 10,
+            "timeout": 60000,
+            "fieldStrength": 1.0,
+            "fallbackEnabled": true
+          }
+        }
+      ]
+    }
+  ],
+  "fallbackStrategies": [
+    {
+      "name": "retry-with-backoff",
+      "priority": 100,
+      "description": "Retry the operation with exponential backoff"
+    },
+    {
+      "name": "use-cached-result",
+      "priority": 90,
+      "description": "Use cached result from previous successful execution"
+    },
+    {
+      "name": "degrade-gracefully",
+      "priority": 80,
+      "description": "Return degraded functionality result"
+    },
+    {
+      "name": "log-and-alert",
+      "priority": 10,
+      "description": "Log error and send alert to monitoring system"
+    }
+  ],
+  "pipelineConfig": {
+    "autoRenewal": true,
+    "renewalThreshold": 5,
+    "maxConcurrentExecutions": 10
+  }
+}

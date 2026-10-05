@@ -1,0 +1,59 @@
+{
+  "engines": [
+    {
+      "id": "deviation_engine",
+      "name": "deviation_engine",
+      "version": "1.0.1",
+      "path": "../deviation_engine",
+      "registration_key": "deviation_engine",
+      "description": "Computes deviation, drift direction, alert thresholds, stability scoring, and structured history events",
+      "dependencies": [],
+      "enabled": true
+    },
+    {
+      "id": "identity_filter",
+      "name": "identity_filter",
+      "version": "1.0.0",
+      "path": "../identity_filter",
+      "registration_key": "identity_filter",
+      "description": "Ensures outputs remain aligned with Sofia's identity constraints and persona boundaries",
+      "dependencies": ["deviation_engine"],
+      "enabled": true
+    },
+    {
+      "id": "membrane_engine",
+      "name": "membrane_engine",
+      "version": "1.0.0",
+      "path": "../membrane_engine",
+      "registration_key": "membrane_engine",
+      "description": "Controls contextual permeability and drift-aware membrane tightening",
+      "dependencies": ["deviation_engine"],
+      "enabled": true
+    },
+    {
+      "id": "tonal_engine",
+      "name": "tonal_engine",
+      "version": "1.0.0",
+      "path": "../tonal_engine",
+      "registration_key": "tonal_engine",
+      "description": "Modulates tone, emotional expression, and stylistic consistency",
+      "dependencies": ["deviation_engine", "identity_filter"],
+      "enabled": true
+    },
+    {
+      "id": "sofia_api",
+      "name": "sofia_api",
+      "version": "1.0.0",
+      "path": "../sofia_api",
+      "registration_key": "sofia_api",
+      "description": "Public API interface for Sofia Core operations",
+      "dependencies": [],
+      "enabled": true
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "maintainer": "Emerald Estates® — Sofia Core Governance",
+    "description": "Declarative engine registry for Sofia Core Application Shell"
+  }
+}
