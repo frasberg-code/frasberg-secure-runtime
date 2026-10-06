@@ -34,6 +34,17 @@ describe('production Studio serving', () => {
     expect(root.body).toContain('Studio fixture');
     expect(route.statusCode).toBe(200);
     expect(route.body).toContain('Studio fixture');
+    const anonymousPage = await app.inject({
+      method: 'GET',
+      url: '/settings/api-keys',
+      headers: { accept: 'text/html' },
+    });
+    const anonymousApi = await app.inject({
+      method: 'GET',
+      url: '/v1/api-keys',
+    });
+    expect(anonymousPage.statusCode).toBe(200);
+    expect(anonymousApi.statusCode).toBe(401);
     expect(api.statusCode).toBe(404);
     expect(api.json()).toEqual({ error: 'Not Found' });
     await app.close();

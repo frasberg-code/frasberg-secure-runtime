@@ -120,6 +120,9 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
   const raceStates = new RaceStateRepository(runtimeStateStore);
   const luchiiKeyStore = new RuntimeStoreApiKeyStore(runtimeStateStore);
 
+  const studioRoot = options.studioRoot ?? resolve(__dirname, 'public');
+  const studioEnabled = existsSync(resolve(studioRoot, 'index.html'));
+
   const app = Fastify({
     logger: {
       redact: [
@@ -141,6 +144,17 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
       routePath.startsWith('/health') ||
       routePath.startsWith('/v1/health') ||
       routePath.startsWith('/runtime-health')
+    ) {
+      return;
+    }
+
+    // The Studio SPA shell is public static content; its data calls stay
+    // behind /api and /v1 auth.
+    if (
+      studioEnabled &&
+      (request.method === 'GET' || request.method === 'HEAD') &&
+      !routePath.startsWith('/api/') &&
+      !routePath.startsWith('/v1/')
     ) {
       return;
     }
@@ -1057,8 +1071,7 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
   registerReleaseRoutes(app, { requirePermission, fetchImpl });
   registerApiKeyRoutes(app, luchiiKeyStore);
 
-  const studioRoot = options.studioRoot ?? resolve(__dirname, 'public');
-  if (existsSync(resolve(studioRoot, 'index.html'))) {
+  if (studioEnabled) {
     void app.register(fastifyStatic, {
       root: studioRoot,
       prefix: '/',
