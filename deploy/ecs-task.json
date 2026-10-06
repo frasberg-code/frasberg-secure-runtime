@@ -48,7 +48,7 @@
         },
         {
           "name": "FRASBERG_AUDIO_TOOLS_URL",
-          "value": "https://frasberg.com/api/audio/tools/enhance"
+          "value": "https://frasberg.com/api/audio/tools"
         },
         {
           "name": "FRASBERG_VOICE_CLONE_URL",
@@ -56,11 +56,11 @@
         },
         {
           "name": "FRASBERG_STT_URL",
-          "value": "https://frasberg.com/api/voice/transcribe"
+          "value": "https://frasberg.com/api/stt"
         },
         {
           "name": "FRASBERG_TTS_URL",
-          "value": "https://frasberg.com/api/voice/speak"
+          "value": "https://frasberg.com/api/tts"
         }
       ],
       "secrets": [
