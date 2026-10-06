@@ -23,6 +23,10 @@ export default defineConfig({
         __dirname,
         'packages/frasberg-core/src/index.ts',
       ),
+      '@frasberg/luchii-api-keys': path.resolve(
+        __dirname,
+        'packages/luchii-api-keys/src/index.ts',
+      ),
       '@frasberg/shared': path.resolve(
         __dirname,
         'packages/shared/src/index.ts',

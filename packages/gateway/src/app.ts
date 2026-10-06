@@ -32,6 +32,14 @@ import { registerCreatorRoutes } from './creator-routes';
 import { RaceStateRepository } from './race-state-repository';
 import { RuntimeAssetStore } from './runtime-asset-store';
 import { DynamoRuntimeStateStore } from './runtime-state-store';
+import {
+  LUCHII_KEY_ID_PREFIX,
+  RuntimeStoreApiKeyStore,
+  authenticateLuchiiKey,
+  registerApiKeyRoutes,
+  requiredScopeFor,
+} from './api-key-routes';
+import { buildError } from '@frasberg/core';
 import { registerReleaseRoutes } from './release-routes';
 
 declare module 'fastify' {
@@ -110,6 +118,7 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
   const runtimeAssetStore =
     options.runtimeAssetStore ?? new RuntimeAssetStore();
   const raceStates = new RaceStateRepository(runtimeStateStore);
+  const luchiiKeyStore = new RuntimeStoreApiKeyStore(runtimeStateStore);
 
   const app = Fastify({
     logger: {
@@ -144,7 +153,9 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
       routePath === '/v1/diagnostics' ||
       routePath.startsWith('/v1/diagnostics/') ||
       routePath === '/v1/policy' ||
-      routePath.startsWith('/v1/policy/');
+      routePath.startsWith('/v1/policy/') ||
+      routePath === '/v1/api-keys' ||
+      routePath.startsWith('/v1/api-keys/');
     if (requiresSupabaseUser) {
       const limited = rateLimitRequest(
         request,
@@ -165,6 +176,7 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
       const accessToken = readBearerToken(request.headers.authorization);
       if (
         accessToken &&
+        !accessToken.startsWith('luc_live_') &&
         !apiKeys.some((candidate) => candidate.secret === accessToken)
       ) {
         let userId: string | undefined;
@@ -211,6 +223,10 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
         permissions: ['governance:admin'],
       };
       return;
+    }
+
+    if (await authenticateLuchiiKey(request, reply, luchiiKeyStore)) {
+      return reply.sent ? reply : undefined;
     }
 
     const { context, error } = authenticateRequest(request.headers, apiKeys);
@@ -1039,6 +1055,7 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
     assets: runtimeAssetStore,
   });
   registerReleaseRoutes(app, { requirePermission, fetchImpl });
+  registerApiKeyRoutes(app, luchiiKeyStore);
 
   const studioRoot = options.studioRoot ?? resolve(__dirname, 'public');
   if (existsSync(resolve(studioRoot, 'index.html'))) {
@@ -1226,6 +1243,19 @@ function requirePermission(
   }
 
   if (!hasPermission(request.authContext, permission)) {
+    if (request.authContext.keyId?.startsWith(LUCHII_KEY_ID_PREFIX)) {
+      return reply
+        .code(403)
+        .send(
+          buildError(
+            request.id,
+            403,
+            'PERMISSION_DENIED',
+            'Permission denied.',
+            { required: requiredScopeFor(permission) ?? permission },
+          ).body,
+        );
+    }
     return reply.code(403).send(missingPermissionResponse());
   }
 
