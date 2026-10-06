@@ -1,4 +1,5 @@
 import type { ErrorPayload } from './error-types';
+import { isValidRequestId } from './request-id';
 
 export interface BuiltError {
   status: number;
@@ -32,9 +33,10 @@ export function requestIdFrom(req: {
   headers?: Record<string, string | string[] | undefined>;
 }): string {
   const header = req.headers?.['x-request-id'];
+  const incoming = Array.isArray(header) ? header[0] : header;
   return (
     req.requestId ??
-    (Array.isArray(header) ? header[0] : header) ??
+    (isValidRequestId(incoming) ? incoming : undefined) ??
     'req_unknown'
   );
 }
