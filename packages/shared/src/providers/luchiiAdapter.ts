@@ -7,8 +7,8 @@ export interface ProviderJob {
 
 type FetchLike = typeof fetch;
 
-// Maps adapter calls onto the real Luchii backend contract:
-// /voice/speak (JSON), /voice/transcribe (multipart), /audio/tools/enhance (JSON {url, mode}).
+// Maps adapter calls onto the Frasberg gateway contract:
+// /api/tts (JSON), /api/stt (multipart), /api/audio/tools (JSON {url, mode}).
 export class LuchiiAdapter {
   constructor(
     private readonly baseUrl: string,
@@ -69,7 +69,7 @@ export class LuchiiAdapter {
   }
 
   tts(text: string, voiceId?: string) {
-    return this.postJson('/api/voice/speak', { text, voice: voiceId });
+    return this.postJson('/api/tts', { text, voice: voiceId });
   }
 
   async stt(audioUrl: string): Promise<ProviderJob> {
@@ -85,7 +85,7 @@ export class LuchiiAdapter {
       const form = new FormData();
       form.append('file', await source.blob(), 'audio.mp3');
       return await this.finish(
-        await this.fetchImpl(this.url('/api/voice/transcribe'), {
+        await this.fetchImpl(this.url('/api/stt'), {
           method: 'POST',
           headers: { Authorization: `Bearer ${this.key}` },
           body: form,
@@ -97,6 +97,6 @@ export class LuchiiAdapter {
   }
 
   audioEnhance(audioUrl: string, mode = 'enhance') {
-    return this.postJson('/api/audio/tools/enhance', { url: audioUrl, mode });
+    return this.postJson('/api/audio/tools', { url: audioUrl, mode });
   }
 }
