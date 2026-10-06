@@ -1,12 +1,9 @@
 {
-  "name": "@frasberg/luchii-api-keys",
+  "name": "@frasberg/frasberg-core",
   "version": "0.1.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc -b"
-  },
-  "dependencies": {
-    "@frasberg/core": "0.1.0"
   }
 }

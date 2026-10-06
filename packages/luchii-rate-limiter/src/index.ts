@@ -1,4 +1,6 @@
 export * from './rate-limit';
+export * from './redis-client';
+export * from './redis-rate-limit';
 
 export interface RateDecision {
   allowed: boolean;

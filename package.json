@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "tsc -b packages/shared packages/full-game-stack-schema packages/worldgraph-engine packages/builder-v2-orchestrator packages/engine packages/runtime-router packages/gateway packages/botbase-workers packages/frasberg-agents packages/luchii-model-router packages/luchii-api-keys packages/luchii-rate-limiter packages/luchii-health apps/gateway-server sdk/typescript",
+    "build": "tsc -b packages/shared packages/full-game-stack-schema packages/worldgraph-engine packages/builder-v2-orchestrator packages/engine packages/runtime-router packages/gateway packages/botbase-workers packages/frasberg-core packages/frasberg-identity packages/frasberg-agents packages/luchii-model-router packages/luchii-api-keys packages/luchii-rate-limiter packages/luchii-health apps/gateway-server sdk/typescript",
     "clean": "rm -rf packages/*/dist packages/*/tsconfig.tsbuildinfo apps/*/dist apps/*/tsconfig.tsbuildinfo",
     "format": "prettier --check .",
     "format:write": "prettier --write .",
@@ -18,8 +18,12 @@
     "fastify": "^5.8.5"
   },
   "devDependencies": {
+    "@types/express": "^4.17.25",
     "@types/node": "^24.5.2",
+    "@types/supertest": "^7.2.1",
+    "express": "^4.22.3",
     "prettier": "^3.6.2",
+    "supertest": "^7.3.1",
     "typescript": "^5.9.2",
     "vitest": "^3.2.6"
   },

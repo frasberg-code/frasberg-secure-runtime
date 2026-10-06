@@ -9,6 +9,8 @@
     { "path": "./packages/runtime-router" },
     { "path": "./packages/gateway" },
     { "path": "./packages/botbase-workers" },
+    { "path": "./packages/frasberg-core" },
+    { "path": "./packages/frasberg-identity" },
     { "path": "./packages/frasberg-agents" },
     { "path": "./packages/luchii-model-router" },
     { "path": "./packages/luchii-api-keys" },

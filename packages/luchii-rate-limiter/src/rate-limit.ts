@@ -1,3 +1,5 @@
+import { sendBuiltError } from '@frasberg/core';
+
 interface Req {
   headers?: Record<string, string | string[] | undefined>;
   ownerId?: string;
@@ -7,23 +9,6 @@ interface Req {
 interface Res {
   status(code: number): Res;
   json(body: unknown): unknown;
-}
-
-function fail(
-  req: Req,
-  res: Res,
-  status: number,
-  code: string,
-  message: string,
-) {
-  const header = req.headers?.['x-request-id'];
-  const requestId =
-    req.requestId ??
-    (Array.isArray(header) ? header[0] : header) ??
-    'req_unknown';
-  return res
-    .status(status)
-    .json({ success: false, requestId, error: { code, message } });
 }
 
 export function rateLimit(
@@ -36,7 +21,13 @@ export function rateLimit(
   return (req: Req, res: Res, next: (err?: unknown) => void) => {
     const ownerId = req.ownerId;
     if (!ownerId)
-      return fail(req, res, 401, 'OWNER_NOT_FOUND', 'Owner not resolved.');
+      return sendBuiltError(
+        req,
+        res,
+        401,
+        'OWNER_NOT_FOUND',
+        'Owner not resolved.',
+      );
 
     const t = now();
     let bucket = buckets.get(ownerId);
@@ -47,7 +38,13 @@ export function rateLimit(
 
     bucket.count++;
     if (bucket.count > limit) {
-      return fail(req, res, 429, 'RATE_LIMIT_EXCEEDED', 'Rate limit exceeded.');
+      return sendBuiltError(
+        req,
+        res,
+        429,
+        'RATE_LIMIT_EXCEEDED',
+        'Rate limit exceeded.',
+      );
     }
     return next();
   };

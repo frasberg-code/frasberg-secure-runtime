@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto';
+import { buildError } from '@frasberg/core';
 
 // Minimal Express-compatible shapes so the middleware needs no Express dependency.
 export interface HttpRequest {
@@ -49,11 +50,14 @@ export function sendError(
   message: string,
   extra: Record<string, unknown> = {},
 ) {
-  return res.status(ERROR_STATUS[code]).json({
-    success: false,
-    requestId: requestIdOf(req),
-    error: { code, message, ...extra },
-  });
+  const err = buildError(
+    requestIdOf(req),
+    ERROR_STATUS[code],
+    code,
+    message,
+    extra,
+  );
+  return res.status(err.status).json(err.body);
 }
 
 export function sendSuccess(
