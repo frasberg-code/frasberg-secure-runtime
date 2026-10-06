@@ -12,7 +12,7 @@ describe('fail closed admin route', () => {
   const app = express();
   app.use((req: any, _res, next) => {
     req.ownerId = 'owner_admin';
-    req.requestId = 'req_admin_1';
+    req.requestId = 'req_admin_0001';
     next();
   });
   app.get(
@@ -27,6 +27,6 @@ describe('fail closed admin route', () => {
     const response = await request(app).get('/admin');
     expect(response.status).toBe(503);
     expect(response.body.error.code).toBe('RATE_LIMIT_SERVICE_UNAVAILABLE');
-    expect(response.body.requestId).toBe('req_admin_1');
+    expect(response.body.requestId).toBe('req_admin_0001');
   });
 });

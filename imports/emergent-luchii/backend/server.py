@@ -2161,7 +2161,7 @@ async def create_indexes():
     def _preload_ml():
         try:
             avail = voice_engine._mem_available_gb()
-            if avail < 5:
+            if avail < 2.5:
                 logger.warning("Deferring ML preload — only %.1f GB memory available (memory vault + voice engines will lazy-load on demand)", avail)
                 return
             memory_vault.preload_sync()

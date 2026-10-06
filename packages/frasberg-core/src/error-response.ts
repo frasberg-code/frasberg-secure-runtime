@@ -1,5 +1,5 @@
 import type { ErrorPayload } from './error-types';
-import { isValidRequestId } from './request-id';
+import { generateRequestId, isValidRequestId } from './request-id';
 
 export interface BuiltError {
   status: number;
@@ -35,9 +35,9 @@ export function requestIdFrom(req: {
   const header = req.headers?.['x-request-id'];
   const incoming = Array.isArray(header) ? header[0] : header;
   return (
-    req.requestId ??
+    (isValidRequestId(req.requestId) ? req.requestId : undefined) ??
     (isValidRequestId(incoming) ? incoming : undefined) ??
-    'req_unknown'
+    generateRequestId()
   );
 }
 
@@ -64,13 +64,30 @@ export function sendBuiltError(
 // `details` is omitted entirely when undefined.
 export function buildErrorResponse(
   requestId: string,
-  code: string,
-  message: string,
+  code?: string,
+  message?: string,
   details?: unknown,
 ): ErrorPayload {
+  const safeRequestId =
+    typeof requestId === 'string' && requestId.length > 0
+      ? requestId
+      : generateRequestId();
+  const safeCode =
+    typeof code === 'string' && code.trim().length > 0
+      ? code
+      : 'INTERNAL_ERROR';
+  const safeMessage =
+    typeof message === 'string' && message.trim().length > 0
+      ? message
+      : 'Unexpected internal error.';
+
   return {
     success: false,
-    requestId,
-    error: { code, message, ...(details !== undefined ? { details } : {}) },
+    requestId: safeRequestId,
+    error: {
+      code: safeCode,
+      message: safeMessage,
+      ...(details !== undefined ? { details } : {}),
+    },
   };
 }

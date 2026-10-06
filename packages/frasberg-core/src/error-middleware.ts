@@ -1,5 +1,6 @@
 import { ErrorCode } from './error-codes';
 import { buildErrorResponse } from './error-response';
+import { generateRequestId, isValidRequestId } from './request-id';
 
 export class FrasbergError extends Error {
   constructor(
@@ -26,7 +27,9 @@ export function errorMiddleware(
   res: Res,
   _next: (err?: unknown) => void,
 ) {
-  const requestId = req.requestId ?? 'unknown';
+  const requestId = isValidRequestId(req.requestId)
+    ? req.requestId
+    : generateRequestId();
   if (error instanceof FrasbergError) {
     return res
       .status(error.status)

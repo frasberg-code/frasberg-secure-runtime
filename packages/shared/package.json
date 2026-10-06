@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "dependencies": {
+    "@frasberg/frasberg-agents": "0.1.0",
+    "@frasberg/luchii-model-router": "0.1.0"
+  },
   "scripts": {
     "build": "tsc -b",
     "test": "vitest run"

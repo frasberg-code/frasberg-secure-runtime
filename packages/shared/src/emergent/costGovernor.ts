@@ -9,7 +9,7 @@ export function enforceCostCeiling(plan: any, ceiling: number) {
   if (total > ceiling) {
     return {
       ...plan,
-      enginesUsed: ['logic', 'video'],
+      enginesUsed: ['logic'],
     };
   }
 

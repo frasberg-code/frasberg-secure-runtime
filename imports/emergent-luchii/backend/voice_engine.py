@@ -11,7 +11,7 @@ os.environ.setdefault("COQUI_TOS_AGREED", "1")
 
 logger = logging.getLogger(__name__)
 
-WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "large-v3")
+WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "small")
 COQUI_MODEL = os.environ.get("COQUI_MODEL", "tts_models/en/vctk/vits")
 
 
@@ -79,6 +79,7 @@ VOICES = [
 VOICE_IDS = {v["id"] for v in VOICES}
 
 _state = {"stt": "idle", "tts": "idle", "xtts": "idle", "stt_model": WHISPER_MODEL}
+_errors = {}
 _whisper = None
 _tts = None
 _xtts = None
@@ -97,8 +98,10 @@ def _load_whisper():
         from faster_whisper import WhisperModel
         _whisper = WhisperModel(model_name, device="cpu", compute_type="int8")
         _state["stt"] = "ready"
+        _errors.pop("stt", None)
         logger.info("Sovereign STT ready: whisper-%s", model_name)
-    except Exception:
+    except Exception as e:
+        _errors["stt"] = type(e).__name__
         logger.exception("Sovereign STT failed to load")
         _state["stt"] = "unavailable"
 
@@ -107,11 +110,14 @@ def _load_tts():
     global _tts
     try:
         _state["tts"] = "loading"
+        _ensure_system_deps()
         from TTS.api import TTS
         _tts = TTS(COQUI_MODEL, progress_bar=False)
         _state["tts"] = "ready"
+        _errors.pop("tts", None)
         logger.info("Sovereign TTS ready: %s", COQUI_MODEL)
-    except Exception:
+    except Exception as e:
+        _errors["tts"] = type(e).__name__
         logger.exception("Sovereign TTS failed to load")
         _state["tts"] = "unavailable"
 
@@ -128,8 +134,10 @@ def _load_xtts():
         from TTS.api import TTS
         _xtts = TTS(XTTS_MODEL, progress_bar=False)
         _state["xtts"] = "ready"
+        _errors.pop("xtts", None)
         logger.info("Sovereign voice cloning (XTTS) ready")
-    except Exception:
+    except Exception as e:
+        _errors["xtts"] = type(e).__name__
         logger.exception("Sovereign XTTS failed to load")
         _state["xtts"] = "unavailable"
 
@@ -143,24 +151,16 @@ def preload():
 
 def _ensure_system_deps():
     import shutil
-    import subprocess
-    try:
-        if not shutil.which("espeak-ng") and not shutil.which("espeak"):
-            logger.info("Installing espeak-ng (system dep)...")
-            subprocess.run(["apt-get", "install", "-y", "espeak-ng"], capture_output=True, timeout=300)
-        if not shutil.which("ffmpeg"):
-            logger.info("Installing ffmpeg (system dep)...")
-            subprocess.run(["apt-get", "install", "-y", "ffmpeg"], capture_output=True, timeout=600)
-    except Exception:
-        logger.exception("system dep install failed")
-
+    if not shutil.which("espeak-ng") and not shutil.which("espeak"):
+        raise FileNotFoundError(
+            "espeak-ng is required for Coqui TTS; install it in the runtime image."
+        )
 
 def preload_sync():
-    _ensure_system_deps()
-    if _state["stt"] in ("idle", "unavailable"):
-        _load_whisper()
     if _state["tts"] in ("idle", "unavailable"):
         _load_tts()
+    if _state["stt"] in ("idle", "unavailable"):
+        _load_whisper()
 
 
 def preload_xtts_sync():
@@ -172,9 +172,9 @@ def status():
     return {
         "sovereign": True,
         "provider": "Frasberg Sovereign Voice Engine",
-        "stt": {"model": f"whisper-{_state['stt_model']}", "status": _state["stt"]},
-        "tts": {"model": COQUI_MODEL, "status": _state["tts"]},
-        "cloning": {"model": "xtts-v2", "status": _state["xtts"]},
+        "stt": {"model": f"whisper-{_state['stt_model']}", "status": _state["stt"], "error": _errors.get("stt")},
+        "tts": {"model": COQUI_MODEL, "status": _state["tts"], "error": _errors.get("tts")},
+        "cloning": {"model": "xtts-v2", "status": _state["xtts"], "error": _errors.get("xtts")},
     }
 
 
@@ -247,7 +247,6 @@ def _try_recover(component: str, loader):
     if _recovering.acquire(blocking=False):
         def run():
             try:
-                _ensure_system_deps()
                 loader()
             finally:
                 _recovering.release()
