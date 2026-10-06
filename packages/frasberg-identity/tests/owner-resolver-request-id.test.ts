@@ -12,8 +12,8 @@ describe('owner resolver request id', () => {
   test('error body carries the request id', async () => {
     const response = await request(app)
       .get('/owner')
-      .set('x-request-id', 'req_abc123');
+      .set('x-request-id', 'req_abc12345');
     expect(response.status).toBe(401);
-    expect(response.body.requestId).toBe('req_abc123');
+    expect(response.body.requestId).toBe('req_abc12345');
   });
 });

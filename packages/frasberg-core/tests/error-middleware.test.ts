@@ -23,10 +23,10 @@ describe('typed error middleware', () => {
   test('returns typed error', async () => {
     const response = await request(app)
       .get('/test')
-      .set('x-request-id', 'req_t1');
+      .set('x-request-id', 'req_test0001');
     expect(response.status).toBe(403);
     expect(response.body.error.code).toBe('PERMISSION_DENIED');
-    expect(response.body.requestId).toBe('req_t1');
+    expect(response.body.requestId).toBe('req_test0001');
   });
 
   test('hides unexpected error details', async () => {

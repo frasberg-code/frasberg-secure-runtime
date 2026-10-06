@@ -1,4 +1,4 @@
-import { randomBytes } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 
 interface Req {
   headers: Record<string, string | string[] | undefined>;
@@ -9,7 +9,11 @@ interface Res {
   setHeader(name: string, value: string): unknown;
 }
 
-const SAFE_ID = /^[A-Za-z0-9_.-]{1,128}$/;
+const REQUEST_ID_REGEX = /^req_[a-zA-Z0-9_-]{8,128}$/;
+
+export function isValidRequestId(value: unknown): value is string {
+  return typeof value === 'string' && REQUEST_ID_REGEX.test(value);
+}
 
 export function requestIdMiddleware(
   req: Req,
@@ -19,9 +23,9 @@ export function requestIdMiddleware(
   const header = req.headers['x-request-id'];
   const incoming = Array.isArray(header) ? header[0] : header;
   const id =
-    incoming && SAFE_ID.test(incoming)
+    isValidRequestId(incoming)
       ? incoming
-      : `req_${randomBytes(8).toString('hex')}`;
+      : `req_${randomUUID()}`;
   req.requestId = id;
   res.setHeader('x-request-id', id);
   next();

@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { buildError } from '@frasberg/core';
+import { buildError, isValidRequestId } from '@frasberg/core';
 
 // Minimal Express-compatible shapes so the middleware needs no Express dependency.
 export interface HttpRequest {
@@ -39,7 +39,7 @@ export type ErrorCode = keyof typeof ERROR_STATUS;
 export function requestIdOf(req: HttpRequest): string {
   const header = req.headers['x-request-id'];
   const id = Array.isArray(header) ? header[0] : header;
-  req.requestId ??= id || `req_${randomBytes(6).toString('hex')}`;
+  req.requestId ??= (isValidRequestId(id) ? id : undefined) ?? `req_${randomBytes(6).toString('hex')}`;
   return req.requestId;
 }
 
