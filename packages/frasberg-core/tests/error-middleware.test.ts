@@ -2,13 +2,18 @@ import request from 'supertest';
 import express from 'express';
 import { describe, test, expect } from 'vitest';
 import { FrasbergError, errorMiddleware } from '../src/error-middleware';
+import { ErrorCode } from '../src/error-codes';
 import { requestIdMiddleware } from '../src/request-id';
 
 describe('typed error middleware', () => {
   const app = express();
   app.use(requestIdMiddleware);
   app.get('/test', () => {
-    throw new FrasbergError(403, 'PERMISSION_DENIED', 'Permission denied.');
+    throw new FrasbergError(
+      403,
+      ErrorCode.PERMISSION_DENIED,
+      'Permission denied.',
+    );
   });
   app.get('/boom', () => {
     throw new Error('internal detail');

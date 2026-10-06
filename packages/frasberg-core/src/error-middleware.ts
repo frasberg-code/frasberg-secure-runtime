@@ -1,9 +1,10 @@
+import { ErrorCode } from './error-codes';
 import { buildErrorResponse } from './error-response';
 
 export class FrasbergError extends Error {
   constructor(
     public status: number,
-    public code: string,
+    public code: ErrorCode,
     message: string,
     public details?: unknown,
   ) {
@@ -38,7 +39,7 @@ export function errorMiddleware(
     .json(
       buildErrorResponse(
         requestId,
-        'INTERNAL_ERROR',
+        ErrorCode.INTERNAL_ERROR,
         'Unexpected internal error.',
       ),
     );

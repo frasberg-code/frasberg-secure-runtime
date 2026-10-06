@@ -11,7 +11,10 @@ function app() {
       : new Response('{}', { status: 200 }),
   ) as unknown as typeof fetch;
   return buildApp({
-    apiKeys: [{ id: 'static', secret: 'static-secret', permissions: ['chat'] }],
+    apiKeys: [
+      { id: 'static', secret: 'static-secret', permissions: ['chat'] },
+      { id: 'ops', secret: 'ops-secret', permissions: ['governance:admin'] },
+    ],
     fetchImpl,
     frasbergGateway: {} as unknown as FrasbergGateway,
     supabaseUrl: 'https://supabase.test',
@@ -61,6 +64,23 @@ describe('luchii api keys on the gateway', () => {
     expect(list.body).not.toContain('"hash"');
     expect(list.body).not.toContain(key);
     expect(list.json().keys).toHaveLength(1);
+  });
+
+  it('lets an operator admin key manage its own keys', async () => {
+    const server = app();
+    const created = await server.inject({
+      method: 'POST',
+      url: '/v1/api-keys',
+      headers: { authorization: 'Bearer ops-secret' },
+      payload: { name: 'ops', scopes: ['chat.generate'] },
+    });
+    expect(created.statusCode).toBe(201);
+    const mine = await server.inject({
+      method: 'GET',
+      url: '/v1/api-keys',
+      headers: user,
+    });
+    expect(mine.json().keys).toHaveLength(0);
   });
 
   it('rejects unknown scopes', async () => {

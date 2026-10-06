@@ -165,13 +165,20 @@ function publicKey(key: ApiKey) {
   return rest;
 }
 
+// Keys are managed by a signed-in user, or by an operator key holding
+// governance:admin. Luchii API keys themselves can never mint keys.
 function signedInUser(request: FastifyRequest): string | undefined {
   const context = request.authContext;
-  return context?.keyId?.startsWith('supabase-user:')
-    ? context.userId
+  if (!context?.keyId || context.keyId.startsWith(LUCHII_KEY_ID_PREFIX)) {
+    return undefined;
+  }
+  if (context.keyId.startsWith('supabase-user:')) {
+    return context.userId;
+  }
+  return context.permissions.includes('governance:admin')
+    ? `admin:${context.keyId}`
     : undefined;
 }
-
 export function registerApiKeyRoutes(app: FastifyInstance, store: ApiKeyStore) {
   const deny = (request: FastifyRequest, reply: FastifyReply) =>
     reply
@@ -180,7 +187,7 @@ export function registerApiKeyRoutes(app: FastifyInstance, store: ApiKeyStore) {
         buildErrorResponse(
           request.id,
           'PERMISSION_DENIED',
-          'Sign in to manage API keys.',
+          'Sign in as a user or admin to manage API keys.',
         ),
       );
 
