@@ -20,12 +20,19 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
-// Fixed window per owner. Any Redis failure or timeout is 500 RATE_LIMIT_FAILURE.
+export interface RateLimitOptions {
+  failClosed?: boolean;
+  timeoutMs?: number;
+}
+
+// Fixed window per owner. If Redis fails or times out the request is allowed
+// (fail-open) unless failClosed is set, which returns 503.
 export function redisRateLimit(
   limit = 1000,
   windowSeconds = 60,
-  timeoutMs = 1000,
+  options: RateLimitOptions = {},
 ) {
+  const timeoutMs = options.timeoutMs ?? 1000;
   return async (req: Req, res: Res, next: (err?: unknown) => void) => {
     const ownerId = req.ownerId;
     if (!ownerId) {
@@ -45,14 +52,18 @@ export function redisRateLimit(
       count = await withTimeout(redis.incr(key), timeoutMs);
       if (count === 1)
         await withTimeout(redis.expire(key, windowSeconds), timeoutMs);
-    } catch {
-      return sendBuiltError(
-        req,
-        res,
-        500,
-        'RATE_LIMIT_FAILURE',
-        'Rate limiter failed.',
-      );
+    } catch (error) {
+      if (options.failClosed) {
+        return sendBuiltError(
+          req,
+          res,
+          503,
+          'RATE_LIMIT_SERVICE_UNAVAILABLE',
+          'Rate limiting service unavailable.',
+        );
+      }
+      console.error('Rate limiter unavailable', error);
+      return next();
     }
 
     if (count > limit) {

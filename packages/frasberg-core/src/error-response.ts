@@ -1,3 +1,5 @@
+import type { ErrorPayload } from './error-types';
+
 export interface BuiltError {
   status: number;
   body: {
@@ -55,4 +57,18 @@ export function sendBuiltError(
 ) {
   const err = buildError(requestIdFrom(req), status, code, message, extra);
   return res.status(err.status).json(err.body);
+}
+
+// `details` is omitted entirely when undefined.
+export function buildErrorResponse(
+  requestId: string,
+  code: string,
+  message: string,
+  details?: unknown,
+): ErrorPayload {
+  return {
+    success: false,
+    requestId,
+    error: { code, message, ...(details !== undefined ? { details } : {}) },
+  };
 }

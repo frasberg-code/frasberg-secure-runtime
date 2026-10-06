@@ -17,13 +17,17 @@ describe('redisRateLimit timeout', () => {
     req.ownerId = 'owner_test';
     next();
   });
-  app.get('/limited', redisRateLimit(2, 60, 50), (_req, res) => {
-    res.json({ success: true });
-  });
+  app.get(
+    '/limited',
+    redisRateLimit(2, 60, { timeoutMs: 50, failClosed: true }),
+    (_req, res) => {
+      res.json({ success: true });
+    },
+  );
 
-  test('returns 500 RATE_LIMIT_FAILURE when redis hangs', async () => {
+  test('returns 503 when redis hangs and fail-closed', async () => {
     const response = await request(app).get('/limited');
-    expect(response.status).toBe(500);
-    expect(response.body.error.code).toBe('RATE_LIMIT_FAILURE');
+    expect(response.status).toBe(503);
+    expect(response.body.error.code).toBe('RATE_LIMIT_SERVICE_UNAVAILABLE');
   });
 });
