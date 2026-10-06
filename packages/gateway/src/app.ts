@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import Fastify, {
   FastifyInstance,
   FastifyReply,
@@ -39,7 +39,7 @@ import {
   registerApiKeyRoutes,
   requiredScopeFor,
 } from './api-key-routes';
-import { buildError } from '@frasberg/core';
+import { buildError, isValidRequestId } from '@frasberg/core';
 import { registerReleaseRoutes } from './release-routes';
 
 declare module 'fastify' {
@@ -124,6 +124,11 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
   const studioEnabled = existsSync(resolve(studioRoot, 'index.html'));
 
   const app = Fastify({
+    requestIdHeader: false,
+    genReqId: (req) => {
+      const incoming = req.headers['x-request-id'];
+      return isValidRequestId(incoming) ? incoming : `req_${randomUUID()}`;
+    },
     logger: {
       redact: [
         'req.headers.authorization',
@@ -147,6 +152,8 @@ export function buildApp(options: GatewayOptions = {}): FastifyInstance {
     ) {
       return;
     }
+
+    reply.header('x-request-id', request.id);
 
     // The Studio SPA shell is public static content; its data calls stay
     // behind /api and /v1 auth.
