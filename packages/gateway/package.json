@@ -13,6 +13,8 @@
     "@aws-sdk/s3-request-presigner": "^3.1146.0",
     "@fastify/multipart": "^10.1.2",
     "@fastify/static": "^10.1.5",
+    "@frasberg/core": "0.1.0",
+    "@frasberg/luchii-api-keys": "0.1.0",
     "@frasberg/shared": "0.1.0",
     "fastify": "^5.8.5"
   }

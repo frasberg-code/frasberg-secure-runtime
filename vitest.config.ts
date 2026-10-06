@@ -12,12 +12,21 @@ export default defineConfig({
     hookTimeout: 30_000,
     include: [
       'packages/*/test/**/*.test.ts',
+      'packages/*/tests/**/*.test.ts',
       'apps/*/test/**/*.test.ts',
       'sdk/**/*.test.ts',
     ],
   },
   resolve: {
     alias: {
+      '@frasberg/core': path.resolve(
+        __dirname,
+        'packages/frasberg-core/src/index.ts',
+      ),
+      '@frasberg/luchii-api-keys': path.resolve(
+        __dirname,
+        'packages/luchii-api-keys/src/index.ts',
+      ),
       '@frasberg/shared': path.resolve(
         __dirname,
         'packages/shared/src/index.ts',

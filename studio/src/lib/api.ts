@@ -12,7 +12,8 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const res = await fetch(path, { ...init, headers: { ...headers(), ...(init.headers as object) } });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error((body as any).error ?? `HTTP ${res.status}`);
+    const err = (body as any).error;
+    throw new Error(typeof err === 'string' ? err : err?.message ?? `HTTP ${res.status}`);
   }
   return res.json() as Promise<T>;
 }
@@ -68,3 +69,23 @@ export const getRaceAnalytics = (raceId: string) =>
   }>(`/api/gt6/${encodeURIComponent(raceId)}/analytics`);
 export const setLiveCamera = (raceId: string, camera: string) =>
   request(`/api/gt6/${encodeURIComponent(raceId)}/camera`, { method: 'POST', body: JSON.stringify({ camera }) });
+
+export interface ApiKeyRecord {
+  id: string;
+  name: string;
+  prefix?: string;
+  status: 'active' | 'disabled' | 'suspended';
+  permissions: string[];
+  requestsToday: number;
+  createdAt: number;
+}
+export const getApiKeyCatalog = () =>
+  request<{ catalog: Record<string, string[]> }>('/v1/api-keys/catalog');
+export const listApiKeys = () => request<{ keys: ApiKeyRecord[] }>('/v1/api-keys');
+export const createApiKey = (data: { name: string; scopes: string[] }) =>
+  request<{ key: string; record: ApiKeyRecord }>('/v1/api-keys', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+export const revokeApiKey = (id: string) =>
+  request<{ record: ApiKeyRecord }>(`/v1/api-keys/${encodeURIComponent(id)}`, { method: 'DELETE' });

@@ -23,6 +23,8 @@ export default function Layout() {
           <Link to="/story/demo-race">Story</Link>
           {' | '}
           <Link to="/releases">Releases</Link>
+          {' | '}
+          <Link to="/settings/api-keys">API Keys</Link>
         </nav>
         <div>
           <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>Theme: {theme}</button>

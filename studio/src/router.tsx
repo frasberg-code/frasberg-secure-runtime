@@ -7,6 +7,7 @@ import ExportSuite from './pages/ExportSuite';
 import StoryEditor from './pages/StoryEditor';
 import Login from './pages/Login';
 import Releases from './pages/Releases';
+import ApiKeys from './pages/ApiKeys';
 
 export const router = createBrowserRouter([
   {
@@ -19,6 +20,7 @@ export const router = createBrowserRouter([
       { path: 'export/:raceId', element: <ExportSuite /> },
       { path: 'story/:raceId', element: <StoryEditor /> },
       { path: 'releases', element: <Releases /> },
+      { path: 'settings/api-keys', element: <ApiKeys /> },
     ],
   },
   { path: '/login', element: <Login /> },
