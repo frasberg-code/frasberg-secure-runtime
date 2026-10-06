@@ -3,6 +3,13 @@ import path from 'node:path';
 
 export default defineConfig({
   test: {
+    // Gateway suites each build a Fastify app; unbounded workers exhaust
+    // memory on small machines and CI runners and cause spurious timeouts.
+    pool: 'forks',
+    maxWorkers: 2,
+    minWorkers: 1,
+    testTimeout: 30_000,
+    hookTimeout: 30_000,
     include: [
       'packages/*/test/**/*.test.ts',
       'apps/*/test/**/*.test.ts',
