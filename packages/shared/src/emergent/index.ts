@@ -4,6 +4,7 @@ export * from './costMetrics';
 export * from './emergentAgentLoop';
 export * from './emergentAgentOrchestrator';
 export * from './emergentAgentRuntime';
+export * from './emergentAgent';
 export * from './emergentJobs';
 export * from './errorRecovery';
 export * from './identityStructure';

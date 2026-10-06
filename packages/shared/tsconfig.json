@@ -5,5 +5,9 @@
     "outDir": "./dist",
     "rootDir": "./src"
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts"],
+  "references": [
+    { "path": "../frasberg-agents" },
+    { "path": "../luchii-model-router" }
+  ]
 }

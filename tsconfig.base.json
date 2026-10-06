@@ -12,6 +12,10 @@
     "paths": {
       "@frasberg/shared": ["packages/shared/src/index.ts"],
       "@frasberg/core": ["packages/frasberg-core/src/index.ts"],
+      "@frasberg/frasberg-agents": ["packages/frasberg-agents/src/index.ts"],
+      "@frasberg/luchii-model-router": [
+        "packages/luchii-model-router/src/index.ts"
+      ],
       "@frasberg/luchii-api-keys": ["packages/luchii-api-keys/src/index.ts"],
       "@frasberg/full-game-stack-schema": [
         "packages/full-game-stack-schema/src/index.ts"

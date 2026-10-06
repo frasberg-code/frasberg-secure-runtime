@@ -15,6 +15,10 @@ export function isValidRequestId(value: unknown): value is string {
   return typeof value === 'string' && REQUEST_ID_REGEX.test(value);
 }
 
+export function generateRequestId(): string {
+  return `req_${randomUUID()}`;
+}
+
 export function requestIdMiddleware(
   req: Req,
   res: Res,
@@ -22,10 +26,7 @@ export function requestIdMiddleware(
 ) {
   const header = req.headers['x-request-id'];
   const incoming = Array.isArray(header) ? header[0] : header;
-  const id =
-    isValidRequestId(incoming)
-      ? incoming
-      : `req_${randomUUID()}`;
+  const id = isValidRequestId(incoming) ? incoming : generateRequestId();
   req.requestId = id;
   res.setHeader('x-request-id', id);
   next();
