@@ -57,7 +57,7 @@ describe('FrasbergClient', () => {
 
     await client.request(
       'POST',
-      'https://frasberg.com/api/stt',
+      'https://frasberg.com/api/voice/transcribe',
       'stt-key',
       form,
     );
@@ -66,7 +66,7 @@ describe('FrasbergClient', () => {
       string,
       RequestInit,
     ];
-    expect(url).toBe('https://frasberg.com/api/stt');
+    expect(url).toBe('https://frasberg.com/api/voice/transcribe');
     expect(init.body).toBe(form);
     const headers = new Headers(init.headers);
     expect(headers.get('authorization')).toBe('Bearer stt-key');
@@ -392,19 +392,19 @@ describe('FrasbergGateway', () => {
         FRASBERG_IMAGE_URL: 'https://frasberg.com/api/generate/image',
         FRASBERG_MUSIC_URL: 'https://frasberg.com/api/generate/music',
         FRASBERG_AUDIO_TOOLS_URL:
-          'https://frasberg.com/api/audio/tools',
+          'https://frasberg.com/api/audio/tools/enhance',
         FRASBERG_VOICE_CLONE_URL: 'https://frasberg.com/api/voice/clone',
-        FRASBERG_STT_URL: 'https://frasberg.com/api/stt',
-        FRASBERG_TTS_URL: 'https://frasberg.com/api/tts',
+        FRASBERG_STT_URL: 'https://frasberg.com/api/voice/transcribe',
+        FRASBERG_TTS_URL: 'https://frasberg.com/api/voice/speak',
       } as NodeJS.ProcessEnv),
     ).toEqual({
       music: 'https://frasberg.com/api/generate/music',
       video: 'https://frasberg.com/api/generate/video',
       image: 'https://frasberg.com/api/generate/image',
-      audio: 'https://frasberg.com/api/audio/tools',
+      audio: 'https://frasberg.com/api/audio/tools/enhance',
       voice: 'https://frasberg.com/api/voice/clone',
-      stt: 'https://frasberg.com/api/stt',
-      tts: 'https://frasberg.com/api/tts',
+      stt: 'https://frasberg.com/api/voice/transcribe',
+      tts: 'https://frasberg.com/api/voice/speak',
     });
   });
 });

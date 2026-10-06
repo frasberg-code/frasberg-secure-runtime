@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { FrasbergTtsProvider } from '../FrasbergTtsProvider';
 
-// Calls the Frasberg /api/tts route (JSON {text, voice}) and stores the returned audio
+// Calls the Luchii /api/voice/speak route (JSON {text, voice}) and stores the returned audio
 // in EXPORT_DIR. Returns a public URL when EXPORT_PUBLIC_BASE_URL is set, else the file path.
 export class LuchiiTtsProvider implements FrasbergTtsProvider {
   constructor(

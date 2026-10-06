@@ -23,9 +23,10 @@ FRASBERG_* domain clients and fails on malformed JSON. Music generation uses
 override their corresponding values from the consolidated secret. Provider
 submission routes are configured through the matching `FRASBERG_*_URL` task
 environment variables so each engine uses its explicit provider endpoint.
-The production task uses `/api/audio/tools`, `/api/stt`, and `/api/tts` for
-audio enhancement, transcription, and speech generation respectively. STT
-requests to this gateway must upload an audio file as
+The provider's own application uses `/api/audio/tools/enhance`,
+`/api/voice/transcribe`, and `/api/voice/speak` for audio enhancement,
+transcription, and speech generation respectively; the production task uses
+those exact routes. STT requests to this gateway must upload an audio file as
 `multipart/form-data`. Image requests may authenticate with a verified
 Supabase user session; the gateway verifies the user with Supabase Auth and
 forwards that session to the configured image endpoint so website entitlement
